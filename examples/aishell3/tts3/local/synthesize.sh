@@ -37,7 +37,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am_stat=dump/train/speech_stats.npy \
         --voc=hifigan_aishell3 \
         --voc_config=hifigan_aishell3_ckpt_0.2.0/default.yaml \
-        --voc_ckpt=hifigan_aishell3_ckpt_0.2.0/snapshot_iter_2500000.pd \
+        --voc_ckpt=hifigan_aishell3_ckpt_0.2.0/snapshot_iter_2500000.pdz \
         --voc_stat=hifigan_aishell3_ckpt_0.2.0/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \

@@ -45,10 +45,14 @@ class Prenet(nn.Layer):
         """Initialize prenet module.
 
         Args:
-            idim (int): Dimension of the inputs.
-            odim (int): Dimension of the outputs.
-            n_layers (int, optional): The number of prenet layers.
-            n_units (int, optional): The number of prenet units.
+            idim (int): 
+                Dimension of the inputs.
+            odim (int): 
+                Dimension of the outputs.
+            n_layers (int, optional): 
+                The number of prenet layers.
+            n_units (int, optional): 
+                The number of prenet units.
         """
         super().__init__()
         self.dropout_rate = dropout_rate
@@ -62,7 +66,8 @@ class Prenet(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Batch of input tensors (B, ..., idim).
+            x (Tensor): 
+                Batch of input tensors (B, ..., idim).
 
         Returns: 
             Tensor: Batch of output tensors (B, ..., odim).
@@ -212,7 +217,8 @@ class ZoneOutCell(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            inputs (Tensor): Batch of input tensor (B, input_size).
+            inputs (Tensor): 
+                Batch of input tensor (B, input_size).
             hidden (tuple):
                 - Tensor: Batch of initial hidden states (B, hidden_size).
                 - Tensor: Batch of initial cell states (B, hidden_size).
@@ -277,26 +283,39 @@ class Decoder(nn.Layer):
         """Initialize Tacotron2 decoder module.
 
         Args:
-            idim (int): Dimension of the inputs.
-            odim (int): Dimension of the outputs.
-            att (nn.Layer): Instance of attention class.
-            dlayers (int, optional): The number of decoder lstm layers.
-            dunits (int, optional): The number of decoder lstm units.
-            prenet_layers (int, optional): The number of prenet layers.
-            prenet_units (int, optional): The number of prenet units.
-            postnet_layers (int, optional): The number of postnet layers.
-            postnet_filts (int, optional): The number of postnet filter size.
-            postnet_chans (int, optional): The number of postnet filter channels.
-            output_activation_fn (nn.Layer, optional): Activation function for outputs.
-            cumulate_att_w (bool, optional): Whether to cumulate previous attention weight.
-            use_batch_norm (bool, optional): Whether to use batch normalization.
-            use_concate : bool, optional
+            idim (int): 
+                Dimension of the inputs.
+            odim (int): 
+                Dimension of the outputs.
+            att (nn.Layer): 
+                Instance of attention class.
+            dlayers (int, optional): 
+                The number of decoder lstm layers.
+            dunits (int, optional): 
+                The number of decoder lstm units.
+            prenet_layers (int, optional): 
+                The number of prenet layers.
+            prenet_units (int, optional): 
+                The number of prenet units.
+            postnet_layers (int, optional): 
+                The number of postnet layers.
+            postnet_filts (int, optional): 
+                The number of postnet filter size.
+            postnet_chans (int, optional): 
+                The number of postnet filter channels.
+            output_activation_fn (nn.Layer, optional): 
+                Activation function for outputs.
+            cumulate_att_w (bool, optional): 
+                Whether to cumulate previous attention weight.
+            use_batch_norm (bool, optional): 
+                Whether to use batch normalization.
+            use_concate (bool, optional):
                 Whether to concatenate encoder embedding with decoder lstm outputs.
-            dropout_rate : float, optional
+            dropout_rate (float, optional):
                 Dropout rate.
-            zoneout_rate : float, optional
+            zoneout_rate (float, optional):
                 Zoneout rate.
-            reduction_factor : int, optional
+            reduction_factor (int, optional):
                 Reduction factor.
         """
         super().__init__()
@@ -363,15 +382,22 @@ class Decoder(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            hs (Tensor): Batch of the sequences of padded hidden states (B, Tmax, idim).
-            hlens (Tensor(int64) padded): Batch of lengths of each input batch (B,).
-            ys (Tensor): Batch of the sequences of padded target features (B, Lmax, odim).
+            hs (Tensor): 
+                Batch of the sequences of padded hidden states (B, Tmax, idim).
+            hlens (Tensor(int64) padded): 
+                Batch of lengths of each input batch (B,).
+            ys (Tensor): 
+                Batch of the sequences of padded target features (B, Lmax, odim).
 
         Returns:
-            Tensor: Batch of output tensors after postnet (B, Lmax, odim).
-            Tensor: Batch of output tensors before postnet (B, Lmax, odim).
-            Tensor: Batch of logits of stop prediction (B, Lmax).
-            Tensor: Batch of attention weights (B, Lmax, Tmax).
+            Tensor: 
+                Batch of output tensors after postnet (B, Lmax, odim).
+            Tensor: 
+                Batch of output tensors before postnet (B, Lmax, odim).
+            Tensor: 
+                Batch of logits of stop prediction (B, Lmax).
+            Tensor: 
+                Batch of attention weights (B, Lmax, Tmax).
             
         Note: 
             This computation is performed in teacher-forcing manner.
@@ -471,20 +497,30 @@ class Decoder(nn.Layer):
             forward_window=None, ):
         """Generate the sequence of features given the sequences of characters.
         Args:
-            h(Tensor): Input sequence of encoder hidden states (T, C).
-            threshold(float, optional, optional): Threshold to stop generation. (Default value = 0.5)
-            minlenratio(float, optional, optional): Minimum length ratio. If set to 1.0 and the length of input is 10,
+            h(Tensor): 
+                Input sequence of encoder hidden states (T, C).
+            threshold(float, optional, optional): 
+                Threshold to stop generation. (Default value = 0.5)
+            minlenratio(float, optional, optional): 
+                Minimum length ratio. If set to 1.0 and the length of input is 10,
                 the minimum length of outputs will be 10 * 1 = 10. (Default value = 0.0)
-            maxlenratio(float, optional, optional): Minimum length ratio. If set to 10 and the length of input is 10,
+            maxlenratio(float, optional, optional):
+                 Minimum length ratio. If set to 10 and the length of input is 10,
                 the maximum length of outputs will be 10 * 10 = 100. (Default value = 0.0)
-            use_att_constraint(bool, optional): Whether to apply attention constraint introduced in `Deep Voice 3`_. (Default value = False)
-            backward_window(int, optional): Backward window size in attention constraint. (Default value = None)
-            forward_window(int, optional):  (Default value = None)
+            use_att_constraint(bool, optional): 
+                Whether to apply attention constraint introduced in `Deep Voice 3`_. (Default value = False)
+            backward_window(int, optional): 
+                Backward window size in attention constraint. (Default value = None)
+            forward_window(int, optional):  
+                    (Default value = None)
 
         Returns:
-            Tensor: Output sequence of features (L, odim).
-            Tensor: Output sequence of stop probabilities (L,).
-            Tensor: Attention weights (L, T).
+            Tensor: 
+                Output sequence of features (L, odim).
+            Tensor: 
+                Output sequence of stop probabilities (L,).
+            Tensor: 
+                Attention weights (L, T).
 
         Note: 
             This computation is performed in auto-regressive manner.
@@ -625,9 +661,12 @@ class Decoder(nn.Layer):
         """Calculate all of the attention weights.
 
         Args:
-            hs (Tensor): Batch of the sequences of padded hidden states (B, Tmax, idim).
-            hlens (Tensor(int64)): Batch of lengths of each input batch (B,).
-            ys (Tensor): Batch of the sequences of padded target features (B, Lmax, odim).
+            hs (Tensor): 
+                Batch of the sequences of padded hidden states (B, Tmax, idim).
+            hlens (Tensor(int64)): 
+                Batch of lengths of each input batch (B,).
+            ys (Tensor): 
+                Batch of the sequences of padded target features (B, Lmax, odim).
 
         Returns:
             numpy.ndarray:

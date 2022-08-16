@@ -25,6 +25,7 @@ from paddlespeech.t2s.exps.syn_utils import get_am_inference
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
+from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.exps.syn_utils import voc_to_static
 
 
@@ -49,6 +50,7 @@ def evaluate(args):
         lang=args.lang,
         phones_dict=args.phones_dict,
         tones_dict=args.tones_dict)
+    print("frontend done!")
 
     # acoustic model
     am_name = args.am[:args.am.rindex('_')]
@@ -62,13 +64,14 @@ def evaluate(args):
         phones_dict=args.phones_dict,
         tones_dict=args.tones_dict,
         speaker_dict=args.speaker_dict)
-
+    print("acoustic model done!")
     # vocoder
     voc_inference = get_voc_inference(
         voc=args.voc,
         voc_config=voc_config,
         voc_ckpt=args.voc_ckpt,
         voc_stat=args.voc_stat)
+    print("voc done!")
 
     # whether dygraph to static
     if args.inference_dir:
@@ -78,7 +81,6 @@ def evaluate(args):
             am=args.am,
             inference_dir=args.inference_dir,
             speaker_dict=args.speaker_dict)
-
         # vocoder
         voc_inference = voc_to_static(
             voc_inference=voc_inference,
@@ -101,20 +103,13 @@ def evaluate(args):
     T = 0
     for utt_id, sentence in sentences:
         with timer() as t:
-            if args.lang == 'zh':
-                input_ids = frontend.get_input_ids(
-                    sentence,
-                    merge_sentences=merge_sentences,
-                    get_tone_ids=get_tone_ids)
-                phone_ids = input_ids["phone_ids"]
-                if get_tone_ids:
-                    tone_ids = input_ids["tone_ids"]
-            elif args.lang == 'en':
-                input_ids = frontend.get_input_ids(
-                    sentence, merge_sentences=merge_sentences)
-                phone_ids = input_ids["phone_ids"]
-            else:
-                print("lang should in {'zh', 'en'}!")
+            frontend_dict = run_frontend(
+                frontend=frontend,
+                text=sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                lang=args.lang)
+            phone_ids = frontend_dict['phone_ids']
             with paddle.no_grad():
                 flags = 0
                 for i in range(len(phone_ids)):
@@ -122,14 +117,14 @@ def evaluate(args):
                     # acoustic model
                     if am_name == 'fastspeech2':
                         # multi speaker
-                        if am_dataset in {"aishell3", "vctk"}:
+                        if am_dataset in {"aishell3", "vctk", "mix"}:
                             spk_id = paddle.to_tensor(args.spk_id)
                             mel = am_inference(part_phone_ids, spk_id)
                         else:
                             mel = am_inference(part_phone_ids)
                     elif am_name == 'speedyspeech':
-                        part_tone_ids = tone_ids[i]
-                        if am_dataset in {"aishell3", "vctk"}:
+                        part_tone_ids = frontend_dict['tone_ids'][i]
+                        if am_dataset in {"aishell3", "vctk", "mix"}:
                             spk_id = paddle.to_tensor(args.spk_id)
                             mel = am_inference(part_phone_ids, part_tone_ids,
                                                spk_id)
@@ -170,7 +165,7 @@ def parse_args():
         choices=[
             'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
             'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc', 'tacotron2_ljspeech'
+            'tacotron2_csmsc', 'tacotron2_ljspeech', 'fastspeech2_mix'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -231,7 +226,7 @@ def parse_args():
         '--lang',
         type=str,
         default='zh',
-        help='Choose model language. zh or en')
+        help='Choose model language. zh or en or mix')
 
     parser.add_argument(
         "--inference_dir",

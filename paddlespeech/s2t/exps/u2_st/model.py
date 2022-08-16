@@ -25,7 +25,7 @@ import paddle
 from paddle import distributed as dist
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
-from paddlespeech.s2t.io.dataloader import BatchDataLoader
+from paddlespeech.s2t.io.dataloader import DataLoaderFactory
 from paddlespeech.s2t.models.u2_st import U2STModel
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -120,7 +120,8 @@ class U2STTrainer(Trainer):
     @paddle.no_grad()
     def valid(self):
         self.model.eval()
-        logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+        if not self.use_streamdata:
+            logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
         num_seen_utts = 1
         total_loss = 0.0
@@ -153,7 +154,8 @@ class U2STTrainer(Trainer):
                 msg = f"Valid: Rank: {dist.get_rank()}, "
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
-                msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
+                if not self.use_streamdata:
+                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -172,8 +174,8 @@ class U2STTrainer(Trainer):
         # paddle.jit.save(script_model, script_model_path)
 
         self.before_train()
-
-        logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
+        if not self.use_streamdata:
+            logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -191,7 +193,8 @@ class U2STTrainer(Trainer):
                             self.train_batch(batch_index, batch, msg)
                             self.after_train_batch()
                             report('iter', batch_index + 1)
-                            report('total', len(self.train_loader))
+                            if not self.use_streamdata:
+                                report('total', len(self.train_loader))
                             report('reader_cost', dataload_time)
                         observation['batch_cost'] = observation[
                             'reader_cost'] + observation['step_cost']
@@ -241,78 +244,17 @@ class U2STTrainer(Trainer):
 
         load_transcript = True if config.model_conf.asr_weight > 0 else False
 
+        config = self.config.clone()
+        config['load_transcript'] = load_transcript
+        self.use_streamdata = config.get("use_stream_data", False)
         if self.train:
-            # train/valid dataset, return token ids
-            self.train_loader = BatchDataLoader(
-                json_file=config.train_manifest,
-                train_mode=True,
-                sortagrad=False,
-                batch_size=config.batch_size,
-                maxlen_in=config.maxlen_in,
-                maxlen_out=config.maxlen_out,
-                minibatches=0,
-                mini_batch_size=1,
-                batch_count='auto',
-                batch_bins=0,
-                batch_frames_in=0,
-                batch_frames_out=0,
-                batch_frames_inout=0,
-                preprocess_conf=config.
-                preprocess_config,  # aug will be off when train_mode=False
-                n_iter_processes=config.num_workers,
-                subsampling_factor=1,
-                load_aux_output=load_transcript,
-                num_encs=1,
-                dist_sampler=True)
-
-            self.valid_loader = BatchDataLoader(
-                json_file=config.dev_manifest,
-                train_mode=False,
-                sortagrad=False,
-                batch_size=config.batch_size,
-                maxlen_in=float('inf'),
-                maxlen_out=float('inf'),
-                minibatches=0,
-                mini_batch_size=1,
-                batch_count='auto',
-                batch_bins=0,
-                batch_frames_in=0,
-                batch_frames_out=0,
-                batch_frames_inout=0,
-                preprocess_conf=config.
-                preprocess_config,  # aug will be off when train_mode=False
-                n_iter_processes=config.num_workers,
-                subsampling_factor=1,
-                load_aux_output=load_transcript,
-                num_encs=1,
-                dist_sampler=False)
+            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
-            # test dataset, return raw text
-            decode_batch_size = config.get('decode', dict()).get(
-                'decode_batch_size', 1)
-            self.test_loader = BatchDataLoader(
-                json_file=config.test_manifest,
-                train_mode=False,
-                sortagrad=False,
-                batch_size=decode_batch_size,
-                maxlen_in=float('inf'),
-                maxlen_out=float('inf'),
-                minibatches=0,
-                mini_batch_size=1,
-                batch_count='auto',
-                batch_bins=0,
-                batch_frames_in=0,
-                batch_frames_out=0,
-                batch_frames_inout=0,
-                preprocess_conf=config.
-                preprocess_config,  # aug will be off when train_mode=False
-                n_iter_processes=config.num_workers,
-                subsampling_factor=1,
-                num_encs=1,
-                dist_sampler=False)
-
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
             logger.info("Setup test Dataloader!")
+
 
     def setup_model(self):
         config = self.config
@@ -468,7 +410,8 @@ class U2STTester(U2STTrainer):
     def test(self):
         assert self.args.result_file
         self.model.eval()
-        logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
+        if not self.use_streamdata:
+            logger.info(f"Test Total Examples: {len(self.test_loader.dataset)}")
 
         decode_cfg = self.config.decode
         bleu_func = bleu_score.char_bleu if decode_cfg.error_rate_type == 'char-bleu' else bleu_score.bleu

@@ -18,7 +18,6 @@
 import argparse
 import asyncio
 import codecs
-import logging
 import os
 
 from paddlespeech.cli.log import logger
@@ -44,7 +43,7 @@ def main(args):
 
     # support to process batch audios from wav.scp
     if args.wavscp and os.path.exists(args.wavscp):
-        logging.info(f"start to process the wavscp: {args.wavscp}")
+        logger.info(f"start to process the wavscp: {args.wavscp}")
         with codecs.open(args.wavscp, 'r', encoding='utf-8') as f,\
              codecs.open("result.txt", 'w', encoding='utf-8') as w:
             for line in f:

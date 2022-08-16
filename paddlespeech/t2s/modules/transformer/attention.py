@@ -25,9 +25,12 @@ from paddlespeech.t2s.modules.masked_fill import masked_fill
 class MultiHeadedAttention(nn.Layer):
     """Multi-Head Attention layer.
     Args:
-        n_head (int): The number of heads.
-        n_feat (int): The number of features.
-        dropout_rate (float): Dropout rate.
+        n_head (int): 
+            The number of heads.
+        n_feat (int): 
+            The number of features.
+        dropout_rate (float): 
+            Dropout rate.
     """
 
     def __init__(self, n_head, n_feat, dropout_rate):
@@ -48,14 +51,20 @@ class MultiHeadedAttention(nn.Layer):
         """Transform query, key and value.
 
         Args:
-            query(Tensor): query tensor (#batch, time1, size).
-            key(Tensor): Key tensor (#batch, time2, size).
-            value(Tensor): Value tensor (#batch, time2, size).
+            query(Tensor): 
+                query tensor (#batch, time1, size).
+            key(Tensor): 
+                Key tensor (#batch, time2, size).
+            value(Tensor): 
+                Value tensor (#batch, time2, size).
 
         Returns:
-            Tensor: Transformed query tensor (#batch, n_head, time1, d_k).
-            Tensor: Transformed key tensor (#batch, n_head, time2, d_k).
-            Tensor: Transformed value tensor (#batch, n_head, time2, d_k).
+            Tensor: 
+                Transformed query tensor (#batch, n_head, time1, d_k).
+            Tensor: 
+                Transformed key tensor (#batch, n_head, time2, d_k).
+            Tensor: 
+                Transformed value tensor (#batch, n_head, time2, d_k).
         """
         n_batch = paddle.shape(query)[0]
 
@@ -77,9 +86,12 @@ class MultiHeadedAttention(nn.Layer):
         """Compute attention context vector.
 
         Args:
-            value(Tensor): Transformed value (#batch, n_head, time2, d_k).
-            scores(Tensor): Attention score (#batch, n_head, time1, time2).
-            mask(Tensor, optional): Mask (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
+            value(Tensor): 
+                Transformed value (#batch, n_head, time2, d_k).
+            scores(Tensor): 
+                Attention score (#batch, n_head, time1, time2).
+            mask(Tensor, optional): 
+                Mask (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
 
         Returns:
             Tensor: Transformed value (#batch, time1, d_model) weighted by the attention score (#batch, time1, time2).
@@ -113,10 +125,14 @@ class MultiHeadedAttention(nn.Layer):
         """Compute scaled dot product attention.
 
         Args:
-            query(Tensor): Query tensor (#batch, time1, size).
-            key(Tensor): Key tensor (#batch, time2, size).
-            value(Tensor): Value tensor (#batch, time2, size).
-            mask(Tensor, optional): Mask tensor (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
+            query(Tensor): 
+                Query tensor (#batch, time1, size).
+            key(Tensor): 
+                Key tensor (#batch, time2, size).
+            value(Tensor): 
+                Value tensor (#batch, time2, size).
+            mask(Tensor, optional): 
+                Mask tensor (#batch, 1, time2) or (#batch, time1, time2). (Default value = None)
 
         Returns:
             Tensor: Output tensor (#batch, time1, d_model).
@@ -134,10 +150,14 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
     Paper: https://arxiv.org/abs/1901.02860
 
     Args:
-        n_head (int): The number of heads.
-        n_feat (int): The number of features.
-        dropout_rate (float): Dropout rate.
-        zero_triu (bool): Whether to zero the upper triangular part of attention matrix.
+        n_head (int): 
+            The number of heads.
+        n_feat (int): 
+            The number of features.
+        dropout_rate (float): 
+            Dropout rate.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
     """
 
     def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
@@ -161,10 +181,11 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
     def rel_shift(self, x):
         """Compute relative positional encoding.
         Args:
-            x(Tensor): Input tensor (batch, head, time1, 2*time1-1).
+            x(Tensor): 
+                Input tensor (batch, head, time1, 2*time1-1).
 
         Returns:
-            Tensor:Output tensor.
+            Tensor: Output tensor.
         """
         b, h, t1, t2 = paddle.shape(x)
         zero_pad = paddle.zeros((b, h, t1, 1))
@@ -183,11 +204,16 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
 
         Args:
-            query(Tensor): Query tensor (#batch, time1, size).
-            key(Tensor): Key tensor (#batch, time2, size).
-            value(Tensor): Value tensor (#batch, time2, size).
-            pos_emb(Tensor): Positional embedding tensor (#batch, 2*time1-1, size).
-            mask(Tensor): Mask tensor (#batch, 1, time2) or (#batch, time1, time2).
+            query(Tensor): 
+                Query tensor (#batch, time1, size).
+            key(Tensor): 
+                Key tensor (#batch, time2, size).
+            value(Tensor): 
+                Value tensor (#batch, time2, size).
+            pos_emb(Tensor): 
+                Positional embedding tensor (#batch, 2*time1-1, size).
+            mask(Tensor): 
+                Mask tensor (#batch, 1, time2) or (#batch, time1, time2).
 
         Returns:
             Tensor: Output tensor (#batch, time1, d_model).
@@ -215,6 +241,106 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         # compute matrix b and matrix d
         # (batch, head, time1, 2*time1-1)
         matrix_bd = paddle.matmul(q_with_bias_v, p.transpose([0, 1, 3, 2]))
+        matrix_bd = self.rel_shift(matrix_bd)
+        # (batch, head, time1, time2)
+        scores = (matrix_ac + matrix_bd) / math.sqrt(self.d_k)
+
+        return self.forward_attention(v, scores, mask)
+
+
+class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):
+    """Multi-Head Attention layer with relative position encoding (old version).
+    Details can be found in https://github.com/espnet/espnet/pull/2816.
+    Paper: https://arxiv.org/abs/1901.02860
+
+    Args:
+        n_head (int): 
+            The number of heads.
+        n_feat (int): 
+            The number of features.
+        dropout_rate (float): 
+            Dropout rate.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
+    """
+
+    def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
+        """Construct an RelPositionMultiHeadedAttention object."""
+        super().__init__(n_head, n_feat, dropout_rate)
+        self.zero_triu = zero_triu
+        # linear transformation for positional encoding
+        self.linear_pos = nn.Linear(n_feat, n_feat, bias_attr=False)
+        # these two learnable bias are used in matrix c and matrix d
+        # as described in https://arxiv.org/abs/1901.02860 Section 3.3
+
+        self.pos_bias_u = paddle.create_parameter(
+            shape=(self.h, self.d_k),
+            dtype='float32',
+            default_initializer=paddle.nn.initializer.XavierUniform())
+        self.pos_bias_v = paddle.create_parameter(
+            shape=(self.h, self.d_k),
+            dtype='float32',
+            default_initializer=paddle.nn.initializer.XavierUniform())
+
+    def rel_shift(self, x):
+        """Compute relative positional encoding.
+        Args:
+            x(Tensor): 
+                Input tensor (batch, head, time1, time2).
+        Returns:
+            Tensor:Output tensor.
+        """
+        b, h, t1, t2 = paddle.shape(x)
+        zero_pad = paddle.zeros((b, h, t1, 1))
+        x_padded = paddle.concat([zero_pad, x], axis=-1)
+        x_padded = paddle.reshape(x_padded, [b, h, t2 + 1, t1])
+        # only keep the positions from 0 to time2
+        x = paddle.reshape(x_padded[:, :, 1:], [b, h, t1, t2])
+
+        if self.zero_triu:
+            ones = paddle.ones((t1, t2))
+            x = x * paddle.tril(ones, t2 - 1)[None, None, :, :]
+
+        return x
+
+    def forward(self, query, key, value, pos_emb, mask):
+        """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
+
+        Args:
+            query(Tensor): Query tensor (#batch, time1, size).
+            key(Tensor): Key tensor (#batch, time2, size).
+            value(Tensor): Value tensor (#batch, time2, size).
+            pos_emb(Tensor): Positional embedding tensor (#batch, time1, size).
+            mask(Tensor): Mask tensor (#batch, 1, time2) or (#batch, time1, time2).
+
+        Returns:
+            Tensor: Output tensor (#batch, time1, d_model).
+        """
+        q, k, v = self.forward_qkv(query, key, value)
+        # (batch, time1, head, d_k)
+        q = paddle.transpose(q, [0, 2, 1, 3])
+
+        n_batch_pos = paddle.shape(pos_emb)[0]
+        p = paddle.reshape(
+            self.linear_pos(pos_emb), [n_batch_pos, -1, self.h, self.d_k])
+        # (batch, head, time1, d_k)
+        p = paddle.transpose(p, [0, 2, 1, 3])
+        # (batch, head, time1, d_k)
+        q_with_bias_u = paddle.transpose((q + self.pos_bias_u), [0, 2, 1, 3])
+        # (batch, head, time1, d_k)
+        q_with_bias_v = paddle.transpose((q + self.pos_bias_v), [0, 2, 1, 3])
+
+        # compute attention score
+        # first compute matrix a and matrix c
+        # as described in https://arxiv.org/abs/1901.02860 Section 3.3
+        # (batch, head, time1, time2)
+        matrix_ac = paddle.matmul(q_with_bias_u,
+                                  paddle.transpose(k, [0, 1, 3, 2]))
+
+        # compute matrix b and matrix d
+        # (batch, head, time1, time1)
+        matrix_bd = paddle.matmul(q_with_bias_v,
+                                  paddle.transpose(p, [0, 1, 3, 2]))
         matrix_bd = self.rel_shift(matrix_bd)
         # (batch, head, time1, time2)
         scores = (matrix_ac + matrix_bd) / math.sqrt(self.d_k)

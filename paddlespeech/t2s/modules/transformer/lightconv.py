@@ -31,12 +31,18 @@ class LightweightConvolution(nn.Layer):
     https://github.com/pytorch/fairseq/tree/master/fairseq
 
     Args:
-        wshare (int): the number of kernel of convolution
-        n_feat (int): the number of features
-        dropout_rate (float): dropout_rate
-        kernel_size (int): kernel size (length)
-        use_kernel_mask (bool): Use causal mask or not for convolution kernel
-        use_bias (bool): Use bias term or not.
+        wshare (int): 
+            the number of kernel of convolution
+        n_feat (int): 
+            the number of features
+        dropout_rate (float): 
+            dropout_rate
+        kernel_size (int): 
+            kernel size (length)
+        use_kernel_mask (bool): 
+            Use causal mask or not for convolution kernel
+        use_bias (bool): 
+            Use bias term or not.
 
     """
 
@@ -94,10 +100,14 @@ class LightweightConvolution(nn.Layer):
         This is just for compatibility with self-attention layer (attention.py)
 
         Args:
-            query (Tensor): input tensor. (batch, time1, d_model)
-            key (Tensor): NOT USED. (batch, time2, d_model)  
-            value (Tensor): NOT USED. (batch, time2, d_model) 
-            mask : (Tensor): (batch, time1, time2) mask
+            query (Tensor): 
+                input tensor. (batch, time1, d_model)
+            key (Tensor): 
+                NOT USED. (batch, time2, d_model)  
+            value (Tensor): 
+                NOT USED. (batch, time2, d_model) 
+            mask : (Tensor):
+                (batch, time1, time2) mask
 
         Return:
             Tensor: ouput. (batch, time1, d_model) 

@@ -31,10 +31,14 @@ def _apply_attention_constraint(e,
     Text-to-Speech with Convolutional Sequence Learning`_.
 
     Args:
-        e(Tensor): Attention energy before applying softmax (1, T).
-       last_attended_idx(int): The index of the inputs of the last attended [0, T].
-       backward_window(int, optional, optional): Backward window size in attention constraint. (Default value = 1)
-       forward_window(int, optional, optional): Forward window size in attetion constraint. (Default value = 3)
+        e(Tensor): 
+            Attention energy before applying softmax (1, T).
+        last_attended_idx(int): 
+            The index of the inputs of the last attended [0, T].
+        backward_window(int, optional, optional): 
+            Backward window size in attention constraint. (Default value = 1)
+        forward_window(int, optional, optional): 
+            Forward window size in attetion constraint. (Default value = 3)
 
     Returns:
         Tensor: Monotonic constrained attention energy (1, T).
@@ -62,12 +66,18 @@ class AttLoc(nn.Layer):
         (https://arxiv.org/pdf/1506.07503.pdf)
 
     Args:
-        eprojs (int): projection-units of encoder
-        dunits (int): units of decoder
-        att_dim (int): attention dimension
-        aconv_chans (int): channels of attention convolution
-        aconv_filts (int): filter size of attention convolution
-        han_mode (bool): flag to swith on mode of hierarchical attention and not store pre_compute_enc_h
+        eprojs (int): 
+            projection-units of encoder
+        dunits (int): 
+            units of decoder
+        att_dim (int): 
+            attention dimension
+        aconv_chans (int): 
+            channels of attention convolution
+        aconv_filts (int): 
+            filter size of attention convolution
+        han_mode (bool): 
+            flag to swith on mode of hierarchical attention and not store pre_compute_enc_h
     """
 
     def __init__(self,
@@ -117,18 +127,29 @@ class AttLoc(nn.Layer):
             forward_window=3, ):
         """Calculate AttLoc forward propagation.
         Args:
-            enc_hs_pad(Tensor): padded encoder hidden state (B, T_max, D_enc)
-            enc_hs_len(Tensor): padded encoder hidden state length (B)
-            dec_z(Tensor dec_z): decoder hidden state (B, D_dec)
-            att_prev(Tensor): previous attention weight (B, T_max)
-            scaling(float, optional): scaling parameter before applying softmax (Default value = 2.0)
-            forward_window(Tensor, optional): forward window size when constraining attention (Default value = 3)
-            last_attended_idx(int, optional): index of the inputs of the last attended (Default value = None)
-            backward_window(int, optional): backward window size in attention constraint (Default value = 1)
-            forward_window(int, optional): forward window size in attetion constraint (Default value = 3)
+            enc_hs_pad(Tensor): 
+                padded encoder hidden state (B, T_max, D_enc)
+            enc_hs_len(Tensor): 
+                padded encoder hidden state length (B)
+            dec_z(Tensor dec_z): 
+                decoder hidden state (B, D_dec)
+            att_prev(Tensor): 
+                previous attention weight (B, T_max)
+            scaling(float, optional): 
+                scaling parameter before applying softmax (Default value = 2.0)
+            forward_window(Tensor, optional): 
+                    forward window size when constraining attention (Default value = 3)
+            last_attended_idx(int, optional): 
+                index of the inputs of the last attended (Default value = None)
+            backward_window(int, optional): 
+                backward window size in attention constraint (Default value = 1)
+            forward_window(int, optional): 
+                    forward window size in attetion constraint (Default value = 3)
         Returns:
-            Tensor: attention weighted encoder state (B, D_enc)
-            Tensor: previous attention weights (B, T_max)
+            Tensor: 
+                attention weighted encoder state (B, D_enc)
+            Tensor: 
+                previous attention weights (B, T_max)
         """
         batch = paddle.shape(enc_hs_pad)[0]
         # pre-compute all h outside the decoder loop
@@ -192,11 +213,16 @@ class AttForward(nn.Layer):
         (https://arxiv.org/pdf/1807.06736.pdf)
 
     Args:
-        eprojs (int): projection-units of encoder
-        dunits (int): units of decoder
-        att_dim (int): attention dimension
-        aconv_chans (int): channels of attention convolution
-        aconv_filts (int): filter size of attention convolution
+        eprojs (int): 
+            projection-units of encoder
+        dunits (int): 
+            units of decoder
+        att_dim (int): 
+            attention dimension
+        aconv_chans (int): 
+            channels of attention convolution
+        aconv_filts (int): 
+            filter size of attention convolution
     """
 
     def __init__(self, eprojs, dunits, att_dim, aconv_chans, aconv_filts):
@@ -239,18 +265,28 @@ class AttForward(nn.Layer):
         """Calculate AttForward forward propagation.
 
         Args:
-            enc_hs_pad(Tensor): padded encoder hidden state (B, T_max, D_enc)
-            enc_hs_len(list): padded encoder hidden state length (B,)
-            dec_z(Tensor): decoder hidden state (B, D_dec)
-            att_prev(Tensor): attention weights of previous step (B, T_max)
-            scaling(float, optional): scaling parameter before applying softmax (Default value = 1.0)
-            last_attended_idx(int, optional): index of the inputs of the last attended (Default value = None)
-            backward_window(int, optional): backward window size in attention constraint (Default value = 1)
-            forward_window(int, optional):  (Default value = 3)
+            enc_hs_pad(Tensor): 
+                padded encoder hidden state (B, T_max, D_enc)
+            enc_hs_len(list): 
+                padded encoder hidden state length (B,)
+            dec_z(Tensor): 
+                decoder hidden state (B, D_dec)
+            att_prev(Tensor): 
+                attention weights of previous step (B, T_max)
+            scaling(float, optional): 
+                scaling parameter before applying softmax (Default value = 1.0)
+            last_attended_idx(int, optional): 
+                index of the inputs of the last attended (Default value = None)
+            backward_window(int, optional): 
+                backward window size in attention constraint (Default value = 1)
+            forward_window(int, optional):  
+                (Default value = 3)
 
         Returns:
-            Tensor: attention weighted encoder state (B, D_enc)
-            Tensor: previous attention weights (B, T_max)
+            Tensor: 
+                attention weighted encoder state (B, D_enc)
+            Tensor: 
+                previous attention weights (B, T_max)
         """
         batch = len(enc_hs_pad)
         # pre-compute all h outside the decoder loop
@@ -321,12 +357,18 @@ class AttForwardTA(nn.Layer):
             (https://arxiv.org/pdf/1807.06736.pdf)
 
     Args:
-        eunits (int): units of encoder
-        dunits (int): units of decoder
-        att_dim (int): attention dimension
-        aconv_chans (int): channels of attention convolution
-        aconv_filts (int): filter size of attention convolution
-        odim (int): output dimension
+        eunits (int): 
+            units of encoder
+        dunits (int): 
+            units of decoder
+        att_dim (int): 
+            attention dimension
+        aconv_chans (int):  
+            channels of attention convolution
+        aconv_filts (int): 
+            filter size of attention convolution
+        odim (int): 
+            output dimension
     """
 
     def __init__(self, eunits, dunits, att_dim, aconv_chans, aconv_filts, odim):
@@ -372,19 +414,30 @@ class AttForwardTA(nn.Layer):
         """Calculate AttForwardTA forward propagation.
 
         Args:
-            enc_hs_pad(Tensor): padded encoder hidden state (B, Tmax, eunits)
-            enc_hs_len(list Tensor): padded encoder hidden state length (B,)
-            dec_z(Tensor): decoder hidden state (B, dunits)
-            att_prev(Tensor): attention weights of previous step (B, T_max)
-            out_prev(Tensor): decoder outputs of previous step (B, odim)
-            scaling(float, optional): scaling parameter before applying softmax (Default value = 1.0)
-            last_attended_idx(int, optional): index of the inputs of the last attended (Default value = None)
-            backward_window(int, optional): backward window size in attention constraint (Default value = 1)
-            forward_window(int, optional):  (Default value = 3)
+            enc_hs_pad(Tensor): 
+                padded encoder hidden state (B, Tmax, eunits)
+            enc_hs_len(list Tensor): 
+                padded encoder hidden state length (B,)
+            dec_z(Tensor): 
+                decoder hidden state (B, dunits)
+            att_prev(Tensor): 
+                attention weights of previous step (B, T_max)
+            out_prev(Tensor): 
+                decoder outputs of previous step (B, odim)
+            scaling(float, optional): 
+                scaling parameter before applying softmax (Default value = 1.0)
+            last_attended_idx(int, optional): 
+                index of the inputs of the last attended (Default value = None)
+            backward_window(int, optional): 
+                backward window size in attention constraint (Default value = 1)
+            forward_window(int, optional):  
+                (Default value = 3)
 
         Returns:
-            Tensor: attention weighted encoder state (B, dunits)
-            Tensor: previous attention weights (B, Tmax)
+            Tensor: 
+                attention weighted encoder state (B, dunits)
+            Tensor: 
+                previous attention weights (B, Tmax)
         """
         batch = len(enc_hs_pad)
         # pre-compute all h outside the decoder loop

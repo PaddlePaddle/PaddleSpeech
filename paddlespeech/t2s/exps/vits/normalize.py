@@ -16,6 +16,7 @@ import argparse
 import logging
 from operator import itemgetter
 from pathlib import Path
+from typing import List
 
 import jsonlines
 import numpy as np
@@ -23,6 +24,50 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.utils import str2bool
+
+INITIALS = [
+    'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'zh', 'ch', 'sh',
+    'r', 'z', 'c', 's', 'j', 'q', 'x'
+]
+INITIALS += ['y', 'w', 'sp', 'spl', 'spn', 'sil']
+
+
+def intersperse(lst, item):
+    result = [item] * (len(lst) * 2 + 1)
+    result[1::2] = lst
+    return result
+
+
+def insert_after_character(lst, item):
+    result = [item]
+    for phone in lst:
+        result.append(phone)
+        if phone not in INITIALS:
+            # finals has tones
+            assert phone[-1] in "12345"
+            result.append(item)
+    return result
+
+
+def add_blank(phones: List[str],
+              filed: str="character",
+              blank_token: str="<pad>"):
+    if filed == "phone":
+        """
+        add blank after phones
+        input: ["n", "i3", "h", "ao3", "m", "a5"]
+        output: ["n", "<pad>", "i3", "<pad>", "h", "<pad>", "ao3", "<pad>", "m", "<pad>", "a5"]
+        """
+        phones = intersperse(phones, blank_token)
+    elif filed == "character":
+        """
+        add blank after characters
+        input: ["n", "i3", "h", "ao3"]
+        output: ["n", "i3", "<pad>", "h", "ao3", "<pad>", "m", "a5"]
+        """
+        phones = insert_after_character(phones, blank_token)
+    return phones
 
 
 def main():
@@ -58,29 +103,12 @@ def main():
     parser.add_argument(
         "--speaker-dict", type=str, default=None, help="speaker id map file.")
     parser.add_argument(
-        "--verbose",
-        type=int,
-        default=1,
-        help="logging level. higher is more logging. (default=1)")
-    args = parser.parse_args()
+        "--add-blank",
+        type=str2bool,
+        default=True,
+        help="whether to add blank between phones")
 
-    # set logger
-    if args.verbose > 1:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    elif args.verbose > 0:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    else:
-        logging.basicConfig(
-            level=logging.WARN,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-        logging.warning('Skip DEBUG/INFO messages')
+    args = parser.parse_args()
 
     dumpdir = Path(args.dumpdir).expanduser()
     # use absolute path
@@ -135,13 +163,19 @@ def main():
         else:
             wav_path = wave
 
-        phone_ids = [vocab_phones[p] for p in item['phones']]
+        phones = item['phones']
+        text_lengths = item['text_lengths']
+        if args.add_blank:
+            phones = add_blank(phones, filed="character")
+            text_lengths = len(phones)
+
+        phone_ids = [vocab_phones[p] for p in phones]
         spk_id = vocab_speaker[item["speaker"]]
 
         record = {
             "utt_id": item['utt_id'],
             "text": phone_ids,
-            "text_lengths": item['text_lengths'],
+            "text_lengths": text_lengths,
             'feats': str(feats_path),
             "feats_lengths": item['feats_lengths'],
             "wave": str(wav_path),

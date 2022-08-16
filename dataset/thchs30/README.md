@@ -1,4 +1,4 @@
-# [THCHS30](http://www.openslr.org/18/)
+# [THCHS30](http://openslr.elda.org/18/)
 
 This is the *data part* of the `THCHS30 2015` acoustic data
 & scripts dataset.

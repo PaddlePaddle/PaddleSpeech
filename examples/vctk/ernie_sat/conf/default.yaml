@@ -1,0 +1,163 @@
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+
+fs: 24000          # sr
+n_fft: 2048        # FFT size (samples).
+n_shift: 300       # Hop size (samples). 12.5ms
+win_length: 1200   # Window length (samples). 50ms
+                   # If set to null, it will be the same as fft_size.
+window: "hann"     # Window function.
+
+# Only used for feats_type != raw
+
+fmin: 80           # Minimum frequency of Mel basis.
+fmax: 7600         # Maximum frequency of Mel basis.
+n_mels: 80         # The number of mel basis.
+
+mean_phn_span: 8
+mlm_prob: 0.8
+
+###########################################################
+#                       DATA SETTING                      #
+###########################################################
+batch_size: 20
+num_workers: 2
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+model:
+    text_masking: false
+    postnet_layers: 5
+    postnet_filts: 5
+    postnet_chans: 256
+    encoder_type: conformer
+    decoder_type: conformer
+    enc_input_layer: sega_mlm
+    enc_pre_speech_layer: 0
+    enc_cnn_module_kernel: 7
+    enc_attention_dim: 384
+    enc_attention_heads: 2
+    enc_linear_units: 1536
+    enc_num_blocks: 4
+    enc_dropout_rate: 0.2
+    enc_positional_dropout_rate: 0.2
+    enc_attention_dropout_rate: 0.2
+    enc_normalize_before: true
+    enc_macaron_style: true
+    enc_use_cnn_module: true
+    enc_selfattention_layer_type: legacy_rel_selfattn
+    enc_activation_type: swish
+    enc_pos_enc_layer_type: legacy_rel_pos
+    enc_positionwise_layer_type: conv1d
+    enc_positionwise_conv_kernel_size: 3
+    dec_cnn_module_kernel: 31
+    dec_attention_dim: 384
+    dec_attention_heads: 2
+    dec_linear_units: 1536
+    dec_num_blocks: 4
+    dec_dropout_rate: 0.2
+    dec_positional_dropout_rate: 0.2
+    dec_attention_dropout_rate: 0.2
+    dec_macaron_style: true
+    dec_use_cnn_module: true
+    dec_selfattention_layer_type: legacy_rel_selfattn
+    dec_activation_type: swish
+    dec_pos_enc_layer_type: legacy_rel_pos
+    dec_positionwise_layer_type: conv1d
+    dec_positionwise_conv_kernel_size: 3
+
+###########################################################
+#                     OPTIMIZER SETTING                   #
+###########################################################
+scheduler_params:
+    d_model: 384
+    warmup_steps: 4000
+grad_clip: 1.0
+
+###########################################################
+#                     TRAINING SETTING                    #
+###########################################################
+max_epoch: 1500
+num_snapshots: 50
+
+###########################################################
+#                       OTHER SETTING                     #
+###########################################################
+seed: 0
+
+token_list:
+- <blank>
+- <unk>
+- AH0
+- T
+- N
+- sp
+- D
+- S
+- R
+- L
+- IH1
+- DH
+- AE1
+- M
+- EH1
+- K
+- Z
+- W
+- HH
+- ER0
+- AH1
+- IY1
+- P
+- V
+- F
+- B
+- AY1
+- IY0
+- EY1
+- AA1
+- AO1
+- UW1
+- IH0
+- OW1
+- NG
+- G
+- SH
+- ER1
+- Y
+- TH
+- AW1
+- CH
+- UH1
+- IH2
+- JH
+- OW0
+- EH2
+- OY1
+- AY2
+- EH0
+- EY2
+- UW0
+- AE2
+- AA2
+- OW2
+- AH2
+- ZH
+- AO2
+- IY2
+- AE0
+- UW2
+- AY0
+- AA0
+- AO0
+- AW2
+- EY0
+- UH2
+- ER2
+- OY2
+- UH0
+- AW0
+- OY0
+- <sos/eos>

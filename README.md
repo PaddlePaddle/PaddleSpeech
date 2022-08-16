@@ -1,3 +1,4 @@
+
 ([简体中文](./README_cn.md)|English)
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
@@ -24,14 +25,16 @@
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
-  | <a href="https://arxiv.org/abs/2205.12007"> Paper </a>
+  | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 Best Demo Award Paper </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee </a>
 </h4>
 </div>
 
 ------------------------------------------------------------------------------------
 
-**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models.
+**PaddleSpeech** is an open-source toolkit on [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) platform for a variety of critical tasks in speech and audio, with the state-of-art and influential models. 
+
+**PaddleSpeech** won the [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/), please check out our paper on [Arxiv](https://arxiv.org/abs/2205.12007).
 
 ##### Speech Recognition
 
@@ -176,7 +179,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7*.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.3.1*.
 Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. To install `PaddleSpeech`, please see [installation](./docs/source/install.md).
 
 
@@ -494,6 +497,14 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
       </td>
     </tr>
+     <tr>
+      <td rowspan="3">End-to-End</td>
+      <td>VITS</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -688,6 +699,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 
 ## Acknowledgement
 
+- Many thanks to [BarryKCL](https://github.com/BarryKCL) improved TTS Chinses frontend based on [G2PW](https://github.com/GitYCC/g2pW)
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) for years of attention, constructive advice and great help.
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
 - Many thanks to [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) for developing Virtual Uploader(VUP)/Virtual YouTuber(VTuber) with PaddleSpeech TTS function.
@@ -696,6 +708,8 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [awmmmm](https://github.com/awmmmm) for contributing fastspeech2 aishell3 conformer pretrained model.
 - Many thanks to [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) for developing a dubbing tool with GUI based on PaddleSpeech TTS model.
 - Many thanks to [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) for developing a GUI tool based on PaddleSpeech TTS and code for making datasets from videos based on PaddleSpeech ASR.
+- Many thanks to [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) for developing a rasa chatbot,which is able to speak and listen thanks to PaddleSpeech.
+- Many thanks to [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) for the C++ inference implementation of PaddleSpeech ASR.
 
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 

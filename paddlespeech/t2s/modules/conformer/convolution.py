@@ -20,8 +20,10 @@ class ConvolutionModule(nn.Layer):
     """ConvolutionModule in Conformer model.
 
     Args:
-        channels (int): The number of channels of conv layers.
-        kernel_size (int): Kernerl size of conv layers.
+        channels (int): 
+            The number of channels of conv layers.
+        kernel_size (int): 
+            Kernerl size of conv layers.
     """
 
     def __init__(self, channels, kernel_size, activation=nn.ReLU(), bias=True):
@@ -59,7 +61,8 @@ class ConvolutionModule(nn.Layer):
         """Compute convolution module.
 
         Args:
-            x (Tensor): Input tensor (#batch, time, channels).
+            x (Tensor): 
+                Input tensor (#batch, time, channels).
         Returns:
             Tensor: Output tensor (#batch, time, channels).
         """

@@ -23,25 +23,34 @@ class EncoderLayer(nn.Layer):
     """Encoder layer module.
     
     Args:
-        size (int): Input dimension.
-        self_attn (nn.Layer): Self-attention module instance.
+        size (int): 
+            Input dimension.
+        self_attn (nn.Layer): 
+            Self-attention module instance.
             `MultiHeadedAttention` or `RelPositionMultiHeadedAttention` instance
             can be used as the argument.
-        feed_forward (nn.Layer): Feed-forward module instance.
+        feed_forward (nn.Layer): 
+            Feed-forward module instance.
             `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance
             can be used as the argument.
-        feed_forward_macaron (nn.Layer): Additional feed-forward module instance.
+        feed_forward_macaron (nn.Layer): 
+            Additional feed-forward module instance.
             `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance
             can be used as the argument.
-        conv_module (nn.Layer): Convolution module instance.
+        conv_module (nn.Layer): 
+            Convolution module instance.
             `ConvlutionModule` instance can be used as the argument.
-        dropout_rate (float): Dropout rate.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        dropout_rate (float): 
+            Dropout rate.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
-        stochastic_depth_rate (float): Proability to skip this layer.
+        stochastic_depth_rate (float): 
+            Proability to skip this layer.
             During training, the layer may skip residual computation and return input
             as-is with given probability.
     """
@@ -86,15 +95,19 @@ class EncoderLayer(nn.Layer):
         """Compute encoded features.
 
         Args:
-            x_input(Union[Tuple, Tensor]): Input tensor w/ or w/o pos emb.
+            x_input(Union[Tuple, Tensor]): 
+                Input tensor w/ or w/o pos emb.
                 - w/ pos emb: Tuple of tensors [(#batch, time, size), (1, time, size)].
                 - w/o pos emb: Tensor (#batch, time, size).
-            mask(Tensor): Mask tensor for the input (#batch, time).
+            mask(Tensor): 
+                Mask tensor for the input (#batch, time).
             cache (Tensor): 
 
         Returns:
-            Tensor: Output tensor (#batch, time, size).
-            Tensor: Mask tensor (#batch, time).
+            Tensor: 
+                Output tensor (#batch, time, size).
+            Tensor: 
+                Mask tensor (#batch, time).
         """
         if isinstance(x_input, tuple):
             x, pos_emb = x_input[0], x_input[1]

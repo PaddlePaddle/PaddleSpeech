@@ -38,32 +38,55 @@ class BaseEncoder(nn.Layer):
     """Base Encoder module.
 
     Args:
-        idim (int): Input dimension.
-        attention_dim (int): Dimention of attention.
-        attention_heads (int): The number of heads of multi head attention.
-        linear_units (int): The number of units of position-wise feed forward.
-        num_blocks (int): The number of decoder blocks.
-        dropout_rate (float): Dropout rate.
-        positional_dropout_rate (float): Dropout rate after adding positional encoding.
-        attention_dropout_rate (float): Dropout rate in attention.
-        input_layer (Union[str, nn.Layer]): Input layer type.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        idim (int): 
+            Input dimension.
+        attention_dim (int): 
+            Dimention of attention.
+        attention_heads (int): 
+            The number of heads of multi head attention.
+        linear_units (int): 
+            The number of units of position-wise feed forward.
+        num_blocks (int): 
+            The number of decoder blocks.
+        dropout_rate (float): 
+            Dropout rate.
+        positional_dropout_rate (float): 
+            Dropout rate after adding positional encoding.
+        attention_dropout_rate (float): 
+            Dropout rate in attention.
+        input_layer (Union[str, nn.Layer]): 
+            Input layer type.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
-        positionwise_layer_type (str): "linear", "conv1d", or "conv1d-linear".
-        positionwise_conv_kernel_size (int): Kernel size of positionwise conv1d layer.
-        macaron_style (bool): Whether to use macaron style for positionwise layer.
-        pos_enc_layer_type (str): Encoder positional encoding layer type.
-        selfattention_layer_type (str): Encoder attention layer type.
-        activation_type (str): Encoder activation function type.
-        use_cnn_module (bool): Whether to use convolution module.
-        zero_triu (bool): Whether to zero the upper triangular part of attention matrix.
-        cnn_module_kernel (int): Kernerl size of convolution module.
-        padding_idx (int): Padding idx for input_layer=embed.
-        stochastic_depth_rate (float): Maximum probability to skip the encoder layer.
-        intermediate_layers (Union[List[int], None]): indices of intermediate CTC layer.
+        positionwise_layer_type (str): 
+            "linear", "conv1d", or "conv1d-linear".
+        positionwise_conv_kernel_size (int): 
+            Kernel size of positionwise conv1d layer.
+        macaron_style (bool): 
+            Whether to use macaron style for positionwise layer.
+        pos_enc_layer_type (str): 
+            Encoder positional encoding layer type.
+        selfattention_layer_type (str): 
+            Encoder attention layer type.
+        activation_type (str): 
+            Encoder activation function type.
+        use_cnn_module (bool): 
+            Whether to use convolution module.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
+        cnn_module_kernel (int): 
+            Kernerl size of convolution module.
+        padding_idx (int): 
+            Padding idx for input_layer=embed.
+        stochastic_depth_rate (float): 
+            Maximum probability to skip the encoder layer.
+        intermediate_layers (Union[List[int], None]): 
+            indices of intermediate CTC layer.
             indices start from 1.
             if not None, intermediate outputs are returned (which changes return type
             signature.)
@@ -266,12 +289,16 @@ class BaseEncoder(nn.Layer):
         """Encode input sequence.
 
         Args:
-            xs (Tensor): Input tensor (#batch, time, idim).
-            masks (Tensor): Mask tensor (#batch, 1, time).
+            xs (Tensor): 
+                Input tensor (#batch, time, idim).
+            masks (Tensor): 
+                Mask tensor (#batch, 1, time).
 
         Returns: 
-            Tensor: Output tensor (#batch, time, attention_dim).
-            Tensor: Mask tensor (#batch, 1, time).
+            Tensor: 
+                Output tensor (#batch, time, attention_dim).
+            Tensor: 
+                Mask tensor (#batch, 1, time).
         """
         xs = self.embed(xs)
         xs, masks = self.encoders(xs, masks)
@@ -284,26 +311,43 @@ class TransformerEncoder(BaseEncoder):
     """Transformer encoder module.
 
     Args:
-        idim (int): Input dimension.
-        attention_dim (int): Dimention of attention.
-        attention_heads (int): The number of heads of multi head attention.
-        linear_units (int): The number of units of position-wise feed forward.
-        num_blocks (int): The number of decoder blocks.
-        dropout_rate (float): Dropout rate.
-        positional_dropout_rate (float): Dropout rate after adding positional encoding.
-        attention_dropout_rate (float): Dropout rate in attention.
-        input_layer (Union[str, paddle.nn.Layer]): Input layer type.
-        pos_enc_layer_type (str): Encoder positional encoding layer type.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        idim (int): 
+            Input dimension.
+        attention_dim (int): 
+            Dimention of attention.
+        attention_heads (int): 
+            The number of heads of multi head attention.
+        linear_units (int): 
+            The number of units of position-wise feed forward.
+        num_blocks (int): 
+            The number of decoder blocks.
+        dropout_rate (float): 
+            Dropout rate.
+        positional_dropout_rate (float): 
+            Dropout rate after adding positional encoding.
+        attention_dropout_rate (float): 
+            Dropout rate in attention.
+        input_layer (Union[str, paddle.nn.Layer]): 
+            Input layer type.
+        pos_enc_layer_type (str): 
+            Encoder positional encoding layer type.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
-        positionwise_layer_type (str): "linear", "conv1d", or "conv1d-linear".
-        positionwise_conv_kernel_size (int): Kernel size of positionwise conv1d layer.
-        selfattention_layer_type (str): Encoder attention layer type.
-        activation_type (str): Encoder activation function type.
-        padding_idx (int): Padding idx for input_layer=embed.
+        positionwise_layer_type (str): 
+            "linear", "conv1d", or "conv1d-linear".
+        positionwise_conv_kernel_size (int): 
+            Kernel size of positionwise conv1d layer.
+        selfattention_layer_type (str): 
+            Encoder attention layer type.
+        activation_type (str): 
+            Encoder activation function type.
+        padding_idx (int): 
+            Padding idx for input_layer=embed.
     """
 
     def __init__(
@@ -350,12 +394,16 @@ class TransformerEncoder(BaseEncoder):
         """Encoder input sequence.
 
         Args:
-            xs(Tensor): Input tensor (#batch, time, idim).
-            masks(Tensor): Mask tensor (#batch, 1, time).
+            xs(Tensor): 
+                Input tensor (#batch, time, idim).
+            masks(Tensor): 
+                Mask tensor (#batch, 1, time).
 
         Returns:
-            Tensor: Output tensor (#batch, time, attention_dim).
-            Tensor: Mask tensor (#batch, 1, time).
+            Tensor: 
+                Output tensor (#batch, time, attention_dim).
+            Tensor: 
+                Mask tensor (#batch, 1, time).
         """
         xs = self.embed(xs)
         xs, masks = self.encoders(xs, masks)
@@ -367,14 +415,20 @@ class TransformerEncoder(BaseEncoder):
         """Encode input frame.
 
         Args:
-            xs (Tensor): Input tensor.
-            masks (Tensor): Mask tensor.
-            cache (List[Tensor]): List of cache tensors.
+            xs (Tensor): 
+                Input tensor.
+            masks (Tensor): 
+                Mask tensor.
+            cache (List[Tensor]): 
+                List of cache tensors.
 
         Returns:
-            Tensor: Output tensor.
-            Tensor: Mask tensor.
-            List[Tensor]: List of new cache tensors.
+            Tensor:
+                 Output tensor.
+            Tensor:
+                 Mask tensor.
+            List[Tensor]: 
+                List of new cache tensors.
         """
 
         xs = self.embed(xs)
@@ -393,32 +447,55 @@ class ConformerEncoder(BaseEncoder):
     """Conformer encoder module.
 
     Args:
-        idim (int): Input dimension.
-        attention_dim (int): Dimention of attention.
-        attention_heads (int): The number of heads of multi head attention.
-        linear_units (int): The number of units of position-wise feed forward.
-        num_blocks (int): The number of decoder blocks.
-        dropout_rate (float): Dropout rate.
-        positional_dropout_rate (float): Dropout rate after adding positional encoding.
-        attention_dropout_rate (float): Dropout rate in attention.
-        input_layer (Union[str, nn.Layer]): Input layer type.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool):Whether to concat attention layer's input and output.
+        idim (int): 
+            Input dimension.
+        attention_dim (int): 
+            Dimention of attention.
+        attention_heads (int): 
+            The number of heads of multi head attention.
+        linear_units (int): 
+            The number of units of position-wise feed forward.
+        num_blocks (int): 
+            The number of decoder blocks.
+        dropout_rate (float): 
+            Dropout rate.
+        positional_dropout_rate (float): 
+            Dropout rate after adding positional encoding.
+        attention_dropout_rate (float): 
+            Dropout rate in attention.
+        input_layer (Union[str, nn.Layer]): 
+            Input layer type.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool):
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
-        positionwise_layer_type (str): "linear", "conv1d", or "conv1d-linear".
-        positionwise_conv_kernel_size (int): Kernel size of positionwise conv1d layer.
-        macaron_style (bool): Whether to use macaron style for positionwise layer.
-        pos_enc_layer_type (str): Encoder positional encoding layer type.
-        selfattention_layer_type (str): Encoder attention layer type.
-        activation_type (str): Encoder activation function type.
-        use_cnn_module (bool): Whether to use convolution module.
-        zero_triu (bool): Whether to zero the upper triangular part of attention matrix.
-        cnn_module_kernel (int): Kernerl size of convolution module.
-        padding_idx (int): Padding idx for input_layer=embed.
-        stochastic_depth_rate (float): Maximum probability to skip the encoder layer.
-        intermediate_layers (Union[List[int], None]):indices of intermediate CTC layer. indices start from 1.
+        positionwise_layer_type (str): 
+            "linear", "conv1d", or "conv1d-linear".
+        positionwise_conv_kernel_size (int): 
+            Kernel size of positionwise conv1d layer.
+        macaron_style (bool): 
+            Whether to use macaron style for positionwise layer.
+        pos_enc_layer_type (str): 
+            Encoder positional encoding layer type.
+        selfattention_layer_type (str): 
+            Encoder attention layer type.
+        activation_type (str): 
+            Encoder activation function type.
+        use_cnn_module (bool): 
+            Whether to use convolution module.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
+        cnn_module_kernel (int): 
+            Kernerl size of convolution module.
+        padding_idx (int): 
+            Padding idx for input_layer=embed.
+        stochastic_depth_rate (float): 
+            Maximum probability to skip the encoder layer.
+        intermediate_layers (Union[List[int], None]):
+            indices of intermediate CTC layer. indices start from 1.
             if not None, intermediate outputs are returned (which changes return type signature.)
     """
 
@@ -478,11 +555,15 @@ class ConformerEncoder(BaseEncoder):
         """Encode input sequence.
 
         Args:
-            xs (Tensor): Input tensor (#batch, time, idim).
-            masks (Tensor): Mask tensor (#batch, 1, time).
+            xs (Tensor): 
+                Input tensor (#batch, time, idim).
+            masks (Tensor): 
+                Mask tensor (#batch, 1, time).
         Returns:
-            Tensor: Output tensor (#batch, time, attention_dim).
-            Tensor: Mask tensor (#batch, 1, time).
+            Tensor: 
+                Output tensor (#batch, time, attention_dim).
+            Tensor: 
+                Mask tensor (#batch, 1, time).
         """
         if isinstance(self.embed, (Conv2dSubsampling)):
             xs, masks = self.embed(xs, masks)
@@ -539,7 +620,8 @@ class Conv1dResidualBlock(nn.Layer):
     def forward(self, xs):
         """Encode input sequence.
         Args:
-            xs (Tensor): Input tensor (#batch, idim, T).
+            xs (Tensor): 
+                Input tensor (#batch, idim, T).
         Returns:
             Tensor: Output tensor (#batch, odim, T).
         """
@@ -582,8 +664,10 @@ class CNNDecoder(nn.Layer):
     def forward(self, xs, masks=None):
         """Encode input sequence.
         Args:
-            xs (Tensor): Input tensor (#batch, time, idim).
-            masks (Tensor): Mask tensor (#batch, 1, time).
+            xs (Tensor): 
+                Input tensor (#batch, time, idim).
+            masks (Tensor): 
+                Mask tensor (#batch, 1, time).
         Returns:
             Tensor: Output tensor (#batch, time, odim).
         """
@@ -629,8 +713,10 @@ class CNNPostnet(nn.Layer):
     def forward(self, xs, masks=None):
         """Encode input sequence.
         Args:
-            xs (Tensor): Input tensor (#batch, odim, time).
-            masks (Tensor): Mask tensor (#batch, 1, time).
+            xs (Tensor): 
+                Input tensor (#batch, odim, time).
+            masks (Tensor): 
+                Mask tensor (#batch, 1, time).
         Returns:
             Tensor: Output tensor (#batch, odim, time).
         """

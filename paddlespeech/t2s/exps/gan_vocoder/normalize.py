@@ -47,30 +47,8 @@ def main():
         default=False,
         action="store_true",
         help="whether to skip the copy of wav files.")
-    parser.add_argument(
-        "--verbose",
-        type=int,
-        default=1,
-        help="logging level. higher is more logging. (default=1)")
-    args = parser.parse_args()
 
-    # set logger
-    if args.verbose > 1:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    elif args.verbose > 0:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-    else:
-        logging.basicConfig(
-            level=logging.WARN,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
-        logging.warning('Skip DEBUG/INFO messages')
+    args = parser.parse_args()
 
     dumpdir = Path(args.dumpdir).expanduser()
     # use absolute path

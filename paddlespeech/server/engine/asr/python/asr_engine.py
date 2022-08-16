@@ -104,7 +104,7 @@ class PaddleASRConnectionHandler(ASRServerExecutor):
             if self._check(
                     io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
                     self.asr_engine.config.force_yes):
-                logger.info("start run asr engine")
+                logger.debug("start run asr engine")
                 self.preprocess(self.asr_engine.config.model,
                                 io.BytesIO(audio_data))
                 st = time.time()
@@ -112,7 +112,7 @@ class PaddleASRConnectionHandler(ASRServerExecutor):
                 infer_time = time.time() - st
                 self.output = self.postprocess()  # Retrieve result of asr.
             else:
-                logger.info("file check failed!")
+                logger.error("file check failed!")
                 self.output = None
 
             logger.info("inference time: {}".format(infer_time))

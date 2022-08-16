@@ -49,7 +49,7 @@ class Logger(object):
         self.handler.setFormatter(self.format)
 
         self.logger.addHandler(self.handler)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
         self.logger.propagate = False
 
     def __call__(self, log_level: str, msg: str):

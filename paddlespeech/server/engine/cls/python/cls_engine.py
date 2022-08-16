@@ -88,7 +88,7 @@ class PaddleCLSConnectionHandler(CLSServerExecutor):
             cls_engine (CLSEngine): The CLS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleCLSConnectionHandler to process the cls request")
 
         self._inputs = OrderedDict()
@@ -110,7 +110,7 @@ class PaddleCLSConnectionHandler(CLSServerExecutor):
         self.infer()
         infer_time = time.time() - st
 
-        logger.info("inference time: {}".format(infer_time))
+        logger.debug("inference time: {}".format(infer_time))
         logger.info("cls engine type: python")
 
     def postprocess(self, topk: int):

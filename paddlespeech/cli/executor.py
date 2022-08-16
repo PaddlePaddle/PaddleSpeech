@@ -108,19 +108,20 @@ class BaseExecutor(ABC):
             Dict[str, Union[str, os.PathLike]]: A dict with ids and inputs.
         """
         if self._is_job_input(input_):
+            # .job/.scp/.txt file
             ret = self._get_job_contents(input_)
         else:
+            # job from stdin
             ret = OrderedDict()
-
             if input_ is None:  # Take input from stdin
                 if not sys.stdin.isatty(
                 ):  # Avoid getting stuck when stdin is empty.
                     for i, line in enumerate(sys.stdin):
                         line = line.strip()
-                        if len(line.split(' ')) == 1:
+                        if len(line.split()) == 1:
                             ret[str(i + 1)] = line
-                        elif len(line.split(' ')) == 2:
-                            id_, info = line.split(' ')
+                        elif len(line.split()) == 2:
+                            id_, info = line.split()
                             ret[id_] = info
                         else:  # No valid input info from one line.
                             continue
@@ -170,7 +171,8 @@ class BaseExecutor(ABC):
             bool: return `True` for job input, `False` otherwise.
         """
         return input_ and os.path.isfile(input_) and (input_.endswith('.job') or
-                                                      input_.endswith('.txt'))
+                                                      input_.endswith('.txt') or
+                                                      input_.endswith('.scp'))
 
     def _get_job_contents(
             self, job_input: os.PathLike) -> Dict[str, Union[str, os.PathLike]]:
@@ -189,7 +191,7 @@ class BaseExecutor(ABC):
                 line = line.strip()
                 if not line:
                     continue
-                k, v = line.split(' ')
+                k, v = line.split() # space or \t
                 job_contents[k] = v
         return job_contents
 
@@ -217,7 +219,7 @@ class BaseExecutor(ABC):
             logging.getLogger(name) for name in logging.root.manager.loggerDict
         ]
         for l in loggers:
-            l.disabled = True
+            l.setLevel(logging.ERROR)
 
     def show_rtf(self, info: Dict[str, List[float]]):
         """

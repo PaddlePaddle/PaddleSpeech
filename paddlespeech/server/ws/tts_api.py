@@ -87,12 +87,12 @@ async def websocket_endpoint(websocket: WebSocket):
 
             # speech synthesis request 
             elif 'text' in message:
-                text_bese64 = message["text"]
-                sentence = connection_handler.preprocess(
-                    text_bese64=text_bese64)
+                text = message["text"]
+                spk_id = message["spk_id"]
 
                 # run
-                wav_generator = connection_handler.run(sentence)
+                wav_generator = connection_handler.run(
+                    sentence=text, spk_id=spk_id)
 
                 while True:
                     try:
@@ -116,3 +116,22 @@ async def websocket_endpoint(websocket: WebSocket):
 
     except Exception as e:
         logger.error(e)
+
+
+@router.get("/paddlespeech/tts/streaming/samplerate")
+def get_samplerate():
+    try:
+        engine_pool = get_engine_pool()
+        tts_engine = engine_pool['tts']
+        logger.info("Get tts engine successfully.")
+        sample_rate = tts_engine.sample_rate
+
+        response = {"sample_rate": sample_rate}
+
+    except ServerBaseException as e:
+        response = failed_response(e.error_code, e.msg)
+    except BaseException:
+        response = failed_response(ErrorCode.SERVER_UNKOWN_ERR)
+        traceback.print_exc()
+
+    return response

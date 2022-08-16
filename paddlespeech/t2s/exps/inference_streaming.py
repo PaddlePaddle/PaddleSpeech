@@ -27,6 +27,7 @@ from paddlespeech.t2s.exps.syn_utils import get_predictor
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_streaming_am_output
 from paddlespeech.t2s.exps.syn_utils import get_voc_output
+from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.utils import str2bool
 
 
@@ -175,14 +176,13 @@ def main():
     for utt_id, sentence in sentences:
         with timer() as t:
             # frontend
-            if args.lang == 'zh':
-                input_ids = frontend.get_input_ids(
-                    sentence,
-                    merge_sentences=merge_sentences,
-                    get_tone_ids=get_tone_ids)
-                phone_ids = input_ids["phone_ids"]
-            else:
-                print("lang should be 'zh' here!")
+            frontend_dict = run_frontend(
+                frontend=frontend,
+                text=sentence,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                lang=args.lang)
+            phone_ids = frontend_dict['phone_ids']
             phones = phone_ids[0].numpy()
             # acoustic model
             orig_hs = get_am_sublayer_output(

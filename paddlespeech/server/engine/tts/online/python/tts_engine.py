@@ -102,16 +102,22 @@ class TTSServerExecutor(TTSExecutor):
         Init model and other resources from a specific path.
         """
         if hasattr(self, 'am_inference') and hasattr(self, 'voc_inference'):
-            logger.info('Models had been initialized.')
+            logger.debug('Models had been initialized.')
             return
         # am model info
+        if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
+            use_pretrained_am = True
+        else:
+            use_pretrained_am = False
+
         am_tag = am + '-' + lang
         self.task_resource.set_task_model(
             model_tag=am_tag,
             model_type=0,  # am
+            skip_download=not use_pretrained_am,
             version=None,  # default version
         )
-        if am_ckpt is None or am_config is None or am_stat is None or phones_dict is None:
+        if use_pretrained_am:
             self.am_res_path = self.task_resource.res_dir
             self.am_config = os.path.join(self.am_res_path,
                                           self.task_resource.res_dict['config'])
@@ -122,29 +128,33 @@ class TTSServerExecutor(TTSExecutor):
             # must have phones_dict in acoustic
             self.phones_dict = os.path.join(
                 self.am_res_path, self.task_resource.res_dict['phones_dict'])
-            print("self.phones_dict:", self.phones_dict)
-            logger.info(self.am_res_path)
-            logger.info(self.am_config)
-            logger.info(self.am_ckpt)
+            logger.debug(self.am_res_path)
+            logger.debug(self.am_config)
+            logger.debug(self.am_ckpt)
         else:
             self.am_config = os.path.abspath(am_config)
             self.am_ckpt = os.path.abspath(am_ckpt)
             self.am_stat = os.path.abspath(am_stat)
             self.phones_dict = os.path.abspath(phones_dict)
             self.am_res_path = os.path.dirname(os.path.abspath(self.am_config))
-        print("self.phones_dict:", self.phones_dict)
 
         self.tones_dict = None
         self.speaker_dict = None
 
         # voc model info
+        if voc_ckpt is None or voc_config is None or voc_stat is None:
+            use_pretrained_voc = True
+        else:
+            use_pretrained_voc = False
+
         voc_tag = voc + '-' + lang
         self.task_resource.set_task_model(
             model_tag=voc_tag,
             model_type=1,  # vocoder
+            skip_download=not use_pretrained_voc,
             version=None,  # default version
         )
-        if voc_ckpt is None or voc_config is None or voc_stat is None:
+        if use_pretrained_voc:
             self.voc_res_path = self.task_resource.voc_res_dir
             self.voc_config = os.path.join(
                 self.voc_res_path, self.task_resource.voc_res_dict['config'])
@@ -153,9 +163,9 @@ class TTSServerExecutor(TTSExecutor):
             self.voc_stat = os.path.join(
                 self.voc_res_path,
                 self.task_resource.voc_res_dict['speech_stats'])
-            logger.info(self.voc_res_path)
-            logger.info(self.voc_config)
-            logger.info(self.voc_ckpt)
+            logger.debug(self.voc_res_path)
+            logger.debug(self.voc_config)
+            logger.debug(self.voc_ckpt)
         else:
             self.voc_config = os.path.abspath(voc_config)
             self.voc_ckpt = os.path.abspath(voc_ckpt)
@@ -172,7 +182,6 @@ class TTSServerExecutor(TTSExecutor):
         with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         self.vocab_size = len(phn_id)
-        print("vocab_size:", self.vocab_size)
 
         # frontend
         if lang == 'zh':
@@ -182,7 +191,6 @@ class TTSServerExecutor(TTSExecutor):
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
-        print("frontend done!")
 
         # am infer info
         self.am_name = am[:am.rindex('_')]
@@ -197,7 +205,6 @@ class TTSServerExecutor(TTSExecutor):
                 self.am_name + '_inference')
             self.am_inference = am_inference_class(am_normalizer, am)
             self.am_inference.eval()
-        print("acoustic model done!")
 
         # voc infer info
         self.voc_name = voc[:voc.rindex('_')]
@@ -208,7 +215,6 @@ class TTSServerExecutor(TTSExecutor):
                                                                  '_inference')
         self.voc_inference = voc_inference_class(voc_normalizer, voc)
         self.voc_inference.eval()
-        print("voc done!")
 
 
 class TTSEngine(BaseEngine):
@@ -276,6 +282,12 @@ class TTSEngine(BaseEngine):
             logger.error(e)
             return False
 
+        assert (
+            self.executor.am_config.fs == self.executor.voc_config.fs
+        ), "The sample rate of AM and Vocoder model are different, please check model."
+
+        self.sample_rate = self.executor.am_config.fs
+
         self.am_block = self.config.am_block
         self.am_pad = self.config.am_pad
         self.voc_block = self.config.voc_block
@@ -297,7 +309,7 @@ class PaddleTTSConnectionHandler:
             tts_engine (TTSEngine): The TTS engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleTTSConnectionHandler to process the tts request")
 
         self.tts_engine = tts_engine
@@ -357,7 +369,7 @@ class PaddleTTSConnectionHandler:
                 text, merge_sentences=merge_sentences)
             phone_ids = input_ids["phone_ids"]
         else:
-            print("lang should in {'zh', 'en'}!")
+            logger.error("lang should in {'zh', 'en'}!")
         frontend_et = time.time()
         self.frontend_time = frontend_et - frontend_st
 
@@ -459,32 +471,15 @@ class PaddleTTSConnectionHandler:
 
         self.final_response_time = time.time() - frontend_st
 
-    def preprocess(self, text_bese64: str=None, text_bytes: bytes=None):
-        # Convert byte to text
-        if text_bese64:
-            text_bytes = base64.b64decode(text_bese64)  # base64 to bytes
-        text = text_bytes.decode('utf-8')  # bytes to text
-
-        return text
-
-    def run(self,
+    def run(
+            self,
             sentence: str,
-            spk_id: int=0,
-            speed: float=1.0,
-            volume: float=1.0,
-            sample_rate: int=0,
-            save_path: str=None):
+            spk_id: int=0, ):
         """ run include inference and postprocess.
 
         Args:
             sentence (str): text to be synthesized
             spk_id (int, optional): speaker id for multi-speaker speech synthesis. Defaults to 0.
-            speed (float, optional): speed. Defaults to 1.0.
-            volume (float, optional): volume. Defaults to 1.0.
-            sample_rate (int, optional): target sample rate for synthesized audio, 
-            0 means the same as the model sampling rate. Defaults to 0.
-            save_path (str, optional): The save path of the synthesized audio. 
-            None means do not save audio. Defaults to None.
 
         Returns:
             wav_base64: The base64 format of the synthesized audio.
@@ -507,7 +502,7 @@ class PaddleTTSConnectionHandler:
             yield wav_base64
 
         wav_all = np.concatenate(wav_list, axis=0)
-        duration = len(wav_all) / self.executor.am_config.fs
+        duration = len(wav_all) / self.tts_engine.sample_rate
 
         logger.info(f"sentence: {sentence}")
         logger.info(f"The durations of audio is: {duration} s")

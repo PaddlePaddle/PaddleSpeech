@@ -20,10 +20,10 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
+from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.cli import default_argument_parser
-from paddlespeech.s2t.transform.transformation import Transformation
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
 logger = Log(__name__).getlog()

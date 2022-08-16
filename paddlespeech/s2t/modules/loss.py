@@ -37,9 +37,9 @@ class CTCLoss(nn.Layer):
         self.loss = nn.CTCLoss(blank=blank, reduction=reduction)
         self.batch_average = batch_average
 
-        logger.info(
+        logger.debug(
             f"CTCLoss Loss reduction: {reduction}, div-bs: {batch_average}")
-        logger.info(f"CTCLoss Grad Norm Type: {grad_norm_type}")
+        logger.debug(f"CTCLoss Grad Norm Type: {grad_norm_type}")
 
         assert grad_norm_type in ('instance', 'batch', 'frame', None)
         self.norm_by_times = False
@@ -70,7 +70,8 @@ class CTCLoss(nn.Layer):
             param = {}
         self._kwargs = {k: v for k, v in kwargs.items() if k in param}
         _notin = {k: v for k, v in kwargs.items() if k not in param}
-        logger.info(f"{self.loss} kwargs:{self._kwargs}, not support: {_notin}")
+        logger.debug(
+            f"{self.loss} kwargs:{self._kwargs}, not support: {_notin}")
 
     def forward(self, logits, ys_pad, hlens, ys_lens):
         """Compute CTC loss.

@@ -1,3 +1,4 @@
+
 (简体中文|[English](./README.md))
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
@@ -19,13 +20,14 @@
 </p>
 <div align="center">  
 <h4>
-    <a href="#快速开始"> 快速开始 </a>
+  <a href="#安装"> 安装 </a>
+  | <a href="#快速开始"> 快速开始 </a>
   | <a href="#快速使用服务"> 快速使用服务 </a>
   | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
-  | <a href="https://arxiv.org/abs/2205.12007"> 论文 </a>
+  | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 论文 </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee 
 </h4>
 </div>
@@ -34,6 +36,11 @@
 ------------------------------------------------------------------------------------
 
 **PaddleSpeech** 是基于飞桨 [PaddlePaddle](https://github.com/PaddlePaddle/Paddle) 的语音方向的开源模型库，用于语音和音频中的各种关键任务的开发，包含大量基于深度学习前沿和有影响力的模型，一些典型的应用示例如下：
+
+**PaddleSpeech** 荣获 [NAACL2022 Best Demo Award](https://2022.naacl.org/blog/best-demo-award/), 请访问 [Arxiv](https://arxiv.org/abs/2205.12007) 论文。
+  
+### 效果展示
+
 ##### 语音识别
 
 <div align = "center">
@@ -150,7 +157,7 @@
 本项目采用了易用、高效、灵活以及可扩展的实现，旨在为工业应用、学术研究提供更好的支持，实现的功能包含训练、推断以及测试模块，以及部署过程，主要包括
 - 📦 **易用性**: 安装门槛低，可使用 [CLI](#quick-start) 快速开始。
 - 🏆 **对标 SoTA**: 提供了高速、轻量级模型，且借鉴了最前沿的技术。
-- 🏆 **流式ASR和TTS系统**：工业级的端到端流式识别、流式合成系统。
+- 🏆 **流式 ASR 和 TTS 系统**：工业级的端到端流式识别、流式合成系统。
 - 💯 **基于规则的中文前端**: 我们的前端包含文本正则化和字音转换（G2P）。此外，我们使用自定义语言规则来适应中文语境。
 - **多种工业界以及学术界主流功能支持**:
   - 🛎️ 典型音频任务: 本工具包提供了音频任务如音频分类、语音翻译、自动语音识别、文本转语音、语音合成、声纹识别、KWS等任务的实现。
@@ -159,6 +166,7 @@
 
 
 ### 近期更新
+
 - 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md) 流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md) 流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md) 全链路声纹识别系统
 - 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
 - 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
@@ -177,61 +185,195 @@
 <img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
 </div>
 
+<a name="安装"></a>
 ## 安装
 
 我们强烈建议用户在 **Linux** 环境下，*3.7* 以上版本的 *python* 上安装 PaddleSpeech。
-目前为止，**Linux** 支持声音分类、语音识别、语音合成和语音翻译四种功能，**Mac OSX、 Windows** 下暂不支持语音翻译功能。 想了解具体安装细节，可以参考[安装文档](./docs/source/install_cn.md)。
+
+### 相关依赖
++ gcc >= 4.8.5
++ paddlepaddle >= 2.3.1
++ python >= 3.7
++ linux(推荐), mac, windows
+
+PaddleSpeech依赖于paddlepaddle，安装可以参考[paddlepaddle官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出cpu版本示例，其它版本大家可以根据自己机器的情况进行安装。
+
+```shell
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+```
+
+PaddleSpeech快速安装方式有两种，一种是pip安装，一种是源码编译（推荐）。
+
+### pip 安装
+```shell
+pip install pytest-runner
+pip install paddlespeech
+```
+
+### 源码编译
+```shell
+git clone https://github.com/PaddlePaddle/PaddleSpeech.git
+cd PaddleSpeech
+pip install pytest-runner
+pip install .
+```
+
+更多关于安装问题，如 conda 环境，librosa 依赖的系统库，gcc 环境问题，kaldi 安装等，可以参考这篇[安装文档](docs/source/install_cn.md)，如安装上遇到问题可以在 [#2150](https://github.com/PaddlePaddle/PaddleSpeech/issues/2150) 上留言以及查找相关问题
 
 <a name="快速开始"></a>
 ## 快速开始
 
-安装完成后，开发者可以通过命令行快速开始，改变 `--input` 可以尝试用自己的音频或文本测试。
+安装完成后，开发者可以通过命令行或者Python快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持16k wav格式音频。
 
-**声音分类**     
+你也可以在`aistudio`中快速体验 👉🏻[PaddleSpeech API Demo ](https://aistudio.baidu.com/aistudio/projectdetail/4281335?shared=1)。
+
+测试音频示例下载
 ```shell
-paddlespeech cls --input input.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 ```
-**声纹识别**
+
+### 语音识别
+<details><summary>&emsp;（点击可展开）开源中文语音识别</summary>
+
+命令行一键体验
+
 ```shell
-paddlespeech vector --task spk --input input_16k.wav
+paddlespeech asr --lang zh --input zh.wav
 ```
-**语音识别**
-```shell
-paddlespeech asr --lang zh --input input_16k.wav
+
+Python API 一键预测
+
+```python
+>>> from paddlespeech.cli.asr.infer import ASRExecutor
+>>> asr = ASRExecutor()
+>>> result = asr(audio_file="zh.wav")
+>>> print(result)
+我认为跑步最重要的就是给我带来了身体健康
 ```
-**语音翻译** (English to Chinese)
-```shell
-paddlespeech st --input input_16k.wav
-```
-**语音合成** 
+</details>
+
+### 语音合成
+
+<details><summary>&emsp;开源中文语音合成</summary>
+
+输出 24k 采样率wav格式音频
+
+
+命令行一键体验
+
 ```shell
 paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
-- 语音合成的 web demo 已经集成进了 [Huggingface Spaces](https://huggingface.co/spaces). 请参考: [TTS Demo](https://huggingface.co/spaces/akhaliq/paddlespeech)
 
-**文本后处理** 
- - 标点恢复
-   ```bash
-   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
-   ```
+Python API 一键预测
 
-**批处理**
+```python
+>>> from paddlespeech.cli.tts.infer import TTSExecutor
+>>> tts = TTSExecutor()
+>>> tts(text="今天天气十分不错。", output="output.wav")
 ```
-echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+- 语音合成的 web demo 已经集成进了 [Huggingface Spaces](https://huggingface.co/spaces). 请参考: [TTS Demo](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS)
+
+</details>
+
+### 声音分类   
+
+<details><summary>&emsp;适配多场景的开放领域声音分类工具</summary>
+
+基于AudioSet数据集527个类别的声音分类模型
+
+命令行一键体验
+
+```shell
+paddlespeech cls --input zh.wav
 ```
 
-**Shell管道**
-ASR + Punc:
-```
-paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+python API 一键预测
+
+```python
+>>> from paddlespeech.cli.cls.infer import CLSExecutor
+>>> cls = CLSExecutor()
+>>> result = cls(audio_file="zh.wav")
+>>> print(result)
+Speech 0.9027186632156372
 ```
 
-更多命令行命令请参考 [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
-> Note: 如果需要训练或者微调，请查看[语音识别](./docs/source/asr/quick_start.md)， [语音合成](./docs/source/tts/quick_start.md)。
+</details>
+
+### 声纹提取
+
+<details><summary>&emsp;工业级声纹提取工具</summary>
+
+命令行一键体验
+
+```shell
+paddlespeech vector --task spk --input zh.wav
+```
+
+Python API 一键预测
+
+```python
+>>> from paddlespeech.cli.vector import VectorExecutor
+>>> vec = VectorExecutor()
+>>> result = vec(audio_file="zh.wav")
+>>> print(result) # 187维向量
+[ -0.19083306   9.474295   -14.122263    -2.0916545    0.04848729
+   4.9295826    1.4780062    0.3733844   10.695862     3.2697146
+  -4.48199     -0.6617882   -9.170393   -11.1568775   -1.2358263 ...]
+```
+
+</details>
+
+### 标点恢复 
+
+<details><summary>&emsp;一键恢复文本标点，可与ASR模型配合使用</summary>
+
+命令行一键体验
+
+```shell
+paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+```
+
+Python API 一键预测
+
+```python
+>>> from paddlespeech.cli.text.infer import TextExecutor
+>>> text_punc = TextExecutor()
+>>> result = text_punc(text="今天的天气真不错啊你下午有空吗我想约你一起去吃饭")
+今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。
+```
+
+</details>
+
+### 语音翻译
+
+<details><summary>&emsp;端到端英译中语音翻译工具</summary>
+
+使用预编译的kaldi相关工具，只支持在Ubuntu系统中体验
+
+命令行一键体验
+
+```shell
+paddlespeech st --input en.wav
+```
+
+python API 一键预测
+
+```python
+>>> from paddlespeech.cli.st.infer import STExecutor
+>>> st = STExecutor()
+>>> result = st(audio_file="en.wav")
+['我 在 这栋 建筑 的 古老 门上 敲门 。']
+```
+
+</details>
+
+
 
 <a name="快速使用服务"></a>
 ## 快速使用服务
-安装完成后，开发者可以通过命令行快速使用服务。
+安装完成后，开发者可以通过命令行一键启动语音识别，语音合成，音频分类三种服务。
 
 **启动服务**     
 ```shell
@@ -480,6 +622,15 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
       </td>
     </tr>
+    </tr>
+     <tr>
+      <td rowspan="3">端到端</td>
+      <td>VITS</td>
+      <td >CSMSC</td>
+      <td>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -600,6 +751,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 语音合成模块最初被称为 [Parakeet](https://github.com/PaddlePaddle/Parakeet)，现在与此仓库合并。如果您对该任务的学术研究感兴趣，请参阅 [TTS 研究概述](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/docs/source/tts#overview)。此外，[模型介绍](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/tts/models_introduction.md) 是了解语音合成流程的一个很好的指南。
 
+
 ## ⭐ 应用案例
 - **[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo): 使用 PaddleSpeech 的语音合成模块生成虚拟人的声音。**
   
@@ -681,6 +833,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 ## 致谢
 
+- 非常感谢 [BarryKCL](https://github.com/BarryKCL)基于[G2PW](https://github.com/GitYCC/g2pW)对TTS中文文本前端的优化。
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
 - 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。
@@ -690,7 +843,8 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 - 非常感谢 [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) 基于 PaddleSpeech 的 TTS 模型搭建带 GUI 操作界面的配音工具。
 - 非常感谢 [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) 基于 PaddleSpeech 的 TTS GUI 界面和基于 ASR 制作数据集的相关代码。
 
-  
+- 非常感谢 [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) 基于 PaddleSpeech 的 ASR 与 TTS 设计的可听、说对话机器人。
+- 非常感谢 [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) 对 PaddleSpeech 的 ASR 进行 C++ 推理实现。
 
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

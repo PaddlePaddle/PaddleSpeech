@@ -130,6 +130,13 @@ optional arguments:
 Pretrained models can be downloaded here:
 - [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_ljspeech_ckpt_0.5.zip)
 
+The static model can be downloaded here:
+- [pwgan_ljspeech_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_static_1.1.0.zip)
+
+The ONNX model can be downloaded here:
+- [pwgan_ljspeech_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_onnx_1.1.0.zip)
+
+
 Parallel WaveGAN checkpoint contains files listed below.
 
 ```text

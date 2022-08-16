@@ -33,7 +33,7 @@ class PaddleVectorConnectionHandler:
             vector_engine (VectorEngine): The Vector engine
         """
         super().__init__()
-        logger.info(
+        logger.debug(
             "Create PaddleVectorConnectionHandler to process the vector request")
         self.vector_engine = vector_engine
         self.executor = self.vector_engine.executor
@@ -54,7 +54,7 @@ class PaddleVectorConnectionHandler:
         Returns:
             str: the punctuation text
         """
-        logger.info(
+        logger.debug(
             f"start to extract the do vector {self.task} from the http request")
         if self.task == "spk" and task == "spk":
             embedding = self.extract_audio_embedding(audio_data)
@@ -81,17 +81,17 @@ class PaddleVectorConnectionHandler:
         Returns:
             float: the score between enroll and test audio
         """
-        logger.info("start to extract the enroll audio embedding")
+        logger.debug("start to extract the enroll audio embedding")
         enroll_emb = self.extract_audio_embedding(enroll_audio)
 
-        logger.info("start to extract the test audio embedding")
+        logger.debug("start to extract the test audio embedding")
         test_emb = self.extract_audio_embedding(test_audio)
 
-        logger.info(
+        logger.debug(
             "start to get the score between the enroll and test embedding")
         score = self.executor.get_embeddings_score(enroll_emb, test_emb)
 
-        logger.info(f"get the enroll vs test score: {score}")
+        logger.debug(f"get the enroll vs test score: {score}")
         return score
 
     @paddle.no_grad()
@@ -106,11 +106,12 @@ class PaddleVectorConnectionHandler:
         # because the soundfile will change the io.BytesIO(audio) to the end
         # thus we should convert the base64 string to io.BytesIO when we need the audio data
         if not self.executor._check(io.BytesIO(audio), sample_rate):
-            logger.info("check the audio sample rate occurs error")
+            logger.debug("check the audio sample rate occurs error")
             return np.array([0.0])
 
         waveform, sr = load_audio(io.BytesIO(audio))
-        logger.info(f"load the audio sample points, shape is: {waveform.shape}")
+        logger.debug(
+            f"load the audio sample points, shape is: {waveform.shape}")
 
         # stage 2: get the audio feat
         # Note: Now we only support fbank feature
@@ -121,9 +122,9 @@ class PaddleVectorConnectionHandler:
                 n_mels=self.config.n_mels,
                 window_size=self.config.window_size,
                 hop_length=self.config.hop_size)
-            logger.info(f"extract the audio feats, shape is: {feats.shape}")
+            logger.debug(f"extract the audio feats, shape is: {feats.shape}")
         except Exception as e:
-            logger.info(f"feats occurs exception {e}")
+            logger.error(f"feats occurs exception {e}")
             sys.exit(-1)
 
         feats = paddle.to_tensor(feats).unsqueeze(0)
@@ -159,7 +160,7 @@ class VectorEngine(BaseEngine):
         """The Vector Engine
         """
         super(VectorEngine, self).__init__()
-        logger.info("Create the VectorEngine Instance")
+        logger.debug("Create the VectorEngine Instance")
 
     def init(self, config: dict):
         """Init the Vector Engine
@@ -170,7 +171,7 @@ class VectorEngine(BaseEngine):
         Returns:
             bool: The engine instance flag
         """
-        logger.info("Init the vector engine")
+        logger.debug("Init the vector engine")
         try:
             self.config = config
             if self.config.device:
@@ -179,7 +180,7 @@ class VectorEngine(BaseEngine):
                 self.device = paddle.get_device()
 
             paddle.set_device(self.device)
-            logger.info(f"Vector Engine set the device: {self.device}")
+            logger.debug(f"Vector Engine set the device: {self.device}")
         except BaseException as e:
             logger.error(
                 "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
@@ -196,5 +197,7 @@ class VectorEngine(BaseEngine):
             ckpt_path=config.ckpt_path,
             task=config.task)
 
-        logger.info("Init the Vector engine successfully")
+        logger.info(
+            "Initialize Vector server engine successfully on device: %s." %
+            (self.device))
         return True

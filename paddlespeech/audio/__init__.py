@@ -16,6 +16,9 @@ from . import _extension
 from . import compliance
 from . import datasets
 from . import features
+from . import text
+from . import transform
+from . import streamdata
 from . import functional
 from . import io
 from . import metric

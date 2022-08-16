@@ -58,8 +58,10 @@ class ExperimentBase(object):
     need.
 
     Args:
-        config (yacs.config.CfgNode): The configuration used for the experiment.
-        args (argparse.Namespace): The parsed command line arguments.
+        config (yacs.config.CfgNode): 
+            The configuration used for the experiment.
+        args (argparse.Namespace): 
+            The parsed command line arguments.
 
     Examples:
         >>> def main_sp(config, args):

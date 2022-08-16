@@ -163,6 +163,8 @@ optional arguments:
 5. `--output_dir` is the directory to save synthesized audio files.
 6. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
+<!-- TODO display these after we trained the model -->
+<!-- 
 ## Pretrained Model
 
 The pretrained model can be downloaded here:
@@ -197,3 +199,4 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
     --text=${BIN_DIR}/../sentences.txt \
     --add-blank=${add_blank} 
 ```
+-->

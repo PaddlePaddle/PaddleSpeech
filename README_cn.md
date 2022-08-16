@@ -601,7 +601,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td rowspan="3">声音克隆</td>
+      <td rowspan="4">声音克隆</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
@@ -622,13 +622,20 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
       </td>
     </tr>
+    <tr>
+      <td>GE2E + VITS</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vits-vc">ge2e-vits-aishell3</a>
+      </td>
+    </tr>
     </tr>
      <tr>
       <td rowspan="3">端到端</td>
       <td>VITS</td>
-      <td >CSMSC</td>
+      <td>CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a> / <a href = "./examples/aishell3/vits">VITS-aishell3</a>
       </td>
     </tr>
   </tbody>

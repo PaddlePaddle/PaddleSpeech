@@ -131,6 +131,8 @@ If you want to convert a speaker audio file to refered speaker, run:
 CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${add_blank} ${ref_audio_dir} ${src_audio_path}
 ```
 
+<!-- TODO display these after we trained the model -->
+<!-- 
 ## Pretrained Model
 
 The pretrained model can be downloaded here:
@@ -148,3 +150,4 @@ vits_vc_aishell3_ckpt_1.1.0
 ```
 
 ps: This ckpt is not good enough, a better result is training
+-->

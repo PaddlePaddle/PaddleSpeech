@@ -11,15 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import re
 import os
-import yaml
+import re
 from typing import Dict
 from typing import List
 
 import jieba.posseg as psg
 import numpy as np
 import paddle
+import yaml
 from g2pM import G2pM
 from pypinyin import lazy_pinyin
 from pypinyin import load_phrases_dict
@@ -58,18 +58,23 @@ def insert_after_character(lst, item):
 
 class Polyphonic():
     def __init__(self):
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                'polyphonic.yaml'), 'r',encoding='utf-8') as polyphonic_file:
+        with open(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    'polyphonic.yaml'),
+                'r',
+                encoding='utf-8') as polyphonic_file:
             # 解析yaml
             polyphonic_dict = yaml.load(polyphonic_file, Loader=yaml.FullLoader)
         self.polyphonic_words = polyphonic_dict["polyphonic"]
 
-    def correct_pronunciation(self,word,pinyin):
+    def correct_pronunciation(self, word, pinyin):
         # 词汇被词典收录则返回纠正后的读音
         if word in self.polyphonic_words.keys():
             pinyin = self.polyphonic_words[word]
         # 否则返回原读音
         return pinyin
+
 
 class Frontend():
     def __init__(self,
@@ -88,7 +93,8 @@ class Frontend():
         elif self.g2p_model == "g2pW":
             self.corrector = Polyphonic()
             self.g2pM_model = G2pM()
-            self.g2pW_model = G2PWOnnxConverter(style='pinyin', enable_non_tradional_chinese=True)
+            self.g2pW_model = G2PWOnnxConverter(
+                style='pinyin', enable_non_tradional_chinese=True)
             self.pinyin2phone = generate_lexicon(
                 with_tone=True, with_erhua=False)
 
@@ -187,7 +193,7 @@ class Frontend():
                     pinyins = self.g2pW_model(seg)[0]
                 except Exception:
                     # g2pW采用模型采用繁体输入，如果有cover不了的简体词，采用g2pM预测
-                    print("[%s] not in g2pW dict,use g2pM"%seg)
+                    print("[%s] not in g2pW dict,use g2pM" % seg)
                     pinyins = self.g2pM_model(seg, tone=True, char_split=False)
                 pre_word_length = 0
                 for word, pos in seg_cut:
@@ -199,13 +205,15 @@ class Frontend():
                         continue
                     word_pinyins = pinyins[pre_word_length:now_word_length]
                     # 矫正发音
-                    word_pinyins = self.corrector.correct_pronunciation(word,word_pinyins)
-                    for pinyin,char in zip(word_pinyins,word):
-                        if pinyin == None:
+                    word_pinyins = self.corrector.correct_pronunciation(
+                        word, word_pinyins)
+                    for pinyin, char in zip(word_pinyins, word):
+                        if pinyin is None:
                             pinyin = char
                         pinyin = pinyin.replace("u:", "v")
                         if pinyin in self.pinyin2phone:
-                            initial_final_list = self.pinyin2phone[pinyin].split(" ")
+                            initial_final_list = self.pinyin2phone[
+                                pinyin].split(" ")
                             if len(initial_final_list) == 2:
                                 sub_initials.append(initial_final_list[0])
                                 sub_finals.append(initial_final_list[1])
@@ -218,7 +226,7 @@ class Frontend():
                             sub_finals.append(pinyin)
                     pre_word_length = now_word_length
                     sub_finals = self.tone_modifier.modified_tone(word, pos,
-                                                                sub_finals)
+                                                                  sub_finals)
                     if with_erhua:
                         sub_initials, sub_finals = self._merge_erhua(
                             sub_initials, sub_finals, word, pos)
@@ -231,7 +239,7 @@ class Frontend():
                         continue
                     sub_initials, sub_finals = self._get_initials_finals(word)
                     sub_finals = self.tone_modifier.modified_tone(word, pos,
-                                                                sub_finals)
+                                                                  sub_finals)
                     if with_erhua:
                         sub_initials, sub_finals = self._merge_erhua(
                             sub_initials, sub_finals, word, pos)

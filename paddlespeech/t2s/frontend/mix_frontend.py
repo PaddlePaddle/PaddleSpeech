@@ -62,9 +62,31 @@ class MixFrontend():
 
     def _split(self, text: str) -> List[str]:
         text = re.sub(r'[《》【】<=>{}()（）#&@“”^_|…\\]', '', text)
+        # 替换英文句子的句号 "." --> "。" 用于后续分句
+        point = "."
+        point_indexs = []
+        index = -1
+        for i in range(text.count(point)):
+            index = text.find(".", index + 1, len(text))
+            point_indexs.append(index)
+
+        print(point_indexs)
+
+        for point_index in point_indexs:
+            # 如果点在最开始或者最末尾的位置，不处理
+            if point_index == 0 or point_index == len(text) - 1:
+                pass
+            else:
+                if ((self.is_alphabet(text[point_index - 1]) or
+                     text[point_index - 1] == " ") and
+                    (self.is_alphabet(text[point_index + 1]) or
+                     text[point_index + 1] == " ")):
+                    text = text.replace(text[point_index], "。")
+
         text = self.SENTENCE_SPLITOR.sub(r'\1\n', text)
         text = text.strip()
         sentences = [sentence.strip() for sentence in re.split(r'\n+', text)]
+
         return sentences
 
     def _distinguish(self, text: str) -> List[str]:
@@ -77,9 +99,11 @@ class MixFrontend():
         temp_seg = ""
         temp_lang = ""
 
-        # Determine the type of each character. type: blank, chinese, alphabet, number, unk.
+        # Determine the type of each character. type: blank, chinese, alphabet, number, unk and point.
         for ch in text:
-            if self.is_chinese(ch):
+            if ch == ".":
+                types.append("point")
+            elif self.is_chinese(ch):
                 types.append("zh")
             elif self.is_alphabet(ch):
                 types.append("en")
@@ -96,21 +120,26 @@ class MixFrontend():
 
             # find the first char of the seg
             if flag == 0:
-                if types[i] != "unk" and types[i] != "blank":
+                # 首个字符是中文，英文或者数字
+                if types[i] == "zh" or types[i] == "en" or types[i] == "num":
                     temp_seg += text[i]
                     temp_lang = types[i]
                     flag = 1
 
             else:
-                if types[i] == temp_lang or types[i] == "num":
+                # 数字和小数点均与前面的字符合并，类型属于前面一个字符的类型
+                if types[i] == temp_lang or types[i] == "num" or types[
+                        i] == "point":
                     temp_seg += text[i]
 
-                elif temp_lang == "num" and types[i] != "unk":
+                # 数字与后面的任意字符都拼接
+                elif temp_lang == "num":
                     temp_seg += text[i]
                     if types[i] == "zh" or types[i] == "en":
                         temp_lang = types[i]
 
-                elif temp_lang == "en" and types[i] == "blank":
+                # 如果是空格则与前面字符拼接
+                elif types[i] == "blank":
                     temp_seg += text[i]
 
                 elif types[i] == "unk":
@@ -119,7 +148,7 @@ class MixFrontend():
                 else:
                     segments.append((temp_seg, temp_lang))
 
-                    if types[i] != "unk" and types[i] != "blank":
+                    if types[i] == "zh" or types[i] == "en":
                         temp_seg = text[i]
                         temp_lang = types[i]
                         flag = 1

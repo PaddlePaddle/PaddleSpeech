@@ -84,6 +84,24 @@ class Frontend():
         self.tone_modifier = ToneSandhi()
         self.text_normalizer = TextNormalizer()
         self.punc = "：，；。？！“”‘’':,;.?!"
+        self.phrases_dict = {
+            '开户行': [['ka1i'], ['hu4'], ['hang2']],
+            '发卡行': [['fa4'], ['ka3'], ['hang2']],
+            '放款行': [['fa4ng'], ['kua3n'], ['hang2']],
+            '茧行': [['jia3n'], ['hang2']],
+            '行号': [['hang2'], ['ha4o']],
+            '各地': [['ge4'], ['di4']],
+            '借还款': [['jie4'], ['hua2n'], ['kua3n']],
+            '时间为': [['shi2'], ['jia1n'], ['we2i']],
+            '为准': [['we2i'], ['zhu3n']],
+            '色差': [['se4'], ['cha1']],
+            '嗲': [['dia3']],
+            '呗': [['bei5']],
+            '不': [['bu4']],
+            '咗': [['zuo5']],
+            '嘞': [['lei5']],
+            '掺和': [['chan1'], ['huo5']]
+        }
         # g2p_model can be pypinyin and g2pM and g2pW
         self.g2p_model = g2p_model
         if self.g2p_model == "g2pM":
@@ -91,6 +109,8 @@ class Frontend():
             self.pinyin2phone = generate_lexicon(
                 with_tone=True, with_erhua=False)
         elif self.g2p_model == "g2pW":
+            # use pypinyin as backup for non polyphonic characters in g2pW
+            self._init_pypinyin()
             self.corrector = Polyphonic()
             self.g2pM_model = G2pM()
             self.g2pW_model = G2PWOnnxConverter(
@@ -99,8 +119,10 @@ class Frontend():
                 with_tone=True, with_erhua=False)
 
         else:
-            self.__init__pypinyin()
-        self.must_erhua = {"小院儿", "胡同儿", "范儿", "老汉儿", "撒欢儿", "寻老礼儿", "妥妥儿"}
+            self._init_pypinyin()
+        self.must_erhua = {
+            "小院儿", "胡同儿", "范儿", "老汉儿", "撒欢儿", "寻老礼儿", "妥妥儿", "媳妇儿"
+        }
         self.not_erhua = {
             "虐儿", "为儿", "护儿", "瞒儿", "救儿", "替儿", "有儿", "一儿", "我儿", "俺儿", "妻儿",
             "拐儿", "聋儿", "乞儿", "患儿", "幼儿", "孤儿", "婴儿", "婴幼儿", "连体儿", "脑瘫儿",
@@ -108,6 +130,7 @@ class Frontend():
             "孙儿", "侄孙儿", "女儿", "男儿", "红孩儿", "花儿", "虫儿", "马儿", "鸟儿", "猪儿", "猫儿",
             "狗儿"
         }
+
         self.vocab_phones = {}
         self.vocab_tones = {}
         if phone_vocab_path:
@@ -121,20 +144,9 @@ class Frontend():
             for tone, id in tone_id:
                 self.vocab_tones[tone] = int(id)
 
-    def __init__pypinyin(self):
+    def _init_pypinyin(self):
         large_pinyin.load()
-
-        load_phrases_dict({u'开户行': [[u'ka1i'], [u'hu4'], [u'hang2']]})
-        load_phrases_dict({u'发卡行': [[u'fa4'], [u'ka3'], [u'hang2']]})
-        load_phrases_dict({u'放款行': [[u'fa4ng'], [u'kua3n'], [u'hang2']]})
-        load_phrases_dict({u'茧行': [[u'jia3n'], [u'hang2']]})
-        load_phrases_dict({u'行号': [[u'hang2'], [u'ha4o']]})
-        load_phrases_dict({u'各地': [[u'ge4'], [u'di4']]})
-        load_phrases_dict({u'借还款': [[u'jie4'], [u'hua2n'], [u'kua3n']]})
-        load_phrases_dict({u'时间为': [[u'shi2'], [u'jia1n'], [u'we2i']]})
-        load_phrases_dict({u'为准': [[u'we2i'], [u'zhu3n']]})
-        load_phrases_dict({u'色差': [[u'se4'], [u'cha1']]})
-
+        load_phrases_dict(self.phrases_dict)
         # 调整字的拼音顺序
         load_single_dict({ord(u'地'): u'de,di4'})
 
@@ -258,7 +270,6 @@ class Frontend():
                     phones.append('sp')
                 if v and v not in self.punc:
                     phones.append(v)
-
             phones_list.append(phones)
         if merge_sentences:
             merge_list = sum(phones_list, [])
@@ -275,6 +286,10 @@ class Frontend():
                      finals: List[str],
                      word: str,
                      pos: str) -> List[List[str]]:
+        # fix er1
+        for i, phn in enumerate(finals):
+            if i == len(finals) - 1 and word[i] == "儿" and phn == 'er1':
+                finals[i] = 'er2'
         if word not in self.must_erhua and (word in self.not_erhua or
                                             pos in {"a", "j", "nr"}):
             return initials, finals

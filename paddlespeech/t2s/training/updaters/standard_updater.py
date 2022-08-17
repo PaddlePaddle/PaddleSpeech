@@ -19,7 +19,7 @@ from typing import Optional
 
 from paddle import Tensor
 from paddle.io import DataLoader
-from paddle.io import DistributedBatchSampler
+from paddlespeech.t2s.datasets.sampler import DistributedBatchSampler
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 from timer import timer
@@ -167,6 +167,7 @@ class StandardUpdater(UpdaterBase):
         batch_sampler = self.dataloader.batch_sampler
         if isinstance(batch_sampler, DistributedBatchSampler):
             batch_sampler.set_epoch(self.state.epoch)
+            batch_sampler.shuf_inds(self.state.epoch)
         self.train_iterator = iter(self.dataloader)
 
     def read_batch(self):

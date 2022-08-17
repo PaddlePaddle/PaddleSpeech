@@ -25,7 +25,7 @@ from paddle import DataParallel
 from paddle import distributed as dist
 from paddle import nn
 from paddle.io import DataLoader
-from paddle.io import DistributedBatchSampler
+from paddlespeech.t2s.datasets.sampler import DistributedBatchSampler
 from paddle.optimizer import Adam
 from yacs.config import CfgNode
 
@@ -89,7 +89,7 @@ def train_sp(args, config):
     train_sampler = DistributedBatchSampler(
         train_dataset,
         batch_size=config.batch_size,
-        shuffle=True,
+        shuffle=False,
         drop_last=True)
 
     print("samplers done!")

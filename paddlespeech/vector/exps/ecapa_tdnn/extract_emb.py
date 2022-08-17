@@ -18,7 +18,7 @@ import time
 import paddle
 from yacs.config import CfgNode
 
-from paddlespeech.audio import load as load_audio
+from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
 from paddlespeech.audio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.batch import feature_normalize

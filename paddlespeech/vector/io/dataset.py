@@ -16,7 +16,8 @@ from dataclasses import fields
 
 from paddle.io import Dataset
 
-from paddlespeech.audio import load as load_audio
+from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
+
 from paddlespeech.audio.compliance.librosa import melspectrogram
 from paddlespeech.s2t.utils.log import Log
 logger = Log(__name__).getlog()

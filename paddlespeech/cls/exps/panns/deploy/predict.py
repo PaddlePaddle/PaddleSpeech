@@ -18,7 +18,7 @@ import numpy as np
 from paddle import inference
 from scipy.special import softmax
 
-from paddlespeech.audio import load as load_audio
+from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
 from paddlespeech.audio.datasets import ESC50
 from paddlespeech.audio.features import melspectrogram
 
@@ -42,7 +42,7 @@ def extract_features(files: str, **kwargs):
     srs = []
     max_length = float('-inf')
     for file in files:
-        waveform, sr = load_audio(file, sr=None)
+        waveform, sr = load_audio(file)
         max_length = max(max_length, len(waveform))
         waveforms.append(waveform)
         srs.append(sr)

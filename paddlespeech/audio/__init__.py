@@ -26,6 +26,7 @@ from . import utils
 from paddlespeech.audio.backends import get_audio_backend
 from paddlespeech.audio.backends import list_audio_backends
 from paddlespeech.audio.backends import set_audio_backend
+from paddlespeech.audio.backends import soundfile_backend
 
 __all__ = [
     "io",
@@ -37,4 +38,5 @@ __all__ = [
     "list_audio_backends",
     "get_audio_backend",
     "set_audio_backend",
+    "soudfile_backend",
 ]

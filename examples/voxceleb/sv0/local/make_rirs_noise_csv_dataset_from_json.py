@@ -23,7 +23,7 @@ from typing import List
 import tqdm
 from yacs.config import CfgNode
 
-from paddlespeech.audio import load as load_audio
+from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.utils.vector_utils import get_chunks
 

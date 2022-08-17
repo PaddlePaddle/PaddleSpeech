@@ -25,7 +25,7 @@ import yaml
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
-from paddlespeech.audio import load
+from paddlespeech.audio.soundfile_backend import soundfile_load as load
 from paddlespeech.audio.features import LogMelSpectrogram
 
 __all__ = ['CLSExecutor']

@@ -31,6 +31,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.am_batch_fn import build_erniesat_collate_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.datasets.sampler import ErnieSATSampler
 from paddlespeech.t2s.models.ernie_sat import ErnieSAT
 from paddlespeech.t2s.models.ernie_sat import ErnieSATEvaluator
 from paddlespeech.t2s.models.ernie_sat import ErnieSATUpdater
@@ -86,7 +87,7 @@ def train_sp(args, config):
         seg_emb=config.model['enc_input_layer'] == 'sega_mlm',
         text_masking=config["model"]["text_masking"])
 
-    train_sampler = DistributedBatchSampler(
+    train_sampler = ErnieSATSampler(
         train_dataset,
         batch_size=config.batch_size,
         shuffle=True,

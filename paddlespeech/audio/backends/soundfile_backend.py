@@ -34,8 +34,9 @@ __all__ = [
     'save',
     'soudfile_save',
     'load',
-    'soundfile_load',
-    'info'
+    'load_old',
+    'info',
+    'to_mono'
 ]
 NORMALMIZE_TYPES = ['linear', 'gaussian']
 MERGE_TYPES = ['ch0', 'ch1', 'random', 'average']
@@ -122,7 +123,7 @@ def to_mono(y: np.ndarray, merge_type: str='average') -> np.ndarray:
     return y_out
 
 
-def soundfile_load(file: os.PathLike,
+def soundfile_load_(file: os.PathLike,
                     offset: Optional[float]=None,
                     dtype: str='int16',
                     duration: Optional[int]=None) -> Tuple[np.ndarray, int]:
@@ -204,7 +205,7 @@ def soundfile_save(y: np.ndarray, sr: int, file: os.PathLike) -> None:
 
     wavfile.write(file, sr, y_out)
 
-def soudfile_load(
+def soundfile_load(
         file: os.PathLike,
         sr: Optional[int]=None,
         mono: bool=True,
@@ -235,7 +236,7 @@ def soudfile_load(
         Tuple[np.ndarray, int]: Waveform in ndarray and its samplerate.
     """
 
-    y, r = sound_file_load(file, offset=offset, dtype=dtype, duration=duration)
+    y, r = soundfile_load_(file, offset=offset, dtype=dtype, duration=duration)
 
     if not ((y.ndim == 1 and len(y) > 0) or (y.ndim == 2 and len(y[0]) > 0)):
         raise ParameterError(f'audio file {file} looks empty')

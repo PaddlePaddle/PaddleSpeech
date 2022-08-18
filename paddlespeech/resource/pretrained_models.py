@@ -1359,9 +1359,9 @@ g2pw_onnx_models = {
     'G2PWModel': {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel.tar',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel_1.0.zip',
             'md5':
-            '63bc0894af15a5a591e58b2130a2bcac',
+            '7e049a55547da840502cf99e8a64f20e',
         },
     },
 }

@@ -60,9 +60,16 @@ class MixFrontend():
         else:
             return False
 
-    def _split(self, text: str) -> List[str]:
-        text = re.sub(r'[《》【】<=>{}()（）#&@“”^_|…\\]', '', text)
-        # 替换英文句子的句号 "." --> "。" 用于后续分句
+    def is_end(self, before_char, after_char) -> bool:
+        if ((self.is_alphabet(before_char) or before_char == " ") and (self.is_alphabet(after_char) or after_char == " ")):
+            return True
+        else:
+            return False
+
+    def _replace(self, text: str) -> str:
+        new_text = ""
+
+        # get "." indexs
         point = "."
         point_indexs = []
         index = -1
@@ -70,23 +77,77 @@ class MixFrontend():
             index = text.find(".", index + 1, len(text))
             point_indexs.append(index)
 
-        print(point_indexs)
+        # replace "." -> "。" when English sentence ending
+        if len(point_indexs) == 0:
+            new_text = text
 
-        for point_index in point_indexs:
-            # 如果点在最开始或者最末尾的位置，不处理
+        elif len(point_indexs) == 1:
+            point_index = point_indexs[0]
             if point_index == 0 or point_index == len(text) - 1:
-                pass
+                new_text = text
             else:
-                if ((self.is_alphabet(text[point_index - 1]) or
-                     text[point_index - 1] == " ") and
-                    (self.is_alphabet(text[point_index + 1]) or
-                     text[point_index + 1] == " ")):
-                    text = text.replace(text[point_index], "。")
+                if not self.is_end(text[point_index - 1], text[point_index + 1]):
+                    new_text = text
+                else:
+                    new_text = text[: point_index] + "。" + text[point_index + 1:]
 
+        elif len(point_indexs) == 2:
+            first_index = point_indexs[0]
+            end_index = point_indexs[1]
+
+            # first
+            if first_index != 0:
+                if not self.is_end(text[first_index - 1], text[first_index + 1]):
+                    new_text += (text[:first_index] + ".")
+                else:
+                    new_text += (text[:first_index] + "。")
+            else:
+                new_text += "."
+            # last
+            if end_index != len(text) - 1:
+                if not self.is_end(text[end_index - 1], text[end_index + 1]):
+                    new_text += text[point_indexs[-2] + 1 : ]
+                else:
+                    new_text += (text[point_indexs[-2] + 1 : end_index] + "。" + text[end_index + 1 : ])
+            else:
+                new_text += "."          
+
+        else:
+            first_index = point_indexs[0]
+            end_index = point_indexs[-1]
+            # first
+            if first_index != 0:
+                if not self.is_end(text[first_index - 1], text[first_index + 1]):
+                    new_text += (text[:first_index] + ".")
+                else:
+                    new_text += (text[:first_index] + "。")
+            else:
+                new_text += "."
+            # middle
+            for j in range(1, len(point_indexs) - 1):
+                point_index = point_indexs[j]
+                if not self.is_end(text[point_index - 1], text[point_index + 1]):
+                    new_text += (text[point_indexs[j-1] + 1 : point_index] + ".")
+                else:
+                    new_text += (text[point_indexs[j-1] + 1 : point_index] + "。")
+            # last
+            if end_index != len(text) - 1:
+                if not self.is_end(text[end_index - 1], text[end_index + 1]):
+                    new_text += text[point_indexs[-2] + 1 : ]
+                else:
+                    new_text += (text[point_indexs[-2] + 1 : end_index] + "。" + text[end_index + 1 : ])
+            else:
+                new_text += "."
+
+        return new_text
+
+    def _split(self, text: str) -> List[str]:
+        text = re.sub(r'[《》【】<=>{}()（）#&@“”^_|…\\]', '', text)
+        # 替换英文句子的句号 "." --> "。" 用于后续分句
+        text = self._replace(text)
         text = self.SENTENCE_SPLITOR.sub(r'\1\n', text)
         text = text.strip()
         sentences = [sentence.strip() for sentence in re.split(r'\n+', text)]
-
         return sentences
 
     def _distinguish(self, text: str) -> List[str]:

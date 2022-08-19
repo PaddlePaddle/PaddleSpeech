@@ -225,7 +225,7 @@ pip install .
 
 安装完成后，开发者可以通过命令行或者Python快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持16k wav格式音频。
 
-你也可以在`aistudio`中快速体验 👉🏻[PaddleSpeech API Demo ](https://aistudio.baidu.com/aistudio/projectdetail/4281335?shared=1)。
+你也可以在`aistudio`中快速体验 👉🏻[一键预测，快速上手Speech开发任务](https://aistudio.baidu.com/aistudio/projectdetail/4353348?sUid=2470186&shared=1&ts=1660878142250)。
 
 测试音频示例下载
 ```shell
@@ -373,7 +373,9 @@ python API 一键预测
 
 <a name="快速使用服务"></a>
 ## 快速使用服务
-安装完成后，开发者可以通过命令行一键启动语音识别，语音合成，音频分类三种服务。
+安装完成后，开发者可以通过命令行一键启动语音识别，语音合成，音频分类等多种服务。
+
+你可以在 AI Studio 中快速体验：[SpeechServer一键部署](https://aistudio.baidu.com/aistudio/projectdetail/4354592?sUid=2470186&shared=1&ts=1660878208266)
 
 **启动服务**     
 ```shell

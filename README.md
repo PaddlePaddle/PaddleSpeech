@@ -180,68 +180,199 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 ## Installation
 
 We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.3.1*.
-Up to now, **Linux** supports CLI for the all our tasks, **Mac OSX** and **Windows** only supports PaddleSpeech CLI for Audio Classification, Speech-to-Text and Text-to-Speech. To install `PaddleSpeech`, please see [installation](./docs/source/install.md).
+
+### **Dependency Introduction**
+
++ gcc >= 4.8.5
++ paddlepaddle >= 2.3.1
++ python >= 3.7
++ OS support:  Linux(recommend), Windows, Mac OSX
+
+PaddleSpeech depends on paddlepaddle. For installation, please refer to the official website of [paddlepaddle](https://www.paddlepaddle.org.cn/en) and choose according to your own machine. Here is an example of the cpu version.
+
+```bash
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+```
+
+There are two quick installation methods for PaddleSpeech, one is pip installation, and the other is source code compilation (recommended).
+### pip install
+
+```shell
+pip install pytest-runner
+pip install paddlespeech
+```
+
+### source code compilation
+
+```shell
+git clone https://github.com/PaddlePaddle/PaddleSpeech.git
+cd PaddleSpeech
+pip install pytest-runner
+pip install .
+```
+
+For more installation problems, such as conda environment, librosa-dependent, gcc problems, kaldi installation, etc., you can refer to this [installation document](./docs/source/install.md). If you encounter problems during installation, you can leave a message on [#2150](https://github.com/PaddlePaddle/PaddleSpeech/issues/2150) and find related problems
 
 
 <a name="quickstart"></a>
 ## Quick Start
 
-Developers can have a try of our models with [PaddleSpeech Command Line](./paddlespeech/cli/README.md). Change `--input` to test your own audio/text.
+Developers can have a try of our models with [PaddleSpeech Command Line](./paddlespeech/cli/README.md) or Python. Change `--input` to test your own audio/text and support 16k wav format audio.
 
-**Audio Classification**     
+**You can also quickly experience it in AI Studio 👉🏻 [PaddleSpeech API Demo](https://aistudio.baidu.com/aistudio/projectdetail/4353348?sUid=2470186&shared=1&ts=1660876445786)**
+
+
+Test audio sample download
+
 ```shell
-paddlespeech cls --input input.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 ```
 
-**Speaker Verification**
-```
-paddlespeech vector --task spk --input input_16k.wav
-```
+### Automatic Speech Recognition
 
-**Automatic Speech Recognition**
+<details><summary>&emsp;（Click to expand）Open Source Speech Recognition</summary>
+
+**command line experience**
+
 ```shell
-paddlespeech asr --lang zh --input input_16k.wav
+paddlespeech asr --lang zh --input zh.wav
 ```
-- web demo for Automatic Speech Recognition is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [ASR Demo](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR)
 
-**Speech Translation** (English to Chinese)
-(not support for Mac and Windows now)
+**Python API experience**
+
+```python
+>>> from paddlespeech.cli.asr.infer import ASRExecutor
+>>> asr = ASRExecutor()
+>>> result = asr(audio_file="zh.wav")
+>>> print(result)
+我认为跑步最重要的就是给我带来了身体健康
+```
+</details>
+
+### Text-to-Speech
+
+<details><summary>&emsp;Open Source Speech Synthesis</summary>
+
+Output 24k sample rate wav format audio
+
+
+**command line experience**
+
 ```shell
-paddlespeech st --input input_16k.wav
+paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output output.wav
 ```
 
-**Text-to-Speech** 
+**Python API experience**
+
+```python
+>>> from paddlespeech.cli.tts.infer import TTSExecutor
+>>> tts = TTSExecutor()
+>>> tts(text="今天天气十分不错。", output="output.wav")
+```
+- You can experience in [Huggingface Spaces](https://huggingface.co/spaces) [TTS Demo](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS)
+
+</details>
+
+### Audio Classification
+
+<details><summary>&emsp;An open-domain sound classification tool</summary>
+
+Sound classification model based on 527 categories of AudioSet dataset
+
+**command line experience**
+
 ```shell
-paddlespeech tts --input "你好，欢迎使用飞桨深度学习框架！" --output output.wav
-```
-- web demo for Text to Speech is integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See Demo: [TTS Demo](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS)
-
-**Text Postprocessing** 
-- Punctuation Restoration
-  ```bash
-  paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
-  ```
-
-**Batch Process**
-```
-echo -e "1 欢迎光临。\n2 谢谢惠顾。" | paddlespeech tts
+paddlespeech cls --input zh.wav
 ```
 
-**Shell Pipeline**   
-- ASR + Punctuation Restoration
-```
-paddlespeech asr --input ./zh.wav | paddlespeech text --task punc
+**Python API experience**
+
+```python
+>>> from paddlespeech.cli.cls.infer import CLSExecutor
+>>> cls = CLSExecutor()
+>>> result = cls(audio_file="zh.wav")
+>>> print(result)
+Speech 0.9027186632156372
 ```
 
-For more command lines, please see: [demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos)
+</details>
 
-If you want to try more functions like training and tuning, please have a look at [Speech-to-Text Quick Start](./docs/source/asr/quick_start.md) and [Text-to-Speech Quick Start](./docs/source/tts/quick_start.md).
+### Voiceprint Extraction
+
+<details><summary>&emsp;Industrial-grade voiceprint extraction tool</summary>
+
+**command line experience**
+
+```shell
+paddlespeech vector --task spk --input zh.wav
+```
+
+**Python API experience**
+
+```python
+>>> from paddlespeech.cli.vector import VectorExecutor
+>>> vec = VectorExecutor()
+>>> result = vec(audio_file="zh.wav")
+>>> print(result) # 187维向量
+[ -0.19083306   9.474295   -14.122263    -2.0916545    0.04848729
+   4.9295826    1.4780062    0.3733844   10.695862     3.2697146
+  -4.48199     -0.6617882   -9.170393   -11.1568775   -1.2358263 ...]
+```
+
+</details>
+
+### Punctuation Restoration
+
+<details><summary>&emsp;Quick recovery of text punctuation, works with ASR models</summary>
+
+**command line experience**
+
+```shell
+paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
+```
+
+**Python API experience**
+
+```python
+>>> from paddlespeech.cli.text.infer import TextExecutor
+>>> text_punc = TextExecutor()
+>>> result = text_punc(text="今天的天气真不错啊你下午有空吗我想约你一起去吃饭")
+今天的天气真不错啊！你下午有空吗？我想约你一起去吃饭。
+```
+
+</details>
+
+### Speech Translation
+
+<details><summary>&emsp;End-to-end English to Chinese Speech Translation Tool</summary>
+
+Use pre-compiled kaldi related tools, only support experience in Ubuntu system
+
+**command line experience**
+
+```shell
+paddlespeech st --input en.wav
+```
+
+**Python API experience**
+
+```python
+>>> from paddlespeech.cli.st.infer import STExecutor
+>>> st = STExecutor()
+>>> result = st(audio_file="en.wav")
+['我 在 这栋 建筑 的 古老 门上 敲门 。']
+```
+
+</details>
 
 
 <a name="quickstartserver"></a>
 ## Quick Start Server
 
 Developers can have a try of our speech server with [PaddleSpeech Server Command Line](./paddlespeech/server/README.md).
+
+**You can try it quickly in AI Studio (recommend): [SpeechServer](https://aistudio.baidu.com/aistudio/projectdetail/4354592?sUid=2470186&shared=1&ts=1660877827034)**
 
 **Start server**     
 

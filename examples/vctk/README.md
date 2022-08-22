@@ -9,3 +9,4 @@
 * voc1 - Parallel WaveGAN
 * voc2 - MelGAN
 * voc3 - MultiBand MelGAN
+* ernie_sat - ERNIE-SAT

@@ -79,6 +79,10 @@ def denorm(data, mean, std):
     return data * std + mean
 
 
+def norm(data, mean, std):
+    return (data - mean) / std
+
+
 def get_chunks(data, block_size: int, pad_size: int):
     data_len = data.shape[1]
     chunks = []

@@ -59,7 +59,6 @@ class Wav2Vec2ASRTrainer(Trainer):
         wavs_lens_rate = wavs_lens / wav.shape[1] 
         target_lens_rate = target_lens / target.shape[1]
         wav = wav[:,:,0]
-        print ("wav", wav)
         loss = self.model(wav, wavs_lens_rate, target, target_lens_rate)
 
         # loss div by `batch_size * accum_grad`

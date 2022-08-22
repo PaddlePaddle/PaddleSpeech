@@ -612,7 +612,7 @@ class U2STModel(U2STBaseModel):
                 enc_n_units=encoder.output_size(),
                 blank_id=0,
                 dropout_rate=dropout_rate,
-                reduction=True,  # sum
+                reduction_type='sum',  # sum
                 batch_average=True,  # sum / batch_size
                 grad_norm_type=grad_norm_type)
 

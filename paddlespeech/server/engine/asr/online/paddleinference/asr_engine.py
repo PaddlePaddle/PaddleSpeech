@@ -85,7 +85,7 @@ class PaddleASRConnectionHanddler:
                 enc_n_units=self.model_config.rnn_layer_size * 2,
                 blank_id=self.model_config.blank_id,
                 dropout_rate=0.0,
-                reduction=True,  # sum
+                reduction_type="sum",  # sum
                 batch_average=True,  # sum / batch_size
                 grad_norm_type=self.model_config.get('ctc_grad_norm_type',
                                                      None))

@@ -196,13 +196,13 @@
 + python >= 3.7
 + linux(推荐), mac, windows
 
-PaddleSpeech依赖于paddlepaddle，安装可以参考[paddlepaddle官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出cpu版本示例，其它版本大家可以根据自己机器的情况进行安装。
+PaddleSpeech 依赖于 paddlepaddle，安装可以参考[ paddlepaddle 官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出 cpu 版本示例，其它版本大家可以根据自己机器的情况进行安装。
 
 ```shell
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 ```
 
-PaddleSpeech快速安装方式有两种，一种是pip安装，一种是源码编译（推荐）。
+PaddleSpeech 快速安装方式有两种，一种是 pip 安装，一种是源码编译（推荐）。
 
 ### pip 安装
 ```shell
@@ -223,9 +223,9 @@ pip install .
 <a name="快速开始"></a>
 ## 快速开始
 
-安装完成后，开发者可以通过命令行或者Python快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持16k wav格式音频。
+安装完成后，开发者可以通过命令行或者 Python 快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持 16k wav 格式音频。
 
-你也可以在`aistudio`中快速体验 👉🏻[一键预测，快速上手Speech开发任务](https://aistudio.baidu.com/aistudio/projectdetail/4353348?sUid=2470186&shared=1&ts=1660878142250)。
+你也可以在 `aistudio` 中快速体验 👉🏻[一键预测，快速上手 Speech 开发任务](https://aistudio.baidu.com/aistudio/projectdetail/4353348?sUid=2470186&shared=1&ts=1660878142250)。
 
 测试音频示例下载
 ```shell
@@ -281,7 +281,7 @@ Python API 一键预测
 
 <details><summary>&emsp;适配多场景的开放领域声音分类工具</summary>
 
-基于AudioSet数据集527个类别的声音分类模型
+基于 AudioSet 数据集 527 个类别的声音分类模型
 
 命令行一键体验
 
@@ -350,7 +350,7 @@ Python API 一键预测
 
 <details><summary>&emsp;端到端英译中语音翻译工具</summary>
 
-使用预编译的kaldi相关工具，只支持在Ubuntu系统中体验
+使用预编译的 kaldi 相关工具，只支持在 Ubuntu 系统中体验
 
 命令行一键体验
 
@@ -370,12 +370,11 @@ python API 一键预测
 </details>
 
 
-
 <a name="快速使用服务"></a>
 ## 快速使用服务
 安装完成后，开发者可以通过命令行一键启动语音识别，语音合成，音频分类等多种服务。
 
-你可以在 AI Studio 中快速体验：[SpeechServer一键部署](https://aistudio.baidu.com/aistudio/projectdetail/4354592?sUid=2470186&shared=1&ts=1660878208266)
+你可以在 AI Studio 中快速体验：[SpeechServer 一键部署](https://aistudio.baidu.com/aistudio/projectdetail/4354592?sUid=2470186&shared=1&ts=1660878208266)
 
 **启动服务**     
 ```shell
@@ -554,9 +553,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td>FastSpeech2</td>
-      <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td>LJSpeech / VCTK / CSMSC / AISHELL-3 / ZH_EN</td>
       <td>
-      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
+      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a> / <a href = "./examples/zh_en_tts/tts3">fastspeech2-zh_en</a>
       </td>
     </tr>
    <tr>

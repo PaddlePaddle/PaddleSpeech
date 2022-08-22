@@ -197,7 +197,7 @@ In some situations, you want to use the trained model to do the inference for th
 ```bash
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
      # test a single .wav file
-     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type} ${audio_file}
+     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${model_type} ${audio_file}
  fi
 ```
 you can train the model by yourself, or you can download the pretrained model by the script below:
@@ -211,5 +211,5 @@ wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wa
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 data/demo_01_03.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_1 data/demo_01_03.wav
 ```

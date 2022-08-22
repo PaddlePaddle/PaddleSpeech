@@ -1,0 +1,69 @@
+############################################
+#           Network Architecture           #
+############################################
+
+freeze_wav2vec2: True
+normalize_wav: True
+output_norm: True
+apply_spec_augment: False
+dnn_blocks: 2
+dnn_neurons: 1024
+blank_id: 0
+ctc_dropout_rate: 0.0
+wav2vec2_params_path: "exp/wav2vec2/wav2vec2-large-960h-lv60-self.pdparams"
+
+
+###########################################
+#                   Data                  #
+###########################################
+train_manifest: data/manifest.train
+dev_manifest: data/manifest.dev
+test_manifest: data/manifest.test-clean
+
+
+###########################################
+#              Dataloader                 #
+###########################################
+vocab_filepath: data/lang_char/vocab.txt 
+unit_type: 'char'
+mean_std_filepath: ""
+preprocess_config: conf/preprocess.yaml
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
+batch_size: 5
+maxlen_in: 51200000000  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen_out: 1500000  # if output length > maxlen-out, batchsize is automatically reduced
+minibatches: 0 # for debug
+batch_count: auto
+batch_bins: 0 
+batch_frames_in: 0
+batch_frames_out: 0
+batch_frames_inout: 0
+num_workers: 0
+subsampling_factor: 1
+num_encs: 1
+dist_sampler: True
+shortest_first: True
+return_lens_rate: True
+  
+
+###########################################
+#                 Training                #
+###########################################
+n_epoch: 2
+accum_grad: 1
+global_grad_clip: 3.0
+optim: adadelta
+optim_conf:
+  lr: 0.9
+  epsilon: 1.0e-6
+  rho: 0.95
+scheduler: warmuplr     
+scheduler_conf:
+  warmup_steps: 25000
+  lr_decay: 1.0
+log_interval: 1
+checkpoint:
+  kbest_n: 50
+  latest_n: 5
+
+

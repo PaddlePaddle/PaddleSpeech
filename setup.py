@@ -28,7 +28,7 @@ from setuptools.command.test import test
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
-VERSION = '1.1.1'
+VERSION = '1.1.2'
 COMMITID = 'none'
 
 base = [

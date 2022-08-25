@@ -66,11 +66,12 @@ class ASREngine(BaseEngine):
             )
             logger.error(e)
             return False
-
+        num_decoding_left_chunks = self.config.num_decoding_left_chunks
         self.executor._init_from_path(
             self.config.model, self.config.lang, self.config.sample_rate,
-            self.config.cfg_path, self.config.decode_method,
+            self.config.cfg_path, self.config.decode_method, num_decoding_left_chunks = num_decoding_left_chunks,
             self.config.ckpt_path)
+
 
         logger.info("Initialize ASR server engine successfully on device: %s." %
                     (self.device))

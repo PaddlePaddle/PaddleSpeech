@@ -4,7 +4,7 @@ set -e
 source path.sh
 
 
-input_dir=./input/baker_mini
+input_dir=./input/csmsc_mini
 pretrained_model_dir=./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0
 mfa_dir=./mfa_result
 dump_dir=./dump

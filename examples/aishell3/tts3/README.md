@@ -229,9 +229,11 @@ The ONNX model can be downloaded here:
 FastSpeech2 checkpoint contains files listed below.
 
 ```text
-fastspeech2_nosil_aishell3_ckpt_0.4
+fastspeech2_aishell3_ckpt_1.1.0
 ├── default.yaml            # default config used to train fastspeech2
+├── energy_stats.npy        # statistics used to normalize energy when training fastspeech2
 ├── phone_id_map.txt        # phone vocabulary file when training fastspeech2
+├── pitch_stats.npy         # statistics used to normalize pitch when training fastspeech2
 ├── snapshot_iter_96400.pdz # model parameters and optimizer states
 ├── speaker_id_map.txt      # speaker id map file when training a multi-speaker fastspeech2
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
@@ -244,9 +246,9 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=fastspeech2_aishell3 \
-  --am_config=fastspeech2_nosil_aishell3_ckpt_0.4/default.yaml \
-  --am_ckpt=fastspeech2_nosil_aishell3_ckpt_0.4/snapshot_iter_96400.pdz \
-  --am_stat=fastspeech2_nosil_aishell3_ckpt_0.4/speech_stats.npy \
+  --am_config=fastspeech2_aishell3_ckpt_1.1.0/default.yaml \
+  --am_ckpt=fastspeech2_aishell3_ckpt_1.1.0/snapshot_iter_96400.pdz \
+  --am_stat=fastspeech2_aishell3_ckpt_1.1.0/speech_stats.npy \
   --voc=pwgan_aishell3 \
   --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \
   --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
@@ -254,9 +256,8 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --lang=zh \
   --text=${BIN_DIR}/../sentences.txt \
   --output_dir=exp/default/test_e2e \
-  --phones_dict=fastspeech2_nosil_aishell3_ckpt_0.4/phone_id_map.txt \
-  --speaker_dict=fastspeech2_nosil_aishell3_ckpt_0.4/speaker_id_map.txt \
+  --phones_dict=fastspeech2_aishell3_ckpt_1.1.0/phone_id_map.txt \
+  --speaker_dict=fastspeech2_aishell3_ckpt_1.1.0/speaker_id_map.txt \
   --spk_id=0 \
   --inference_dir=exp/default/inference
-
 ```

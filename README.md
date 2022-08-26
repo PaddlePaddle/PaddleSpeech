@@ -1,4 +1,3 @@
-
 ([简体中文](./README_cn.md)|English)
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
@@ -535,7 +534,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </td>
     </tr>
     <tr>
-      <td rowspan="4">Acoustic Model</td>
+      <td rowspan="5">Acoustic Model</td>
       <td>Tacotron2</td>
       <td>LJSpeech / CSMSC</td>
       <td>
@@ -561,6 +560,13 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>LJSpeech / VCTK / CSMSC / AISHELL-3 / ZH_EN</td>
       <td>
       <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a> / <a href = "./examples/zh_en_tts/tts3">fastspeech2-zh_en</a>
+      </td>
+    </tr>
+    <tr>
+      <td>ERNIE-SAT</td>
+      <td>VCTK / AISHELL-3 / ZH_EN</td>
+      <td>
+      <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>
       </td>
     </tr>
    <tr>

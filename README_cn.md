@@ -797,6 +797,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 ### 贡献者
 <p align="center">
+<a href="https://github.com/david-95"><img src="https://avatars.githubusercontent.com/u/15189190?v=4" width=75 height=75></a>
 <a href="https://github.com/zh794390558"><img src="https://avatars.githubusercontent.com/u/3038472?v=4" width=75 height=75></a>
 <a href="https://github.com/Jackwaterveg"><img src="https://avatars.githubusercontent.com/u/87408988?v=4" width=75 height=75></a>
 <a href="https://github.com/yt605155624"><img src="https://avatars.githubusercontent.com/u/24568452?v=4" width=75 height=75></a>
@@ -833,7 +834,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </p>
 
 ## 致谢
-
+- 非常感谢 [山宏海量](https://github.com/david-95)修复句尾多标点符号出错的问题，补充frontend语音polyphonic 数据，贡献补充多条程序和数据
 - 非常感谢 [BarryKCL](https://github.com/BarryKCL)基于[G2PW](https://github.com/GitYCC/g2pW)对TTS中文文本前端的优化。
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。

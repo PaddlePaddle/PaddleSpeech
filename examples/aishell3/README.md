@@ -10,3 +10,4 @@
 * voc3 - MultiBand MelGAN
 * vc0 - Tacotron2 Voice Cloning with GE2E
 * vc1 - FastSpeech2 Voice Cloning with GE2E
+* ernie_sat - ERNIE-SAT

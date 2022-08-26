@@ -251,7 +251,7 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios:
-- [fastspeech2_mix_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_0.2.0.zip)
+- [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip)
 
 The static model can be downloaded here:
 - [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)

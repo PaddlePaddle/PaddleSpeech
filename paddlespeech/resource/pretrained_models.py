@@ -1363,5 +1363,11 @@ g2pw_onnx_models = {
             'md5':
             '7e049a55547da840502cf99e8a64f20e',
         },
+        '1.1': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel_1.1.zip',
+            'md5':
+            'f8b60501770bff92ed6ce90860a610e6',
+        },
     },
 }

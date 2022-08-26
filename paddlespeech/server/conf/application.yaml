@@ -25,6 +25,7 @@ asr_python:
     cfg_path: # [optional]
     ckpt_path: # [optional]
     decode_method: 'attention_rescoring'
+    num_decoding_left_chunks: -1
     force_yes: True
     device:  # set 'gpu:id' or 'cpu'
 

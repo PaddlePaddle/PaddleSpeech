@@ -2,7 +2,7 @@
 name: "\U0001F41B S2T Bug Report"
 about: Create a report to help us improve
 title: "[S2T]XXXX"
-labels: Bug, Question, S2T
+labels: Bug, S2T
 assignees: zh794390558
 
 ---

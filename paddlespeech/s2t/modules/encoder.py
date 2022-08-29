@@ -177,7 +177,8 @@ class BaseEncoder(nn.Layer):
             decoding_chunk_size, self.static_chunk_size,
             num_decoding_left_chunks)
         for layer in self.encoders:
-            xs, chunk_masks, _, _ = layer(xs, chunk_masks, pos_emb, mask_pad)
+            xs, chunk_masks, _, _ = layer(xs, chunk_masks, pos_emb, mask_pad, 
+                                          paddle.zeros([0, 0, 0, 0]), paddle.zeros([0, 0, 0, 0]))
         if self.normalize_before:
             xs = self.after_norm(xs)
         # Here we assume the mask is not changed in encoder layers, so just
@@ -190,9 +191,9 @@ class BaseEncoder(nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            att_cache: paddle.Tensor = paddle.zeros([0,0,0,0]),
-            cnn_cache: paddle.Tensor = paddle.zeros([0,0,0,0]),
-            att_mask: paddle.Tensor = paddle.ones([0,0,0], dtype=paddle.bool),
+            att_cache: paddle.Tensor,
+            cnn_cache: paddle.Tensor,
+            att_mask: paddle.Tensor,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Forward just one chunk
         Args:

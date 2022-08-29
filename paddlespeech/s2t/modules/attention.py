@@ -86,7 +86,7 @@ class MultiHeadedAttention(nn.Layer):
     def forward_attention(self,
             value: paddle.Tensor, 
             scores: paddle.Tensor,
-            mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+            mask: paddle.Tensor,
         ) -> paddle.Tensor:
         """Compute attention context vector.
         Args:
@@ -131,9 +131,9 @@ class MultiHeadedAttention(nn.Layer):
                 query: paddle.Tensor,
                 key: paddle.Tensor,
                 value: paddle.Tensor,
-                mask: paddle.Tensor = paddle.ones([0,0,0], dtype=paddle.bool),
-                pos_emb: paddle.Tensor = paddle.empty([0]),
-                cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+                mask: paddle.Tensor,
+                pos_emb: paddle.Tensor,
+                cache: paddle.Tensor
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute scaled dot product attention.
        Args:
@@ -247,9 +247,9 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
                 query: paddle.Tensor,
                 key: paddle.Tensor,
                 value: paddle.Tensor,
-                mask: paddle.Tensor = paddle.ones([0,0,0], dtype=paddle.bool),
-                pos_emb: paddle.Tensor = paddle.empty([0]),
-                cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+                mask: paddle.Tensor,
+                pos_emb: paddle.Tensor,
+                cache: paddle.Tensor
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
         Args:

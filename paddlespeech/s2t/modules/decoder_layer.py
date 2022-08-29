@@ -122,12 +122,15 @@ class DecoderLayer(nn.Layer):
         if self.concat_after:
             tgt_concat = paddle.cat(
                 (tgt_q, self.self_attn(tgt_q, tgt, tgt, tgt_q_mask,
-                                       paddle.empty([0]), paddle.zeros([0,0,0,0]))[0]), dim=-1)
+                                       paddle.empty([0]),
+                                       paddle.zeros([0, 0, 0, 0]))[0]),
+                dim=-1)
             x = residual + self.concat_linear1(tgt_concat)
         else:
             x = residual + self.dropout(
                 self.self_attn(tgt_q, tgt, tgt, tgt_q_mask,
-                               paddle.empty([0]), paddle.zeros([0,0,0,0]))[0])
+                               paddle.empty([0]), paddle.zeros([0, 0, 0, 0]))[
+                                   0])
         if not self.normalize_before:
             x = self.norm1(x)
 
@@ -137,12 +140,14 @@ class DecoderLayer(nn.Layer):
         if self.concat_after:
             x_concat = paddle.cat(
                 (x, self.src_attn(x, memory, memory, memory_mask,
-                                  paddle.empty([0]), paddle.zeros([0,0,0,0]))[0]), dim=-1)
+                                  paddle.empty([0]),
+                                  paddle.zeros([0, 0, 0, 0]))[0]),
+                dim=-1)
             x = residual + self.concat_linear2(x_concat)
         else:
             x = residual + self.dropout(
                 self.src_attn(x, memory, memory, memory_mask,
-                              paddle.empty([0]), paddle.zeros([0,0,0,0]))[0])
+                              paddle.empty([0]), paddle.zeros([0, 0, 0, 0]))[0])
         if not self.normalize_before:
             x = self.norm2(x)
 

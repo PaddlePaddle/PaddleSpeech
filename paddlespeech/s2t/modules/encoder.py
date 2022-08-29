@@ -177,8 +177,9 @@ class BaseEncoder(nn.Layer):
             decoding_chunk_size, self.static_chunk_size,
             num_decoding_left_chunks)
         for layer in self.encoders:
-            xs, chunk_masks, _, _ = layer(xs, chunk_masks, pos_emb, mask_pad, 
-                                          paddle.zeros([0, 0, 0, 0]), paddle.zeros([0, 0, 0, 0]))
+            xs, chunk_masks, _, _ = layer(xs, chunk_masks, pos_emb, mask_pad,
+                                          paddle.zeros([0, 0, 0, 0]),
+                                          paddle.zeros([0, 0, 0, 0]))
         if self.normalize_before:
             xs = self.after_norm(xs)
         # Here we assume the mask is not changed in encoder layers, so just
@@ -228,7 +229,7 @@ class BaseEncoder(nn.Layer):
             xs = self.global_cmvn(xs)
 
         # before embed, xs=(B, T, D1), pos_emb=(B=1, T, D)
-        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset=offset) 
+        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset=offset)
         # after embed, xs=(B=1, chunk_size, hidden-dim)
 
         elayers = paddle.shape(att_cache)[0]
@@ -253,14 +254,16 @@ class BaseEncoder(nn.Layer):
             # att_cache[i:i+1] = (1, head, cache_t1, d_k*2)
             # cnn_cache[i:i+1] = (1, B=1, hidden-dim, cache_t2)
             xs, _, new_att_cache, new_cnn_cache = layer(
-                xs, att_mask, pos_emb,
-                att_cache=att_cache[i:i+1] if elayers > 0 else att_cache,
-                cnn_cache=cnn_cache[i:i+1] if paddle.shape(cnn_cache)[0] > 0 else cnn_cache,
-            )
+                xs,
+                att_mask,
+                pos_emb,
+                att_cache=att_cache[i:i + 1] if elayers > 0 else att_cache,
+                cnn_cache=cnn_cache[i:i + 1]
+                if paddle.shape(cnn_cache)[0] > 0 else cnn_cache, )
             # new_att_cache = (1, head, attention_key_size, d_k*2)
             # new_cnn_cache = (B=1, hidden-dim, cache_t2)
-            r_att_cache.append(new_att_cache[:,:, next_cache_start:, :])
-            r_cnn_cache.append(new_cnn_cache.unsqueeze(0)) # add elayer dim
+            r_att_cache.append(new_att_cache[:, :, next_cache_start:, :])
+            r_cnn_cache.append(new_cnn_cache.unsqueeze(0))  # add elayer dim
 
         if self.normalize_before:
             xs = self.after_norm(xs)
@@ -270,7 +273,6 @@ class BaseEncoder(nn.Layer):
         r_att_cache = paddle.concat(r_att_cache, axis=0)
         r_cnn_cache = paddle.concat(r_cnn_cache, axis=0)
         return xs, r_att_cache, r_cnn_cache
-
 
     def forward_chunk_by_chunk(
             self,
@@ -316,8 +318,8 @@ class BaseEncoder(nn.Layer):
         num_frames = xs.shape[1]
         required_cache_size = decoding_chunk_size * num_decoding_left_chunks
 
-        att_cache: paddle.Tensor = paddle.zeros([0,0,0,0])
-        cnn_cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
 
         outputs = []
         offset = 0
@@ -327,7 +329,7 @@ class BaseEncoder(nn.Layer):
             chunk_xs = xs[:, cur:end, :]
 
             (y, att_cache, cnn_cache) = self.forward_chunk(
-                 chunk_xs, offset, required_cache_size, att_cache, cnn_cache)
+                chunk_xs, offset, required_cache_size, att_cache, cnn_cache)
 
             outputs.append(y)
             offset += y.shape[1]

@@ -105,7 +105,8 @@ class TransformerEncoderLayer(nn.Layer):
         if self.normalize_before:
             x = self.norm1(x)
 
-        x_att, new_att_cache = self.self_attn(x, x, x, mask, paddle.empty([0]), cache=att_cache)
+        x_att, new_att_cache = self.self_attn(
+            x, x, x, mask, paddle.empty([0]), cache=att_cache)
 
         if self.concat_after:
             x_concat = paddle.concat((x, x_att), axis=-1)

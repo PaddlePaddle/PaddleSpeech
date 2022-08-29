@@ -2,7 +2,7 @@
 name: "\U0001F41B ASR Bug Report"
 about: Create a report to help us improve
 title: ''
-labels: Bug, S2T
+labels: Bug, Question, S2T
 assignees: zh794390558
 
 ---

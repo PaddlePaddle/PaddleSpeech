@@ -349,16 +349,7 @@ class ToneSandhi():
                       finals: List[str]) -> List[str]:
         
         finals = self._bu_sandhi(word, finals)
-        if word=='数额':
-            print("after _bu_sandhi")
-            print(finals)
         finals = self._yi_sandhi(word, finals)
-        if word=='数额':
-            print("after _yi_sandhi")
-            print(finals)
         finals = self._neural_sandhi(word, pos, finals)
-        if word=='数额':
-            print("after _neural_sandhi")
-            print(finals)
         finals = self._three_sandhi(word, finals)
         return finals

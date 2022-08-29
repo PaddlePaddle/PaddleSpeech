@@ -12,7 +12,7 @@ Run the command below to get the results of the test.
 ./run.sh
 ```
 
-The `avg WER` of g2p is: 0.024219452438490413
+The `avg WER` of g2p is: 0.024169315564825305
 
 ```text
      ,--------------------------------------------------------------------.

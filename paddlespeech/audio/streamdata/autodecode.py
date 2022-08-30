@@ -5,17 +5,18 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
-
 """Automatically decode webdataset samples."""
-
-import io, json, os, pickle, re, tempfile
+import io
+import json
+import os
+import pickle
+import re
+import tempfile
 from functools import partial
 
 import numpy as np
-
 """Extensions passed on to the image decoder."""
 image_extensions = "jpg jpeg png ppm pgm pbm pnm".split()
-
 
 ################################################################
 # handle basic datatypes
@@ -128,7 +129,7 @@ def call_extension_handler(key, data, f, extensions):
         target = target.split(".")
         if len(target) > len(extension):
             continue
-        if extension[-len(target) :] == target:
+        if extension[-len(target):] == target:
             return f(data)
     return None
 
@@ -268,7 +269,6 @@ def imagehandler(imagespec, extensions=image_extensions):
 ################################################################
 # torch video
 ################################################################
-
 '''
 def torch_video(key, data):
     """Decode video using the torchvideo library.
@@ -288,7 +288,6 @@ def torch_video(key, data):
             stream.write(data)
         return torchvision.io.read_video(fname, pts_unit="sec")
 '''
-
 
 ################################################################
 # paddlespeech.audio
@@ -359,7 +358,6 @@ def gzfilter(key, data):
 # decode entire training amples
 ################################################################
 
-
 default_pre_handlers = [gzfilter]
 default_post_handlers = [basichandlers]
 
@@ -387,7 +385,8 @@ class Decoder:
             pre = default_pre_handlers
         if post is None:
             post = default_post_handlers
-        assert all(callable(h) for h in handlers), f"one of {handlers} not callable"
+        assert all(callable(h)
+                   for h in handlers), f"one of {handlers} not callable"
         assert all(callable(h) for h in pre), f"one of {pre} not callable"
         assert all(callable(h) for h in post), f"one of {post} not callable"
         self.handlers = pre + handlers + post

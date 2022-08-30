@@ -3,48 +3,48 @@
 # 2. 接收录音音频，返回识别结果
 # 3. 接收ASR识别结果，返回NLP对话结果
 # 4. 接收NLP对话结果，返回TTS音频
-
+import argparse
 import base64
-import yaml
-import os
-import json
 import datetime
+import json
+import os
+from typing import List
+
+import aiofiles
 import librosa
 import soundfile as sf
-import numpy as np
-import argparse
 import uvicorn
-import aiofiles
-from typing import Optional, List 
-from pydantic import BaseModel
-from fastapi import FastAPI, Header, File, UploadFile, Form, Cookie, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
+from fastapi import File
+from fastapi import Form
+from fastapi import UploadFile
+from fastapi import WebSocket
+from fastapi import WebSocketDisconnect
 from fastapi.responses import StreamingResponse
-from starlette.responses import FileResponse
+from pydantic import BaseModel
+from src.AudioManeger import AudioMannger
+from src.robot import Robot
+from src.SpeechBase.vpr import VPR
+from src.util import *
+from src.WebsocketManeger import ConnectionManager
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
+from starlette.responses import FileResponse
 from starlette.websockets import WebSocketState as WebSocketState
-
-from src.AudioManeger import AudioMannger
-from src.util import *
-from src.robot import Robot
-from src.WebsocketManeger import ConnectionManager
-from src.SpeechBase.vpr import VPR
 
 from paddlespeech.server.engine.asr.online.python.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.utils.audio_process import float2pcm
 
-
 # 解析配置
-parser = argparse.ArgumentParser(
-        prog='PaddleSpeechDemo', add_help=True)
+parser = argparse.ArgumentParser(prog='PaddleSpeechDemo', add_help=True)
 
 parser.add_argument(
-        "--port",
-        action="store",
-        type=int,
-        help="port of the app",
-        default=8010,
-        required=False)
+    "--port",
+    action="store",
+    type=int,
+    help="port of the app",
+    default=8010,
+    required=False)
 
 args = parser.parse_args()
 port = args.port
@@ -60,38 +60,40 @@ ie_model_path = "source/model"
 UPLOAD_PATH = "source/vpr"
 WAV_PATH = "source/wav"
 
-
-base_sources = [
-    UPLOAD_PATH, WAV_PATH
-]
+base_sources = [UPLOAD_PATH, WAV_PATH]
 for path in base_sources:
     os.makedirs(path, exist_ok=True)
 
-
 # 初始化
 app = FastAPI()
-chatbot = Robot(asr_config, tts_config, asr_init_path, ie_model_path=ie_model_path)
+chatbot = Robot(
+    asr_config, tts_config, asr_init_path, ie_model_path=ie_model_path)
 manager = ConnectionManager()
 aumanager = AudioMannger(chatbot)
 aumanager.init()
-vpr = VPR(db_path, dim = 192, top_k = 5)
+vpr = VPR(db_path, dim=192, top_k=5)
+
 
 # 服务配置
 class NlpBase(BaseModel):
     chat: str
 
+
 class TtsBase(BaseModel):
-    text: str 
+    text: str
+
 
 class Audios:
     def __init__(self) -> None:
         self.audios = b""
+
 
 audios = Audios()
 
 ######################################################################
 ########################### ASR 服务 #################################
 #####################################################################
+
 
 # 接收文件，返回ASR结果
 # 上传文件
@@ -101,7 +103,8 @@ async def speech2textOffline(files: List[UploadFile]):
     asr_res = ""
     for file in files[:1]:
         # 生成时间戳
-        now_name = "asr_offline_" + datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
+        now_name = "asr_offline_" + datetime.datetime.strftime(
+            datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
         async with aiofiles.open(out_file_path, 'wb') as out_file:
             content = await file.read()  # async read
@@ -111,8 +114,9 @@ async def speech2textOffline(files: List[UploadFile]):
         asr_res = chatbot.speech2text(out_file_path)
         return SuccessRequest(result=asr_res)
         # else:
-            # return ErrorRequest(message="文件不是.wav格式")
+    # return ErrorRequest(message="文件不是.wav格式")
     return ErrorRequest(message="上传文件为空")
+
 
 # 接收文件，同时将wav强制转成16k, int16类型
 @app.post("/asr/offlinefile")
@@ -121,7 +125,8 @@ async def speech2textOfflineFile(files: List[UploadFile]):
     asr_res = ""
     for file in files[:1]:
         # 生成时间戳
-        now_name = "asr_offline_" + datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
+        now_name = "asr_offline_" + datetime.datetime.strftime(
+            datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
         async with aiofiles.open(out_file_path, 'wb') as out_file:
             content = await file.read()  # async read
@@ -132,22 +137,18 @@ async def speech2textOfflineFile(files: List[UploadFile]):
         wav = float2pcm(wav)  # float32 to int16
         wav_bytes = wav.tobytes()  # to bytes
         wav_base64 = base64.b64encode(wav_bytes).decode('utf8')
-        
+
         # 将文件重新写入
         now_name = now_name[:-4] + "_16k" + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
-        sf.write(out_file_path,wav,16000)
+        sf.write(out_file_path, wav, 16000)
 
         # 返回ASR识别结果
         asr_res = chatbot.speech2text(out_file_path)
-        response_res = {
-            "asr_result": asr_res,
-            "wav_base64": wav_base64
-        }
+        response_res = {"asr_result": asr_res, "wav_base64": wav_base64}
         return SuccessRequest(result=response_res)
-        
-    return ErrorRequest(message="上传文件为空")
 
+    return ErrorRequest(message="上传文件为空")
 
 
 # 流式接收测试
@@ -161,15 +162,17 @@ async def speech2textOnlineRecive(files: List[UploadFile]):
     print(f"audios长度变化: {len(audios.audios)}")
     return SuccessRequest(message="接收成功")
 
+
 # 采集环境噪音大小
 @app.post("/asr/collectEnv")
 async def collectEnv(files: List[UploadFile]):
-     for file in files[:1]:
+    for file in files[:1]:
         content = await file.read()  # async read
         # 初始化, wav 前44字节是头部信息
         aumanager.compute_env_volume(content[44:])
         vad_ = aumanager.vad_threshold
-        return SuccessRequest(result=vad_,message="采集环境噪音成功")
+        return SuccessRequest(result=vad_, message="采集环境噪音成功")
+
 
 # 停止录音
 @app.get("/asr/stopRecord")
@@ -179,6 +182,7 @@ async def stopRecord():
     print("Online录音暂停")
     return SuccessRequest(message="停止成功")
 
+
 # 恢复录音
 @app.get("/asr/resumeRecord")
 async def resumeRecord():
@@ -187,7 +191,7 @@ async def resumeRecord():
     return SuccessRequest(message="Online录音恢复")
 
 
-# 聊天用的ASR
+# 聊天用的 ASR
 @app.websocket("/ws/asr/offlineStream")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
@@ -210,9 +214,9 @@ async def websocket_endpoint(websocket: WebSocket):
         # print(f"用户-{user}-离开")
 
 
-# Online识别的ASR
+    # 流式识别的 ASR
 @app.websocket('/ws/asr/onlineStream')
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint_online(websocket: WebSocket):
     """PaddleSpeech Online ASR Server api
 
     Args:
@@ -298,12 +302,14 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
 
+
 ######################################################################
 ########################### NLP 服务 #################################
 #####################################################################
 
+
 @app.post("/nlp/chat")
-async def chatOffline(nlp_base:NlpBase):
+async def chatOffline(nlp_base: NlpBase):
     chat = nlp_base.chat
     if not chat:
         return ErrorRequest(message="传入文本为空")
@@ -311,8 +317,9 @@ async def chatOffline(nlp_base:NlpBase):
         res = chatbot.chat(chat)
         return SuccessRequest(result=res)
 
+
 @app.post("/nlp/ie")
-async def ieOffline(nlp_base:NlpBase):
+async def ieOffline(nlp_base: NlpBase):
     nlp_text = nlp_base.chat
     if not nlp_text:
         return ErrorRequest(message="传入文本为空")
@@ -320,17 +327,20 @@ async def ieOffline(nlp_base:NlpBase):
         res = chatbot.ie(nlp_text)
         return SuccessRequest(result=res)
 
+
 ######################################################################
 ########################### TTS 服务 #################################
 #####################################################################
 
+
 @app.post("/tts/offline")
-async def text2speechOffline(tts_base:TtsBase):
+async def text2speechOffline(tts_base: TtsBase):
     text = tts_base.text
     if not text:
         return ErrorRequest(message="文本为空")
     else:
-        now_name = "tts_"+ datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
+        now_name = "tts_" + datetime.datetime.strftime(
+            datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
         # 保存为文件，再转成base64传输
         chatbot.text2speech(text, outpath=out_file_path)
@@ -339,11 +349,13 @@ async def text2speechOffline(tts_base:TtsBase):
         base_str = base64.b64encode(data_bin)
         return SuccessRequest(result=base_str)
 
+
 # http流式TTS
 @app.post("/tts/online")
 async def stream_tts(request_body: TtsBase):
     text = request_body.text
     return StreamingResponse(chatbot.text2speechStreamBytes(text=text))
+
 
 # ws流式TTS
 @app.websocket("/ws/tts/online")
@@ -356,17 +368,11 @@ async def stream_ttsWS(websocket: WebSocket):
             if text:
                 for sub_wav in chatbot.text2speechStream(text=text):
                     # print("发送sub wav: ", len(sub_wav))
-                    res = {
-                        "wav": sub_wav,
-                        "done": False
-                    }
+                    res = {"wav": sub_wav, "done": False}
                     await websocket.send_json(res)
-                
+
                 # 输送结束
-                res = {
-                        "wav": sub_wav,
-                        "done": True
-                    }
+                res = {"wav": sub_wav, "done": True}
                 await websocket.send_json(res)
             # manager.disconnect(websocket)
 
@@ -396,8 +402,9 @@ async def vpr_enroll(table_name: str=None,
             return {'status': False, 'msg': "spk_id can not be None"}
         # Save the upload data to server.
         content = await audio.read()
-        now_name = "vpr_enroll_" + datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
-        audio_path =  os.path.join(UPLOAD_PATH, now_name)
+        now_name = "vpr_enroll_" + datetime.datetime.strftime(
+            datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
+        audio_path = os.path.join(UPLOAD_PATH, now_name)
 
         with open(audio_path, "wb+") as f:
             f.write(content)
@@ -413,12 +420,13 @@ async def vpr_recog(request: Request,
                     audio: UploadFile=File(...)):
     # Voice print recognition online
     # try:
-        # Save the upload data to server.
+    # Save the upload data to server.
     content = await audio.read()
-    now_name = "vpr_query_" + datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
-    query_audio_path =  os.path.join(UPLOAD_PATH, now_name)
+    now_name = "vpr_query_" + datetime.datetime.strftime(
+        datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
+    query_audio_path = os.path.join(UPLOAD_PATH, now_name)
     with open(query_audio_path, "wb+") as f:
-        f.write(content)        
+        f.write(content)
     spk_ids, paths, scores = vpr.do_search_vpr(query_audio_path)
 
     res = dict(zip(spk_ids, zip(paths, scores)))
@@ -426,7 +434,9 @@ async def vpr_recog(request: Request,
     res = sorted(res.items(), key=lambda item: item[1][1], reverse=True)
     return res
     # except Exception as e:
-        # return {'status': False, 'msg': e}, 400
+
+
+# return {'status': False, 'msg': e}, 400
 
 
 @app.post('/vpr/del')
@@ -460,16 +470,17 @@ async def vpr_database64(vprId: int):
             return {'status': False, 'msg': "vpr_id can not be None"}
         audio_path = vpr.do_get_wav(vprId)
         # 返回base64
-        
+
         # 将文件转成16k, 16bit类型的wav文件
         wav, sr = librosa.load(audio_path, sr=16000)
         wav = float2pcm(wav)  # float32 to int16
         wav_bytes = wav.tobytes()  # to bytes
         wav_base64 = base64.b64encode(wav_bytes).decode('utf8')
-        
+
         return SuccessRequest(result=wav_base64)
     except Exception as e:
         return {'status': False, 'msg': e}, 400
+
 
 @app.get('/vpr/data')
 async def vpr_data(vprId: int):
@@ -482,11 +493,6 @@ async def vpr_data(vprId: int):
     except Exception as e:
         return {'status': False, 'msg': e}, 400
 
+
 if __name__ == '__main__':
     uvicorn.run(app=app, host='0.0.0.0', port=port)
-    
-
-
-
-
-

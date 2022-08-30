@@ -15,7 +15,6 @@
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
 """Multi-Head Attention layer definition."""
 import math
-from typing import Optional
 from typing import Tuple
 
 import paddle
@@ -83,11 +82,12 @@ class MultiHeadedAttention(nn.Layer):
 
         return q, k, v
 
-    def forward_attention(self,
-            value: paddle.Tensor, 
+    def forward_attention(
+            self,
+            value: paddle.Tensor,
             scores: paddle.Tensor,
-            mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
-        ) -> paddle.Tensor:
+            mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
+    ) -> paddle.Tensor:
         """Compute attention context vector.
         Args:
             value (paddle.Tensor): Transformed value, size
@@ -108,7 +108,7 @@ class MultiHeadedAttention(nn.Layer):
         # When will `if mask.size(2) > 0` be False?
         # 1. onnx(16/-1, -1/-1, 16/0)
         # 2. jit (16/-1, -1/-1, 16/0, 16/4)
-        if paddle.shape(mask)[2] > 0: # time2 > 0
+        if paddle.shape(mask)[2] > 0:  # time2 > 0
             mask = mask.unsqueeze(1).equal(0)  # (batch, 1, *, time2)
             # for last chunk, time2 might be larger than scores.size(-1)
             mask = mask[:, :, :, :paddle.shape(scores)[-1]]
@@ -131,9 +131,9 @@ class MultiHeadedAttention(nn.Layer):
                 query: paddle.Tensor,
                 key: paddle.Tensor,
                 value: paddle.Tensor,
-                mask: paddle.Tensor = paddle.ones([0,0,0], dtype=paddle.bool),
-                pos_emb: paddle.Tensor = paddle.empty([0]),
-                cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+                mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
+                pos_emb: paddle.Tensor=paddle.empty([0]),
+                cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute scaled dot product attention.
        Args:
@@ -247,9 +247,9 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
                 query: paddle.Tensor,
                 key: paddle.Tensor,
                 value: paddle.Tensor,
-                mask: paddle.Tensor = paddle.ones([0,0,0], dtype=paddle.bool),
-                pos_emb: paddle.Tensor = paddle.empty([0]),
-                cache: paddle.Tensor = paddle.zeros([0,0,0,0])
+                mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
+                pos_emb: paddle.Tensor=paddle.empty([0]),
+                cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
         Args:

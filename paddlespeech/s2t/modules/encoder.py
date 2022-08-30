@@ -190,9 +190,9 @@ class BaseEncoder(nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            att_cache: paddle.Tensor,
-            cnn_cache: paddle.Tensor,
-            att_mask: paddle.Tensor,
+            att_cache: paddle.Tensor,  # paddle.zeros([0,0,0,0])
+            cnn_cache: paddle.Tensor,  # paddle.zeros([0,0,0,0]),
+            att_mask: paddle.Tensor,  # paddle.ones([0,0,0], dtype=paddle.bool)
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Forward just one chunk
         Args:

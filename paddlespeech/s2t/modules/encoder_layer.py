@@ -76,9 +76,10 @@ class TransformerEncoderLayer(nn.Layer):
             x: paddle.Tensor,
             mask: paddle.Tensor,
             pos_emb: paddle.Tensor,
-            mask_pad: paddle.Tensor,
-            att_cache: paddle.Tensor,
-            cnn_cache: paddle.Tensor,
+            mask_pad: paddle.
+            Tensor,  # paddle.ones([0, 0, 0], dtype=paddle.bool)
+            att_cache: paddle.Tensor,  # paddle.zeros([0, 0, 0, 0])
+            cnn_cache: paddle.Tensor,  # paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:
@@ -194,9 +195,10 @@ class ConformerEncoderLayer(nn.Layer):
             x: paddle.Tensor,
             mask: paddle.Tensor,
             pos_emb: paddle.Tensor,
-            mask_pad: paddle.Tensor,
-            att_cache: paddle.Tensor,
-            cnn_cache: paddle.Tensor,
+            mask_pad: paddle.
+            Tensor,  # paddle.ones([0, 0, 0], dtype=paddle.bool)
+            att_cache: paddle.Tensor,  # paddle.zeros([0, 0, 0, 0])
+            cnn_cache: paddle.Tensor,  # paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:

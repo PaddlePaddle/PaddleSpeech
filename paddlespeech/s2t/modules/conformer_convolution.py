@@ -105,10 +105,12 @@ class ConvolutionModule(nn.Layer):
         )
         self.activation = activation
 
-    def forward(self,
-                x: paddle.Tensor,
-                mask_pad: paddle.Tensor,
-                cache: paddle.Tensor) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            mask_pad: paddle.Tensor,  # paddle.ones([0,0,0], dtype=paddle.bool)
+            cache: paddle.Tensor  # paddle.zeros([0,0,0,0])
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute convolution module.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, channels).

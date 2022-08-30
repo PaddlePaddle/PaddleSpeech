@@ -85,8 +85,8 @@ class ToneSandhi():
                 finals[j] = finals[j][:-1] + "5"
         ge_idx = word.find("个")
         if (len(word) > 1 and word[-1] in "吧呢啊呐噻嘛吖嗨呐哦哒滴哩哟喽啰耶喔诶") or (
-                len(word) > 1 and word[-2] in '好是帅酷棒衰烂臭狗糗' and word[-1]=='额') or (
-                    len(word) == 1 and word[-1] in "额嗯"):
+                len(word) > 1 and word[-2] in '好是帅酷棒衰烂臭狗糗' and
+                word[-1] == '额') or (len(word) == 1 and word[-1] in "额嗯"):
             finals[-1] = finals[-1][:-1] + "5"
         elif len(word) >= 1 and word[-1] in "的地得":
             finals[-1] = finals[-1][:-1] + "5"

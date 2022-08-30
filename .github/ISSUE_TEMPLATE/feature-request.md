@@ -3,7 +3,7 @@ name: "\U0001F680 Feature Request"
 about: As a user, I want to request a New Feature on the product.
 title: ''
 labels: feature request
-assignees: ''
+assignees: D-DanielYang, iftaken
 
 ---
 

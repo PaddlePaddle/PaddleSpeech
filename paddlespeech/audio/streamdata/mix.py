@@ -5,16 +5,21 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
-
 """Classes for mixing samples from multiple sources."""
-
-import itertools, os, random, time, sys
-from functools import reduce, wraps
+import itertools
+import os
+import random
+import sys
+import time
+from functools import reduce
+from functools import wraps
 
 import numpy as np
 
-from . import autodecode, utils
-from .paddle_utils import PaddleTensor, IterableDataset
+from . import autodecode
+from . import utils
+from .paddle_utils import IterableDataset
+from .paddle_utils import PaddleTensor
 from .utils import PipelineStage
 
 

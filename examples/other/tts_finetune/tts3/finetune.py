@@ -17,15 +17,14 @@ from pathlib import Path
 from typing import Union
 
 import yaml
-from paddle import distributed as dist
-from yacs.config import CfgNode
-
-from paddlespeech.t2s.exps.fastspeech2.train import train_sp
-
 from local.check_oov import get_check_result
 from local.extract import extract_feature
 from local.label_process import get_single_label
 from local.prepare_env import generate_finetune_env
+from paddle import distributed as dist
+from yacs.config import CfgNode
+
+from paddlespeech.t2s.exps.fastspeech2.train import train_sp
 from utils.gen_duration_from_textgrid import gen_duration_from_textgrid
 
 DICT_EN = 'tools/aligner/cmudict-0.7b'

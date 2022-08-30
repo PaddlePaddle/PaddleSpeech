@@ -14,7 +14,7 @@
 
 using namespace lm::ngram;
 // if your platform is windows ,you need add the define
-#define    F_OK    0
+#define F_OK 0
 Scorer::Scorer(double alpha,
                double beta,
                const std::string& lm_path,

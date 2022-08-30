@@ -329,7 +329,8 @@ class BaseEncoder(nn.Layer):
             chunk_xs = xs[:, cur:end, :]
 
             (y, att_cache, cnn_cache) = self.forward_chunk(
-                chunk_xs, offset, required_cache_size, att_cache, cnn_cache, paddle.ones([0,0,0], dtype=paddle.bool))
+                chunk_xs, offset, required_cache_size, att_cache, cnn_cache,
+                paddle.ones([0, 0, 0], dtype=paddle.bool))
 
             outputs.append(y)
             offset += y.shape[1]

@@ -476,8 +476,12 @@ class PaddleASRConnectionHanddler:
             # forward chunk
             (y, self.att_cache,
              self.cnn_cache) = self.model.encoder.forward_chunk(
-                 chunk_xs, self.offset, required_cache_size, self.att_cache,
-                 self.cnn_cache)
+                 chunk_xs,
+                 self.offset,
+                 required_cache_size,
+                 att_cache=self.att_cache,
+                 cnn_cache=self.cnn_cache,
+                 att_mask=paddle.ones([0, 0, 0], dtype=paddle.bool))
             outputs.append(y)
 
             # update the global offset, in decoding frame unit

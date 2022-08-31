@@ -108,8 +108,8 @@ class ConvolutionModule(nn.Layer):
     def forward(
             self,
             x: paddle.Tensor,
-            mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-            cache: paddle.Tensor=paddle.zeros([0, 0, 0]),
+            mask_pad: paddle.Tensor,  # paddle.ones([0,0,0], dtype=paddle.bool)
+            cache: paddle.Tensor  # paddle.zeros([0,0,0,0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute convolution module.
         Args:

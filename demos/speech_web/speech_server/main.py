@@ -113,8 +113,6 @@ async def speech2textOffline(files: List[UploadFile]):
         # 返回ASR识别结果
         asr_res = chatbot.speech2text(out_file_path)
         return SuccessRequest(result=asr_res)
-        # else:
-    # return ErrorRequest(message="文件不是.wav格式")
     return ErrorRequest(message="上传文件为空")
 
 
@@ -433,10 +431,6 @@ async def vpr_recog(request: Request,
     # Sort results by distance metric, closest distances first
     res = sorted(res.items(), key=lambda item: item[1][1], reverse=True)
     return res
-    # except Exception as e:
-
-
-# return {'status': False, 'msg': e}, 400
 
 
 @app.post('/vpr/del')

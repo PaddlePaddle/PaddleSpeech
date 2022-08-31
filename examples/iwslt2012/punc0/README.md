@@ -19,19 +19,20 @@
 ```
 ## Pretrained Model
 The pretrained model can be downloaded here:
-[ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip).
 
-[ernie-3.0-base.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-base.tar.gz)
+        [ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip).
 
-[ernie-3.0-medium.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-medium.tar.gz)
+        [ernie-3.0-base.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-base.tar.gz)
 
-[ernie-3.0-micro.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-micro.tar.gz)
+        [ernie-3.0-medium.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-medium.tar.gz)
 
-[ernie-mini.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-mini.tar.gz)
+        [ernie-3.0-micro.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-micro.tar.gz)
 
-[ernie-nano.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-nano.tar.gz)
+        [ernie-mini.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-mini.tar.gz)
 
-[ernie-tiny.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-tiny.tar.gz)
+        [ernie-nano.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-nano.tar.gz)
+
+        [ernie-tiny.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-tiny.tar.gz)
 
 ### Test Result
 - Ernie 1.0

@@ -20,7 +20,7 @@
 ## Pretrained Model
 The pretrained model can be downloaded here:
 
-[ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip).
+[ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_iwslt2012_zh_ckpt_0.1.1.zip)
 
 [ernie-3.0-base.tar.gz](https://paddlespeech.bj.bcebos.com/punc_restore/ernie-3.0-base.tar.gz)
 

@@ -146,7 +146,7 @@ cache_generator_outputs: True # whether to cache generator outputs in the traini
 ###########################################################
 #                  DATA LOADER SETTING                    #
 ###########################################################
-batch_size: 64              # Batch size.
+batch_size: 50              # Batch size.
 num_workers: 4              # Number of workers in DataLoader.
 
 ##########################################################

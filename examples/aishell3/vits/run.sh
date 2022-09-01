@@ -3,7 +3,7 @@
 set -e
 source path.sh
 
-gpus=0,1
+gpus=0,1,2,3
 stage=0
 stop_stage=100
 

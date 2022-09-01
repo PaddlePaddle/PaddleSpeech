@@ -114,6 +114,7 @@ if not hasattr(paddle.Tensor, 'new_full'):
     paddle.Tensor.new_full = new_full
     paddle.static.Variable.new_full = new_full
 
+
 def contiguous(xs: paddle.Tensor) -> paddle.Tensor:
     return xs
 

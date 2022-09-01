@@ -25,8 +25,6 @@ import paddle
 from paddle import distributed as dist
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
-from paddlespeech.s2t.io.dataloader import BatchDataLoader
-from paddlespeech.s2t.io.dataloader import StreamDataLoader
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
@@ -109,7 +107,8 @@ class U2Trainer(Trainer):
     def valid(self):
         self.model.eval()
         if not self.use_streamdata:
-            logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+            logger.info(
+                f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
         num_seen_utts = 1
         total_loss = 0.0
@@ -136,7 +135,8 @@ class U2Trainer(Trainer):
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
                 if not self.use_streamdata:
-                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
+                    msg += "batch: {}/{}, ".format(i + 1,
+                                                   len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -157,7 +157,8 @@ class U2Trainer(Trainer):
         self.before_train()
 
         if not self.use_streamdata:
-            logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
+            logger.info(
+                f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -225,14 +226,18 @@ class U2Trainer(Trainer):
         config = self.config.clone()
         self.use_streamdata = config.get("use_stream_data", False)
         if self.train:
-            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
-            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
+            self.train_loader = DataLoaderFactory.get_dataloader(
+                'train', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader(
+                'valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
             decode_batch_size = config.get('decode', dict()).get(
                 'decode_batch_size', 1)
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
-            self.align_loader = DataLoaderFactory.get_dataloader('align', config, self.args)
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
+                                                                self.args)
+            self.align_loader = DataLoaderFactory.get_dataloader(
+                'align', config, self.args)
             logger.info("Setup test/align Dataloader!")
 
     def setup_model(self):

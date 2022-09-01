@@ -1,9 +1,9 @@
 ---
-name: Bug report
+name: "\U0001F41B S2T Bug Report"
 about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+title: "[S2T]XXXX"
+labels: Bug, S2T
+assignees: zh794390558
 
 ---
 
@@ -27,7 +27,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-** Environment (please complete the following information):**
+**Environment (please complete the following information):**
  - OS: [e.g. Ubuntu]
  - GCC/G++ Version [e.g. 8.3]
  - Python Version [e.g. 3.7]

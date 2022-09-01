@@ -34,7 +34,7 @@ from paddlespeech.t2s.frontend.g2pw.utils import load_config
 from paddlespeech.t2s.frontend.zh_normalization.char_convert import tranditional_to_simplified
 from paddlespeech.utils.env import MODEL_HOME
 
-model_version = '1.0'
+model_version = '1.1'
 
 
 def predict(session, onnx_input, labels):

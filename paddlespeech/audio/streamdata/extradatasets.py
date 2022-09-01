@@ -5,20 +5,10 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
-
-
 """Train PyTorch models directly from POSIX tar archive.
 
 Code works locally or over HTTP connections.
 """
-
-import itertools as itt
-import os
-import random
-import sys
-
-import braceexpand
-
 from . import utils
 from .paddle_utils import IterableDataset
 from .utils import PipelineStage
@@ -63,8 +53,7 @@ class repeatedly(IterableDataset, PipelineStage):
         return utils.repeatedly(
             source,
             nepochs=self.nepochs,
-            nbatches=self.nbatches,
-        )
+            nbatches=self.nbatches, )
 
 
 class with_epoch(IterableDataset):

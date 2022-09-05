@@ -151,3 +151,4 @@ vits_vc_aishell3_ckpt_1.1.0
 
 ps: This ckpt is not good enough, a better result is training
 -->
+

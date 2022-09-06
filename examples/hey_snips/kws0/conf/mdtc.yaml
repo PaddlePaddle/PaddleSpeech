@@ -3,7 +3,7 @@
 #                   Data                  #
 ###########################################
 dataset: 'paddlespeech.audio.datasets:HeySnips'
-data_dir: '/PATH/TO/DATA/hey_snips_research_6k_en_train_eval_clean_ter'
+data_dir: '../tests/hey_snips_research_6k_en_train_eval_clean_ter'
 
 ############################################
 #           Network Architecture           #

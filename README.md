@@ -613,7 +613,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
     <tr>
-      <td rowspan="3">Voice Cloning</td>
+      <td rowspan="4">Voice Cloning</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
@@ -634,12 +634,19 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
       </td>
     </tr>
+    <tr>
+      <td>GE2E + VITS</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vits-vc">ge2e-vits-aishell3</a>
+      </td>
+    </tr>
      <tr>
       <td rowspan="3">End-to-End</td>
       <td>VITS</td>
-      <td >CSMSC</td>
+      <td>CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a> / <a href = "./examples/aishell3/vits">VITS-aishell3</a>
       </td>
     </tr>
   </tbody>

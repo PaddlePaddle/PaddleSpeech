@@ -61,8 +61,11 @@ class MixFrontend():
             return False
 
     def is_end(self, before_char, after_char) -> bool:
-        if ((self.is_alphabet(before_char) or before_char == " ") and
-            (self.is_alphabet(after_char) or after_char == " ")):
+        flag = 0
+        for char in (before_char, after_char):
+            if self.is_alphabet(char) or char == " ":
+                flag += 1
+        if flag == 2:
             return True
         else:
             return False

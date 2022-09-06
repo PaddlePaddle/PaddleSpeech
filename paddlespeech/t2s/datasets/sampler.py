@@ -1,7 +1,8 @@
-import paddle
 import math
+
 import numpy as np
 from paddle.io import BatchSampler
+
 
 class ErnieSATSampler(BatchSampler):
     """Sampler that restricts data loading to a subset of the dataset.
@@ -110,8 +111,8 @@ class ErnieSATSampler(BatchSampler):
                 subsampled_indices.extend(indices[i:i + self.batch_size])
 
             indices = indices[len(indices) - last_batch_size:]
-            subsampled_indices.extend(indices[
-                self.local_rank * last_local_batch_size:(
+            subsampled_indices.extend(
+                indices[self.local_rank * last_local_batch_size:(
                     self.local_rank + 1) * last_local_batch_size])
             return subsampled_indices
 

@@ -164,6 +164,22 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 
+### 近期活动
+
+ ❗️重磅❗️飞桨智慧金融行业系列直播课
+✅ 覆盖智能风控、智能运维、智能营销、智能客服四大金融主流场景
+
+📆 9月6日-9月29日每周二、四19:00
++ 智慧金融行业深入洞察
++ 8节理论+实践精品直播课
++ 10+真实产业场景范例教学及实践
++ 更有免费算力+结业证书等礼品等你来拿
+扫码报名码住直播链接，与行业精英深度交流
+
+<div align="center">
+<img src="https://user-images.githubusercontent.com/30135920/188431897-a02f028f-dd13-41e8-8ff6-749468cdc850.jpg"  width = "200"  />
+</div>
+
 ### 近期更新
 
 - 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md) 流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md) 流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md) 全链路声纹识别系统
@@ -608,7 +624,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td rowspan="3">声音克隆</td>
+      <td rowspan="4">声音克隆</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
@@ -629,13 +645,20 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
       </td>
     </tr>
+    <tr>
+      <td>GE2E + VITS</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vits-vc">ge2e-vits-aishell3</a>
+      </td>
+    </tr>
     </tr>
      <tr>
       <td rowspan="3">端到端</td>
       <td>VITS</td>
-      <td >CSMSC</td>
+      <td>CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a> / <a href = "./examples/aishell3/vits">VITS-aishell3</a>
       </td>
     </tr>
   </tbody>

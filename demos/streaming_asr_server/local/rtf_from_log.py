@@ -34,7 +34,7 @@ if __name__ == '__main__':
     n = 0
     for m in rtfs:
         # not accurate, may have duplicate log
-        n += 1  
+        n += 1
         T += m['T']
         P += m['P']
 

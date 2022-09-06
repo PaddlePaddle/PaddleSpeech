@@ -1,7 +1,7 @@
 ---
 name: "\U0001F41B TTS Bug Report"
 about: Create a report to help us improve
-title: ''
+title: "[TTS]XXXX"
 labels: Bug, T2S
 assignees: yt605155624
 

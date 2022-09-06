@@ -1,4 +1,5 @@
-braceexpandcolorlog
+braceexpand
+colorlog
 editdistance
 fastapi
 g2p_en

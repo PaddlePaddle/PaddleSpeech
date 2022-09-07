@@ -509,7 +509,7 @@ class TransformerTTS(nn.Layer):
             spk_emb: paddle.Tensor=None,
             threshold: float=0.5,
             minlenratio: float=0.0,
-            maxlenratio: float=10.0,
+            maxlenratio: float=100.0,
             use_teacher_forcing: bool=False,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.

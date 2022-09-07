@@ -10,7 +10,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "Extract features ..."
     python3 ${BIN_DIR}/preprocess.py  \
         --dataset=ljspeech \
-        --rootdir=~/datasets/LJSpeech-1.1/ \
+        --rootdir=~/datasets/BZNSYP/ \
         --dumpdir=dump \
         --config-path=conf/default.yaml \
         --num-cpu=8

@@ -10,7 +10,7 @@ Metaverse 是一种新的互联网应用和社交形式，融合了多种新技�
 
 ## 使用
 
-您可以使用 `PaddleSpeech` 和 `PaddleGAN` 的 `TTS` 模块让您最喜欢的人说出指定的内容，并构建您的虚拟人。
+您可以使用 `PaddleSpeech` 的 `TTS` 模块和 `PaddleGAN` 让您最喜欢的人说出指定的内容，并构建您的虚拟人。
 
 运行 `run.sh` 完成所有基本程序，包括安装。
 

@@ -4,17 +4,17 @@
 
 ## 简介
 
-[FastSpeech2](https://arxiv.org/abs/2006.04558)  是用于语音合成的经典声学模型，它引入了可控语音输入，包括 `phoneme duration`、 `energy` 和 `pitch`。
+[FastSpeech2](https://arxiv.org/abs/2006.04558)  是用于语音合成的经典声学模型，它引入了可控语音输入，包括 `phoneme duration` 、 `energy` 和 `pitch` 。
 
 在预测阶段，您可以更改这些变量以获得一些有趣的结果。
 
 例如:
 
-1.  `FastSpeech2` 中的`duration` 可以控制音频的速度 ，并保持`pitch`。（在某些语音工具中，增加速度将增加音调，反之亦然。）
-2. 当我们将一个句子的`pitch` 设置为平均值并将音素的`tones`设置为 `1`时，我们将获得 `robot-style` 的音色。
-3. 当我们提高成年女性的`pitch` （比例固定）时，我们会得到 `child-style` 的音色。
+1.  `FastSpeech2` 中的 `duration` 可以控制音频的速度 ，并保持 `pitch` 。（在某些语音工具中，增加速度将增加音调，反之亦然。）
+2. 当我们将一个句子的 `pitch` 设置为平均值并将音素的 `tones` 设置为 `1` 时，我们将获得 `robot-style` 的音色。
+3. 当我们提高成年女性的 `pitch` （比例固定）时，我们会得到 `child-style` 的音色。
 
-句子中不同音素的 `duration` 和 `pitch`可以具有不同的比例。您可以设置不同的音阶比例来强调或削弱某些音素的发音。
+句子中不同音素的 `duration` 和 `pitch` 可以具有不同的比例。您可以设置不同的音阶比例来强调或削弱某些音素的发音。
 
 ## 运行
 

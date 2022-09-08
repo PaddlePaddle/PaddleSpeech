@@ -400,7 +400,7 @@ python API 一键预测
 
 **启动服务**     
 ```shell
-paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+paddlespeech_server start --config_file ./demos/speech_server/conf/application.yaml
 ```
 
 **访问语音识别服务**     

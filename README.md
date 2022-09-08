@@ -381,7 +381,7 @@ Developers can have a try of our speech server with [PaddleSpeech Server Command
 **Start server**     
 
 ```shell
-paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+paddlespeech_server start --config_file ./demos/speech_server/conf/application.yaml
 ```
 
 **Access Speech Recognition Services**     

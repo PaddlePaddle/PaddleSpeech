@@ -27,7 +27,7 @@ pattern_singleton
 Pillow>=9.0.0
 praatio==5.0.0
 prettytable
-pypinyin
+pypinyin<=0.44.0
 pypinyin-dict
 python-dateutil
 pyworld==0.2.12

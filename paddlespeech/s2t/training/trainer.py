@@ -19,6 +19,9 @@ from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
+import pdb
+pdb.set_trace()
+dist.init_parallel_env()
 from visualdl import LogWriter
 
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -176,7 +179,7 @@ class Trainer():
     def init_parallel(self):
         """Init environment for multiprocess training.
         """
-        dist.init_parallel_env()
+        # dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
     def save(self, tag=None, infos: dict=None):

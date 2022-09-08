@@ -2,8 +2,8 @@
 source path.sh
 set -e
 
-gpus=0,1,2,3
-stage=0
+gpus=1
+stage=1
 stop_stage=50
 conf_path=conf/conformer.yaml
 ips=            #xx.xx.xx.xx,xx.xx.xx.xx

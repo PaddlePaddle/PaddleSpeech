@@ -3,7 +3,6 @@
 # This file is part of the WebDataset library.
 # See the LICENSE file for licensing terms (BSD-style).
 #
-
 """Pluggable exception handlers.
 
 These are functions that take an exception as an argument and then return...
@@ -14,8 +13,8 @@ These are functions that take an exception as an argument and then return...
 
 They are used as handler= arguments in much of the library.
 """
-
-import time, warnings
+import time
+import warnings
 
 
 def reraise_exception(exn):

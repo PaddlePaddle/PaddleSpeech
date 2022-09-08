@@ -25,7 +25,6 @@ from paddle import DataParallel
 from paddle import distributed as dist
 from paddle import nn
 from paddle.io import DataLoader
-from paddle.io import DistributedBatchSampler
 from paddle.optimizer import Adam
 from yacs.config import CfgNode
 

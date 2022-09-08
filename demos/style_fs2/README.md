@@ -1,3 +1,5 @@
+([简体中文](./README_cn.md)|English)
+
 # Style FastSpeech2
 ## Introduction
 [FastSpeech2](https://arxiv.org/abs/2006.04558)  is a classical acoustic model for Text-to-Speech synthesis, which introduces controllable speech input, including `phoneme duration`、 `energy` and `pitch`. 

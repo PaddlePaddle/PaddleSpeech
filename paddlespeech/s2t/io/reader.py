@@ -120,6 +120,7 @@ class LoadInputsAndTargets():
                     x = self._get_from_loader(
                         filepath=inp["feat"],
                         filetype=inp.get("filetype", "mat"))
+
                     x_feats_dict.setdefault(inp["name"], []).append(x)
 
             if self.load_output:
@@ -236,6 +237,7 @@ class LoadInputsAndTargets():
         :return:
         :rtype: np.ndarray
         """
+
         if filetype == "hdf5":
             # e.g.
             #    {"input": [{"feat": "some/path.h5:F01_050C0101_PED_REAL",

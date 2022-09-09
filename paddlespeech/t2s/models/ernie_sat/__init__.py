@@ -13,3 +13,4 @@
 # limitations under the License.
 from .ernie_sat import *
 from .ernie_sat_updater import *
+from .mlm import *

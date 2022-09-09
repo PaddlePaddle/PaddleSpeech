@@ -5,12 +5,17 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
+
 """Classes for mixing samples from multiple sources."""
-import random
+
+import itertools, os, random, time, sys
+from functools import reduce, wraps
 
 import numpy as np
 
-from .paddle_utils import IterableDataset
+from . import autodecode, utils
+from .paddle_utils import PaddleTensor, IterableDataset
+from .utils import PipelineStage
 
 
 def round_robin_shortest(*sources):

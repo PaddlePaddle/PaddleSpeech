@@ -105,8 +105,7 @@ class PaddleVectorConnectionHandler:
         # we can not reuse the cache io.BytesIO(audio) data, 
         # because the soundfile will change the io.BytesIO(audio) to the end
         # thus we should convert the base64 string to io.BytesIO when we need the audio data
-        if not self.executor._check(
-                io.BytesIO(audio), sample_rate, force_yes=True):
+        if not self.executor._check(io.BytesIO(audio), sample_rate):
             logger.debug("check the audio sample rate occurs error")
             return np.array([0.0])
 

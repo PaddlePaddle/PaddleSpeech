@@ -106,6 +106,59 @@ class ConstantLR(LRScheduler):
     def get_lr(self):
         return self.base_lr
 
+@register_scheduler
+class NewBobScheduler(LRScheduler):
+    """
+    Args:
+        learning_rate (float): The initial learning rate. It is a python float number.
+        last_epoch (int, optional):  The index of last epoch. Can be set to restart training. Default: -1, means initial learning rate.
+        verbose (bool, optional): If ``True``, prints a message to stdout for each update. Default: ``False`` .
+
+    Returns:
+        ``ConstantLR`` instance to schedule learning rate.
+    """
+    def __init__(
+        self,
+        learning_rate,
+        annealing_factor=0.5,
+        improvement_threshold=0.0025,
+        patient=0,
+    ):
+        self.hyperparam_value = learning_rate
+        self.annealing_factor = annealing_factor
+        self.improvement_threshold = improvement_threshold
+        self.patient = patient
+        self.metric_values = []
+        self.current_patient = self.patient
+
+    def __call__(self, metric_value):
+        """Returns the current and new value for the hyperparameter.
+
+        Arguments
+        ---------
+        metric_value : int
+            A number for determining whether to change the hyperparameter value.
+        """
+        old_value = new_value = self.hyperparam_value
+        if len(self.metric_values) > 0:
+            prev_metric = self.metric_values[-1]
+            # Update value if improvement too small and patience is 0
+            if prev_metric == 0:  # Prevent division by zero
+                improvement = 0
+            else:
+                improvement = (prev_metric - metric_value) / prev_metric
+            if improvement < self.improvement_threshold:
+                if self.current_patient == 0:
+                    new_value *= self.annealing_factor
+                    self.current_patient = self.patient
+                else:
+                    self.current_patient -= 1
+        # Store relevant info
+        self.metric_values.append(metric_value)
+        self.hyperparam_value = new_value
+
+        return old_value, new_value
+
 
 def dynamic_import_scheduler(module):
     """Import Scheduler class dynamically.

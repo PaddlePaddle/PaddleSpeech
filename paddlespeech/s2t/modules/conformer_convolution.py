@@ -14,6 +14,7 @@
 # limitations under the License.
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
 """ConvolutionModule definition."""
+from typing import Optional
 from typing import Tuple
 
 import paddle
@@ -105,12 +106,11 @@ class ConvolutionModule(nn.Layer):
         )
         self.activation = activation
 
-    def forward(
-            self,
-            x: paddle.Tensor,
-            mask_pad: paddle.Tensor,  # paddle.ones([0,0,0], dtype=paddle.bool)
-            cache: paddle.Tensor  # paddle.zeros([0,0,0,0])
-    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    def forward(self,
+                x: paddle.Tensor,
+                mask_pad: paddle.Tensor= paddle.ones([0,0,0], dtype=paddle.bool),
+                cache: paddle.Tensor= paddle.zeros([0,0,0]),
+                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute convolution module.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, channels).
@@ -127,11 +127,11 @@ class ConvolutionModule(nn.Layer):
         x = x.transpose([0, 2, 1])  # [B, C, T]
 
         # mask batch padding
-        if paddle.shape(mask_pad)[2] > 0:  # time > 0
+        if paddle.shape(mask_pad)[2] > 0: # time > 0
             x = x.masked_fill(mask_pad, 0.0)
 
         if self.lorder > 0:
-            if paddle.shape(cache)[2] == 0:  # cache_t == 0
+            if paddle.shape(cache)[2] == 0: # cache_t == 0
                 x = nn.functional.pad(
                     x, [self.lorder, 0], 'constant', 0.0, data_format='NCL')
             else:
@@ -161,7 +161,7 @@ class ConvolutionModule(nn.Layer):
         x = self.pointwise_conv2(x)
 
         # mask batch padding
-        if paddle.shape(mask_pad)[2] > 0:  # time > 0
+        if paddle.shape(mask_pad)[2] > 0: # time > 0
             x = x.masked_fill(mask_pad, 0.0)
 
         x = x.transpose([0, 2, 1])  # [B, T, C]

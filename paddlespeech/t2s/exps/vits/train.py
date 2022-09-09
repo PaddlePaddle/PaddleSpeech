@@ -28,7 +28,6 @@ from paddle.io import DistributedBatchSampler
 from paddle.optimizer import Adam
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.datasets.am_batch_fn import vits_multi_spk_batch_fn
 from paddlespeech.t2s.datasets.am_batch_fn import vits_single_spk_batch_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.vits import VITS
@@ -44,7 +43,6 @@ from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import scheduler_classes
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
-from paddlespeech.t2s.utils import str2bool
 
 
 def train_sp(args, config):
@@ -74,23 +72,6 @@ def train_sp(args, config):
         "wave": np.load,
         "feats": np.load,
     }
-    spk_num = None
-    if args.speaker_dict is not None:
-        print("multiple speaker vits!")
-        collate_fn = vits_multi_spk_batch_fn
-        with open(args.speaker_dict, 'rt') as f:
-            spk_id = [line.strip().split() for line in f.readlines()]
-        spk_num = len(spk_id)
-        fields += ["spk_id"]
-    elif args.voice_cloning:
-        print("Training voice cloning!")
-        collate_fn = vits_multi_spk_batch_fn
-        fields += ["spk_emb"]
-        converters["spk_emb"] = np.load
-    else:
-        print("single speaker vits!")
-        collate_fn = vits_single_spk_batch_fn
-    print("spk_num:", spk_num)
 
     # construct dataset for training and validation
     with jsonlines.open(args.train_metadata, 'r') as reader:
@@ -119,16 +100,18 @@ def train_sp(args, config):
         drop_last=False)
     print("samplers done!")
 
+    train_batch_fn = vits_single_spk_batch_fn
+
     train_dataloader = DataLoader(
         train_dataset,
         batch_sampler=train_sampler,
-        collate_fn=collate_fn,
+        collate_fn=train_batch_fn,
         num_workers=config.num_workers)
 
     dev_dataloader = DataLoader(
         dev_dataset,
         batch_sampler=dev_sampler,
-        collate_fn=collate_fn,
+        collate_fn=train_batch_fn,
         num_workers=config.num_workers)
     print("dataloaders done!")
 
@@ -138,7 +121,6 @@ def train_sp(args, config):
     print("vocab_size:", vocab_size)
 
     odim = config.n_fft // 2 + 1
-    config["model"]["generator_params"]["spks"] = spk_num
     model = VITS(idim=vocab_size, odim=odim, **config["model"])
     gen_parameters = model.generator.parameters()
     dis_parameters = model.discriminator.parameters()
@@ -258,17 +240,6 @@ def main():
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict",
-        type=str,
-        default=None,
-        help="speaker id map file for multiple speaker model.")
-
-    parser.add_argument(
-        "--voice-cloning",
-        type=str2bool,
-        default=False,
-        help="whether training voice cloning model.")
 
     args = parser.parse_args()
 

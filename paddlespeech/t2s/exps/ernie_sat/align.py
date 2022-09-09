@@ -19,9 +19,9 @@ import librosa
 import numpy as np
 import pypinyin
 from praatio import textgrid
-
-from paddlespeech.t2s.exps.ernie_sat.utils import get_dict
 from paddlespeech.t2s.exps.ernie_sat.utils import get_tmp_name
+from paddlespeech.t2s.exps.ernie_sat.utils import get_dict
+
 
 DICT_EN = 'tools/aligner/cmudict-0.7b'
 DICT_ZH = 'tools/aligner/simple.lexicon'
@@ -29,7 +29,6 @@ MODEL_DIR_EN = 'tools/aligner/vctk_model.zip'
 MODEL_DIR_ZH = 'tools/aligner/aishell3_model.zip'
 MFA_PATH = 'tools/montreal-forced-aligner/bin'
 os.environ['PATH'] = MFA_PATH + '/:' + os.environ['PATH']
-
 
 def _get_max_idx(dic):
     return sorted([int(key.split('_')[0]) for key in dic.keys()])[-1]
@@ -107,11 +106,11 @@ def alignment(wav_path: str,
     wav_name = os.path.basename(wav_path)
     utt = wav_name.split('.')[0]
     # prepare data for MFA
-    tmp_name = get_tmp_name(text=text)
+    tmp_name =  get_tmp_name(text=text)
     tmpbase = './tmp_dir/' + tmp_name
     tmpbase = Path(tmpbase)
     tmpbase.mkdir(parents=True, exist_ok=True)
-    print("tmp_name in alignment:", tmp_name)
+    print("tmp_name in alignment:",tmp_name)
 
     shutil.copyfile(wav_path, tmpbase / wav_name)
     txt_name = utt + '.txt'
@@ -341,7 +340,7 @@ def get_phns_spans(wav_path: str,
 
 if __name__ == '__main__':
     text = "For that reason cover should not be given."
-    phn, dur, word2phns = alignment("source/p243_313.wav", text, lang='en')
+    phn, dur, word2phns = alignment("exp/p243_313.wav", text, lang='en')
     print(phn, dur)
     print(word2phns)
     print("---------------------------------")
@@ -353,7 +352,7 @@ if __name__ == '__main__':
         style=pypinyin.Style.TONE3,
         tone_sandhi=True)
     text_zh = " ".join(text_zh)
-    phn, dur, word2phns = alignment("source/000001.wav", text_zh, lang='zh')
+    phn, dur, word2phns = alignment("exp/000001.wav", text_zh, lang='zh')
     print(phn, dur)
     print(word2phns)
     print("---------------------------------")
@@ -368,7 +367,7 @@ if __name__ == '__main__':
     print("---------------------------------")
 
     outs = get_phns_spans(
-        wav_path="source/p243_313.wav",
+        wav_path="exp/p243_313.wav",
         old_str="For that reason cover should not be given.",
         new_str="for that reason cover is impossible to be given.")
 

@@ -5,11 +5,12 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
+
 """Mock implementations of paddle interfaces when paddle is not available."""
 
+
 try:
-    from paddle.io import DataLoader
-    from paddle.io import IterableDataset
+    from paddle.io import DataLoader, IterableDataset
 except ModuleNotFoundError:
 
     class IterableDataset:
@@ -19,5 +20,14 @@ except ModuleNotFoundError:
 
     class DataLoader:
         """Empty implementation of DataLoader when paddle is not available."""
+
+        pass
+
+try:
+    from paddle import Tensor as PaddleTensor
+except ModuleNotFoundError:
+
+    class TorchTensor:
+        """Empty implementation of PaddleTensor when paddle is not available."""
 
         pass

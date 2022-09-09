@@ -3,12 +3,12 @@
 # This file is part of the WebDataset library.
 # See the LICENSE file for licensing terms (BSD-style).
 #
+
+
 """Open URLs by calling subcommands."""
-import os
-import re
-import sys
-from subprocess import PIPE
-from subprocess import Popen
+
+import os, sys, re
+from subprocess import PIPE, Popen
 from urllib.parse import urlparse
 
 # global used for printing additional node information during verbose output
@@ -31,13 +31,14 @@ class Pipe:
     """
 
     def __init__(
-            self,
-            *args,
-            mode=None,
-            timeout=7200.0,
-            ignore_errors=False,
-            ignore_status=[],
-            **kw, ):
+        self,
+        *args,
+        mode=None,
+        timeout=7200.0,
+        ignore_errors=False,
+        ignore_status=[],
+        **kw,
+    ):
         """Create an IO Pipe."""
         self.ignore_errors = ignore_errors
         self.ignore_status = [0] + ignore_status
@@ -74,7 +75,8 @@ class Pipe:
         if verbose:
             print(
                 f"pipe exit [{self.status} {os.getpid()}:{self.proc.pid}] {self.args} {info}",
-                file=sys.stderr, )
+                file=sys.stderr,
+            )
         if self.status not in self.ignore_status and not self.ignore_errors:
             raise Exception(f"{self.args}: exit {self.status} (read) {info}")
 
@@ -112,11 +114,9 @@ class Pipe:
         self.close()
 
 
-def set_options(obj,
-                timeout=None,
-                ignore_errors=None,
-                ignore_status=None,
-                handler=None):
+def set_options(
+    obj, timeout=None, ignore_errors=None, ignore_status=None, handler=None
+):
     """Set options for Pipes.
 
     This function can be called on any stream. It will set pipe options only
@@ -168,14 +168,16 @@ def gopen_pipe(url, mode="rb", bufsize=8192):
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141], )  # skipcq: BAN-B604
+            ignore_status=[141],
+        )  # skipcq: BAN-B604
     elif mode[0] == "w":
         return Pipe(
             cmd,
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141], )  # skipcq: BAN-B604
+            ignore_status=[141],
+        )  # skipcq: BAN-B604
     else:
         raise ValueError(f"{mode}: unknown mode")
 
@@ -194,7 +196,8 @@ def gopen_curl(url, mode="rb", bufsize=8192):
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141, 23], )  # skipcq: BAN-B604
+            ignore_status=[141, 23],
+        )  # skipcq: BAN-B604
     elif mode[0] == "w":
         cmd = f"curl -s -L -T - '{url}'"
         return Pipe(
@@ -202,7 +205,8 @@ def gopen_curl(url, mode="rb", bufsize=8192):
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141, 26], )  # skipcq: BAN-B604
+            ignore_status=[141, 26],
+        )  # skipcq: BAN-B604
     else:
         raise ValueError(f"{mode}: unknown mode")
 
@@ -222,11 +226,13 @@ def gopen_htgs(url, mode="rb", bufsize=8192):
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141, 23], )  # skipcq: BAN-B604
+            ignore_status=[141, 23],
+        )  # skipcq: BAN-B604
     elif mode[0] == "w":
         raise ValueError(f"{mode}: cannot write")
     else:
         raise ValueError(f"{mode}: unknown mode")
+
 
 
 def gopen_gsutil(url, mode="rb", bufsize=8192):
@@ -243,7 +249,8 @@ def gopen_gsutil(url, mode="rb", bufsize=8192):
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141, 23], )  # skipcq: BAN-B604
+            ignore_status=[141, 23],
+        )  # skipcq: BAN-B604
     elif mode[0] == "w":
         cmd = f"gsutil cp - '{url}'"
         return Pipe(
@@ -251,9 +258,11 @@ def gopen_gsutil(url, mode="rb", bufsize=8192):
             mode=mode,
             shell=True,
             bufsize=bufsize,
-            ignore_status=[141, 26], )  # skipcq: BAN-B604
+            ignore_status=[141, 26],
+        )  # skipcq: BAN-B604
     else:
         raise ValueError(f"{mode}: unknown mode")
+
 
 
 def gopen_error(url, *args, **kw):
@@ -276,7 +285,8 @@ gopen_schemes = dict(
     ftps=gopen_curl,
     scp=gopen_curl,
     gs=gopen_gsutil,
-    htgs=gopen_htgs, )
+    htgs=gopen_htgs,
+)
 
 
 def gopen(url, mode="rb", bufsize=8192, **kw):

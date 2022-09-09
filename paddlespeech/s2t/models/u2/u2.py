@@ -605,8 +605,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            att_cache: paddle.Tensor,  # paddle.zeros([0, 0, 0, 0])
-            cnn_cache: paddle.Tensor,  # paddle.zeros([0, 0, 0, 0])
+            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -864,7 +864,7 @@ class U2Model(U2DecodeModel):
             enc_n_units=encoder.output_size(),
             blank_id=0,
             dropout_rate=dropout_rate,
-            reduction=True,  # sum
+            reduction_type="sum",  # sum
             batch_average=True,  # sum / batch_size
             grad_norm_type=grad_norm_type)
 

@@ -19,6 +19,8 @@ from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
+dist.init_parallel_env()
+
 from visualdl import LogWriter
 
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -130,7 +132,9 @@ class Trainer():
             latest_n=self.config.checkpoint.latest_n)
 
         # set random seed if needed
+        print(args.seed)
         if args.seed:
+            print('***********')
             seed_all(args.seed)
             logger.info(f"Set seed {args.seed}")
 
@@ -176,7 +180,7 @@ class Trainer():
     def init_parallel(self):
         """Init environment for multiprocess training.
         """
-        dist.init_parallel_env()
+        # dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
     def save(self, tag=None, infos: dict=None):

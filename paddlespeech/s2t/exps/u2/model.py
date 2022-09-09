@@ -25,6 +25,8 @@ import paddle
 from paddle import distributed as dist
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
+from paddlespeech.s2t.io.dataloader import BatchDataLoader
+from paddlespeech.s2t.io.dataloader import StreamDataLoader
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
 from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
@@ -107,8 +109,7 @@ class U2Trainer(Trainer):
     def valid(self):
         self.model.eval()
         if not self.use_streamdata:
-            logger.info(
-                f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+            logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
         num_seen_utts = 1
         total_loss = 0.0
@@ -135,8 +136,7 @@ class U2Trainer(Trainer):
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
                 if not self.use_streamdata:
-                    msg += "batch: {}/{}, ".format(i + 1,
-                                                   len(self.valid_loader))
+                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -157,8 +157,7 @@ class U2Trainer(Trainer):
         self.before_train()
 
         if not self.use_streamdata:
-            logger.info(
-                f"Train Total Examples: {len(self.train_loader.dataset)}")
+            logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -226,18 +225,14 @@ class U2Trainer(Trainer):
         config = self.config.clone()
         self.use_streamdata = config.get("use_stream_data", False)
         if self.train:
-            self.train_loader = DataLoaderFactory.get_dataloader(
-                'train', config, self.args)
-            self.valid_loader = DataLoaderFactory.get_dataloader(
-                'valid', config, self.args)
+            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
             decode_batch_size = config.get('decode', dict()).get(
                 'decode_batch_size', 1)
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
-                                                                self.args)
-            self.align_loader = DataLoaderFactory.get_dataloader(
-                'align', config, self.args)
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
+            self.align_loader = DataLoaderFactory.get_dataloader('align', config, self.args)
             logger.info("Setup test/align Dataloader!")
 
     def setup_model(self):
@@ -250,8 +245,7 @@ class U2Trainer(Trainer):
                 model_conf.output_dim = self.train_loader.vocab_size
             else:
                 model_conf.input_dim = self.test_loader.feat_dim
-                model_conf.output_dim = self.test_loader.vocab_size
-
+                model_conf.output_dim = 5538
         model = U2Model.from_config(model_conf)
 
         if self.parallel:
@@ -316,6 +310,11 @@ class U2Tester(U2Trainer):
             unit_type=self.config.unit_type,
             vocab=self.config.vocab_filepath,
             spm_model_prefix=self.config.spm_model_prefix)
+
+        self.text_feature_test = TextFeaturizer(
+            unit_type=self.config.unit_type,
+            vocab='/home/zhangtianhao/workspace/PaddleSpeech/examples/aishell/asr1/data/lang_char/vocab.txt',
+            spm_model_prefix=self.config.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
 
     def id2token(self, texts, texts_len, text_feature):
@@ -340,7 +339,7 @@ class U2Tester(U2Trainer):
         error_rate_func = error_rate.cer if decode_config.error_rate_type == 'cer' else error_rate.wer
 
         start_time = time.time()
-        target_transcripts = self.id2token(texts, texts_len, self.text_feature)
+        target_transcripts = self.id2token(texts, texts_len, self.text_feature_test)
         result_transcripts, result_tokenids = self.model.decode(
             audio,
             audio_len,

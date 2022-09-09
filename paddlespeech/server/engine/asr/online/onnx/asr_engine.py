@@ -21,12 +21,12 @@ import paddle
 from numpy import float32
 from yacs.config import CfgNode
 
-from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.resource import CommonTaskResource
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.modules.ctc import CTCDecoder
+from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.utils.utility import UpdateConfig
 from paddlespeech.server.engine.base_engine import BaseEngine
 from paddlespeech.server.utils import onnx_infer

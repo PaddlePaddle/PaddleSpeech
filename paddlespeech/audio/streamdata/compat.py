@@ -2,17 +2,17 @@
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
-import yaml
+from dataclasses import dataclass
+from itertools import islice
+from typing import List
+
+import braceexpand, yaml
 
 from . import autodecode
-from . import cache
-from . import filters
-from . import shardlists
-from . import tariterators
+from . import cache, filters, shardlists, tariterators
 from .filters import reraise_exception
-from .paddle_utils import DataLoader
-from .paddle_utils import IterableDataset
 from .pipeline import DataPipeline
+from .paddle_utils import DataLoader, IterableDataset
 
 
 class FluidInterface:
@@ -26,8 +26,7 @@ class FluidInterface:
         return self.compose(filters.unbatched())
 
     def listed(self, batchsize, partial=True):
-        return self.compose(
-            filters.batched(), batchsize=batchsize, collation_fn=None)
+        return self.compose(filters.batched(), batchsize=batchsize, collation_fn=None)
 
     def unlisted(self):
         return self.compose(filters.unlisted())
@@ -44,19 +43,9 @@ class FluidInterface:
     def map(self, f, handler=reraise_exception):
         return self.compose(filters.map(f, handler=handler))
 
-    def decode(self,
-               *args,
-               pre=None,
-               post=None,
-               only=None,
-               partial=False,
-               handler=reraise_exception):
-        handlers = [
-            autodecode.ImageHandler(x) if isinstance(x, str) else x
-            for x in args
-        ]
-        decoder = autodecode.Decoder(
-            handlers, pre=pre, post=post, only=only, partial=partial)
+    def decode(self, *args, pre=None, post=None, only=None, partial=False, handler=reraise_exception):
+        handlers = [autodecode.ImageHandler(x) if isinstance(x, str) else x for x in args]
+        decoder = autodecode.Decoder(handlers, pre=pre, post=post, only=only, partial=partial)
         return self.map(decoder, handler=handler)
 
     def map_dict(self, handler=reraise_exception, **kw):
@@ -91,12 +80,12 @@ class FluidInterface:
 
     def audio_data_filter(self, *args, **kw):
         return self.compose(filters.audio_data_filter(*args, **kw))
-
+    
     def audio_tokenize(self, *args, **kw):
         return self.compose(filters.audio_tokenize(*args, **kw))
 
     def resample(self, *args, **kw):
-        return self.compose(filters.resample(*args, **kw))
+        return self.compose(filters.resample(*args, **kw)) 
 
     def audio_compute_fbank(self, *args, **kw):
         return self.compose(filters.audio_compute_fbank(*args, **kw))
@@ -113,28 +102,27 @@ class FluidInterface:
     def audio_cmvn(self, cmvn_file):
         return self.compose(filters.audio_cmvn(cmvn_file))
 
-
 class WebDataset(DataPipeline, FluidInterface):
     """Small fluid-interface wrapper for DataPipeline."""
 
     def __init__(
-            self,
-            urls,
-            handler=reraise_exception,
-            resampled=False,
-            repeat=False,
-            shardshuffle=None,
-            cache_size=0,
-            cache_dir=None,
-            detshuffle=False,
-            nodesplitter=shardlists.single_node_only,
-            verbose=False, ):
+        self,
+        urls,
+        handler=reraise_exception,
+        resampled=False,
+        repeat=False,
+        shardshuffle=None,
+        cache_size=0,
+        cache_dir=None,
+        detshuffle=False,
+        nodesplitter=shardlists.single_node_only,
+        verbose=False,
+    ):
         super().__init__()
         if isinstance(urls, IterableDataset):
             assert not resampled
             self.append(urls)
-        elif isinstance(urls, str) and (urls.endswith(".yaml") or
-                                        urls.endswith(".yml")):
+        elif isinstance(urls, str) and (urls.endswith(".yaml") or urls.endswith(".yml")):
             with (open(urls)) as stream:
                 spec = yaml.safe_load(stream)
             assert "datasets" in spec
@@ -164,7 +152,9 @@ class WebDataset(DataPipeline, FluidInterface):
                     handler=handler,
                     verbose=verbose,
                     cache_size=cache_size,
-                    cache_dir=cache_dir, ))
+                    cache_dir=cache_dir,
+                )
+            )
 
 
 class FluidWrapper(DataPipeline, FluidInterface):

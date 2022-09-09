@@ -271,7 +271,7 @@ class DeepSpeech2Model(nn.Layer):
             enc_n_units=self.encoder.output_size,
             blank_id=blank_id,
             dropout_rate=0.0,
-            reduction=True,  # sum
+            reduction_type="sum",  # sum
             batch_average=True,  # sum / batch_size
             grad_norm_type=ctc_grad_norm_type)
 

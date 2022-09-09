@@ -19,7 +19,9 @@ from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
-dist.init_parallel_env()
+world_size = dist.get_world_size()
+if world_size > 1:
+    dist.init_parallel_env()
 
 from visualdl import LogWriter
 

@@ -924,10 +924,6 @@ class U2InferModel(U2Model):
     def __init__(self, configs: dict):
         super().__init__(configs)
 
-    @jit.to_static(input_spec=[
-        paddle.static.InputSpec(shape=[1, 1, 1], dtype='int64'),
-        paddle.static.InputSpec(shape=[1], dtype='int64')
-    ])
     def forward(self,
                 feats,
                 feats_lengths,

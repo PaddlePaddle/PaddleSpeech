@@ -513,9 +513,9 @@ class U2Tester(U2Trainer):
             infer_model.forward_attention_decoder, input_spec=input_spec)
 
         ######################### infer_model.ctc_activation ########################
-        # TODO: 512(encoder_output) be configable
         input_spec = [
-            paddle.static.InputSpec(shape=[1, None, 512], dtype='float32')
+            # encoder_out, (B,T,D)
+            paddle.static.InputSpec(shape=[batch_size, None, model_size], dtype='float32')
         ]
         infer_model.ctc_activation = paddle.jit.to_static(
             infer_model.ctc_activation, input_spec=input_spec)

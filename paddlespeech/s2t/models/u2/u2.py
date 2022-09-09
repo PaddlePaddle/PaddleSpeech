@@ -599,12 +599,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         """
         return self.eos
 
-    # @jit.to_static(input_spec=[
-    #     paddle.static.InputSpec(shape=[1, None, 80], dtype='float32'), 
-    #     paddle.static.InputSpec(shape=[1], dtype='int32'), 
-    #     -1,
-    #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32'), 
-    #     paddle.static.InputSpec(shape=[None, None, None, None], dtype='float32')])
+    # @jit.to_static
     def forward_encoder_chunk(
             self,
             xs: paddle.Tensor,
@@ -658,10 +653,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         """
         return self.ctc.log_softmax(xs)
 
-    # @jit.to_static(input_spec=[
-    #     paddle.static.InputSpec(shape=[None, None], dtype='int64'), 
-    #     paddle.static.InputSpec(shape=[None], dtype='int64'), 
-    #     paddle.static.InputSpec(shape=[1, None, 512], dtype='float32')])
+    # @jit.to_static
     def forward_attention_decoder(
             self,
             hyps: paddle.Tensor,

@@ -1,6 +1,6 @@
-# FastSpeech2 + AISHELL-3 Voice Cloning
+# FastSpeech2 + AISHELL-3 Voice Cloning (ECAPA-TDNN)
 This example contains code used to train a [FastSpeech2](https://arxiv.org/abs/2006.04558) model with [AISHELL-3](http://www.aishelltech.com/aishell_3). The trained model can be used in Voice Cloning Task, We refer to the model structure of  [Transfer Learning from Speaker Veriﬁcation to Multispeaker Text-To-Speech Synthesis](https://arxiv.org/pdf/1806.04558.pdf). The general steps are as follows:
-1. Speaker Encoder: We use Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in `FastSpeech2` because the transcriptions are not needed, we use more datasets, refer to  [ge2e](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/ge2e).
+1. Speaker Encoder: We use Speaker Verification to train a speaker encoder. Datasets used in this task are different from those used in `FastSpeech2` because the transcriptions are not needed, we use more datasets, refer to  [ECAPA-TDNN](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/voxceleb/sv0).
 2. Synthesizer: We use the trained speaker encoder to generate speaker embedding for each sentence in AISHELL-3. This embedding is an extra input of  `FastSpeech2` which will be concated with encoder outputs.
 3. Vocoder: We use [Parallel Wave GAN](http://arxiv.org/abs/1910.11480) as the neural Vocoder, refer to [voc1](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1).
 
@@ -12,15 +12,9 @@ Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishe
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
 You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
-## Pretrained GE2E Model
-We use pretrained GE2E model to generate speaker embedding for each sentence.
-
-Download pretrained GE2E model from here [ge2e_ckpt_0.3.zip](https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip), and `unzip` it.
-
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
 Assume the path to the MFA result of AISHELL-3 is `./aishell3_alignment_tone`.
-Assume the path to the pretrained ge2e model is `./ge2e_ckpt_0.3`.
 
 Run the command below to
 1. **source path**.
@@ -37,7 +31,7 @@ You can choose a range of stages you want to run, or set `stage` equal to `stop-
 ```
 ### Data Preprocessing
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/preprocess.sh ${conf_path} ${ge2e_ckpt_path}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/preprocess.sh ${conf_path}
 ```
 When it is done. A `dump` folder is created in the current directory. The structure of the dump folder is listed below.
 ```text
@@ -70,7 +64,7 @@ The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of wh
 
 Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, the path of pitch features, the path of energy features, speaker, and id of each utterance.
 
-The preprocessing step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but there is one more `ge2e/inference` step here.
+The preprocessing step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but there is one more `ECAPA-TDNN/inference` step here.
 
 ### Model Training
 `./local/train.sh` calls `${BIN_DIR}/train.py`.
@@ -99,32 +93,34 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 The synthesizing step is very similar to that one of [tts3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/tts3), but we should set `--voice-cloning=True` when calling `${BIN_DIR}/../synthesize.py`.
 
 ### Voice Cloning
-Assume there are some reference audios in `./ref_audio`
+Assume there are some reference audios in `./ref_audio` (the format must be wav here)
 ```text
 ref_audio
 ├── 001238.wav
 ├── LJ015-0254.wav
-└── audio_self_test.mp3
+└── audio_self_test.wav
 ```
 `./local/voice_cloning.sh` calls `${BIN_DIR}/../voice_cloning.py`
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ge2e_params_path} ${ref_audio_dir}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_output_path} ${ckpt_name} ${ref_audio_dir}
 ```
 ## Pretrained Model
-- [fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip)
+- [fastspeech2_aishell3_ckpt_vc2_1.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_vc2_1.2.0.zip)
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
-default|2(gpu) x 96400|0.99699|0.62013|0.053057|0.11954| 0.20426|
+default|2(gpu) x 96400|0.991855|0.599517|0.052142|0.094877| 0.245318|
 
 FastSpeech2 checkpoint contains files listed below.
 (There is no need for `speaker_id_map.txt` here )
 
 ```text
-fastspeech2_nosil_aishell3_ckpt_vc1_0.5
+fastspeech2_aishell3_ckpt_vc2_1.2.0
 ├── default.yaml            # default config used to train fastspeech2
+├── energy_stats.npy        # statistics used to normalize energy when training fastspeech2
 ├── phone_id_map.txt        # phone vocabulary file when training fastspeech2
+├── pitch_stats.npy         # statistics used to normalize pitch when training fastspeech2
 ├── snapshot_iter_96400.pdz # model parameters and optimizer states
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
 ```

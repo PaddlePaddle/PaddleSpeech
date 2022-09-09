@@ -251,7 +251,12 @@ class BaseEncoder(nn.Layer):
         for i, layer in enumerate(self.encoders):
             # att_cache[i:i+1] = (1, head, cache_t1, d_k*2)
             # cnn_cache[i:i+1] = (1, B=1, hidden-dim, cache_t2)
-            # zeros([0,0,0,0]) support [i:i+1] slice
+
+            # WARNING: eliminate if-else cond op in graph
+            # tensor zeros([0,0,0,0]) support [i:i+1] slice, will return zeros([0,0,0,0]) tensor
+            # raw code as below:
+            #   att_cache=att_cache[i:i+1] if elayers > 0 else att_cache,
+            #   cnn_cache=cnn_cache[i:i+1] if paddle.shape(cnn_cache)[0] > 0 else cnn_cache,
             xs, _, new_att_cache, new_cnn_cache = layer(
                 xs, att_mask, pos_emb,
                 att_cache=att_cache[i:i+1],

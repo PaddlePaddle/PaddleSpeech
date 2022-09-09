@@ -181,12 +181,20 @@
 </div>
 
 ### 近期更新
-
+- ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
+- 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
+- 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。
+- 🔥 2022.08.09: 发布[中英文混合 TTS](./examples/zh_en_tts/tts3)。
+- ⚡ 2022.08.03: TTS CLI 新增 ONNXRuntime 推理方式。
+- 🎉 2022.07.18: 发布 VITS 模型: [VITS-csmsc](./examples/csmsc/vits)、[VITS-aishell3](./examples/aishell3/vits)、[VITS-VC](./examples/aishell3/vits-vc)。
+- 🎉 2022.06.22: 所有 TTS 模型支持了 ONNX 格式。
+- 🍀 2022.06.17: 新增 [PaddleSpeech 网页应用](./demos/speech_web)。
 - 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md) 流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md) 流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md) 全链路声纹识别系统
-- 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
-- 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
-- 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。
-- 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
+- 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线！覆盖了语音识别（标点恢复、时间戳）和语音合成。
+- 👏🏻 2022.05.06: PaddleSpeech Server 上线！覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
+- 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成和声纹验证。
+- 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) 和 [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) 可在 Hugging Face Spaces 上体验！
+- 👏🏻 2021.12.10: PaddleSpeech CLI 支持语音分类, 语音识别, 语音翻译（英译中）和语音合成。
 
 
  ### 🔥 加入技术交流群获取入群福利
@@ -237,7 +245,6 @@ pip install .
 
 <a name="快速开始"></a>
 ## 快速开始
-
 安装完成后，开发者可以通过命令行或者 Python 快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持 16k wav 格式音频。
 
 你也可以在 `aistudio` 中快速体验 👉🏻[一键预测，快速上手 Speech 开发任务](https://aistudio.baidu.com/aistudio/projectdetail/4353348?sUid=2470186&shared=1&ts=1660878142250)。
@@ -393,7 +400,7 @@ python API 一键预测
 
 **启动服务**     
 ```shell
-paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+paddlespeech_server start --config_file ./demos/speech_server/conf/application.yaml
 ```
 
 **访问语音识别服务**     
@@ -624,34 +631,40 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td rowspan="4">声音克隆</td>
+      <td rowspan="5">声音克隆</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
-      <a href = "./examples/other/ge2e">ge2e</a>
+      <a href = "./examples/other/ge2e">GE2E</a>
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tacotron2</td>
+      <td>SV2TTS (GE2E + Tacotron2)</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">VC0</a>
       </td>
     </tr>
     <tr>
-      <td>GE2E + FastSpeech2</td>
+      <td>SV2TTS (GE2E + FastSpeech2)</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
+      <a href = "./examples/aishell3/vc1">VC1</a>
+      </td>
+    </tr>
+    <tr>
+      <td>SV2TTS (ECAPA-TDNN + FastSpeech2)</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vc2">VC2</a>
       </td>
     </tr>
     <tr>
       <td>GE2E + VITS</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vits-vc">ge2e-vits-aishell3</a>
+      <a href = "./examples/aishell3/vits-vc">VITS-VC</a>
       </td>
-    </tr>
     </tr>
      <tr>
       <td rowspan="3">端到端</td>
@@ -896,8 +909,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </p>
 
 ## 致谢
-- 非常感谢 [david-95](https://github.com/david-95)修复句尾多标点符号出错的问题，补充frontend语音polyphonic 数据，贡献补充多条程序和数据
-- 非常感谢 [BarryKCL](https://github.com/BarryKCL)基于[G2PW](https://github.com/GitYCC/g2pW)对TTS中文文本前端的优化。
+- 非常感谢 [HighCWu](https://github.com/HighCWu) 新增 [VITS-aishell3](./examples/aishell3/vits) 和 [VITS-VC](./examples/aishell3/vits-vc) 代码示例。
+- 非常感谢 [david-95](https://github.com/david-95) 修复句尾多标点符号出错的问题，贡献补充多条程序和数据。
+- 非常感谢 [BarryKCL](https://github.com/BarryKCL) 基于 [G2PW](https://github.com/GitYCC/g2pW) 对 TTS 中文文本前端的优化。
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
 - 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。

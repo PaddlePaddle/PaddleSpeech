@@ -9,6 +9,9 @@ so you may get test result ( exp/g2p )into two directories, as exp/prefolder and
 run this program as  "python compare_badcase.py prefolder curfolder"
 then you will get diffrences between two run, uuid, phonetics, chinese samples
 
+examples: python compare_badcase.py  exp/g2p_laotouzi  exp/g2p
+in this example:  exp/g2p_laotouzi  and  exp/g2p  are two folders with two g2p tests result
+
 '''
 
 

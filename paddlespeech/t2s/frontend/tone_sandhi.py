@@ -108,9 +108,9 @@ class ToneSandhi():
             if word in self.must_neural_tone_words or word[
                     -2:] in self.must_neural_tone_words:
                 finals[-1] = finals[-1][:-1] + "5"
-
         word_list = self._split_word(word)
         finals_list = [finals[:len(word_list[0])], finals[len(word_list[0]):]]
+
         for i, word in enumerate(word_list):
             # conventional neural in Chinese
             if word in self.must_neural_tone_words or word[
@@ -156,6 +156,8 @@ class ToneSandhi():
         return finals
 
     def _split_word(self, word: str) -> List[str]:
+        if len(word)==3 and word[-1:] =='子':   # three chars, like 老头子,the second char tone should not be 5 
+            return [word]
         word_list = jieba.cut_for_search(word)
         word_list = sorted(word_list, key=lambda i: len(i), reverse=False)
         first_subword = word_list[0]
@@ -347,9 +349,9 @@ class ToneSandhi():
 
     def modified_tone(self, word: str, pos: str,
                       finals: List[str]) -> List[str]:
-
         finals = self._bu_sandhi(word, finals)
         finals = self._yi_sandhi(word, finals)
         finals = self._neural_sandhi(word, pos, finals)
         finals = self._three_sandhi(word, finals)
+
         return finals

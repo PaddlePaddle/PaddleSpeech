@@ -156,7 +156,8 @@ class ToneSandhi():
         return finals
 
     def _split_word(self, word: str) -> List[str]:
-        if len(word)==3 and word[-1:] =='子':   # three chars, like 老头子,the second char tone should not be 5 
+        if len(word) == 3 and word[
+                -1:] == '子':  # three chars, like 老头子,the second char tone should not be 5 
             return [word]
         word_list = jieba.cut_for_search(word)
         word_list = sorted(word_list, key=lambda i: len(i), reverse=False)

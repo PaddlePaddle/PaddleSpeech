@@ -490,18 +490,10 @@ class SymbolicShapeInference:
     def _onnx_infer_single_node(self, node):
         # skip onnx shape inference for some ops, as they are handled in _infer_*
         skip_infer = node.op_type in [
-            'If', 'Loop', 'Scan', 'SplitToSequence', 'ZipMap', \
-            # contrib ops
-
-
-
-
-            'Attention', 'BiasGelu', \
-            'EmbedLayerNormalization', \
-            'FastGelu', 'Gelu', 'LayerNormalization', \
-            'LongformerAttention', \
-            'SkipLayerNormalization', \
-            'PythonOp'
+            'If', 'Loop', 'Scan', 'SplitToSequence', 'ZipMap', 'Attention',
+            'BiasGelu', 'EmbedLayerNormalization', 'FastGelu', 'Gelu',
+            'LayerNormalization', 'LongformerAttention',
+            'SkipLayerNormalization', 'PythonOp'
         ]
 
         if not skip_infer:
@@ -514,8 +506,8 @@ class SymbolicShapeInference:
             if (get_opset(self.out_mp_) >= 9) and node.op_type in ['Unsqueeze']:
                 initializers = [
                     self.initializers_[name] for name in node.input
-                    if (name in self.initializers_ and
-                        name not in self.graph_inputs_)
+                    if (name in self.initializers_ and name not in
+                        self.graph_inputs_)
                 ]
 
             # run single node inference with self.known_vi_ shapes
@@ -601,8 +593,8 @@ class SymbolicShapeInference:
             for o in symbolic_shape_inference.out_mp_.graph.output
         ]
         subgraph_new_symbolic_dims = set([
-            d for s in subgraph_shapes if s for d in s
-            if type(d) == str and not d in self.symbolic_dims_
+            d for s in subgraph_shapes
+            if s for d in s if type(d) == str and not d in self.symbolic_dims_
         ])
         new_dims = {}
         for d in subgraph_new_symbolic_dims:
@@ -729,8 +721,9 @@ class SymbolicShapeInference:
                         for d, s in zip(sympy_shape[-rank:], strides)
                     ]
                     total_pads = [
-                        max(0, (k - s) if r == 0 else (k - r)) for k, s, r in
-                        zip(effective_kernel_shape, strides, residual)
+                        max(0, (k - s) if r == 0 else (k - r))
+                        for k, s, r in zip(effective_kernel_shape, strides,
+                                           residual)
                     ]
                 except TypeError:  # sympy may throw TypeError: cannot determine truth value of Relational
                     total_pads = [
@@ -1276,8 +1269,9 @@ class SymbolicShapeInference:
         if pads is not None:
             assert len(pads) == 2 * rank
             new_sympy_shape = [
-                d + pad_up + pad_down for d, pad_up, pad_down in
-                zip(sympy_shape, pads[:rank], pads[rank:])
+                d + pad_up + pad_down
+                for d, pad_up, pad_down in zip(sympy_shape, pads[:rank], pads[
+                    rank:])
             ]
             self._update_computed_dims(new_sympy_shape)
         else:
@@ -1590,8 +1584,8 @@ class SymbolicShapeInference:
                 scales = list(scales)
                 new_sympy_shape = [
                     sympy.simplify(sympy.floor(d * (end - start) * scale))
-                    for d, start, end, scale in
-                    zip(input_sympy_shape, roi_start, roi_end, scales)
+                    for d, start, end, scale in zip(input_sympy_shape,
+                                                    roi_start, roi_end, scales)
                 ]
                 self._update_computed_dims(new_sympy_shape)
             else:
@@ -2204,8 +2198,9 @@ class SymbolicShapeInference:
         # topological sort nodes, note there might be dead nodes so we check if all graph outputs are reached to terminate
         sorted_nodes = []
         sorted_known_vi = set([
-            i.name for i in list(self.out_mp_.graph.input) +
-            list(self.out_mp_.graph.initializer)
+            i.name
+            for i in list(self.out_mp_.graph.input) + list(
+                self.out_mp_.graph.initializer)
         ])
         if any([o.name in sorted_known_vi for o in self.out_mp_.graph.output]):
             # Loop/Scan will have some graph output in graph inputs, so don't do topological sort

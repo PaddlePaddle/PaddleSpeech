@@ -42,7 +42,7 @@ class ToneSandhi():
             '木头', '木匠', '朋友', '月饼', '月亮', '暖和', '明白', '时候', '新鲜', '故事', '收拾',
             '收成', '提防', '挖苦', '挑剔', '指甲', '指头', '拾掇', '拳头', '拨弄', '招牌', '招呼',
             '抬举', '护士', '折腾', '扫帚', '打量', '打算', '打扮', '打听', '打发', '扎实', '扁担',
-            '戒指', '懒得', '意识', '意思', '情形', '悟性', '怪物', '思量', '怎么', '念头', '念叨',
+            '戒指', '懒得', '意识', '意思', '悟性', '怪物', '思量', '怎么', '念头', '念叨', '别人',
             '快活', '忙活', '志气', '心思', '得罪', '张罗', '弟兄', '开通', '应酬', '庄稼', '干事',
             '帮手', '帐篷', '希罕', '师父', '师傅', '巴结', '巴掌', '差事', '工夫', '岁数', '屁股',
             '尾巴', '少爷', '小气', '小伙', '将就', '对头', '对付', '寡妇', '家伙', '客气', '实在',
@@ -60,7 +60,7 @@ class ToneSandhi():
             '邋遢', '费用', '冤家', '甜头', '介绍', '荒唐', '大人', '泥鳅', '幸福', '熟悉', '计划',
             '扑腾', '蜡烛', '姥爷', '照顾', '喉咙', '吉他', '弄堂', '蚂蚱', '凤凰', '拖沓', '寒碜',
             '糟蹋', '倒腾', '报复', '逻辑', '盘缠', '喽啰', '牢骚', '咖喱', '扫把', '惦记', '戏弄',
-            '将军', '别人'
+            '将军'
         }
         self.must_not_neural_tone_words = {
             '男子', '女子', '分子', '原子', '量子', '莲子', '石子', '瓜子', '电子', '人人', '虎虎',
@@ -84,7 +84,7 @@ class ToneSandhi():
             if j - 1 >= 0 and item == word[j - 1] and pos[0] in {"n", "v", "a"}:
                 finals[j] = finals[j][:-1] + "5"
         ge_idx = word.find("个")
-        if len(word) >= 1 and word[-1] in "吧呢啊呐噻嘛吖嗨呐哦哒额滴哩哟喽啰耶喔诶":
+        if len(word) >= 1 and word[-1] in "吧呢啊呐噻嘛吖嗨呐哦哒滴哩哟喽啰耶喔诶":
             finals[-1] = finals[-1][:-1] + "5"
         elif len(word) >= 1 and word[-1] in "的地得":
             finals[-1] = finals[-1][:-1] + "5"
@@ -169,6 +169,7 @@ class ToneSandhi():
         return new_word_list
 
     def _three_sandhi(self, word: str, finals: List[str]) -> List[str]:
+
         if len(word) == 2 and self._all_tone_three(finals):
             finals[0] = finals[0][:-1] + "2"
         elif len(word) == 3:
@@ -346,6 +347,7 @@ class ToneSandhi():
 
     def modified_tone(self, word: str, pos: str,
                       finals: List[str]) -> List[str]:
+
         finals = self._bu_sandhi(word, finals)
         finals = self._yi_sandhi(word, finals)
         finals = self._neural_sandhi(word, pos, finals)

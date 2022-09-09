@@ -4,21 +4,22 @@
 # This file is part of the WebDataset library.
 # See the LICENSE file for licensing terms (BSD-style).
 #
-
 # Modified from https://github.com/webdataset/webdataset
-
 """Miscellaneous utility functions."""
-
 import importlib
 import itertools as itt
 import os
 import re
 import sys
-from typing import Any, Callable, Iterator, Optional, Union
+from typing import Any
+from typing import Callable
+from typing import Iterator
+from typing import Union
 
 from ..utils.log import Logger
 
 logger = Logger(__name__)
+
 
 def make_seed(*args):
     seed = 0
@@ -37,7 +38,7 @@ def identity(x: Any) -> Any:
     return x
 
 
-def safe_eval(s: str, expr: str = "{}"):
+def safe_eval(s: str, expr: str="{}"):
     """Evaluate the given expression more safely."""
     if re.sub("[^A-Za-z0-9_]", "", s) != s:
         raise ValueError(f"safe_eval: illegal characters in: '{s}'")
@@ -54,9 +55,9 @@ def lookup_sym(sym: str, modules: list):
     return None
 
 
-def repeatedly0(
-    loader: Iterator, nepochs: int = sys.maxsize, nbatches: int = sys.maxsize
-):
+def repeatedly0(loader: Iterator,
+                nepochs: int=sys.maxsize,
+                nbatches: int=sys.maxsize):
     """Repeatedly returns batches from a DataLoader."""
     for epoch in range(nepochs):
         for sample in itt.islice(loader, nbatches):
@@ -69,12 +70,11 @@ def guess_batchsize(batch: Union[tuple, list]):
 
 
 def repeatedly(
-    source: Iterator,
-    nepochs: int = None,
-    nbatches: int = None,
-    nsamples: int = None,
-    batchsize: Callable[..., int] = guess_batchsize,
-):
+        source: Iterator,
+        nepochs: int=None,
+        nbatches: int=None,
+        nsamples: int=None,
+        batchsize: Callable[..., int]=guess_batchsize, ):
     """Repeatedly yield samples from an iterator."""
     epoch = 0
     batch = 0
@@ -92,6 +92,7 @@ def repeatedly(
         epoch += 1
         if nepochs is not None and epoch >= nepochs:
             return
+
 
 def paddle_worker_info(group=None):
     """Return node and worker info for PyTorch and some distributed environments."""
@@ -116,7 +117,7 @@ def paddle_worker_info(group=None):
     else:
         try:
             from paddle.io import get_worker_info
-            worker_info = paddle.io.get_worker_info()
+            worker_info = get_worker_info()
             if worker_info is not None:
                 worker = worker_info.id
                 num_workers = worker_info.num_workers
@@ -125,6 +126,7 @@ def paddle_worker_info(group=None):
             exit(-1)
 
     return rank, world_size, worker, num_workers
+
 
 def paddle_worker_seed(group=None):
     """Compute a distinct, deterministic RNG seed for each worker and node."""

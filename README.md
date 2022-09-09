@@ -159,15 +159,20 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
-- 👑 2022.05.13: Release [PP-ASR](./docs/source/asr/PPASR.md)、[PP-TTS](./docs/source/tts/PPTTS.md)、[PP-VPR](docs/source/vpr/PPVPR.md)
-- 👏🏻  2022.05.06: `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp`.
-- 👏🏻  2022.05.06: `Server` is available for `Speaker Verification`, and `Punctuation Restoration`.
-- 👏🏻  2022.04.28: `Streaming Server` is available for `Automatic Speech Recognition` and `Text-to-Speech`.
-- 👏🏻  2022.03.28: `Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`.
-- 👏🏻  2022.03.28: `CLI` is available for `Speaker Verification`.
+- ⚡ 2022.08.25: Release TTS [finetune](./examples/other/tts_finetune/tts3) example.
+- 🔥 2022.08.22: Add ERNIE-SAT models: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat).
+- 🔥 2022.08.15: Add [g2pW](https://github.com/GitYCC/g2pW) into TTS Chinese Text Frontend.
+- 🔥 2022.08.09: Release [Chinese English mixed TTS](./examples/zh_en_tts/tts3).
+- ⚡ 2022.08.03: Add ONNXRuntime infer for  TTS CLI.
+- 🎉 2022.07.18: Release VITS: [VITS-csmsc](./examples/csmsc/vits)、[VITS-aishell3](./examples/aishell3/vits)、[VITS-VC](./examples/aishell3/vits-vc).
+- 🎉 2022.06.22: All TTS models support ONNX format.
+- 🍀 2022.06.17: Add [PaddleSpeech Web Demo](./demos/speech_web).
+- 👑 2022.05.13: Release [PP-ASR](./docs/source/asr/PPASR.md)、[PP-TTS](./docs/source/tts/PPTTS.md)、[PP-VPR](docs/source/vpr/PPVPR.md).
+- 👏🏻  2022.05.06: `PaddleSpeech Streaming Server` is available for `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp` and `Text-to-Speech`.
+- 👏🏻  2022.05.06: `PaddleSpeech Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`, `Speaker Verification` and `Punctuation Restoration`.
+- 👏🏻  2022.03.28: `PaddleSpeech CLI` is available for `Speaker Verification`.
 - 🤗  2021.12.14: [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
-- 👏🏻  2021.12.10: `CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
-
+- 👏🏻  2021.12.10: `PaddleSpeech CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
 
 ### Community
 - Scan the QR code below with your Wechat, you can access to official technical exchange group and get the bonus ( more than 20GB learning materials, such as papers, codes and videos ) and the live link of the lessons. Look forward to your participation.
@@ -376,7 +381,7 @@ Developers can have a try of our speech server with [PaddleSpeech Server Command
 **Start server**     
 
 ```shell
-paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+paddlespeech_server start --config_file ./demos/speech_server/conf/application.yaml
 ```
 
 **Access Speech Recognition Services**     
@@ -599,47 +604,61 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
     <tr>
-      <td >HiFiGAN</td>
-      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td>HiFiGAN</td>
+      <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
       <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
       </td>
     </tr>
     <tr>
-      <td >WaveRNN</td>
-      <td >CSMSC</td>
+      <td>WaveRNN</td>
+      <td>CSMSC</td>
       <td>
       <a href = "./examples/csmsc/voc6">WaveRNN-csmsc</a>
       </td>
     </tr>
     <tr>
-      <td rowspan="3">Voice Cloning</td>
+      <td rowspan="5">Voice Cloning</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
-      <a href = "./examples/other/ge2e">ge2e</a>
+      <a href = "./examples/other/ge2e">GE2E</a>
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tacotron2</td>
+      <td>SV2TTS (GE2E + Tacotron2)</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">VC0</a>
       </td>
     </tr>
     <tr>
-      <td>GE2E + FastSpeech2</td>
+      <td>SV2TTS (GE2E + FastSpeech2)</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
+      <a href = "./examples/aishell3/vc1">VC1</a>
       </td>
     </tr>
-     <tr>
+    <tr>
+      <td>SV2TTS (ECAPA-TDNN + FastSpeech2)</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vc2">VC2</a>
+      </td>
+    </tr>
+    <tr>
+      <td>GE2E + VITS</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vits-vc">VITS-VC</a>
+      </td>
+    </tr>
+    <tr>
       <td rowspan="3">End-to-End</td>
       <td>VITS</td>
-      <td >CSMSC</td>
+      <td>CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a> / <a href = "./examples/aishell3/vits">VITS-aishell3</a>
       </td>
     </tr>
   </tbody>
@@ -869,8 +888,9 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 </p>
 
 ## Acknowledgement
--  Many thanks to [david-95](https://github.com/david-95) improved TTS, fixed multi-punctuation bug, and contributed to multiple program and data. 
-- Many thanks to [BarryKCL](https://github.com/BarryKCL) improved TTS Chinses frontend based on [G2PW](https://github.com/GitYCC/g2pW)
+- Many thanks to [HighCWu](https://github.com/HighCWu) for adding [VITS-aishell3](./examples/aishell3/vits) and [VITS-VC](./examples/aishell3/vits-vc) examples.
+- Many thanks to [david-95](https://github.com/david-95) improved TTS, fixed multi-punctuation bug, and contributed to multiple program and data. 
+- Many thanks to [BarryKCL](https://github.com/BarryKCL) improved TTS Chinses frontend based on [G2PW](https://github.com/GitYCC/g2pW).
 - Many thanks to [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) for years of attention, constructive advice and great help.
 - Many thanks to [mymagicpower](https://github.com/mymagicpower) for the Java implementation of ASR upon [short](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk) and [long](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk) audio files.
 - Many thanks to [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) for developing Virtual Uploader(VUP)/Virtual YouTuber(VTuber) with PaddleSpeech TTS function.

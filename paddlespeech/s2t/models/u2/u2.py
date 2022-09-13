@@ -916,6 +916,50 @@ class U2InferModel(U2Model):
     def __init__(self, configs: dict):
         super().__init__(configs)
 
+        from paddlespeech.s2t.modules.fbank import KaldiFbank
+        import yaml
+        import json
+        import numpy as np
+
+        input_dim = configs['input_dim']
+        process = configs['preprocess_config']
+        with open(process, encoding="utf-8") as f:
+            conf = yaml.safe_load(f)
+            assert isinstance(conf, dict), type(self.conf)
+
+        for idx, process in enumerate(conf['process']):
+            assert isinstance(process, dict), type(process)
+            opts = dict(process)
+            process_type = opts.pop("type")
+
+            if process_type == 'fbank_kaldi':
+                opts.update({'n_mels': input_dim})
+                opts['dither'] = 0.0
+                self.fbank = KaldiFbank(
+                   **opts
+                )
+                logger.info(f"{self.__class__.__name__} export: {self.fbank}")
+            if process_type == 'cmvn_json':
+                # align with paddlespeech.audio.transform.cmvn:GlobalCMVN
+                std_floor = 1.0e-20
+
+                cmvn = opts['cmvn_path']
+                if isinstance(cmvn, dict):
+                    cmvn_stats = cmvn
+                else:
+                    with open(cmvn) as f:
+                        cmvn_stats = json.load(f)
+                count = cmvn_stats['frame_num']
+                mean = np.array(cmvn_stats['mean_stat']) / count
+                square_sums = np.array(cmvn_stats['var_stat'])
+                var = square_sums / count - mean**2
+                std = np.maximum(np.sqrt(var), std_floor)
+                istd = 1.0 / std
+                self.global_cmvn = GlobalCMVN(
+                    paddle.to_tensor(mean, dtype=paddle.float),
+                    paddle.to_tensor(istd, dtype=paddle.float))
+                logger.info(f"{self.__class__.__name__} export: {self.global_cmvn}")
+
     def forward(self,
                 feats,
                 feats_lengths,
@@ -939,3 +983,17 @@ class U2InferModel(U2Model):
         #     num_decoding_left_chunks=num_decoding_left_chunks,
         #     simulate_streaming=simulate_streaming)
         return feats, feats_lengths
+
+    def forward_feature(self, x):
+        """feature pipeline.
+
+        Args:
+            x (paddle.Tensor): waveform (T,).
+
+        Return:
+            feat (paddle.Tensor): feature (T, D) 
+        """
+        x = paddle.cast(x, paddle.float32)
+        feat = self.fbank(x)
+        feat = self.global_cmvn(feat)
+        return feat

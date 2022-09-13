@@ -18,6 +18,7 @@ from pathlib import Path
 
 import paddle
 import soundfile
+import numpy as np
 from yacs.config import CfgNode
 
 from paddlespeech.audio.transform.transformation import Transformation
@@ -76,6 +77,8 @@ class U2Infer():
             # fbank
             feat = self.preprocessing(audio, **self.preprocess_args)
             logger.info(f"feat shape: {feat.shape}")
+
+            np.savetxt("feat.transform.txt", feat)
 
             ilen = paddle.to_tensor(feat.shape[0])
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(axis=0)

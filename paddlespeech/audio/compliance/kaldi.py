@@ -74,16 +74,16 @@ def _feature_window_function(
         window_size: int,
         blackman_coeff: float,
         dtype: int, ) -> Tensor:
-    if window_type == HANNING:
+    if window_type == "hann":
         return get_window('hann', window_size, fftbins=False, dtype=dtype)
-    elif window_type == HAMMING:
+    elif window_type == "hamming":
         return get_window('hamming', window_size, fftbins=False, dtype=dtype)
-    elif window_type == POVEY:
+    elif window_type == "povey":
         return get_window(
             'hann', window_size, fftbins=False, dtype=dtype).pow(0.85)
-    elif window_type == RECTANGULAR:
+    elif window_type == "rect":
         return paddle.ones([window_size], dtype=dtype)
-    elif window_type == BLACKMAN:
+    elif window_type == "blackman":
         a = 2 * math.pi / (window_size - 1)
         window_function = paddle.arange(window_size, dtype=dtype)
         return (blackman_coeff - 0.5 * paddle.cos(a * window_function) +
@@ -216,7 +216,7 @@ def spectrogram(waveform: Tensor,
                 sr: int=16000,
                 snip_edges: bool=True,
                 subtract_mean: bool=False,
-                window_type: str=POVEY) -> Tensor:
+                window_type: str="povey") -> Tensor:
     """Compute and return a spectrogram from a waveform. The output is identical to Kaldi's.
 
     Args:
@@ -236,7 +236,7 @@ def spectrogram(waveform: Tensor,
         snip_edges (bool, optional): Drop samples in the end of waveform that cann't fit a singal frame when it
             is set True. Otherwise performs reflect padding to the end of waveform. Defaults to True.
         subtract_mean (bool, optional): Whether to subtract mean of feature files. Defaults to False.
-        window_type (str, optional): Choose type of window for FFT computation. Defaults to POVEY.
+        window_type (str, optional): Choose type of window for FFT computation. Defaults to "povey".
 
     Returns:
         Tensor: A spectrogram tensor with shape `(m, padded_window_size // 2 + 1)` where m is the number of frames
@@ -418,11 +418,11 @@ def fbank(waveform: Tensor,
           vtln_high: float=-500.0,
           vtln_low: float=100.0,
           vtln_warp: float=1.0,
-          window_type: str=POVEY) -> Tensor:
+          window_type: str="povey") -> Tensor:
     """Compute and return filter banks from a waveform. The output is identical to Kaldi's.
 
     Args:
-        waveform (Tensor): A waveform tensor with shape `(C, T)`.
+        waveform (Tensor): A waveform tensor with shape `(C, T)`. `C` is in the range [0,1]. 
         blackman_coeff (float, optional): Coefficient for Blackman window.. Defaults to 0.42.
         channel (int, optional): Select the channel of waveform. Defaults to -1.
         dither (float, optional): Dithering constant . Defaults to 0.0.
@@ -448,7 +448,7 @@ def fbank(waveform: Tensor,
         vtln_high (float, optional): High inflection point in piecewise linear VTLN warping function. Defaults to -500.0.
         vtln_low (float, optional): Low inflection point in piecewise linear VTLN warping function. Defaults to 100.0.
         vtln_warp (float, optional): Vtln warp factor. Defaults to 1.0.
-        window_type (str, optional): Choose type of window for FFT computation. Defaults to POVEY.
+        window_type (str, optional): Choose type of window for FFT computation. Defaults to "povey".
 
     Returns:
         Tensor: A filter banks tensor with shape `(m, n_mels)`.
@@ -537,7 +537,7 @@ def mfcc(waveform: Tensor,
          vtln_high: float=-500.0,
          vtln_low: float=100.0,
          vtln_warp: float=1.0,
-         window_type: str=POVEY) -> Tensor:
+         window_type: str="povey") -> Tensor:
     """Compute and return mel frequency cepstral coefficients from a waveform. The output is
             identical to Kaldi's.
 

@@ -474,13 +474,20 @@ class U2Tester(U2Trainer):
     def export(self):
         infer_model, input_spec = self.load_inferspec()
         infer_model.eval()
+        paddle.set_device('cpu')
 
-        assert isinstance(input_spec, list), type(input_spec)
+        assert isinstance(input_spec, (list, tuple)), type(input_spec)
         batch_size, feat_dim, model_size, num_left_chunks = input_spec
 
 
-        ######################### infer_model.forward_encoder_chunk zero tensor online ############
-        # TODO: 80(feature dim) be configable
+        ######################## infer_model.forward_encoder_chunk ############
+        input_spec = [
+            # (T,), int16
+            paddle.static.InputSpec(shape=[None], dtype='int16'),
+        ]
+        infer_model.forward_feature = paddle.jit.to_static(infer_model.forward_feature, input_spec=input_spec)
+
+        ######################### infer_model.forward_encoder_chunk ############
         input_spec = [
             # xs, (B, T, D)
             paddle.static.InputSpec(shape=[batch_size, None, feat_dim], dtype='float32'),
@@ -499,8 +506,16 @@ class U2Tester(U2Trainer):
         infer_model.forward_encoder_chunk = paddle.jit.to_static(
             infer_model.forward_encoder_chunk, input_spec=input_spec)
 
+        ######################### infer_model.ctc_activation ########################
+        input_spec = [
+            # encoder_out, (B,T,D)
+            paddle.static.InputSpec(shape=[batch_size, None, model_size], dtype='float32')
+        ]
+        infer_model.ctc_activation = paddle.jit.to_static(
+            infer_model.ctc_activation, input_spec=input_spec)
+
+
         ######################### infer_model.forward_attention_decoder ########################
-        # TODO: 512(encoder_output) be configable. 1 for BatchSize
         input_spec = [
             # hyps, (B, U)
             paddle.static.InputSpec(shape=[None, None], dtype='int64'),
@@ -512,16 +527,10 @@ class U2Tester(U2Trainer):
         infer_model.forward_attention_decoder = paddle.jit.to_static(
             infer_model.forward_attention_decoder, input_spec=input_spec)
 
-        ######################### infer_model.ctc_activation ########################
-        input_spec = [
-            # encoder_out, (B,T,D)
-            paddle.static.InputSpec(shape=[batch_size, None, model_size], dtype='float32')
-        ]
-        infer_model.ctc_activation = paddle.jit.to_static(
-            infer_model.ctc_activation, input_spec=input_spec)
-
         # jit save
+        logger.info(f"export save: {self.args.export_path}")
         paddle.jit.save(infer_model, self.args.export_path, combine_params=True, skip_forward=True)
+
 
         # test dy2static
         def flatten(out):
@@ -536,26 +545,44 @@ class U2Tester(U2Trainer):
                     flatten_out.append(var)
             return flatten_out
 
-        xs1 = paddle.rand(shape=[1, 67, 80], dtype='float32')
+        # forward_encoder_chunk dygraph
+        xs1 = paddle.full([1, 67, 80], 0.1, dtype='float32')
         offset = paddle.to_tensor([0], dtype='int32')
         required_cache_size = num_left_chunks
         att_cache = paddle.zeros([0, 0, 0, 0])
         cnn_cache = paddle.zeros([0, 0, 0, 0])
+        xs_d, att_cache_d, cnn_cache_d = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
 
-        xs, att_cache, cnn_cache = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
-        xs2 = paddle.rand(shape=[1, 67, 80], dtype='float32')
-        offset = paddle.to_tensor([16], dtype='int32')
-        out1 = infer_model.forward_encoder_chunk(xs2, offset, required_cache_size, att_cache, cnn_cache)
-        print('py encoder', out1)
+        import soundfile
+        audio, sample_rate = soundfile.read(
+            './zh.wav', dtype="int16", always_2d=True)
+        audio = audio[:, 0]
+        logger.info(f"audio shape: {audio.shape}")
+        audio = paddle.to_tensor(audio, paddle.int16)
+        feat_d = infer_model.forward_feature(audio)
+        logger.info(f"{feat_d}")
+        np.savetxt("feat.tostatic.txt", feat_d)
+        
 
+        # load static model
         from paddle.jit.layer import Layer
         layer = Layer()
         layer.load(self.args.export_path, paddle.CPUPlace())
 
-        xs1 = paddle.full([1, 7, 80], 0.1, dtype='float32')
+        # forward_encoder_chunk static
+        xs1 = paddle.full([1, 67, 80], 0.1, dtype='float32')
         offset = paddle.to_tensor([0], dtype='int32')
         att_cache = paddle.zeros([0, 0, 0, 0])
-        cnn_cache=paddle.zeros([0, 0, 0, 0])
+        cnn_cache = paddle.zeros([0, 0, 0, 0])
         func = getattr(layer, 'forward_encoder_chunk')
-        xs, att_cache, cnn_cache = func(xs1, offset, att_cache, cnn_cache)
-        print('py static encoder', xs)
+        xs_s, att_cache_s, cnn_cache_s = func(xs1, offset, att_cache, cnn_cache)
+        np.testing.assert_allclose(xs_d, xs_s, atol=1e-5)
+        np.testing.assert_allclose(att_cache_d, att_cache_s, atol=1e-4)
+        np.testing.assert_allclose(cnn_cache_d, cnn_cache_s, atol=1e-4)
+        # logger.info(f"forward_encoder_chunk output: {xs_s}")
+
+        # forward_feature static
+        func = getattr(layer, 'forward_feature')
+        feat_s = func(audio)[0]
+        logger.info(f"{feat_s}")
+        np.testing.assert_allclose(feat_d, feat_s, atol=1e-5)

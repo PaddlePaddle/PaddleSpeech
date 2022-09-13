@@ -137,9 +137,6 @@ def prep_feats_with_dur(wav_path: str,
     new_wav = np.concatenate(
         [wav_org[:wav_left_idx], blank_wav, wav_org[wav_right_idx:]])
 
-    # 音频是正常遮住了
-    sf.write(str("mask_wav.wav"), new_wav, samplerate=fs)
-
     # 4. get old and new mel span to be mask
     old_span_bdy = get_span_bdy(
         mfa_start=mfa_start, mfa_end=mfa_end, span_to_repl=span_to_repl)
@@ -274,7 +271,8 @@ def get_wav(wav_path: str,
             new_str: str='',
             duration_adjust: bool=True,
             fs: int=24000,
-            n_shift: int=300):
+            n_shift: int=300,
+            task_name: str='synthesize'):
 
     outs = get_mlm_output(
         wav_path=wav_path,
@@ -298,9 +296,11 @@ def get_wav(wav_path: str,
     alt_wav = np.squeeze(alt_wav)
 
     old_time_bdy = [n_shift * x for x in old_span_bdy]
-    wav_replaced = np.concatenate(
-        [wav_org[:old_time_bdy[0]], alt_wav, wav_org[old_time_bdy[1]:]])
-
+    if task_name == 'edit':
+        wav_replaced = np.concatenate(
+            [wav_org[:old_time_bdy[0]], alt_wav, wav_org[old_time_bdy[1]:]])
+    else:
+        wav_replaced = alt_wav
     wav_dict = {"origin": wav_org, "output": wav_replaced}
     return wav_dict
 
@@ -356,7 +356,10 @@ def parse_args():
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
 
     # ernie sat related
-    parser.add_argument("--task_name", type=str, help="task name")
+    parser.add_argument(
+        "--task_name",
+        type=str,
+        help="task name, should be in {'edit', 'synthesize'}")
     parser.add_argument("--wav_path", type=str, help="path of old wav")
     parser.add_argument("--old_str", type=str, help="old string")
     parser.add_argument("--new_str", type=str, help="new string")
@@ -410,10 +413,9 @@ if __name__ == '__main__':
     if args.task_name == 'edit':
         new_str = new_str
     elif args.task_name == 'synthesize':
-        new_str = old_str + new_str
+        new_str = old_str + ' ' + new_str
     else:
-        new_str = old_str + new_str
-    print("new_str:", new_str)
+        new_str = old_str + ' ' + new_str
 
     # Extractor
     mel_extractor = LogMelFBank(
@@ -467,7 +469,8 @@ if __name__ == '__main__':
         new_str=new_str,
         duration_adjust=args.duration_adjust,
         fs=erniesat_config.fs,
-        n_shift=erniesat_config.n_shift)
+        n_shift=erniesat_config.n_shift,
+        task_name=args.task_name)
 
     sf.write(
         args.output_name, wav_dict['output'], samplerate=erniesat_config.fs)

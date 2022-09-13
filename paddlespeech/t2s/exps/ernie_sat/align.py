@@ -58,7 +58,7 @@ def _readtg(tg_path: str, lang: str='en', fs: int=24000, n_shift: int=300):
         durations[-2] += durations[-1]
         durations = durations[:-1]
 
-    # replace ' and 'sil' with 'sp'
+    # replace '' and 'sil' with 'sp'
     phones = ['sp' if (phn == '' or phn == 'sil') else phn for phn in phones]
 
     if lang == 'en':
@@ -195,7 +195,7 @@ def words2phns(text: str, lang='en'):
             wrd = wrd.upper()
         if (wrd not in ds):
             wrd2phns[str(index) + '_' + wrd] = 'spn'
-            phns.extend('spn')
+            phns.extend(['spn'])
         else:
             wrd2phns[str(index) + '_' + wrd] = word2phns_dict[wrd].split()
             phns.extend(word2phns_dict[wrd].split())

@@ -359,7 +359,8 @@ def parse_args():
     parser.add_argument(
         "--task_name",
         type=str,
-        help="task name, should be in {'edit', 'synthesize'}")
+        choices=['edit', 'synthesize'],
+        help="task name.")
     parser.add_argument("--wav_path", type=str, help="path of old wav")
     parser.add_argument("--old_str", type=str, help="old string")
     parser.add_argument("--new_str", type=str, help="new string")

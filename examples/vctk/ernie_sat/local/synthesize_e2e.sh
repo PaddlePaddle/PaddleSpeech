@@ -37,7 +37,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --task_name=edit \
         --wav_path=source/p243_313.wav \
         --old_str='For that reason cover should not be given' \
-        --new_str='For that reason cover is not impossible to be given.' \
+        --new_str='For that reason cover is not impossible to be given' \
         --source_lang=en \
         --target_lang=en \
         --erniesat_config=${config_path} \

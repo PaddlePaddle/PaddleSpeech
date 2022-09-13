@@ -15,6 +15,7 @@ dataline=$(cat ${FILENAME})
 # parser params
 IFS=$'\n'
 lines=(${dataline})
+python=python
 
 # The training params
 model_name=$(func_parser_value "${lines[1]}")
@@ -68,7 +69,7 @@ if [[ ${MODE} = "benchmark_train" ]];then
 
     if [[ ${model_name} == "pwgan" ]]; then
         # 下载 csmsc 数据集并解压缩
-        wget -nc https://weixinxcxdb.oss-cn-beijing.aliyuncs.com/gwYinPinKu/BZNSYP.rar
+        wget -nc https://paddle-wheel.bj.bcebos.com/benchmark/BZNSYP.rar
         mkdir -p BZNSYP
         unrar x BZNSYP.rar BZNSYP
         wget -nc https://paddlespeech.bj.bcebos.com/Parakeet/benchmark/durations.txt
@@ -79,6 +80,10 @@ if [[ ${MODE} = "benchmark_train" ]];then
         python ../paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/dev/raw/metadata.jsonl --dumpdir=dump/dev/norm --stats=dump/train/feats_stats.npy
         python ../paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
     fi
+
+    echo "barrier start"
+    PYTHON="${python}" bash test_tipc/barrier.sh
+    echo "barrier end"
 
     if [[ ${model_name} == "mdtc" ]]; then
         # 下载 Snips 数据集并解压缩

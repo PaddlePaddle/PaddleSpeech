@@ -10,11 +10,12 @@ mfa_dir=./mfa_result
 dump_dir=./dump
 output_dir=./exp/default
 lang=zh
-ngpu=2
+ngpu=1
+finetune_config=./finetune.yaml
 
-ckpt=snapshot_iter_96600
+ckpt=snapshot_iter_96500
 
-gpus=0,1
+gpus=1
 CUDA_VISIBLE_DEVICES=${gpus}
 stage=0
 stop_stage=100
@@ -35,7 +36,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --output_dir=${output_dir} \
         --lang=${lang} \
         --ngpu=${ngpu} \
-        --epoch=100
+        --epoch=20 \
+        --finetune_config=${finetune_config}
 fi
 
 
@@ -54,7 +56,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --voc_stat=pretrained_models/hifigan_aishell3_ckpt_0.2.0/feats_stats.npy \
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
-        --output_dir=./test_e2e \
+        --output_dir=./test_e2e/ \
         --phones_dict=${dump_dir}/phone_id_map.txt \
         --speaker_dict=${dump_dir}/speaker_id_map.txt \
         --spk_id=0 

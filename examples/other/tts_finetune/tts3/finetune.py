@@ -15,17 +15,17 @@ import argparse
 import os
 from pathlib import Path
 from typing import Union
+from typing import List
 
 import yaml
 from paddle import distributed as dist
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.exps.fastspeech2.train import train_sp
-
 from local.check_oov import get_check_result
 from local.extract import extract_feature
 from local.label_process import get_single_label
 from local.prepare_env import generate_finetune_env
+from local.train import train_sp
 from utils.gen_duration_from_textgrid import gen_duration_from_textgrid
 
 DICT_EN = 'tools/aligner/cmudict-0.7b'
@@ -39,15 +39,19 @@ os.environ['PATH'] = MFA_PATH + '/:' + os.environ['PATH']
 
 
 class TrainArgs():
-    def __init__(self, ngpu, config_file, dump_dir: Path, output_dir: Path):
+    def __init__(self, ngpu, config_file, dump_dir: Path, output_dir: Path, frozen_layers: List[str]):
+        # config: fastspeech2 config file.
         self.config = str(config_file)
         self.train_metadata = str(dump_dir / "train/norm/metadata.jsonl")
         self.dev_metadata = str(dump_dir / "dev/norm/metadata.jsonl")
+        # model output dir.
         self.output_dir = str(output_dir)
         self.ngpu = ngpu
         self.phones_dict = str(dump_dir / "phone_id_map.txt")
         self.speaker_dict = str(dump_dir / "speaker_id_map.txt")
         self.voice_cloning = False
+        # frozen layers
+        self.frozen_layers = frozen_layers
 
 
 def get_mfa_result(
@@ -123,12 +127,12 @@ if __name__ == '__main__':
         "--ngpu", type=int, default=2, help="if ngpu=0, use cpu.")
 
     parser.add_argument("--epoch", type=int, default=100, help="finetune epoch")
-
     parser.add_argument(
-        "--batch_size",
-        type=int,
-        default=-1,
-        help="batch size, default -1 means same as pretrained model")
+        "--finetune_config",
+        type=str,
+        default="./finetune.yaml",
+        help="Path to finetune config file")
+
 
     args = parser.parse_args()
 
@@ -148,8 +152,13 @@ if __name__ == '__main__':
     with open(config_file) as f:
         config = CfgNode(yaml.safe_load(f))
     config.max_epoch = config.max_epoch + args.epoch
-    if args.batch_size > 0:
-        config.batch_size = args.batch_size
+
+    with open(args.finetune_config) as f2:
+        finetune_config = CfgNode(yaml.safe_load(f2))    
+    config.batch_size = finetune_config.batch_size if finetune_config.batch_size > 0 else config.batch_size
+    config.optimizer.learning_rate = finetune_config.learning_rate if finetune_config.learning_rate > 0 else config.optimizer.learning_rate
+    config.num_snapshots = finetune_config.num_snapshots if finetune_config.num_snapshots > 0 else config.num_snapshots
+    frozen_layers = finetune_config.frozen_layers
 
     if args.lang == 'en':
         lexicon_file = DICT_EN
@@ -159,6 +168,13 @@ if __name__ == '__main__':
         mfa_phone_file = MFA_PHONE_ZH
     else:
         print('please input right lang!!')
+
+    print(f"finetune max_epoch: {config.max_epoch}")
+    print(f"finetune batch_size: {config.batch_size}")
+    print(f"finetune learning_rate: {config.optimizer.learning_rate}")
+    print(f"finetune num_snapshots: {config.num_snapshots}")
+    print(f"finetune frozen_layers: {frozen_layers}")
+    
     am_phone_file = pretrained_model_dir / "phone_id_map.txt"
     label_file = input_dir / "labels.txt"
 
@@ -182,7 +198,7 @@ if __name__ == '__main__':
     generate_finetune_env(output_dir, pretrained_model_dir)
 
     # create a new args for training
-    train_args = TrainArgs(args.ngpu, config_file, dump_dir, output_dir)
+    train_args = TrainArgs(args.ngpu, config_file, dump_dir, output_dir, frozen_layers)
 
     # finetune models
     # dispatch

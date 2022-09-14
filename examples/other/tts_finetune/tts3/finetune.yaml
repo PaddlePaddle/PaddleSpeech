@@ -1,0 +1,10 @@
+###########################################################
+#                 PARAS SETTING               #
+###########################################################
+# Set to -1 to indicate that the parameter is the same as the pretrained model configuration
+
+batch_size: -1
+learning_rate: 0.0001     # learning rate
+num_snapshots: -1
+
+frozen_layers: ["encoder", "duration_predictor"]

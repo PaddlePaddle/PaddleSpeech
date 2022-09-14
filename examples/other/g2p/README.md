@@ -9,6 +9,9 @@ We use `WER` as an evaluation criterion.
 Run the command below to get the results of the test.
 
 ```bash
+cd ../../../tools
+bash extras/install_sclite.sh
+cd -
 ./run.sh
 ```
 

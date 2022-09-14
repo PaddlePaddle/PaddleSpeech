@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import paddlespeech
 from paddlespeech.audio._internal import module_utils 
 
 __all__ = [
@@ -80,7 +81,7 @@ def fbank(
     fbank_opts.htk_compat = htk_compat
     fbank_opts.use_log_fbank = use_log_fbank
     fbank_opts.use_power = use_power
-    feat = paddlespeech.audio._paddleaudio.CopmputeFbank(frame_opts, mel_opts, fbank_opts, wav)
+    feat = paddlespeech.audio._paddleaudio.ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
     return feat
 
 

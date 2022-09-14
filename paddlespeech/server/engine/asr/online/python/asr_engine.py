@@ -480,8 +480,7 @@ class PaddleASRConnectionHanddler:
                  self.offset,
                  required_cache_size,
                  att_cache=self.att_cache,
-                 cnn_cache=self.cnn_cache,
-                 att_mask=paddle.ones([0, 0, 0], dtype=paddle.bool))
+                 cnn_cache=self.cnn_cache)
             outputs.append(y)
 
             # update the global offset, in decoding frame unit

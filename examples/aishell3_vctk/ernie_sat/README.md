@@ -29,9 +29,11 @@ Or train your MFA model reference to [mfa example](https://github.com/PaddlePadd
 Assume the paths to the datasets are:
 - `~/datasets/data_aishell3` 
 - `~/datasets/VCTK-Corpus-0.92`
+
 Assume the path to the MFA results of the datasets are:
 - `./aishell3_alignment_tone`
 - `./vctk_alignment`
+
 Run the command below to
 1. **source path**.
 2. preprocess the dataset.

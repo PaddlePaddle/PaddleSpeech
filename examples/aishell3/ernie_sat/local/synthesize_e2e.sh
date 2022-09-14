@@ -13,9 +13,9 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/synthesize_e2e.py \
         --task_name=synthesize \
-        --wav_path=source/SSB03540307.wav\
-        --old_str='请播放歌曲小苹果。' \
-        --new_str='歌曲真好听。' \
+        --wav_path=source/SSB03540307.wav \
+        --old_str='请播放歌曲小苹果' \
+        --new_str='歌曲真好听' \
         --source_lang=zh \
         --target_lang=zh \
         --erniesat_config=${config_path} \

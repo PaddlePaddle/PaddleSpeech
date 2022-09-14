@@ -3,15 +3,12 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #%%
-import copy, os, random, sys, time
-from dataclasses import dataclass
+import copy
+import sys
 from itertools import islice
-from typing import List
 
-import braceexpand, yaml
-
-from .handlers import reraise_exception
-from .paddle_utils import DataLoader, IterableDataset
+from .paddle_utils import DataLoader
+from .paddle_utils import IterableDataset
 from .utils import PipelineStage
 
 
@@ -22,8 +19,7 @@ def add_length_method(obj):
     Combined = type(
         obj.__class__.__name__ + "_Length",
         (obj.__class__, IterableDataset),
-        {"__len__": length},
-    )
+        {"__len__": length}, )
     obj.__class__ = Combined
     return obj
 

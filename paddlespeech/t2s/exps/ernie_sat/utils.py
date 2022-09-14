@@ -11,31 +11,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import hashlib
+import os
 from pathlib import Path
 from typing import Dict
 from typing import List
 from typing import Union
-import os
 
 import numpy as np
 import paddle
 import yaml
 from yacs.config import CfgNode
-import hashlib
-
 
 from paddlespeech.t2s.exps.syn_utils import get_am_inference
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 
+
 def _get_user():
     return os.path.expanduser('~').split('/')[-1]
+
 
 def str2md5(string):
     md5_val = hashlib.md5(string.encode('utf8')).hexdigest()
     return md5_val
 
-def get_tmp_name(text:str):
+
+def get_tmp_name(text: str):
     return _get_user() + '_' + str(os.getpid()) + '_' + str2md5(text)
+
 
 def get_dict(dictfile: str):
     word2phns_dict = {}

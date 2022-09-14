@@ -11,21 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse
 import logging
 import os
 import shutil
 from pathlib import Path
+from typing import List
 
 import jsonlines
 import numpy as np
 import paddle
-import yaml
 from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.am_batch_fn import fastspeech2_multi_spk_batch_fn
 from paddlespeech.t2s.datasets.am_batch_fn import fastspeech2_single_spk_batch_fn
@@ -38,8 +36,6 @@ from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
-from paddlespeech.t2s.utils import str2bool
-from typing import List
 
 
 def freeze_layer(model, layers: List[str]):
@@ -145,7 +141,7 @@ def train_sp(args, config):
         idim=vocab_size, odim=odim, spk_num=spk_num, **config["model"])
 
     # freeze layer
-    if args.frozen_layers is not None:
+    if args.frozen_layers != [] :
         freeze_layer(model, args.frozen_layers)
 
     if world_size > 1:

@@ -111,6 +111,8 @@ class VITSUpdater(StandardUpdater):
                 text_lengths=batch["text_lengths"],
                 feats=batch["feats"],
                 feats_lengths=batch["feats_lengths"],
+                sids=batch.get("spk_id", None),
+                spembs=batch.get("spk_emb", None),
                 forward_generator=turn == "generator")
             # Generator
             if turn == "generator":
@@ -268,6 +270,8 @@ class VITSEvaluator(StandardEvaluator):
                 text_lengths=batch["text_lengths"],
                 feats=batch["feats"],
                 feats_lengths=batch["feats_lengths"],
+                sids=batch.get("spk_id", None),
+                spembs=batch.get("spk_emb", None),
                 forward_generator=turn == "generator")
             # Generator
             if turn == "generator":

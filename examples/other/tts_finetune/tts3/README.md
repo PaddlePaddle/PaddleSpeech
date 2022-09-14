@@ -1,7 +1,7 @@
 # Finetune your own AM based on FastSpeech2 with AISHELL-3.
 This example shows how to finetune your own AM based on FastSpeech2 with AISHELL-3. We use part of csmsc's data (top 200) as finetune data in this example. The example is implemented according to this [discussion](https://github.com/PaddlePaddle/PaddleSpeech/discussions/1842). Thanks to the developer for the idea.
 
-We use AISHELL-3 to train a multi-speaker fastspeech2 model here. You can refer [examples/aishell3/tts3](https://github.com/lym0302/PaddleSpeech/tree/develop/examples/aishell3/tts3) to train multi-speaker fastspeech2 from scratch.
+We use AISHELL-3 to train a multi-speaker fastspeech2 model. You can refer [examples/aishell3/tts3](https://github.com/lym0302/PaddleSpeech/tree/develop/examples/aishell3/tts3) to train multi-speaker fastspeech2 from scratch.
 
 ## Prepare
 ### Download Pretrained Fastspeech2 model

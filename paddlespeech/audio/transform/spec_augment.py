@@ -14,6 +14,7 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Spec Augment module for preprocessing i.e., data augmentation"""
 import random
+
 import numpy
 from PIL import Image
 

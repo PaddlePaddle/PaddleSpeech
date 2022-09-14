@@ -15,7 +15,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     python3 ${BIN_DIR}/synthesize_e2e.py \
         --task_name=synthesize \
         --wav_path=source/p243_313.wav \
-        --old_str='For that reason cover should not be given.' \
+        --old_str='For that reason cover should not be given' \
         --new_str='今天天气很好' \
         --source_lang=en \
         --target_lang=zh \
@@ -36,8 +36,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${BIN_DIR}/synthesize_e2e.py \
         --task_name=synthesize \
         --wav_path=source/SSB03540307.wav \
-        --old_str='请播放歌曲小苹果。' \
-        --new_str="Thank you!" \
+        --old_str='请播放歌曲小苹果' \
+        --new_str="Thank you" \
         --source_lang=zh \
         --target_lang=en \
         --erniesat_config=${config_path} \

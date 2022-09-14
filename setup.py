@@ -52,7 +52,7 @@ base = [
     "Pillow>=9.0.0",
     "praatio==5.0.0",
     "protobuf>=3.1.0, <=3.20.0",
-    "pypinyin",
+    "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",
     "pyworld==0.2.12",
@@ -77,12 +77,7 @@ base = [
     "pybind11",
 ]
 
-server = [
-    "fastapi",
-    "uvicorn",
-    "pattern_singleton",
-    "websockets" 
-]
+server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
 
 requirements = {
     "install":
@@ -330,4 +325,4 @@ setup_info = dict(
     })
 
 with version_info():
-    setup(**setup_info,include_package_data=True)
+    setup(**setup_info, include_package_data=True)

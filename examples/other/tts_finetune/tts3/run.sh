@@ -13,7 +13,7 @@ lang=zh
 ngpu=1
 finetune_config=./finetune.yaml
 
-ckpt=snapshot_iter_96500
+ckpt=snapshot_iter_96699
 
 gpus=1
 CUDA_VISIBLE_DEVICES=${gpus}
@@ -36,7 +36,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --output_dir=${output_dir} \
         --lang=${lang} \
         --ngpu=${ngpu} \
-        --epoch=20 \
+        --epoch=100 \
         --finetune_config=${finetune_config}
 fi
 

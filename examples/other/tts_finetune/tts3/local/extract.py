@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-import math
 import os
 from operator import itemgetter
 from pathlib import Path
@@ -211,9 +210,9 @@ def extract_feature(duration_file: str,
     mel_extractor, pitch_extractor, energy_extractor = get_extractor(config)
 
     wav_files = sorted(list((input_dir).rglob("*.wav")))
-    # split data into 3 sections, train: 80%, dev: 10%, test: 10%
-    num_train = math.ceil(len(wav_files) * 0.8)
-    num_dev = math.ceil(len(wav_files) * 0.1)
+    # split data into 3 sections, train: len(wav_files) - 2, dev: 1, test: 1
+    num_train = len(wav_files) - 2
+    num_dev = 1
     print(num_train, num_dev)
 
     train_wav_files = wav_files[:num_train]

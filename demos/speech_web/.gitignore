@@ -13,4 +13,5 @@
 *.pdmodel
 */source/*
 */PaddleSpeech/*
+*/tmp*/*
 

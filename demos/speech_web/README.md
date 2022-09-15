@@ -6,11 +6,17 @@ PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发�
 
 主要功能：
 
+`main.py` 中包含功能
 + 语音聊天：PaddleSpeech 的语音识别能力+语音合成能力，对话部分基于 PaddleNLP 的闲聊功能
 + 声纹识别：PaddleSpeech 的声纹识别功能展示
 + 语音识别：支持【实时语音识别】，【端到端识别】，【音频文件识别】三种模式
 + 语音合成：支持【流式合成】与【端到端合成】两种方式
 + 语音指令：基于 PaddleSpeech 的语音识别能力与 PaddleNLP 的信息抽取，实现交通费的智能报销
+
+`vc.py` 中包含功能
++ 一句话合成：基于 GE2E 和 ECAPA-TDNN 模型的一句话合成方案，可以模仿输入的音频的音色进行合成任务
++ 小数据微调：基于小数据集的微调方案，内置用10句话标贝中文女声微调示例，你也可以通过一键重置，录制自己的声音，注意在安静环境下录制，效果会更好，你可以在[finetune](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/tts_finetune/tts3)中，使用自己的小数据集，训练音色
++ ENIRE SAT：语言-语音跨模态大模型 ENIRE SAT 可视化展示示例，支持个性化合成，跨语言语音合成（输入音频为中文则合成），语音编辑功能
 
 运行效果：
 
@@ -25,11 +31,59 @@ PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发�
 cd speech_server
 pip install -r requirements.txt
 
-# 下载 ie 模型，针对地点进行微调，效果更好，不下载的话会使用其它版本，效果没有这个好
+mkdir source
 cd source
+
+# 下载 tools 
+wget https://paddlespeech.bj.bcebos.com/demos/speech_web/tools.zip
+unzip tools.zip
+
+# 下载 wav
+wget https://paddlespeech.bj.bcebos.com/demos/speech_web/wav.zip
+unzip tools.zip
+
+
+# 下载 ie 模型，针对地点进行微调
 mkdir model
 cd model
+
+# 下载IE模型
 wget https://bj.bcebos.com/paddlenlp/applications/speech-cmd-analysis/finetune/model_state.pdparams
+
+# 下载 GE2E 相关模型
+wget https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip
+unzip ge2e_ckpt_0.3.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip
+unzip pwg_aishell3_ckpt_0.5.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
+unzip fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
+
+# 下载 SAT 相关模型
+# fastspeech2
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_ljspeech_ckpt_0.5.zip
+unzip fastspeech2_conformer_baker_ckpt_0.5.zip
+unzip fastspeech2_nosil_ljspeech_ckpt_0.5.zip
+
+# aishell3
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
+unzip hifigan_aishell3_ckpt_0.2.0.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_ckpt_1.2.0.zip
+unzip erniesat_aishell3_ckpt_1.2.0.zip
+
+# vctk
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
+unzip unzip hifigan_vctk_ckpt_0.2.0.zip
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_vctk_ckpt_1.2.0.zip
+unzip erniesat_vctk_ckpt_1.2.0.zip
+
+# aishell3_vctk
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_vctk_ckpt_1.2.0.zip
+unzip erniesat_aishell3_vctk_ckpt_1.2.0.zip
+
+# 下载 finetune 相关模型
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip
+unzip fastspeech2_aishell3_ckpt_1.1.0.zip
 ```
 
 ### 前端环境安装
@@ -51,10 +105,33 @@ yarn install
 
 ### 开启后端服务
 
+#### `main.py`
+【语音聊天】【声纹识别】【语音识别】【语音合成】【语音指令】功能体验，可直接使用下面的代码
 ```
 cd speech_server
 # 默认8010端口
 python main.py --port 8010
+```
+
+#### `vc.py`
+
+【一句话合成】【小数据微调】【ENIRE SAT】体验都依赖于MFA，体验前先确保 MFA 可用，项目兼容 mfa v1 和 v2 ，source tools中已包含 v1.02版本编译好的工具，如果你是linux系统且mfa可使用，可以将`vc.py`中
+```python
+sat_model = SAT(mfa_version='v2')
+ft_model = FineTune(mfa_version='v2')
+```
+更改为
+```python
+sat_model = SAT(mfa_version='v1')
+ft_model = FineTune(mfa_version='v1')
+```
+
+如果你是其它的系统，可以使用 conda 安装 mfa v2 进行体验，安装请参考 [Montreal Forced Aligner](https://montreal-forced-aligner.readthedocs.io/en/latest/getting_started.html)，确保自己环境中 MFA 可用
+
+```
+cd speech_server
+# 默认8010端口
+python vc.py --port 8010
 ```
 
 ### 开启前端服务

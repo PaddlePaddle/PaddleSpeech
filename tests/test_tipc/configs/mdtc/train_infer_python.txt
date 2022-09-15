@@ -52,6 +52,6 @@ null:null
 ===========================train_benchmark_params==========================
 batch_size:16|30
 fp_items:fp32
-iteration:10 #modify max_epoch here and 10 epochs runs merely 5 minutes.
+iteration:10
 --profiler-options:"batch_range=[10,35];state=GPU;tracer_option=Default;profile_path=model.profile"
 flags:null

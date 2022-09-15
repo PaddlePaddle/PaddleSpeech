@@ -25,7 +25,7 @@ from scipy.io import wavfile
 
 from ..utils import depth_convert
 from ..utils import ParameterError
-from .common import AudioMetaData
+from .common import AudioInfo
 
 __all__ = [
     'resample',
@@ -36,7 +36,6 @@ __all__ = [
     'load',
     'soundfile_load',
     'info',
-    'to_mono'
 ]
 NORMALMIZE_TYPES = ['linear', 'gaussian']
 MERGE_TYPES = ['ch0', 'ch1', 'random', 'average']
@@ -257,7 +256,7 @@ def soundfile_load(
     y = depth_convert(y, dtype)
     return y, r
 
-#the code below is form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py
+#the code below token form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py with modificaion.
 
 def _get_subtype_for_wav(dtype: paddle.dtype, encoding: str, bits_per_sample: int):
     if not encoding:
@@ -635,7 +634,7 @@ def _get_encoding(format: str, subtype: str):
         return "FLAC"
     return _SUBTYPE_TO_ENCODING.get(subtype, "UNKNOWN")
 
-def info(filepath: str, format: Optional[str] = None) -> AudioMetaData:
+def info(filepath: str, format: Optional[str] = None) -> AudioInfo:
     """Get signal information of an audio file.
 
     Note:
@@ -649,11 +648,11 @@ def info(filepath: str, format: Optional[str] = None) -> AudioMetaData:
             Not used. PySoundFile does not accept format hint.
 
     Returns:
-        AudioMetaData: meta data of the given audio.
+        AudioInfo: meta data of the given audio.
 
     """
     sinfo = soundfile.info(filepath)
-    return AudioMetaData(
+    return AudioInfo(
         sinfo.samplerate,
         sinfo.frames,
         sinfo.channels,

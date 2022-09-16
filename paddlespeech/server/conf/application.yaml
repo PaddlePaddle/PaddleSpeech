@@ -25,7 +25,6 @@ asr_python:
     cfg_path: # [optional]
     ckpt_path: # [optional]
     decode_method: 'attention_rescoring'
-    num_decoding_left_chunks: -1
     force_yes: True
     device:  # set 'gpu:id' or 'cpu'
 
@@ -39,7 +38,6 @@ asr_inference:
     lang: 'zh'
     sample_rate: 16000
     cfg_path: 
-    num_decoding_left_chunks: -1
     decode_method: 
     force_yes: True
 

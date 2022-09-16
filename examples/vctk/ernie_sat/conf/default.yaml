@@ -1,6 +1,3 @@
-# This configuration tested on 8 GPUs (A100) with 80GB GPU memory.
-# It takes around 2 days to finish the training,You can adjust
-# batch_size、num_workers here and ngpu in local/train.sh for your machine
 ###########################################################
 #                FEATURE EXTRACTION SETTING               #
 ###########################################################
@@ -24,8 +21,8 @@ mlm_prob: 0.8
 ###########################################################
 #                       DATA SETTING                      #
 ###########################################################
-batch_size: 40
-num_workers: 8
+batch_size: 20
+num_workers: 2
 
 ###########################################################
 #                       MODEL SETTING                     #

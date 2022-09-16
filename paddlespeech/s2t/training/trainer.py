@@ -19,10 +19,6 @@ from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
-world_size = dist.get_world_size()
-if world_size > 1:
-    dist.init_parallel_env()
-
 from visualdl import LogWriter
 
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -126,6 +122,9 @@ class Trainer():
         else:
             raise Exception("invalid device")
 
+        if self.parallel:
+            self.init_parallel()
+
         self.checkpoint = Checkpoint(
             kbest_n=self.config.checkpoint.kbest_n,
             latest_n=self.config.checkpoint.latest_n)
@@ -173,6 +172,11 @@ class Trainer():
         multiprocessing.
         """
         return self.args.ngpu > 1
+
+    def init_parallel(self):
+        """Init environment for multiprocess training.
+        """
+        dist.init_parallel_env()
 
     @mp_tools.rank_zero_only
     def save(self, tag=None, infos: dict=None):

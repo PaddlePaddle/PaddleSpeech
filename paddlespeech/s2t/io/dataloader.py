@@ -22,15 +22,16 @@ import paddle
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
-from yacs.config import CfgNode
 
-import paddlespeech.audio.streamdata as streamdata
-from paddlespeech.audio.text.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.batchfy import make_batchset
 from paddlespeech.s2t.io.converter import CustomConverter
 from paddlespeech.s2t.io.dataset import TransformDataset
 from paddlespeech.s2t.io.reader import LoadInputsAndTargets
 from paddlespeech.s2t.utils.log import Log
+
+import paddlespeech.audio.streamdata as streamdata
+from paddlespeech.audio.text.text_featurizer import TextFeaturizer
+from yacs.config import CfgNode
 
 __all__ = ["BatchDataLoader", "StreamDataLoader"]
 
@@ -60,7 +61,6 @@ def batch_collate(x):
     """
     return x[0]
 
-
 def read_preprocess_cfg(preprocess_conf_file):
     augment_conf = dict()
     preprocess_cfg = CfgNode(new_allowed=True)
@@ -82,8 +82,7 @@ def read_preprocess_cfg(preprocess_conf_file):
             augment_conf['num_t_mask'] = process['n_mask']
             augment_conf['t_inplace'] = process['inplace']
             augment_conf['t_replace_with_zero'] = process['replace_with_zero']
-    return augment_conf
-
+    return augment_conf 
 
 class StreamDataLoader():
     def __init__(self,
@@ -96,12 +95,12 @@ class StreamDataLoader():
                  frame_length=25,
                  frame_shift=10,
                  dither=0.0,
-                 minlen_in: float=0.0,
+                 minlen_in: float=0.0, 
                  maxlen_in: float=float('inf'),
                  minlen_out: float=0.0,
                  maxlen_out: float=float('inf'),
                  resample_rate: int=16000,
-                 shuffle_size: int=10000,
+                 shuffle_size: int=10000, 
                  sort_size: int=1000,
                  n_iter_processes: int=1,
                  prefetch_factor: int=2,
@@ -117,11 +116,11 @@ class StreamDataLoader():
 
         text_featurizer = TextFeaturizer(unit_type, vocab_filepath)
         symbol_table = text_featurizer.vocab_dict
-        self.feat_dim = num_mel_bins
-        self.vocab_size = text_featurizer.vocab_size
-
+        self.feat_dim = num_mel_bins 
+        self.vocab_size = text_featurizer.vocab_size 
+        
         augment_conf = read_preprocess_cfg(preprocess_conf)
-
+        
         # The list of shard
         shardlist = []
         with open(manifest_file, "r") as f:
@@ -129,68 +128,58 @@ class StreamDataLoader():
                 shardlist.append(line.strip())
         world_size = 1
         try:
-            world_size = paddle.distributed.get_world_size()
+            world_size = paddle.distributed.get_world_size() 
         except Exception as e:
             logger.warninig(e)
-            logger.warninig(
-                "can not get world_size using paddle.distributed.get_world_size(), use world_size=1"
-            )
-        assert len(shardlist) >= world_size, \
-            "the length of shard list should >= number of gpus/xpus/..."
+            logger.warninig("can not get world_size using paddle.distributed.get_world_size(), use world_size=1")
+        assert(len(shardlist) >= world_size, "the length of shard list should >= number of gpus/xpus/...")
 
-        update_n_iter_processes = int(
-            max(min(len(shardlist) / world_size - 1, self.n_iter_processes), 0))
+        update_n_iter_processes = int(max(min(len(shardlist)/world_size - 1, self.n_iter_processes), 0))
         logger.info(f"update_n_iter_processes {update_n_iter_processes}")
         if update_n_iter_processes != self.n_iter_processes:
-            self.n_iter_processes = update_n_iter_processes
+            self.n_iter_processes = update_n_iter_processes         
             logger.info(f"change nun_workers to {self.n_iter_processes}")
 
         if self.dist_sampler:
             base_dataset = streamdata.DataPipeline(
-                streamdata.SimpleShardList(shardlist), streamdata.split_by_node
-                if train_mode else streamdata.placeholder(),
+                streamdata.SimpleShardList(shardlist),
+                streamdata.split_by_node if train_mode else streamdata.placeholder(),
                 streamdata.split_by_worker,
-                streamdata.tarfile_to_samples(streamdata.reraise_exception))
+                streamdata.tarfile_to_samples(streamdata.reraise_exception)
+            )
         else:
             base_dataset = streamdata.DataPipeline(
                 streamdata.SimpleShardList(shardlist),
                 streamdata.split_by_worker,
-                streamdata.tarfile_to_samples(streamdata.reraise_exception))
+                streamdata.tarfile_to_samples(streamdata.reraise_exception)
+            )
 
         self.dataset = base_dataset.append_list(
             streamdata.audio_tokenize(symbol_table),
-            streamdata.audio_data_filter(
-                frame_shift=frame_shift,
-                max_length=maxlen_in,
-                min_length=minlen_in,
-                token_max_length=maxlen_out,
-                token_min_length=minlen_out),
+            streamdata.audio_data_filter(frame_shift=frame_shift, max_length=maxlen_in, min_length=minlen_in, token_max_length=maxlen_out, token_min_length=minlen_out),
             streamdata.audio_resample(resample_rate=resample_rate),
-            streamdata.audio_compute_fbank(
-                num_mel_bins=num_mel_bins,
-                frame_length=frame_length,
-                frame_shift=frame_shift,
-                dither=dither),
-            streamdata.audio_spec_aug(**augment_conf)
-            if train_mode else streamdata.placeholder(
-            ),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
+            streamdata.audio_compute_fbank(num_mel_bins=num_mel_bins, frame_length=frame_length, frame_shift=frame_shift, dither=dither),
+            streamdata.audio_spec_aug(**augment_conf) if train_mode else streamdata.placeholder(),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
             streamdata.shuffle(shuffle_size),
             streamdata.sort(sort_size=sort_size),
             streamdata.batched(batch_size),
             streamdata.audio_padding(),
-            streamdata.audio_cmvn(cmvn_file))
+            streamdata.audio_cmvn(cmvn_file)
+        )
 
         if paddle.__version__ >= '2.3.2':
             self.loader = streamdata.WebLoader(
-                self.dataset,
-                num_workers=self.n_iter_processes,
-                prefetch_factor=self.prefetch_factor,
-                batch_size=None)
+                self.dataset, 
+                num_workers=self.n_iter_processes, 
+                prefetch_factor = self.prefetch_factor, 
+                batch_size=None
+            )
         else:
             self.loader = streamdata.WebLoader(
-                self.dataset,
-                num_workers=self.n_iter_processes,
-                batch_size=None)
+                self.dataset, 
+                num_workers=self.n_iter_processes, 
+                batch_size=None
+            )
 
     def __iter__(self):
         return self.loader.__iter__()
@@ -199,9 +188,7 @@ class StreamDataLoader():
         return self.__iter__()
 
     def __len__(self):
-        logger.info(
-            "Stream dataloader does not support calculate the length of the dataset"
-        )
+        logger.info("Stream dataloader does not support calculate the length of the dataset")
         return -1
 
 
@@ -360,7 +347,7 @@ class DataLoaderFactory():
                 config['train_mode'] = True
             elif mode == 'valid':
                 config['manifest'] = config.dev_manifest
-                config['train_mode'] = False
+                config['train_mode'] = False  
             elif model == 'test' or mode == 'align':
                 config['manifest'] = config.test_manifest
                 config['train_mode'] = False
@@ -371,31 +358,30 @@ class DataLoaderFactory():
                 config['maxlen_out'] = float('inf')
                 config['dist_sampler'] = False
             else:
-                raise KeyError(
-                    "not valid mode type!!, please input one of 'train, valid, test, align'"
-                )
+                raise KeyError("not valid mode type!!, please input one of 'train, valid, test, align'")
             return StreamDataLoader(
-                manifest_file=config.manifest,
-                train_mode=config.train_mode,
-                unit_type=config.unit_type,
-                preprocess_conf=config.preprocess_config,
-                batch_size=config.batch_size,
-                num_mel_bins=config.feat_dim,
-                frame_length=config.window_ms,
-                frame_shift=config.stride_ms,
-                dither=config.dither,
-                minlen_in=config.minlen_in,
-                maxlen_in=config.maxlen_in,
-                minlen_out=config.minlen_out,
-                maxlen_out=config.maxlen_out,
-                resample_rate=config.resample_rate,
-                shuffle_size=config.shuffle_size,
-                sort_size=config.sort_size,
-                n_iter_processes=config.num_workers,
-                prefetch_factor=config.prefetch_factor,
-                dist_sampler=config.dist_sampler,
-                cmvn_file=config.cmvn_file,
-                vocab_filepath=config.vocab_filepath, )
+                    manifest_file=config.manifest,
+                    train_mode=config.train_mode,
+                    unit_type=config.unit_type,
+                    preprocess_conf=config.preprocess_config,
+                    batch_size=config.batch_size,
+                    num_mel_bins=config.feat_dim,
+                    frame_length=config.window_ms,
+                    frame_shift=config.stride_ms,
+                    dither=config.dither,
+                    minlen_in=config.minlen_in,
+                    maxlen_in=config.maxlen_in,
+                    minlen_out=config.minlen_out,
+                    maxlen_out=config.maxlen_out,
+                    resample_rate=config.resample_rate,
+                    shuffle_size=config.shuffle_size, 
+                    sort_size=config.sort_size,
+                    n_iter_processes=config.num_workers,
+                    prefetch_factor=config.prefetch_factor,
+                    dist_sampler=config.dist_sampler,
+                    cmvn_file=config.cmvn_file,
+                    vocab_filepath=config.vocab_filepath,
+                )
         else:
             if mode == 'train':
                 config['manifest'] = config.train_manifest
@@ -425,7 +411,7 @@ class DataLoaderFactory():
                 config['train_mode'] = False
                 config['sortagrad'] = False
                 config['batch_size'] = config.get('decode', dict()).get(
-                    'decode_batch_size', 1)
+                'decode_batch_size', 1)
                 config['maxlen_in'] = float('inf')
                 config['maxlen_out'] = float('inf')
                 config['minibatches'] = 0
@@ -441,10 +427,8 @@ class DataLoaderFactory():
                 config['dist_sampler'] = False
                 config['shortest_first'] = False
             else:
-                raise KeyError(
-                    "not valid mode type!!, please input one of 'train, valid, test, align'"
-                )
-
+                raise KeyError("not valid mode type!!, please input one of 'train, valid, test, align'")
+            
             return BatchDataLoader(
                 json_file=config.manifest,
                 train_mode=config.train_mode,
@@ -466,3 +450,4 @@ class DataLoaderFactory():
                 num_encs=config.num_encs,
                 dist_sampler=config.dist_sampler,
                 shortest_first=config.shortest_first)
+           

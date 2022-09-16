@@ -17,7 +17,6 @@ from typing import Union
 
 import sentencepiece as spm
 
-from ..utils.log import Logger
 from .utility import BLANK
 from .utility import EOS
 from .utility import load_dict
@@ -25,6 +24,7 @@ from .utility import MASKCTC
 from .utility import SOS
 from .utility import SPACE
 from .utility import UNK
+from ..utils.log import Logger
 
 logger = Logger(__name__)
 

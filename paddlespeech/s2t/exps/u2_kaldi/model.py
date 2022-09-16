@@ -105,8 +105,7 @@ class U2Trainer(Trainer):
     def valid(self):
         self.model.eval()
         if not self.use_streamdata:
-            logger.info(
-                f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+            logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
         num_seen_utts = 1
         total_loss = 0.0
@@ -134,8 +133,7 @@ class U2Trainer(Trainer):
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
                 if not self.use_streamdata:
-                    msg += "batch: {}/{}, ".format(i + 1,
-                                                   len(self.valid_loader))
+                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -155,8 +153,7 @@ class U2Trainer(Trainer):
 
         self.before_train()
         if not self.use_streamdata:
-            logger.info(
-                f"Train Total Examples: {len(self.train_loader.dataset)}")
+            logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -168,8 +165,8 @@ class U2Trainer(Trainer):
                         msg += "epoch: {}, ".format(self.epoch)
                         msg += "step: {}, ".format(self.iteration)
                         if not self.use_streamdata:
-                            msg += "batch : {}/{}, ".format(
-                                batch_index + 1, len(self.train_loader))
+                            msg += "batch : {}/{}, ".format(batch_index + 1,
+                                                        len(self.train_loader))
                         msg += "lr: {:>.8f}, ".format(self.lr_scheduler())
                         msg += "data time: {:>.3f}s, ".format(dataload_time)
                         self.train_batch(batch_index, batch, msg)
@@ -207,23 +204,20 @@ class U2Trainer(Trainer):
         self.use_streamdata = config.get("use_stream_data", False)
         if self.train:
             config = self.config.clone()
-            self.train_loader = DataLoaderFactory.get_dataloader(
-                'train', config, self.args)
+            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
             config = self.config.clone()
             config['preprocess_config'] = None
-            self.valid_loader = DataLoaderFactory.get_dataloader(
-                'valid', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
             config = self.config.clone()
             config['preprocess_config'] = None
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
-                                                                self.args)
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
             config = self.config.clone()
             config['preprocess_config'] = None
-            self.align_loader = DataLoaderFactory.get_dataloader(
-                'align', config, self.args)
+            self.align_loader = DataLoaderFactory.get_dataloader('align', config, self.args)
             logger.info("Setup test/align Dataloader!")
+
 
     def setup_model(self):
         config = self.config

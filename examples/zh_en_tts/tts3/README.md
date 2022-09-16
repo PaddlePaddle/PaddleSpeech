@@ -251,7 +251,7 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios:
-- [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip)
+- [fastspeech2_mix_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_0.2.0.zip)
 
 The static model can be downloaded here:
 - [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)
@@ -262,11 +262,9 @@ The ONNX model can be downloaded here:
 FastSpeech2 checkpoint contains files listed below.
 
 ```text
-fastspeech2_mix_ckpt_1.2.0
+fastspeech2_mix_ckpt_0.2.0
 ├── default.yaml            # default config used to train fastspeech2
-├── energy_stats.npy        # statistics used to energy spectrogram when training fastspeech2
 ├── phone_id_map.txt        # phone vocabulary file when training fastspeech2
-├── pitch_stats.npy         # statistics used to normalize pitch when training fastspeech2
 ├── snapshot_iter_99200.pdz # model parameters and optimizer states
 ├── speaker_id_map.txt      # speaker id map file when training a multi-speaker fastspeech2
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
@@ -283,9 +281,9 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=fastspeech2_mix \
-  --am_config=fastspeech2_mix_ckpt_1.2.0/default.yaml \
-  --am_ckpt=fastspeech2_mix_ckpt_1.2.0/snapshot_iter_99200.pdz \
-  --am_stat=fastspeech2_mix_ckpt_1.2.0/speech_stats.npy \
+  --am_config=fastspeech2_mix_ckpt_0.2.0/default.yaml \
+  --am_ckpt=fastspeech2_mix_ckpt_0.2.0/snapshot_iter_99200.pdz \
+  --am_stat=fastspeech2_mix_ckpt_0.2.0/speech_stats.npy \
   --voc=pwgan_aishell3 \
   --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \
   --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
@@ -293,8 +291,8 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --lang=mix \
   --text=${BIN_DIR}/../sentences_mix.txt \
   --output_dir=exp/default/test_e2e \
-  --phones_dict=fastspeech2_mix_ckpt_1.2.0/phone_id_map.txt \
-  --speaker_dict=fastspeech2_mix_ckpt_1.2.0/speaker_id_map.txt \
+  --phones_dict=fastspeech2_mix_ckpt_0.2.0/phone_id_map.txt \
+  --speaker_dict=fastspeech2_mix_ckpt_0.2.0/speaker_id_map.txt \
   --spk_id=174 \
   --inference_dir=exp/default/inference
 ```

@@ -3,13 +3,13 @@
 set -e
 source path.sh
 
-gpus=0,1,2,3,4,5,6,7
+gpus=0,1
 stage=0
 stop_stage=100
 
 conf_path=conf/default.yaml
 train_output_path=exp/default
-ckpt_name=snapshot_iter_489000.pdz
+ckpt_name=snapshot_iter_153.pdz
 
 # with the following command, you can choose the stage range you want to run
 # such as `./run.sh --stage 0 --stop-stage 0`
@@ -29,8 +29,4 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # synthesize, vocoder is pwgan
     CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
-fi
-
-if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
 fi

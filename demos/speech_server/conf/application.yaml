@@ -61,7 +61,7 @@ tts_python:
     phones_dict: 
     tones_dict: 
     speaker_dict: 
-
+    spk_id: 0
 
     # voc (vocoder) choices=['pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3',
     #                        'pwgan_vctk', 'mb_melgan_csmsc', 'style_melgan_csmsc',
@@ -87,7 +87,7 @@ tts_inference:
     phones_dict: 
     tones_dict: 
     speaker_dict: 
-
+    spk_id: 0
 
     am_predictor_conf:
         device:  # set 'gpu:id' or 'cpu'

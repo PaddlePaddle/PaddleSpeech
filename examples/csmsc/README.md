@@ -1,7 +1,7 @@
 
 # CSMSC
 
-* tts0 - Tacotron2
+* tts0 - Tactron2
 * tts1 - TransformerTTS
 * tts2 - SpeedySpeech
 * tts3 - FastSpeech2

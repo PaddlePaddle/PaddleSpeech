@@ -226,12 +226,6 @@ recall and elapsed time statistics are shown in the following figure：
 
 The retrieval framework based on Milvus takes about 2.9 milliseconds to retrieve on the premise of 90% recall rate, and it takes about 500 milliseconds for feature extraction (testing audio takes about 5 seconds), that is, a single audio test takes about 503 milliseconds in total, which can meet most application scenarios.
 
-* compute embeding takes 500 ms
-* retrieval with cosine takes 2.9 ms
-* total takes 503 ms
-
-> test audio is 5 sec
-
 ### 6.Pretrained Models
 
 Here is a list of pretrained models released by PaddleSpeech :

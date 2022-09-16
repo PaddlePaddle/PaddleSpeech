@@ -99,9 +99,8 @@ class ASRExecutor(BaseExecutor):
             '-y',
             action="store_true",
             default=False,
-            help='No additional parameters required. \
-            Once set this parameter, it means accepting the request of the program by default, \
-            which includes transforming the audio sample rate')
+            help='No additional parameters required. Once set this parameter, it means accepting the request of the program by default, which includes transforming the audio sample rate'
+        )
         self.parser.add_argument(
             '--rtf',
             action="store_true",
@@ -341,7 +340,7 @@ class ASRExecutor(BaseExecutor):
         audio = np.round(audio).astype("int16")
         return audio
 
-    def _check(self, audio_file: str, sample_rate: int, force_yes: bool=False):
+    def _check(self, audio_file: str, sample_rate: int, force_yes: bool):
         self.sample_rate = sample_rate
         if self.sample_rate != 16000 and self.sample_rate != 8000:
             logger.error(
@@ -435,17 +434,8 @@ class ASRExecutor(BaseExecutor):
 
         for id_, input_ in task_source.items():
             try:
-                res = self(
-                    audio_file=input_,
-                    model=model,
-                    lang=lang,
-                    sample_rate=sample_rate,
-                    config=config,
-                    ckpt_path=ckpt_path,
-                    decode_method=decode_method,
-                    force_yes=force_yes,
-                    rtf=rtf,
-                    device=device)
+                res = self(input_, model, lang, sample_rate, config, ckpt_path,
+                           decode_method, force_yes, rtf, device)
                 task_results[id_] = res
             except Exception as e:
                 has_exceptions = True

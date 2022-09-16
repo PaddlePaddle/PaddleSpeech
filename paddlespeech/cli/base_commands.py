@@ -125,11 +125,9 @@ class StatsCommand:
                 "Here is the list of {} pretrained models released by PaddleSpeech that can be used by command line and python API"
                 .format(self.task.upper()))
             self.show_support_models(pretrained_models)
-            return True
         except BaseException:
             print("Failed to get the list of {} pretrained models.".format(
                 self.task.upper()))
-            return False
 
 
 # Dynamic import when running specific command

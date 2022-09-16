@@ -1,5 +1,3 @@
-([简体中文](./README_cn.md)|English)
-
 # Metaverse
 ## Introduction
 Metaverse is a new Internet application and social form integrating virtual reality produced by integrating a variety of new technologies. 

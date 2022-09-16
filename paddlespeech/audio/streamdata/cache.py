@@ -2,10 +2,7 @@
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
-import os
-import random
-import re
-import sys
+import itertools, os, random, re, sys
 from urllib.parse import urlparse
 
 from . import filters
@@ -43,7 +40,7 @@ def lru_cleanup(cache_dir, cache_size, keyfn=os.path.getctime, verbose=False):
         os.remove(fname)
 
 
-def download(url, dest, chunk_size=1024**2, verbose=False):
+def download(url, dest, chunk_size=1024 ** 2, verbose=False):
     """Download a file from `url` to `dest`."""
     temp = dest + f".temp{os.getpid()}"
     with gopen.gopen(url) as stream:
@@ -68,11 +65,12 @@ def pipe_cleaner(spec):
 
 
 def get_file_cached(
-        spec,
-        cache_size=-1,
-        cache_dir=None,
-        url_to_name=pipe_cleaner,
-        verbose=False, ):
+    spec,
+    cache_size=-1,
+    cache_dir=None,
+    url_to_name=pipe_cleaner,
+    verbose=False,
+):
     if cache_size == -1:
         cache_size = default_cache_size
     if cache_dir is None:
@@ -109,14 +107,15 @@ verbose_cache = int(os.environ.get("WDS_VERBOSE_CACHE", "0"))
 
 
 def cached_url_opener(
-        data,
-        handler=reraise_exception,
-        cache_size=-1,
-        cache_dir=None,
-        url_to_name=pipe_cleaner,
-        validator=check_tar_format,
-        verbose=False,
-        always=False, ):
+    data,
+    handler=reraise_exception,
+    cache_size=-1,
+    cache_dir=None,
+    url_to_name=pipe_cleaner,
+    validator=check_tar_format,
+    verbose=False,
+    always=False,
+):
     """Given a stream of url names (packaged in `dict(url=url)`), yield opened streams."""
     verbose = verbose or verbose_cache
     for sample in data:
@@ -133,7 +132,8 @@ def cached_url_opener(
                     cache_size=cache_size,
                     cache_dir=cache_dir,
                     url_to_name=url_to_name,
-                    verbose=verbose, )
+                    verbose=verbose,
+                )
             if verbose:
                 print("# opening %s" % dest, file=sys.stderr)
             assert os.path.exists(dest)
@@ -143,8 +143,9 @@ def cached_url_opener(
                     data = f.read(200)
                 os.remove(dest)
                 raise ValueError(
-                    "%s (%s) is not a tar archive, but a %s, contains %s" %
-                    (dest, url, ftype, repr(data)))
+                    "%s (%s) is not a tar archive, but a %s, contains %s"
+                    % (dest, url, ftype, repr(data))
+                )
             try:
                 stream = open(dest, "rb")
                 sample.update(stream=stream)
@@ -157,7 +158,7 @@ def cached_url_opener(
                     continue
                 raise exn
         except Exception as exn:
-            exn.args = exn.args + (url, )
+            exn.args = exn.args + (url,)
             if handler(exn):
                 continue
             else:
@@ -165,13 +166,14 @@ def cached_url_opener(
 
 
 def cached_tarfile_samples(
-        src,
-        handler=reraise_exception,
-        cache_size=-1,
-        cache_dir=None,
-        verbose=False,
-        url_to_name=pipe_cleaner,
-        always=False, ):
+    src,
+    handler=reraise_exception,
+    cache_size=-1,
+    cache_dir=None,
+    verbose=False,
+    url_to_name=pipe_cleaner,
+    always=False,
+):
     streams = cached_url_opener(
         src,
         handler=handler,
@@ -179,7 +181,8 @@ def cached_tarfile_samples(
         cache_dir=cache_dir,
         verbose=verbose,
         url_to_name=url_to_name,
-        always=always, )
+        always=always,
+    )
     samples = tar_file_and_group_expander(streams, handler=handler)
     return samples
 

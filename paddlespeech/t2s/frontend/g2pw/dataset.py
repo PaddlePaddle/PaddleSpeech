@@ -81,12 +81,12 @@ def prepare_onnx_input(tokenizer,
         position_ids.append(position_id)
 
     outputs = {
-        'input_ids': np.array(input_ids).astype(np.int64),
-        'token_type_ids': np.array(token_type_ids).astype(np.int64),
-        'attention_masks': np.array(attention_masks).astype(np.int64),
+        'input_ids': np.array(input_ids),
+        'token_type_ids': np.array(token_type_ids),
+        'attention_masks': np.array(attention_masks),
         'phoneme_masks': np.array(phoneme_masks).astype(np.float32),
-        'char_ids': np.array(char_ids).astype(np.int64),
-        'position_ids': np.array(position_ids).astype(np.int64),
+        'char_ids': np.array(char_ids),
+        'position_ids': np.array(position_ids),
     }
     return outputs
 

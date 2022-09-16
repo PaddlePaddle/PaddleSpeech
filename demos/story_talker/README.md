@@ -1,5 +1,3 @@
-([简体中文](./README_cn.md)|English)
-
 # Story Talker
 ## Introduction
 Storybooks are very important children's enlightenment books, but parents usually don't have enough time to read storybooks for their children. For very young children, they may not understand the Chinese characters in storybooks. Or sometimes, children just want to "listen" but don't want to "read".

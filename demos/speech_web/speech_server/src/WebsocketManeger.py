@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import WebSocket
 
-
 class ConnectionManager:
     def __init__(self):
         # 存放激活的ws连接对象

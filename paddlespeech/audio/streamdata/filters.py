@@ -3,6 +3,7 @@
 # This file is part of the WebDataset library.
 # See the LICENSE file for licensing terms (BSD-style).
 #
+
 # Modified from https://github.com/webdataset/webdataset
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
 """A collection of iterators for data transformations.
@@ -11,29 +12,28 @@ These functions are plain iterator functions. You can find curried versions
 in webdataset.filters, and you can find IterableDataset wrappers in
 webdataset.processing.
 """
-import io
-import itertools
-import os
-import random
-import re
-import sys
-import time
-from fnmatch import fnmatch
-from functools import reduce
 
-import paddle
+import io
+from fnmatch import fnmatch
+import re
+import itertools, os, random, sys, time
+from functools import reduce, wraps
+
+import numpy as np
 
 from . import autodecode
-from . import utils
-from .. import backends
-from ..compliance import kaldi
-from ..transform.cmvn import GlobalCMVN
-from ..transform.spec_augment import freq_mask
-from ..transform.spec_augment import time_mask
-from ..transform.spec_augment import time_warp
-from ..utils.tensor_utils import pad_sequence
+from . import  utils
+from .paddle_utils import PaddleTensor
 from .utils import PipelineStage
 
+from .. import backends
+from ..compliance import kaldi
+import paddle
+from ..transform.cmvn import GlobalCMVN
+from ..utils.tensor_utils import pad_sequence
+from ..transform.spec_augment import time_warp
+from ..transform.spec_augment import time_mask
+from ..transform.spec_augment import freq_mask
 
 class FilterFunction(object):
     """Helper class for currying pipeline stages.
@@ -159,11 +159,9 @@ def transform_with(sample, transformers):
             result[i] = f(sample[i])
     return result
 
-
 ###
 # Iterators
 ###
-
 
 def _info(data, fmt=None, n=3, every=-1, width=50, stream=sys.stderr, name=""):
     """Print information about the samples that are passing through.
@@ -280,16 +278,10 @@ def _log_keys(data, logfile=None):
 log_keys = pipelinefilter(_log_keys)
 
 
-def _minedecode(x):
-    if isinstance(x, str):
-        return autodecode.imagehandler(x)
-    else:
-        return x
-
-
 def _decode(data, *args, handler=reraise_exception, **kw):
     """Decode data based on the decoding functions given as arguments."""
-    decoder = _minedecode
+
+    decoder = lambda x: autodecode.imagehandler(x) if isinstance(x, str) else x
     handlers = [decoder(x) for x in args]
     f = autodecode.Decoder(handlers, **kw)
 
@@ -333,24 +325,15 @@ def _rename(data, handler=reraise_exception, keep=True, **kw):
     for sample in data:
         try:
             if not keep:
-                yield {
-                    k: getfirst(sample, v, missing_is_error=True)
-                    for k, v in kw.items()
-                }
+                yield {k: getfirst(sample, v, missing_is_error=True) for k, v in kw.items()}
             else:
 
                 def listify(v):
                     return v.split(";") if isinstance(v, str) else v
 
                 to_be_replaced = {x for v in kw.values() for x in listify(v)}
-                result = {
-                    k: v
-                    for k, v in sample.items() if k not in to_be_replaced
-                }
-                result.update({
-                    k: getfirst(sample, v, missing_is_error=True)
-                    for k, v in kw.items()
-                })
+                result = {k: v for k, v in sample.items() if k not in to_be_replaced}
+                result.update({k: getfirst(sample, v, missing_is_error=True) for k, v in kw.items()})
                 yield result
         except Exception as exn:
             if handler(exn):
@@ -398,11 +381,7 @@ def _map_dict(data, handler=reraise_exception, **kw):
 map_dict = pipelinefilter(_map_dict)
 
 
-def _to_tuple(data,
-              *args,
-              handler=reraise_exception,
-              missing_is_error=True,
-              none_is_error=None):
+def _to_tuple(data, *args, handler=reraise_exception, missing_is_error=True, none_is_error=None):
     """Convert dict samples to tuples."""
     if none_is_error is None:
         none_is_error = missing_is_error
@@ -411,10 +390,7 @@ def _to_tuple(data,
 
     for sample in data:
         try:
-            result = tuple([
-                getfirst(sample, f, missing_is_error=missing_is_error)
-                for f in args
-            ])
+            result = tuple([getfirst(sample, f, missing_is_error=missing_is_error) for f in args])
             if none_is_error and any(x is None for x in result):
                 raise ValueError(f"to_tuple {args} got {sample.keys()}")
             yield result
@@ -487,28 +463,19 @@ rsample = pipelinefilter(_rsample)
 slice = pipelinefilter(itertools.islice)
 
 
-def _extract_keys(source,
-                  *patterns,
-                  duplicate_is_error=True,
-                  ignore_missing=False):
+def _extract_keys(source, *patterns, duplicate_is_error=True, ignore_missing=False):
     for sample in source:
         result = []
         for pattern in patterns:
-            pattern = pattern.split(";") if isinstance(pattern,
-                                                       str) else pattern
-            matches = [
-                x for x in sample.keys()
-                if any(fnmatch("." + x, p) for p in pattern)
-            ]
+            pattern = pattern.split(";") if isinstance(pattern, str) else pattern
+            matches = [x for x in sample.keys() if any(fnmatch("." + x, p) for p in pattern)]
             if len(matches) == 0:
                 if ignore_missing:
                     continue
                 else:
-                    raise ValueError(
-                        f"Cannot find {pattern} in sample keys {sample.keys()}.")
+                    raise ValueError(f"Cannot find {pattern} in sample keys {sample.keys()}.")
             if len(matches) > 1 and duplicate_is_error:
-                raise ValueError(
-                    f"Multiple sample keys {sample.keys()} match {pattern}.")
+                raise ValueError(f"Multiple sample keys {sample.keys()} match {pattern}.")
             value = sample[matches[0]]
             result.append(value)
         yield tuple(result)
@@ -517,12 +484,7 @@ def _extract_keys(source,
 extract_keys = pipelinefilter(_extract_keys)
 
 
-def _rename_keys(source,
-                 *args,
-                 keep_unselected=False,
-                 must_match=True,
-                 duplicate_is_error=True,
-                 **kw):
+def _rename_keys(source, *args, keep_unselected=False, must_match=True, duplicate_is_error=True, **kw):
     renamings = [(pattern, output) for output, pattern in args]
     renamings += [(pattern, output) for output, pattern in kw.items()]
     for sample in source:
@@ -542,15 +504,11 @@ def _rename_keys(source,
                 continue
             if new_name in new_sample:
                 if duplicate_is_error:
-                    raise ValueError(
-                        f"Duplicate value in sample {sample.keys()} after rename."
-                    )
+                    raise ValueError(f"Duplicate value in sample {sample.keys()} after rename.")
                 continue
             new_sample[new_name] = value
         if must_match and not all(matched.values()):
-            raise ValueError(
-                f"Not all patterns ({matched}) matched sample keys ({sample.keys()})."
-            )
+            raise ValueError(f"Not all patterns ({matched}) matched sample keys ({sample.keys()}).")
 
         yield new_sample
 
@@ -583,18 +541,18 @@ def find_decoder(decoders, path):
     if fname.startswith("__"):
         return lambda x: x
     for pattern, fun in decoders[::-1]:
-        if fnmatch(fname.lower(), pattern) or fnmatch("." + fname.lower(),
-                                                      pattern):
+        if fnmatch(fname.lower(), pattern) or fnmatch("." + fname.lower(), pattern):
             return fun
     return None
 
 
 def _xdecode(
-        source,
-        *args,
-        must_decode=True,
-        defaults=default_decoders,
-        **kw, ):
+    source,
+    *args,
+    must_decode=True,
+    defaults=default_decoders,
+    **kw,
+):
     decoders = list(defaults) + list(args)
     decoders += [("*." + k, v) for k, v in kw.items()]
     for sample in source:
@@ -617,18 +575,18 @@ def _xdecode(
             new_sample[path] = value
         yield new_sample
 
-
 xdecode = pipelinefilter(_xdecode)
 
 
+
 def _audio_data_filter(source,
-                       frame_shift=10,
-                       max_length=10240,
-                       min_length=10,
-                       token_max_length=200,
-                       token_min_length=1,
-                       min_output_input_ratio=0.0005,
-                       max_output_input_ratio=1):
+           frame_shift=10,
+           max_length=10240,
+           min_length=10,
+           token_max_length=200,
+           token_min_length=1,
+           min_output_input_ratio=0.0005,
+           max_output_input_ratio=1):
     """ Filter sample according to feature and label length
         Inplace operation.
 
@@ -655,8 +613,7 @@ def _audio_data_filter(source,
         assert 'wav' in sample
         assert 'label' in sample
         # sample['wav'] is paddle.Tensor, we have 100 frames every second (default)
-        num_frames = sample['wav'].shape[1] / sample['sample_rate'] * (
-            1000 / frame_shift)
+        num_frames = sample['wav'].shape[1] / sample['sample_rate'] * (1000 / frame_shift)
         if num_frames < min_length:
             continue
         if num_frames > max_length:
@@ -672,15 +629,13 @@ def _audio_data_filter(source,
                 continue
         yield sample
 
-
 audio_data_filter = pipelinefilter(_audio_data_filter)
 
-
 def _audio_tokenize(source,
-                    symbol_table,
-                    bpe_model=None,
-                    non_lang_syms=None,
-                    split_with_space=False):
+             symbol_table,
+             bpe_model=None,
+             non_lang_syms=None,
+             split_with_space=False):
     """ Decode text to chars or BPE
         Inplace operation
 
@@ -738,9 +693,7 @@ def _audio_tokenize(source,
         sample['label'] = label
         yield sample
 
-
 audio_tokenize = pipelinefilter(_audio_tokenize)
-
 
 def _audio_resample(source, resample_rate=16000):
     """ Resample data.
@@ -760,22 +713,18 @@ def _audio_resample(source, resample_rate=16000):
         waveform = sample['wav']
         if sample_rate != resample_rate:
             sample['sample_rate'] = resample_rate
-            sample['wav'] = paddle.to_tensor(
-                backends.soundfile_backend.resample(
-                    waveform.numpy(),
-                    src_sr=sample_rate,
-                    target_sr=resample_rate))
+            sample['wav'] = paddle.to_tensor(backends.soundfile_backend.resample(
+                waveform.numpy(), src_sr = sample_rate, target_sr = resample_rate
+            ))
         yield sample
-
 
 audio_resample = pipelinefilter(_audio_resample)
 
-
 def _audio_compute_fbank(source,
-                         num_mel_bins=80,
-                         frame_length=25,
-                         frame_shift=10,
-                         dither=0.0):
+                  num_mel_bins=80,
+                  frame_length=25,
+                  frame_shift=10,
+                  dither=0.0):
     """ Extract fbank
 
         Args:
@@ -797,33 +746,30 @@ def _audio_compute_fbank(source,
         waveform = sample['wav']
         waveform = waveform * (1 << 15)
         # Only keep fname, feat, label
-        mat = kaldi.fbank(
-            waveform,
-            n_mels=num_mel_bins,
-            frame_length=frame_length,
-            frame_shift=frame_shift,
-            dither=dither,
-            energy_floor=0.0,
-            sr=sample_rate)
+        mat = kaldi.fbank(waveform,
+                          n_mels=num_mel_bins,
+                          frame_length=frame_length,
+                          frame_shift=frame_shift,
+                          dither=dither,
+                          energy_floor=0.0,
+                          sr=sample_rate)
         yield dict(fname=sample['fname'], label=sample['label'], feat=mat)
 
 
 audio_compute_fbank = pipelinefilter(_audio_compute_fbank)
 
-
-def _audio_spec_aug(
-        source,
-        max_w=5,
-        w_inplace=True,
-        w_mode="PIL",
-        max_f=30,
-        num_f_mask=2,
-        f_inplace=True,
-        f_replace_with_zero=False,
-        max_t=40,
-        num_t_mask=2,
-        t_inplace=True,
-        t_replace_with_zero=False, ):
+def _audio_spec_aug(source,
+            max_w=5, 
+            w_inplace=True, 
+            w_mode="PIL",
+            max_f=30,
+            num_f_mask=2, 
+            f_inplace=True, 
+            f_replace_with_zero=False,
+            max_t=40, 
+            num_t_mask=2, 
+            t_inplace=True, 
+            t_replace_with_zero=False,):
     """ Do spec augmentation
         Inplace operation
 
@@ -847,22 +793,11 @@ def _audio_spec_aug(
     for sample in source:
         x = sample['feat']
         x = x.numpy()
-        x = time_warp(x, max_time_warp=max_w, inplace=w_inplace, mode=w_mode)
-        x = freq_mask(
-            x,
-            F=max_f,
-            n_mask=num_f_mask,
-            inplace=f_inplace,
-            replace_with_zero=f_replace_with_zero)
-        x = time_mask(
-            x,
-            T=max_t,
-            n_mask=num_t_mask,
-            inplace=t_inplace,
-            replace_with_zero=t_replace_with_zero)
+        x = time_warp(x, max_time_warp=max_w, inplace = w_inplace, mode= w_mode)
+        x = freq_mask(x, F = max_f, n_mask = num_f_mask, inplace = f_inplace, replace_with_zero = f_replace_with_zero)
+        x = time_mask(x, T = max_t, n_mask = num_t_mask, inplace = t_inplace, replace_with_zero = t_replace_with_zero)
         sample['feat'] = paddle.to_tensor(x, dtype=paddle.float32)
         yield sample
-
 
 audio_spec_aug = pipelinefilter(_audio_spec_aug)
 
@@ -894,9 +829,7 @@ def _sort(source, sort_size=500):
     for x in buf:
         yield x
 
-
 sort = pipelinefilter(_sort)
-
 
 def _batched(source, batch_size=16):
     """ Static batch the data by `batch_size`
@@ -917,9 +850,7 @@ def _batched(source, batch_size=16):
     if len(buf) > 0:
         yield buf
 
-
 batched = pipelinefilter(_batched)
-
 
 def dynamic_batched(source, max_frames_in_batch=12000):
     """ Dynamic batch the data until the total frames in batch
@@ -961,8 +892,8 @@ def _audio_padding(source):
     """
     for sample in source:
         assert isinstance(sample, list)
-        feats_length = paddle.to_tensor(
-            [x['feat'].shape[0] for x in sample], dtype="int64")
+        feats_length = paddle.to_tensor([x['feat'].shape[0] for x in sample],
+                                    dtype="int64")
         order = paddle.argsort(feats_length, descending=True)
         feats_lengths = paddle.to_tensor(
             [sample[i]['feat'].shape[0] for i in order], dtype="int64")
@@ -971,19 +902,19 @@ def _audio_padding(source):
         sorted_labels = [
             paddle.to_tensor(sample[i]['label'], dtype="int32") for i in order
         ]
-        label_lengths = paddle.to_tensor(
-            [x.shape[0] for x in sorted_labels], dtype="int64")
-        padded_feats = pad_sequence(
-            sorted_feats, batch_first=True, padding_value=0)
-        padding_labels = pad_sequence(
-            sorted_labels, batch_first=True, padding_value=-1)
+        label_lengths = paddle.to_tensor([x.shape[0] for x in sorted_labels],
+                                     dtype="int64")
+        padded_feats = pad_sequence(sorted_feats,
+                                    batch_first=True,
+                                    padding_value=0)
+        padding_labels = pad_sequence(sorted_labels,
+                                      batch_first=True,
+                                      padding_value=-1)
 
-        yield (sorted_keys, padded_feats, feats_lengths, padding_labels,
+        yield (sorted_keys, padded_feats, feats_lengths, padding_labels, 
                label_lengths)
 
-
 audio_padding = pipelinefilter(_audio_padding)
-
 
 def _audio_cmvn(source, cmvn_file):
     global_cmvn = GlobalCMVN(cmvn_file)
@@ -992,16 +923,13 @@ def _audio_cmvn(source, cmvn_file):
         padded_feats = padded_feats.numpy()
         padded_feats = global_cmvn(padded_feats)
         padded_feats = paddle.to_tensor(padded_feats, dtype=paddle.float32)
-        yield (sorted_keys, padded_feats, feats_lengths, padding_labels,
-               label_lengths)
-
+        yield (sorted_keys, padded_feats, feats_lengths, padding_labels, 
+           label_lengths)
 
 audio_cmvn = pipelinefilter(_audio_cmvn)
-
 
 def _placeholder(source):
     for data in source:
         yield data
-
 
 placeholder = pipelinefilter(_placeholder)

@@ -389,7 +389,7 @@ class MLM(nn.Layer):
             speech_seg_pos: paddle.Tensor,
             text_seg_pos: paddle.Tensor,
             span_bdy: List[int],
-            use_teacher_forcing: bool=True, ) -> List[paddle.Tensor]:
+            use_teacher_forcing: bool=False, ) -> List[paddle.Tensor]:
         '''
         Args:
             speech (paddle.Tensor): input speech (1, Tmax, D).
@@ -657,7 +657,7 @@ class ErnieSAT(nn.Layer):
             speech_seg_pos: paddle.Tensor,
             text_seg_pos: paddle.Tensor,
             span_bdy: List[int],
-            use_teacher_forcing: bool=True, ) -> Dict[str, paddle.Tensor]:
+            use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
         return self.model.inference(
             speech=speech,
             text=text,

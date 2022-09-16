@@ -7,7 +7,7 @@ The examples in PaddleSpeech are mainly classified by datasets, the TTS datasets
 * VCTK (English multiple speakers)
 
 The models in PaddleSpeech TTS have the following mapping relationship:
-* tts0 - Tacotron2
+* tts0 - Tactron2
 * tts1 - TransformerTTS
 * tts2 - SpeedySpeech
 * tts3 - FastSpeech2
@@ -17,7 +17,7 @@ The models in PaddleSpeech TTS have the following mapping relationship:
 * voc3 - MultiBand MelGAN
 * voc4 - Style MelGAN
 * voc5 - HiFiGAN
-* vc0 - Tacotron2 Voice Clone with GE2E
+* vc0 - Tactron2 Voice Clone with GE2E
 * vc1 - FastSpeech2 Voice Clone with GE2E
 
 ## Quick Start

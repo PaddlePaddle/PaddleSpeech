@@ -606,7 +606,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             offset: int,
             required_cache_size: int,
             att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.

@@ -5,24 +5,18 @@
 # See the LICENSE file for licensing terms (BSD-style).
 # Modified from https://github.com/webdataset/webdataset
 #
+
 """Classes and functions for writing tar files and WebDataset files."""
-import io
-import json
-import pickle
-import re
-import tarfile
-import time
-from typing import Any
-from typing import Callable
-from typing import Optional
-from typing import Union
+
+import io, json, pickle, re, tarfile, time
+from typing import Any, Callable, Optional, Union
 
 import numpy as np
 
 from . import gopen
 
 
-def imageencoder(image: Any, format: str="PNG"):  # skipcq: PYL-W0622
+def imageencoder(image: Any, format: str = "PNG"):  # skipcq: PYL-W0622
     """Compress an image using PIL and return it as a string.
 
     Can handle float or uint8 images.
@@ -73,7 +67,6 @@ def bytestr(data: Any):
         return data.encode("ascii")
     return str(data).encode("ascii")
 
-
 def paddle_dumps(data: Any):
     """Dump data into a bytestring using paddle.dumps.
 
@@ -88,7 +81,6 @@ def paddle_dumps(data: Any):
     stream = io.BytesIO()
     paddle.save(data, stream)
     return stream.getvalue()
-
 
 def numpy_dumps(data: np.ndarray):
     """Dump data into a bytestring using numpy npy format.
@@ -147,8 +139,9 @@ def add_handlers(d, keys, value):
 def make_handlers():
     """Create a list of handlers for encoding data."""
     handlers = {}
-    add_handlers(handlers, "cls cls2 class count index inx id",
-                 lambda x: str(x).encode("ascii"))
+    add_handlers(
+        handlers, "cls cls2 class count index inx id", lambda x: str(x).encode("ascii")
+    )
     add_handlers(handlers, "txt text transcript", lambda x: x.encode("utf-8"))
     add_handlers(handlers, "html htm", lambda x: x.encode("utf-8"))
     add_handlers(handlers, "pyd pickle", pickle.dumps)
@@ -159,8 +152,7 @@ def make_handlers():
     add_handlers(handlers, "json jsn", lambda x: json.dumps(x).encode("utf-8"))
     add_handlers(handlers, "mp msgpack msg", mp_dumps)
     add_handlers(handlers, "cbor", cbor_dumps)
-    add_handlers(handlers, "jpg jpeg img image",
-                 lambda data: imageencoder(data, "jpg"))
+    add_handlers(handlers, "jpg jpeg img image", lambda data: imageencoder(data, "jpg"))
     add_handlers(handlers, "png", lambda data: imageencoder(data, "png"))
     add_handlers(handlers, "pbm", lambda data: imageencoder(data, "pbm"))
     add_handlers(handlers, "pgm", lambda data: imageencoder(data, "pgm"))
@@ -200,8 +192,7 @@ def encode_based_on_extension(sample: dict, handlers: dict):
     :param handlers: handlers for encoding
     """
     return {
-        k: encode_based_on_extension1(v, k, handlers)
-        for k, v in list(sample.items())
+        k: encode_based_on_extension1(v, k, handlers) for k, v in list(sample.items())
     }
 
 
@@ -267,14 +258,15 @@ class TarWriter:
     """
 
     def __init__(
-            self,
-            fileobj,
-            user: str="bigdata",
-            group: str="bigdata",
-            mode: int=0o0444,
-            compress: Optional[bool]=None,
-            encoder: Union[None, bool, Callable]=True,
-            keep_meta: bool=False, ):
+        self,
+        fileobj,
+        user: str = "bigdata",
+        group: str = "bigdata",
+        mode: int = 0o0444,
+        compress: Optional[bool] = None,
+        encoder: Union[None, bool, Callable] = True,
+        keep_meta: bool = False,
+    ):
         """Create a tar writer.
 
         :param fileobj: stream to write data to
@@ -338,7 +330,8 @@ class TarWriter:
                 continue
             if not isinstance(v, (bytes, bytearray, memoryview)):
                 raise ValueError(
-                    f"{k} doesn't map to a bytes after encoding ({type(v)})")
+                    f"{k} doesn't map to a bytes after encoding ({type(v)})"
+                )
         key = obj["__key__"]
         for k in sorted(obj.keys()):
             if k == "__key__":
@@ -356,8 +349,7 @@ class TarWriter:
             ti.uname = self.user
             ti.gname = self.group
             if not isinstance(v, (bytes, bytearray, memoryview)):
-                raise ValueError(
-                    f"converter didn't yield bytes: {k}, {type(v)}")
+                raise ValueError(f"converter didn't yield bytes: {k}, {type(v)}")
             stream = io.BytesIO(v)
             self.tarstream.addfile(ti, stream)
             total += ti.size
@@ -368,13 +360,14 @@ class ShardWriter:
     """Like TarWriter but splits into multiple shards."""
 
     def __init__(
-            self,
-            pattern: str,
-            maxcount: int=100000,
-            maxsize: float=3e9,
-            post: Optional[Callable]=None,
-            start_shard: int=0,
-            **kw, ):
+        self,
+        pattern: str,
+        maxcount: int = 100000,
+        maxsize: float = 3e9,
+        post: Optional[Callable] = None,
+        start_shard: int = 0,
+        **kw,
+    ):
         """Create a ShardWriter.
 
         :param pattern: output file pattern
@@ -407,7 +400,8 @@ class ShardWriter:
                 self.fname,
                 self.count,
                 "%.1f GB" % (self.size / 1e9),
-                self.total, )
+                self.total,
+            )
         self.shard += 1
         stream = open(self.fname, "wb")
         self.tarstream = TarWriter(stream, **self.kw)
@@ -419,8 +413,11 @@ class ShardWriter:
 
         :param obj: sample to be written
         """
-        if (self.tarstream is None or self.count >= self.maxcount or
-                self.size >= self.maxsize):
+        if (
+            self.tarstream is None
+            or self.count >= self.maxcount
+            or self.size >= self.maxsize
+        ):
             self.next_stream()
         size = self.tarstream.write(obj)
         self.count += 1

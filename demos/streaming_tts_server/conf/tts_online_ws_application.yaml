@@ -29,7 +29,7 @@ tts_online:
     phones_dict: 
     tones_dict: 
     speaker_dict: 
-        
+    spk_id: 0
 
     # voc (vocoder) choices=['mb_melgan_csmsc, hifigan_csmsc']
     # Both mb_melgan_csmsc and hifigan_csmsc support streaming voc inference
@@ -70,6 +70,7 @@ tts_online-onnx:
     phones_dict: 
     tones_dict: 
     speaker_dict: 
+    spk_id: 0
     am_sample_rate: 24000
     am_sess_conf:
         device: "cpu" # set 'gpu:id' or 'cpu'

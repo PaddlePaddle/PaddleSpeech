@@ -71,14 +71,6 @@ class VectorExecutor(BaseExecutor):
             default=None,
             help="Checkpoint file of model.")
         self.parser.add_argument(
-            '--yes',
-            '-y',
-            action="store_true",
-            default=False,
-            help='No additional parameters required. \
-            Once set this parameter, it means accepting the request of the program by default, \
-            which includes transforming the audio sample rate')
-        self.parser.add_argument(
             '--config',
             type=str,
             default=None,
@@ -117,7 +109,6 @@ class VectorExecutor(BaseExecutor):
         sample_rate = parser_args.sample_rate
         config = parser_args.config
         ckpt_path = parser_args.ckpt_path
-        force_yes = parser_args.yes
         device = parser_args.device
 
         # stage 1: configurate the verbose flag
@@ -137,14 +128,8 @@ class VectorExecutor(BaseExecutor):
                 # extract the speaker audio embedding
                 if parser_args.task == "spk":
                     logger.debug("do vector spk task")
-                    res = self(
-                        audio_file=input_,
-                        model=model,
-                        sample_rate=sample_rate,
-                        config=config,
-                        ckpt_path=ckpt_path,
-                        force_yes=force_yes,
-                        device=device)
+                    res = self(input_, model, sample_rate, config, ckpt_path,
+                               device)
                     task_result[id_] = res
                 elif parser_args.task == "score":
                     logger.debug("do vector score task")
@@ -160,22 +145,10 @@ class VectorExecutor(BaseExecutor):
                     logger.debug(
                         f"score task, enroll audio: {enroll_audio}, test audio: {test_audio}"
                     )
-                    enroll_embedding = self(
-                        audio_file=enroll_audio,
-                        model=model,
-                        sample_rate=sample_rate,
-                        config=config,
-                        ckpt_path=ckpt_path,
-                        force_yes=force_yes,
-                        device=device)
-                    test_embedding = self(
-                        audio_file=test_audio,
-                        model=model,
-                        sample_rate=sample_rate,
-                        config=config,
-                        ckpt_path=ckpt_path,
-                        force_yes=force_yes,
-                        device=device)
+                    enroll_embedding = self(enroll_audio, model, sample_rate,
+                                            config, ckpt_path, device)
+                    test_embedding = self(test_audio, model, sample_rate,
+                                          config, ckpt_path, device)
 
                     # get the score
                     res = self.get_embeddings_score(enroll_embedding,
@@ -249,7 +222,6 @@ class VectorExecutor(BaseExecutor):
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
-                 force_yes: bool=False,
                  device=paddle.get_device()):
         """Extract the audio embedding
 
@@ -268,7 +240,7 @@ class VectorExecutor(BaseExecutor):
         """
         # stage 0: check the audio format
         audio_file = os.path.abspath(audio_file)
-        if not self._check(audio_file, sample_rate, force_yes):
+        if not self._check(audio_file, sample_rate):
             sys.exit(-1)
 
         # stage 1: set the paddle runtime host device
@@ -446,7 +418,7 @@ class VectorExecutor(BaseExecutor):
 
         logger.debug("audio extract the feat success")
 
-    def _check(self, audio_file: str, sample_rate: int, force_yes: bool=False):
+    def _check(self, audio_file: str, sample_rate: int):
         """Check if the model sample match the audio sample rate 
 
         Args:
@@ -490,34 +462,13 @@ class VectorExecutor(BaseExecutor):
         logger.debug(f"The sample rate is {audio_sample_rate}")
 
         if audio_sample_rate != self.sample_rate:
-            logger.debug("The sample rate of the input file is not {}.\n \
+            logger.error("The sample rate of the input file is not {}.\n \
                             The program will resample the wav file to {}.\n \
                             If the result does not meet your expectations，\n \
                             Please input the 16k 16 bit 1 channel wav file. \
                         ".format(self.sample_rate, self.sample_rate))
-            if force_yes is False:
-                while (True):
-                    logger.debug(
-                        "Whether to change the sample rate and the channel. Y: change the sample. N: exit the prgream."
-                    )
-                    content = input("Input(Y/N):")
-                    if content.strip() == "Y" or content.strip(
-                    ) == "y" or content.strip() == "yes" or content.strip(
-                    ) == "Yes":
-                        logger.debug(
-                            "change the sampele rate, channel to 16k and 1 channel"
-                        )
-                        break
-                    elif content.strip() == "N" or content.strip(
-                    ) == "n" or content.strip() == "no" or content.strip(
-                    ) == "No":
-                        logger.debug("Exit the program")
-                        return False
-                    else:
-                        logger.warning("Not regular input, please input again")
-            self.change_format = True
+            sys.exit(-1)
         else:
             logger.debug("The audio file format is right")
-            self.change_format = False
 
         return True

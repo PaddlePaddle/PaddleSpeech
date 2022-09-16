@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
-
 import paddle
 from paddle import nn
+import math
 """
     To align the initializer between paddle and torch, 
     the API below are set defalut initializer with priority higger than global initializer.
@@ -82,18 +81,10 @@ class Linear(nn.Linear):
                  name=None):
         if weight_attr is None:
             if global_init_type == "kaiming_uniform":
-                weight_attr = paddle.ParamAttr(
-                    initializer=nn.initializer.KaimingUniform(
-                        fan_in=None,
-                        negative_slope=math.sqrt(5),
-                        nonlinearity='leaky_relu'))
+                weight_attr = paddle.ParamAttr(initializer=nn.initializer.KaimingUniform(fan_in=None, negative_slope=math.sqrt(5), nonlinearity='leaky_relu'))
         if bias_attr is None:
             if global_init_type == "kaiming_uniform":
-                bias_attr = paddle.ParamAttr(
-                    initializer=nn.initializer.KaimingUniform(
-                        fan_in=None,
-                        negative_slope=math.sqrt(5),
-                        nonlinearity='leaky_relu'))
+                bias_attr = paddle.ParamAttr(initializer=nn.initializer.KaimingUniform(fan_in=None, negative_slope=math.sqrt(5), nonlinearity='leaky_relu'))
         super(Linear, self).__init__(in_features, out_features, weight_attr,
                                      bias_attr, name)
 
@@ -113,18 +104,10 @@ class Conv1D(nn.Conv1D):
                  data_format='NCL'):
         if weight_attr is None:
             if global_init_type == "kaiming_uniform":
-                weight_attr = paddle.ParamAttr(
-                    initializer=nn.initializer.KaimingUniform(
-                        fan_in=None,
-                        negative_slope=math.sqrt(5),
-                        nonlinearity='leaky_relu'))
+                weight_attr = paddle.ParamAttr(initializer=nn.initializer.KaimingUniform(fan_in=None, negative_slope=math.sqrt(5), nonlinearity='leaky_relu'))
         if bias_attr is None:
             if global_init_type == "kaiming_uniform":
-                bias_attr = paddle.ParamAttr(
-                    initializer=nn.initializer.KaimingUniform(
-                        fan_in=None,
-                        negative_slope=math.sqrt(5),
-                        nonlinearity='leaky_relu'))
+                bias_attr = paddle.ParamAttr(initializer=nn.initializer.KaimingUniform(fan_in=None, negative_slope=math.sqrt(5), nonlinearity='leaky_relu'))
         super(Conv1D, self).__init__(
             in_channels, out_channels, kernel_size, stride, padding, dilation,
             groups, padding_mode, weight_attr, bias_attr, data_format)
@@ -145,18 +128,10 @@ class Conv2D(nn.Conv2D):
                  data_format='NCHW'):
         if weight_attr is None:
             if global_init_type == "kaiming_uniform":
-                weight_attr = paddle.ParamAttr(
-                    initializer=nn.initializer.KaimingUniform(
-                        fan_in=None,
-                        negative_slope=math.sqrt(5),
-                        nonlinearity='leaky_relu'))
+                weight_attr = paddle.ParamAttr(initializer=nn.initializer.KaimingUniform(fan_in=None, negative_slope=math.sqrt(5), nonlinearity='leaky_relu'))
         if bias_attr is None:
             if global_init_type == "kaiming_uniform":
-                bias_attr = paddle.ParamAttr(
-                    initializer=nn.initializer.KaimingUniform(
-                        fan_in=None,
-                        negative_slope=math.sqrt(5),
-                        nonlinearity='leaky_relu'))
+                bias_attr = paddle.ParamAttr(initializer=nn.initializer.KaimingUniform(fan_in=None, negative_slope=math.sqrt(5), nonlinearity='leaky_relu'))
         super(Conv2D, self).__init__(
             in_channels, out_channels, kernel_size, stride, padding, dilation,
             groups, padding_mode, weight_attr, bias_attr, data_format)

@@ -42,23 +42,12 @@ def evaluate(args):
     # frontend
     frontend = get_frontend(lang=args.lang, phones_dict=args.phones_dict)
 
-    spk_num = None
-    if args.speaker_dict is not None:
-        print("multiple speaker vits!")
-        with open(args.speaker_dict, 'rt') as f:
-            spk_id = [line.strip().split() for line in f.readlines()]
-        spk_num = len(spk_id)
-    else:
-        print("single speaker vits!")
-    print("spk_num:", spk_num)
-
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
 
     odim = config.n_fft // 2 + 1
-    config["model"]["generator_params"]["spks"] = spk_num
 
     vits = VITS(idim=vocab_size, odim=odim, **config["model"])
     vits.set_state_dict(paddle.load(args.ckpt)["main_params"])
@@ -89,10 +78,7 @@ def evaluate(args):
                 flags = 0
                 for i in range(len(phone_ids)):
                     part_phone_ids = phone_ids[i]
-                    spk_id = None
-                    if spk_num is not None:
-                        spk_id = paddle.to_tensor(args.spk_id)
-                    out = vits.inference(text=part_phone_ids, sids=spk_id)
+                    out = vits.inference(text=part_phone_ids)
                     wav = out["wav"]
                     if flags == 0:
                         wav_all = wav
@@ -123,13 +109,6 @@ def parse_args():
         '--ckpt', type=str, default=None, help='Checkpoint file of VITS.')
     parser.add_argument(
         "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
     # other
     parser.add_argument(
         '--lang',

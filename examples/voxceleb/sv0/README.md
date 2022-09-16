@@ -148,4 +148,4 @@ source path.sh
 
 CUDA_VISIBLE_DEVICES= bash ./local/test.sh ./data sv0_ecapa_tdnn_voxceleb12_ckpt_0_2_1/model/ conf/ecapa_tdnn.yaml
 ```
-The performance of the released models are shown in [this](./RESULT.md)
+The performance of the released models are shown in [this](./RESULTS.md)

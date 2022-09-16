@@ -1,9 +1,12 @@
+from re import sub
 import numpy as np
+import paddle
+import librosa
+import soundfile
 
 from paddlespeech.server.engine.asr.online.python.asr_engine import ASREngine
 from paddlespeech.server.engine.asr.online.python.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.utils.config import get_config
-
 
 def readWave(samples):
     x_len = len(samples)
@@ -28,23 +31,20 @@ def readWave(samples):
 
 
 class ASR:
-    def __init__(
-            self,
-            config_path, ) -> None:
+    def __init__(self, config_path, ) -> None:
         self.config = get_config(config_path)['asr_online']
         self.engine = ASREngine()
         self.engine.init(self.config)
         self.connection_handler = PaddleASRConnectionHanddler(self.engine)
-
+    
     def offlineASR(self, samples, sample_rate=16000):
-        x_chunk, x_chunk_lens = self.engine.preprocess(
-            samples=samples, sample_rate=sample_rate)
+        x_chunk, x_chunk_lens = self.engine.preprocess(samples=samples, sample_rate=sample_rate)
         self.engine.run(x_chunk, x_chunk_lens)
         result = self.engine.postprocess()
         self.engine.reset()
         return result
 
-    def onlineASR(self, samples: bytes=None, is_finished=False):
+    def onlineASR(self, samples:bytes=None, is_finished=False):
         if not is_finished:
             # 流式开始
             self.connection_handler.extract_feat(samples)
@@ -58,3 +58,5 @@ class ASR:
             asr_results = self.connection_handler.get_result()
             self.connection_handler.reset()
             return asr_results
+
+        

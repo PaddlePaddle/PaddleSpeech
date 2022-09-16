@@ -118,7 +118,7 @@ def main():
             record["spk_emb"] = str(item["spk_emb"])
 
         output_metadata.append(record)
-    output_metadata.sort(key=itemgetter('speech_lengths'))
+    output_metadata.sort(key=itemgetter('utt_id'))
     output_metadata_path = Path(args.dumpdir) / "metadata.jsonl"
     with jsonlines.open(output_metadata_path, 'w') as writer:
         for item in output_metadata:

@@ -5,9 +5,6 @@ We use `CER` as an evaluation criterion.
 ## Start
 Run the command below to get the results of the test.
 ```bash
-cd ../../../tools
-bash extras/install_sclite.sh
-cd -
 ./run.sh
 ```
 The `avg CER` of text normalization is: 0.00730093543235227

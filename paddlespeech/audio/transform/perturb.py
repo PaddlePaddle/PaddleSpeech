@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
-import io
-import os
-
-import h5py
 import librosa
 import numpy
-import numpy as np
 import scipy
 import soundfile
 
+import io
+import os
+import h5py
+import numpy as np
 
 class SoundHDF5File():
     """Collecting sound files to a HDF5 file
@@ -109,7 +108,6 @@ class SoundHDF5File():
 
     def close(self):
         self.file.close()
-
 
 class SpeedPerturbation():
     """SpeedPerturbation
@@ -560,3 +558,4 @@ class RIRConvolve():
                 [scipy.convolve(x, r, mode="same") for r in rir], axis=-1)
         else:
             return scipy.convolve(x, rir, mode="same")
+

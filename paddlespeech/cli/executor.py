@@ -191,7 +191,7 @@ class BaseExecutor(ABC):
                 line = line.strip()
                 if not line:
                     continue
-                k, v = line.split()  # space or \t
+                k, v = line.split() # space or \t
                 job_contents[k] = v
         return job_contents
 

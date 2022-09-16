@@ -43,7 +43,6 @@ function _train(){
         log_parse_file="mylog/workerlog.0" ;;
     *) echo "choose run_mode(sp or mp)"; exit 1;
     esac
-    bash tests/test_tipc/barrier.sh
 # 以下不用修改
     timeout 15m ${train_cmd} > ${log_file} 2>&1
     if [ $? -ne 0 ];then

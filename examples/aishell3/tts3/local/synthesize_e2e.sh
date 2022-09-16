@@ -38,7 +38,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am=fastspeech2_aishell3 \
         --am_config=${config_path} \
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
-        --am_stat=fastspeech2_nosil_aishell3_ckpt_0.4/speech_stats.npy \
+        --am_stat=dump/train/speech_stats.npy \
         --voc=hifigan_aishell3 \
         --voc_config=hifigan_aishell3_ckpt_0.2.0/default.yaml \
         --voc_ckpt=hifigan_aishell3_ckpt_0.2.0/snapshot_iter_2500000.pdz \
@@ -46,8 +46,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --phones_dict=fastspeech2_nosil_aishell3_ckpt_0.4/phone_id_map.txt \
-        --speaker_dict=fastspeech2_nosil_aishell3_ckpt_0.4/speaker_id_map.txt \
+        --phones_dict=dump/phone_id_map.txt \
+        --speaker_dict=dump/speaker_id_map.txt \
         --spk_id=0 \
         --inference_dir=${train_output_path}/inference
     fi

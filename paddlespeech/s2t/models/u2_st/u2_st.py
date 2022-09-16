@@ -18,7 +18,6 @@ Unified Streaming and Non-streaming Two-pass End-to-end Model for Speech Recogni
 """
 import time
 from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Tuple
 
@@ -26,6 +25,8 @@ import paddle
 from paddle import jit
 from paddle import nn
 
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.modules.cmvn import GlobalCMVN
@@ -38,8 +39,6 @@ from paddlespeech.s2t.modules.mask import subsequent_mask
 from paddlespeech.s2t.utils import checkpoint
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.log import Log
-from paddlespeech.audio.utils.tensor_utils import add_sos_eos
-from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ["U2STModel", "U2STInferModel"]
@@ -401,8 +400,8 @@ class U2STBaseModel(nn.Layer):
             xs: paddle.Tensor,
             offset: int,
             required_cache_size: int,
-            att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -435,8 +434,8 @@ class U2STBaseModel(nn.Layer):
             paddle.Tensor: new conformer cnn cache required for next chunk, with
                 same shape as the original cnn_cache.
         """
-        return self.encoder.forward_chunk(
-            xs, offset, required_cache_size, att_cache, cnn_cache)
+        return self.encoder.forward_chunk(xs, offset, required_cache_size,
+                                          att_cache, cnn_cache)
 
     # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:

@@ -8,5 +8,5 @@ python3 ${BIN_DIR}/train.py \
     --dev-metadata=dump/dev/norm/metadata.jsonl \
     --config=${config_path} \
     --output-dir=${train_output_path} \
-    --ngpu=2 \
+    --ngpu=8 \
     --phones-dict=dump/phone_id_map.txt

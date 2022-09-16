@@ -381,7 +381,7 @@ class VITS(nn.Layer):
         if use_teacher_forcing:
             assert feats is not None
             feats = feats[None].transpose([0, 2, 1])
-            feats_lengths = paddle.to_tensor([paddle.shape(feats)[2]])
+            feats_lengths = paddle.to_tensor(paddle.shape(feats)[2])
             wav, att_w, dur = self.generator.inference(
                 text=text,
                 text_lengths=text_lengths,
@@ -406,3 +406,43 @@ class VITS(nn.Layer):
                 max_len=max_len, )
         return dict(
             wav=paddle.reshape(wav, [-1]), att_w=att_w[0], duration=dur[0])
+
+    def voice_conversion(
+            self,
+            feats: paddle.Tensor,
+            sids_src: Optional[paddle.Tensor]=None,
+            sids_tgt: Optional[paddle.Tensor]=None,
+            spembs_src: Optional[paddle.Tensor]=None,
+            spembs_tgt: Optional[paddle.Tensor]=None,
+            lids: Optional[paddle.Tensor]=None, ) -> paddle.Tensor:
+        """Run voice conversion.
+        Args:
+            feats (Tensor): Feature tensor (T_feats, aux_channels).
+            sids_src (Optional[Tensor]): Speaker index tensor of source feature (1,).
+            sids_tgt (Optional[Tensor]): Speaker index tensor of target feature (1,).
+            spembs_src (Optional[Tensor]): Speaker embedding tensor of source feature (spk_embed_dim,).
+            spembs_tgt (Optional[Tensor]): Speaker embedding tensor of target feature (spk_embed_dim,).
+            lids (Optional[Tensor]): Language index tensor (1,).
+        Returns:
+            Dict[str, Tensor]:
+                * wav (Tensor): Generated waveform tensor (T_wav,).
+        """
+        assert feats is not None
+        feats = feats[None].transpose([0, 2, 1])
+        feats_lengths = paddle.to_tensor(paddle.shape(feats)[2])
+
+        sids_none = sids_src is None and sids_tgt is None
+        spembs_none = spembs_src is None and spembs_tgt is None
+
+        assert not sids_none or not spembs_none
+
+        wav = self.generator.voice_conversion(
+            feats,
+            feats_lengths,
+            sids_src,
+            sids_tgt,
+            spembs_src,
+            spembs_tgt,
+            lids, )
+
+        return dict(wav=paddle.reshape(wav, [-1]))

@@ -24,6 +24,7 @@ from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 from timer import timer
 
+from paddlespeech.t2s.datasets.sampler import ErnieSATSampler
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updater import UpdaterBase
 from paddlespeech.t2s.training.updater import UpdaterState
@@ -165,7 +166,8 @@ class StandardUpdater(UpdaterBase):
         # NOTE: all batch sampler for distributed training should
         # subclass DistributedBatchSampler and implement `set_epoch` method
         batch_sampler = self.dataloader.batch_sampler
-        if isinstance(batch_sampler, DistributedBatchSampler):
+        if isinstance(batch_sampler, DistributedBatchSampler) \
+                or isinstance(batch_sampler, ErnieSATSampler):
             batch_sampler.set_epoch(self.state.epoch)
         self.train_iterator = iter(self.dataloader)
 

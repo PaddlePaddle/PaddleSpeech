@@ -5,6 +5,7 @@
 - [Disambiguation of Chinese Polyphones in an End-to-End Framework with Semantic Features Extracted by Pre-trained BERT](https://www1.se.cuhk.edu.hk/~hccl/publications/pub/201909_INTERSPEECH_DongyangDAI.pdf)
 - [Polyphone Disambiguation in Mandarin Chinese with Semi-Supervised Learning](https://www.isca-speech.org/archive/pdfs/interspeech_2021/shi21d_interspeech.pdf)
   * github: https://github.com/PaperMechanica/SemiPPL
+- [WikipediaHomographData](https://github.com/google-research-datasets/WikipediaHomographData)
 ### Text Normalization
 #### English
 - [applenob/text_normalization](https://github.com/applenob/text_normalization)

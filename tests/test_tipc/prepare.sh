@@ -15,6 +15,7 @@ dataline=$(cat ${FILENAME})
 # parser params
 IFS=$'\n'
 lines=(${dataline})
+python=python
 
 # The training params
 model_name=$(func_parser_value "${lines[1]}")
@@ -22,7 +23,7 @@ model_name=$(func_parser_value "${lines[1]}")
 echo "model_name:"${model_name}
 trainer_list=$(func_parser_value "${lines[14]}")
 
-if [ ${MODE} = "benchmark_train" ];then
+if [[ ${MODE} = "benchmark_train" ]];then
     curPath=$(readlink -f "$(dirname "$0")")
     echo "curPath:"${curPath}    # /PaddleSpeech/tests/test_tipc
     cd ${curPath}/../..
@@ -36,10 +37,10 @@ if [ ${MODE} = "benchmark_train" ];then
     pip install jsonlines
     pip list
     cd -
-    if [ ${model_name} == "conformer" ]; then
+    if [[ ${model_name} == "conformer" ]]; then
         # set the URL for aishell_tiny dataset
         conformer_aishell_URL=${conformer_aishell_URL:-"None"}
-        if [ ${conformer_aishell_URL} == 'None' ];then
+        if [[ ${conformer_aishell_URL} == 'None' ]];then
             echo "please contact author to get the URL.\n"
             exit
 	    else
@@ -66,9 +67,9 @@ if [ ${MODE} = "benchmark_train" ];then
         sed -i "s#data/#test_tipc/conformer/benchmark_train/data/#g" ${curPath}/conformer/benchmark_train/conf/preprocess.yaml
     fi
 
-    if [ ${model_name} == "pwgan" ]; then
+    if [[ ${model_name} == "pwgan" ]]; then
         # 下载 csmsc 数据集并解压缩
-        wget -nc https://weixinxcxdb.oss-cn-beijing.aliyuncs.com/gwYinPinKu/BZNSYP.rar
+        wget -nc https://paddle-wheel.bj.bcebos.com/benchmark/BZNSYP.rar
         mkdir -p BZNSYP
         unrar x BZNSYP.rar BZNSYP
         wget -nc https://paddlespeech.bj.bcebos.com/Parakeet/benchmark/durations.txt
@@ -80,9 +81,14 @@ if [ ${MODE} = "benchmark_train" ];then
         python ../paddlespeech/t2s/exps/gan_vocoder/normalize.py --metadata=dump/test/raw/metadata.jsonl --dumpdir=dump/test/norm --stats=dump/train/feats_stats.npy
     fi
 
-    if [ ${model_name} == "mdtc" ]; then
+    echo "barrier start"
+    PYTHON="${python}" bash test_tipc/barrier.sh
+    echo "barrier end"
+
+    if [[ ${model_name} == "mdtc" ]]; then
         # 下载 Snips 数据集并解压缩
-        wget -nc https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.1 https://paddlespeech.bj.bcebos.com/datasets/hey_snips_https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.2
+        wget https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.1 
+	wget https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.2
         cat hey_snips_kws_4.0.tar.gz.* > hey_snips_kws_4.0.tar.gz
         rm hey_snips_kws_4.0.tar.gz.*
         tar -xzf hey_snips_kws_4.0.tar.gz

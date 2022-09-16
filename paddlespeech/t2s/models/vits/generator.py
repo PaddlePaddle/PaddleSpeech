@@ -522,6 +522,82 @@ class VITSGenerator(nn.Layer):
 
         return wav.squeeze(1), attn.squeeze(1), dur.squeeze(1)
 
+    def voice_conversion(
+            self,
+            feats: paddle.Tensor=None,
+            feats_lengths: paddle.Tensor=None,
+            sids_src: Optional[paddle.Tensor]=None,
+            sids_tgt: Optional[paddle.Tensor]=None,
+            spembs_src: Optional[paddle.Tensor]=None,
+            spembs_tgt: Optional[paddle.Tensor]=None,
+            lids: Optional[paddle.Tensor]=None, ) -> paddle.Tensor:
+        """Run voice conversion.
+        Args:
+            feats (Tensor): Feature tensor (B, aux_channels, T_feats,).
+            feats_lengths (Tensor): Feature length tensor (B,).
+            sids_src (Optional[Tensor]): Speaker index tensor of source feature (B,) or (B, 1).
+            sids_tgt (Optional[Tensor]): Speaker index tensor of target feature (B,) or (B, 1).
+            spembs_src (Optional[Tensor]): Speaker embedding tensor of source feature (B, spk_embed_dim).
+            spembs_tgt (Optional[Tensor]): Speaker embedding tensor of target feature (B, spk_embed_dim).
+            lids (Optional[Tensor]): Language index tensor (B,) or (B, 1).
+        Returns:
+            Tensor: Generated waveform tensor (B, T_wav).
+        """
+        # encoder
+        g_src = None
+        g_tgt = None
+        if self.spks is not None:
+            # (B, global_channels, 1)
+            g_src = self.global_emb(
+                paddle.reshape(sids_src, [-1])).unsqueeze(-1)
+            g_tgt = self.global_emb(
+                paddle.reshape(sids_tgt, [-1])).unsqueeze(-1)
+
+        if self.spk_embed_dim is not None:
+            # (B, global_channels, 1)
+            g_src_ = self.spemb_proj(
+                F.normalize(spembs_src.unsqueeze(0))).unsqueeze(-1)
+            if g_src is None:
+                g_src = g_src_
+            else:
+                g_src = g_src + g_src_
+
+            # (B, global_channels, 1)
+            g_tgt_ = self.spemb_proj(
+                F.normalize(spembs_tgt.unsqueeze(0))).unsqueeze(-1)
+            if g_tgt is None:
+                g_tgt = g_tgt_
+            else:
+                g_tgt = g_tgt + g_tgt_
+
+        if self.langs is not None:
+            # (B, global_channels, 1)
+            g_ = self.lang_emb(paddle.reshape(lids, [-1])).unsqueeze(-1)
+
+            if g_src is None:
+                g_src = g_
+            else:
+                g_src = g_src + g_
+
+            if g_tgt is None:
+                g_tgt = g_
+            else:
+                g_tgt = g_tgt + g_
+
+        # forward posterior encoder
+        z, m_q, logs_q, y_mask = self.posterior_encoder(
+            feats, feats_lengths, g=g_src)
+
+        # forward flow
+        # (B, H, T_feats)
+        z_p = self.flow(z, y_mask, g=g_src)
+
+        # decoder
+        z_hat = self.flow(z_p, y_mask, g=g_tgt, inverse=True)
+        wav = self.decoder(z_hat * y_mask, g=g_tgt)
+
+        return wav.squeeze(1)
+
     def _generate_path(self, dur: paddle.Tensor,
                        mask: paddle.Tensor) -> paddle.Tensor:
         """Generate path a.k.a. monotonic attention.

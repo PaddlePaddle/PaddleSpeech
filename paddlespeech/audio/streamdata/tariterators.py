@@ -3,13 +3,12 @@
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 # This file is part of the WebDataset library.
 # See the LICENSE file for licensing terms (BSD-style).
-
 # Modified from https://github.com/webdataset/webdataset
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
-
 """Low level iteration functions for tar archives."""
-
-import random, re, tarfile
+import random
+import re
+import tarfile
 
 import braceexpand
 
@@ -26,6 +25,7 @@ import paddle
 import numpy as np
 
 AUDIO_FORMAT_SETS = set(['flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'])
+
 
 def base_plus_ext(path):
     """Split off all file extensions.
@@ -47,12 +47,8 @@ def valid_sample(sample):
 
     :param sample: sample to be checked
     """
-    return (
-        sample is not None
-        and isinstance(sample, dict)
-        and len(list(sample.keys())) > 0
-        and not sample.get("__bad__", False)
-    )
+    return (sample is not None and isinstance(sample, dict) and
+            len(list(sample.keys())) > 0 and not sample.get("__bad__", False))
 
 
 # FIXME: UNUSED
@@ -79,16 +75,16 @@ def url_opener(data, handler=reraise_exception, **kw):
             sample.update(stream=stream)
             yield sample
         except Exception as exn:
-            exn.args = exn.args + (url,)
+            exn.args = exn.args + (url, )
             if handler(exn):
                 continue
             else:
                 break
 
 
-def tar_file_iterator(
-    fileobj, skip_meta=r"__[^/]*__($|/)", handler=reraise_exception
-):
+def tar_file_iterator(fileobj,
+                      skip_meta=r"__[^/]*__($|/)",
+                      handler=reraise_exception):
     """Iterate over tar file, yielding filename, content pairs for the given tar stream.
 
     :param fileobj: byte stream suitable for tarfile
@@ -103,11 +99,8 @@ def tar_file_iterator(
                 continue
             if fname is None:
                 continue
-            if (
-                "/" not in fname
-                and fname.startswith(meta_prefix)
-                and fname.endswith(meta_suffix)
-            ):
+            if ("/" not in fname and fname.startswith(meta_prefix) and
+                    fname.endswith(meta_suffix)):
                 # skipping metadata for now
                 continue
             if skip_meta is not None and re.match(skip_meta, fname):
@@ -118,8 +111,10 @@ def tar_file_iterator(
             assert pos > 0
             prefix, postfix = name[:pos], name[pos + 1:]
             if postfix == 'wav':
-                waveform, sample_rate = paddlespeech.audio.load(stream.extractfile(tarinfo), normal=False)
-                result = dict(fname=prefix, wav=waveform, sample_rate = sample_rate)
+                waveform, sample_rate = paddlespeech.audio.load(
+                    stream.extractfile(tarinfo), normal=False)
+                result = dict(
+                    fname=prefix, wav=waveform, sample_rate=sample_rate)
             else:
                 txt = stream.extractfile(tarinfo).read().decode('utf8').strip()
                 result = dict(fname=prefix, txt=txt)
@@ -128,16 +123,17 @@ def tar_file_iterator(
             stream.members = []
         except Exception as exn:
             if hasattr(exn, "args") and len(exn.args) > 0:
-                exn.args = (exn.args[0] + " @ " + str(fileobj),) + exn.args[1:]
+                exn.args = (exn.args[0] + " @ " + str(fileobj), ) + exn.args[1:]
             if handler(exn):
                 continue
             else:
                 break
     del stream
 
-def tar_file_and_group_iterator(
-    fileobj, skip_meta=r"__[^/]*__($|/)", handler=reraise_exception
-):
+
+def tar_file_and_group_iterator(fileobj,
+                                skip_meta=r"__[^/]*__($|/)",
+                                handler=reraise_exception):
     """ Expand a stream of open tar files into a stream of tar file contents.
         And groups the file with same prefix
 
@@ -167,8 +163,11 @@ def tar_file_and_group_iterator(
                 if postfix == 'txt':
                     example['txt'] = file_obj.read().decode('utf8').strip()
                 elif postfix in AUDIO_FORMAT_SETS:
-                    waveform, sample_rate = paddlespeech.audio.load(file_obj, normal=False)
-                    waveform = paddle.to_tensor(np.expand_dims(np.array(waveform),0), dtype=paddle.float32)
+                    waveform, sample_rate = paddlespeech.audio.load(
+                        file_obj, normal=False)
+                    waveform = paddle.to_tensor(
+                        np.expand_dims(np.array(waveform), 0),
+                        dtype=paddle.float32)
 
                     example['wav'] = waveform
                     example['sample_rate'] = sample_rate
@@ -176,18 +175,20 @@ def tar_file_and_group_iterator(
                     example[postfix] = file_obj.read()
             except Exception as exn:
                 if hasattr(exn, "args") and len(exn.args) > 0:
-                    exn.args = (exn.args[0] + " @ " + str(fileobj),) + exn.args[1:]
+                    exn.args = (exn.args[0] + " @ " + str(fileobj),
+                                ) + exn.args[1:]
                 if handler(exn):
                     continue
                 else:
                     break
                 valid = False
-              #  logging.warning('error to parse {}'.format(name))
+            #  logging.warning('error to parse {}'.format(name))
         prev_prefix = prefix
     if prev_prefix is not None:
         example['fname'] = prev_prefix
         yield example
     stream.close()
+
 
 def tar_file_expander(data, handler=reraise_exception):
     """Expand a stream of open tar files into a stream of tar file contents.
@@ -200,9 +201,8 @@ def tar_file_expander(data, handler=reraise_exception):
             assert isinstance(source, dict)
             assert "stream" in source
             for sample in tar_file_iterator(source["stream"]):
-                assert (
-                    isinstance(sample, dict) and "data" in sample and "fname" in sample
-                )
+                assert (isinstance(sample, dict) and "data" in sample and
+                        "fname" in sample)
                 sample["__url__"] = url
                 yield sample
         except Exception as exn:
@@ -211,8 +211,6 @@ def tar_file_expander(data, handler=reraise_exception):
                 continue
             else:
                 break
-
-
 
 
 def tar_file_and_group_expander(data, handler=reraise_exception):
@@ -226,9 +224,8 @@ def tar_file_and_group_expander(data, handler=reraise_exception):
             assert isinstance(source, dict)
             assert "stream" in source
             for sample in tar_file_and_group_iterator(source["stream"]):
-                assert (
-                    isinstance(sample, dict) and "wav" in sample and "txt" in sample and "fname" in sample
-                )
+                assert (isinstance(sample, dict) and "wav" in sample and
+                        "txt" in sample and "fname" in sample)
                 sample["__url__"] = url
                 yield sample
         except Exception as exn:
@@ -239,7 +236,11 @@ def tar_file_and_group_expander(data, handler=reraise_exception):
                 break
 
 
-def group_by_keys(data, keys=base_plus_ext, lcase=True, suffixes=None, handler=None):
+def group_by_keys(data,
+                  keys=base_plus_ext,
+                  lcase=True,
+                  suffixes=None,
+                  handler=None):
     """Return function over iterator that groups key, value pairs into samples.
 
     :param keys: function that splits the key into key and extension (base_plus_ext)
@@ -254,8 +255,8 @@ def group_by_keys(data, keys=base_plus_ext, lcase=True, suffixes=None, handler=N
             print(
                 prefix,
                 suffix,
-                current_sample.keys() if isinstance(current_sample, dict) else None,
-            )
+                current_sample.keys()
+                if isinstance(current_sample, dict) else None, )
         if prefix is None:
             continue
         if lcase:

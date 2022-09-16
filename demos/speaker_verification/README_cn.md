@@ -19,6 +19,7 @@
 ```bash
 # 该音频的内容是数字串 85236145389
 wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
 ```
 ### 3. 使用方法
 - 命令行 (推荐使用)

@@ -154,6 +154,7 @@ else
     device_num_list=($device_num)
 fi
 
+PYTHON="${python}" bash test_tipc/barrier.sh
 IFS="|"
 for batch_size in ${batch_size_list[*]}; do 
     for precision in ${fp_items_list[*]}; do

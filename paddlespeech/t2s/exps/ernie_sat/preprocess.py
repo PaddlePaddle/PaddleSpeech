@@ -165,7 +165,7 @@ def process_sentences(config,
                     if record:
                         results.append(record)
 
-    results.sort(key=itemgetter("utt_id"))
+    results.sort(key=itemgetter("speech_lengths"))
     # replace 'w' with 'a' to write from the end of file
     with jsonlines.open(output_dir / "metadata.jsonl", 'a') as writer:
         for item in results:

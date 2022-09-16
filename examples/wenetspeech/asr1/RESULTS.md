@@ -34,3 +34,15 @@ Pretrain model from http://mobvoi-speech-public.ufile.ucloud.cn/public/wenet/wen
 | conformer | 32.52 M | conf/conformer.yaml | spec_aug  | aishell1 | ctc_greedy_search | - | 0.052534 |  
 | conformer | 32.52 M | conf/conformer.yaml | spec_aug  | aishell1 | ctc_prefix_beam_search | - | 0.052915 |  
 | conformer | 32.52 M | conf/conformer.yaml | spec_aug  | aishell1 | attention_rescoring | - | 0.047904 |  
+
+
+## Conformer Steaming Pretrained Model
+
+Pretrain model from https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz
+
+| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size | CER |  
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention | 16 | 0.056273 |  
+| conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_greedy_search | 16 | 0.078918 |  
+| conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_prefix_beam_search | 16 | 0.079080 |  
+| conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention_rescoring | 16 | 0.054401 |

@@ -24,8 +24,8 @@ import yaml
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
-from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
-from paddlespeech.audio.compliance.kaldi import fbank as kaldi_fbank
+from paddleaudio.backends import soundfile_load as load_audio
+from paddleaudio.compliance.kaldi import fbank as kaldi_fbank
 
 __all__ = ['KWSExecutor']
 

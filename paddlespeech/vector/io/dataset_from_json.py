@@ -17,9 +17,9 @@ from dataclasses import fields
 
 from paddle.io import Dataset
 
-from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
-from paddlespeech.audio.compliance.librosa import melspectrogram
-from paddlespeech.audio.compliance.librosa import mfcc
+from paddleaudio.backends import soundfile_load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
+from paddleaudio.compliance.librosa import mfcc
 
 
 @dataclass

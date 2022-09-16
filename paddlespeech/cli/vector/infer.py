@@ -27,8 +27,8 @@ from yacs.config import CfgNode
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
-from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
-from paddlespeech.audio.compliance.librosa import melspectrogram
+from paddleaudio.backends import soundfile_load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
 from paddlespeech.vector.io.batch import feature_normalize
 from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 

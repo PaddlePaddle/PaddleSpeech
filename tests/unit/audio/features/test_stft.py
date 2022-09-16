@@ -17,7 +17,7 @@ import numpy as np
 import paddle
 
 from .base import FeatTest
-from paddlespeech.audio.functional.window import get_window
+from paddleaudio.functional.window import get_window
 from paddlespeech.s2t.transform.spectrogram import Stft
 
 

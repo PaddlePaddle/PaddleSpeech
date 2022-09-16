@@ -1,11 +1,10 @@
 # ERNIE-SAT with VCTK dataset
+ERNIE-SAT speech-text joint pretraining framework, which achieves SOTA results in cross-lingual multi-speaker speech synthesis and cross-lingual speech editing tasks, It can be applied to a series of scenarios such as Speech Editing, personalized Speech Synthesis, and Voice Cloning.
 
-ERNIE-SAT 是可以同时处理中英文的跨语言的语音-语言跨模态大模型，其在语音编辑、个性化语音合成以及跨语言的语音合成等多个任务取得了领先效果。可以应用于语音编辑、个性化合成、语音克隆、同传翻译等一系列场景，该项目供研究使用。
-
-## 模型框架
-ERNIE-SAT 中我们提出了两项创新：
-- 在预训练过程中将中英双语对应的音素作为输入，实现了跨语言、个性化的软音素映射
-- 采用语言和语音的联合掩码学习实现了语言和语音的对齐
+## Model Framework
+In ERNIE-SAT, we propose two innovations:
+- In the pretraining process, the phonemes corresponding to Chinese and English are used as input to achieve cross-language and personalized soft phoneme mapping
+- The joint mask learning of speech and text is used to realize the alignment of speech and text
 
 <p align="center">
     <img src="https://user-images.githubusercontent.com/24568452/186110814-1b9c6618-a0ab-4c0c-bb3d-3d860b0e8cc2.png" />

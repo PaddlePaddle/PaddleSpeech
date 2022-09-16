@@ -27,8 +27,10 @@ def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
             sentence = "您好，欢迎使用语音合成服务。"
         elif tts_engine.lang == 'en':
             sentence = "Hello and welcome to the speech synthesis service."
+        elif tts_engine.lang == 'mix':
+            sentence = "您好，欢迎使用TTS多语种服务。"
         else:
-            logger.error("tts engine only support lang: zh or en.")
+            logger.error("tts engine only support lang: zh or en or mix.")
             sys.exit(-1)
 
         if engine_and_type == "tts_python":

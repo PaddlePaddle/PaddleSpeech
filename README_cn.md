@@ -1,4 +1,3 @@
-
 (简体中文|[English](./README.md))
 <p align="center">
   <img src="./docs/images/PaddleSpeech_logo.png" />
@@ -165,13 +164,37 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 
-### 近期更新
+### 近期活动
 
+ ❗️重磅❗️飞桨智慧金融行业系列直播课
+✅ 覆盖智能风控、智能运维、智能营销、智能客服四大金融主流场景
+
+📆 9月6日-9月29日每周二、四19:00
++ 智慧金融行业深入洞察
++ 8节理论+实践精品直播课
++ 10+真实产业场景范例教学及实践
++ 更有免费算力+结业证书等礼品等你来拿
+扫码报名码住直播链接，与行业精英深度交流
+
+<div align="center">
+<img src="https://user-images.githubusercontent.com/30135920/188431897-a02f028f-dd13-41e8-8ff6-749468cdc850.jpg"  width = "200"  />
+</div>
+
+### 近期更新
+- ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
+- 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
+- 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。
+- 🔥 2022.08.09: 发布[中英文混合 TTS](./examples/zh_en_tts/tts3)。
+- ⚡ 2022.08.03: TTS CLI 新增 ONNXRuntime 推理方式。
+- 🎉 2022.07.18: 发布 VITS 模型: [VITS-csmsc](./examples/csmsc/vits)、[VITS-aishell3](./examples/aishell3/vits)、[VITS-VC](./examples/aishell3/vits-vc)。
+- 🎉 2022.06.22: 所有 TTS 模型支持了 ONNX 格式。
+- 🍀 2022.06.17: 新增 [PaddleSpeech 网页应用](./demos/speech_web)。
 - 👑 2022.05.13: PaddleSpeech 发布 [PP-ASR](./docs/source/asr/PPASR_cn.md) 流式语音识别系统、[PP-TTS](./docs/source/tts/PPTTS_cn.md) 流式语音合成系统、[PP-VPR](docs/source/vpr/PPVPR_cn.md) 全链路声纹识别系统
-- 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线! 覆盖了语音识别（标点恢复、时间戳），和语音合成。
-- 👏🏻 2022.05.06: PaddleSpeech Server 上线! 覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
-- 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成，声纹验证。
-- 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
+- 👏🏻 2022.05.06: PaddleSpeech Streaming Server 上线！覆盖了语音识别（标点恢复、时间戳）和语音合成。
+- 👏🏻 2022.05.06: PaddleSpeech Server 上线！覆盖了声音分类、语音识别、语音合成、声纹识别，标点恢复。
+- 👏🏻 2022.03.28: PaddleSpeech CLI 覆盖声音分类、语音识别、语音翻译（英译中）、语音合成和声纹验证。
+- 🤗 2021.12.14: PaddleSpeech [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) 和 [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) 可在 Hugging Face Spaces 上体验！
+- 👏🏻 2021.12.10: PaddleSpeech CLI 支持语音分类, 语音识别, 语音翻译（英译中）和语音合成。
 
 
  ### 🔥 加入技术交流群获取入群福利
@@ -196,13 +219,13 @@
 + python >= 3.7
 + linux(推荐), mac, windows
 
-PaddleSpeech依赖于paddlepaddle，安装可以参考[paddlepaddle官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出cpu版本示例，其它版本大家可以根据自己机器的情况进行安装。
+PaddleSpeech 依赖于 paddlepaddle，安装可以参考[ paddlepaddle 官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出 cpu 版本示例，其它版本大家可以根据自己机器的情况进行安装。
 
 ```shell
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 ```
 
-PaddleSpeech快速安装方式有两种，一种是pip安装，一种是源码编译（推荐）。
+PaddleSpeech 快速安装方式有两种，一种是 pip 安装，一种是源码编译（推荐）。
 
 ### pip 安装
 ```shell
@@ -222,10 +245,9 @@ pip install .
 
 <a name="快速开始"></a>
 ## 快速开始
+安装完成后，开发者可以通过命令行或者 Python 快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持 16k wav 格式音频。
 
-安装完成后，开发者可以通过命令行或者Python快速开始，命令行模式下改变 `--input` 可以尝试用自己的音频或文本测试，支持16k wav格式音频。
-
-你也可以在`aistudio`中快速体验 👉🏻[PaddleSpeech API Demo ](https://aistudio.baidu.com/aistudio/projectdetail/4281335?shared=1)。
+你也可以在 `aistudio` 中快速体验 👉🏻[一键预测，快速上手 Speech 开发任务](https://aistudio.baidu.com/aistudio/projectdetail/4353348?sUid=2470186&shared=1&ts=1660878142250)。
 
 测试音频示例下载
 ```shell
@@ -281,7 +303,7 @@ Python API 一键预测
 
 <details><summary>&emsp;适配多场景的开放领域声音分类工具</summary>
 
-基于AudioSet数据集527个类别的声音分类模型
+基于 AudioSet 数据集 527 个类别的声音分类模型
 
 命令行一键体验
 
@@ -350,7 +372,7 @@ Python API 一键预测
 
 <details><summary>&emsp;端到端英译中语音翻译工具</summary>
 
-使用预编译的kaldi相关工具，只支持在Ubuntu系统中体验
+使用预编译的 kaldi 相关工具，只支持在 Ubuntu 系统中体验
 
 命令行一键体验
 
@@ -370,14 +392,15 @@ python API 一键预测
 </details>
 
 
-
 <a name="快速使用服务"></a>
 ## 快速使用服务
-安装完成后，开发者可以通过命令行一键启动语音识别，语音合成，音频分类三种服务。
+安装完成后，开发者可以通过命令行一键启动语音识别，语音合成，音频分类等多种服务。
+
+你可以在 AI Studio 中快速体验：[SpeechServer 一键部署](https://aistudio.baidu.com/aistudio/projectdetail/4354592?sUid=2470186&shared=1&ts=1660878208266)
 
 **启动服务**     
 ```shell
-paddlespeech_server start --config_file ./paddlespeech/server/conf/application.yaml
+paddlespeech_server start --config_file ./demos/speech_server/conf/application.yaml
 ```
 
 **访问语音识别服务**     
@@ -529,7 +552,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </td>
     </tr>
     <tr>
-      <td rowspan="4">声学模型</td>
+      <td rowspan="5">声学模型</td>
       <td>Tacotron2</td>
       <td>LJSpeech / CSMSC</td>
       <td>
@@ -552,9 +575,16 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td>FastSpeech2</td>
-      <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td>LJSpeech / VCTK / CSMSC / AISHELL-3 / ZH_EN / finetune</td>
       <td>
-      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a>
+      <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a> / <a href = "./examples/zh_en_tts/tts3">fastspeech2-zh_en</a> / <a href = "./examples/other/tts_finetune/tts3">fastspeech2-finetune</a>
+      </td>
+    </tr>
+    <tr>
+      <td>ERNIE-SAT</td>
+      <td>VCTK / AISHELL-3 / ZH_EN</td>
+      <td>
+      <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>
       </td>
     </tr>
    <tr>
@@ -601,34 +631,47 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td rowspan="3">声音克隆</td>
+      <td rowspan="5">声音克隆</td>
       <td>GE2E</td>
       <td >Librispeech, etc.</td>
       <td>
-      <a href = "./examples/other/ge2e">ge2e</a>
+      <a href = "./examples/other/ge2e">GE2E</a>
       </td>
     </tr>
     <tr>
-      <td>GE2E + Tacotron2</td>
+      <td>SV2TTS (GE2E + Tacotron2)</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc0">ge2e-tacotron2-aishell3</a>
+      <a href = "./examples/aishell3/vc0">VC0</a>
       </td>
     </tr>
     <tr>
-      <td>GE2E + FastSpeech2</td>
+      <td>SV2TTS (GE2E + FastSpeech2)</td>
       <td>AISHELL-3</td>
       <td>
-      <a href = "./examples/aishell3/vc1">ge2e-fastspeech2-aishell3</a>
+      <a href = "./examples/aishell3/vc1">VC1</a>
       </td>
     </tr>
+    <tr>
+      <td>SV2TTS (ECAPA-TDNN + FastSpeech2)</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vc2">VC2</a>
+      </td>
+    </tr>
+    <tr>
+      <td>GE2E + VITS</td>
+      <td>AISHELL-3</td>
+      <td>
+      <a href = "./examples/aishell3/vits-vc">VITS-VC</a>
+      </td>
     </tr>
      <tr>
       <td rowspan="3">端到端</td>
       <td>VITS</td>
-      <td >CSMSC</td>
+      <td>CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/csmsc/vits">VITS-csmsc</a>
+      <a href = "./examples/csmsc/vits">VITS-csmsc</a> / <a href = "./examples/aishell3/vits">VITS-aishell3</a>
       </td>
     </tr>
   </tbody>
@@ -796,44 +839,79 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 ### 贡献者
 <p align="center">
-<a href="https://github.com/zh794390558"><img src="https://avatars.githubusercontent.com/u/3038472?v=4" width=75 height=75></a>
-<a href="https://github.com/Jackwaterveg"><img src="https://avatars.githubusercontent.com/u/87408988?v=4" width=75 height=75></a>
-<a href="https://github.com/yt605155624"><img src="https://avatars.githubusercontent.com/u/24568452?v=4" width=75 height=75></a>
-<a href="https://github.com/kuke"><img src="https://avatars.githubusercontent.com/u/3064195?v=4" width=75 height=75></a>
-<a href="https://github.com/xinghai-sun"><img src="https://avatars.githubusercontent.com/u/7038341?v=4" width=75 height=75></a>
-<a href="https://github.com/pkuyym"><img src="https://avatars.githubusercontent.com/u/5782283?v=4" width=75 height=75></a>
-<a href="https://github.com/KPatr1ck"><img src="https://avatars.githubusercontent.com/u/22954146?v=4" width=75 height=75></a>
-<a href="https://github.com/LittleChenCc"><img src="https://avatars.githubusercontent.com/u/10339970?v=4" width=75 height=75></a>
-<a href="https://github.com/745165806"><img src="https://avatars.githubusercontent.com/u/20623194?v=4" width=75 height=75></a>
-<a href="https://github.com/Mingxue-Xu"><img src="https://avatars.githubusercontent.com/u/92848346?v=4" width=75 height=75></a>
-<a href="https://github.com/chrisxu2016"><img src="https://avatars.githubusercontent.com/u/18379485?v=4" width=75 height=75></a>
-<a href="https://github.com/lfchener"><img src="https://avatars.githubusercontent.com/u/6771821?v=4" width=75 height=75></a>
-<a href="https://github.com/luotao1"><img src="https://avatars.githubusercontent.com/u/6836917?v=4" width=75 height=75></a>
-<a href="https://github.com/wanghaoshuang"><img src="https://avatars.githubusercontent.com/u/7534971?v=4" width=75 height=75></a>
-<a href="https://github.com/gongel"><img src="https://avatars.githubusercontent.com/u/24390500?v=4" width=75 height=75></a>
-<a href="https://github.com/mmglove"><img src="https://avatars.githubusercontent.com/u/38800877?v=4" width=75 height=75></a>
-<a href="https://github.com/iclementine"><img src="https://avatars.githubusercontent.com/u/16222986?v=4" width=75 height=75></a>
-<a href="https://github.com/ZeyuChen"><img src="https://avatars.githubusercontent.com/u/1371212?v=4" width=75 height=75></a>
-<a href="https://github.com/AK391"><img src="https://avatars.githubusercontent.com/u/81195143?v=4" width=75 height=75></a>
-<a href="https://github.com/qingqing01"><img src="https://avatars.githubusercontent.com/u/7845005?v=4" width=75 height=75></a>
-<a href="https://github.com/ericxk"><img src="https://avatars.githubusercontent.com/u/4719594?v=4" width=75 height=75></a>
-<a href="https://github.com/kvinwang"><img src="https://avatars.githubusercontent.com/u/6442159?v=4" width=75 height=75></a>
-<a href="https://github.com/jiqiren11"><img src="https://avatars.githubusercontent.com/u/82639260?v=4" width=75 height=75></a>
-<a href="https://github.com/AshishKarel"><img src="https://avatars.githubusercontent.com/u/58069375?v=4" width=75 height=75></a>
-<a href="https://github.com/chesterkuo"><img src="https://avatars.githubusercontent.com/u/6285069?v=4" width=75 height=75></a>
-<a href="https://github.com/tensor-tang"><img src="https://avatars.githubusercontent.com/u/21351065?v=4" width=75 height=75></a>
-<a href="https://github.com/hysunflower"><img src="https://avatars.githubusercontent.com/u/52739577?v=4" width=75 height=75></a>  
-<a href="https://github.com/wwhu"><img src="https://avatars.githubusercontent.com/u/6081200?v=4" width=75 height=75></a>
-<a href="https://github.com/lispc"><img src="https://avatars.githubusercontent.com/u/2833376?v=4" width=75 height=75></a>
-<a href="https://github.com/jerryuhoo"><img src="https://avatars.githubusercontent.com/u/24245709?v=4" width=75 height=75></a>
-<a href="https://github.com/harisankarh"><img src="https://avatars.githubusercontent.com/u/1307053?v=4" width=75 height=75></a>
-<a href="https://github.com/Jackiexiao"><img src="https://avatars.githubusercontent.com/u/18050469?v=4" width=75 height=75></a>
-<a href="https://github.com/limpidezza"><img src="https://avatars.githubusercontent.com/u/71760778?v=4" width=75 height=75></a>
+<a href="https://github.com/zh794390558"><img src="https://avatars.githubusercontent.com/u/3038472?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/Jackwaterveg"><img src="https://avatars.githubusercontent.com/u/87408988?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/yt605155624"><img src="https://avatars.githubusercontent.com/u/24568452?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/Honei"><img src="https://avatars.githubusercontent.com/u/11361692?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/KPatr1ck"><img src="https://avatars.githubusercontent.com/u/22954146?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/kuke"><img src="https://avatars.githubusercontent.com/u/3064195?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/lym0302"><img src="https://avatars.githubusercontent.com/u/34430015?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/SmileGoat"><img src="https://avatars.githubusercontent.com/u/56786796?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/xinghai-sun"><img src="https://avatars.githubusercontent.com/u/7038341?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/pkuyym"><img src="https://avatars.githubusercontent.com/u/5782283?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/LittleChenCc"><img src="https://avatars.githubusercontent.com/u/10339970?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/qingen"><img src="https://avatars.githubusercontent.com/u/3139179?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/D-DanielYang"><img src="https://avatars.githubusercontent.com/u/23690325?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/Mingxue-Xu"><img src="https://avatars.githubusercontent.com/u/92848346?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/745165806"><img src="https://avatars.githubusercontent.com/u/20623194?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/jerryuhoo"><img src="https://avatars.githubusercontent.com/u/24245709?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/WilliamZhang06"><img src="https://avatars.githubusercontent.com/u/97937340?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/chrisxu2016"><img src="https://avatars.githubusercontent.com/u/18379485?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/iftaken"><img src="https://avatars.githubusercontent.com/u/30135920?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/lfchener"><img src="https://avatars.githubusercontent.com/u/6771821?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/BarryKCL"><img src="https://avatars.githubusercontent.com/u/48039828?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/mmglove"><img src="https://avatars.githubusercontent.com/u/38800877?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/gongel"><img src="https://avatars.githubusercontent.com/u/24390500?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/luotao1"><img src="https://avatars.githubusercontent.com/u/6836917?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/wanghaoshuang"><img src="https://avatars.githubusercontent.com/u/7534971?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/kslz"><img src="https://avatars.githubusercontent.com/u/54951765?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/JiehangXie"><img src="https://avatars.githubusercontent.com/u/51190264?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/david-95"><img src="https://avatars.githubusercontent.com/u/15189190?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/THUzyt21"><img src="https://avatars.githubusercontent.com/u/91456992?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/buchongyu2"><img src="https://avatars.githubusercontent.com/u/29157444?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/iclementine"><img src="https://avatars.githubusercontent.com/u/16222986?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/phecda-xu"><img src="https://avatars.githubusercontent.com/u/46859427?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/freeliuzc"><img src="https://avatars.githubusercontent.com/u/23568094?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/ZeyuChen"><img src="https://avatars.githubusercontent.com/u/1371212?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/ccrrong"><img src="https://avatars.githubusercontent.com/u/101700995?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/AK391"><img src="https://avatars.githubusercontent.com/u/81195143?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/qingqing01"><img src="https://avatars.githubusercontent.com/u/7845005?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/0x45f"><img src="https://avatars.githubusercontent.com/u/23097963?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/vpegasus"><img src="https://avatars.githubusercontent.com/u/22723154?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/ericxk"><img src="https://avatars.githubusercontent.com/u/4719594?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/Betterman-qs"><img src="https://avatars.githubusercontent.com/u/61459181?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/sneaxiy"><img src="https://avatars.githubusercontent.com/u/32832641?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/Doubledongli"><img src="https://avatars.githubusercontent.com/u/20540661?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/apps/dependabot"><img src="https://avatars.githubusercontent.com/in/29110?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/kvinwang"><img src="https://avatars.githubusercontent.com/u/6442159?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/chenkui164"><img src="https://avatars.githubusercontent.com/u/34813030?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/PaddleZhang"><img src="https://avatars.githubusercontent.com/u/97284124?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/billishyahao"><img src="https://avatars.githubusercontent.com/u/96406262?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/BrightXiaoHan"><img src="https://avatars.githubusercontent.com/u/25839309?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/jiqiren11"><img src="https://avatars.githubusercontent.com/u/82639260?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/ryanrussell"><img src="https://avatars.githubusercontent.com/u/523300?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/GT-ZhangAcer"><img src="https://avatars.githubusercontent.com/u/46156734?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/tensor-tang"><img src="https://avatars.githubusercontent.com/u/21351065?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/hysunflower"><img src="https://avatars.githubusercontent.com/u/52739577?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/oyjxer"><img src="https://avatars.githubusercontent.com/u/16233945?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/JamesLim-sy"><img src="https://avatars.githubusercontent.com/u/61349199?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/limpidezza"><img src="https://avatars.githubusercontent.com/u/71760778?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/windstamp"><img src="https://avatars.githubusercontent.com/u/34057289?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/AshishKarel"><img src="https://avatars.githubusercontent.com/u/58069375?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/chesterkuo"><img src="https://avatars.githubusercontent.com/u/6285069?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/YDX-2147483647"><img src="https://avatars.githubusercontent.com/u/73375426?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/AdamBear"><img src="https://avatars.githubusercontent.com/u/2288870?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/wwhu"><img src="https://avatars.githubusercontent.com/u/6081200?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/lispc"><img src="https://avatars.githubusercontent.com/u/2833376?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/harisankarh"><img src="https://avatars.githubusercontent.com/u/1307053?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/pengzhendong"><img src="https://avatars.githubusercontent.com/u/10704539?s=60&v=4" width=75 height=75></a>
+<a href="https://github.com/Jackiexiao"><img src="https://avatars.githubusercontent.com/u/18050469?s=60&v=4" width=75 height=75></a>
 </p>
 
 ## 致谢
-
-- 非常感谢 [BarryKCL](https://github.com/BarryKCL)基于[G2PW](https://github.com/GitYCC/g2pW)对TTS中文文本前端的优化。
+- 非常感谢 [HighCWu](https://github.com/HighCWu) 新增 [VITS-aishell3](./examples/aishell3/vits) 和 [VITS-VC](./examples/aishell3/vits-vc) 代码示例。
+- 非常感谢 [david-95](https://github.com/david-95) 修复句尾多标点符号出错的问题，贡献补充多条程序和数据。
+- 非常感谢 [BarryKCL](https://github.com/BarryKCL) 基于 [G2PW](https://github.com/GitYCC/g2pW) 对 TTS 中文文本前端的优化。
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。
 - 非常感谢 [JiehangXie](https://github.com/JiehangXie)/[PaddleBoBo](https://github.com/JiehangXie/PaddleBoBo) 采用 PaddleSpeech 语音合成功能实现 Virtual Uploader(VUP)/Virtual YouTuber(VTuber) 虚拟主播。

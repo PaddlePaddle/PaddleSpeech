@@ -19,6 +19,7 @@ The input of this cli demo should be a WAV file(`.wav`), and the sample rate mus
 Here are sample files for this demo that can be downloaded:
 ```bash
 wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
 ```
 
 ### 3. Usage

@@ -14,9 +14,9 @@
 import argparse
 
 import paddle
+from paddleaudio.datasets.voxceleb import VoxCeleb
 from yacs.config import CfgNode
 
-from paddlespeech.audio.datasets.voxceleb import VoxCeleb
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
 from paddlespeech.vector.training.seeding import seed_everything

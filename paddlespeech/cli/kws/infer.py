@@ -20,12 +20,12 @@ from typing import Union
 
 import paddle
 import yaml
+from paddleaudio.backends import soundfile_load as load_audio
+from paddleaudio.compliance.kaldi import fbank as kaldi_fbank
 
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
-from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
-from paddlespeech.audio.compliance.kaldi import fbank as kaldi_fbank
 
 __all__ = ['KWSExecutor']
 
@@ -139,7 +139,7 @@ class KWSExecutor(BaseExecutor):
             Input content can be a text(tts), a file(asr, cls) or a streaming(not supported yet).
         """
         assert os.path.isfile(audio_file)
-        waveform, _ = load(audio_file)
+        waveform, _ = load_audio(audio_file)
         if isinstance(audio_file, (str, os.PathLike)):
             logger.debug("Preprocessing audio_file:" + audio_file)
 

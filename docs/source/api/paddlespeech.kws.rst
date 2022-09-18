@@ -12,4 +12,5 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   paddlespeech.kws.exps
    paddlespeech.kws.models

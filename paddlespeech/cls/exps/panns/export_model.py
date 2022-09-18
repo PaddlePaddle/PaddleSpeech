@@ -16,7 +16,7 @@ import os
 
 import paddle
 
-from paddlespeech.audio.datasets import ESC50
+from paddleaudio.datasets import ESC50
 from paddlespeech.cls.models import cnn14
 from paddlespeech.cls.models import SoundClassifier
 

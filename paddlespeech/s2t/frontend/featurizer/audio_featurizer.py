@@ -17,7 +17,7 @@ import paddle
 from python_speech_features import delta
 from python_speech_features import mfcc
 
-import paddlespeech.audio.compliance.kaldi as kaldi
+import paddleaudio.compliance.kaldi as kaldi
 
 
 class AudioFeaturizer():

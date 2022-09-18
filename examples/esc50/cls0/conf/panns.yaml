@@ -1,5 +1,5 @@
 data:
-  dataset: 'paddlespeech.audio.datasets:ESC50'
+  dataset: 'paddleaudio.datasets:ESC50'
   num_classes: 50
   train:
     mode: 'train'

@@ -111,7 +111,7 @@ def tar_file_iterator(fileobj,
             assert pos > 0
             prefix, postfix = name[:pos], name[pos + 1:]
             if postfix == 'wav':
-                waveform, sample_rate = paddlespeech.audio.load(
+                waveform, sample_rate = paddleaudio.backends.soundfile_load(
                     stream.extractfile(tarinfo), normal=False)
                 result = dict(
                     fname=prefix, wav=waveform, sample_rate=sample_rate)
@@ -163,7 +163,7 @@ def tar_file_and_group_iterator(fileobj,
                 if postfix == 'txt':
                     example['txt'] = file_obj.read().decode('utf8').strip()
                 elif postfix in AUDIO_FORMAT_SETS:
-                    waveform, sample_rate = paddlespeech.audio.load(
+                    waveform, sample_rate = paddleaudio.backends.soundfile_load(
                         file_obj, normal=False)
                     waveform = paddle.to_tensor(
                         np.expand_dims(np.array(waveform), 0),

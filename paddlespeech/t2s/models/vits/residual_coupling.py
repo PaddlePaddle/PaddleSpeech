@@ -55,18 +55,30 @@ class ResidualAffineCouplingBlock(nn.Layer):
         """Initilize ResidualAffineCouplingBlock module.
 
         Args:
-            in_channels (int): Number of input channels.
-            hidden_channels (int): Number of hidden channels.
-            flows (int): Number of flows.
-            kernel_size (int): Kernel size for WaveNet.
-            base_dilation (int): Base dilation factor for WaveNet.
-            layers (int): Number of layers of WaveNet.
-            stacks (int): Number of stacks of WaveNet.
-            global_channels (int): Number of global channels.
-            dropout_rate (float): Dropout rate.
-            use_weight_norm (bool): Whether to use weight normalization in WaveNet.
-            bias (bool): Whether to use bias paramters in WaveNet.
-            use_only_mean (bool): Whether to estimate only mean.
+            in_channels (int):
+                Number of input channels.
+            hidden_channels (int):
+                Number of hidden channels.
+            flows (int):
+                Number of flows.
+            kernel_size (int):
+                Kernel size for WaveNet.
+            base_dilation (int):
+                Base dilation factor for WaveNet.
+            layers (int):
+                Number of layers of WaveNet.
+            stacks (int):
+                Number of stacks of WaveNet.
+            global_channels (int):
+                Number of global channels.
+            dropout_rate (float):
+                Dropout rate.
+            use_weight_norm (bool):
+                Whether to use weight normalization in WaveNet.
+            bias (bool):
+                Whether to use bias paramters in WaveNet.
+            use_only_mean (bool):
+                Whether to estimate only mean.
 
         """
         super().__init__()
@@ -97,10 +109,14 @@ class ResidualAffineCouplingBlock(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input tensor (B, in_channels, T).
-            x_mask (Tensor): Length tensor (B, 1, T).
-            g (Optional[Tensor]): Global conditioning tensor (B, global_channels, 1).
-            inverse (bool): Whether to inverse the flow.
+            x (Tensor):
+                Input tensor (B, in_channels, T).
+            x_mask (Tensor):
+                Length tensor (B, 1, T).
+            g (Optional[Tensor]):
+                Global conditioning tensor (B, global_channels, 1).
+            inverse (bool):
+                Whether to inverse the flow.
 
         Returns:
             Tensor: Output tensor (B, in_channels, T).
@@ -134,17 +150,28 @@ class ResidualAffineCouplingLayer(nn.Layer):
         """Initialzie ResidualAffineCouplingLayer module.
 
         Args:
-            in_channels (int): Number of input channels.
-            hidden_channels (int): Number of hidden channels.
-            kernel_size (int): Kernel size for WaveNet.
-            base_dilation (int): Base dilation factor for WaveNet.
-            layers (int): Number of layers of WaveNet.
-            stacks (int): Number of stacks of WaveNet.
-            global_channels (int): Number of global channels.
-            dropout_rate (float): Dropout rate.
-            use_weight_norm (bool): Whether to use weight normalization in WaveNet.
-            bias (bool): Whether to use bias paramters in WaveNet.
-            use_only_mean (bool): Whether to estimate only mean.
+            in_channels (int):
+                Number of input channels.
+            hidden_channels (int):
+                Number of hidden channels.
+            kernel_size (int):
+                Kernel size for WaveNet.
+            base_dilation (int):
+                Base dilation factor for WaveNet.
+            layers (int):
+                Number of layers of WaveNet.
+            stacks (int):
+                Number of stacks of WaveNet.
+            global_channels (int):
+                Number of global channels.
+            dropout_rate (float):
+                Dropout rate.
+            use_weight_norm (bool):
+                Whether to use weight normalization in WaveNet.
+            bias (bool):
+                Whether to use bias paramters in WaveNet.
+            use_only_mean (bool):
+                Whether to estimate only mean.
 
         """
         assert in_channels % 2 == 0, "in_channels should be divisible by 2"
@@ -211,14 +238,20 @@ class ResidualAffineCouplingLayer(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input tensor (B, in_channels, T).
-            x_lengths (Tensor): Length tensor (B,).
-            g (Optional[Tensor]): Global conditioning tensor (B, global_channels, 1).
-            inverse (bool): Whether to inverse the flow.
+            x (Tensor):
+                Input tensor (B, in_channels, T).
+            x_lengths (Tensor):
+                Length tensor (B,).
+            g (Optional[Tensor]):
+                Global conditioning tensor (B, global_channels, 1).
+            inverse (bool):
+                Whether to inverse the flow.
 
         Returns:
-            Tensor: Output tensor (B, in_channels, T).
-            Tensor: Log-determinant tensor for NLL (B,) if not inverse.
+            Tensor:
+                Output tensor (B, in_channels, T).
+            Tensor:
+                Log-determinant tensor for NLL (B,) if not inverse.
 
         """
         xa, xb = paddle.split(x, 2, axis=1)

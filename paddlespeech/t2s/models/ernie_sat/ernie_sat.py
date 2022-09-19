@@ -71,31 +71,53 @@ class MLMEncoder(nn.Layer):
     """Conformer encoder module.
 
     Args:
-        idim (int): Input dimension.
-        attention_dim (int): Dimension of attention.
-        attention_heads (int): The number of heads of multi head attention.
-        linear_units (int): The number of units of position-wise feed forward.
-        num_blocks (int): The number of decoder blocks.
-        dropout_rate (float): Dropout rate.
-        positional_dropout_rate (float): Dropout rate after adding positional encoding.
-        attention_dropout_rate (float): Dropout rate in attention.
-        input_layer (Union[str, paddle.nn.Layer]): Input layer type.
-        normalize_before (bool): Whether to use layer_norm before the first block.
-        concat_after (bool): Whether to concat attention layer's input and output.
+        idim (int): 
+            Input dimension.
+        attention_dim (int): 
+            Dimension of attention.
+        attention_heads (int): 
+            The number of heads of multi head attention.
+        linear_units (int): 
+            The number of units of position-wise feed forward.
+        num_blocks (int): 
+            The number of decoder blocks.
+        dropout_rate (float): 
+            Dropout rate.
+        positional_dropout_rate (float): 
+            Dropout rate after adding positional encoding.
+        attention_dropout_rate (float): 
+            Dropout rate in attention.
+        input_layer (Union[str, paddle.nn.Layer]): 
+            Input layer type.
+        normalize_before (bool): 
+            Whether to use layer_norm before the first block.
+        concat_after (bool): 
+            Whether to concat attention layer's input and output.
             if True, additional linear will be applied.
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
-        positionwise_layer_type (str): "linear", "conv1d", or "conv1d-linear".
-        positionwise_conv_kernel_size (int): Kernel size of positionwise conv1d layer.
-        macaron_style (bool): Whether to use macaron style for positionwise layer.
-        pos_enc_layer_type (str): Encoder positional encoding layer type.
-        selfattention_layer_type (str): Encoder attention layer type.
-        activation_type (str): Encoder activation function type.
-        use_cnn_module (bool): Whether to use convolution module.
-        zero_triu (bool): Whether to zero the upper triangular part of attention matrix.
-        cnn_module_kernel (int): Kernerl size of convolution module.
-        padding_idx (int): Padding idx for input_layer=embed.
-        stochastic_depth_rate (float): Maximum probability to skip the encoder layer.
+        positionwise_layer_type (str): 
+            "linear", "conv1d", or "conv1d-linear".
+        positionwise_conv_kernel_size (int): 
+            Kernel size of positionwise conv1d layer.
+        macaron_style (bool): 
+            Whether to use macaron style for positionwise layer.
+        pos_enc_layer_type (str): 
+            Encoder positional encoding layer type.
+        selfattention_layer_type (str): 
+            Encoder attention layer type.
+        activation_type (str): 
+            Encoder activation function type.
+        use_cnn_module (bool): 
+            Whether to use convolution module.
+        zero_triu (bool): 
+            Whether to zero the upper triangular part of attention matrix.
+        cnn_module_kernel (int): 
+            Kernerl size of convolution module.
+        padding_idx (int): 
+            Padding idx for input_layer=embed.
+        stochastic_depth_rate (float): 
+            Maximum probability to skip the encoder layer.
 
     """
 
@@ -320,12 +342,16 @@ class MLMDecoder(MLMEncoder):
         """Encode input sequence.
 
         Args:
-            xs (paddle.Tensor): Input tensor (#batch, time, idim).
-            masks (paddle.Tensor): Mask tensor (#batch, time).
+            xs (paddle.Tensor): 
+                Input tensor (#batch, time, idim).
+            masks (paddle.Tensor): 
+                Mask tensor (#batch, time).
 
         Returns:
-            paddle.Tensor: Output tensor (#batch, time, attention_dim).
-            paddle.Tensor: Mask tensor (#batch, time).
+            paddle.Tensor: 
+                Output tensor (#batch, time, attention_dim).
+            paddle.Tensor: 
+                Mask tensor (#batch, time).
 
         """
         xs = self.embed(xs)
@@ -392,19 +418,27 @@ class MLM(nn.Layer):
             use_teacher_forcing: bool=True, ) -> List[paddle.Tensor]:
         '''
         Args:
-            speech (paddle.Tensor): input speech (1, Tmax, D).
-            text (paddle.Tensor): input text (1, Tmax2).
-            masked_pos (paddle.Tensor): masked position of input speech (1, Tmax)
-            speech_mask (paddle.Tensor): mask of speech (1, 1, Tmax).
-            text_mask (paddle.Tensor): mask of text (1, 1, Tmax2).
-            speech_seg_pos (paddle.Tensor): n-th phone of each mel, 0<=n<=Tmax2 (1, Tmax).
-            text_seg_pos (paddle.Tensor): n-th phone of each phone, 0<=n<=Tmax2 (1, Tmax2).
-            span_bdy (List[int]): masked mel boundary of input speech (2,)
-            use_teacher_forcing (bool): whether to use teacher forcing
+            speech (paddle.Tensor): 
+                input speech (1, Tmax, D).
+            text (paddle.Tensor): 
+                input text (1, Tmax2).
+            masked_pos (paddle.Tensor): 
+                masked position of input speech (1, Tmax)
+            speech_mask (paddle.Tensor): 
+                mask of speech (1, 1, Tmax).
+            text_mask (paddle.Tensor): 
+                mask of text (1, 1, Tmax2).
+            speech_seg_pos (paddle.Tensor): 
+                n-th phone of each mel, 0<=n<=Tmax2 (1, Tmax).
+            text_seg_pos (paddle.Tensor): 
+                n-th phone of each phone, 0<=n<=Tmax2 (1, Tmax2).
+            span_bdy (List[int]): 
+                masked mel boundary of input speech (2,)
+            use_teacher_forcing (bool): 
+                whether to use teacher forcing
         Returns:
             List[Tensor]:
-                eg:
-                [Tensor(shape=[1, 181, 80]), Tensor(shape=[80, 80]), Tensor(shape=[1, 67, 80])]
+                eg: [Tensor(shape=[1, 181, 80]), Tensor(shape=[80, 80]), Tensor(shape=[1, 67, 80])]
         '''
 
         z_cache = None

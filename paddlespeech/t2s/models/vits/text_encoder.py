@@ -62,23 +62,40 @@ class TextEncoder(nn.Layer):
         """Initialize TextEncoder module.
 
         Args:
-            vocabs (int): Vocabulary size.
-            attention_dim (int): Attention dimension.
-            attention_heads (int): Number of attention heads.
-            linear_units (int): Number of linear units of positionwise layers.
-            blocks (int): Number of encoder blocks.
-            positionwise_layer_type (str): Positionwise layer type.
-            positionwise_conv_kernel_size (int): Positionwise layer's kernel size.
-            positional_encoding_layer_type (str): Positional encoding layer type.
-            self_attention_layer_type (str): Self-attention layer type.
-            activation_type (str): Activation function type.
-            normalize_before (bool): Whether to apply LayerNorm before attention.
-            use_macaron_style (bool): Whether to use macaron style components.
-            use_conformer_conv (bool): Whether to use conformer conv layers.
-            conformer_kernel_size (int): Conformer's conv kernel size.
-            dropout_rate (float): Dropout rate.
-            positional_dropout_rate (float): Dropout rate for positional encoding.
-            attention_dropout_rate (float): Dropout rate for attention.
+            vocabs (int):
+                Vocabulary size.
+            attention_dim (int):
+                Attention dimension.
+            attention_heads (int):
+                Number of attention heads.
+            linear_units (int):
+                Number of linear units of positionwise layers.
+            blocks (int):
+                Number of encoder blocks.
+            positionwise_layer_type (str):
+                Positionwise layer type.
+            positionwise_conv_kernel_size (int):
+                Positionwise layer's kernel size.
+            positional_encoding_layer_type (str):
+                Positional encoding layer type.
+            self_attention_layer_type (str):
+                Self-attention layer type.
+            activation_type (str):
+                Activation function type.
+            normalize_before (bool):
+                Whether to apply LayerNorm before attention.
+            use_macaron_style (bool):
+                Whether to use macaron style components.
+            use_conformer_conv (bool):
+                Whether to use conformer conv layers.
+            conformer_kernel_size (int):
+                Conformer's conv kernel size.
+            dropout_rate (float):
+                Dropout rate.
+            positional_dropout_rate (float):
+                Dropout rate for positional encoding.
+            attention_dropout_rate (float):
+                Dropout rate for attention.
 
         """
         super().__init__()
@@ -121,14 +138,20 @@ class TextEncoder(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input index tensor (B, T_text).
-            x_lengths (Tensor): Length tensor (B,).
+            x (Tensor):
+                Input index tensor (B, T_text).
+            x_lengths (Tensor):
+                Length tensor (B,).
 
         Returns:
-            Tensor: Encoded hidden representation (B, attention_dim, T_text).
-            Tensor: Projected mean tensor (B, attention_dim, T_text).
-            Tensor: Projected scale tensor (B, attention_dim, T_text).
-            Tensor: Mask tensor for input tensor (B, 1, T_text).
+            Tensor:
+                Encoded hidden representation (B, attention_dim, T_text).
+            Tensor:
+                Projected mean tensor (B, attention_dim, T_text).
+            Tensor:
+                Projected scale tensor (B, attention_dim, T_text).
+            Tensor:
+                Mask tensor for input tensor (B, 1, T_text).
 
         """
         x = self.emb(x) * math.sqrt(self.attention_dim)

@@ -69,9 +69,11 @@ class MelResNet(nn.Layer):
     def forward(self, x):
         '''
         Args:
-            x (Tensor): Input tensor (B, in_dims, T).
+            x (Tensor):
+                Input tensor (B, in_dims, T).
         Returns:
-            Tensor: Output tensor (B, res_out_dims, T).
+            Tensor:
+                Output tensor (B, res_out_dims, T).
         '''
 
         x = self.conv_in(x)
@@ -119,10 +121,13 @@ class UpsampleNetwork(nn.Layer):
     def forward(self, m):
         '''
         Args:
-            c (Tensor): Input tensor (B, C_aux, T).
+            c (Tensor):
+                Input tensor (B, C_aux, T).
         Returns:
-            Tensor: Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), C_aux).
-            Tensor: Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), res_out_dims).
+            Tensor:
+                Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), C_aux).
+            Tensor:
+                Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), res_out_dims).
         '''
         # aux: [B, C_aux, T] 
         # -> [B, res_out_dims, T - 2 * aux_context_window]
@@ -302,7 +307,8 @@ class WaveRNN(nn.Layer):
                 number of samples for crossfading between batches
             mu_law(bool)
         Returns: 
-            wav sequence: Output (T' * prod(upsample_scales), out_channels, C_out).
+            wav sequence:
+                Output (T' * prod(upsample_scales), out_channels, C_out).
         """
 
         self.eval()
@@ -423,7 +429,7 @@ class WaveRNN(nn.Layer):
             x(Tensor): 
                 mel, [1, n_frames, 80]
             pad(int): 
-            side(str, optional):  (Default value = 'both')
+                side(str, optional):  (Default value = 'both')
 
         Returns:
             Tensor

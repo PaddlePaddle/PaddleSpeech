@@ -14,7 +14,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     python3 ${BIN_DIR}/synthesize_e2e.py \
         --task_name=synthesize \
         --wav_path=source/p243_313.wav \
-        --old_str='For that reason cover should not be given.' \
+        --old_str='For that reason cover should not be given' \
         --new_str='I love you very much do you love me' \
         --source_lang=en \
         --target_lang=en \
@@ -36,8 +36,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     python3 ${BIN_DIR}/synthesize_e2e.py \
         --task_name=edit \
         --wav_path=source/p243_313.wav \
-        --old_str='For that reason cover should not be given.' \
-        --new_str='For that reason cover is not impossible to be given.' \
+        --old_str='For that reason cover should not be given' \
+        --new_str='For that reason cover is not impossible to be given' \
         --source_lang=en \
         --target_lang=en \
         --erniesat_config=${config_path} \

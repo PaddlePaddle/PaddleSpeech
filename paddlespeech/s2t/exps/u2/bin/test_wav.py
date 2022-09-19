@@ -69,8 +69,7 @@ class U2Infer():
         with paddle.no_grad():
             # read
             audio, sample_rate = soundfile.read(
-                self.audio_file, dtype="int16", always_2d=True)
-
+               self.audio_file, dtype="int16", always_2d=True)
             audio = audio[:, 0]
             logger.info(f"audio shape: {audio.shape}")
 
@@ -78,11 +77,10 @@ class U2Infer():
             feat = self.preprocessing(audio, **self.preprocess_args)
             logger.info(f"feat shape: {feat.shape}")
 
-            np.savetxt("feat.transform.txt", feat)
-
             ilen = paddle.to_tensor(feat.shape[0])
-            xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(axis=0)
+            xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
             decode_config = self.config.decode
+            logger.debug(f"decode cfg: {decode_config}")
             result_transcripts = self.model.decode(
                 xs,
                 ilen,

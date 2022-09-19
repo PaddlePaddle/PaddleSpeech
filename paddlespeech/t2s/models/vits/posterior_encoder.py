@@ -52,17 +52,28 @@ class PosteriorEncoder(nn.Layer):
         """Initilialize PosteriorEncoder module.
 
         Args:
-            in_channels (int): Number of input channels.
-            out_channels (int): Number of output channels.
-            hidden_channels (int): Number of hidden channels.
-            kernel_size (int): Kernel size in WaveNet.
-            layers (int): Number of layers of WaveNet.
-            stacks (int): Number of repeat stacking of WaveNet.
-            base_dilation (int): Base dilation factor.
-            global_channels (int): Number of global conditioning channels.
-            dropout_rate (float): Dropout rate.
-            bias (bool): Whether to use bias parameters in conv.
-            use_weight_norm (bool): Whether to apply weight norm.
+            in_channels (int):
+                Number of input channels.
+            out_channels (int):
+                Number of output channels.
+            hidden_channels (int):
+                Number of hidden channels.
+            kernel_size (int):
+                Kernel size in WaveNet.
+            layers (int):
+                Number of layers of WaveNet.
+            stacks (int):
+                Number of repeat stacking of WaveNet.
+            base_dilation (int):
+                Base dilation factor.
+            global_channels (int):
+                Number of global conditioning channels.
+            dropout_rate (float):
+                Dropout rate.
+            bias (bool):
+                Whether to use bias parameters in conv.
+            use_weight_norm (bool):
+                Whether to apply weight norm.
 
         """
         super().__init__()
@@ -99,15 +110,22 @@ class PosteriorEncoder(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input tensor (B, in_channels, T_feats).
-            x_lengths (Tensor): Length tensor (B,).
-            g (Optional[Tensor]): Global conditioning tensor (B, global_channels, 1).
+            x (Tensor):
+                Input tensor (B, in_channels, T_feats).
+            x_lengths (Tensor):
+                Length tensor (B,).
+            g (Optional[Tensor]):
+                Global conditioning tensor (B, global_channels, 1).
 
         Returns:
-            Tensor: Encoded hidden representation tensor (B, out_channels, T_feats).
-            Tensor: Projected mean tensor (B, out_channels, T_feats).
-            Tensor: Projected scale tensor (B, out_channels, T_feats).
-            Tensor: Mask tensor for input tensor (B, 1, T_feats).
+            Tensor:
+                Encoded hidden representation tensor (B, out_channels, T_feats).
+            Tensor:
+                Projected mean tensor (B, out_channels, T_feats).
+            Tensor:
+                Projected scale tensor (B, out_channels, T_feats).
+            Tensor:
+                Mask tensor for input tensor (B, 1, T_feats).
 
         """
         x_mask = make_non_pad_mask(x_lengths).unsqueeze(1)

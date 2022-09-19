@@ -47,25 +47,42 @@ class WaveNet(nn.Layer):
         """Initialize WaveNet module.
 
         Args:
-            in_channels (int): Number of input channels.
-            out_channels (int): Number of output channels.
-            kernel_size (int): Kernel size of dilated convolution.
-            layers (int): Number of residual block layers.
-            stacks (int): Number of stacks i.e., dilation cycles.
-            base_dilation (int): Base dilation factor.
-            residual_channels (int): Number of channels in residual conv.
-            gate_channels (int):  Number of channels in gated conv.
-            skip_channels (int): Number of channels in skip conv.
-            aux_channels (int): Number of channels for local conditioning feature.
-            global_channels (int): Number of channels for global conditioning feature.
-            dropout_rate (float): Dropout rate. 0.0 means no dropout applied.
-            bias (bool): Whether to use bias parameter in conv layer.
-            use_weight_norm (bool): Whether to use weight norm. If set to true, it will
-                be applied to all of the conv layers.
-            use_first_conv (bool): Whether to use the first conv layers.
-            use_last_conv (bool): Whether to use the last conv layers.
-            scale_residual (bool): Whether to scale the residual outputs.
-            scale_skip_connect (bool): Whether to scale the skip connection outputs.
+            in_channels (int):
+                Number of input channels.
+            out_channels (int):
+                Number of output channels.
+            kernel_size (int):
+                Kernel size of dilated convolution.
+            layers (int):
+                Number of residual block layers.
+            stacks (int):
+                Number of stacks i.e., dilation cycles.
+            base_dilation (int):
+                Base dilation factor.
+            residual_channels (int):
+                Number of channels in residual conv.
+            gate_channels (int):
+                Number of channels in gated conv.
+            skip_channels (int):
+                Number of channels in skip conv.
+            aux_channels (int):
+                Number of channels for local conditioning feature.
+            global_channels (int):
+                Number of channels for global conditioning feature.
+            dropout_rate (float):
+                Dropout rate. 0.0 means no dropout applied.
+            bias (bool):
+                Whether to use bias parameter in conv layer.
+            use_weight_norm (bool):
+                Whether to use weight norm. If set to true, it will be applied to all of the conv layers.
+            use_first_conv (bool):
+                Whether to use the first conv layers.
+            use_last_conv (bool):
+                Whether to use the last conv layers.
+            scale_residual (bool):
+                Whether to scale the residual outputs.
+            scale_skip_connect (bool):
+                Whether to scale the skip connection outputs.
 
         """
         super().__init__()
@@ -128,15 +145,18 @@ class WaveNet(nn.Layer):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input noise signal (B, 1, T) if use_first_conv else
-                (B, residual_channels, T).
-            x_mask (Optional[Tensor]): Mask tensor (B, 1, T).
-            c (Optional[Tensor]): Local conditioning features (B, aux_channels, T).
-            g (Optional[Tensor]): Global conditioning features (B, global_channels, 1).
+            x (Tensor):
+                Input noise signal (B, 1, T) if use_first_conv else (B, residual_channels, T).
+            x_mask (Optional[Tensor]):
+                Mask tensor (B, 1, T).
+            c (Optional[Tensor]):
+                Local conditioning features (B, aux_channels, T).
+            g (Optional[Tensor]):
+                Global conditioning features (B, global_channels, 1).
 
         Returns:
-            Tensor: Output tensor (B, out_channels, T) if use_last_conv else
-                (B, residual_channels, T).
+            Tensor:
+                Output tensor (B, out_channels, T) if use_last_conv else(B, residual_channels, T).
 
         """
         # encode to hidden representation

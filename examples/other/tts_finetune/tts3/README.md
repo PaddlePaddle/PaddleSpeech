@@ -75,6 +75,15 @@ When "Prepare" done. The structure of the current directory is listed below.
 
 ```
 
+### Set finetune.yaml
+`finetune.yaml` contains some configurations for fine-tuning. You can try various options to fine better result.
+Arguments:
+  - `batch_size`: finetune batch size. Default: -1, means 64 which same to pretrained model
+  - `learning_rate`: learning rate. Default: 0.0001
+  - `num_snapshots`: number of save models. Default: -1, means 5 which same to pretrained model
+  - `frozen_layers`: frozen layers. must be a list. If you don't want to frozen any layer, set []. 
+
+
 
 ## Get Started
 Run the command below to

@@ -12,6 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   paddlespeech.t2s.frontend.g2pw
    paddlespeech.t2s.frontend.normalizer
    paddlespeech.t2s.frontend.zh_normalization
 
@@ -23,6 +24,7 @@ Submodules
 
    paddlespeech.t2s.frontend.arpabet
    paddlespeech.t2s.frontend.generate_lexicon
+   paddlespeech.t2s.frontend.mix_frontend
    paddlespeech.t2s.frontend.phonectic
    paddlespeech.t2s.frontend.punctuation
    paddlespeech.t2s.frontend.tone_sandhi

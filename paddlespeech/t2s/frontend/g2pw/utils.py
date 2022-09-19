@@ -15,10 +15,11 @@
 Credits
     This code is modified from https://github.com/GitYCC/g2pW
 """
+import os
 import re
 
 
-def wordize_and_map(text):
+def wordize_and_map(text: str):
     words = []
     index_map_from_text_to_word = []
     index_map_from_word_to_text = []
@@ -54,8 +55,8 @@ def wordize_and_map(text):
     return words, index_map_from_text_to_word, index_map_from_word_to_text
 
 
-def tokenize_and_map(tokenizer, text):
-    words, text2word, word2text = wordize_and_map(text)
+def tokenize_and_map(tokenizer, text: str):
+    words, text2word, word2text = wordize_and_map(text=text)
 
     tokens = []
     index_map_from_token_to_text = []
@@ -82,7 +83,7 @@ def tokenize_and_map(tokenizer, text):
     return tokens, index_map_from_text_to_token, index_map_from_token_to_text
 
 
-def _load_config(config_path):
+def _load_config(config_path: os.PathLike):
     import importlib.util
     spec = importlib.util.spec_from_file_location('__init__', config_path)
     config = importlib.util.module_from_spec(spec)
@@ -130,7 +131,7 @@ default_config_dict = {
 }
 
 
-def load_config(config_path, use_default=False):
+def load_config(config_path: os.PathLike, use_default: bool=False):
     config = _load_config(config_path)
     if use_default:
         for attr, val in default_config_dict.items():

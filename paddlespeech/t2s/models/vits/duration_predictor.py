@@ -48,12 +48,18 @@ class StochasticDurationPredictor(nn.Layer):
             global_channels: int=-1, ):
         """Initialize StochasticDurationPredictor module.
         Args:
-            channels (int): Number of channels.
-            kernel_size (int): Kernel size.
-            dropout_rate (float): Dropout rate.
-            flows (int): Number of flows.
-            dds_conv_layers (int): Number of conv layers in DDS conv.
-            global_channels (int): Number of global conditioning channels.
+            channels (int):
+                Number of channels.
+            kernel_size (int):
+                Kernel size.
+            dropout_rate (float):
+                Dropout rate.
+            flows (int):
+                Number of flows.
+            dds_conv_layers (int):
+                Number of conv layers in DDS conv.
+            global_channels (int):
+                Number of global conditioning channels.
         """
         super().__init__()
 
@@ -108,14 +114,21 @@ class StochasticDurationPredictor(nn.Layer):
             noise_scale: float=1.0, ) -> paddle.Tensor:
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, channels, T_text).
-            x_mask (Tensor): Mask tensor (B, 1, T_text).
-            w (Optional[Tensor]): Duration tensor (B, 1, T_text).
-            g (Optional[Tensor]): Global conditioning tensor (B, channels, 1)
-            inverse (bool): Whether to inverse the flow.
-            noise_scale (float): Noise scale value.
+            x (Tensor):
+                Input tensor (B, channels, T_text).
+            x_mask (Tensor):
+                Mask tensor (B, 1, T_text).
+            w (Optional[Tensor]):
+                Duration tensor (B, 1, T_text).
+            g (Optional[Tensor]):
+                Global conditioning tensor (B, channels, 1)
+            inverse (bool):
+                Whether to inverse the flow.
+            noise_scale (float):
+                Noise scale value.
         Returns:
-            Tensor: If not inverse, negative log-likelihood (NLL) tensor (B,).
+            Tensor: 
+                If not inverse, negative log-likelihood (NLL) tensor (B,).
                 If inverse, log-duration tensor (B, 1, T_text).
         """
         # stop gradient

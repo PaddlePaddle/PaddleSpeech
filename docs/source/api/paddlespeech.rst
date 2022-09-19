@@ -16,8 +16,10 @@ Subpackages
    paddlespeech.cli
    paddlespeech.cls
    paddlespeech.kws
+   paddlespeech.resource
    paddlespeech.s2t
    paddlespeech.server
    paddlespeech.t2s
    paddlespeech.text
+   paddlespeech.utils
    paddlespeech.vector

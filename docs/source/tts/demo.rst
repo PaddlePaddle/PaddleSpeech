@@ -1735,4 +1735,142 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
     <br>
     <br> 
 
-   
+
+Finetune FastSpeech2 for CSMSC
+--------------------------------------
+
+Finetuning demos of https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/tts_finetune/tts3 for CSMSC dataset.
+
+When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Freeze encoder && duration_predictor`` for audio quality.
+
+.. raw:: html
+
+    <div class="table">
+    CSMSC reference audio(fastspeech2_csmsc + hifigan_aishlle3 in CLI): 欢迎使用飞桨语音套件。
+    <br>
+    <br>
+    <audio controls="controls">
+        <source
+            src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/ref_fastspeech2_csmsc_hifigan_aishell3.wav"
+            type="audio/wav">
+        Your browser does not support the <code>audio</code> element.
+    </audio>
+    <br>
+    <br>
+    <table border="2" cellspacing="1" cellpadding="1">
+        <tr>
+            <th align="center"> Frozen Method</th>
+            <th align="center"> num=10, bs=10, </br> epoch=100, lr=1e-4 </th>
+            <th align="center"> num=18, bs=18, </br> epoch=100, lr=1e-4 </th>
+            <th align="center"> num=97, bs=64, </br> epoch=100, lr=1e-4 </th>
+            <th align="center"> num=196, bs=64, </br> epoch=100, lr=1e-4 </th>
+        </tr>
+        <tr>
+            <td>Non Frozen</td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train10_bn10_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train18_bn18_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train97_bn64_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train196_bn64_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>Freeze encoder</td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train10_fr_encoder_bn10_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train18_fr_encoder_bn18_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train97_fr_encoder_bn64_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train196_fr_encoder_bn64_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>Freeze encoder && </br> duration_predictor</td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train10_fr_encoder_duration_bn10_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train18_fr_encoder_duration_bn18_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train97_fr_encoder_duration_bn64_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 100px;">
+                    <source
+                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train196_fr_encoder_duration_bn64_epoch100_lr0.0001.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+    <table>
+    </div>
+    <br>
+    <br> 

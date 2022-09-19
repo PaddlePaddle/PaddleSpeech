@@ -1,14 +1,14 @@
 """Defines utilities for switching audio backends"""
 #code is from: https://github.com/pytorch/audio/blob/main/torchaudio/backend/utils.py
-
 import warnings
 from typing import List
 from typing import Optional
 
 import paddlespeech.audio
+from . import no_backend
+from . import soundfile_backend
+from . import sox_io_backend
 from paddlespeech.audio._internal import module_utils as _mod_utils
-
-from . import no_backend, soundfile_backend, sox_io_backend
 
 __all__ = [
     "list_audio_backends",

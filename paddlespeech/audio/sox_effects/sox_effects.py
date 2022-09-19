@@ -1,13 +1,16 @@
 import os
-from typing import List, Optional, Tuple
-import paddle
-import numpy
+from typing import List
+from typing import Optional
+from typing import Tuple
 
+import paddle
+
+from paddlespeech.audio import _paddleaudio as paddleaudio
 from paddlespeech.audio._internal import module_utils as _mod_utils
 from paddlespeech.audio.utils.sox_utils import list_effects
-from paddlespeech.audio import _paddleaudio as paddleaudio
 
 #code is from: https://github.com/pytorch/audio/blob/main/torchaudio/sox_effects/sox_effects.py
+
 
 @_mod_utils.requires_sox()
 def init_sox_effects():
@@ -54,11 +57,10 @@ def effect_names() -> List[str]:
 
 @_mod_utils.requires_sox()
 def apply_effects_tensor(
-    tensor: paddle.Tensor,
-    sample_rate: int,
-    effects: List[List[str]],
-    channels_first: bool = True,
-) -> Tuple[paddle.Tensor, int]:
+        tensor: paddle.Tensor,
+        sample_rate: int,
+        effects: List[List[str]],
+        channels_first: bool=True, ) -> Tuple[paddle.Tensor, int]:
     """Apply sox effects to given Tensor
 
     .. devices:: CPU
@@ -120,20 +122,20 @@ def apply_effects_tensor(
 
     """
     tensor_np = tensor.numpy()
-    ret = paddleaudio.sox_effects_apply_effects_tensor(tensor_np, sample_rate, effects, channels_first)
+    ret = paddleaudio.sox_effects_apply_effects_tensor(tensor_np, sample_rate,
+                                                       effects, channels_first)
     if ret is not None:
-       return (paddle.to_tensor(ret[0]), ret[1])
+        return (paddle.to_tensor(ret[0]), ret[1])
     raise RuntimeError("Failed to apply sox effect")
 
 
 @_mod_utils.requires_sox()
 def apply_effects_file(
-    path: str,
-    effects: List[List[str]],
-    normalize: bool = True,
-    channels_first: bool = True,
-    format: Optional[str] = None,
-) -> Tuple[paddle.Tensor, int]:
+        path: str,
+        effects: List[List[str]],
+        normalize: bool=True,
+        channels_first: bool=True,
+        format: Optional[str]=None, ) -> Tuple[paddle.Tensor, int]:
     """Apply sox effects to the audio file and load the resulting data as Tensor
 
     Note:
@@ -227,12 +229,14 @@ def apply_effects_file(
         >>>     pass
     """
     if hasattr(path, "read"):
-        ret = paddleaudio.apply_effects_fileobj(path, effects, normalize, channels_first, format)
+        ret = paddleaudio.apply_effects_fileobj(path, effects, normalize,
+                                                channels_first, format)
         if ret is None:
             raise RuntimeError("Failed to load audio from {}".format(path))
         return (paddle.to_tensor(ret[0]), ret[1])
     path = os.fspath(path)
-    ret = paddleaudio.sox_effects_apply_effects_file(path, effects, normalize, channels_first, format)
+    ret = paddleaudio.sox_effects_apply_effects_file(path, effects, normalize,
+                                                     channels_first, format)
     if ret is not None:
         return (paddle.to_tensor(ret[0]), ret[1])
     raise RuntimeError("Failed to load audio from {}".format(path))

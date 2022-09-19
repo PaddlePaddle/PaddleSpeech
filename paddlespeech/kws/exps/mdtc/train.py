@@ -14,10 +14,10 @@
 import os
 
 import paddle
-from yacs.config import CfgNode
-
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
+from yacs.config import CfgNode
+
 from paddlespeech.kws.exps.mdtc.collate import collate_features
 from paddlespeech.kws.models.loss import max_pooling_loss
 from paddlespeech.kws.models.mdtc import KWSModel

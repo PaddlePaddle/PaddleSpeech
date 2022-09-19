@@ -1,15 +1,12 @@
-import os
-import warnings
-from pathlib import Path
-
-from ._internal import module_utils as _mod_utils  # noqa: F401
-
-
 import contextlib
 import ctypes
 import os
 import sys
 import types
+import warnings
+from pathlib import Path
+
+from ._internal import module_utils as _mod_utils  # noqa: F401
 
 # Query `hasattr` only once.
 _SET_GLOBAL_FLAGS = hasattr(sys, 'getdlopenflags') and hasattr(sys,
@@ -67,6 +64,7 @@ class _Ops(types.ModuleType):
 
 
 _LIB_DIR = Path(__file__).parent / "lib"
+
 
 def _get_lib_path(lib: str):
     suffix = "pyd" if os.name == "nt" else "so"

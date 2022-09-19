@@ -21,7 +21,7 @@ from .env import USER_HOME
 from .error import ParameterError
 from .log import Logger
 from .log import logger
-from .time import seconds_to_hms
-from .time import Timer
 from .numeric import depth_convert
 from .numeric import pcm16to32
+from .time import seconds_to_hms
+from .time import Timer

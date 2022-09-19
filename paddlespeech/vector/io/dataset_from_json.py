@@ -16,7 +16,6 @@ from dataclasses import dataclass
 from dataclasses import fields
 
 from paddle.io import Dataset
-
 from paddleaudio.backends import soundfile_load as load_audio
 from paddleaudio.compliance.librosa import melspectrogram
 from paddleaudio.compliance.librosa import mfcc

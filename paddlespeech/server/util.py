@@ -24,11 +24,11 @@ from typing import Any
 from typing import Dict
 
 import paddle
+import paddleaudio
 import requests
 import yaml
 from paddle.framework import load
 
-import paddleaudio
 from .entry import client_commands
 from .entry import server_commands
 from paddlespeech.cli import download

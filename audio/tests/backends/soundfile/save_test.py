@@ -2,23 +2,18 @@ import io
 import unittest
 from unittest.mock import patch
 
-from paddleaudio._internal import module_utils as _mod_utils
-from paddleaudio.backends import soundfile_backend
-from tests.common_utils import (
-    get_wav_data,
-    load_wav,
-    nested_params,
-    normalize_wav,
-    save_wav,
-    TempDirMixin,
-)
-
-from common import fetch_wav_subtype, parameterize, skipIfFormatNotSupported
-
-import paddle
 import numpy as np
-
+import paddle
 import soundfile
+from common import fetch_wav_subtype
+from common import parameterize
+from common import skipIfFormatNotSupported
+from paddleaudio.backends import soundfile_backend
+
+from tests.common_utils import get_wav_data
+from tests.common_utils import load_wav
+from tests.common_utils import nested_params
+from tests.common_utils import TempDirMixin
 
 
 class MockedSaveTest(unittest.TestCase):
@@ -41,10 +36,10 @@ class MockedSaveTest(unittest.TestCase):
             ("ULAW", 8),
             ("ALAW", None),
             ("ALAW", 8),
-        ],
-    )
+        ], )
     @patch("soundfile.write")
-    def test_wav(self, dtype, sample_rate, num_channels, channels_first, enc_params, mocked_write):
+    def test_wav(self, dtype, sample_rate, num_channels, channels_first,
+                 enc_params, mocked_write):
         """soundfile_backend.save passes correct subtype to soundfile.write when WAV"""
         filepath = "foo.wav"
         input_tensor = get_wav_data(
@@ -52,8 +47,7 @@ class MockedSaveTest(unittest.TestCase):
             num_channels,
             num_frames=3 * sample_rate,
             normalize=dtype == "float32",
-            channels_first=channels_first,
-        )
+            channels_first=channels_first, )
         input_tensor = paddle.transpose(input_tensor, [1, 0])
 
         encoding, bits_per_sample = enc_params
@@ -63,33 +57,32 @@ class MockedSaveTest(unittest.TestCase):
             sample_rate,
             channels_first=channels_first,
             encoding=encoding,
-            bits_per_sample=bits_per_sample,
-        )
+            bits_per_sample=bits_per_sample, )
 
         # on +Py3.8 call_args.kwargs is more descreptive
         args = mocked_write.call_args[1]
         assert args["file"] == filepath
         assert args["samplerate"] == sample_rate
-        assert args["subtype"] == fetch_wav_subtype(dtype, encoding, bits_per_sample)
+        assert args["subtype"] == fetch_wav_subtype(dtype, encoding,
+                                                    bits_per_sample)
         assert args["format"] is None
-        tensor_result = paddle.transpose(input_tensor, [1, 0]) if channels_first else input_tensor
+        tensor_result = paddle.transpose(
+            input_tensor, [1, 0]) if channels_first else input_tensor
         #self.assertEqual(args["data"], tensor_result.numpy())
-        np.testing.assert_array_almost_equal(args["data"].numpy(), tensor_result.numpy())
-
-        
+        np.testing.assert_array_almost_equal(args["data"].numpy(),
+                                             tensor_result.numpy())
 
     @patch("soundfile.write")
     def assert_non_wav(
-        self,
-        fmt,
-        dtype,
-        sample_rate,
-        num_channels,
-        channels_first,
-        mocked_write,
-        encoding=None,
-        bits_per_sample=None,
-    ):
+            self,
+            fmt,
+            dtype,
+            sample_rate,
+            num_channels,
+            channels_first,
+            mocked_write,
+            encoding=None,
+            bits_per_sample=None, ):
         """soundfile_backend.save passes correct subtype and format to soundfile.write when SPHERE"""
         filepath = f"foo.{fmt}"
         input_tensor = get_wav_data(
@@ -97,11 +90,11 @@ class MockedSaveTest(unittest.TestCase):
             num_channels,
             num_frames=3 * sample_rate,
             normalize=False,
-            channels_first=channels_first,
-        )
+            channels_first=channels_first, )
         input_tensor = paddle.transpose(input_tensor, [1, 0])
 
-        expected_data = paddle.transpose(input_tensor, [1, 0]) if channels_first else input_tensor
+        expected_data = paddle.transpose(
+            input_tensor, [1, 0]) if channels_first else input_tensor
 
         soundfile_backend.save(
             filepath,
@@ -109,8 +102,7 @@ class MockedSaveTest(unittest.TestCase):
             sample_rate,
             channels_first,
             encoding=encoding,
-            bits_per_sample=bits_per_sample,
-        )
+            bits_per_sample=bits_per_sample, )
 
         # on +Py3.8 call_args.kwargs is more descreptive
         args = mocked_write.call_args[1]
@@ -120,7 +112,8 @@ class MockedSaveTest(unittest.TestCase):
             assert args["format"] == "NIST"
         else:
             assert args["format"] is None
-        np.testing.assert_array_almost_equal(args["data"].numpy(), expected_data.numpy())
+        np.testing.assert_array_almost_equal(args["data"].numpy(),
+                                             expected_data.numpy())
         #self.assertEqual(args["data"], expected_data)
 
     @nested_params(
@@ -139,45 +132,57 @@ class MockedSaveTest(unittest.TestCase):
             ("ALAW", 16),
             ("ALAW", 24),
             ("ALAW", 32),
-        ],
-    )
-    def test_sph(self, fmt, dtype, sample_rate, num_channels, channels_first, enc_params):
+        ], )
+    def test_sph(self, fmt, dtype, sample_rate, num_channels, channels_first,
+                 enc_params):
         """soundfile_backend.save passes default format and subtype (None-s) to
         soundfile.write when not WAV"""
         encoding, bits_per_sample = enc_params
         self.assert_non_wav(
-            fmt, dtype, sample_rate, num_channels, channels_first, encoding=encoding, bits_per_sample=bits_per_sample
-        )
+            fmt,
+            dtype,
+            sample_rate,
+            num_channels,
+            channels_first,
+            encoding=encoding,
+            bits_per_sample=bits_per_sample)
 
     @parameterize(
         ["int32"],
         [8000, 16000],
         [1, 2],
         [False, True],
-        [8, 16, 24],
-    )
-    def test_flac(self, dtype, sample_rate, num_channels, channels_first, bits_per_sample):
+        [8, 16, 24], )
+    def test_flac(self, dtype, sample_rate, num_channels, channels_first,
+                  bits_per_sample):
         """soundfile_backend.save passes default format and subtype (None-s) to
         soundfile.write when not WAV"""
-        self.assert_non_wav("flac", dtype, sample_rate, num_channels, channels_first, bits_per_sample=bits_per_sample)
+        self.assert_non_wav(
+            "flac",
+            dtype,
+            sample_rate,
+            num_channels,
+            channels_first,
+            bits_per_sample=bits_per_sample)
 
     @parameterize(
         ["int32"],
         [8000, 16000],
         [1, 2],
-        [False, True],
-    )
+        [False, True], )
     def test_ogg(self, dtype, sample_rate, num_channels, channels_first):
         """soundfile_backend.save passes default format and subtype (None-s) to
         soundfile.write when not WAV"""
-        self.assert_non_wav("ogg", dtype, sample_rate, num_channels, channels_first)
+        self.assert_non_wav("ogg", dtype, sample_rate, num_channels,
+                            channels_first)
 
 
 class SaveTestBase(TempDirMixin, unittest.TestCase):
     def assert_wav(self, dtype, sample_rate, num_channels, num_frames):
         """`soundfile_backend.save` can save wav format."""
         path = self.get_temp_path("data.wav")
-        expected = get_wav_data(dtype, num_channels, num_frames=num_frames, normalize=False)
+        expected = get_wav_data(
+            dtype, num_channels, num_frames=num_frames, normalize=False)
         soundfile_backend.save(path, expected, sample_rate)
         found, sr = load_wav(path, normalize=False)
         assert sample_rate == sr
@@ -192,7 +197,8 @@ class SaveTestBase(TempDirMixin, unittest.TestCase):
         """
         num_frames = sample_rate * 3
         path = self.get_temp_path(f"data.{fmt}")
-        expected = get_wav_data(dtype, num_channels, num_frames=num_frames, normalize=False)
+        expected = get_wav_data(
+            dtype, num_channels, num_frames=num_frames, normalize=False)
         soundfile_backend.save(path, expected, sample_rate)
         sinfo = soundfile.info(path)
         assert sinfo.format == fmt.upper()
@@ -220,16 +226,14 @@ class TestSave(SaveTestBase):
     @parameterize(
         ["float32", "int32"],
         [8000, 16000],
-        [1, 2],
-    )
+        [1, 2], )
     def test_wav(self, dtype, sample_rate, num_channels):
         """`soundfile_backend.save` can save wav format."""
         self.assert_wav(dtype, sample_rate, num_channels, num_frames=None)
 
     @parameterize(
         ["float32", "int32"],
-        [4, 8, 16, 32],
-    )
+        [4, 8, 16, 32], )
     def test_multiple_channels(self, dtype, num_channels):
         """`soundfile_backend.save` can save wav with more than 2 channels."""
         sample_rate = 8000
@@ -238,8 +242,7 @@ class TestSave(SaveTestBase):
     @parameterize(
         ["int32"],
         [8000, 16000],
-        [1, 2],
-    )
+        [1, 2], )
     @skipIfFormatNotSupported("NIST")
     def test_sphere(self, dtype, sample_rate, num_channels):
         """`soundfile_backend.save` can save sph format."""
@@ -247,8 +250,7 @@ class TestSave(SaveTestBase):
 
     @parameterize(
         [8000, 16000],
-        [1, 2],
-    )
+        [1, 2], )
     @skipIfFormatNotSupported("FLAC")
     def test_flac(self, sample_rate, num_channels):
         """`soundfile_backend.save` can save flac format."""
@@ -256,8 +258,7 @@ class TestSave(SaveTestBase):
 
     @parameterize(
         [8000, 16000],
-        [1, 2],
-    )
+        [1, 2], )
     @skipIfFormatNotSupported("OGG")
     def test_ogg(self, sample_rate, num_channels):
         """`soundfile_backend.save` can save ogg/vorbis format."""
@@ -317,6 +318,7 @@ class TestFileObject(TempDirMixin, unittest.TestCase):
     def test_fileobj_ogg(self):
         """Saving audio via file-like object works"""
         self._test_fileobj("OGG")
+
 
 if __name__ == '__main__':
     unittest.main()

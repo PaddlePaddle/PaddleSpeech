@@ -14,18 +14,17 @@
 import unittest
 
 import numpy as np
-import paddle
+from kaldiio import ReadHelper
 
 from paddlespeech.audio.kaldi import fbank as fbank
 from paddlespeech.audio.kaldi import pitch as pitch
-from kaldiio import ReadHelper
 
 # the groundtruth feats computed in kaldi command below.
 #compute-fbank-feats  --dither=0 scp:$wav_scp ark,t:fbank_feat.ark
 #compute-kaldi-pitch-feats --sample-frequency=16000 scp:$wav_scp ark,t:pitch_feat.ark
 
-class TestKaldiFbank(unittest.TestCase):
 
+class TestKaldiFbank(unittest.TestCase):
     def test_fbank(self):
         fbank_groundtruth = {}
         with ReadHelper('ark:testdata/fbank_feat.ark') as reader:
@@ -42,8 +41,8 @@ class TestKaldiFbank(unittest.TestCase):
     def test_pitch(self):
         pitch_groundtruth = {}
         with ReadHelper('ark:testdata/pitch_feat.ark') as reader:
-           for key, feat in reader:
-               pitch_groundtruth[key] = feat
+            for key, feat in reader:
+                pitch_groundtruth[key] = feat
 
         with ReadHelper('ark:testdata/wav.ark') as reader:
             for key, wav in reader:
@@ -51,7 +50,6 @@ class TestKaldiFbank(unittest.TestCase):
                 pitch_check = pitch_groundtruth[key]
                 np.testing.assert_array_almost_equal(
                     pitch_feat, pitch_check, decimal=4)
-
 
 
 if __name__ == '__main__':

@@ -20,4 +20,7 @@ Subpackages
    paddlespeech.audio.io
    paddlespeech.audio.metric
    paddlespeech.audio.sox_effects
+   paddlespeech.audio.streamdata
+   paddlespeech.audio.text
+   paddlespeech.audio.transform
    paddlespeech.audio.utils

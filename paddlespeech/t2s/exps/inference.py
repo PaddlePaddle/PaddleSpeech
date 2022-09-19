@@ -41,6 +41,7 @@ def parse_args():
             'fastspeech2_ljspeech',
             'fastspeech2_vctk',
             'tacotron2_csmsc',
+            'fastspeech2_mix',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -77,7 +78,7 @@ def parse_args():
         '--lang',
         type=str,
         default='zh',
-        help='Choose model language. zh or en')
+        help='Choose model language. zh or en or mix')
     parser.add_argument(
         "--text",
         type=str,
@@ -86,11 +87,6 @@ def parse_args():
         "--inference_dir", type=str, help="dir to save inference models")
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
-    parser.add_argument(
-        "--use_trt",
-        type=str2bool,
-        default=False,
-        help="Whether to use inference engin TensorRT.", )
     parser.add_argument(
         "--int8",
         type=str2bool,
@@ -156,7 +152,8 @@ def main():
                 frontend=frontend,
                 lang=args.lang,
                 merge_sentences=merge_sentences,
-                speaker_dict=args.speaker_dict, )
+                speaker_dict=args.speaker_dict,
+                spk_id=args.spk_id, )
             wav = get_voc_output(
                 voc_predictor=voc_predictor, input=am_output_data)
         speed = wav.size / t.elapse
@@ -178,7 +175,8 @@ def main():
                 frontend=frontend,
                 lang=args.lang,
                 merge_sentences=merge_sentences,
-                speaker_dict=args.speaker_dict, )
+                speaker_dict=args.speaker_dict,
+                spk_id=args.spk_id, )
             wav = get_voc_output(
                 voc_predictor=voc_predictor, input=am_output_data)
 
@@ -187,7 +185,7 @@ def main():
         speed = wav.size / t.elapse
         rtf = fs / speed
 
-        sf.write(output_dir / (utt_id + ".wav"), wav, samplerate=24000)
+        sf.write(output_dir / (utt_id + ".wav"), wav, samplerate=fs)
         print(
             f"{utt_id}, mel: {am_output_data.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )

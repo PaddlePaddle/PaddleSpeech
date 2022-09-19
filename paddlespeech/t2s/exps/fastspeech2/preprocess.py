@@ -144,7 +144,8 @@ def process_sentences(config,
                       energy_extractor=None,
                       nprocs: int=1,
                       cut_sil: bool=True,
-                      spk_emb_dir: Path=None):
+                      spk_emb_dir: Path=None,
+                      write_metadata_method: str='w'):
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
@@ -179,7 +180,8 @@ def process_sentences(config,
                         results.append(record)
 
     results.sort(key=itemgetter("utt_id"))
-    with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
+    with jsonlines.open(output_dir / "metadata.jsonl",
+                        write_metadata_method) as writer:
         for item in results:
             writer.write(item)
     print("Done")
@@ -223,6 +225,13 @@ def main():
         default=None,
         type=str,
         help="directory to speaker embedding files.")
+
+    parser.add_argument(
+        "--write_metadata_method",
+        default="w",
+        type=str,
+        choices=["w", "a"],
+        help="How the metadata.jsonl file is written.")
     args = parser.parse_args()
 
     rootdir = Path(args.rootdir).expanduser()
@@ -340,7 +349,8 @@ def main():
             energy_extractor=energy_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir)
+            spk_emb_dir=spk_emb_dir,
+            write_metadata_method=args.write_metadata_method)
     if dev_wav_files:
         process_sentences(
             config=config,
@@ -351,7 +361,8 @@ def main():
             pitch_extractor=pitch_extractor,
             energy_extractor=energy_extractor,
             cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir)
+            spk_emb_dir=spk_emb_dir,
+            write_metadata_method=args.write_metadata_method)
     if test_wav_files:
         process_sentences(
             config=config,
@@ -363,7 +374,8 @@ def main():
             energy_extractor=energy_extractor,
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir)
+            spk_emb_dir=spk_emb_dir,
+            write_metadata_method=args.write_metadata_method)
 
 
 if __name__ == "__main__":

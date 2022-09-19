@@ -44,14 +44,15 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
-    "onnxruntime",
+    "onnxruntime==1.10.0",
+    "opencc",
     "pandas",
     "paddlenlp",
     "paddlespeech_feat",
-    "Pillow>=9.0.0"
+    "Pillow>=9.0.0",
     "praatio==5.0.0",
     "protobuf>=3.1.0, <=3.20.0",
-    "pypinyin",
+    "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",
     "pyworld==0.2.12",
@@ -76,12 +77,7 @@ base = [
     "pybind11",
 ]
 
-server = [
-    "fastapi",
-    "uvicorn",
-    "pattern_singleton",
-    "websockets" 
-]
+server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
 
 requirements = {
     "install":
@@ -329,4 +325,4 @@ setup_info = dict(
     })
 
 with version_info():
-    setup(**setup_info)
+    setup(**setup_info, include_package_data=True)

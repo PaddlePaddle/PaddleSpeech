@@ -7,14 +7,21 @@ We use `WER` as an evaluation criterion.
 
 # Start
 Run the command below to get the results of the test.
+
 ```bash
+cd ../../../tools
+bash extras/install_sclite.sh
+cd -
 ./run.sh
 ```
-The `avg WER` of g2p is: 0.026014352515701198
+
+The `avg WER` of g2p is: 0.024075726733983775
+
 ```text
      ,--------------------------------------------------------------------.
-     |        | # Snt    # Wrd  | Corr    Sub    Del    Ins    Err  S.Err |
-     |--------+-----------------+-----------------------------------------|
-     | Sum/Avg|  9996   299181  | 97.3    2.7    0.0    0.0    2.7   52.2 |
+     |                         ./exp/g2p/text.g2p                         |
+     |--------------------------------------------------------------------|
+     | SPKR   | # Snt    # Wrd  | Corr    Sub    Del    Ins    Err  S.Err |
+     | Sum/Avg|  9996   299181  | 97.6    2.4    0.0    0.0    2.4   49.0 |
      `--------------------------------------------------------------------'
 ```

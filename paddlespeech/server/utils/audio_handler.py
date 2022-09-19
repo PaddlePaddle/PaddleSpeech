@@ -160,18 +160,18 @@ class ASRWsAudioHandler:
                 separators=(',', ': '))
             await ws.send(audio_info)
             msg = await ws.recv()
-            logger.debug("client receive msg={}".format(msg))
+            logger.info("client receive msg={}".format(msg))
 
             # 3. send chunk audio data to engine
             for chunk_data in self.read_wave(wavfile_path):
                 await ws.send(chunk_data.tobytes())
                 msg = await ws.recv()
                 msg = json.loads(msg)
-
-                if self.punc_server and len(msg["result"]) > 0:
-                    msg["result"] = self.punc_server.run(msg["result"])
-                logger.debug("client receive msg={}".format(msg))
-
+                logger.info("client receive msg={}".format(msg))
+            #client start to punctuation restore
+            if self.punc_server and len(msg['result']) > 0:
+                msg["result"] = self.punc_server.run(msg["result"])
+                logger.info("client punctuation restored msg={}".format(msg))
             # 4. we must send finished signal to the server
             audio_info = json.dumps(
                 {
@@ -317,7 +317,7 @@ class TTSWsHandler:
             start_request = json.dumps({"task": "tts", "signal": "start"})
             await ws.send(start_request)
             msg = await ws.recv()
-            logger.debug(f"client receive msg={msg}")
+            logger.info(f"client receive msg={msg}")
             msg = json.loads(msg)
             session = msg["session"]
 
@@ -554,7 +554,7 @@ class VectorHttpHandler:
 
         res = requests.post(url=self.url, data=json.dumps(data))
 
-        return res.json()
+        return res
 
 
 class VectorScoreHttpHandler:
@@ -602,4 +602,4 @@ class VectorScoreHttpHandler:
 
         res = requests.post(url=self.url, data=json.dumps(data))
 
-        return res.json()
+        return res

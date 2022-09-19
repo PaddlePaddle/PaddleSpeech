@@ -39,14 +39,22 @@ class ResidualBlock(nn.Layer):
         """Initialize ResidualBlock module.
 
         Args:
-            kernel_size (int): Kernel size of dilation convolution layer.
-            residual_channels (int): Number of channels for residual connection.
-            skip_channels (int): Number of channels for skip connection.
-            aux_channels (int): Number of local conditioning channels.
-            dropout (float): Dropout probability.
-            dilation (int): Dilation factor.
-            bias (bool): Whether to add bias parameter in convolution layers.
-            scale_residual (bool): Whether to scale the residual outputs.
+            kernel_size (int):
+                Kernel size of dilation convolution layer.
+            residual_channels (int):
+                Number of channels for residual connection.
+            skip_channels (int):
+                Number of channels for skip connection.
+            aux_channels (int):
+                Number of local conditioning channels.
+            dropout (float):
+                Dropout probability.
+            dilation (int):
+                Dilation factor.
+            bias (bool):
+                Whether to add bias parameter in convolution layers.
+            scale_residual (bool):
+                Whether to scale the residual outputs.
 
         """
         super().__init__()

@@ -21,4 +21,3 @@ Submodules
    :maxdepth: 4
 
    paddlespeech.s2t.exps.u2.model
-   paddlespeech.s2t.exps.u2.trainer

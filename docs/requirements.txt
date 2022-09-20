@@ -20,6 +20,7 @@ onnxruntime==1.10.0
 opencc
 paddlenlp
 paddlepaddle>=2.2.2
+paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas
 pathos == 0.2.8
@@ -27,8 +28,8 @@ pattern_singleton
 Pillow>=9.0.0
 praatio==5.0.0
 prettytable
-pypinyin<=0.44.0
 pypinyin-dict
+pypinyin<=0.44.0
 python-dateutil
 pyworld==0.2.12
 recommonmark>=0.5.0

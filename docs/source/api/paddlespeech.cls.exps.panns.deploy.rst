@@ -12,4 +12,3 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   paddlespeech.cls.exps.panns.deploy.predict

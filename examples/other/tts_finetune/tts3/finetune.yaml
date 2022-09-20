@@ -9,4 +9,4 @@ num_snapshots: -1
 
 # frozen_layers should be a list
 # if you don't need to freeze, set frozen_layers to []
-frozen_layers: ["encoder", "duration_predictor"]
+frozen_layers: ["encoder"]

@@ -31,7 +31,6 @@ def has_tensor(val):
                 return True
     elif isinstance(val, dict):
         for k, v in val.items():
-            print(k)
             if has_tensor(v):
                 return True
     else:
@@ -143,14 +142,15 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
                 [ 7,  8,  9, 11, -1, -1]])
     """
     # TODO(Hui Zhang): using comment code,
-    #_sos = paddle.to_tensor(
-    #    [sos], dtype=paddle.long, stop_gradient=True, place=ys_pad.place)
-    #_eos = paddle.to_tensor(
-    #    [eos], dtype=paddle.long, stop_gradient=True, place=ys_pad.place)
-    #ys = [y[y != ignore_id] for y in ys_pad]  # parse padded ys
-    #ys_in = [paddle.cat([_sos, y], dim=0) for y in ys]
-    #ys_out = [paddle.cat([y, _eos], dim=0) for y in ys]
-    #return pad_sequence(ys_in, padding_value=eos), pad_sequence(ys_out, padding_value=ignore_id)
+    # _sos = paddle.to_tensor(
+    #    [sos], dtype=ys_pad.dtype, stop_gradient=True, place=ys_pad.place)
+    # _eos = paddle.to_tensor(
+    #    [eos], dtype=ys_pad.dtype, stop_gradient=True, place=ys_pad.place)
+    # ys = [y[y != ignore_id] for y in ys_pad]  # parse padded ys
+    # ys_in = [paddle.concat([_sos, y], axis=0) for y in ys]
+    # ys_out = [paddle.concat([y, _eos], axis=0) for y in ys]
+    # return pad_sequence(ys_in, padding_value=eos).transpose([1,0]), pad_sequence(ys_out, padding_value=ignore_id).transpose([1,0])
+
     B = ys_pad.shape[0]
     _sos = paddle.ones([B, 1], dtype=ys_pad.dtype) * sos
     _eos = paddle.ones([B, 1], dtype=ys_pad.dtype) * eos
@@ -190,3 +190,26 @@ def th_accuracy(pad_outputs: paddle.Tensor,
     # denominator = paddle.sum(mask)
     denominator = paddle.sum(mask.type_as(pad_targets))
     return float(numerator) / float(denominator)
+
+
+def reverse_pad_list(ys_pad: paddle.Tensor,
+                     ys_lens: paddle.Tensor,
+                     pad_value: float=-1.0) -> paddle.Tensor:
+    """Reverse padding for the list of tensors.
+    Args:
+        ys_pad (tensor): The padded tensor (B, Tokenmax).
+        ys_lens (tensor): The lens of token seqs (B)
+        pad_value (int): Value for padding.
+    Returns:
+        Tensor: Padded tensor (B, Tokenmax).
+    Examples:
+        >>> x
+        tensor([[1, 2, 3, 4], [5, 6, 7, 0], [8, 9, 0, 0]])
+        >>> pad_list(x, 0)
+        tensor([[4, 3, 2, 1],
+                [7, 6, 5, 0],
+                [9, 8, 0, 0]])
+    """
+    r_ys_pad = pad_sequence([(paddle.flip(y.int()[:i], [0]))
+                             for y, i in zip(ys_pad, ys_lens)], True, pad_value)
+    return r_ys_pad

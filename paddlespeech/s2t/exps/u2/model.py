@@ -250,10 +250,12 @@ class U2Trainer(Trainer):
                 model_conf.output_dim = self.train_loader.vocab_size
             else:
                 model_conf.input_dim = self.test_loader.feat_dim
-                model_conf.output_dim = self.test_loader.vocab_size
+                model_conf.output_dim = 5538
 
         model = U2Model.from_config(model_conf)
-
+        # params = model.state_dict()
+        # paddle.save(params, 'for_torch/test.pdparams')
+        # exit()
         if self.parallel:
             model = paddle.DataParallel(model)
 
@@ -350,7 +352,8 @@ class U2Tester(U2Trainer):
             ctc_weight=decode_config.ctc_weight,
             decoding_chunk_size=decode_config.decoding_chunk_size,
             num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-            simulate_streaming=decode_config.simulate_streaming)
+            simulate_streaming=decode_config.simulate_streaming,
+            reverse_weight=self.config.model_conf.reverse_weight)
         decode_time = time.time() - start_time
 
         for utt, target, result, rec_tids in zip(

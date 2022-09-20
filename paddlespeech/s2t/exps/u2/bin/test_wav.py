@@ -89,7 +89,8 @@ class U2Infer():
                 ctc_weight=decode_config.ctc_weight,
                 decoding_chunk_size=decode_config.decoding_chunk_size,
                 num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-                simulate_streaming=decode_config.simulate_streaming)
+                simulate_streaming=decode_config.simulate_streaming,
+                reverse_weight=self.config.model_conf.reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {result_transcripts[0][0]}")

@@ -1,8 +1,9 @@
 # Paddle Speech Demo
 
-PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发的 Demo 展示项目，用于帮助大家更好的上手 PaddleSpeech 以及使用 PaddleSpeech 构建自己的应用。
+## 简介
+Paddle Speech Demo 是一个以 PaddleSpeech 的语音交互功能为主体开发的 Demo 展示项目，用于帮助大家更好的上手 PaddleSpeech 以及使用 PaddleSpeech 构建自己的应用。
 
-智能语音交互部分使用 PaddleSpeech，对话以及信息抽取部分使用 PaddleNLP，网页前端展示部分基于 Vue3 进行开发
+智能语音交互部分使用 PaddleSpeech，对话以及信息抽取部分使用 PaddleNLP，网页前端展示部分基于 Vue3 进行开发。
 
 主要功能：
 
@@ -29,21 +30,39 @@ PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发�
 
  ![效果](https://user-images.githubusercontent.com/30135920/191188766-12e7ca15-f7b4-45f8-9da5-0c0b0bbe5fcb.png)
 
-## 安装
+
+
+## 基础环境安装
 
 ### 后端环境安装
-
-Model 中如果有模型之前是已经下载过的，就不需要在下载了，引一个软链接到 `source/model` 目录下就可以了，不需要重复下载
-
-```
-# 安装环境
+```bash 
 cd speech_server
 pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+cd ../
 ```
 
-### 配置 `main.py` 相关环境
+### 前端环境安装
+前端依赖 `node.js` ，需要提前安装，确保 `npm` 可用，`npm` 测试版本 `8.3.1`，建议下载[官网](https://nodejs.org/en/)稳定版的 `node.js`
 
-下载 语音指令 所需模型
+```bash
+# 进入前端目录
+cd web_client
+# 安装 `yarn`，已经安装可跳过
+npm install -g yarn
+# 使用yarn安装前端依赖
+yarn install
+cd ../
+```
+
+
+## 启动服务
+【注意】目前只支持 `main.py` 和 `vc.py` 两者中选择开启一个后端服务。
+
+### 启动 `main.py` 后端服务
+
+#### 下载相关模型
+
+只需手动下载语音指令所需模型即可，其他模型会自动下载。
 
 ```bash
 cd speech_server
@@ -51,22 +70,27 @@ mkdir -p source/model
 cd source/model
 # 下载IE模型
 wget https://bj.bcebos.com/paddlenlp/applications/speech-cmd-analysis/finetune/model_state.pdparams
+cd ../../
 
+```
+#### 启动后端服务
+
+```
+cd speech_server
+# 默认8010端口
+python main.py --port 8010
 ```
 
 
-### 配置 `vc.py` 相关环境
+### 启动 `vc.py` 后端服务
 
-如果不需要启动 vc 相关功能，可以跳过下面这些步骤
-
-下载测试音频和对应功能需要的模型
+#### 下载相关模型和音频
 
 ```bash
 cd speech_server
 
 # 已创建则跳过
 mkdir -p source/model
-
 cd source
 # 下载 & 解压 wav （包含VC测试音频）
 wget https://paddlespeech.bj.bcebos.com/demos/speech_web/wav_vc.zip
@@ -111,95 +135,25 @@ unzip hifigan_vctk_ckpt_0.2.0.zip
 
 #### ERNIE-SAT 环境配置
 
-ERNIE-SAT 体验依赖于 PaddleSpeech 中和 ERNIE-SAT相关的三个 `examples` 环境的配置，先确保按照在对应路径下，测试脚本可以运行（主要是 `tools`, `download`, `source`），部分可通用，在对用的环境下生成软链接就可以
-
-在`PaddleSpeech/demos/speech_web/speech_server` 路径下，生成 tools 和 download ，可以参考 `examples/aishell3/ernie_sat`中的 `README.md` , 如果你之前已经下载过了，可以使用软链接
-
-准备 `tools`文件夹:
-
+ERNIE-SAT 体验依赖于 [examples/aishell3_vctk/ernie_sat](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3_vctk/ernie_sat) 的环境。参考 `examples/aishell3_vctk/ernie_sat` 下的 `README.md`， 确保 `examples/aishell3_vctk/ernie_sat` 下 `run.sh` 相关示例代码有效。
+ 
+运行好 `examples/aishell3_vctk/ernie_sat` 后，回到当前目录，创建环境：
 ```bash
-cd speech_server
-mkdir -p tools/aligner
-cd tools
-# download MFA
-wget https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/releases/download/v1.0.1/montreal-forced-aligner_linux.tar.gz
-# extract MFA
-tar xvf montreal-forced-aligner_linux.tar.gz
-# fix .so of MFA
-cd montreal-forced-aligner/lib
-ln -snf libpython3.6m.so.1.0 libpython3.6m.so
-cd -
-# download align models and dicts
-cd aligner
-wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/aishell3_model.zip
-wget https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/simple.lexicon
-wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip
-wget https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/cmudict-0.7b
-cd ../../
+ln -s ../../examples/aishell3_vctk/ernie_sat/tools ./speech_server/tools
+ln -s ../../examples/aishell3_vctk/ernie_sat/download ./speech_server/download
 ```
-
-准备 `download` 文件夹
-
-```bash
-cd speech_server
-mkdir download
-cd download
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_ljspeech_ckpt_0.5.zip
-unzip fastspeech2_conformer_baker_ckpt_0.5.zip
-unzip fastspeech2_nosil_ljspeech_ckpt_0.5.zip
-cd ../
-```
-
-1. 中文 SAT 配置，参考 `examples/aishell3/ernie_sat`， 按照 `README.md` 要求配置环境，确保在路径下执行 `run.sh` 相关示例代码有效
-
-2. 英文 SAT 配置，参考 `examples/vctk/ernie_sat`，按照 `README.md` 要求配置环境,确保在路径下执行 `run.sh` 相关示例代码有效
-
-3. 中英文 SAT 配置，参考 `examples/aishell3_vctk/ernie_sat`，按照 `README.md` 要求配置环境,确保在路径下执行 `run.sh` 相关示例代码有效
 
 #### finetune 环境配置
 
-`finetune` 环境配置请参考 `examples/other/tts_finetune/tts3`，按照 `README.md` 要求配置环境,确保在路径下执行 `run.sh` 相关示例代码有效 
-
-`finetune` 需要在 `tools/aligner` 中解压 `aishell3_model.zip`，包含`tools/aligner/aishell3_model/meta.yaml` 文件，finetune中需要使用
+`finetune` 需要解压 `tools/aligner` 中的 `aishell3_model.zip`，finetune 过程需要使用到 `tools/aligner/aishell3_model/meta.yaml` 文件。
 
 ```bash
 cd speech_server/tools/aligner
-unzip aishell3.zip
-cd ../..
+unzip aishell3_model.zip
+cd ../../
 ```
 
-
-### 前端环境安装
-
-前端依赖 `node.js` ，需要提前安装，确保 `npm` 可用，`npm` 测试版本 `8.3.1`，建议下载[官网](https://nodejs.org/en/)稳定版的 `node.js`
-
-```bash
-# 进入前端目录
-cd web_client
-
-# 安装 `yarn`，已经安装可跳过
-npm install -g yarn
-
-# 使用yarn安装前端依赖
-yarn install
-```
-
-## 启动服务
-
-### 开启后端服务
-
-#### `main.py`
-【语音聊天】【声纹识别】【语音识别】【语音合成】【语音指令】功能体验，可直接使用下面的代码
-```
-cd speech_server
-# 默认8010端口
-python main.py --port 8010
-```
-
-#### `vc.py`
-
-【一句话合成】【小数据微调】【ENIRE-SAT】体验都依赖于MFA，体验前先确保 MFA 可用，项目tools中使用的 mfa v1 linux 版本，先确保在当前环境下 mfa 可用
+#### 启动后端服务
 
 ```
 cd speech_server
@@ -207,9 +161,7 @@ cd speech_server
 python vc.py --port 8010
 ```
 
-如果你是其它的系统，可以使用 conda 安装 mfa v2 进行体验，安装请参考 [Montreal Forced Aligner](https://montreal-forced-aligner.readthedocs.io/en/latest/getting_started.html)，使用 MFA v2 需要自行配置环境，并修改调用 MFA 相关的代码, mfa v1 与 mfa v2 使用上有差异
-
-### 开启前端服务
+### 启动前端服务
 
 ```
 cd web_client
@@ -217,6 +169,9 @@ yarn dev --port 8011
 ```
 
 默认配置下，前端中配置的后台地址信息是 localhost，确保后端服务器和打开页面的游览器在同一台机器上，不在一台机器的配置方式见下方的 FAQ：【后端如果部署在其它机器或者别的端口如何修改】
+
+
+
 ## FAQ 
 
 #### Q: 如何安装node.js

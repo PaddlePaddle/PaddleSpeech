@@ -562,7 +562,7 @@ class Decoder(nn.Layer):
         idx = 0
         outs, att_ws, probs = [], [], []
         prob = paddle.zeros([1])
-        while True:
+        while paddle.to_tensor(True):
             # updated index
             idx += self.reduction_factor
 

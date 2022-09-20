@@ -335,3 +335,4 @@ class TextExecutor(BaseExecutor):
             self.infer()
             res = self.postprocess(isNewTrainer=True)
         return res
+

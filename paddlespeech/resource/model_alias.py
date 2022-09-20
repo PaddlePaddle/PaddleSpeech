@@ -51,6 +51,10 @@ model_alias = {
         "paddlespeech.text.models:ErnieLinear",
         "paddlenlp.transformers:ErnieTokenizer"
     ],
+    "ernie_linear_p3_wudao": [
+        "paddlespeech.text.models:ErnieLinear",
+        "paddlenlp.transformers:ErnieTokenizer"
+    ],
 
     # ---------------------------------
     # -------------- TTS --------------

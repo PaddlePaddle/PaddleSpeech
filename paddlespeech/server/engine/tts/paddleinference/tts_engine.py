@@ -22,7 +22,7 @@ import librosa
 import numpy as np
 import paddle
 import soundfile as sf
-from scipy.io import wavfile
+# from scipy.io import wavfile
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor

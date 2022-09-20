@@ -20,7 +20,6 @@ import librosa
 import numpy as np
 import paddle
 import soundfile as sf
-# from scipy.io import wavfile
 
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.tts.infer import TTSExecutor
@@ -173,7 +172,6 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
 
         # wav to base64
         buf = io.BytesIO()
-        # wavfile.write(buf, target_fs, wav_speed)
         sf.write(buf, wav_speed, target_fs, format="wav")
         buf.seek(0)
 

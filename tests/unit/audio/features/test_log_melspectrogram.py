@@ -15,8 +15,8 @@ import unittest
 
 import numpy as np
 import paddle
+import paddleaudio
 
-import paddlespeech.audio
 from .base import FeatTest
 from paddlespeech.s2t.transform.spectrogram import LogMelSpectrogram
 
@@ -33,7 +33,7 @@ class TestLogMelSpectrogram(FeatTest):
         ps_res = ps_melspect(self.waveform.T).squeeze(1).T
 
         x = paddle.to_tensor(self.waveform)
-        ps_melspect = paddlespeech.audio.features.LogMelSpectrogram(
+        ps_melspect = paddleaudio.features.LogMelSpectrogram(
             self.sr,
             self.n_fft,
             self.hop_length,

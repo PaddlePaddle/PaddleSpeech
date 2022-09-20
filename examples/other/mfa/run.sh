@@ -39,7 +39,7 @@ fi
 export PATH="$MFA_DOWNLOAD_DIR/montreal-forced-aligner/bin"
 if [ ! -d "$EXP_DIR/baker_alignment" ]; then
     echo "Start MFA training..."
-    mfa_train_and_align $EXP_DIR/baker_corpus "$EXP_DIR/$LEXICON_NAME.lexicon" $EXP_DIR/baker_alignment -o $EXP_DIR/baker_model --clean --verbose --temp_directory exp/.mfa_train_and_align
+    mfa_train_and_align $EXP_DIR/baker_corpus "$EXP_DIR/$LEXICON_NAME.lexicon" $EXP_DIR/baker_alignment -o $EXP_DIR/baker_model --clean --verbose --temp_directory $EXP_DIR/.mfa_train_and_align
     echo "training done!"
     echo "results: $EXP_DIR/baker_alignment"
     echo "model: $EXP_DIR/baker_model"

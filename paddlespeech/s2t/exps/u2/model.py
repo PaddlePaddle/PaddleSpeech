@@ -341,6 +341,7 @@ class U2Tester(U2Trainer):
 
         start_time = time.time()
         target_transcripts = self.id2token(texts, texts_len, self.text_feature)
+
         result_transcripts, result_tokenids = self.model.decode(
             audio,
             audio_len,

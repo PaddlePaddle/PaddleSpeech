@@ -16,9 +16,9 @@ from collections import OrderedDict
 
 import numpy as np
 import paddle
+from paddleaudio.backends import soundfile_load as load_audio
+from paddleaudio.compliance.librosa import melspectrogram
 
-from paddlespeech.audio.soundfile_backend import soundfile_load as load_audio
-from paddlespeech.audio.compliance.librosa import melspectrogram
 from paddlespeech.cli.log import logger
 from paddlespeech.cli.vector.infer import VectorExecutor
 from paddlespeech.server.engine.base_engine import BaseEngine

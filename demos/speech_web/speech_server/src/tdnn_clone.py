@@ -1,16 +1,14 @@
 import os
 import shutil
 
+from .util import MAIN_ROOT
 from .util import run_cmd
 
 
 class VoiceCloneTDNN():
     def __init__(self):
         # Path 到指定路径上
-        self.now_file_path = os.path.dirname(__file__)
-        self.BIN_DIR = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../paddlespeech/t2s/exps"))
+        self.BIN_DIR = os.path.join(MAIN_ROOT, "paddlespeech/t2s/exps")
 
         self.am = "fastspeech2_aishell3"
         self.am_config = "source/model/fastspeech2_aishell3_ckpt_vc2_1.2.0/default.yaml"

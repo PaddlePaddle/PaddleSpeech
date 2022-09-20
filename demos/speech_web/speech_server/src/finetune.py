@@ -1,5 +1,6 @@
 import os
 
+from .util import MAIN_ROOT
 from .util import run_cmd
 
 
@@ -17,12 +18,10 @@ def find_max_ckpt(model_path):
 class FineTune:
     def __init__(self):
         self.now_file_path = os.path.dirname(__file__)
-        self.PYTHONPATH = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../examples/other/tts_finetune/tts3"))
-        self.BIN_DIR = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../paddlespeech/t2s/exps/fastspeech2"))
+        self.PYTHONPATH = os.path.join(MAIN_ROOT,
+                                       "examples/other/tts_finetune/tts3")
+        self.BIN_DIR = os.path.join(MAIN_ROOT,
+                                    "paddlespeech/t2s/exps/fastspeech2")
         self.pretrained_model_dir = os.path.realpath(
             "source/model/fastspeech2_aishell3_ckpt_1.1.0")
         self.voc_model_dir = os.path.realpath(

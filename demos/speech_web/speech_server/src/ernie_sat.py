@@ -1,5 +1,6 @@
 import os
 
+from .util import MAIN_ROOT
 from .util import run_cmd
 
 
@@ -20,10 +21,8 @@ class SAT:
         self.cross_voc_model_path = os.path.realpath(
             "source/model/hifigan_aishell3_ckpt_0.2.0")
 
-        self.now_file_path = os.path.dirname(__file__)
-        self.BIN_DIR = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../paddlespeech/t2s/exps/ernie_sat"))
+        self.BIN_DIR = os.path.join(MAIN_ROOT,
+                                    "paddlespeech/t2s/exps/ernie_sat")
 
     def zh_synthesize_edit(self,
                            old_str: str,
@@ -36,11 +35,6 @@ class SAT:
         if task_name not in ['synthesize', 'edit']:
             print("task name only in ['edit', 'synthesize']")
             return None
-
-        # 运行时的 PYTHONPATH
-        PYTHONPATH = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../examples/aishell3/ernie_sat"))
 
         # 推理文件配置
         config_path = os.path.join(self.zh_pretrain_model_path, "default.yaml")
@@ -84,9 +78,6 @@ class SAT:
                    source_lang: str,
                    target_lang: str,
                    erniesat_ckpt_name: str="snapshot_iter_489000.pdz"):
-        PYTHONPATH = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../examples/aishell3_vctk/ernie_sat"))
         # 推理文件配置
         config_path = os.path.join(self.cross_pretrain_model_path,
                                    "default.yaml")
@@ -117,9 +108,6 @@ class SAT:
                            output_name: os.PathLike,
                            task_name: str="synthesize",
                            erniesat_ckpt_name: str="snapshot_iter_199500.pdz"):
-        PYTHONPATH = os.path.realpath(
-            os.path.join(self.now_file_path,
-                         "../../../../examples/vctk/ernie_sat"))
 
         # 推理文件配置
         config_path = os.path.join(self.en_pretrain_model_path, "default.yaml")

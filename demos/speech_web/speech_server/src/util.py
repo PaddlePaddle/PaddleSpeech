@@ -2,6 +2,9 @@ import os
 import random
 import subprocess
 
+NOW_FILE_PATH = os.path.dirname(__file__)
+MAIN_ROOT = os.path.realpath(os.path.join(NOW_FILE_PATH, "../../../../"))
+
 
 def randName(n=5):
     return "".join(random.sample('zyxwvutsrqponmlkjihgfedcba', n))

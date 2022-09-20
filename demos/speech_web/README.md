@@ -25,7 +25,7 @@ PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发�
 
 运行效果：
 
- ![效果](docs/效果展示.png)
+ ![效果](https://user-images.githubusercontent.com/30135920/191188766-12e7ca15-f7b4-45f8-9da5-0c0b0bbe5fcb.png)
 
 ## 安装
 
@@ -192,7 +192,7 @@ cd speech_server
 python vc.py --port 8010
 ```
 
-> 如果你是其它的系统，可以使用 conda 安装 mfa v2 进行体验，安装请参考 [Montreal Forced Aligner](https://montreal-forced-aligner.readthedocs.io/en/latest/getting_started.html)，使用 MFA v2 需要自行配置环境，并修改调用 MFA 相关的代码, mfa v1 与 mfa v2 使用上有差异
+如果你是其它的系统，可以使用 conda 安装 mfa v2 进行体验，安装请参考 [Montreal Forced Aligner](https://montreal-forced-aligner.readthedocs.io/en/latest/getting_started.html)，使用 MFA v2 需要自行配置环境，并修改调用 MFA 相关的代码, mfa v1 与 mfa v2 使用上有差异
 
 ### 开启前端服务
 

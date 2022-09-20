@@ -462,13 +462,13 @@ class U2Tester(U2Trainer):
         infer_model = U2InferModel.from_pretrained(self.test_loader,
                                                    self.config.clone(),
                                                    self.args.checkpoint_path)
-
         batch_size = 1 
         feat_dim = self.test_loader.feat_dim
-        model_size = 512
+        model_size = self.config.encoder_conf.output_size
         num_left_chunks = -1
+        logger.info(f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}")
 
-        return infer_model, (batch_size, feat_dim, model_size, num_left_chunks) 
+        return infer_model, (batch_size, feat_dim, model_size, num_left_chunks)
 
     @paddle.no_grad()
     def export(self):
@@ -553,20 +553,10 @@ class U2Tester(U2Trainer):
         cnn_cache = paddle.zeros([0, 0, 0, 0])
         xs_d, att_cache_d, cnn_cache_d = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
 
-        import soundfile
-        audio, sample_rate = soundfile.read(
-            './zh.wav', dtype="int16", always_2d=True)
-        audio = audio[:, 0]
-        logger.info(f"audio shape: {audio.shape}")
-        audio = paddle.to_tensor(audio, paddle.int16)
-        feat_d = infer_model.forward_feature(audio)
-        logger.info(f"{feat_d}")
-        np.savetxt("feat.tostatic.txt", feat_d)
-        
-
         # load static model
         from paddle.jit.layer import Layer
         layer = Layer()
+        logger.info(f"load export model: {self.args.export_path}")
         layer.load(self.args.export_path, paddle.CPUPlace())
 
         # forward_encoder_chunk static
@@ -580,9 +570,3 @@ class U2Tester(U2Trainer):
         np.testing.assert_allclose(att_cache_d, att_cache_s, atol=1e-4)
         np.testing.assert_allclose(cnn_cache_d, cnn_cache_s, atol=1e-4)
         # logger.info(f"forward_encoder_chunk output: {xs_s}")
-
-        # forward_feature static
-        func = getattr(layer, 'forward_feature')
-        feat_s = func(audio)[0]
-        logger.info(f"{feat_s}")
-        np.testing.assert_allclose(feat_d, feat_s, atol=1e-5)

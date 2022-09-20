@@ -18,7 +18,6 @@ from pathlib import Path
 
 import paddle
 import soundfile
-import numpy as np
 from yacs.config import CfgNode
 
 from paddlespeech.audio.transform.transformation import Transformation

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 import warnings
 from typing import Optional
@@ -204,6 +203,7 @@ def soundfile_save(y: np.ndarray, sr: int, file: os.PathLike) -> None:
 
     wavfile.write(file, sr, y_out)
 
+
 def soundfile_load(
         file: os.PathLike,
         sr: Optional[int]=None,
@@ -256,9 +256,13 @@ def soundfile_load(
     y = depth_convert(y, dtype)
     return y, r
 
+
 #the code below token form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py with modificaion.
 
-def _get_subtype_for_wav(dtype: paddle.dtype, encoding: str, bits_per_sample: int):
+
+def _get_subtype_for_wav(dtype: paddle.dtype,
+                         encoding: str,
+                         bits_per_sample: int):
     if not encoding:
         if not bits_per_sample:
             subtype = {
@@ -315,7 +319,10 @@ def _get_subtype_for_sphere(encoding: str, bits_per_sample: int):
     raise ValueError(f"sph does not support {encoding}.")
 
 
-def _get_subtype(dtype: paddle.dtype, format: str, encoding: str, bits_per_sample: int):
+def _get_subtype(dtype: paddle.dtype,
+                 format: str,
+                 encoding: str,
+                 bits_per_sample: int):
     if format == "wav":
         return _get_subtype_for_wav(dtype, encoding, bits_per_sample)
     if format == "flac":
@@ -328,7 +335,8 @@ def _get_subtype(dtype: paddle.dtype, format: str, encoding: str, bits_per_sampl
         return "PCM_S8" if bits_per_sample == 8 else f"PCM_{bits_per_sample}"
     if format in ("ogg", "vorbis"):
         if encoding or bits_per_sample:
-            raise ValueError("ogg/vorbis does not support encoding/bits_per_sample.")
+            raise ValueError(
+                "ogg/vorbis does not support encoding/bits_per_sample.")
         return "VORBIS"
     if format == "sph":
         return _get_subtype_for_sphere(encoding, bits_per_sample)
@@ -336,16 +344,16 @@ def _get_subtype(dtype: paddle.dtype, format: str, encoding: str, bits_per_sampl
         return "PCM_16"
     raise ValueError(f"Unsupported format: {format}")
 
+
 def save(
-    filepath: str,
-    src: paddle.Tensor,
-    sample_rate: int,
-    channels_first: bool = True,
-    compression: Optional[float] = None,
-    format: Optional[str] = None,
-    encoding: Optional[str] = None,
-    bits_per_sample: Optional[int] = None,
-):
+        filepath: str,
+        src: paddle.Tensor,
+        sample_rate: int,
+        channels_first: bool=True,
+        compression: Optional[float]=None,
+        format: Optional[str]=None,
+        encoding: Optional[str]=None,
+        bits_per_sample: Optional[int]=None, ):
     """Save audio data to file.
 
     Note:
@@ -441,11 +449,11 @@ def save(
     if compression is not None:
         warnings.warn(
             '`save` function of "soundfile" backend does not support "compression" parameter. '
-            "The argument is silently ignored."
-        )
+            "The argument is silently ignored.")
     if hasattr(filepath, "write"):
         if format is None:
-            raise RuntimeError("`format` is required when saving to file object.")
+            raise RuntimeError(
+                "`format` is required when saving to file object.")
         ext = format.lower()
     else:
         ext = str(filepath).split(".")[-1].lower()
@@ -455,8 +463,7 @@ def save(
     if bits_per_sample == 24:
         warnings.warn(
             "Saving audio with 24 bits per sample might warp samples near -1. "
-            "Using 16 bits per sample might be able to avoid this."
-        )
+            "Using 16 bits per sample might be able to avoid this.")
     subtype = _get_subtype(src.dtype, ext, encoding, bits_per_sample)
 
     # sph is a extension used in TED-LIUM but soundfile does not recognize it as NIST format,
@@ -467,7 +474,13 @@ def save(
     if channels_first:
         src = src.t()
 
-    soundfile.write(file=filepath, data=src, samplerate=sample_rate, subtype=subtype, format=format)
+    soundfile.write(
+        file=filepath,
+        data=src,
+        samplerate=sample_rate,
+        subtype=subtype,
+        format=format)
+
 
 _SUBTYPE2DTYPE = {
     "PCM_S8": "int8",
@@ -478,14 +491,14 @@ _SUBTYPE2DTYPE = {
     "DOUBLE": "float64",
 }
 
+
 def load(
-    filepath: str,
-    frame_offset: int = 0,
-    num_frames: int = -1,
-    normalize: bool = True,
-    channels_first: bool = True,
-    format: Optional[str] = None,
-) -> Tuple[paddle.Tensor, int]:
+        filepath: str,
+        frame_offset: int=0,
+        num_frames: int=-1,
+        normalize: bool=True,
+        channels_first: bool=True,
+        format: Optional[str]=None, ) -> Tuple[paddle.Tensor, int]:
     """Load audio data from file.
 
     Note:
@@ -564,7 +577,7 @@ def load(
 
     waveform = paddle.to_tensor(waveform)
     if channels_first:
-        waveform = paddle.transpose(waveform, perm=[1,0])
+        waveform = paddle.transpose(waveform, perm=[1, 0])
     return waveform, sample_rate
 
 
@@ -588,7 +601,8 @@ _SUBTYPE_TO_BITS_PER_SAMPLE = {
     "ALAW": 8,  # A-Law encoded. See https://en.wikipedia.org/wiki/G.711#Types
     "IMA_ADPCM": 0,  # IMA ADPCM.
     "MS_ADPCM": 0,  # Microsoft ADPCM.
-    "GSM610": 0,  # GSM 6.10 encoding. (Wikipedia says 1.625 bit depth?? https://en.wikipedia.org/wiki/Full_Rate)
+    "GSM610":
+    0,  # GSM 6.10 encoding. (Wikipedia says 1.625 bit depth?? https://en.wikipedia.org/wiki/Full_Rate)
     "VOX_ADPCM": 0,  # OKI / Dialogix ADPCM
     "G721_32": 0,  # 32kbs G721 ADPCM encoding.
     "G723_24": 0,  # 24kbs G723 ADPCM encoding.
@@ -606,15 +620,16 @@ _SUBTYPE_TO_BITS_PER_SAMPLE = {
     "ALAC_32": 32,  # Apple Lossless Audio Codec (32 bit).
 }
 
+
 def _get_bit_depth(subtype):
     if subtype not in _SUBTYPE_TO_BITS_PER_SAMPLE:
         warnings.warn(
             f"The {subtype} subtype is unknown to PaddleAudio. As a result, the bits_per_sample "
             "attribute will be set to 0. If you are seeing this warning, please "
             "report by opening an issue on github (after checking for existing/closed ones). "
-            "You may otherwise ignore this warning."
-        )
+            "You may otherwise ignore this warning.")
     return _SUBTYPE_TO_BITS_PER_SAMPLE.get(subtype, 0)
+
 
 _SUBTYPE_TO_ENCODING = {
     "PCM_S8": "PCM_S",
@@ -629,12 +644,14 @@ _SUBTYPE_TO_ENCODING = {
     "VORBIS": "VORBIS",
 }
 
+
 def _get_encoding(format: str, subtype: str):
     if format == "FLAC":
         return "FLAC"
     return _SUBTYPE_TO_ENCODING.get(subtype, "UNKNOWN")
 
-def info(filepath: str, format: Optional[str] = None) -> AudioInfo:
+
+def info(filepath: str, format: Optional[str]=None) -> AudioInfo:
     """Get signal information of an audio file.
 
     Note:
@@ -657,5 +674,4 @@ def info(filepath: str, format: Optional[str] = None) -> AudioInfo:
         sinfo.frames,
         sinfo.channels,
         bits_per_sample=_get_bit_depth(sinfo.subtype),
-        encoding=_get_encoding(sinfo.format, sinfo.subtype),
-    )
+        encoding=_get_encoding(sinfo.format, sinfo.subtype), )

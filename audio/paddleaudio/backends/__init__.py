@@ -11,14 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from . import utils
 from .soundfile_backend import depth_convert
-from .soundfile_backend import soundfile_load
 from .soundfile_backend import normalize
 from .soundfile_backend import resample
+from .soundfile_backend import soundfile_load
 from .soundfile_backend import soundfile_save
 from .soundfile_backend import to_mono
-
-from . import utils
 from .utils import get_audio_backend
 from .utils import list_audio_backends
 from .utils import set_audio_backend

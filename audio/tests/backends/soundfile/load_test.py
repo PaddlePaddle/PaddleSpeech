@@ -1,37 +1,31 @@
 #this code is from: https://github.com/pytorch/audio/blob/main/test/torchaudio_unittest/backend/soundfile/load_test.py
-
 import os
 import tarfile
 import unittest
 from unittest.mock import patch
+
 import numpy as np
-
-from parameterized import parameterized
 import paddle
-from paddleaudio._internal import module_utils as _mod_utils
-from paddleaudio.backends import soundfile_backend
-from tests.backends.common import get_bits_per_sample, get_encoding 
-from tests.common_utils import (
-    get_wav_data,
-    load_wav,
-    nested_params,
-    normalize_wav,
-    save_wav,
-    TempDirMixin,
-)
-
-from common import dtype2subtype, parameterize, skipIfFormatNotSupported
-
 import soundfile
+from common import dtype2subtype
+from common import parameterize
+from common import skipIfFormatNotSupported
+from paddleaudio.backends import soundfile_backend
+from parameterized import parameterized
+
+from tests.common_utils import get_wav_data
+from tests.common_utils import load_wav
+from tests.common_utils import normalize_wav
+from tests.common_utils import save_wav
+from tests.common_utils import TempDirMixin
 
 
 def _get_mock_path(
-    ext: str,
-    dtype: str,
-    sample_rate: int,
-    num_channels: int,
-    num_frames: int,
-):
+        ext: str,
+        dtype: str,
+        sample_rate: int,
+        num_channels: int,
+        num_frames: int, ):
     return f"{dtype}_{sample_rate}_{num_channels}_{num_frames}.{ext}"
 
 
@@ -87,9 +81,8 @@ class SoundFileMock:
             self._params["num_channels"],
             normalize=False,
             num_frames=self._params["num_frames"],
-            channels_first=False,
-        ).numpy()
-        return data[self._start : self._start + frames]
+            channels_first=False, ).numpy()
+        return data[self._start:self._start + frames]
 
     def __enter__(self):
         return self
@@ -99,13 +92,17 @@ class SoundFileMock:
 
 
 class MockedLoadTest(unittest.TestCase):
-    def assert_dtype(self, ext, dtype, sample_rate, num_channels, normalize, channels_first):
+    def assert_dtype(self, ext, dtype, sample_rate, num_channels, normalize,
+                     channels_first):
         """When format is WAV or NIST, normalize=False will return the native dtype Tensor, otherwise float32"""
         num_frames = 3 * sample_rate
         path = _get_mock_path(ext, dtype, sample_rate, num_channels, num_frames)
-        expected_dtype = paddle.float32 if normalize or ext not in ["wav", "nist"] else getattr(paddle, dtype)
+        expected_dtype = paddle.float32 if normalize or ext not in [
+            "wav", "nist"
+        ] else getattr(paddle, dtype)
         with patch("soundfile.SoundFile", SoundFileMock):
-            found, sr = soundfile_backend.load(path, normalize=normalize, channels_first=channels_first)
+            found, sr = soundfile_backend.load(
+                path, normalize=normalize, channels_first=channels_first)
             assert found.dtype == expected_dtype
             assert sample_rate == sr
 
@@ -114,44 +111,47 @@ class MockedLoadTest(unittest.TestCase):
         [8000, 16000],
         [1, 2],
         [True, False],
-        [True, False],
-    )
-    def test_wav(self, dtype, sample_rate, num_channels, normalize, channels_first):
+        [True, False], )
+    def test_wav(self, dtype, sample_rate, num_channels, normalize,
+                 channels_first):
         """Returns native dtype when normalize=False else float32"""
-        self.assert_dtype("wav", dtype, sample_rate, num_channels, normalize, channels_first)
+        self.assert_dtype("wav", dtype, sample_rate, num_channels, normalize,
+                          channels_first)
 
     @parameterize(
         ["int32"],
         [8000, 16000],
         [1, 2],
         [True, False],
-        [True, False],
-    )
-    def test_sphere(self, dtype, sample_rate, num_channels, normalize, channels_first):
+        [True, False], )
+    def test_sphere(self, dtype, sample_rate, num_channels, normalize,
+                    channels_first):
         """Returns float32 always"""
-        self.assert_dtype("sph", dtype, sample_rate, num_channels, normalize, channels_first)
+        self.assert_dtype("sph", dtype, sample_rate, num_channels, normalize,
+                          channels_first)
 
     @parameterize([8000, 16000], [1, 2], [True, False], [True, False])
     def test_ogg(self, sample_rate, num_channels, normalize, channels_first):
         """Returns float32 always"""
-        self.assert_dtype("ogg", "int16", sample_rate, num_channels, normalize, channels_first)
+        self.assert_dtype("ogg", "int16", sample_rate, num_channels, normalize,
+                          channels_first)
 
     @parameterize([8000, 16000], [1, 2], [True, False], [True, False])
     def test_flac(self, sample_rate, num_channels, normalize, channels_first):
         """`soundfile_backend.load` can load ogg format."""
-        self.assert_dtype("flac", "int16", sample_rate, num_channels, normalize, channels_first)
+        self.assert_dtype("flac", "int16", sample_rate, num_channels, normalize,
+                          channels_first)
 
 
 class LoadTestBase(TempDirMixin, unittest.TestCase):
     def assert_wav(
-        self,
-        dtype,
-        sample_rate,
-        num_channels,
-        normalize,
-        channels_first=True,
-        duration=1,
-    ):
+            self,
+            dtype,
+            sample_rate,
+            num_channels,
+            normalize,
+            channels_first=True,
+            duration=1, ):
         """`soundfile_backend.load` can load wav format correctly.
 
         Wav data loaded with soundfile backend should match those with scipy
@@ -163,22 +163,22 @@ class LoadTestBase(TempDirMixin, unittest.TestCase):
             num_channels,
             normalize=normalize,
             num_frames=num_frames,
-            channels_first=channels_first,
-        )
+            channels_first=channels_first, )
         save_wav(path, data, sample_rate, channels_first=channels_first)
-        expected = load_wav(path, normalize=normalize, channels_first=channels_first)[0]
-        data, sr = soundfile_backend.load(path, normalize=normalize, channels_first=channels_first)
+        expected = load_wav(
+            path, normalize=normalize, channels_first=channels_first)[0]
+        data, sr = soundfile_backend.load(
+            path, normalize=normalize, channels_first=channels_first)
         assert sr == sample_rate
         np.testing.assert_array_almost_equal(data.numpy(), expected.numpy())
 
     def assert_sphere(
-        self,
-        dtype,
-        sample_rate,
-        num_channels,
-        channels_first=True,
-        duration=1,
-    ):
+            self,
+            dtype,
+            sample_rate,
+            num_channels,
+            channels_first=True,
+            duration=1, ):
         """`soundfile_backend.load` can load SPHERE format correctly."""
         path = self.get_temp_path("reference.sph")
         num_frames = duration * sample_rate
@@ -187,9 +187,9 @@ class LoadTestBase(TempDirMixin, unittest.TestCase):
             num_channels,
             num_frames=num_frames,
             normalize=False,
-            channels_first=False,
-        )
-        soundfile.write(path, raw, sample_rate, subtype=dtype2subtype(dtype), format="NIST")
+            channels_first=False, )
+        soundfile.write(
+            path, raw, sample_rate, subtype=dtype2subtype(dtype), format="NIST")
         expected = normalize_wav(raw.t() if channels_first else raw)
         data, sr = soundfile_backend.load(path, channels_first=channels_first)
         assert sr == sample_rate
@@ -197,13 +197,12 @@ class LoadTestBase(TempDirMixin, unittest.TestCase):
         np.testing.assert_array_almost_equal(data.numpy(), expected.numpy())
 
     def assert_flac(
-        self,
-        dtype,
-        sample_rate,
-        num_channels,
-        channels_first=True,
-        duration=1,
-    ):
+            self,
+            dtype,
+            sample_rate,
+            num_channels,
+            channels_first=True,
+            duration=1, ):
         """`soundfile_backend.load` can load FLAC format correctly."""
         path = self.get_temp_path("reference.flac")
         num_frames = duration * sample_rate
@@ -212,15 +211,13 @@ class LoadTestBase(TempDirMixin, unittest.TestCase):
             num_channels,
             num_frames=num_frames,
             normalize=False,
-            channels_first=False,
-        )
+            channels_first=False, )
         soundfile.write(path, raw, sample_rate)
         expected = normalize_wav(raw.t() if channels_first else raw)
         data, sr = soundfile_backend.load(path, channels_first=channels_first)
         assert sr == sample_rate
         #self.assertEqual(data, expected, atol=1e-4, rtol=1e-8)
         np.testing.assert_array_almost_equal(data.numpy(), expected.numpy())
-        
 
 
 class TestLoad(LoadTestBase):
@@ -231,41 +228,43 @@ class TestLoad(LoadTestBase):
         [8000, 16000],
         [1, 2],
         [False, True],
-        [False, True],
-    )
-    def test_wav(self, dtype, sample_rate, num_channels, normalize, channels_first):
+        [False, True], )
+    def test_wav(self, dtype, sample_rate, num_channels, normalize,
+                 channels_first):
         """`soundfile_backend.load` can load wav format correctly."""
-        self.assert_wav(dtype, sample_rate, num_channels, normalize, channels_first)
+        self.assert_wav(dtype, sample_rate, num_channels, normalize,
+                        channels_first)
 
     @parameterize(
         ["int32"],
         [16000],
         [2],
-        [False],
-    )
+        [False], )
     def test_wav_large(self, dtype, sample_rate, num_channels, normalize):
         """`soundfile_backend.load` can load large wav file correctly."""
         two_hours = 2 * 60 * 60
-        self.assert_wav(dtype, sample_rate, num_channels, normalize, duration=two_hours)
+        self.assert_wav(
+            dtype, sample_rate, num_channels, normalize, duration=two_hours)
 
     @parameterize(["float32", "int32"], [4, 8, 16, 32], [False, True])
     def test_multiple_channels(self, dtype, num_channels, channels_first):
         """`soundfile_backend.load` can load wav file with more than 2 channels."""
         sample_rate = 8000
         normalize = False
-        self.assert_wav(dtype, sample_rate, num_channels, normalize, channels_first)
+        self.assert_wav(dtype, sample_rate, num_channels, normalize,
+                        channels_first)
 
     #@parameterize(["int32"], [8000, 16000], [1, 2], [False, True])
     #@skipIfFormatNotSupported("NIST")
     #def test_sphere(self, dtype, sample_rate, num_channels, channels_first):
-        #"""`soundfile_backend.load` can load sphere format correctly."""
-        #self.assert_sphere(dtype, sample_rate, num_channels, channels_first)
+    #"""`soundfile_backend.load` can load sphere format correctly."""
+    #self.assert_sphere(dtype, sample_rate, num_channels, channels_first)
 
     #@parameterize(["int32"], [8000, 16000], [1, 2], [False, True])
     #@skipIfFormatNotSupported("FLAC")
     #def test_flac(self, dtype, sample_rate, num_channels, channels_first):
-        #"""`soundfile_backend.load` can load flac format correctly."""
-        #self.assert_flac(dtype, sample_rate, num_channels, channels_first)
+    #"""`soundfile_backend.load` can load flac format correctly."""
+    #self.assert_flac(dtype, sample_rate, num_channels, channels_first)
 
 
 class TestLoadFormat(TempDirMixin, unittest.TestCase):
@@ -291,21 +290,17 @@ class TestLoadFormat(TempDirMixin, unittest.TestCase):
         #self.assertEqual(found, expected)
         np.testing.assert_array_almost_equal(found, expected)
 
-    @parameterized.expand(
-        [
-            ("WAV",),
-            ("wav",),
-        ]
-    )
+    @parameterized.expand([
+        ("WAV", ),
+        ("wav", ),
+    ])
     def test_wav(self, format_):
         self._test_format(format_)
 
-    @parameterized.expand(
-        [
-            ("FLAC",),
-            ("flac",),
-        ]
-    )
+    @parameterized.expand([
+        ("FLAC", ),
+        ("flac", ),
+    ])
     @skipIfFormatNotSupported("FLAC")
     def test_flac(self, format_):
         self._test_format(format_)
@@ -356,7 +351,6 @@ class TestFileObject(TempDirMixin, unittest.TestCase):
         #self.assertEqual(expected, found)
         np.testing.assert_array_almost_equal(found.numpy(), expected)
 
-
     def test_tarfile_wav(self):
         """Loading audio via file-like object works"""
         self._test_tarfile("wav")
@@ -364,6 +358,7 @@ class TestFileObject(TempDirMixin, unittest.TestCase):
     def test_tarfile_flac(self):
         """Loading audio via file-like object works"""
         self._test_tarfile("flac")
+
 
 if __name__ == '__main__':
     unittest.main()

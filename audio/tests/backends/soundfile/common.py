@@ -1,8 +1,8 @@
 import itertools
 from unittest import skipIf
 
-from parameterized import parameterized
 from paddleaudio._internal.module_utils import is_module_available
+from parameterized import parameterized
 
 
 def name_func(func, _, params):
@@ -31,7 +31,8 @@ def skipIfFormatNotSupported(fmt):
 
 
 def parameterize(*params):
-    return parameterized.expand(list(itertools.product(*params)), name_func=name_func)
+    return parameterized.expand(
+        list(itertools.product(*params)), name_func=name_func)
 
 
 def fetch_wav_subtype(dtype, encoding, bits_per_sample):
@@ -54,4 +55,3 @@ def fetch_wav_subtype(dtype, encoding, bits_per_sample):
     if subtype:
         return subtype
     raise ValueError(f"wav does not support ({encoding}, {bits_per_sample}).")
-

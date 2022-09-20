@@ -316,7 +316,7 @@ class U2Tester(U2Trainer):
             vocab=self.config.vocab_filepath,
             spm_model_prefix=self.config.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
-        self.reverse_weight = getattr(config, 'reverse_weight', '0.0')
+        self.reverse_weight = getattr(config.model_conf, 'reverse_weight', 0.0)
 
     def id2token(self, texts, texts_len, text_feature):
         """ ord() id to chr() chr """

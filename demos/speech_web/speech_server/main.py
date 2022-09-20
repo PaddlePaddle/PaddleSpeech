@@ -1,8 +1,3 @@
-# todo:
-# 1. 开启服务
-# 2. 接收录音音频，返回识别结果
-# 3. 接收ASR识别结果，返回NLP对话结果
-# 4. 接收NLP对话结果，返回TTS音频
 import argparse
 import base64
 import datetime
@@ -32,6 +27,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse
 from starlette.websockets import WebSocketState as WebSocketState
 
+from paddlespeech.cli.tts.infer import TTSExecutor
 from paddlespeech.server.engine.asr.online.python.asr_engine import PaddleASRConnectionHanddler
 from paddlespeech.server.utils.audio_process import float2pcm
 
@@ -55,7 +51,7 @@ asr_config = "conf/ws_conformer_wenetspeech_application_faster.yaml"
 asr_init_path = "source/demo/demo.wav"
 db_path = "source/db/vpr.sqlite"
 ie_model_path = "source/model"
-
+tts_model = TTSExecutor()
 # 路径配置
 UPLOAD_PATH = "source/vpr"
 WAV_PATH = "source/wav"
@@ -72,6 +68,14 @@ manager = ConnectionManager()
 aumanager = AudioMannger(chatbot)
 aumanager.init()
 vpr = VPR(db_path, dim=192, top_k=5)
+# 初始化下载模型
+tts_model(
+    text="今天天气准不错",
+    output="test.wav",
+    am='fastspeech2_mix',
+    spk_id=174,
+    voc='hifigan_csmsc',
+    lang='mix', )
 
 
 # 服务配置
@@ -331,6 +335,7 @@ async def ieOffline(nlp_base: NlpBase):
 #####################################################################
 
 
+# 端到端合成
 @app.post("/tts/offline")
 async def text2speechOffline(tts_base: TtsBase):
     text = tts_base.text
@@ -341,7 +346,15 @@ async def text2speechOffline(tts_base: TtsBase):
             datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
         # 保存为文件，再转成base64传输
-        chatbot.text2speech(text, outpath=out_file_path)
+        # chatbot.text2speech(text, outpath=out_file_path)
+        # 使用中英混合CLI
+        tts_model(
+            text=text,
+            output=out_file_path,
+            am='fastspeech2_mix',
+            spk_id=174,
+            voc='hifigan_csmsc',
+            lang='mix')
         with open(out_file_path, "rb") as f:
             data_bin = f.read()
         base_str = base64.b64encode(data_bin)

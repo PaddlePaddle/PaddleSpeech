@@ -19,6 +19,26 @@ export const apiURL =   {
     CHAT_SOCKET_RECORD: 'ws://localhost:8010/ws/asr/offlineStream', // ChatBot websocket 接口
     ASR_SOCKET_RECORD: 'ws://localhost:8010/ws/asr/onlineStream',  // Stream ASR 接口
     TTS_SOCKET_RECORD: 'ws://localhost:8010/ws/tts/online', // Stream TTS 接口
+
+    // voice clone
+    // Voice Clone
+    VC_List: '/api/vc/list',
+    SAT_List: '/api/sat/list',
+    FineTune_List: '/api/finetune/list',
+
+    VC_Upload: '/api/vc/upload',
+    SAT_Upload: '/api/sat/upload',
+    FineTune_Upload: '/api/finetune/upload',
+    FineTune_NewDir: '/api/finetune/newdir',
+
+    VC_Download: '/api/vc/download',
+    VC_Download_Base64: '/api/vc/download_base64',
+    VC_Del: '/api/vc/del',
+    
+    VC_CloneG2p: '/api/vc/clone_g2p',
+    VC_CloneSAT: '/api/vc/clone_sat',
+    VC_CloneFineTune: '/api/finetune/clone_finetune',
+    VC_CloneFineTuneSyn: '/api/finetune/clone_finetune_syn',
 }
 
 

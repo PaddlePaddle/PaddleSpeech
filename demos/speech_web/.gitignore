@@ -13,4 +13,7 @@
 *.pdmodel
 */source/*
 */PaddleSpeech/*
+*/tmp*/*
+*/duration.txt
+*/oov_info.txt
 

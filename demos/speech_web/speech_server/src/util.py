@@ -1,4 +1,6 @@
+import os
 import random
+import subprocess
 
 
 def randName(n=5):
@@ -11,3 +13,20 @@ def SuccessRequest(result=None, message="ok"):
 
 def ErrorRequest(result=None, message="error"):
     return {"code": -1, "result": result, "message": message}
+
+
+def run_cmd(cmd, output_name):
+    p = subprocess.Popen(cmd, shell=True)
+    res = p.wait()
+    print(cmd)
+    print("运行结果：", res)
+    if res == 0:
+        # 运行成功
+        if os.path.exists(output_name):
+            return output_name
+        else:
+            # 合成的文件不存在
+            return None
+    else:
+        # 运行失败
+        return None

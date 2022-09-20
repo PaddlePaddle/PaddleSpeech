@@ -13,5 +13,4 @@ Submodules
    :maxdepth: 4
 
    paddlespeech.s2t.training.updaters.standard_updater
-   paddlespeech.s2t.training.updaters.trainer
    paddlespeech.s2t.training.updaters.updater

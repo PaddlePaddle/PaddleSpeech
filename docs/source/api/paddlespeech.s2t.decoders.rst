@@ -23,5 +23,4 @@ Submodules
    :maxdepth: 4
 
    paddlespeech.s2t.decoders.recog
-   paddlespeech.s2t.decoders.recog_bin
    paddlespeech.s2t.decoders.utils

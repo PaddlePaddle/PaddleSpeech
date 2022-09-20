@@ -17,8 +17,7 @@ import urllib.request
 
 import numpy as np
 import paddle
-
-from paddlespeech.audio.soundfile_backend import soundfile_load as load
+from paddleaudio.backends import soundfile_load as load
 
 wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
 

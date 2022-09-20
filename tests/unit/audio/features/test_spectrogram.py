@@ -15,8 +15,8 @@ import unittest
 
 import numpy as np
 import paddle
+import paddleaudio
 
-import paddlespeech.audio
 from .base import FeatTest
 from paddlespeech.s2t.transform.spectrogram import Spectrogram
 
@@ -31,7 +31,7 @@ class TestSpectrogram(FeatTest):
         ps_res = ps_spect(self.waveform.T).squeeze(1).T  # Magnitude
 
         x = paddle.to_tensor(self.waveform)
-        pa_spect = paddlespeech.audio.features.Spectrogram(
+        pa_spect = paddleaudio.features.Spectrogram(
             self.n_fft, self.hop_length, power=1.0)
         pa_res = pa_spect(x).squeeze(0).numpy()
 

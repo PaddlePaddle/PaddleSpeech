@@ -1,8 +1,8 @@
 from typing import Optional
 
-import scipy.io.wavfile
 import paddle
-import numpy as np
+import scipy.io.wavfile
+
 
 def normalize_wav(tensor: paddle.Tensor) -> paddle.Tensor:
     if tensor.dtype == paddle.float32:
@@ -23,13 +23,12 @@ def normalize_wav(tensor: paddle.Tensor) -> paddle.Tensor:
 
 
 def get_wav_data(
-    dtype: str,
-    num_channels: int,
-    *,
-    num_frames: Optional[int] = None,
-    normalize: bool = True,
-    channels_first: bool = True,
-):
+        dtype: str,
+        num_channels: int,
+        *,
+        num_frames: Optional[int]=None,
+        normalize: bool=True,
+        channels_first: bool=True, ):
     """Generate linear signal of the given dtype and num_channels
 
     Data range is
@@ -53,25 +52,26 @@ def get_wav_data(
     # paddle linspace not support uint8, int8, int16
     #if dtype == "uint8":
     #    base = paddle.linspace(0, 255, num_frames, dtype=dtype_)
-         #dtype_np = getattr(np, dtype)
-         #base_np = np.linspace(0, 255, num_frames, dtype_np)
-         #base = paddle.to_tensor(base_np, dtype=dtype_)
+    #dtype_np = getattr(np, dtype)
+    #base_np = np.linspace(0, 255, num_frames, dtype_np)
+    #base = paddle.to_tensor(base_np, dtype=dtype_)
     #elif dtype == "int8":
     #    base = paddle.linspace(-128, 127, num_frames, dtype=dtype_)
-         #dtype_np = getattr(np, dtype)
-         #base_np = np.linspace(-128, 127, num_frames, dtype_np)
-         #base = paddle.to_tensor(base_np, dtype=dtype_)
+    #dtype_np = getattr(np, dtype)
+    #base_np = np.linspace(-128, 127, num_frames, dtype_np)
+    #base = paddle.to_tensor(base_np, dtype=dtype_)
     if dtype == "float32":
         base = paddle.linspace(-1.0, 1.0, num_frames, dtype=dtype_)
     elif dtype == "float64":
         base = paddle.linspace(-1.0, 1.0, num_frames, dtype=dtype_)
     elif dtype == "int32":
-        base = paddle.linspace(-2147483648, 2147483647, num_frames, dtype=dtype_)
+        base = paddle.linspace(
+            -2147483648, 2147483647, num_frames, dtype=dtype_)
     #elif dtype == "int16":
     #    base = paddle.linspace(-32768, 32767, num_frames, dtype=dtype_)
-         #dtype_np = getattr(np, dtype)
-         #base_np = np.linspace(-32768, 32767, num_frames, dtype_np)
-         #base = paddle.to_tensor(base_np, dtype=dtype_)
+    #dtype_np = getattr(np, dtype)
+    #base_np = np.linspace(-32768, 32767, num_frames, dtype_np)
+    #base = paddle.to_tensor(base_np, dtype=dtype_)
     else:
         raise NotImplementedError(f"Unsupported dtype {dtype}")
     data = base.tile([num_channels, 1])

@@ -409,7 +409,9 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
 
         # wav to base64
         buf = io.BytesIO()
-        wavfile.write(buf, target_fs, wav_speed)
+        # wavfile.write(buf, target_fs, wav_speed)
+        sf.write(buf, wav_speed, target_fs, format="wav")
+        buf.seek(0)
         base64_bytes = base64.b64encode(buf.read())
         wav_base64 = base64_bytes.decode('utf-8')
         logger.debug("Audio to string successfully.")

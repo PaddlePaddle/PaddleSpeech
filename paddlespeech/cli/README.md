@@ -43,6 +43,6 @@
   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭
   ```
 - Faster Punctuation Restoration
-   ```bash
+  ```bash
   paddlespeech text --task punc --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭 --model ernie_linear_p3_wudao_fast
-   ```
+  ```

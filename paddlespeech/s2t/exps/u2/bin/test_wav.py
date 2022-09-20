@@ -68,7 +68,7 @@ class U2Infer():
         with paddle.no_grad():
             # read
             audio, sample_rate = soundfile.read(
-               self.audio_file, dtype="int16", always_2d=True)
+                self.audio_file, dtype="int16", always_2d=True)
             audio = audio[:, 0]
             logger.info(f"audio shape: {audio.shape}")
 

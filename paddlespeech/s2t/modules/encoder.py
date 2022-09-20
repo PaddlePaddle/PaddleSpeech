@@ -256,10 +256,11 @@ class BaseEncoder(nn.Layer):
             #   att_cache=att_cache[i:i+1] if elayers > 0 else att_cache,
             #   cnn_cache=cnn_cache[i:i+1] if paddle.shape(cnn_cache)[0] > 0 else cnn_cache,
             xs, _, new_att_cache, new_cnn_cache = layer(
-                xs, att_mask, pos_emb,
-                att_cache=att_cache[i:i+1],
-                cnn_cache=cnn_cache[i:i+1],
-            )
+                xs,
+                att_mask,
+                pos_emb,
+                att_cache=att_cache[i:i + 1],
+                cnn_cache=cnn_cache[i:i + 1], )
             # new_att_cache = (1, head, attention_key_size, d_k*2)
             # new_cnn_cache = (B=1, hidden-dim, cache_t2)
             r_att_cache.append(new_att_cache[:, :, next_cache_start:, :])

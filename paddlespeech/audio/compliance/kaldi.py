@@ -376,7 +376,8 @@ def _get_mel_banks(num_bins: int,
 
     center_freqs = _inverse_mel_scale(center_mel)  # (num_bins)
     # (1, num_fft_bins)
-    mel = _mel_scale(fft_bin_width * paddle.arange(num_fft_bins, dtype=paddle.float32)).unsqueeze(0)
+    mel = _mel_scale(fft_bin_width * paddle.arange(
+        num_fft_bins, dtype=paddle.float32)).unsqueeze(0)
 
     # (num_bins, num_fft_bins)
     up_slope = (mel - left_mel) / (center_mel - left_mel)

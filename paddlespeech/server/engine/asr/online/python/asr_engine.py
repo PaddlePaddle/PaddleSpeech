@@ -80,7 +80,6 @@ class PaddleASRConnectionHanddler:
         self.init_decoder()
         self.reset()
 
-
     def init_decoder(self):
         if "deepspeech2" in self.model_type:
             assert self.continuous_decoding is False, "ds2 model not support endpoint"

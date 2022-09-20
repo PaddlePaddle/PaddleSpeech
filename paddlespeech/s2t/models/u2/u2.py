@@ -545,11 +545,13 @@ class U2BaseModel(ASRInterface, nn.Layer):
             [len(hyp[0]) for hyp in hyps], place=device,
             dtype=paddle.long)  # (beam_size,)
         hyps_pad, _ = add_sos_eos(hyps_pad, self.sos, self.eos, self.ignore_id)
-        logger.debug(f"hyps pad: {hyps_pad} {self.sos} {self.eos} {self.ignore_id}")
+        logger.debug(
+            f"hyps pad: {hyps_pad} {self.sos} {self.eos} {self.ignore_id}")
         hyps_lens = hyps_lens + 1  # Add <sos> at begining
 
         # ctc score in ln domain
-        decoder_out = self.forward_attention_decoder(hyps_pad, hyps_lens, encoder_out)
+        decoder_out = self.forward_attention_decoder(hyps_pad, hyps_lens,
+                                                     encoder_out)
 
         # Only use decoder score for rescoring
         best_score = -float('inf')
@@ -561,7 +563,9 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 score += decoder_out[i][j][w]
             # last decoder output token is `eos`, for laste decoder input token.
             score += decoder_out[i][len(hyp[0])][self.eos]
-            logger.debug(f"hyp {i} len {len(hyp[0])} l2r rescore_score: {score} ctc_score: {hyp[1]}")
+            logger.debug(
+                f"hyp {i} len {len(hyp[0])} l2r rescore_score: {score} ctc_score: {hyp[1]}"
+            )
 
             # add ctc score (which in ln domain)
             score += hyp[1] * ctc_weight
@@ -933,9 +937,7 @@ class U2InferModel(U2Model):
             if process_type == 'fbank_kaldi':
                 opts.update({'n_mels': input_dim})
                 opts['dither'] = 0.0
-                self.fbank = KaldiFbank(
-                   **opts
-                )
+                self.fbank = KaldiFbank(**opts)
                 logger.info(f"{self.__class__.__name__} export: {self.fbank}")
             if process_type == 'cmvn_json':
                 # align with paddlespeech.audio.transform.cmvn:GlobalCMVN
@@ -956,7 +958,8 @@ class U2InferModel(U2Model):
                 self.global_cmvn = GlobalCMVN(
                     paddle.to_tensor(mean, dtype=paddle.float),
                     paddle.to_tensor(istd, dtype=paddle.float))
-                logger.info(f"{self.__class__.__name__} export: {self.global_cmvn}")
+                logger.info(
+                    f"{self.__class__.__name__} export: {self.global_cmvn}")
 
     def forward(self,
                 feats,

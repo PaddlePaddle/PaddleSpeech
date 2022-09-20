@@ -462,11 +462,13 @@ class U2Tester(U2Trainer):
         infer_model = U2InferModel.from_pretrained(self.test_loader,
                                                    self.config.clone(),
                                                    self.args.checkpoint_path)
-        batch_size = 1 
+        batch_size = 1
         feat_dim = self.test_loader.feat_dim
         model_size = self.config.encoder_conf.output_size
         num_left_chunks = -1
-        logger.info(f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}")
+        logger.info(
+            f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}"
+        )
 
         return infer_model, (batch_size, feat_dim, model_size, num_left_chunks)
 
@@ -479,29 +481,29 @@ class U2Tester(U2Trainer):
         assert isinstance(input_spec, (list, tuple)), type(input_spec)
         batch_size, feat_dim, model_size, num_left_chunks = input_spec
 
-
         ######################## infer_model.forward_encoder_chunk ############
         input_spec = [
             # (T,), int16
             paddle.static.InputSpec(shape=[None], dtype='int16'),
         ]
-        infer_model.forward_feature = paddle.jit.to_static(infer_model.forward_feature, input_spec=input_spec)
+        infer_model.forward_feature = paddle.jit.to_static(
+            infer_model.forward_feature, input_spec=input_spec)
 
         ######################### infer_model.forward_encoder_chunk ############
         input_spec = [
             # xs, (B, T, D)
-            paddle.static.InputSpec(shape=[batch_size, None, feat_dim], dtype='float32'),
+            paddle.static.InputSpec(
+                shape=[batch_size, None, feat_dim], dtype='float32'),
             # offset, int, but need be tensor
-            paddle.static.InputSpec(shape=[1], dtype='int32'), 
+            paddle.static.InputSpec(shape=[1], dtype='int32'),
             # required_cache_size, int
             num_left_chunks,
             # att_cache
             paddle.static.InputSpec(
-                shape=[None, None, None, None],
-                dtype='float32'), 
+                shape=[None, None, None, None], dtype='float32'),
             # cnn_cache
             paddle.static.InputSpec(
-                    shape=[None, None, None, None], dtype='float32')
+                shape=[None, None, None, None], dtype='float32')
         ]
         infer_model.forward_encoder_chunk = paddle.jit.to_static(
             infer_model.forward_encoder_chunk, input_spec=input_spec)
@@ -509,11 +511,11 @@ class U2Tester(U2Trainer):
         ######################### infer_model.ctc_activation ########################
         input_spec = [
             # encoder_out, (B,T,D)
-            paddle.static.InputSpec(shape=[batch_size, None, model_size], dtype='float32')
+            paddle.static.InputSpec(
+                shape=[batch_size, None, model_size], dtype='float32')
         ]
         infer_model.ctc_activation = paddle.jit.to_static(
             infer_model.ctc_activation, input_spec=input_spec)
-
 
         ######################### infer_model.forward_attention_decoder ########################
         input_spec = [
@@ -522,15 +524,19 @@ class U2Tester(U2Trainer):
             # hyps_lens, (B,)
             paddle.static.InputSpec(shape=[None], dtype='int64'),
             # encoder_out, (B,T,D)
-            paddle.static.InputSpec(shape=[batch_size, None, model_size], dtype='float32')
+            paddle.static.InputSpec(
+                shape=[batch_size, None, model_size], dtype='float32')
         ]
         infer_model.forward_attention_decoder = paddle.jit.to_static(
             infer_model.forward_attention_decoder, input_spec=input_spec)
 
         # jit save
         logger.info(f"export save: {self.args.export_path}")
-        paddle.jit.save(infer_model, self.args.export_path, combine_params=True, skip_forward=True)
-
+        paddle.jit.save(
+            infer_model,
+            self.args.export_path,
+            combine_params=True,
+            skip_forward=True)
 
         # test dy2static
         def flatten(out):
@@ -551,7 +557,8 @@ class U2Tester(U2Trainer):
         required_cache_size = num_left_chunks
         att_cache = paddle.zeros([0, 0, 0, 0])
         cnn_cache = paddle.zeros([0, 0, 0, 0])
-        xs_d, att_cache_d, cnn_cache_d = infer_model.forward_encoder_chunk(xs1, offset, required_cache_size, att_cache, cnn_cache)
+        xs_d, att_cache_d, cnn_cache_d = infer_model.forward_encoder_chunk(
+            xs1, offset, required_cache_size, att_cache, cnn_cache)
 
         # load static model
         from paddle.jit.layer import Layer

@@ -1,19 +1,17 @@
-
-
-
 import paddle
 from paddle import nn
 
 from paddlespeech.audio.compliance import kaldi
-
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
 __all__ = ['KaldiFbank']
 
+
 class KaldiFbank(nn.Layer):
-    def __init__(self,
+    def __init__(
+            self,
             fs=16000,
             n_mels=80,
             n_shift=160,  # unit:sample, 10ms
@@ -62,7 +60,7 @@ class KaldiFbank(nn.Layer):
         assert x.ndim == 1
 
         feat = kaldi.fbank(
-            x.unsqueeze(0), # append channel dim, (C, Ti)
+            x.unsqueeze(0),  # append channel dim, (C, Ti)
             n_mels=self.n_mels,
             frame_length=self.n_frame_length,
             frame_shift=self.n_frame_shift,
@@ -70,5 +68,5 @@ class KaldiFbank(nn.Layer):
             energy_floor=self.energy_floor,
             sr=self.fs)
 
-        assert feat.ndim == 2 # (T,D)
+        assert feat.ndim == 2  # (T,D)
         return feat

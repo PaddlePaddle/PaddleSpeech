@@ -716,7 +716,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             hyps: paddle.Tensor,
             hyps_lens: paddle.Tensor,
             encoder_out: paddle.Tensor,
-            reverse_weight: float=0.0, ) -> paddle.Tensor:
+            reverse_weight: float=0.0) -> paddle.Tensor:
         """ Export interface for c++ call, forward decoder with multiple
             hypothesis from ctc prefix beam search and one encoder output
         Args:

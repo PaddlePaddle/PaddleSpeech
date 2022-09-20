@@ -16,12 +16,14 @@ PaddleSpeechDemo 是一个以 PaddleSpeech 的语音交互功能为主体开发�
 `vc.py` 中包含功能
 + 一句话合成：基于 GE2E 和 ECAPA-TDNN 模型的一句话合成方案，可以模仿输入的音频的音色进行合成任务
   + GE2E 音色克隆方案可以参考： [【FastSpeech2 + AISHELL-3 Voice Cloning】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc1)
-  + ECAPA-TDNN 音色克隆方案可以参考: [【FastSpeech2 + AISHELL-3 Voice Cloning (ECAPA-TDNN)
-】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc2)
+  + ECAPA-TDNN 音色克隆方案可以参考: [【FastSpeech2 + AISHELL-3 Voice Cloning (ECAPA-TDNN)】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/vc2)
 
-+ 小数据微调：基于小数据集的微调方案，内置用12句话标贝中文女声微调示例，你也可以通过一键重置，录制自己的声音，注意在安静环境下录制，效果会更好，你可以
++ 小数据微调：基于小数据集的微调方案，内置用12句话标贝中文女声微调示例，你也可以通过一键重置，录制自己的声音，注意在安静环境下录制，效果会更好。你可以在 [【Finetune your own AM based on FastSpeech2 with AISHELL-3】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/tts_finetune/tts3)中尝试使用自己的数据集进行微调。
 
-+ ENIRE-SAT：语言-语音跨模态大模型 ENIRE-SAT 可视化展示示例，支持个性化合成，跨语言语音合成（音频为中文则输入英文文本进行合成），语音编辑（修改音频文字中间的结果）功能
++ ENIRE-SAT：语言-语音跨模态大模型 ENIRE-SAT 可视化展示示例，支持个性化合成，跨语言语音合成（音频为中文则输入英文文本进行合成），语音编辑（修改音频文字中间的结果）功能。 ENIRE-SAT 更多实现细节，可以参考：
+  + [【ERNIE-SAT with AISHELL-3 dataset】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/ernie_sat)
+  + [【ERNIE-SAT with with AISHELL3 and VCTK datasets】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3_vctk/ernie_sat)
+  + [【ERNIE-SAT with VCTK dataset】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/ernie_sat)
 
 运行效果：
 
@@ -37,23 +39,40 @@ Model 中如果有模型之前是已经下载过的，就不需要在下载了�
 # 安装环境
 cd speech_server
 pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+```
 
-mkdir source
-cd source
+### 配置 `main.py` 相关环境
 
-# 下载 wav
-wget https://paddlespeech.bj.bcebos.com/demos/speech_web/wav_vc.zip
-unzip wav_vc.zip
+下载 语音指令 所需模型
 
-# 下载相关模型
-mkdir model
-cd model
-
+```bash
+cd speech_server
+mkdir -p source/model
+cd source/model
 # 下载IE模型
 wget https://bj.bcebos.com/paddlenlp/applications/speech-cmd-analysis/finetune/model_state.pdparams
 
+```
 
-# 如果不需要 vc.py 的相关功能，可以跳过下面这些模型
+
+### 配置 `vc.py` 相关环境
+
+如果不需要启动 vc 相关功能，可以跳过下面这些步骤
+
+下载测试音频和对应功能需要的模型
+
+```bash
+cd speech_server
+
+# 已创建则跳过
+mkdir -p source/model
+
+cd source
+# 下载 & 解压 wav （包含VC测试音频）
+wget https://paddlespeech.bj.bcebos.com/demos/speech_web/wav_vc.zip
+unzip wav_vc.zip
+
+cd model
 # 下载 GE2E 相关模型
 wget https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip
 unzip ge2e_ckpt_0.3.zip
@@ -66,17 +85,16 @@ unzip fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
 unzip fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
 
-# 下载 SAT 相关模型
-
-# aishell3
+# 下载 ERNIE-SAT 相关模型
+# aishell3 ERNIE-SAT
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_ckpt_1.2.0.zip
 unzip erniesat_aishell3_ckpt_1.2.0.zip
 
-# vctk
+# vctk ERNIE-SAT
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_vctk_ckpt_1.2.0.zip
 unzip erniesat_vctk_ckpt_1.2.0.zip
 
-# aishell3_vctk
+# aishell3_vctk ERNIE-SAT
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_vctk_ckpt_1.2.0.zip
 unzip erniesat_aishell3_vctk_ckpt_1.2.0.zip
 
@@ -89,12 +107,7 @@ wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan
 unzip hifigan_aishell3_ckpt_0.2.0.zip
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
 unzip hifigan_vctk_ckpt_0.2.0.zip
-
 ```
-
-### 配置 `vc.py` 相关环境
-
-如果不需要启动 vc 相关功能，可以跳过下面这些步骤
 
 #### ERNIE-SAT 环境配置
 
@@ -104,7 +117,8 @@ ERNIE-SAT 体验依赖于 PaddleSpeech 中和 ERNIE-SAT相关的三个 `examples
 
 准备 `tools`文件夹:
 
-```shell
+```bash
+cd speech_server
 mkdir -p tools/aligner
 cd tools
 # download MFA
@@ -127,6 +141,7 @@ cd ../../
 准备 `download` 文件夹
 
 ```bash
+cd speech_server
 mkdir download
 cd download
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip
@@ -149,7 +164,7 @@ cd ../
 `finetune` 需要在 `tools/aligner` 中解压 `aishell3_model.zip`，包含`tools/aligner/aishell3_model/meta.yaml` 文件，finetune中需要使用
 
 ```bash
-cd tools/aligner
+cd speech_server/tools/aligner
 unzip aishell3.zip
 cd ../..
 ```
@@ -159,7 +174,7 @@ cd ../..
 
 前端依赖 `node.js` ，需要提前安装，确保 `npm` 可用，`npm` 测试版本 `8.3.1`，建议下载[官网](https://nodejs.org/en/)稳定版的 `node.js`
 
-```
+```bash
 # 进入前端目录
 cd web_client
 

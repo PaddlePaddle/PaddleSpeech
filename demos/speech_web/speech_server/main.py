@@ -345,8 +345,6 @@ async def text2speechOffline(tts_base: TtsBase):
         now_name = "tts_" + datetime.datetime.strftime(
             datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
-        # 保存为文件，再转成base64传输
-        # chatbot.text2speech(text, outpath=out_file_path)
         # 使用中英混合CLI
         tts_model(
             text=text,

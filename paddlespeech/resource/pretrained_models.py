@@ -546,7 +546,7 @@ text_dynamic_pretrained_models = {
         }
     },
     "ernie_linear_p3_wudao_fast-punc-zh": {
-         '1.0':{
+        '1.0': {
             'url':
             'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_wudao_fast-punc-zh.tar.gz',
             'md5':
@@ -560,8 +560,6 @@ text_dynamic_pretrained_models = {
         }
     }
 }
-
-
 
 # ---------------------------------
 # -------------- TTS --------------

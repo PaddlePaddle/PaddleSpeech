@@ -18,7 +18,6 @@ Submodules
    paddlespeech.server.utils.config
    paddlespeech.server.utils.errors
    paddlespeech.server.utils.exception
-   paddlespeech.server.utils.log
    paddlespeech.server.utils.onnx_infer
    paddlespeech.server.utils.paddle_predictor
    paddlespeech.server.utils.util

@@ -74,8 +74,10 @@ Contents
    paddlespeech.cli <api/paddlespeech.cli>
    paddlespeech.cls <api/paddlespeech.cls>
    paddlespeech.kws <api/paddlespeech.kws>
+   paddlespeech.resource <api/paddlespeech.resource>
    paddlespeech.s2t <api/paddlespeech.s2t>
    paddlespeech.server <api/paddlespeech.server>
    paddlespeech.t2s <api/paddlespeech.t2s>
    paddlespeech.text <api/paddlespeech.text>
+   paddlespeech.utils <api/ppaddlespeech.utils>
    paddlespeech.vector <api/paddlespeech.vector>

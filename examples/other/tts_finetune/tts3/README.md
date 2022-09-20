@@ -221,3 +221,5 @@ optional arguments:
 
 ### Tips
 If you want to get better audio quality, you can use more audios to finetune.
+More finetune results can be found on [finetune-fastspeech2-for-csmsc](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html#finetune-fastspeech2-for-csmsc).
+The results show the effect on csmsc_mini: Freeze encoder > Non Frozen > Freeze encoder && duration_predictor.

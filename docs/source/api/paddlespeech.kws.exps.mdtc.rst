@@ -14,6 +14,5 @@ Submodules
 
    paddlespeech.kws.exps.mdtc.collate
    paddlespeech.kws.exps.mdtc.compute_det
-   paddlespeech.kws.exps.mdtc.plot_det_curve
    paddlespeech.kws.exps.mdtc.score
    paddlespeech.kws.exps.mdtc.train

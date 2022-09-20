@@ -20,6 +20,3 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   paddlespeech.cls.exps.panns.export_model
-   paddlespeech.cls.exps.panns.predict
-   paddlespeech.cls.exps.panns.train

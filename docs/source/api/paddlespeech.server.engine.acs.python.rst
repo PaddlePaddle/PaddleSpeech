@@ -12,4 +12,3 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   paddlespeech.server.engine.acs.python.acs_engine

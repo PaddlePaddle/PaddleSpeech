@@ -52,19 +52,19 @@ class SAT:
         voc_stat = os.path.join(self.zh_voc_model_path, "feats_stats.npy")
 
         cmd = self.get_cmd(
-            task_name,
-            input_name,
-            old_str,
-            new_str,
-            config_path,
-            phones_dict,
-            erniesat_ckpt,
-            erniesat_stat,
-            voc,
-            voc_config,
-            voc_ckpt,
-            voc_stat,
-            output_name,
+            task_name=task_name,
+            input_name=input_name,
+            old_str=old_str,
+            new_str=new_str,
+            config_path=config_path,
+            phones_dict=phones_dict,
+            erniesat_ckpt=erniesat_ckpt,
+            erniesat_stat=erniesat_stat,
+            voc=voc,
+            voc_config=voc_config,
+            voc_ckpt=voc_ckpt,
+            voc_stat=voc_stat,
+            output_name=output_name,
             source_lang="zh",
             target_lang="zh")
 
@@ -94,10 +94,22 @@ class SAT:
                                 "snapshot_iter_2500000.pdz")
         voc_stat = os.path.join(self.cross_voc_model_path, "feats_stats.npy")
         task_name = "synthesize"
-        cmd = self.get_cmd(task_name, input_name, old_str, new_str, config_path,
-                           phones_dict, erniesat_ckpt, erniesat_stat, voc,
-                           voc_config, voc_ckpt, voc_stat, output_name,
-                           source_lang, target_lang)
+        cmd = self.get_cmd(
+            task_name=task_name,
+            input_name=input_name,
+            old_str=old_str,
+            new_str=new_str,
+            config_path=config_path,
+            phones_dict=phones_dict,
+            erniesat_ckpt=erniesat_ckpt,
+            erniesat_stat=erniesat_stat,
+            voc=voc,
+            voc_config=voc_config,
+            voc_ckpt=voc_ckpt,
+            voc_stat=voc_stat,
+            output_name=output_name,
+            source_lang=source_lang,
+            target_lang=target_lang)
 
         return run_cmd(cmd, output_name)
 
@@ -125,27 +137,40 @@ class SAT:
         voc_stat = os.path.join(self.zh_voc_model_path, "feats_stats.npy")
 
         cmd = self.get_cmd(
-            task_name,
-            input_name,
-            old_str,
-            new_str,
-            config_path,
-            phones_dict,
-            erniesat_ckpt,
-            erniesat_stat,
-            voc,
-            voc_config,
-            voc_ckpt,
-            voc_stat,
-            output_name,
+            task_name=task_name,
+            input_name=input_name,
+            old_str=old_str,
+            new_str=new_str,
+            config_path=config_path,
+            phones_dict=phones_dict,
+            erniesat_ckpt=erniesat_ckpt,
+            erniesat_stat=erniesat_stat,
+            voc=voc,
+            voc_config=voc_config,
+            voc_ckpt=voc_ckpt,
+            voc_stat=voc_stat,
+            output_name=output_name,
             source_lang="en",
             target_lang="en")
 
         return run_cmd(cmd, output_name)
 
-    def get_cmd(self, task_name, input_name, old_str, new_str, config_path,
-                phones_dict, erniesat_ckpt, erniesat_stat, voc, voc_config,
-                voc_ckpt, voc_stat, output_name, source_lang, target_lang):
+    def get_cmd(self,
+                task_name: str,
+                input_name: str,
+                old_str: str,
+                new_str: str,
+                config_path: str,
+                phones_dict: str,
+                erniesat_ckpt: str,
+                erniesat_stat: str,
+                voc: str,
+                voc_config: str,
+                voc_ckpt: str,
+                voc_stat: str,
+                output_name: str,
+                source_lang: str,
+                target_lang: str):
         cmd = f"""
             FLAGS_allocator_strategy=naive_best_fit \
             FLAGS_fraction_of_gpu_memory_to_use=0.01 \

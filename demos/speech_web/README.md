@@ -131,6 +131,8 @@ wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan
 unzip hifigan_aishell3_ckpt_0.2.0.zip
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
 unzip hifigan_vctk_ckpt_0.2.0.zip
+
+cd ../../../
 ```
 
 #### ERNIE-SAT 环境配置

@@ -141,8 +141,9 @@ ERNIE-SAT 体验依赖于 [examples/aishell3_vctk/ernie_sat](https://github.com/
  
 运行好 `examples/aishell3_vctk/ernie_sat` 后，回到当前目录，创建环境：
 ```bash
-ln -s ../../examples/aishell3_vctk/ernie_sat/tools ./speech_server/tools
-ln -s ../../examples/aishell3_vctk/ernie_sat/download ./speech_server/download
+cd speech_server
+ln -snf ../../../examples/aishell3_vctk/ernie_sat/download .
+ln -snf ../../../examples/aishell3_vctk/ernie_sat/tools .
 ```
 
 #### finetune 环境配置

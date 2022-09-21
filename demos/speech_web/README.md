@@ -186,7 +186,7 @@ A： node.js的安装可以参考[【菜鸟教程】](https://www.runoob.com/nod
 
 A：后端的配置地址有分散在两个文件中
 
-修改第一个文件 `PaddleSpeechWebClient/vite.config.js`
+修改第一个文件 `./web_client/vite.config.js`
 
 ```
 server: {
@@ -201,7 +201,7 @@ server: {
   }
 ```
 
-修改第二个文件 `PaddleSpeechWebClient/src/api/API.js`（ Websocket 代理配置失败，所以需要在这个文件中修改）
+修改第二个文件 `./web_client/src/api/API.js`（ Websocket 代理配置失败，所以需要在这个文件中修改）
 
 ```
 // websocket （这里改成后端所在的接口）

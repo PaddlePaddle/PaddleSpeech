@@ -154,7 +154,7 @@ cd ../
 ```bash
 cd speech_server/tools/aligner
 unzip aishell3_model.zip
-cd ../../
+cd -
 ```
 
 #### 启动后端服务

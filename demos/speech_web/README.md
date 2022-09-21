@@ -105,7 +105,7 @@ unzip pwg_aishell3_ckpt_0.5.zip
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
 unzip fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
 
-# 下载 TDNN 相关模型
+# 下载 ECAPA-TDNN 相关模型
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
 unzip fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
 

@@ -600,7 +600,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
                     r_score += r_decoder_out[i][len(hyp[0]) - j - 1][w]
                 r_score += r_decoder_out[i][len(hyp[0])][self.eos]
 
-                logger.info(
+                logger.debug(
                     f"hyp {i} len {len(hyp[0])} r2l score: {r_score} ctc_score: {hyp[1]} reverse_weight: {reverse_weight}"
                 )
 

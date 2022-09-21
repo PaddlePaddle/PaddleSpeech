@@ -79,7 +79,7 @@ class U2Infer():
             ilen = paddle.to_tensor(feat.shape[0])
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
             decode_config = self.config.decode
-            logger.debug(f"decode cfg: {decode_config}")
+            logger.info(f"decode cfg: {decode_config}")
             result_transcripts = self.model.decode(
                 xs,
                 ilen,

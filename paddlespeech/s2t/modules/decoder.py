@@ -343,7 +343,7 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
         """
         l_x, _, olens = self.left_decoder(memory, memory_mask, ys_in_pad,
                                           ys_in_lens)
-        r_x = paddle.to_tensor(0.0)
+        r_x = paddle.zeros([1])
         if reverse_weight > 0.0:
             r_x, _, olens = self.right_decoder(memory, memory_mask, r_ys_in_pad,
                                                ys_in_lens)

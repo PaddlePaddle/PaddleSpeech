@@ -29,6 +29,11 @@ class FineTune:
         self.finetune_config = os.path.join("conf/tts3_finetune.yaml")
 
     def finetune(self, input_dir, exp_dir='temp', epoch=100):
+        """
+        use cmd follow examples/other/tts_finetune/tts3/run.sh
+        """
+        newdir_name = "newdir"
+        new_dir = os.path.join(input_dir, newdir_name)
         mfa_dir = os.path.join(exp_dir, 'mfa_result')
         dump_dir = os.path.join(exp_dir, 'dump')
         output_dir = os.path.join(exp_dir, 'exp')
@@ -36,16 +41,43 @@ class FineTune:
         ngpu = 1
 
         cmd = f"""
-            python3 {self.PYTHONPATH}/finetune.py \
-            --input_dir={input_dir} \
-            --pretrained_model_dir={self.pretrained_model_dir} \
-            --mfa_dir={mfa_dir} \
-            --dump_dir={dump_dir} \
-            --output_dir={output_dir} \
-            --lang={lang} \
-            --ngpu={ngpu} \
-            --epoch={epoch} \
-            --finetune_config={self.finetune_config}
+            # check oov
+            python3 {self.PYTHONPATH}/local/check_oov.py \
+                --input_dir={input_dir} \
+                --pretrained_model_dir={self.pretrained_model_dir} \
+                --newdir_name={newdir_name} \
+                --lang={lang}
+            
+            # get mfa result
+            python3 {self.PYTHONPATH}/local/get_mfa_result.py \
+                --input_dir={new_dir} \
+                --mfa_dir={mfa_dir} \
+                --lang={lang}
+            
+            # generate durations.txt
+            python3 {self.PYTHONPATH}/local/generate_duration.py \
+                --mfa_dir={mfa_dir} 
+            
+            # extract feature
+            python3 {self.PYTHONPATH}/local/extract_feature.py \
+                --duration_file="./durations.txt" \
+                --input_dir={new_dir} \
+                --dump_dir={dump_dir} \
+                --pretrained_model_dir={self.pretrained_model_dir}
+            
+            # create finetune env
+            python3 {self.PYTHONPATH}/local/prepare_env.py \
+                --pretrained_model_dir={self.pretrained_model_dir} \
+                --output_dir={output_dir}
+            
+            # finetune
+            python3 {self.PYTHONPATH}/local/finetune.py \
+                --pretrained_model_dir={self.pretrained_model_dir} \
+                --dump_dir={dump_dir} \
+                --output_dir={output_dir} \
+                --ngpu={ngpu} \
+                --epoch=100 \
+                --finetune_config={self.finetune_config}
         """
 
         print(cmd)

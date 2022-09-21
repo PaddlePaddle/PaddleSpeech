@@ -3,20 +3,19 @@
 set -e
 source path.sh
 
-
-input_dir=./input/csmsc_mini
+input_dir=./input/ljspeech_mini
 newdir_name="newdir"
 new_dir=${input_dir}/${newdir_name}
-pretrained_model_dir=./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0
+pretrained_model_dir=./pretrained_models/fastspeech2_vctk_ckpt_1.2.0
 mfa_tools=./tools
 mfa_dir=./mfa_result
 dump_dir=./dump
 output_dir=./exp/default
-lang=zh
+lang=en
 ngpu=1
 finetune_config=./conf/finetune.yaml
 
-ckpt=snapshot_iter_96699
+ckpt=snapshot_iter_66300
 
 gpus=1
 CUDA_VISIBLE_DEVICES=${gpus}
@@ -91,16 +90,16 @@ if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     FLAGS_allocator_strategy=naive_best_fit \
     FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize_e2e.py \
-        --am=fastspeech2_aishell3 \
+        --am=fastspeech2_vctk \
         --am_config=${pretrained_model_dir}/default.yaml \
         --am_ckpt=${output_dir}/checkpoints/${ckpt}.pdz \
         --am_stat=${pretrained_model_dir}/speech_stats.npy \
-        --voc=hifigan_aishell3 \
-        --voc_config=pretrained_models/hifigan_aishell3_ckpt_0.2.0/default.yaml \
-        --voc_ckpt=pretrained_models/hifigan_aishell3_ckpt_0.2.0/snapshot_iter_2500000.pdz \
-        --voc_stat=pretrained_models/hifigan_aishell3_ckpt_0.2.0/feats_stats.npy \
-        --lang=zh \
-        --text=${BIN_DIR}/../sentences.txt \
+        --voc=hifigan_vctk \
+        --voc_config=pretrained_models/hifigan_vctk_ckpt_0.2.0/default.yaml \
+        --voc_ckpt=pretrained_models/hifigan_vctk_ckpt_0.2.0/snapshot_iter_2500000.pdz \
+        --voc_stat=pretrained_models/hifigan_vctk_ckpt_0.2.0/feats_stats.npy \
+        --lang=en \
+        --text=${BIN_DIR}/../sentences_en.txt \
         --output_dir=./test_e2e/ \
         --phones_dict=${dump_dir}/phone_id_map.txt \
         --speaker_dict=${dump_dir}/speaker_id_map.txt \

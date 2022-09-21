@@ -144,6 +144,7 @@ ERNIE-SAT 体验依赖于 [examples/aishell3_vctk/ernie_sat](https://github.com/
 cd speech_server
 ln -snf ../../../examples/aishell3_vctk/ernie_sat/download .
 ln -snf ../../../examples/aishell3_vctk/ernie_sat/tools .
+cd ../
 ```
 
 #### finetune 环境配置

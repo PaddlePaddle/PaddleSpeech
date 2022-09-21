@@ -44,6 +44,11 @@
   resolved "https://registry.npmmirror.com/@element-plus/icons-vue/-/icons-vue-1.1.4.tgz"
   integrity sha512-Iz/nHqdp1sFPmdzRwHkEQQA3lKvoObk8azgABZ81QUOpW9s/lUyQVUSh0tNtEPZXQlKwlSh7SPgoVxzrE0uuVQ==
 
+"@element-plus/icons-vue@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.npmmirror.com/@element-plus/icons-vue/-/icons-vue-2.0.9.tgz#b7777c57534522e387303d194451d50ff549d49a"
+  integrity sha512-okdrwiVeKBmW41Hkl0eMrXDjzJwhQMuKiBOu17rOszqM+LS/yBYpNQNV5Jvoh06Wc+89fMmb/uhzf8NZuDuUaQ==
+
 "@floating-ui/core@^0.6.1":
   version "0.6.1"
   resolved "https://registry.npmmirror.com/@floating-ui/core/-/core-0.6.1.tgz"

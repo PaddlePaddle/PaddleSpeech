@@ -264,15 +264,15 @@ class BaseEncoder(nn.Layer):
             # new_att_cache = (1, head, attention_key_size, d_k*2)
             # new_cnn_cache = (B=1, hidden-dim, cache_t2)
             r_att_cache.append(new_att_cache[:, :, next_cache_start:, :])
-            r_cnn_cache.append(new_cnn_cache.unsqueeze(0))  # add elayer dim
+            r_cnn_cache.append(new_cnn_cache)  # add elayer dim
 
         if self.normalize_before:
             xs = self.after_norm(xs)
 
         # r_att_cache (elayers, head, T, d_k*2)
-        # r_cnn_cache （elayers, B=1, hidden-dim, cache_t2)
+        # r_cnn_cache (elayers, B=1, hidden-dim, cache_t2)
         r_att_cache = paddle.concat(r_att_cache, axis=0)
-        r_cnn_cache = paddle.concat(r_cnn_cache, axis=0)
+        r_cnn_cache = paddle.stack(r_cnn_cache, axis=0)
         return xs, r_att_cache, r_cnn_cache
 
     def forward_chunk_by_chunk(

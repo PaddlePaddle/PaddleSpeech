@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
 import logging
 import os
 from operator import itemgetter
@@ -20,8 +21,10 @@ from typing import Union
 
 import jsonlines
 import numpy as np
+import yaml
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
+from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.get_feats import Energy
@@ -284,3 +287,49 @@ def extract_feature(duration_file: str,
         # norm
         normalize(speech_scaler, pitch_scaler, energy_scaler, vocab_phones,
                   vocab_speaker, dump_dir, "test")
+
+
+if __name__ == '__main__':
+    # parse config and args
+    parser = argparse.ArgumentParser(
+        description="Preprocess audio and then extract features.")
+
+    parser.add_argument(
+        "--duration_file",
+        type=str,
+        default="./durations.txt",
+        help="duration file")
+
+    parser.add_argument(
+        "--input_dir",
+        type=str,
+        default="./input/baker_mini/newdir",
+        help="directory containing audio and label file")
+
+    parser.add_argument(
+        "--dump_dir", type=str, default="./dump", help="dump dir")
+
+    parser.add_argument(
+        "--pretrained_model_dir",
+        type=str,
+        default="./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0",
+        help="Path to pretrained model")
+
+    args = parser.parse_args()
+
+    input_dir = Path(args.input_dir).expanduser()
+    dump_dir = Path(args.dump_dir).expanduser()
+    dump_dir.mkdir(parents=True, exist_ok=True)
+    pretrained_model_dir = Path(args.pretrained_model_dir).expanduser()
+
+    # read config
+    config_file = pretrained_model_dir / "default.yaml"
+    with open(config_file) as f:
+        config = CfgNode(yaml.safe_load(f))
+
+    extract_feature(
+        duration_file=args.duration_file,
+        config=config,
+        input_dir=input_dir,
+        dump_dir=dump_dir,
+        pretrained_model_dir=pretrained_model_dir)

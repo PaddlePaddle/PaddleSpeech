@@ -87,8 +87,6 @@ fi
 # synthesize e2e
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     echo "in hifigan syn_e2e"
-    FLAGS_allocator_strategy=naive_best_fit \
-    FLAGS_fraction_of_gpu_memory_to_use=0.01 \
     python3 ${BIN_DIR}/../synthesize_e2e.py \
         --am=fastspeech2_vctk \
         --am_config=${pretrained_model_dir}/default.yaml \

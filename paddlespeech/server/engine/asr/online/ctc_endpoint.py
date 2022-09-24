@@ -102,8 +102,10 @@ class OnlineCTCEndpoint:
 
         assert self.num_frames_decoded >= self.trailing_silence_frames
         assert self.frame_shift_in_ms > 0
-        
-        decoding_something = (self.num_frames_decoded > self.trailing_silence_frames) and decoding_something
+
+        decoding_something = (
+            self.num_frames_decoded > self.trailing_silence_frames
+        ) and decoding_something
         utterance_length = self.num_frames_decoded * self.frame_shift_in_ms
         trailing_silence = self.trailing_silence_frames * self.frame_shift_in_ms
 

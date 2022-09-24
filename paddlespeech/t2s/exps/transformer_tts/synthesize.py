@@ -50,11 +50,14 @@ def evaluate(args, acoustic_model_config, vocoder_config):
     model.set_state_dict(
         paddle.load(args.transformer_tts_checkpoint)["main_params"])
     model.eval()
+
     # remove ".pdparams" in waveflow_checkpoint
-    vocoder_checkpoint_path = args.waveflow_checkpoint[:-9] if args.waveflow_checkpoint.endswith(
-        ".pdparams") else args.waveflow_checkpoint
-    vocoder = ConditionalWaveFlow.from_pretrained(vocoder_config,
-                                                  vocoder_checkpoint_path)
+    vocoder = get_voc_inference(
+        voc=args.voc,
+        voc_config=vocoder_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
+
     layer_tools.recursively_remove_weight_norm(vocoder)
     vocoder.eval()
     print("model done!")
@@ -78,9 +81,8 @@ def evaluate(args, acoustic_model_config, vocoder_config):
         with paddle.no_grad():
             mel = transformer_tts_inference(text)
             # mel shape is (T, feats) and waveflow's input shape is (batch, feats, T)
-            mel = mel.unsqueeze(0).transpose([0, 2, 1])
             # wavflow's output shape is (B, T)
-            wav = vocoder.infer(mel)[0]
+            wav = vocoder(mel)
 
         sf.write(
             str(output_dir / (utt_id + ".wav")),
@@ -106,18 +108,34 @@ def main():
         type=str,
         help="mean and standard deviation used to normalize spectrogram when training transformer tts."
     )
-    parser.add_argument(
-        "--waveflow-config", type=str, help="waveflow config file.")
-    # not normalize when training waveflow
-    parser.add_argument(
-        "--waveflow-checkpoint", type=str, help="waveflow checkpoint to load.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
 
-    parser.add_argument("--test-metadata", type=str, help="test metadata.")
-    parser.add_argument("--output-dir", type=str, help="output dir.")
+    # vocoder
+    parser.add_argument(
+        '--voc',
+        type=str,
+        default='pwgan_csmsc',
+        choices=[
+            'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
+            'mb_melgan_csmsc', 'wavernn_csmsc', 'hifigan_csmsc',
+            'hifigan_ljspeech', 'hifigan_aishell3', 'hifigan_vctk',
+            'style_melgan_csmsc'
+        ],
+        help='Choose vocoder type of tts task.')
+    parser.add_argument(
+        '--voc_config', type=str, default=None, help='Config of voc.')
+    parser.add_argument(
+        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument(
+        "--voc_stat",
+        type=str,
+        default=None,
+        help="mean and standard deviation used to normalize spectrogram when training voc."
+    )
+    # other
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--test_metadata", type=str, help="test metadata.")
+    parser.add_argument("--output_dir", type=str, help="output dir.")
 
     args = parser.parse_args()
 
@@ -130,16 +148,16 @@ def main():
 
     with open(args.transformer_tts_config) as f:
         transformer_tts_config = CfgNode(yaml.safe_load(f))
-    with open(args.waveflow_config) as f:
-        waveflow_config = CfgNode(yaml.safe_load(f))
+    with open(args.voc_config) as f:
+        voc_config = CfgNode(yaml.safe_load(f))
 
     print("========Args========")
     print(yaml.safe_dump(vars(args)))
     print("========Config========")
     print(transformer_tts_config)
-    print(waveflow_config)
+    print(voc_config)
 
-    evaluate(args, transformer_tts_config, waveflow_config)
+    evaluate(args, transformer_tts_config, voc_config)
 
 
 if __name__ == "__main__":

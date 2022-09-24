@@ -4,28 +4,30 @@
 # This file is part of the WebDataset library.
 # See the LICENSE file for licensing terms (BSD-style).
 #
-
 # Modified from https://github.com/webdataset/webdataset
-
 """Train PyTorch models directly from POSIX tar archive.
 
 Code works locally or over HTTP connections.
 """
-
-import os, random, sys, time
-from dataclasses import dataclass, field
+import os
+import random
+import sys
+import time
+from dataclasses import dataclass
+from dataclasses import field
 from itertools import islice
 from typing import List
 
-import braceexpand, yaml
+import braceexpand
+import yaml
 
 from . import utils
+from ..utils.log import Logger
 from .filters import pipelinefilter
 from .paddle_utils import IterableDataset
-
-
-from ..utils.log import Logger
 logger = Logger(__name__)
+
+
 def expand_urls(urls):
     if isinstance(urls, str):
         urllist = urls.split("::")
@@ -64,7 +66,8 @@ class SimpleShardList(IterableDataset):
 
 
 def split_by_node(src, group=None):
-    rank, world_size, worker, num_workers = utils.paddle_worker_info(group=group)
+    rank, world_size, worker, num_workers = utils.paddle_worker_info(
+        group=group)
     logger.info(f"world_size:{world_size}, rank:{rank}")
     if world_size > 1:
         for s in islice(src, rank, None, world_size):
@@ -75,9 +78,11 @@ def split_by_node(src, group=None):
 
 
 def single_node_only(src, group=None):
-    rank, world_size, worker, num_workers = utils.paddle_worker_info(group=group)
+    rank, world_size, worker, num_workers = utils.paddle_worker_info(
+        group=group)
     if world_size > 1:
-        raise ValueError("input pipeline needs to be reconfigured for multinode training")
+        raise ValueError(
+            "input pipeline needs to be reconfigured for multinode training")
     for s in src:
         yield s
 
@@ -104,7 +109,8 @@ def resampled_(src, n=sys.maxsize):
     rng = random.Random(seed)
     print("# resampled loading", file=sys.stderr)
     items = list(src)
-    print(f"# resampled got {len(items)} samples, yielding {n}", file=sys.stderr)
+    print(
+        f"# resampled got {len(items)} samples, yielding {n}", file=sys.stderr)
     for i in range(n):
         yield rng.choice(items)
 
@@ -118,7 +124,9 @@ def non_empty(src):
         yield s
         count += 1
     if count == 0:
-        raise ValueError("pipeline stage received no data at all and this was declared as an error")
+        raise ValueError(
+            "pipeline stage received no data at all and this was declared as an error"
+        )
 
 
 @dataclass
@@ -142,6 +150,8 @@ class MultiShardSample(IterableDataset):
     def __init__(self, fname):
         """Construct a shardlist from multiple sources using a YAML spec."""
         self.epoch = -1
+
+
 class MultiShardSample(IterableDataset):
     def __init__(self, fname):
         """Construct a shardlist from multiple sources using a YAML spec."""
@@ -156,20 +166,23 @@ class MultiShardSample(IterableDataset):
         else:
             with open(fname) as stream:
                 spec = yaml.safe_load(stream)
-        assert set(spec.keys()).issubset(set("prefix datasets buckets".split())), list(spec.keys())
+        assert set(spec.keys()).issubset(
+            set("prefix datasets buckets".split())), list(spec.keys())
         prefix = expand(spec.get("prefix", ""))
         self.sources = []
         for ds in spec["datasets"]:
-            assert set(ds.keys()).issubset(set("buckets name shards resample choose".split())), list(
-                ds.keys()
-            )
+            assert set(ds.keys()).issubset(
+                set("buckets name shards resample choose".split())), list(
+                    ds.keys())
             buckets = ds.get("buckets", spec.get("buckets", []))
             if isinstance(buckets, str):
                 buckets = [buckets]
             buckets = [expand(s) for s in buckets]
             if buckets == []:
                 buckets = [""]
-            assert len(buckets) == 1, f"{buckets}: FIXME support for multiple buckets unimplemented"
+            assert len(
+                buckets
+            ) == 1, f"{buckets}: FIXME support for multiple buckets unimplemented"
             bucket = buckets[0]
             name = ds.get("name", "@" + bucket)
             urls = ds["shards"]
@@ -177,15 +190,19 @@ class MultiShardSample(IterableDataset):
                 urls = [urls]
             # urls = [u for url in urls for u in braceexpand.braceexpand(url)]
             urls = [
-                prefix + os.path.join(bucket, u) for url in urls for u in braceexpand.braceexpand(expand(url))
+                prefix + os.path.join(bucket, u)
+                for url in urls for u in braceexpand.braceexpand(expand(url))
             ]
             resample = ds.get("resample", -1)
             nsample = ds.get("choose", -1)
             if nsample > len(urls):
-                raise ValueError(f"perepoch {nsample} must be no greater than the number of shards")
+                raise ValueError(
+                    f"perepoch {nsample} must be no greater than the number of shards"
+                )
             if (nsample > 0) and (resample > 0):
                 raise ValueError("specify only one of perepoch or choose")
-            entry = MSSource(name=name, urls=urls, perepoch=nsample, resample=resample)
+            entry = MSSource(
+                name=name, urls=urls, perepoch=nsample, resample=resample)
             self.sources.append(entry)
             print(f"# {name} {len(urls)} {nsample}", file=sys.stderr)
 
@@ -203,7 +220,7 @@ class MultiShardSample(IterableDataset):
                 # sample without replacement
                 l = list(source.urls)
                 self.rng.shuffle(l)
-                l = l[: source.perepoch]
+                l = l[:source.perepoch]
             else:
                 l = list(source.urls)
             result += l
@@ -227,12 +244,11 @@ class ResampledShards(IterableDataset):
     """An iterable dataset yielding a list of urls."""
 
     def __init__(
-        self,
-        urls,
-        nshards=sys.maxsize,
-        worker_seed=None,
-        deterministic=False,
-    ):
+            self,
+            urls,
+            nshards=sys.maxsize,
+            worker_seed=None,
+            deterministic=False, ):
         """Sample shards from the shard list with replacement.
 
         :param urls: a list of URLs as a Python list or brace notation string
@@ -252,7 +268,8 @@ class ResampledShards(IterableDataset):
         if self.deterministic:
             seed = utils.make_seed(self.worker_seed(), self.epoch)
         else:
-            seed = utils.make_seed(self.worker_seed(), self.epoch, os.getpid(), time.time_ns(), os.urandom(4))
+            seed = utils.make_seed(self.worker_seed(), self.epoch,
+                                   os.getpid(), time.time_ns(), os.urandom(4))
         if os.environ.get("WDS_SHOW_SEED", "0") == "1":
             print(f"# ResampledShards seed {seed}")
         self.rng = random.Random(seed)

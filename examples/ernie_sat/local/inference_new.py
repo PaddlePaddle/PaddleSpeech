@@ -27,15 +27,15 @@ from align import words2phns
 from align import words2phns_zh
 from paddle import nn
 from sedit_arg_parser import parse_args
+from yacs.config import CfgNode
+
+from paddlespeech.t2s.datasets.am_batch_fn import build_mlm_collate_fn
+from paddlespeech.t2s.models.ernie_sat.ernie_sat import ErnieSAT
 from utils import eval_durs
 from utils import get_voc_out
 from utils import is_chinese
 from utils import load_num_sequence_text
 from utils import read_2col_text
-from yacs.config import CfgNode
-
-from paddlespeech.t2s.datasets.am_batch_fn import build_mlm_collate_fn
-from paddlespeech.t2s.models.ernie_sat.ernie_sat import ErnieSAT
 
 random.seed(0)
 np.random.seed(0)

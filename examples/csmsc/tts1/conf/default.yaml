@@ -1,17 +1,16 @@
-
-fs : 22050              # Hz, sample rate
-n_fft : 1024            # FFT size (samples). 
-win_length : 1024       # Window length (samples). 46.4ms
-n_shift : 256           # Hop size (samples). 11.6ms
-fmin : 0                # Hz, min frequency when converting to mel
-fmax : 8000             # Hz, max frequency when converting to mel
+fs : 24000              # Hz, sample rate
+n_fft : 2048            # FFT size (samples). 
+win_length : 1200       # Window length (samples). 46.4ms
+n_shift : 300           # Hop size (samples). 11.6ms
+fmin : 80                # Hz, min frequency when converting to mel
+fmax : 7600             # Hz, max frequency when converting to mel
 n_mels : 80             # mel bands
 window: "hann"          # Window function.
 
 ###########################################################
 #                       DATA SETTING                      #
 ###########################################################
-batch_size: 16
+batch_size: 4
 num_workers: 2
 
 ##########################################################
@@ -82,7 +81,7 @@ optimizer:
 ###########################################################
 #                     TRAINING SETTING                    #
 ###########################################################
-max_epoch: 500
+max_epoch: 300
 num_snapshots: 5
 
 

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import os
 from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
 from pathlib import Path
@@ -24,165 +25,15 @@ import librosa
 import numpy as np
 import tqdm
 import yaml
-from yacs.config import CfgNode as Configuration
-import re
+from yacs.config import CfgNode
+
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
-from paddlespeech.t2s.frontend import English,Chinese
-
-
-def get_lj_sentences(file_name, frontend):
-    '''read MFA duration.txt
-
-    Args:
-        file_name (str or Path)
-    Returns:
-        Dict: sentence: {'utt': ([char], [int])}
-    '''
-    f = open(file_name, 'r')
-    sentence = {}
-    speaker_set = set()
-    for line in f:
-        line_list = line.strip().split('|')
-        utt = line_list[0]
-        speaker = utt.split("-")[0][:2]
-        speaker_set.add(speaker)
-        raw_text = line_list[-1]
-        phonemes = frontend.phoneticize(raw_text)
-        phonemes = phonemes[1:-1]
-        phonemes = [phn for phn in phonemes if not phn.isspace()]
-        sentence[utt] = (phonemes, speaker)
-    f.close()
-    return sentence, speaker_set
-
-def get_csmsc_sentences(file_name,fronten):
-    '''read MFA duration.txt
-
-        Args:
-            file_name (str or Path)
-        Returns:
-            Dict: sentence: {'utt': ([char], [int])}
-    '''
-    sentence = {}
-    speaker_set = set()
-    utt = 'girl'
-    with open(file_name, mode='r', encoding='utf-8') as f:
-        lines = f.readlines()
-    for i in range(len(lines)):
-        ann = lines[i]
-        if i % 2 == 0:
-            head = ann.strip('\n|\t').split('\t')
-            body = re.sub(r'[0-9]|#', '', head[-1])
-        phonemes = fronten.phoneticize(body)
-        phonemes = phonemes[1:-1]
-        phonemes = [phn for phn in phonemes if not phn.isspace()]
-        sentence[head[0]] = (phonemes, utt)
-        speaker_set.add(utt)
-    f.close()
-    return sentence, speaker_set
-
-def get_input_token(sentence, output_path):
-    '''get phone set from training data and save it
-    
-    Args:
-        sentence (Dict): sentence: {'utt': ([char], str)}
-        output_path (str or path): path to save phone_id_map
-    '''
-    phn_token = set()
-    for utt in sentence:
-        for phn in sentence[utt][0]:
-            if phn != "<eos>":
-                phn_token.add(phn)
-    phn_token = list(phn_token)
-    phn_token.sort()
-    phn_token = ["<pad>", "<unk>"] + phn_token
-    phn_token += ["<eos>"]
-
-    with open(output_path, 'w') as f:
-        for i, phn in enumerate(phn_token):
-            f.write(phn + ' ' + str(i) + '\n')
-
-
-def get_spk_id_map(speaker_set, output_path):
-    speakers = sorted(list(speaker_set))
-    with open(output_path, 'w') as f:
-        for i, spk in enumerate(speakers):
-            f.write(spk + ' ' + str(i) + '\n')
-
-
-def process_sentence(config: Dict[str, Any],
-                     fp: Path,
-                     sentences: Dict,
-                     output_dir: Path,
-                     mel_extractor=None):
-    utt_id = fp.stem
-    record = None
-    if utt_id in sentences:
-        # reading, resampling may occur
-        wav, _ = librosa.load(str(fp), sr=config.fs)
-        if len(wav.shape) != 1 or np.abs(wav).max() > 1.0:
-            return record
-        assert len(wav.shape) == 1, f"{utt_id} is not a mono-channel audio."
-        assert np.abs(wav).max(
-        ) <= 1.0, f"{utt_id} is seems to be different that 16 bit PCM."
-        phones = sentences[utt_id][0]
-        speaker = sentences[utt_id][1]
-        logmel = mel_extractor.get_log_mel_fbank(wav, base='e')
-        # change duration according to mel_length
-        num_frames = logmel.shape[0]
-        mel_dir = output_dir / "data_speech"
-        mel_dir.mkdir(parents=True, exist_ok=True)
-        mel_path = mel_dir / (utt_id + "_speech.npy")
-        np.save(mel_path, logmel)
-        record = {
-            "utt_id": utt_id,
-            "phones": phones,
-            "text_lengths": len(phones),
-            "speech_lengths": num_frames,
-            "speech": str(mel_path),
-            "speaker": speaker
-        }
-    return record
-
-
-def process_sentences(config,
-                      fps: List[Path],
-                      sentences: Dict,
-                      output_dir: Path,
-                      mel_extractor=None,
-                      nprocs: int=1):
-
-    if nprocs == 1:
-        results = []
-        for fp in tqdm.tqdm(fps, total=len(fps)):
-            record = process_sentence(
-                config=config,
-                fp=fp,
-                sentences=sentences,
-                output_dir=output_dir,
-                mel_extractor=mel_extractor)
-            if record:
-                results.append(record)
-    else:
-        with ThreadPoolExecutor(nprocs) as pool:
-            futures = []
-            with tqdm.tqdm(total=len(fps)) as progress:
-                for fp in fps:
-                    future = pool.submit(process_sentence, config, fp,
-                                         sentences, output_dir, mel_extractor)
-                    future.add_done_callback(lambda p: progress.update())
-                    futures.append(future)
-
-                results = []
-                for ft in futures:
-                    record = ft.result()
-                    if record:
-                        results.append(record)
-
-    results.sort(key=itemgetter("utt_id"))
-    with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
-        for item in results:
-            writer.write(item)
-    print("Done")
+from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
+from paddlespeech.t2s.datasets.preprocess_utils import get_input_token
+from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
+from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
+from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
+from paddlespeech.t2s.utils import str2bool
 
 
 def main():
@@ -192,71 +43,113 @@ def main():
 
     parser.add_argument(
         "--dataset",
-        default="csmsc",
+        default="baker",
         type=str,
-        help="name of dataset, should in {ljspeech,csmsc} now")
+        help="name of dataset, should in {baker, aishell3, ljspeech, vctk} now")
 
     parser.add_argument(
-        "--rootdir", default='./BZNSYP/', type=str, help="directory to dataset.")
+        "--rootdir", default=None, type=str, help="directory to dataset.")
 
     parser.add_argument(
         "--dumpdir",
         type=str,
-        default='./dump/',
-        #required=True,
+        required=True,
         help="directory to dump feature files.")
-
     parser.add_argument(
-        "--config-path",
-        default="./default.yaml",
-        type=str,
-        help="yaml format configuration file.")
+        "--dur-file", default=None, type=str, help="path to durations.txt.")
+
+    parser.add_argument("--config", type=str, help="transformer config file.")
 
     parser.add_argument(
         "--num-cpu", type=int, default=1, help="number of process.")
 
+    parser.add_argument(
+        "--cut-sil",
+        type=str2bool,
+        default=True,
+        help="whether cut sil in the edge of audio")
+
+    parser.add_argument(
+        "--spk_emb_dir",
+        default=None,
+        type=str,
+        help="directory to speaker embedding files.")
     args = parser.parse_args()
-    config_path = Path(args.config_path).resolve()
-    root_dir = Path(args.rootdir).expanduser()
+
+    rootdir = Path(args.rootdir).expanduser()
     dumpdir = Path(args.dumpdir).expanduser()
     # use absolute path
     dumpdir = dumpdir.resolve()
     dumpdir.mkdir(parents=True, exist_ok=True)
+    dur_file = Path(args.dur_file).expanduser()
 
-    assert root_dir.is_dir()
+    if args.spk_emb_dir:
+        spk_emb_dir = Path(args.spk_emb_dir).expanduser().resolve()
+    else:
+        spk_emb_dir = None
 
-    with open(config_path, 'rt') as f:
-        _C = yaml.safe_load(f)
-        _C = Configuration(_C)
-        config = _C.clone()
+    assert rootdir.is_dir()
+    assert dur_file.is_file()
 
+    with open(args.config, 'rt') as f:
+        config = CfgNode(yaml.safe_load(f))
+
+    sentences, speaker_set = get_phn_dur(dur_file)
+
+    merge_silence(sentences)
     phone_id_map_path = dumpdir / "phone_id_map.txt"
     speaker_id_map_path = dumpdir / "speaker_id_map.txt"
-    if args.dataset == "csmsc":
-        wav_files = sorted(list((root_dir / "Wave").rglob("*.wav")))
-        frontend = Chinese()
-        sentences, speaker_set = get_csmsc_sentences(root_dir / "000001-010000.txt", frontend)
-        print(speaker_set)
-        get_input_token(sentences, phone_id_map_path)
-        get_spk_id_map(speaker_set, speaker_id_map_path)
-        num_train = 9000
+    get_input_token(sentences, phone_id_map_path, args.dataset)
+    get_spk_id_map(speaker_set, speaker_id_map_path)
+
+    if args.dataset == "baker":
+        wav_files = sorted(list((rootdir / "Wave").rglob("*.wav")))
+        # split data into 3 sections
+        num_train = 9800
         num_dev = 100
         train_wav_files = wav_files[:num_train]
         dev_wav_files = wav_files[num_train:num_train + num_dev]
         test_wav_files = wav_files[num_train + num_dev:]
+    elif args.dataset == "aishell3":
+        sub_num_dev = 5
+        wav_dir = rootdir / "train" / "wav"
+        train_wav_files = []
+        dev_wav_files = []
+        test_wav_files = []
+        for speaker in os.listdir(wav_dir):
+            wav_files = sorted(list((wav_dir / speaker).rglob("*.wav")))
+            if len(wav_files) > 100:
+                train_wav_files += wav_files[:-sub_num_dev * 2]
+                dev_wav_files += wav_files[-sub_num_dev * 2:-sub_num_dev]
+                test_wav_files += wav_files[-sub_num_dev:]
+            else:
+                train_wav_files += wav_files
 
-    if args.dataset == "ljspeech":
-        wav_files = sorted(list((root_dir / "wavs").rglob("*.wav")))
-        frontend = English()
-        sentences, speaker_set = get_lj_sentences(root_dir / "metadata.csv",frontend)
-        get_input_token(sentences, phone_id_map_path)
-        get_spk_id_map(speaker_set, speaker_id_map_path)
+    elif args.dataset == "ljspeech":
+        wav_files = sorted(list((rootdir / "wavs").rglob("*.wav")))
         # split data into 3 sections
         num_train = 12900
         num_dev = 100
         train_wav_files = wav_files[:num_train]
         dev_wav_files = wav_files[num_train:num_train + num_dev]
         test_wav_files = wav_files[num_train + num_dev:]
+    elif args.dataset == "vctk":
+        sub_num_dev = 5
+        wav_dir = rootdir / "wav48_silence_trimmed"
+        train_wav_files = []
+        dev_wav_files = []
+        test_wav_files = []
+        for speaker in os.listdir(wav_dir):
+            wav_files = sorted(list((wav_dir / speaker).rglob("*_mic2.flac")))
+            if len(wav_files) > 100:
+                train_wav_files += wav_files[:-sub_num_dev * 2]
+                dev_wav_files += wav_files[-sub_num_dev * 2:-sub_num_dev]
+                test_wav_files += wav_files[-sub_num_dev:]
+            else:
+                train_wav_files += wav_files
+
+    else:
+        print("dataset should in {baker, aishell3, ljspeech, vctk} now!")
 
     train_dump_dir = dumpdir / "train" / "raw"
     train_dump_dir.mkdir(parents=True, exist_ok=True)
@@ -284,7 +177,9 @@ def main():
             sentences=sentences,
             output_dir=train_dump_dir,
             mel_extractor=mel_extractor,
-            nprocs=args.num_cpu)
+            nprocs=args.num_cpu,
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir)
     if dev_wav_files:
         process_sentences(
             config=config,
@@ -292,7 +187,8 @@ def main():
             sentences=sentences,
             output_dir=dev_dump_dir,
             mel_extractor=mel_extractor,
-            nprocs=args.num_cpu)
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir)
     if test_wav_files:
         process_sentences(
             config=config,
@@ -300,7 +196,9 @@ def main():
             sentences=sentences,
             output_dir=test_dump_dir,
             mel_extractor=mel_extractor,
-            nprocs=args.num_cpu)
+            nprocs=args.num_cpu,
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir)
 
 
 if __name__ == "__main__":

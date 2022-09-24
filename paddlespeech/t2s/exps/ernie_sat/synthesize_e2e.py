@@ -15,29 +15,22 @@ import librosa
 import numpy as np
 import soundfile as sf
 
+from paddlespeech.t2s.datasets.am_batch_fn import build_erniesat_collate_fn
+from paddlespeech.t2s.datasets.get_feats import LogMelFBank
 from paddlespeech.t2s.exps.ernie_sat.align import get_phns_spans
 from paddlespeech.t2s.exps.ernie_sat.utils import eval_durs
 from paddlespeech.t2s.exps.ernie_sat.utils import get_dur_adj_factor
 from paddlespeech.t2s.exps.ernie_sat.utils import get_span_bdy
-from paddlespeech.t2s.datasets.am_batch_fn import build_erniesat_collate_fn
-from paddlespeech.t2s.exps.syn_utils import get_frontend
-from paddlespeech.t2s.datasets.get_feats import LogMelFBank
-from paddlespeech.t2s.exps.syn_utils import norm
 from paddlespeech.t2s.exps.ernie_sat.utils import get_tmp_name
-
-
-
-
+from paddlespeech.t2s.exps.syn_utils import get_frontend
+from paddlespeech.t2s.exps.syn_utils import norm
 
 
 def _p2id(self, phonemes: List[str]) -> np.ndarray:
     # replace unk phone with sp
-    phonemes = [
-        phn if phn in vocab_phones else "sp" for phn in phonemes
-    ]
+    phonemes = [phn if phn in vocab_phones else "sp" for phn in phonemes]
     phone_ids = [vocab_phones[item] for item in phonemes]
     return np.array(phone_ids, np.int64)
-
 
 
 def prep_feats_with_dur(wav_path: str,
@@ -152,8 +145,6 @@ def prep_feats_with_dur(wav_path: str,
     return outs
 
 
-
-
 def prep_feats(wav_path: str,
                old_str: str='',
                new_str: str='',
@@ -188,32 +179,32 @@ def prep_feats(wav_path: str,
     mel = mel_extractor.get_log_mel_fbank(wav)
     erniesat_mean, erniesat_std = np.load(erniesat_stat)
     normed_mel = norm(mel, erniesat_mean, erniesat_std)
-    tmp_name =  get_tmp_name(text=old_str)
+    tmp_name = get_tmp_name(text=old_str)
     tmpbase = './tmp_dir/' + tmp_name
     tmpbase = Path(tmpbase)
     tmpbase.mkdir(parents=True, exist_ok=True)
-    print("tmp_name in synthesize_e2e:",tmp_name)
+    print("tmp_name in synthesize_e2e:", tmp_name)
 
     mel_path = tmpbase / 'mel.npy'
-    print("mel_path:",mel_path)
+    print("mel_path:", mel_path)
     np.save(mel_path, logmel)
     durations = [e - s for e, s in zip(mfa_end, mfa_start)]
 
-    datum={
-        "utt_id": utt_id, 
-        "spk_id": 0, 
-        "text": text, 
-        "text_lengths": len(text), 
-        "speech_lengths": 115, 
-        "durations": durations, 
-        "speech": mel_path, 
-        "align_start": mfa_start, 
+    datum = {
+        "utt_id": utt_id,
+        "spk_id": 0,
+        "text": text,
+        "text_lengths": len(text),
+        "speech_lengths": 115,
+        "durations": durations,
+        "speech": mel_path,
+        "align_start": mfa_start,
         "align_end": mfa_end,
         "span_bdy": span_bdy
     }
 
     batch = collate_fn([datum])
-    print("batch:",batch)
+    print("batch:", batch)
 
     return batch, old_span_bdy, new_span_bdy
 
@@ -240,8 +231,6 @@ def decode_with_model(mlm_model: nn.Layer,
         fs=fs,
         n_shift=n_shift,
         token_list=token_list)
-    
-
 
     feats = collate_fn(batch)[1]
 
@@ -275,7 +264,6 @@ if __name__ == '__main__':
     # for synthesize
     append_str = "do you love me i love you so much"
     new_str = old_str + append_str
-
     '''
     outs = prep_feats_with_dur(
         wav_path=wav_path,
@@ -306,7 +294,7 @@ if __name__ == '__main__':
 
     with open(erniesat_config) as f:
         erniesat_config = CfgNode(yaml.safe_load(f))
-    
+
     erniesat_stat = "/home/yuantian01/PaddleSpeech_ERNIE_SAT/PaddleSpeech/examples/vctk/ernie_sat/dump/train/speech_stats.npy"
 
     # Extractor
@@ -319,16 +307,14 @@ if __name__ == '__main__':
         n_mels=erniesat_config.n_mels,
         fmin=erniesat_config.fmin,
         fmax=erniesat_config.fmax)
-    
-
 
     collate_fn = build_erniesat_collate_fn(
         mlm_prob=erniesat_config.mlm_prob,
         mean_phn_span=erniesat_config.mean_phn_span,
         seg_emb=erniesat_config.model['enc_input_layer'] == 'sega_mlm',
         text_masking=False)
-        
-    phones_dict='/home/yuantian01/PaddleSpeech_ERNIE_SAT/PaddleSpeech/examples/vctk/ernie_sat/dump/phone_id_map.txt'
+
+    phones_dict = '/home/yuantian01/PaddleSpeech_ERNIE_SAT/PaddleSpeech/examples/vctk/ernie_sat/dump/phone_id_map.txt'
     vocab_phones = {}
 
     with open(phones_dict, 'rt') as f:
@@ -336,11 +322,9 @@ if __name__ == '__main__':
     for phn, id in phn_id:
         vocab_phones[phn] = int(id)
 
-    prep_feats(wav_path=wav_path,
-               old_str=old_str,
-               new_str=new_str,
-               fs=fs,
-               n_shift=n_shift)
-
-    
-    
+    prep_feats(
+        wav_path=wav_path,
+        old_str=old_str,
+        new_str=new_str,
+        fs=fs,
+        n_shift=n_shift)

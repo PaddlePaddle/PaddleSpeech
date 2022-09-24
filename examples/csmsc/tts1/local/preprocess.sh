@@ -5,15 +5,27 @@ stop_stage=100
 
 config_path=$1
 
+if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
+    # get durations from MFA's result
+    echo "Generate durations.txt from MFA results ..."
+    python3 ${MAIN_ROOT}/utils/gen_duration_from_textgrid.py \
+        --inputdir=./baker_alignment_tone \
+        --output=durations.txt \
+        --config=${config_path}
+fi
+
+
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # extract features
     echo "Extract features ..."
-    python3 ${BIN_DIR}/preprocess.py  \
-        --dataset=ljspeech \
+    python3 ${BIN_DIR}/preprocess_new.py  \
+        --dataset=baker\
         --rootdir=~/datasets/BZNSYP/ \
         --dumpdir=dump \
-        --config-path=conf/default.yaml \
-        --num-cpu=8
+        --dur-file=durations.txt
+        --config-path=${config_path} \
+        --num-cpu=8 \
+        --cut-sil=True
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

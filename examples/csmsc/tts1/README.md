@@ -113,9 +113,9 @@ optional arguments:
   --transformer-tts-stat TRANSFORMER_TTS_STAT
                         mean and standard deviation used to normalize
                         spectrogram when training transformer tts.
-  --waveflow-config WAVEFLOW_CONFIG
+  --voc-config WAVEFLOW_CONFIG
                         waveflow config file.
-  --waveflow-checkpoint WAVEFLOW_CHECKPOINT
+  --voc-checkpoint WAVEFLOW_CHECKPOINT
                         waveflow checkpoint to load.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
@@ -150,9 +150,9 @@ optional arguments:
   --transformer-tts-stat TRANSFORMER_TTS_STAT
                         mean and standard deviation used to normalize
                         spectrogram when training transformer tts.
-  --waveflow-config WAVEFLOW_CONFIG
+  --voc-config WAVEFLOW_CONFIG
                         waveflow config file.
-  --waveflow-checkpoint WAVEFLOW_CHECKPOINT
+  --voc-ckpt WAVEFLOW_CHECKPOINT
                         waveflow checkpoint to load.
   --phones-dict PHONES_DICT
                         phone vocabulary file.
@@ -170,14 +170,14 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained Model can be downloaded here:
-- [transformer_tts_csmsc_ckpt.zip](https://pan.baidu.com/s/1jan_ZXCGKI7DHvS2jxWIEw?pwd=9i0t)
+- [transformer_tts_csmsc_ckpt.zip](https://pan.baidu.com/s/1-6uvjQDxS0-6c9XZPBYqBQ?pwd=jjc3)
 
 TransformerTTS  checkpoint contains files listed below.
 ```text
 transformer_tts_csmsc_ckpt
 ├── default.yaml             # default config used to train transformer_tts
 ├── phone_id_map.txt         # phone vocabulary file when training transformer_tts
-├── snapshot_iter_1118250.pdz # model parameters and optimizer states
+├── snapshot_iter_675000.pdz # model parameters and optimizer states
 └── speech_stats.npy         # statistics used to normalize spectrogram when training transformer_tts
 ```
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained transformer_tts  and waveflow models.
@@ -190,8 +190,8 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
   --transformer-tts-config=transformer_tts_csmsc_ckpt/default.yaml \
   --transformer-tts-checkpoint=transformer_tts_csmsc_ckpt/snapshot_iter_1118250.pdz \
   --transformer-tts-stat=transformer_tts_csmsc_ckpt/speech_stats.npy \
-  --waveflow-config=waveflow_ljspeech_ckpt_0.3/config.yaml \
-  --waveflow-checkpoint=waveflow_ljspeech_ckpt_0.3/step-2000000.pdparams \
+  --voc-config=waveflow_ljspeech_ckpt_0.3/config.yaml \
+  --voc-ckpt=waveflow_ljspeech_ckpt_0.3/step-2000000.pdparams \
   --text=${BIN_DIR}/../sentences.txt \
   --output-dir=exp/default/test_e2e \
   --phones-dict=transformer_tts_csmsc_ckpt/phone_id_map.txt

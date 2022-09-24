@@ -21,12 +21,15 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend import Chinese
 from paddlespeech.t2s.models.transformer_tts import TransformerTTS
 from paddlespeech.t2s.models.transformer_tts import TransformerTTSInference
-from paddlespeech.t2s.models.waveflow import ConditionalWaveFlow
 from paddlespeech.t2s.modules.normalizer import ZScore
-from paddlespeech.t2s.utils import layer_tools
+
+#from paddlespeech.t2s.frontend import English
+#from paddlespeech.t2s.models.waveflow import ConditionalWaveFlow
+
+#from paddlespeech.t2s.utils import layer_tools
 
 
 def evaluate(args, acoustic_model_config, vocoder_config):
@@ -59,15 +62,15 @@ def evaluate(args, acoustic_model_config, vocoder_config):
     model.eval()
 
     # remove ".pdparams" in waveflow_checkpoint
-    vocoder_checkpoint_path = args.waveflow_checkpoint[:-9] if args.waveflow_checkpoint.endswith(
-        ".pdparams") else args.waveflow_checkpoint
-    vocoder = ConditionalWaveFlow.from_pretrained(vocoder_config,
-                                                  vocoder_checkpoint_path)
-    layer_tools.recursively_remove_weight_norm(vocoder)
+    vocoder = get_voc_inference(
+        voc=args.voc,
+        voc_config=vocoder_config,
+        voc_ckpt=args.voc_ckpt,
+        voc_stat=args.voc_stat)
     vocoder.eval()
     print("model done!")
 
-    frontend = English()
+    frontend = Chinese()
     print("frontend done!")
 
     stat = np.load(args.transformer_tts_stat)
@@ -90,11 +93,10 @@ def evaluate(args, acoustic_model_config, vocoder_config):
         phones = [phn if phn in phone_id_map else "," for phn in phones]
         phone_ids = [phone_id_map[phn] for phn in phones]
         with paddle.no_grad():
-            mel = transformer_tts_inference(paddle.to_tensor(phone_ids))
-            # mel shape is (T, feats) and waveflow's input shape is (batch, feats, T)
-            mel = mel.unsqueeze(0).transpose([0, 2, 1])
-            # wavflow's output shape is (B, T)
-            wav = vocoder.infer(mel)[0]
+            tensor_phone_ids = paddle.to_tensor(phone_ids)
+            mel = transformer_tts_inference(tensor_phone_ids)
+
+            wav = vocoder(mel)
 
         sf.write(
             str(output_dir / (utt_id + ".wav")),
@@ -120,23 +122,51 @@ def main():
         type=str,
         help="mean and standard deviation used to normalize spectrogram when training transformer tts."
     )
+
+    # vocoder
     parser.add_argument(
-        "--waveflow-config", type=str, help="waveflow config file.")
-    # not normalize when training waveflow
-    parser.add_argument(
-        "--waveflow-checkpoint", type=str, help="waveflow checkpoint to load.")
-    parser.add_argument(
-        "--phones-dict",
+        '--voc',
         type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
+        default='pwgan_csmsc',
+        choices=[
+            'pwgan_csmsc',
+            'pwgan_ljspeech',
+            'pwgan_aishell3',
+            'pwgan_vctk',
+            'mb_melgan_csmsc',
+            'style_melgan_csmsc',
+            'hifigan_csmsc',
+            'hifigan_ljspeech',
+            'hifigan_aishell3',
+            'hifigan_vctk',
+            'wavernn_csmsc',
+        ],
+        help='Choose vocoder type of tts task.')
+    parser.add_argument(
+        '--voc_config', type=str, default=None, help='Config of voc.')
+    parser.add_argument(
+        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument(
+        "--voc_stat",
+        type=str,
+        default=None,
+        help="mean and standard deviation used to normalize spectrogram when training voc."
+    )
+    # other
+    parser.add_argument(
+        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
+    parser.add_argument(
+        '--lang',
+        type=str,
+        default='zh',
+        help='Choose model language. zh or en or mix')
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
-    parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--output_dir", type=str, help="output dir.")
 
     args = parser.parse_args()
 
@@ -149,16 +179,16 @@ def main():
 
     with open(args.transformer_tts_config) as f:
         transformer_tts_config = CfgNode(yaml.safe_load(f))
-    with open(args.waveflow_config) as f:
-        waveflow_config = CfgNode(yaml.safe_load(f))
+    with open(args.voc_config) as f:
+        voc_config = CfgNode(yaml.safe_load(f))
 
     print("========Args========")
     print(yaml.safe_dump(vars(args)))
     print("========Config========")
     print(transformer_tts_config)
-    print(waveflow_config)
+    print(voc_config)
 
-    evaluate(args, transformer_tts_config, waveflow_config)
+    evaluate(args, transformer_tts_config, voc_config)
 
 
 if __name__ == "__main__":

@@ -44,6 +44,8 @@ cd ../
 ### 前端环境安装
 前端依赖 `node.js` ，需要提前安装，确保 `npm` 可用，`npm` 测试版本 `8.3.1`，建议下载[官网](https://nodejs.org/en/)稳定版的 `node.js`
 
+如果因为网络问题，无法下载依赖库，可以参考 FAQ 部分，`npm / yarn 下载速度慢问题`
+
 ```bash
 # 进入前端目录
 cd web_client
@@ -172,8 +174,19 @@ cd web_client
 yarn dev --port 8011
 ```
 
-默认配置下，前端中配置的后台地址信息是 localhost，确保后端服务器和打开页面的游览器在同一台机器上，不在一台机器的配置方式见下方的 FAQ：【后端如果部署在其它机器或者别的端口如何修改】
+默认配置下，前端配置的后台地址信息是 `localhost`，确保后端服务器和打开页面的游览器在同一台机器上，不在一台机器的配置方式见下方的 FAQ：【后端如果部署在其它机器或者别的端口如何修改】
 
+#### 关于前端的一些说明
+
+为了方便后期的维护，这里并没有给出打包好的 HTML 文件，而是 Vue3 的项目，使用 `yarn dev --port 8011` 的方式启动测试，方便大家debug，相当于是启动了一个前端服务器。
+
+比如我们在本机启动的这个前端服务（运行 `yarn dev --port 8011` ），我们就可以通过在游览器中通过 `http://localhost:8011` 访问前端页面
+
+如果我们在其它服务器上（例如：`*.*.*.*` ）启动这个前端服务（运行 `yarn dev --port 8011` ），我们就可以通过在游览器中访问 `http://*.*.*.*:8011` 访问前端页面
+
+那前端跟后端是什么关系呢？ 两个是独立的，只要前端能够通过代理访问到后端的接口，那就没有问题。你可以在 A 机器上部署后端服务，然后在 B 机器上部署前端服务。我们在 `./web_client/vite.config.js` 中将 `/api` 映射到的是 `http://localhost:8010`，你可以把它配置成任意你想要访问后端地址。
+
+当前端在以 `*.*.*.*` 这类以 IP 地址形式的网页中访问时，由于游览器的安全限制，会禁止录音，需要重新配置游览器的安全策略， 可以看下面 FAQ 部分： [【前端以IP地址的形式访问，无法录音】]
 
 
 ## FAQ 
@@ -210,11 +223,23 @@ ASR_SOCKET_RECORD: 'ws://localhost:8010/ws/asr/onlineStream',  // Stream ASR 接
 TTS_SOCKET_RECORD: 'ws://localhost:8010/ws/tts/online', // Stream TTS 接口
 ```
 
-#### Q：后端以IP地址的形式，前端无法录音
+#### Q：前端以IP地址的形式访问，无法录音
 
 A：这里主要是游览器安全策略的限制，需要配置游览器后重启。游览器修改配置可参考[使用js-audio-recorder报浏览器不支持getUserMedia](https://blog.csdn.net/YRY_LIKE_YOU/article/details/113745273)
 
 chrome设置地址: chrome://flags/#unsafely-treat-insecure-origin-as-secure
+
+#### Q: npm / yarn 配置淘宝镜像源
+
+A: 配置淘宝镜像源，详细可以参考 [【yarn npm 设置淘宝镜像】](https://www.jianshu.com/p/f6f43e8f9d6b)
+
+```bash
+# npm 配置淘宝镜像源
+npm config set registry https://registry.npmmirror.com
+
+# yarn 配置淘宝镜像源
+yarn config set registry http://registry.npm.taobao.org/
+```
 
 ## 参考资料
 

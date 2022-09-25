@@ -71,7 +71,7 @@
                         </el-row>
 
                         <el-row :gutter="20">
-                            <el-button v-if='this.cloneWav' type="primary" @click="PlaySyn()">播放</el-button>
+                            <el-button v-if='this.cloneWav' type="success" @click="PlaySyn()">播放</el-button>
                             <el-button v-else disabled type="primary" @click="PlaySyn()">播放</el-button>
                             <el-button v-if='this.cloneWav' type="primary" @click="downLoadCloneWav()">下载</el-button>
                             <el-button v-else disabled type="primary" @click="downLoadCloneWav()">下载</el-button>
@@ -270,6 +270,7 @@ export default {
             } else if (this.nowIndex >= this.vcDatas.length){
                 return this.$message.error("当前序号不可以超过音频个数")
             }
+            this.cloneWav = ""
             let func = ''
             if(this.func_radio === '1'){
                 func = 'ge2e'
@@ -289,12 +290,12 @@ export default {
                 }
             );
             this.g2pOnSys = 0
-            if(!result.data.code){
+            if(result.data.code == 0){
                 this.cloneWav = result.data.result
                 console.log("clone wav: ", this.cloneWav)
-                this.$message.success("音色克隆成功")
+                this.$message.success("音频合成成功")
             } else {
-                this.$message.error(result.data.msg)
+                this.$message.error("音频合成失败，请检查后台错误后重试！")
             }
         },
         // 播放表格

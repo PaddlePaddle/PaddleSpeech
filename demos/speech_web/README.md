@@ -28,7 +28,7 @@ Paddle Speech Demo 是一个以 PaddleSpeech 的语音交互功能为主体开�
 
 运行效果：
 
- ![效果](https://user-images.githubusercontent.com/30135920/191188766-12e7ca15-f7b4-45f8-9da5-0c0b0bbe5fcb.png)
+ ![效果](https://user-images.githubusercontent.com/30135920/192155349-9ef93d20-730b-413d-8d50-412fedf11d4b.png)
 
 
 

@@ -214,14 +214,17 @@ export default {
                 let formData = new FormData()
                 formData.append('spk_id', this.enrollSpkId)
                 formData.append('audio', this.wav)
-
+                
                 const result = await vprEnroll(formData)
+                if (!result){
+                    this.$message.error("请检查后端服务是否正确开启")
+                    return 
+                }
                 if(result.data.status){
                     this.$message.success("声纹注册成功")
                 } else {
                     this.$message.error(result.data.msg)
                 }
-                // console.log(result)
                 this.GetList()
                 this.wav = ''
                 this.randomSpkId()

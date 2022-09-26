@@ -1,6 +1,7 @@
 import os
 import shutil
 
+from .util import get_ngpu
 from .util import MAIN_ROOT
 from .util import run_cmd
 
@@ -27,11 +28,11 @@ class VoiceCloneTDNN():
         ref_audio_dir = os.path.realpath("tmp_dir/tdnn")
         if os.path.exists(ref_audio_dir):
             shutil.rmtree(ref_audio_dir)
-        else:
-            os.makedirs(ref_audio_dir, exist_ok=True)
-            shutil.copy(input_wav, ref_audio_dir)
+        os.makedirs(ref_audio_dir, exist_ok=True)
+        shutil.copy(input_wav, ref_audio_dir)
 
         output_dir = os.path.dirname(out_wav)
+        ngpu = get_ngpu()
 
         cmd = f"""
             python3 {self.BIN_DIR}/voice_cloning.py \
@@ -47,7 +48,8 @@ class VoiceCloneTDNN():
                     --input-dir={ref_audio_dir} \
                     --output-dir={output_dir} \
                     --phones-dict={self.phones_dict} \
-                    --use_ecapa=True
+                    --use_ecapa=True \
+                    --ngpu={ngpu}
         """
 
         output_name = os.path.join(output_dir, full_file_name)

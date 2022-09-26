@@ -243,7 +243,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             ]
 
         # batch decoding
-        ys_mask = subsequent_mask(paddle.shape(ys)[-1]).unsqueeze(0)  # (B,L,L)
+        ys_mask = subsequent_mask(ys.shape[-1]).unsqueeze(0)  # (B,L,L)
         xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
         logp, states = self.forward_one_step(
             xs, xs_mask, ys, ys_mask, cache=batch_state)

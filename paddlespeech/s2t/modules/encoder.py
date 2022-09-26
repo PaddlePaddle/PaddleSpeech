@@ -246,7 +246,7 @@ class BaseEncoder(nn.Layer):
             # tensor zeros([0,0,0,0]) support [i:i+1] slice, will return zeros([0,0,0,0]) tensor
             # raw code as below:
             #   att_cache=att_cache[i:i+1] if elayers > 0 else att_cache,
-            #   cnn_cache=cnn_cache[i:i+1] if paddle.shape(cnn_cache)[0] > 0 else cnn_cache,
+            #   cnn_cache=cnn_cache[i:i+1] if cnn_cache.shape[0] > 0 else cnn_cache,
             xs, _, new_att_cache, new_cnn_cache = layer(
                 xs,
                 att_mask,

@@ -135,16 +135,16 @@ def voice_cloning(args):
         print(f"{utt_id} done!")
 
     # generate 5 random_spk_emb
-    for i in range(5):
-        random_spk_emb = gen_random_embed(args.use_ecapa)
-        utt_id = "random_spk_emb"
-        with paddle.no_grad():
-            wav = voc_inference(am_inference(phone_ids, spk_emb=random_spk_emb))
-        sf.write(
-            str(output_dir / (utt_id + "_" + str(i) + ".wav")),
-            wav.numpy(),
-            samplerate=am_config.fs)
-    print(f"{utt_id} done!")
+    # for i in range(5):
+    #     random_spk_emb = gen_random_embed(args.use_ecapa)
+    #     utt_id = "random_spk_emb"
+    #     with paddle.no_grad():
+    #         wav = voc_inference(am_inference(phone_ids, spk_emb=random_spk_emb))
+    #     sf.write(
+    #         str(output_dir / (utt_id + "_" + str(i) + ".wav")),
+    #         wav.numpy(),
+    #         samplerate=am_config.fs)
+    # print(f"{utt_id} done!")
 
 
 def parse_args():

@@ -126,7 +126,7 @@
               expPath: '',
               wav: '',
               wav_base64: '',
-              ttsText: '',
+              ttsText: '欢迎使用飞桨语音套件',
               cloneWav: '',
               
               onEnrollRec: 0,  // 录音状态

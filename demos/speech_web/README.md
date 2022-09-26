@@ -36,6 +36,7 @@ Paddle Speech Demo 是一个以 PaddleSpeech 的语音交互功能为主体开�
 
 ### 后端环境安装
 ```bash 
+# 需要先安装 PaddleSpeech
 cd speech_server
 pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
 cd ../
@@ -72,7 +73,7 @@ mkdir -p source/model
 cd source/model
 # 下载IE模型
 wget https://bj.bcebos.com/paddlenlp/applications/speech-cmd-analysis/finetune/model_state.pdparams
-cd ../../
+cd ../../../
 
 ```
 #### 启动后端服务
@@ -85,6 +86,10 @@ python main.py --port 8010
 
 
 ### 启动 `vc.py` 后端服务
+
+参照下面的步骤自行配置项目所需环境。
+
+Aistudio 在线体验小样本合成后端功能：[【PaddleSpeech进阶】PaddleSpeech小样本合成方案体验](https://aistudio.baidu.com/aistudio/projectdetail/4573549?sUid=2470186&shared=1&ts=1664174385948)
 
 #### 下载相关模型和音频
 

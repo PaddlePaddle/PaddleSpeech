@@ -124,10 +124,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
         encoder_time = time.time() - start
         #logger.debug(f"encoder time: {encoder_time}")
-        #TODO(Hui Zhang): sum not support bool type
-        #encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
-        encoder_out_lens = encoder_mask.squeeze(1).cast(paddle.int64).sum(
-            1)  #[B, 1, T] -> [B]
+        encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
 
         # 2a. Attention-decoder branch
         loss_att = None
@@ -291,8 +288,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         # 2. Decoder forward step by step
         for i in range(1, maxlen + 1):
             # Stop if all batch and all beam produce eos
-            # TODO(Hui Zhang): if end_flag.sum() == running_size:
-            if end_flag.cast(paddle.int64).sum() == running_size:
+            if end_flag.sum() == running_size:
                 break
 
             # 2.1 Forward decoder step
@@ -378,9 +374,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             speech, speech_lengths, decoding_chunk_size,
             num_decoding_left_chunks, simulate_streaming)
         maxlen = encoder_out.shape[1]
-        # (TODO Hui Zhang): bool no support reduce_sum
-        # encoder_out_lens = encoder_mask.squeeze(1).sum(1)
-        encoder_out_lens = encoder_mask.squeeze(1).astype(paddle.int).sum(1)
+        encoder_out_lens = encoder_mask.squeeze(1).sum(1)
         ctc_probs = self.ctc.log_softmax(encoder_out)  # (B, maxlen, vocab_size)
 
         topk_prob, topk_index = ctc_probs.topk(1, axis=2)  # (B, maxlen, 1)

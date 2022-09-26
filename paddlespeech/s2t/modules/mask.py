@@ -109,13 +109,8 @@ def subsequent_mask(size: int) -> paddle.Tensor:
          [1, 1, 1]]
     """
     ret = paddle.ones([size, size], dtype=paddle.bool)
-    #TODO(Hui Zhang): tril not support bool
-    #return paddle.tril(ret)
-    ret = ret.astype(paddle.float)
-    ret = paddle.tril(ret)
-    ret = ret.astype(paddle.bool)
-    return ret
-
+    return paddle.tril(ret)
+    
 
 def subsequent_chunk_mask(
         size: int,

@@ -5,8 +5,6 @@ train_output_path=$2
 ckpt_name=$3
 ref_audio_dir=$4
 
-FLAGS_allocator_strategy=naive_best_fit \
-FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../voice_cloning.py \
     --am=fastspeech2_aishell3 \
     --am_config=${config_path} \

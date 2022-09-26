@@ -13,5 +13,4 @@ Submodules
    :maxdepth: 4
 
    paddlespeech.s2t.decoders.ctcdecoder.decoders_deprecated
-   paddlespeech.s2t.decoders.ctcdecoder.scorer_deprecated
    paddlespeech.s2t.decoders.ctcdecoder.swig_wrapper

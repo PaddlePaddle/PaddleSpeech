@@ -15,5 +15,3 @@ Submodules
    paddlespeech.s2t.training.extensions.evaluator
    paddlespeech.s2t.training.extensions.extension
    paddlespeech.s2t.training.extensions.plot
-   paddlespeech.s2t.training.extensions.snapshot
-   paddlespeech.s2t.training.extensions.visualizer

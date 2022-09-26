@@ -285,7 +285,7 @@ def get_phns_spans(wav_path: str,
                 break
 
     # reverse w2p and new_w2p
-    right_idx = 0
+    right_idx = len(new_phns)
     new_phns_right = []
     sp_count = 0
     w2p_max_idx = _get_max_idx(w2p)

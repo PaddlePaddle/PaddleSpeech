@@ -1,13 +1,8 @@
 aiofiles
 faiss-cpu
-fastapi
-librosa
-numpy
-paddlenlp
-paddlepaddle
-paddlespeech
+praatio==5.0.0
 pydantic
-python-multipartscikit_learn
-SoundFile
+python-multipart
+scikit_learn
 starlette
 uvicorn

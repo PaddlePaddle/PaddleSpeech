@@ -22,7 +22,6 @@ from paddle.nn import functional as F
 
 from paddlespeech.s2t.utils.log import Log
 
-#TODO(Hui Zhang): remove  fluid import
 logger = Log(__name__).getlog()
 
 ########### hack logging #############

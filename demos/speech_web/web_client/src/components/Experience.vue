@@ -47,7 +47,7 @@ import FineTuneT from './SubMenu/FineTune/FineTune.vue'
             <el-tab-pane label="小数据微调" key="7">
             <FineTuneT></FineTuneT>
             </el-tab-pane>
-            <el-tab-pane label="ENIRE SAT" key="8">
+            <el-tab-pane label="ENIRE-SAT" key="8">
             <ENIRE_SATT></ENIRE_SATT>
             </el-tab-pane>
           </el-tabs>

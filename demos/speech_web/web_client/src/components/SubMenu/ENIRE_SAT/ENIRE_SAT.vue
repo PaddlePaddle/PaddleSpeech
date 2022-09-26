@@ -98,7 +98,7 @@
                         </el-row>
                         <el-row :gutter="20">
                             <el-button v-if='this.cloneWav' type="success" @click="PlaySyn()">播放</el-button>
-                            <el-button v-else disabled type="success" @click="PlaySyn()">播放</el-button>
+                            <el-button v-else disabled type="primary" @click="PlaySyn()">播放</el-button>
                             <el-button v-if='this.cloneWav' type="primary" @click="downLoadCloneWav()">下载</el-button>
                             <el-button v-else disabled type="primary" @click="downLoadCloneWav()">下载</el-button>
                         </el-row>

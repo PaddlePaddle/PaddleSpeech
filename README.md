@@ -19,8 +19,6 @@
 <div align="center">  
 <h4>
     <a href="#quick-start"> Quick Start </a>
-  | <a href="#quick-start-server"> Quick Start Server </a>
-  | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
@@ -714,6 +712,31 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+<a name="SpeakerDiarization"></a>
+
+**Speaker Diarization**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Example </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Diarization</td>
+     <td>AMI</td>
+      <td>ECAPA-TDNN + AHC / SC</td>
+      <td>
+      <a href = "./examples/ami/sd0">ecapa-tdnn-ami</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <a name="PunctuationRestoration"></a>
 
 **Punctuation Restoration**
@@ -767,6 +790,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
   - [Text-to-Speech](#TextToSpeech)
   - [Audio Classification](#AudioClassification)
   - [Speaker Verification](#SpeakerVerification)
+  - [Speaker Diarization](#SpeakerDiarization)
   - [Punctuation Restoration](#PunctuationRestoration)
 - [Community](#Community)
 - [Welcome to contribute](#contribution)

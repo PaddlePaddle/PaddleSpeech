@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
         if epoch % config[
                 'save_freq'] == 0 and batch_idx + 1 == steps_per_epoch and local_rank == 0:
-            
+
             num_corrects = 0
             num_samples = 0
 

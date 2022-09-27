@@ -22,7 +22,7 @@ engine_list: ['text_python']
 ################### text task: punc; engine_type: python #######################
 text_python:
     task: punc
-    model_type: 'ernie_linear_p3_wudao'
+    model_type: 'ernie_linear_p3_wudao_fast'
     lang: 'zh'
     sample_rate: 16000
     cfg_path: # [optional]

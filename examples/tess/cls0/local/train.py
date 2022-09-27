@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import os
 import paddle
 import yaml
 
-from paddle.audio.features import LogMelSpectrogram
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
 from paddlespeech.cls.models import SoundClassifier
@@ -28,6 +27,26 @@ parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("--cfg_path", type=str, required=True)
 args = parser.parse_args()
 # yapf: enable
+
+def _collate_features(batch):
+    # (feat, label)
+    # (( n_mels, length), label)
+    feats = []
+    labels = []
+    lengths = []
+    for sample in batch:
+        feats.append(paddle.transpose(sample[0], perm=[1,0]))
+        lengths.append(sample[0].shape[1])
+        labels.append(sample[1])
+
+    max_length = max(lengths)
+    for i in range(len(feats)):
+        feats[i] = paddle.nn.functional.pad(
+            feats[i], [0, max_length - feats[i].shape[0], 0, 0],
+            data_format='NLC')
+
+    return paddle.stack(feats), paddle.to_tensor(
+        labels), paddle.to_tensor(lengths)
 
 if __name__ == "__main__":
     nranks = paddle.distributed.get_world_size()
@@ -58,10 +77,8 @@ if __name__ == "__main__":
         batch_sampler=train_sampler,
         num_workers=training_conf['num_workers'],
         return_list=True,
-        use_buffer_reader=True, )
-
-    # Feature
-    feature_extractor = LogMelSpectrogram(**feat_conf)
+        use_buffer_reader=True,
+        collate_fn=_collate_features)
 
     # Model
     backbone_class = dynamic_import(model_conf['backbone'])
@@ -84,11 +101,7 @@ if __name__ == "__main__":
         num_corrects = 0
         num_samples = 0
         for batch_idx, batch in enumerate(train_loader):
-            waveforms, labels = batch
-            feats = feature_extractor(
-                waveforms
-            )  # Need a padding when lengths of waveforms differ in a batch.
-            feats = paddle.transpose(feats, [0, 2, 1])  # To [N, length, n_mels]
+            feats, labels, length = batch # feats(N, length, n_mels)
 
             logits = model(feats)
 
@@ -149,7 +162,6 @@ if __name__ == "__main__":
                 for batch_idx, batch in enumerate(dev_loader):
                     waveforms, labels = batch
                     feats = feature_extractor(waveforms)
-                    feats = paddle.transpose(feats, [0, 2, 1])
 
                     logits = model(feats)
 

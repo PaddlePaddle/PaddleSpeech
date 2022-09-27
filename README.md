@@ -703,7 +703,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   <tbody>
   <tr>
       <td>Speaker Verification</td>
-      <td>VoxCeleb12</td>
+      <td>VoxCeleb1/2</td>
       <td>ECAPA-TDNN</td>
       <td>
       <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>

@@ -1,0 +1,44 @@
+###########################################################
+#                       DATA SETTING                      #
+###########################################################
+dataset_type: Ernie
+train_path: data/iwslt2012_zh/train.txt
+dev_path: data/iwslt2012_zh/dev.txt
+test_path: data/iwslt2012_zh/test.txt
+batch_size: 64
+num_workers: 2
+data_params: 
+    pretrained_token: ernie-3.0-medium-zh
+    punc_path: data/iwslt2012_zh/punc_vocab
+    seq_len: 100
+
+
+###########################################################
+#                       MODEL SETTING                     #
+###########################################################
+model_type: ErnieLinear
+model:
+    pretrained_token: ernie-3.0-medium-zh
+    num_classes: 4
+
+###########################################################
+#                     OPTIMIZER SETTING                   #
+###########################################################
+optimizer_params:
+    weight_decay: 1.0e-6               # weight decay coefficient.
+
+scheduler_params:
+    learning_rate: 1.0e-5               # learning rate.
+    gamma: 0.9999                          # scheduler gamma must between(0.0, 1.0) and closer to 1.0 is better.
+
+###########################################################
+#                     TRAINING SETTING                    #
+###########################################################
+max_epoch: 20
+num_snapshots: 5
+
+###########################################################
+#                     OTHER SETTING                       #
+###########################################################
+num_snapshots: 10                 # max number of snapshots to keep while training
+seed: 42                          # random seed for paddle, random, and np.random

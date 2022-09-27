@@ -107,10 +107,11 @@ class PaddleTextConnectionHandler:
             assert len(tokens) == len(labels)
 
             text = ''
+            print(self._punc_list)
             for t, l in zip(tokens, labels):
                 text += t
                 if l != 0:  # Non punc.
-                    text += self._punc_list[l]
+                    text += self._punc_list[l - 1]
 
             return text
         else:
@@ -160,7 +161,7 @@ class TextEngine(BaseEngine):
             return False
 
         self.executor = TextServerExecutor()
-        self.executor._init_from_path(
+        self.executor._init_from_path_new(
             task=config.task,
             model_type=config.model_type,
             lang=config.lang,

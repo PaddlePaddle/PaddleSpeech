@@ -529,7 +529,7 @@ text_dynamic_pretrained_models = {
             'ckpt/model_state.pdparams',
             'vocab_file':
             'punc_vocab.txt',
-        },
+        }
     },
     "ernie_linear_p3_wudao-punc-zh": {
         '1.0': {
@@ -543,8 +543,22 @@ text_dynamic_pretrained_models = {
             'ckpt/model_state.pdparams',
             'vocab_file':
             'punc_vocab.txt',
-        },
+        }
     },
+    "ernie_linear_p3_wudao_fast-punc-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_wudao_fast-punc-zh.tar.gz',
+            'md5':
+            'c93f9594119541a5dbd763381a751d08',
+            'cfg_path':
+            'ckpt/model_config.json',
+            'ckpt_path':
+            'ckpt/model_state.pdparams',
+            'vocab_file':
+            'punc_vocab.txt',
+        }
+    }
 }
 
 # ---------------------------------

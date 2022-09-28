@@ -179,6 +179,8 @@
 </div>
 
 ### 近期更新
+- 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 ERNIE-SAT 到 [PaddleSpeech Web Demo](./demos/speech_web)。
+- ⚡ 2022.09.09: 新增基于 ECAPA-TDNN 声纹模型的 AISHELL-3 Voice Cloning [示例](./examples/aishell3/vc2)。
 - ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
 - 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
 - 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。

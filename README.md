@@ -158,7 +158,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ### Recent Update
 - 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and ERNIE-SAT in [PaddleSpeech Web Demo](./demos/speech_web).
-- ⚡ 2022.09.09: Add AISHELL-3 Voice Cloning with ECAPA-TDNN.
+- ⚡ 2022.09.09: Add AISHELL-3 Voice Cloning [example](./examples/aishell3/vc2) with ECAPA-TDNN speaker encoder.
 - ⚡ 2022.08.25: Release TTS [finetune](./examples/other/tts_finetune/tts3) example.
 - 🔥 2022.08.22: Add ERNIE-SAT models: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat).
 - 🔥 2022.08.15: Add [g2pW](https://github.com/GitYCC/g2pW) into TTS Chinese Text Frontend.

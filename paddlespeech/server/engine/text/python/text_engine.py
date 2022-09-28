@@ -107,7 +107,6 @@ class PaddleTextConnectionHandler:
             assert len(tokens) == len(labels)
 
             text = ''
-            print(self._punc_list)
             for t, l in zip(tokens, labels):
                 text += t
                 if l != 0:  # Non punc.

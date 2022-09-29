@@ -40,6 +40,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
 
+
 @timer_register
 class ASRExecutor(BaseExecutor):
     def __init__(self):

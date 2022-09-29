@@ -19,7 +19,7 @@ feature:
   window: 'hann'
 
 training:
-  epochs: 2
+  epochs: 10
   learning_rate: 0.0005
   num_workers: 2
   batch_size: 128

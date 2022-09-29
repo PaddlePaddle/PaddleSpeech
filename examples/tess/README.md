@@ -1,6 +1,12 @@
 # 背景
 
-模型任务与模型间接请参见 examples/esc50, 本目录是为了校验和测试 paddle.audio 的feature, backend等相关模块而建立.
+TESS音频情绪分类任务.
+从而校验和测试 paddle.audio 的feature, backend等相关模块.
+
+本实验采用了PaddleSpeech提供了PANNs的CNN14的预训练模型进行finetune：
+- CNN14: 该模型主要包含12个卷积层和2个全连接层，模型参数的数量为 79.6M，embbedding维度是 2048。
+
+`PANNs`([PANNs: Large-Scale Pretrained Audio Neural Networks for Audio Pattern Recognition](https://arxiv.org/pdf/1912.10211.pdf))是基于Audioset数据集训练的声音分类/识别的模型。经过预训练后，模型可以用于提取音频的embbedding。本示例将使用`PANNs`的预训练模型Finetune完成声音分类的任务。
 
 ## 数据集
 
@@ -8,20 +14,14 @@
 
 ## 模型指标
 
-根据 `TESS` 提供的fold信息，对数据集进行 5-fold 的 fine-tune 2 epoch 训练和评估，dev准确率如下：
+根据 `TESS` 提供的fold信息，对数据集进行 5-fold 的 fine-tune 训练和评估，dev准确率如下：
 
-|Model|feat_type|Acc|
-|--|--|--|
-|CNN14| mfcc | 0.8304 |
-|CNN14| logmelspectrogram | 0.9893 |
-|CNN14| spectrogram| 0.1304 | 
-|CNN14| melspectrogram| 0.1339 | 
-
-因为是功能验证,所以只config中训练了 2 个epoch.
-log_melspectrogram feature 在迭代 3 个epoch后, acc可以达到0.9983%.
-mfcc feature 在迭代3个epoch后, acc可以达到0.9983%.
-spectrogram feature 在迭代11个epoch后,acc可达0.95%.
-melspectrogram feature 在迭代17个epoch后,acc可到0.9375%.
+|Model|feat_type|Acc| note |
+|--|--|--| -- |
+|CNN14| mfcc | 0.9929 |3 epoch |
+|CNN14| logmelspectrogram | 0.9983 | 3 epoch |
+|CNN14| spectrogram| 0.95 | 11 epoch |
+|CNN14| melspectrogram| 0.9375 | 17 epoch |
 
 ### 模型训练
 

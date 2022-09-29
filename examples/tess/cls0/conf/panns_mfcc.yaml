@@ -24,7 +24,7 @@ feature:
   n_mels: 64
 
 training:
-  epochs: 2
+  epochs: 5
   learning_rate: 0.0005
   num_workers: 2
   batch_size: 128

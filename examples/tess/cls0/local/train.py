@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,17 +17,37 @@ import os
 import paddle
 import yaml
 
-from paddle.audio.features import LogMelSpectrogram
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
 from paddlespeech.cls.models import SoundClassifier
 from paddlespeech.utils.dynamic_import import dynamic_import
+
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("--cfg_path", type=str, required=True)
 args = parser.parse_args()
 # yapf: enable
+
+def _collate_features(batch):
+    # (feat, label)
+    # (( n_mels, length), label)
+    feats = []
+    labels = []
+    lengths = []
+    for sample in batch:
+        feats.append(paddle.transpose(sample[0], perm=[1,0]))
+        lengths.append(sample[0].shape[1])
+        labels.append(sample[1])
+
+    max_length = max(lengths)
+    for i in range(len(feats)):
+        feats[i] = paddle.nn.functional.pad(
+            feats[i], [0, max_length - feats[i].shape[0], 0, 0],
+            data_format='NLC')
+
+    return paddle.stack(feats), paddle.to_tensor(
+        labels), paddle.to_tensor(lengths)
 
 if __name__ == "__main__":
     nranks = paddle.distributed.get_world_size()
@@ -42,12 +62,17 @@ if __name__ == "__main__":
     model_conf = config['model']
     data_conf = config['data']
     feat_conf = config['feature']
+    feat_type = data_conf['train']['feat_type']
     training_conf = config['training']
 
     # Dataset
+
+    # set audio backend, make sure paddleaudio >= 1.0.2 installed.
+    paddle.audio.backends.set_backend('soundfile')
+
     ds_class = dynamic_import(data_conf['dataset'])
-    train_ds = ds_class(**data_conf['train'])
-    dev_ds = ds_class(**data_conf['dev'])
+    train_ds = ds_class(**data_conf['train'], **feat_conf)
+    dev_ds = ds_class(**data_conf['dev'], **feat_conf)
     train_sampler = paddle.io.DistributedBatchSampler(
         train_ds,
         batch_size=training_conf['batch_size'],
@@ -58,10 +83,8 @@ if __name__ == "__main__":
         batch_sampler=train_sampler,
         num_workers=training_conf['num_workers'],
         return_list=True,
-        use_buffer_reader=True, )
-
-    # Feature
-    feature_extractor = LogMelSpectrogram(**feat_conf)
+        use_buffer_reader=True,
+        collate_fn=_collate_features)
 
     # Model
     backbone_class = dynamic_import(model_conf['backbone'])
@@ -84,11 +107,7 @@ if __name__ == "__main__":
         num_corrects = 0
         num_samples = 0
         for batch_idx, batch in enumerate(train_loader):
-            waveforms, labels = batch
-            feats = feature_extractor(
-                waveforms
-            )  # Need a padding when lengths of waveforms differ in a batch.
-            feats = paddle.transpose(feats, [0, 2, 1])  # To [N, length, n_mels]
+            feats, labels, length = batch # feats-->(N, length, n_mels)
 
             logits = model(feats)
 
@@ -116,7 +135,7 @@ if __name__ == "__main__":
                 avg_loss /= training_conf['log_freq']
                 avg_acc = num_corrects / num_samples
 
-                print_msg = 'Epoch={}/{}, Step={}/{}'.format(
+                print_msg = feat_type + ' Epoch={}/{}, Step={}/{}'.format(
                     epoch, training_conf['epochs'], batch_idx + 1,
                     steps_per_epoch)
                 print_msg += ' loss={:.4f}'.format(avg_loss)
@@ -140,24 +159,23 @@ if __name__ == "__main__":
                 dev_ds,
                 batch_sampler=dev_sampler,
                 num_workers=training_conf['num_workers'],
-                return_list=True, )
+                return_list=True,
+                use_buffer_reader=True,
+                collate_fn=_collate_features)
 
             model.eval()
             num_corrects = 0
             num_samples = 0
             with logger.processing('Evaluation on validation dataset'):
                 for batch_idx, batch in enumerate(dev_loader):
-                    waveforms, labels = batch
-                    feats = feature_extractor(waveforms)
-                    feats = paddle.transpose(feats, [0, 2, 1])
-
+                    feats, labels, length = batch
                     logits = model(feats)
 
                     preds = paddle.argmax(logits, axis=1)
                     num_corrects += (preds == labels).numpy().sum()
                     num_samples += feats.shape[0]
 
-            print_msg = '[Evaluation result]'
+            print_msg = '[Evaluation result] ' + str(feat_type)
             print_msg += ' dev_acc={:.4f}'.format(num_corrects / num_samples)
 
             logger.eval(print_msg)

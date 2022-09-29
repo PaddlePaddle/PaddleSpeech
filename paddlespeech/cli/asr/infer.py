@@ -15,6 +15,7 @@ import argparse
 import os
 import sys
 import time
+from io import BytesIO
 from collections import OrderedDict
 from typing import List
 from typing import Optional
@@ -229,6 +230,8 @@ class ASRExecutor(BaseExecutor):
         audio_file = input
         if isinstance(audio_file, (str, os.PathLike)):
             logger.debug("Preprocess audio_file:" + audio_file)
+        elif isinstance(audio_file, BytesIO):
+            audio_file.seek(0)
 
         # Get the object for feature extraction
         if "deepspeech2" in model_type or "conformer" in model_type or "transformer" in model_type:
@@ -352,6 +355,8 @@ class ASRExecutor(BaseExecutor):
             if not os.path.isfile(audio_file):
                 logger.error("Please input the right audio file path")
                 return False
+        elif isinstance(audio_file, BytesIO):
+            audio_file.seek(0)
 
         logger.debug("checking the audio file format......")
         try:

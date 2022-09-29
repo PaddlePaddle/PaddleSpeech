@@ -131,7 +131,6 @@ class TextEngine(BaseEngine):
         """
         super(TextEngine, self).__init__()
         logger.debug("Create the TextEngine Instance")
-
     def init(self, config: dict):
         """Init the Text Engine
 

@@ -13,28 +13,151 @@
 # limitations under the License.
 import argparse
 import os
+from concurrent.futures import ThreadPoolExecutor
+from operator import itemgetter
 from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import List
 
+import jsonlines
+import librosa
+import numpy as np
+import tqdm
 import yaml
 from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
 from paddlespeech.t2s.datasets.preprocess_utils import get_input_token
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
 from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 from paddlespeech.t2s.utils import str2bool
 
-#from concurrent.futures import ThreadPoolExecutor
-#from operator import itemgetter
-#from typing import Any
-#from typing import Dict
-#from typing import List
-#import jsonlines
-#import librosa
-#import numpy as np
-#import tqdm
-#from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
+
+def process_sentence(config: Dict[str, Any],
+                     fp: Path,
+                     sentences: Dict,
+                     output_dir: Path,
+                     mel_extractor=None,
+                     cut_sil: bool=True,
+                     spk_emb_dir: Path=None):
+    utt_id = fp.stem
+    # for vctk
+    if utt_id.endswith("_mic2"):
+        utt_id = utt_id[:-5]
+    record = None
+    if utt_id in sentences:
+        # reading, resampling may occur
+        wav, _ = librosa.load(str(fp), sr=config.fs)
+        if len(wav.shape) != 1:
+            return record
+        max_value = np.abs(wav).max()
+        if max_value > 1.0:
+            wav = wav / max_value
+        assert len(wav.shape) == 1, f"{utt_id} is not a mono-channel audio."
+        assert np.abs(wav).max(
+        ) <= 1.0, f"{utt_id} is seems to be different that 16 bit PCM."
+        phones = sentences[utt_id][0]
+        durations = sentences[utt_id][1]
+        speaker = sentences[utt_id][2]
+        d_cumsum = np.pad(np.array(durations).cumsum(0), (1, 0), 'constant')
+        # little imprecise than use *.TextGrid directly
+        times = librosa.frames_to_time(
+            d_cumsum, sr=config.fs, hop_length=config.n_shift)
+        if cut_sil:
+            start = 0
+            end = d_cumsum[-1]
+            if phones[0] == "sil" and len(durations) > 1:
+                start = times[1]
+                durations = durations[1:]
+                phones = phones[1:]
+            if phones[-1] == 'sil' and len(durations) > 1:
+                end = times[-2]
+                durations = durations[:-1]
+                phones = phones[:-1]
+            sentences[utt_id][0] = phones
+            sentences[utt_id][1] = durations
+            start, end = librosa.time_to_samples([start, end], sr=config.fs)
+            wav = wav[start:end]
+        # extract mel feats
+        logmel = mel_extractor.get_log_mel_fbank(wav)
+        # change duration according to mel_length
+        compare_duration_and_mel_length(sentences, utt_id, logmel)
+        # utt_id may be popped in compare_duration_and_mel_length
+        if utt_id not in sentences:
+            return None
+        phones = sentences[utt_id][0]
+        durations = sentences[utt_id][1]
+        num_frames = logmel.shape[0]
+        assert sum(durations) == num_frames
+        mel_dir = output_dir / "data_speech"
+        mel_dir.mkdir(parents=True, exist_ok=True)
+        mel_path = mel_dir / (utt_id + "_speech.npy")
+        np.save(mel_path, logmel)
+        record = {
+            "utt_id": utt_id,
+            "phones": phones,
+            "text_lengths": len(phones),
+            "speech_lengths": num_frames,
+            "speech": str(mel_path),
+            "speaker": speaker
+        }
+        if spk_emb_dir:
+            if speaker in os.listdir(spk_emb_dir):
+                embed_name = utt_id + ".npy"
+                embed_path = spk_emb_dir / speaker / embed_name
+                if embed_path.is_file():
+                    record["spk_emb"] = str(embed_path)
+                else:
+                    return None
+    return record
+
+
+def process_sentences(config,
+                      fps: List[Path],
+                      sentences: Dict,
+                      output_dir: Path,
+                      mel_extractor=None,
+                      nprocs: int=1,
+                      cut_sil: bool=True,
+                      spk_emb_dir: Path=None):
+    if nprocs == 1:
+        results = []
+        for fp in tqdm.tqdm(fps, total=len(fps)):
+            record = process_sentence(
+                config=config,
+                fp=fp,
+                sentences=sentences,
+                output_dir=output_dir,
+                mel_extractor=mel_extractor,
+                cut_sil=cut_sil,
+                spk_emb_dir=spk_emb_dir)
+            if record:
+                results.append(record)
+    else:
+        with ThreadPoolExecutor(nprocs) as pool:
+            futures = []
+            with tqdm.tqdm(total=len(fps)) as progress:
+                for fp in fps:
+                    future = pool.submit(process_sentence, config, fp,
+                                         sentences, output_dir, mel_extractor,
+                                         cut_sil, spk_emb_dir)
+                    future.add_done_callback(lambda p: progress.update())
+                    futures.append(future)
+
+                results = []
+                for ft in futures:
+                    record = ft.result()
+                    if record:
+                        results.append(record)
+
+    results.sort(key=itemgetter("utt_id"))
+    with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
+        for item in results:
+            writer.write(item)
+    print("Done")
 
 
 def main():
@@ -59,7 +182,7 @@ def main():
     parser.add_argument(
         "--dur-file", default=None, type=str, help="path to durations.txt.")
 
-    parser.add_argument("--config", type=str, help="transformer config file.")
+    parser.add_argument("--config", type=str, help="fastspeech2 config file.")
 
     parser.add_argument(
         "--num-cpu", type=int, default=1, help="number of process.")

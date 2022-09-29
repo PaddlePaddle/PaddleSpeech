@@ -316,7 +316,6 @@ class U2Tester(U2Trainer):
             vocab=self.config.vocab_filepath,
             spm_model_prefix=self.config.spm_model_prefix)
         self.vocab_list = self.text_feature.vocab_list
-        self.reverse_weight = getattr(config.model_conf, 'reverse_weight', 0.0)
 
     def id2token(self, texts, texts_len, text_feature):
         """ ord() id to chr() chr """
@@ -351,8 +350,7 @@ class U2Tester(U2Trainer):
             ctc_weight=decode_config.ctc_weight,
             decoding_chunk_size=decode_config.decoding_chunk_size,
             num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-            simulate_streaming=decode_config.simulate_streaming,
-            reverse_weight=self.reverse_weight)
+            simulate_streaming=decode_config.simulate_streaming)
         decode_time = time.time() - start_time
 
         for utt, target, result, rec_tids in zip(

@@ -51,7 +51,7 @@ class ASRExecutor(BaseExecutor):
         self.parser.add_argument(
             '--model',
             type=str,
-            default='conformer_wenetspeech',
+            default='conformer_u2pp_wenetspeech',
             choices=[
                 tag[:tag.index('-')]
                 for tag in self.task_resource.pretrained_models.keys()
@@ -465,7 +465,7 @@ class ASRExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='conformer_wenetspeech',
+                 model: str='conformer_u2pp_wenetspeech',
                  lang: str='zh',
                  sample_rate: int=16000,
                  config: os.PathLike=None,

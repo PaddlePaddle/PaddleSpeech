@@ -1,7 +1,7 @@
 # 背景
 
-TESS音频情绪分类任务.
-从而校验和测试 paddle.audio 的feature, backend等相关模块.
+TESS音频情绪分类任务。
+从而校验和测试 paddle.audio 的feature, backend等相关模块。
 
 本实验采用了PaddleSpeech提供了PANNs的CNN14的预训练模型进行finetune：
 - CNN14: 该模型主要包含12个卷积层和2个全连接层，模型参数的数量为 79.6M，embbedding维度是 2048。
@@ -10,7 +10,7 @@ TESS音频情绪分类任务.
 
 ## 数据集
 
-[TESS: Toronto emotional speech set](https://tspace.library.utoronto.ca/handle/1807/24487) 是一个包含有 200 个目标词的时长为 2 ~ 3 秒的音频,七种情绪的数据集。由两个女演员录制(24岁和64岁),其中情绪分别是愤怒,恶心,害怕,高兴,惊喜,伤心,平淡.
+[TESS: Toronto emotional speech set](https://tspace.library.utoronto.ca/handle/1807/24487) 是一个包含有 200 个目标词的时长为 2 ~ 3 秒的音频,七种情绪的数据集。由两个女演员录制(24岁和64岁),其中情绪分别是愤怒,恶心,害怕,高兴,惊喜,伤心,平淡。
 
 ## 模型指标
 

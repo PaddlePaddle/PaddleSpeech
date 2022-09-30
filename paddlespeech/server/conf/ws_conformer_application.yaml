@@ -30,7 +30,7 @@ asr_online:
     decode_method: 
     num_decoding_left_chunks: -1
     force_yes: True
-    device: gpu # cpu or gpu:id
+    device: cpu # cpu or gpu:id
     continuous_decoding: True # enable continue decoding when endpoint detected
 
     am_predictor_conf:

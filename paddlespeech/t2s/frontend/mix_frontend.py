@@ -60,96 +60,22 @@ class MixFrontend():
         else:
             return False
 
-    def is_end(self, before_char, after_char) -> bool:
-        flag = 0
-        for char in (before_char, after_char):
-            if self.is_alphabet(char) or char == " ":
-                flag += 1
-        if flag == 2:
-            return True
-        else:
-            return False
-
     def _replace(self, text: str) -> str:
-        new_text = ""
+        new_text = text
 
         # get "." indexs
-        point = "."
         point_indexs = []
         index = -1
-        for i in range(text.count(point)):
+        for i in range(text.count(".")):
             index = text.find(".", index + 1, len(text))
             point_indexs.append(index)
 
-        # replace "." -> "。" when English sentence ending
-        if len(point_indexs) == 0:
-            new_text = text
-
-        elif len(point_indexs) == 1:
-            point_index = point_indexs[0]
-            if point_index == 0 or point_index == len(text) - 1:
-                new_text = text
-            else:
-                if not self.is_end(text[point_index - 1], text[point_index +
-                                                               1]):
-                    new_text = text
-                else:
-                    new_text = text[:point_index] + "。" + text[point_index + 1:]
-
-        elif len(point_indexs) == 2:
-            first_index = point_indexs[0]
-            end_index = point_indexs[1]
-
-            # first
-            if first_index != 0:
-                if not self.is_end(text[first_index - 1], text[first_index +
-                                                               1]):
-                    new_text += (text[:first_index] + ".")
-                else:
-                    new_text += (text[:first_index] + "。")
-            else:
-                new_text += "."
-            # last
-            if end_index != len(text) - 1:
-                if not self.is_end(text[end_index - 1], text[end_index + 1]):
-                    new_text += text[point_indexs[-2] + 1:]
-                else:
-                    new_text += (text[point_indexs[-2] + 1:end_index] + "。" +
-                                 text[end_index + 1:])
-            else:
-                new_text += "."
-
-        else:
-            first_index = point_indexs[0]
-            end_index = point_indexs[-1]
-            # first
-            if first_index != 0:
-                if not self.is_end(text[first_index - 1], text[first_index +
-                                                               1]):
-                    new_text += (text[:first_index] + ".")
-                else:
-                    new_text += (text[:first_index] + "。")
-            else:
-                new_text += "."
-            # middle
-            for j in range(1, len(point_indexs) - 1):
-                point_index = point_indexs[j]
-                if not self.is_end(text[point_index - 1], text[point_index +
-                                                               1]):
-                    new_text += (
-                        text[point_indexs[j - 1] + 1:point_index] + ".")
-                else:
-                    new_text += (
-                        text[point_indexs[j - 1] + 1:point_index] + "。")
-            # last
-            if end_index != len(text) - 1:
-                if not self.is_end(text[end_index - 1], text[end_index + 1]):
-                    new_text += text[point_indexs[-2] + 1:]
-                else:
-                    new_text += (text[point_indexs[-2] + 1:end_index] + "。" +
-                                 text[end_index + 1:])
-            else:
-                new_text += "."
+        # replace
+        if len(point_indexs) != 0:
+            for index in point_indexs:
+                ch = text[index - 1]
+                if self.is_alphabet(ch) or ch == " ":
+                    new_text = new_text[:index] + "。" + new_text[index + 1:]
 
         return new_text
 

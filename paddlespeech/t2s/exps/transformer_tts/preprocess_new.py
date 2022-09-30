@@ -27,7 +27,13 @@ import tqdm
 import yaml
 from yacs.config import CfgNode
 
+<<<<<<< HEAD
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
+=======
+from paddlespeech.t2s.datasets.get_feats import Energy
+from paddlespeech.t2s.datasets.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.get_feats import Pitch
+>>>>>>> 18ee40f1 (修改)
 from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_length
 from paddlespeech.t2s.datasets.preprocess_utils import get_input_token
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
@@ -41,6 +47,11 @@ def process_sentence(config: Dict[str, Any],
                      sentences: Dict,
                      output_dir: Path,
                      mel_extractor=None,
+<<<<<<< HEAD
+=======
+                     pitch_extractor=None,
+                     energy_extractor=None,
+>>>>>>> 18ee40f1 (修改)
                      cut_sil: bool=True,
                      spk_emb_dir: Path=None):
     utt_id = fp.stem
@@ -96,12 +107,35 @@ def process_sentence(config: Dict[str, Any],
         mel_dir.mkdir(parents=True, exist_ok=True)
         mel_path = mel_dir / (utt_id + "_speech.npy")
         np.save(mel_path, logmel)
+<<<<<<< HEAD
+=======
+        # extract pitch and energy
+        f0 = pitch_extractor.get_pitch(wav, duration=np.array(durations))
+        assert f0.shape[0] == len(durations)
+        f0_dir = output_dir / "data_pitch"
+        f0_dir.mkdir(parents=True, exist_ok=True)
+        f0_path = f0_dir / (utt_id + "_pitch.npy")
+        np.save(f0_path, f0)
+        energy = energy_extractor.get_energy(wav, duration=np.array(durations))
+        assert energy.shape[0] == len(durations)
+        energy_dir = output_dir / "data_energy"
+        energy_dir.mkdir(parents=True, exist_ok=True)
+        energy_path = energy_dir / (utt_id + "_energy.npy")
+        np.save(energy_path, energy)
+>>>>>>> 18ee40f1 (修改)
         record = {
             "utt_id": utt_id,
             "phones": phones,
             "text_lengths": len(phones),
             "speech_lengths": num_frames,
+<<<<<<< HEAD
             "speech": str(mel_path),
+=======
+            "durations": durations,
+            "speech": str(mel_path),
+            "pitch": str(f0_path),
+            "energy": str(energy_path),
+>>>>>>> 18ee40f1 (修改)
             "speaker": speaker
         }
         if spk_emb_dir:
@@ -120,9 +154,18 @@ def process_sentences(config,
                       sentences: Dict,
                       output_dir: Path,
                       mel_extractor=None,
+<<<<<<< HEAD
                       nprocs: int=1,
                       cut_sil: bool=True,
                       spk_emb_dir: Path=None):
+=======
+                      pitch_extractor=None,
+                      energy_extractor=None,
+                      nprocs: int=1,
+                      cut_sil: bool=True,
+                      spk_emb_dir: Path=None,
+                      write_metadata_method: str='w'):
+>>>>>>> 18ee40f1 (修改)
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
@@ -132,6 +175,11 @@ def process_sentences(config,
                 sentences=sentences,
                 output_dir=output_dir,
                 mel_extractor=mel_extractor,
+<<<<<<< HEAD
+=======
+                pitch_extractor=pitch_extractor,
+                energy_extractor=energy_extractor,
+>>>>>>> 18ee40f1 (修改)
                 cut_sil=cut_sil,
                 spk_emb_dir=spk_emb_dir)
             if record:
@@ -143,6 +191,10 @@ def process_sentences(config,
                 for fp in fps:
                     future = pool.submit(process_sentence, config, fp,
                                          sentences, output_dir, mel_extractor,
+<<<<<<< HEAD
+=======
+                                         pitch_extractor, energy_extractor,
+>>>>>>> 18ee40f1 (修改)
                                          cut_sil, spk_emb_dir)
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
@@ -154,7 +206,12 @@ def process_sentences(config,
                         results.append(record)
 
     results.sort(key=itemgetter("utt_id"))
+<<<<<<< HEAD
     with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
+=======
+    with jsonlines.open(output_dir / "metadata.jsonl",
+                        write_metadata_method) as writer:
+>>>>>>> 18ee40f1 (修改)
         for item in results:
             writer.write(item)
     print("Done")
@@ -198,6 +255,16 @@ def main():
         default=None,
         type=str,
         help="directory to speaker embedding files.")
+<<<<<<< HEAD
+=======
+
+    parser.add_argument(
+        "--write_metadata_method",
+        default="w",
+        type=str,
+        choices=["w", "a"],
+        help="How the metadata.jsonl file is written.")
+>>>>>>> 18ee40f1 (修改)
     args = parser.parse_args()
 
     rootdir = Path(args.rootdir).expanduser()
@@ -292,6 +359,19 @@ def main():
         n_mels=config.n_mels,
         fmin=config.fmin,
         fmax=config.fmax)
+<<<<<<< HEAD
+=======
+    pitch_extractor = Pitch(
+        sr=config.fs,
+        hop_length=config.n_shift,
+        f0min=config.f0min,
+        f0max=config.f0max)
+    energy_extractor = Energy(
+        n_fft=config.n_fft,
+        hop_length=config.n_shift,
+        win_length=config.win_length,
+        window=config.window)
+>>>>>>> 18ee40f1 (修改)
 
     # process for the 3 sections
     if train_wav_files:
@@ -301,9 +381,18 @@ def main():
             sentences=sentences,
             output_dir=train_dump_dir,
             mel_extractor=mel_extractor,
+<<<<<<< HEAD
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
+=======
+            pitch_extractor=pitch_extractor,
+            energy_extractor=energy_extractor,
+            nprocs=args.num_cpu,
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir,
+            write_metadata_method=args.write_metadata_method)
+>>>>>>> 18ee40f1 (修改)
     if dev_wav_files:
         process_sentences(
             config=config,
@@ -311,8 +400,16 @@ def main():
             sentences=sentences,
             output_dir=dev_dump_dir,
             mel_extractor=mel_extractor,
+<<<<<<< HEAD
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
+=======
+            pitch_extractor=pitch_extractor,
+            energy_extractor=energy_extractor,
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir,
+            write_metadata_method=args.write_metadata_method)
+>>>>>>> 18ee40f1 (修改)
     if test_wav_files:
         process_sentences(
             config=config,
@@ -320,9 +417,18 @@ def main():
             sentences=sentences,
             output_dir=test_dump_dir,
             mel_extractor=mel_extractor,
+<<<<<<< HEAD
             nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
+=======
+            pitch_extractor=pitch_extractor,
+            energy_extractor=energy_extractor,
+            nprocs=args.num_cpu,
+            cut_sil=args.cut_sil,
+            spk_emb_dir=spk_emb_dir,
+            write_metadata_method=args.write_metadata_method)
+>>>>>>> 18ee40f1 (修改)
 
 
 if __name__ == "__main__":

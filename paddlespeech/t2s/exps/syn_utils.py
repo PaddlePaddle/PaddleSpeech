@@ -47,9 +47,15 @@ model_alias = {
     "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
     "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
+<<<<<<< HEAD
     "transformerTTS":
     "paddlespeech.t2s.models.transformer_tts:TransformerTTS",
     "transformerTTS_inference":
+=======
+    "transformer":
+    "paddlespeech.t2s.models.transformer_tts:TransformerTTS",
+    "transformer_inference":
+>>>>>>> 18ee40f1 (修改)
     "paddlespeech.t2s.models.transformer_tts:TransformerTTSInference",
     # voc
     "pwgan":
@@ -199,6 +205,14 @@ def get_am_inference(
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     elif am_name == 'transformerTTS':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+<<<<<<< HEAD
+=======
+    elif am_name == 'transformer':
+        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+    else:
+        print("wrong am, please input right am!!!")
+
+>>>>>>> 18ee40f1 (修改)
     am.set_state_dict(paddle.load(am_ckpt)["main_params"])
     am.eval()
     am_mu, am_std = np.load(am_stat)

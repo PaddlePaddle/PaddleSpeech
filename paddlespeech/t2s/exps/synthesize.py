@@ -107,7 +107,11 @@ def evaluate(args):
                     if args.voice_cloning and "spk_emb" in datum:
                         spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
                     mel = am_inference(phone_ids, spk_emb=spk_emb)
+<<<<<<< HEAD
                 elif am_name == 'transformerTTS':
+=======
+                elif am_name == 'transformer':
+>>>>>>> 18ee40f1 (修改)
                     phone_ids = paddle.to_tensor(datum["text"])
                     spk_emb = None
                     # multi speaker
@@ -143,7 +147,12 @@ def parse_args():
         choices=[
             'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
             'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc',
+<<<<<<< HEAD
             'tacotron2_ljspeech', 'tacotron2_aishell3', 'transformerTTS_csmsc'
+=======
+            'tacotron2_ljspeech', 'tacotron2_aishell3', 'fastspeech2_mix',
+            'transformer_csmsc'
+>>>>>>> 18ee40f1 (修改)
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(

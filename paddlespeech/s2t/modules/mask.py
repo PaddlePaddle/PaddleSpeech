@@ -110,7 +110,7 @@ def subsequent_mask(size: int) -> paddle.Tensor:
     """
     ret = paddle.ones([size, size], dtype=paddle.bool)
     return paddle.tril(ret)
-    
+
 
 def subsequent_chunk_mask(
         size: int,

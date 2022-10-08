@@ -21,6 +21,8 @@ tar cvzf asr1_chunk_conformer_u2_wenetspeech_ckpt_1.1.0.model.tar.gz model.yaml 
 
 ## Export Static Model
 
+>> Need Paddle >= 2.4
+
 >> `data/test_meeting/data.list`
 >> {"input": [{"name": "input1", "shape": [3.2230625, 80], "feat": "/home/PaddleSpeech/dataset/aishell/data_aishell/wav/test/S0764/BAC009S0764W0163.wav", "filetype": "sound"}], "output": [{"name": "target1", "shape": [9, 5538], "text": "\u697c\u5e02\u8c03\u63a7\u5c06\u53bb\u5411\u4f55\u65b9", "token": "\u697c \u5e02 \u8c03 \u63a7 \u5c06 \u53bb \u5411 \u4f55 \u65b9", "tokenid": "1891 1121 3502 1543 1018 477 528 163 1657"}], "utt": "BAC009S0764W0163", "utt2spk": "S0764"}
 

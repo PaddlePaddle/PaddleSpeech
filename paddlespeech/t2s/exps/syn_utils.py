@@ -50,6 +50,10 @@ model_alias = {
     "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
     "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
+    "transformer":
+    "paddlespeech.t2s.models.transformer_tts:TransformerTTS",
+    "transformer_inference":
+    "paddlespeech.t2s.models.transformer_tts:TransformerTTSInference",
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -243,6 +247,8 @@ def get_am_inference(am: str='fastspeech2_csmsc',
     elif am_name == 'tacotron2':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     elif am_name == 'erniesat':
+        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+    elif am_name == 'transformer':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     else:
         print("wrong am, please input right am!!!")

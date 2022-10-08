@@ -132,6 +132,8 @@ def evaluate(args):
                             mel = am_inference(part_phone_ids, part_tone_ids)
                     elif am_name == 'tacotron2':
                         mel = am_inference(part_phone_ids)
+                    elif am_name == 'transformer':
+                        mel = am_inference(part_phone_ids)
                     # vocoder
                     wav = voc_inference(mel)
                     if flags == 0:
@@ -165,7 +167,8 @@ def parse_args():
         choices=[
             'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
             'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc', 'tacotron2_ljspeech', 'fastspeech2_mix'
+            'tacotron2_csmsc', 'tacotron2_ljspeech', 'fastspeech2_mix',
+            'transformer_csmsc'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(

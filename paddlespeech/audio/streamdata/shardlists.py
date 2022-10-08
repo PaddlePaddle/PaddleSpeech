@@ -184,8 +184,8 @@ class MultiShardSample(IterableDataset):
                 urls = [urls]
             # urls = [u for url in urls for u in braceexpand.braceexpand(url)]
             urls = [
-                prefix + os.path.join(bucket, u)
-                for url in urls for u in braceexpand.braceexpand(expand(url))
+                prefix + os.path.join(bucket, u) for url in urls
+                for u in braceexpand.braceexpand(expand(url))
             ]
             resample = ds.get("resample", -1)
             nsample = ds.get("choose", -1)

@@ -18,6 +18,7 @@ from pathlib import Path
 
 import paddle
 import soundfile
+from paddleslim import PTQ
 from yacs.config import CfgNode
 
 from paddlespeech.audio.transform.transformation import Transformation
@@ -26,7 +27,6 @@ from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
-from paddleslim import PTQ
 logger = Log(__name__).getlog()
 
 
@@ -90,14 +90,14 @@ class U2Infer():
                 ctc_weight=decode_config.ctc_weight,
                 decoding_chunk_size=decode_config.decoding_chunk_size,
                 num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-                simulate_streaming=decode_config.simulate_streaming
+                simulate_streaming=decode_config.simulate_streaming,
                 reverse_weight=decode_config.reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {rsl}")
             # print(self.model)
             # print(self.model.forward_encoder_chunk)
-            
+
             logger.info("-------------start quant ----------------------")
             batch_size = 1
             feat_dim = 80
@@ -161,7 +161,11 @@ class U2Infer():
 
             # jit save
             logger.info(f"export save: {self.args.export_path}")
-            config = {'is_static': True, 'combine_params':True, 'skip_forward':True}
+            config = {
+                'is_static': True,
+                'combine_params': True,
+                'skip_forward': True
+            }
             self.ptq.save_quantized_model(self.model, self.args.export_path)
             # paddle.jit.save(
             #     self.model,
@@ -169,7 +173,6 @@ class U2Infer():
             #     combine_params=True,
             #     skip_forward=True)
 
-    
 
 def check(audio_file):
     if not os.path.isfile(audio_file):
@@ -201,7 +204,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--audio_file", type=str, help="path of the input audio file")
     parser.add_argument(
-        "--export_path", type=str, default='export', help="path of the input audio file")
+        "--export_path",
+        type=str,
+        default='export',
+        help="path of the input audio file")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

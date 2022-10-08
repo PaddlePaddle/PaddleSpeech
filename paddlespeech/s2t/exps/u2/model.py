@@ -350,7 +350,7 @@ class U2Tester(U2Trainer):
             ctc_weight=decode_config.ctc_weight,
             decoding_chunk_size=decode_config.decoding_chunk_size,
             num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-            simulate_streaming=decode_config.simulate_streaming
+            simulate_streaming=decode_config.simulate_streaming,
             reverse_weight=decode_config.reverse_weight)
         decode_time = time.time() - start_time
 

@@ -62,7 +62,6 @@ class U2Infer():
         params_path = self.args.checkpoint_path + ".pdparams"
         model_dict = paddle.load(params_path)
         self.model.set_state_dict(model_dict)
-        logger.info(f"model_dict: {model_dict.keys()}")
 
     def run(self):
         check(args.audio_file)
@@ -91,22 +90,22 @@ class U2Infer():
                 ctc_weight=decode_config.ctc_weight,
                 decoding_chunk_size=decode_config.decoding_chunk_size,
                 num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-                simulate_streaming=decode_config.simulate_streaming,
-                reverse_weight=self.reverse_weight)
+                simulate_streaming=decode_config.simulate_streaming
+                reverse_weight=decode_config.reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
-            logger.info(f"hyp: {utt} {result_transcripts[0][0]}")
+            logger.info(f"hyp: {utt} {rsl}")
             # print(self.model)
             # print(self.model.forward_encoder_chunk)
-            # return rsl
             
-            logger.info("-------------start export ----------------------")
+            logger.info("-------------start quant ----------------------")
             batch_size = 1
             feat_dim = 80
             model_size = 512
             num_left_chunks = -1
+            reverse_weight = 0.3
             logger.info(
-                f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}"
+                f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}, reverse_weight {reverse_weight}"
             )
 
             # ######################## self.model.forward_encoder_chunk ############
@@ -146,7 +145,6 @@ class U2Infer():
                 self.model.ctc_activation, input_spec=input_spec)
 
             ######################### self.model.forward_attention_decoder ########################
-            reverse_weight = 0.3
             input_spec = [
                 # hyps, (B, U)
                 paddle.static.InputSpec(shape=[None, None], dtype='int64'),

@@ -131,7 +131,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
         if self.ctc_weight != 1.0:
             start = time.time()
             loss_att, acc_att = self._calc_att_loss(encoder_out, encoder_mask,
-                                                    text, text_lengths)
+                                                    text, text_lengths, self.reverse_weight)
             decoder_time = time.time() - start
             #logger.debug(f"decoder time: {decoder_time}")
 
@@ -157,7 +157,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             encoder_out: paddle.Tensor,
             encoder_mask: paddle.Tensor,
             ys_pad: paddle.Tensor,
-            ys_pad_lens: paddle.Tensor, ) -> Tuple[paddle.Tensor, float]:
+            ys_pad_lens: paddle.Tensor, 
+            reverse_weight: float) -> Tuple[paddle.Tensor, float]:
         """Calc attention loss.
 
         Args:
@@ -165,6 +166,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             encoder_mask (paddle.Tensor): [B, 1, Tmax]
             ys_pad (paddle.Tensor): [B, Umax]
             ys_pad_lens (paddle.Tensor): [B]
+            reverse_weight (float): reverse decoder weight.
 
         Returns:
             Tuple[paddle.Tensor, float]: attention_loss, accuracy rate
@@ -179,15 +181,15 @@ class U2BaseModel(ASRInterface, nn.Layer):
         # 1. Forward decoder
         decoder_out, r_decoder_out, _ = self.decoder(
             encoder_out, encoder_mask, ys_in_pad, ys_in_lens, r_ys_in_pad,
-            self.reverse_weight)
+            reverse_weight)
 
         # 2. Compute attention loss
         loss_att = self.criterion_att(decoder_out, ys_out_pad)
         r_loss_att = paddle.to_tensor(0.0)
-        if self.reverse_weight > 0.0:
+        if reverse_weight > 0.0:
             r_loss_att = self.criterion_att(r_decoder_out, r_ys_out_pad)
-        loss_att = loss_att * (1 - self.reverse_weight
-                               ) + r_loss_att * self.reverse_weight
+        loss_att = loss_att * (1 - reverse_weight
+                               ) + r_loss_att * reverse_weight
         acc_att = th_accuracy(
             decoder_out.view(-1, self.vocab_size),
             ys_out_pad,
@@ -501,16 +503,15 @@ class U2BaseModel(ASRInterface, nn.Layer):
             num_decoding_left_chunks, simulate_streaming)
         return hyps[0][0]
 
-    def attention_rescoring(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            beam_size: int,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            ctc_weight: float=0.0,
-            simulate_streaming: bool=False,
-            reverse_weight: float=0.0, ) -> List[int]:
+    def attention_rescoring(self,
+                            speech: paddle.Tensor,
+                            speech_lengths: paddle.Tensor,
+                            beam_size: int,
+                            decoding_chunk_size: int=-1,
+                            num_decoding_left_chunks: int=-1,
+                            ctc_weight: float=0.0,
+                            simulate_streaming: bool=False,
+                            reverse_weight: float=0.0) -> List[int]:
         """ Apply attention rescoring decoding, CTC prefix beam search
             is applied first to get nbest, then we resoring the nbest on
             attention decoder with corresponding encoder out
@@ -525,6 +526,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 0: used for training, it's prohibited here
             simulate_streaming (bool): whether do encoder forward in a
                 streaming fashion
+            reverse_weight (float): reverse deocder weight.
         Returns:
             List[int]: Attention rescoring result
         """
@@ -554,14 +556,13 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 hyp_content, place=device, dtype=paddle.long)
             hyp_list.append(hyp_content)
         hyps_pad = pad_sequence(hyp_list, True, self.ignore_id)
-        ori_hyps_pad = hyps_pad
         hyps_lens = paddle.to_tensor(
             [len(hyp[0]) for hyp in hyps], place=device,
             dtype=paddle.long)  # (beam_size,)
         hyps_pad, _ = add_sos_eos(hyps_pad, self.sos, self.eos, self.ignore_id)
+        hyps_lens = hyps_lens + 1  # Add <sos> at begining
         logger.debug(
             f"hyps pad: {hyps_pad} {self.sos} {self.eos} {self.ignore_id}")
-        hyps_lens = hyps_lens + 1  # Add <sos> at begining
 
         # ctc score in ln domain
         # (beam_size, max_hyps_len, vocab_size)
@@ -598,8 +599,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
                     f"hyp {i} len {len(hyp[0])} r2l score: {r_score} ctc_score: {hyp[1]} reverse_weight: {reverse_weight}"
                 )
 
-                score = score * (1 - reverse_weight) + r_score * reverse_weight
-
+                score = score * (1 - reverse_weight
+                                 ) + r_score * reverse_weight
             # add ctc score (which in ln domain)
             score += hyp[1] * ctc_weight
             if score > best_score:
@@ -769,6 +770,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             num_decoding_left_chunks (int, optional):
                     number of left chunks for decoding. Defaults to -1.
             simulate_streaming (bool, optional): simulate streaming inference. Defaults to False.
+            reverse_weight (float, optional): reverse decoder weight, used by `attention_rescoring`.
 
         Raises:
             ValueError: when not support decoding_method.

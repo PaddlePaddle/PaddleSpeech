@@ -40,7 +40,6 @@ class U2Infer():
         self.preprocess_conf = config.preprocess_config
         self.preprocess_args = {"train": False}
         self.preprocessing = Transformation(self.preprocess_conf)
-        self.reverse_weight = getattr(config.model_conf, 'reverse_weight', 0.0)
         self.text_feature = TextFeaturizer(
             unit_type=config.unit_type,
             vocab=config.vocab_filepath,
@@ -90,7 +89,7 @@ class U2Infer():
                 decoding_chunk_size=decode_config.decoding_chunk_size,
                 num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
                 simulate_streaming=decode_config.simulate_streaming,
-                reverse_weight=self.reverse_weight)
+                reverse_weight=decode_config.reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {result_transcripts[0][0]}")

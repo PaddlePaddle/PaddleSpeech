@@ -25,6 +25,8 @@ model_alias = {
     "deepspeech2online": ["paddlespeech.s2t.models.ds2:DeepSpeech2Model"],
     "conformer": ["paddlespeech.s2t.models.u2:U2Model"],
     "conformer_online": ["paddlespeech.s2t.models.u2:U2Model"],
+    "conformer_u2pp": ["paddlespeech.s2t.models.u2:U2Model"],
+    "conformer_u2pp_online": ["paddlespeech.s2t.models.u2:U2Model"],
     "transformer": ["paddlespeech.s2t.models.u2:U2Model"],
     "wenetspeech": ["paddlespeech.s2t.models.u2:U2Model"],
 

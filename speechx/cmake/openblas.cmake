@@ -1,7 +1,7 @@
 include(FetchContent)
 
-set(OpenBLAS_SOURCE_DIR ${fc_patch}/OpenBLAS-src)
-set(OpenBLAS_PREFIX ${fc_patch}/OpenBLAS-prefix)
+set(OpenBLAS_SOURCE_DIR ${fc_patch}/openblas-src)
+set(OpenBLAS_PREFIX ${fc_patch}/openblas-prefix)
 
 # ######################################################################################################################
 # OPENBLAS  https://github.com/lattice/quda/blob/develop/CMakeLists.txt#L575

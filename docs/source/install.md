@@ -58,7 +58,7 @@ pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 Then you can use the following commands:
 ```bash
-pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 > If you encounter problem with downloading **nltk_data** while using paddlespeech, it maybe due to your poor network, we suggest you download the [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) provided by us, and extract it to your `${HOME}`.
@@ -117,9 +117,9 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 (Hip: Do not use the last script if you want to install by **Hard** way):
 ### Install PaddlePaddle
-You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.5 install paddlepaddle-gpu 2.3.1:
+You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.5 install paddlepaddle-gpu develop:
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.3.1 -i https://mirror.baidu.com/pypi/simple
+python3 -m pip install paddlepaddle-gpu==0.0.0.post102 -f https://www.paddlepaddle.org.cn/whl/linux/gpu/develop.html
 ```
 ### Install PaddleSpeech 
 You can install  `paddlespeech`  by the following command，then you can use the `ready-made` examples in `paddlespeech` :
@@ -180,9 +180,9 @@ Some users may fail to install `kaldiio` due to the default download source, you
 ```bash
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
-Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.5 install paddle 2.3.1:
+Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.5 install paddle develop:
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.3.1 -i https://mirror.baidu.com/pypi/simple
+python3 -m pip install paddlepaddle-gpu==0.0.0.post102 -f https://www.paddlepaddle.org.cn/whl/linux/gpu/develop.html
 ```
 ### Install PaddleSpeech in Developing Mode
 ```bash

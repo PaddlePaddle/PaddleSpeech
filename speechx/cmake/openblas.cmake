@@ -43,6 +43,7 @@ ExternalProject_Add(
 
 # https://cmake.org/cmake/help/latest/module/ExternalProject.html?highlight=externalproject_get_property#external-project-definition
 ExternalProject_Get_Property(OPENBLAS INSTALL_DIR)
+message(STATUS "OPENBLAS install dir: ${INSTALL_DIR}")
 set(OpenBLAS_INSTALL_PREFIX ${INSTALL_DIR})
 add_library(openblas STATIC IMPORTED)
 add_dependencies(openblas OPENBLAS)
@@ -55,4 +56,6 @@ set_target_properties(openblas PROPERTIES IMPORTED_LOCATION ${OpenBLAS_INSTALL_P
 # ${CMAKE_INSTALL_LIBDIR}  lib
 # ${CMAKE_INSTALL_INCLUDEDIR}  include
 link_directories(${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-include_directories(${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
+# include_directories(${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
+# fix for can not find `cblas.h`
+include_directories(${OpenBLAS_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/openblas)

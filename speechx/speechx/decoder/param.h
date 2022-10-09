@@ -56,7 +56,9 @@ DEFINE_int32(max_active, 7500, "max active");
 DEFINE_double(beam, 15.0, "decoder beam");
 DEFINE_double(lattice_beam, 7.5, "decoder beam");
 
+
 namespace ppspeech {
+
 // todo refactor later
 FeaturePipelineOptions InitFeaturePipelineOptions() {
     FeaturePipelineOptions opts;
@@ -115,4 +117,5 @@ RecognizerResource InitRecognizerResoure() {
     resource.tlg_opts = InitDecoderOptions();
     return resource;
 }
-}
+
+}  // namespace ppspeech

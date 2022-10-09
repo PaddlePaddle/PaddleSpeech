@@ -22,6 +22,7 @@ link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/lib")
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/lib")
 link_directories("${PADDLE_LIB}/paddle/lib")
 link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}mklml/lib")
+link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}mkldnn/lib")
 
 ##paddle with mkl
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
@@ -29,14 +30,16 @@ set(MATH_LIB_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mklml")
 include_directories("${MATH_LIB_PATH}/include")
 set(MATH_LIB ${MATH_LIB_PATH}/lib/libmklml_intel${CMAKE_SHARED_LIBRARY_SUFFIX}
                  ${MATH_LIB_PATH}/lib/libiomp5${CMAKE_SHARED_LIBRARY_SUFFIX})
+
 set(MKLDNN_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mkldnn")
 include_directories("${MKLDNN_PATH}/include")
 set(MKLDNN_LIB ${MKLDNN_PATH}/lib/libmkldnn.so.0)
 set(EXTERNAL_LIB "-lrt -ldl -lpthread")
 
 # global vars
-set(DEPS ${PADDLE_LIB}/paddle/lib/libpaddle_inference${CMAKE_SHARED_LIBRARY_SUFFIX} CACHE FORCE "DEPS")
+set(DEPS ${PADDLE_LIB}/paddle/lib/libpaddle_inference${CMAKE_SHARED_LIBRARY_SUFFIX} CACHE INTERNAL "deps")
 set(DEPS ${DEPS}
       ${MATH_LIB} ${MKLDNN_LIB}
       glog gflags protobuf xxhash cryptopp
-      ${EXTERNAL_LIB} CACHE FORCE "DEPS")
+      ${EXTERNAL_LIB} CACHE INTERNAL "deps")
+message(STATUS "Deps libraries: ${DEPS}")

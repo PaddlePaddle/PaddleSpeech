@@ -14,19 +14,15 @@
 
 #pragma once
 
-#include <limits>
-#include <string>
+#include <vector>
+#include <cstdint>
 
 namespace ppspeech {
 
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-    TypeName(const TypeName&) = delete;    \
-    void operator=(const TypeName&) = delete
-#endif
+// Sum in log scale
+float LogSumExp(float x, float y);
 
-constexpr float kFloatMax = std::numeric_limits<float>::max();
-
-const std::string kSpaceSymbol = "\xe2\x96\x81";
+template<typename T>
+void TopK(const std::vector<T>& data, int32_t k, std::vector<T>* values, std::vector<int>* indices);
 
 }  // namespace ppspeech

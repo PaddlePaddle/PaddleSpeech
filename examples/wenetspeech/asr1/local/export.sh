@@ -12,9 +12,14 @@ config_path=$1
 ckpt_path_prefix=$2
 jit_model_export_path=$3
 
+
+# export can not using StreamdataDataloader, set use_stream_dta False
+# u2: reverse_weight should be 0.0
+# u2pp: reverse_weight should be same with config file. e.g. 0.3
 python3 -u ${BIN_DIR}/export.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
+--opts use_stream_data False \
 --checkpoint_path ${ckpt_path_prefix} \
 --export_path ${jit_model_export_path}
 

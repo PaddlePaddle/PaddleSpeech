@@ -18,6 +18,7 @@ from pathlib import Path
 
 import paddle
 import soundfile
+from paddleslim import PTQ
 from yacs.config import CfgNode
 
 from paddlespeech.audio.transform.transformation import Transformation
@@ -27,8 +28,6 @@ from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
 logger = Log(__name__).getlog()
-
-# TODO(hui zhang): dynamic load
 
 
 class U2Infer():
@@ -40,6 +39,7 @@ class U2Infer():
         self.preprocess_conf = config.preprocess_config
         self.preprocess_args = {"train": False}
         self.preprocessing = Transformation(self.preprocess_conf)
+        self.reverse_weight = getattr(config.model_conf, 'reverse_weight', 0.0)
         self.text_feature = TextFeaturizer(
             unit_type=config.unit_type,
             vocab=config.vocab_filepath,
@@ -55,6 +55,8 @@ class U2Infer():
         model = U2Model.from_config(model_conf)
         self.model = model
         self.model.eval()
+        self.ptq = PTQ()
+        self.model = self.ptq.quantize(model)
 
         # load model
         params_path = self.args.checkpoint_path + ".pdparams"
@@ -92,8 +94,84 @@ class U2Infer():
                 reverse_weight=decode_config.reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
-            logger.info(f"hyp: {utt} {result_transcripts[0][0]}")
-            return rsl
+            logger.info(f"hyp: {utt} {rsl}")
+            # print(self.model)
+            # print(self.model.forward_encoder_chunk)
+
+            logger.info("-------------start quant ----------------------")
+            batch_size = 1
+            feat_dim = 80
+            model_size = 512
+            num_left_chunks = -1
+            reverse_weight = 0.3
+            logger.info(
+                f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}, reverse_weight {reverse_weight}"
+            )
+
+            # ######################## self.model.forward_encoder_chunk ############
+            # input_spec = [
+            #     # (T,), int16
+            #     paddle.static.InputSpec(shape=[None], dtype='int16'),
+            # ]
+            # self.model.forward_feature = paddle.jit.to_static(
+            #     self.model.forward_feature, input_spec=input_spec)
+
+            ######################### self.model.forward_encoder_chunk ############
+            input_spec = [
+                # xs, (B, T, D)
+                paddle.static.InputSpec(
+                    shape=[batch_size, None, feat_dim], dtype='float32'),
+                # offset, int, but need be tensor
+                paddle.static.InputSpec(shape=[1], dtype='int32'),
+                # required_cache_size, int
+                num_left_chunks,
+                # att_cache
+                paddle.static.InputSpec(
+                    shape=[None, None, None, None], dtype='float32'),
+                # cnn_cache
+                paddle.static.InputSpec(
+                    shape=[None, None, None, None], dtype='float32')
+            ]
+            self.model.forward_encoder_chunk = paddle.jit.to_static(
+                self.model.forward_encoder_chunk, input_spec=input_spec)
+
+            ######################### self.model.ctc_activation ########################
+            input_spec = [
+                # encoder_out, (B,T,D)
+                paddle.static.InputSpec(
+                    shape=[batch_size, None, model_size], dtype='float32')
+            ]
+            self.model.ctc_activation = paddle.jit.to_static(
+                self.model.ctc_activation, input_spec=input_spec)
+
+            ######################### self.model.forward_attention_decoder ########################
+            input_spec = [
+                # hyps, (B, U)
+                paddle.static.InputSpec(shape=[None, None], dtype='int64'),
+                # hyps_lens, (B,)
+                paddle.static.InputSpec(shape=[None], dtype='int64'),
+                # encoder_out, (B,T,D)
+                paddle.static.InputSpec(
+                    shape=[batch_size, None, model_size], dtype='float32'),
+                reverse_weight
+            ]
+            self.model.forward_attention_decoder = paddle.jit.to_static(
+                self.model.forward_attention_decoder, input_spec=input_spec)
+            ################################################################################
+
+            # jit save
+            logger.info(f"export save: {self.args.export_path}")
+            config = {
+                'is_static': True,
+                'combine_params': True,
+                'skip_forward': True
+            }
+            self.ptq.save_quantized_model(self.model, self.args.export_path)
+            # paddle.jit.save(
+            #     self.model,
+            #     self.args.export_path,
+            #     combine_params=True,
+            #     skip_forward=True)
 
 
 def check(audio_file):
@@ -125,6 +203,11 @@ if __name__ == "__main__":
         "--result_file", type=str, help="path of save the asr result")
     parser.add_argument(
         "--audio_file", type=str, help="path of the input audio file")
+    parser.add_argument(
+        "--export_path",
+        type=str,
+        default='export',
+        help="path of the input audio file")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

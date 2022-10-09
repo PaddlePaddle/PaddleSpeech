@@ -85,7 +85,7 @@ class CTCLoss(nn.Layer):
         Returns:
             [paddle.Tensor]: scalar. If reduction is 'none', then (N), where N = \text{batch size}.
         """
-        B = paddle.shape(logits)[0]
+        B = logits.shape[0]
         # warp-ctc need logits, and do softmax on logits by itself
         # warp-ctc need activation with shape [T, B, V + 1]
         # logits: (B, L, D) -> (L, B, D)
@@ -158,7 +158,7 @@ class LabelSmoothingLoss(nn.Layer):
         Returns:
             loss (paddle.Tensor) : The KL loss, scalar float value
         """
-        B, T, D = paddle.shape(x)
+        B, T, D = x.shape
         assert D == self.size
         x = x.reshape((-1, self.size))
         target = target.reshape([-1])

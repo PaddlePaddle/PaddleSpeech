@@ -22,7 +22,6 @@ from numpy import float32
 from yacs.config import CfgNode
 
 from paddlespeech.audio.transform.transformation import Transformation
-from paddlespeech.audio.utils.tensor_utils import st_reverse_pad_list
 from paddlespeech.cli.asr.infer import ASRExecutor
 from paddlespeech.cli.log import logger
 from paddlespeech.resource import CommonTaskResource
@@ -610,22 +609,15 @@ class PaddleASRConnectionHanddler:
         hyps_pad, _ = add_sos_eos(hyps_pad, self.model.sos, self.model.eos,
                                   self.model.ignore_id)
         hyps_lens = hyps_lens + 1  # Add <sos> at begining
-        encoder_out = self.encoder_out.repeat(beam_size, 1, 1)
-        encoder_mask = paddle.ones(
-            (beam_size, 1, encoder_out.shape[1]), dtype=paddle.bool)
 
-        r_hyps_pad = st_reverse_pad_list(ori_hyps_pad, hyps_lens - 1,
-                                         self.model.sos, self.model.eos)
-        decoder_out, r_decoder_out, _ = self.model.decoder(
-            encoder_out, encoder_mask, hyps_pad, hyps_lens, r_hyps_pad,
-            self.model.reverse_weight)  # (beam_size, max_hyps_len, vocab_size)
         # ctc score in ln domain
-        decoder_out = paddle.nn.functional.log_softmax(decoder_out, axis=-1)
-        decoder_out = decoder_out.numpy()
+        # (beam_size, max_hyps_len, vocab_size)
+        decoder_out, r_decoder_out = self.model.forward_attention_decoder(
+            hyps_pad, hyps_lens, self.encoder_out, self.model.reverse_weight)
 
+        decoder_out = decoder_out.numpy()
         # r_decoder_out will be 0.0, if reverse_weight is 0.0 or decoder is a
         # conventional transformer decoder.
-        r_decoder_out = paddle.nn.functional.log_softmax(r_decoder_out, axis=-1)
         r_decoder_out = r_decoder_out.numpy()
 
         # Only use decoder score for rescoring

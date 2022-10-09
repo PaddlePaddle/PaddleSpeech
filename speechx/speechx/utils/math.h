@@ -14,15 +14,18 @@
 
 #pragma once
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 namespace ppspeech {
 
 // Sum in log scale
 float LogSumExp(float x, float y);
 
-template<typename T>
-void TopK(const std::vector<T>& data, int32_t k, std::vector<T>* values, std::vector<int>* indices);
+template <typename T>
+void TopK(const std::vector<T>& data,
+          int32_t k,
+          std::vector<T>* values,
+          std::vector<int>* indices);
 
 }  // namespace ppspeech

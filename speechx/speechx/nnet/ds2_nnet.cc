@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "nnet/paddle_nnet.h"
+#include "nnet/ds2_nnet.h"
 #include "absl/strings/str_split.h"
 
 namespace ppspeech {

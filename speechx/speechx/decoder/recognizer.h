@@ -20,7 +20,7 @@
 #include "decoder/ctc_tlg_decoder.h"
 #include "frontend/audio/feature_pipeline.h"
 #include "nnet/decodable.h"
-#include "nnet/paddle_nnet.h"
+#include "nnet/ds2_nnet.h"
 
 namespace ppspeech {
 

@@ -1,4 +1,5 @@
 
+// Copyright (c) 2021 Mobvoi Inc (Zhendong Peng)
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +18,10 @@
 
 #include "base/common.h"
 
-#include <cmath>
 #include <algorithm>
-#include <utility>
+#include <cmath>
 #include <queue>
+#include <utility>
 
 
 namespace ppspeech {
@@ -36,28 +37,36 @@ float LogSumExp(float x, float y) {
 // greater compare for smallest priority_queue
 template <typename T>
 struct ValGreaterComp {
-    bool operator()(const std::pair<T, int32_t>& lhs, const std::pair<T, int32_>& rhs) const {
-        return lhs.first > rhs.first || (lhs.first == rhs.first && lhs.second < rhs.second);
+    bool operator()(const std::pair<T, int32_t>& lhs,
+                    const std::pair<T, int32_>& rhs) const {
+        return lhs.first > rhs.first ||
+               (lhs.first == rhs.first && lhs.second < rhs.second);
     }
 }
 
-template<typename T>
-void TopK(const std::vector<T>& data, int32_t k, std::vector<T>* values, std::vector<int>* indices) {
-     int n = data.size();
-     int min_k_n = std::min(k, n);
+template <typename T>
+void TopK(const std::vector<T>& data,
+          int32_t k,
+          std::vector<T>* values,
+          std::vector<int>* indices) {
+    int n = data.size();
+    int min_k_n = std::min(k, n);
 
     // smallest heap, (val, idx)
-    std::vector<std::pair<T, int32_t>>  smallest_heap;
-    for (int i = 0; i < min_k_n; i++){
+    std::vector<std::pair<T, int32_t>> smallest_heap;
+    for (int i = 0; i < min_k_n; i++) {
         smallest_heap.emplace_back(data[i], i);
     }
 
     // smallest priority_queue
-    std::priority_queue<std::pair<T, int32_t>, std::vector<std::pair<T, int32_t>>, ValGreaterComp<T>> pq(ValGreaterComp<T>(), std::move(smallest_heap));
+    std::priority_queue<std::pair<T, int32_t>,
+                        std::vector<std::pair<T, int32_t>>,
+                        ValGreaterComp<T>>
+        pq(ValGreaterComp<T>(), std::move(smallest_heap));
 
     // top k
-    for (int i = k ; i < n; i++){
-        if (pq.top().first < data[i]){
+    for (int i = k; i < n; i++) {
+        if (pq.top().first < data[i]) {
             pq.pop();
             pq.emplace_back(data[i], i);
         }
@@ -68,7 +77,7 @@ void TopK(const std::vector<T>& data, int32_t k, std::vector<T>* values, std::ve
 
     // from largest to samllest
     int cur = values->size() - 1;
-    while(!pq.empty()){
+    while (!pq.empty()) {
         const auto& item = pq.top();
         pq.pop();
 

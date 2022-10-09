@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "nnet/ds2_nnet.h"
 #include "base/flags.h"
 #include "base/log.h"
 #include "frontend/audio/assembler.h"
 #include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
-#include "nnet/paddle_nnet.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");

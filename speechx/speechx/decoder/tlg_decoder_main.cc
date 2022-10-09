@@ -20,7 +20,7 @@
 #include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
-#include "nnet/paddle_nnet.h"
+#include "nnet/ds2_nnet.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");

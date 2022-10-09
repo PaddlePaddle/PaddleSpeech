@@ -14,19 +14,24 @@
 
 #pragma once
 
+#include <algorithm>
 #include <condition_variable>
+#include <cstring>
 #include <deque>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <istream>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <numeric>
 #include <ostream>
 #include <queue>
 #include <set>
 #include <sstream>
 #include <stack>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <unordered_map>

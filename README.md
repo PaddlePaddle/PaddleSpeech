@@ -19,8 +19,6 @@
 <div align="center">  
 <h4>
     <a href="#quick-start"> Quick Start </a>
-  | <a href="#quick-start-server"> Quick Start Server </a>
-  | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
@@ -159,6 +157,8 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and ERNIE-SAT in [PaddleSpeech Web Demo](./demos/speech_web).
+- ⚡ 2022.09.09: Add AISHELL-3 Voice Cloning [example](./examples/aishell3/vc2) with ECAPA-TDNN speaker encoder.
 - ⚡ 2022.08.25: Release TTS [finetune](./examples/other/tts_finetune/tts3) example.
 - 🔥 2022.08.22: Add ERNIE-SAT models: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat).
 - 🔥 2022.08.15: Add [g2pW](https://github.com/GitYCC/g2pW) into TTS Chinese Text Frontend.
@@ -705,10 +705,35 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   <tbody>
   <tr>
       <td>Speaker Verification</td>
-      <td>VoxCeleb12</td>
+      <td>VoxCeleb1/2</td>
       <td>ECAPA-TDNN</td>
       <td>
       <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a name="SpeakerDiarization"></a>
+
+**Speaker Diarization**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Example </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Diarization</td>
+     <td>AMI</td>
+      <td>ECAPA-TDNN + AHC / SC</td>
+      <td>
+      <a href = "./examples/ami/sd0">ecapa-tdnn-ami</a>
       </td>
     </tr>
   </tbody>
@@ -767,6 +792,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
   - [Text-to-Speech](#TextToSpeech)
   - [Audio Classification](#AudioClassification)
   - [Speaker Verification](#SpeakerVerification)
+  - [Speaker Diarization](#SpeakerDiarization)
   - [Punctuation Restoration](#PunctuationRestoration)
 - [Community](#Community)
 - [Welcome to contribute](#contribution)

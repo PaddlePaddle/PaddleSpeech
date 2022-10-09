@@ -253,7 +253,6 @@ class U2Trainer(Trainer):
                 model_conf.output_dim = self.test_loader.vocab_size
 
         model = U2Model.from_config(model_conf)
-
         if self.parallel:
             model = paddle.DataParallel(model)
 
@@ -341,6 +340,7 @@ class U2Tester(U2Trainer):
 
         start_time = time.time()
         target_transcripts = self.id2token(texts, texts_len, self.text_feature)
+
         result_transcripts, result_tokenids = self.model.decode(
             audio,
             audio_len,
@@ -350,7 +350,8 @@ class U2Tester(U2Trainer):
             ctc_weight=decode_config.ctc_weight,
             decoding_chunk_size=decode_config.decoding_chunk_size,
             num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-            simulate_streaming=decode_config.simulate_streaming)
+            simulate_streaming=decode_config.simulate_streaming,
+            reverse_weight=decode_config.reverse_weight)
         decode_time = time.time() - start_time
 
         for utt, target, result, rec_tids in zip(
@@ -462,20 +463,120 @@ class U2Tester(U2Trainer):
         infer_model = U2InferModel.from_pretrained(self.test_loader,
                                                    self.config.clone(),
                                                    self.args.checkpoint_path)
+        batch_size = 1
         feat_dim = self.test_loader.feat_dim
-        input_spec = [
-            paddle.static.InputSpec(shape=[1, None, feat_dim],
-                                    dtype='float32'),  # audio, [B,T,D]
-            paddle.static.InputSpec(shape=[1],
-                                    dtype='int64'),  # audio_length, [B]
-        ]
-        return infer_model, input_spec
+        model_size = self.config.encoder_conf.output_size
+        num_left_chunks = -1
+        logger.info(
+            f"U2 Export Model Params: batch_size {batch_size}, feat_dim {feat_dim}, model_size {model_size}, num_left_chunks {num_left_chunks}"
+        )
+
+        return infer_model, (batch_size, feat_dim, model_size, num_left_chunks)
 
     @paddle.no_grad()
     def export(self):
         infer_model, input_spec = self.load_inferspec()
-        assert isinstance(input_spec, list), type(input_spec)
         infer_model.eval()
-        static_model = paddle.jit.to_static(infer_model, input_spec=input_spec)
-        logger.info(f"Export code: {static_model.forward.code}")
-        paddle.jit.save(static_model, self.args.export_path)
+        paddle.set_device('cpu')
+
+        assert isinstance(input_spec, (list, tuple)), type(input_spec)
+        batch_size, feat_dim, model_size, num_left_chunks = input_spec
+
+        ######################## infer_model.forward_encoder_chunk ############
+        input_spec = [
+            # (T,), int16
+            paddle.static.InputSpec(shape=[None], dtype='int16'),
+        ]
+        infer_model.forward_feature = paddle.jit.to_static(
+            infer_model.forward_feature, input_spec=input_spec)
+
+        ######################### infer_model.forward_encoder_chunk ############
+        input_spec = [
+            # xs, (B, T, D)
+            paddle.static.InputSpec(
+                shape=[batch_size, None, feat_dim], dtype='float32'),
+            # offset, int, but need be tensor
+            paddle.static.InputSpec(shape=[1], dtype='int32'),
+            # required_cache_size, int
+            num_left_chunks,
+            # att_cache
+            paddle.static.InputSpec(
+                shape=[None, None, None, None], dtype='float32'),
+            # cnn_cache
+            paddle.static.InputSpec(
+                shape=[None, None, None, None], dtype='float32')
+        ]
+        infer_model.forward_encoder_chunk = paddle.jit.to_static(
+            infer_model.forward_encoder_chunk, input_spec=input_spec)
+
+        ######################### infer_model.ctc_activation ########################
+        input_spec = [
+            # encoder_out, (B,T,D)
+            paddle.static.InputSpec(
+                shape=[batch_size, None, model_size], dtype='float32')
+        ]
+        infer_model.ctc_activation = paddle.jit.to_static(
+            infer_model.ctc_activation, input_spec=input_spec)
+
+        ######################### infer_model.forward_attention_decoder ########################
+        reverse_weight = 0.3
+        input_spec = [
+            # hyps, (B, U)
+            paddle.static.InputSpec(shape=[None, None], dtype='int64'),
+            # hyps_lens, (B,)
+            paddle.static.InputSpec(shape=[None], dtype='int64'),
+            # encoder_out, (B,T,D)
+            paddle.static.InputSpec(
+                shape=[batch_size, None, model_size], dtype='float32'),
+            reverse_weight
+        ]
+        infer_model.forward_attention_decoder = paddle.jit.to_static(
+            infer_model.forward_attention_decoder, input_spec=input_spec)
+
+        # jit save
+        logger.info(f"export save: {self.args.export_path}")
+        paddle.jit.save(
+            infer_model,
+            self.args.export_path,
+            combine_params=True,
+            skip_forward=True)
+
+        # test dy2static
+        def flatten(out):
+            if isinstance(out, paddle.Tensor):
+                return [out]
+
+            flatten_out = []
+            for var in out:
+                if isinstance(var, (list, tuple)):
+                    flatten_out.extend(flatten(var))
+                else:
+                    flatten_out.append(var)
+            return flatten_out
+
+        # forward_encoder_chunk dygraph
+        xs1 = paddle.full([1, 67, 80], 0.1, dtype='float32')
+        offset = paddle.to_tensor([0], dtype='int32')
+        required_cache_size = num_left_chunks
+        att_cache = paddle.zeros([0, 0, 0, 0])
+        cnn_cache = paddle.zeros([0, 0, 0, 0])
+        xs_d, att_cache_d, cnn_cache_d = infer_model.forward_encoder_chunk(
+            xs1, offset, required_cache_size, att_cache, cnn_cache)
+
+        # load static model
+        from paddle.jit.layer import Layer
+        layer = Layer()
+        logger.info(f"load export model: {self.args.export_path}")
+        layer.load(self.args.export_path, paddle.CPUPlace())
+
+        # forward_encoder_chunk static
+        xs1 = paddle.full([1, 67, 80], 0.1, dtype='float32')
+        offset = paddle.to_tensor([0], dtype='int32')
+        att_cache = paddle.zeros([0, 0, 0, 0])
+        cnn_cache = paddle.zeros([0, 0, 0, 0])
+        func = getattr(layer, 'forward_encoder_chunk')
+        xs_s, att_cache_s, cnn_cache_s = func(xs1, offset, att_cache, cnn_cache)
+        np.testing.assert_allclose(xs_d, xs_s, atol=1e-5)
+        np.testing.assert_allclose(att_cache_d, att_cache_s, atol=1e-4)
+        np.testing.assert_allclose(cnn_cache_d, cnn_cache_s, atol=1e-4)
+        # logger.info(f"forward_encoder_chunk output: {xs_s}")

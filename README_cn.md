@@ -19,10 +19,8 @@
 </p>
 <div align="center">  
 <h4>
-  <a href="#安装"> 安装 </a>
+    <a href="#安装"> 安装 </a>
   | <a href="#快速开始"> 快速开始 </a>
-  | <a href="#快速使用服务"> 快速使用服务 </a>
-  | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
   | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
@@ -181,6 +179,8 @@
 </div>
 
 ### 近期更新
+- 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 ERNIE-SAT 到 [PaddleSpeech 网页应用](./demos/speech_web)。
+- ⚡ 2022.09.09: 新增基于 ECAPA-TDNN 声纹模型的 AISHELL-3 Voice Cloning [示例](./examples/aishell3/vc2)。
 - ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
 - 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
 - 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。
@@ -717,11 +717,36 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </thead>
   <tbody>
   <tr>
-      <td>Speaker Verification</td>
-      <td>VoxCeleb12</td>
+      <td>声纹识别</td>
+      <td>VoxCeleb1/2</td>
       <td>ECAPA-TDNN</td>
       <td>
       <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a name="说话人日志模型"></a>
+
+**说话人日志**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>说话人日志</td>
+      <td>AMI</td>
+      <td>ECAPA-TDNN + AHC / SC</td>
+      <td>
+      <a href = "./examples/ami/sd0">ecapa-tdnn-ami</a>
       </td>
     </tr>
   </tbody>
@@ -786,6 +811,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   - [语音合成](#语音合成模型)
   - [声音分类](#声音分类模型)
   - [声纹识别](#声纹识别模型)
+  - [说话人日志](#说话人日志模型)
   - [标点恢复](#标点恢复模型)
 - [技术交流群](#技术交流群)
 - [欢迎贡献](#欢迎贡献)

@@ -35,6 +35,10 @@ echo ${ips_config}
 
 mkdir -p exp
 
+# default memeory allocator strategy may case gpu training hang
+# for no OOM raised when memory exhaused
+export FLAGS_allocator_strategy=naive_best_fit
+
 if [ ${ngpu} == 0 ]; then
 python3 -u ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \

@@ -139,8 +139,8 @@ class Conv2dSubsampling4(Conv2dSubsampling):
         """
         x = x.unsqueeze(1)  # (b, c=1, t, f)
         x = self.conv(x)
-        b, c, t, f = paddle.shape(x)
-        x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
+        b, c, t, f = x.shape
+        x = self.out(x.transpose([0, 2, 1, 3]).reshape([b, -1, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-2:2]
 
@@ -192,8 +192,8 @@ class Conv2dSubsampling6(Conv2dSubsampling):
         """
         x = x.unsqueeze(1)  # (b, c, t, f)
         x = self.conv(x)
-        b, c, t, f = paddle.shape(x)
-        x = self.linear(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
+        b, c, t, f = x.shape
+        x = self.linear(x.transpose([0, 2, 1, 3]).reshape([b, -1, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-4:3]
 
@@ -245,6 +245,7 @@ class Conv2dSubsampling8(Conv2dSubsampling):
         """
         x = x.unsqueeze(1)  # (b, c, t, f)
         x = self.conv(x)
-        x = self.linear(x.transpose([0, 2, 1, 3]).reshape([b, t, c * f]))
+        b, c, t, f = x.shape
+        x = self.linear(x.transpose([0, 2, 1, 3]).reshape([b, -1, c * f]))
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask[:, :, :-2:2][:, :, :-2:2][:, :, :-2:2]

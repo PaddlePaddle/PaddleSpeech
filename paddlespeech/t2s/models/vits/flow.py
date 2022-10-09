@@ -34,11 +34,15 @@ class FlipFlow(nn.Layer):
                 ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, channels, T).
-            inverse (bool): Whether to inverse the flow.
+            x (Tensor):
+                Input tensor (B, channels, T).
+            inverse (bool):
+                Whether to inverse the flow.
         Returns:
-            Tensor: Flipped tensor (B, channels, T).
-            Tensor: Log-determinant tensor for NLL (B,) if not inverse.
+            Tensor:
+                Flipped tensor (B, channels, T).
+            Tensor:
+                Log-determinant tensor for NLL (B,) if not inverse.
         """
         x = paddle.flip(x, [1])
         if not inverse:
@@ -60,13 +64,19 @@ class LogFlow(nn.Layer):
                 ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, channels, T).
-            x_mask (Tensor): Mask tensor (B, 1, T).
-            inverse (bool): Whether to inverse the flow.
-            eps (float): Epsilon for log.
+            x (Tensor):
+                Input tensor (B, channels, T).
+            x_mask (Tensor):
+                Mask tensor (B, 1, T).
+            inverse (bool):
+                Whether to inverse the flow.
+            eps (float):
+                Epsilon for log.
         Returns:
-            Tensor: Output tensor (B, channels, T).
-            Tensor: Log-determinant tensor for NLL (B,) if not inverse.
+            Tensor:
+                Output tensor (B, channels, T).
+            Tensor:
+                Log-determinant tensor for NLL (B,) if not inverse.
         """
         if not inverse:
             y = paddle.log(paddle.clip(x, min=eps)) * x_mask
@@ -83,7 +93,8 @@ class ElementwiseAffineFlow(nn.Layer):
     def __init__(self, channels: int):
         """Initialize ElementwiseAffineFlow module.
         Args:
-            channels (int): Number of channels.
+            channels (int):
+                Number of channels.
         """
         super().__init__()
         self.channels = channels
@@ -107,12 +118,17 @@ class ElementwiseAffineFlow(nn.Layer):
                 ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, channels, T).
-            x_mask (Tensor): Mask tensor (B, 1, T).
-            inverse (bool): Whether to inverse the flow.
+            x (Tensor):
+                Input tensor (B, channels, T).
+            x_mask (Tensor):
+                Mask tensor (B, 1, T).
+            inverse (bool):
+                Whether to inverse the flow.
         Returns:
-            Tensor: Output tensor (B, channels, T).
-            Tensor: Log-determinant tensor for NLL (B,) if not inverse.
+            Tensor:
+                Output tensor (B, channels, T).
+            Tensor:
+                Log-determinant tensor for NLL (B,) if not inverse.
         """
         if not inverse:
             y = self.m + paddle.exp(self.logs) * x
@@ -157,11 +173,16 @@ class DilatedDepthSeparableConv(nn.Layer):
             eps: float=1e-5, ):
         """Initialize DilatedDepthSeparableConv module.
         Args:
-            channels (int): Number of channels.
-            kernel_size (int): Kernel size.
-            layers (int): Number of layers.
-            dropout_rate (float): Dropout rate.
-            eps (float): Epsilon for layer norm.
+            channels (int):
+                Number of channels.
+            kernel_size (int):
+                Kernel size.
+            layers (int):
+                Number of layers.
+            dropout_rate (float):
+                Dropout rate.
+            eps (float):
+                Epsilon for layer norm.
         """
         super().__init__()
 
@@ -198,11 +219,15 @@ class DilatedDepthSeparableConv(nn.Layer):
                 g: Optional[paddle.Tensor]=None) -> paddle.Tensor:
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, in_channels, T).
-            x_mask (Tensor): Mask tensor (B, 1, T).
-            g (Optional[Tensor]): Global conditioning tensor (B, global_channels, 1).
+            x (Tensor):
+                Input tensor (B, in_channels, T).
+            x_mask (Tensor):
+                Mask tensor (B, 1, T).
+            g (Optional[Tensor]):
+                Global conditioning tensor (B, global_channels, 1).
         Returns:
-            Tensor: Output tensor (B, channels, T).
+            Tensor:
+                Output tensor (B, channels, T).
         """
         if g is not None:
             x = x + g
@@ -225,12 +250,18 @@ class ConvFlow(nn.Layer):
             tail_bound: float=5.0, ):
         """Initialize ConvFlow module.
         Args:
-            in_channels (int): Number of input channels.
-            hidden_channels (int): Number of hidden channels.
-            kernel_size (int): Kernel size.
-            layers (int): Number of layers.
-            bins (int): Number of bins.
-            tail_bound (float): Tail bound value.
+            in_channels (int):
+                Number of input channels.
+            hidden_channels (int):
+                Number of hidden channels.
+            kernel_size (int):
+                Kernel size.
+            layers (int):
+                Number of layers.
+            bins (int):
+                Number of bins.
+            tail_bound (float):
+                Tail bound value.
         """
         super().__init__()
         self.half_channels = in_channels // 2
@@ -275,13 +306,19 @@ class ConvFlow(nn.Layer):
     ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
-            x (Tensor): Input tensor (B, channels, T).
-            x_mask (Tensor): Mask tensor (B, 1, T).
-            g (Optional[Tensor]): Global conditioning tensor (B, channels, 1).
-            inverse (bool): Whether to inverse the flow.
+            x (Tensor):
+                Input tensor (B, channels, T).
+            x_mask (Tensor):
+                Mask tensor (B, 1, T).
+            g (Optional[Tensor]):
+                Global conditioning tensor (B, channels, 1).
+            inverse (bool):
+                Whether to inverse the flow.
         Returns:
-            Tensor: Output tensor (B, channels, T).
-            Tensor: Log-determinant tensor for NLL (B,) if not inverse.
+            Tensor:
+                Output tensor (B, channels, T).
+            Tensor:
+                Log-determinant tensor for NLL (B,) if not inverse.
         """
         xa, xb = x.split(2, 1)
         h = self.input_conv(xa)

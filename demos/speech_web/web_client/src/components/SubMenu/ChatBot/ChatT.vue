@@ -91,6 +91,10 @@ export default {
     methods: {
         // 开始录音
         startRecorder(){
+          if(this.ws.readyState != this.ws.OPEN){
+                this.$message.error("websocket 链接失败，请检查 Websocket 后端服务是否正确开启")
+                return
+            }
           this.allResultList = []
           if(!this.onReco){
             this.asrResult = this.speakingText

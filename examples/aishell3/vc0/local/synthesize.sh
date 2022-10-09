@@ -4,8 +4,6 @@ config_path=$1
 train_output_path=$2
 ckpt_name=$3
 
-FLAGS_allocator_strategy=naive_best_fit \
-FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize.py \
     --am=tacotron2_aishell3 \
     --am_config=${config_path} \

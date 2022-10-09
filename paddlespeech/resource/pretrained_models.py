@@ -69,7 +69,7 @@ asr_dynamic_pretrained_models = {
         },
     },
     "conformer_u2pp_wenetspeech-zh-16k": {
-        '1.3': {
+        '1.1': {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.3.model.tar.gz',
             'md5':
@@ -89,7 +89,7 @@ asr_dynamic_pretrained_models = {
         },
     },
     "conformer_u2pp_online_wenetspeech-zh-16k": {
-        '1.4': {
+        '1.1': {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.4.model.tar.gz',
             'md5':

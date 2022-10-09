@@ -4,17 +4,17 @@
 #include "scorer.h"
 
 #include <unistd.h>
+
 #include <iostream>
 
+#include "decoder_utils.h"
 #include "lm/config.hh"
 #include "lm/model.hh"
 #include "lm/state.hh"
 
-#include "decoder_utils.h"
-
 using namespace lm::ngram;
 // if your platform is windows ,you need add the define
-#define    F_OK    0
+#define F_OK 0
 Scorer::Scorer(double alpha,
                double beta,
                const std::string& lm_path,

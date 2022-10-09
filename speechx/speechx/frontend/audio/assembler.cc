@@ -16,9 +16,9 @@
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
 using std::unique_ptr;
 
 Assembler::Assembler(AssemblerOptions opts,

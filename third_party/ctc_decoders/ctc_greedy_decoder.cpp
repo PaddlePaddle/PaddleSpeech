@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "ctc_greedy_decoder.h"
+
 #include "decoder_utils.h"
 
 std::string ctc_greedy_decoding(

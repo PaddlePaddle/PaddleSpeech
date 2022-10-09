@@ -16,12 +16,12 @@
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
+using kaldi::SubVector;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
-using std::vector;
-using kaldi::SubVector;
 using std::unique_ptr;
+using std::vector;
 
 Recognizer::Recognizer(const RecognizerResource& resource) {
     // resource_ = resource;

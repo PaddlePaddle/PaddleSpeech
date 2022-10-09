@@ -13,15 +13,16 @@
 // limitations under the License.
 
 #include "nnet/paddle_nnet.h"
+
 #include "absl/strings/str_split.h"
 
 namespace ppspeech {
 
-using std::vector;
-using std::string;
-using std::shared_ptr;
 using kaldi::Matrix;
 using kaldi::Vector;
+using std::shared_ptr;
+using std::string;
+using std::vector;
 
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
     std::vector<std::string> cache_names;

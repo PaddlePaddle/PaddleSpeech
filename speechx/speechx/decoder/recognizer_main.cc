@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/recognizer.h"
 #include "decoder/param.h"
+#include "decoder/recognizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/table-types.h"
 

@@ -115,4 +115,4 @@ RecognizerResource InitRecognizerResoure() {
     resource.tlg_opts = InitDecoderOptions();
     return resource;
 }
-}
+}  // namespace ppspeech

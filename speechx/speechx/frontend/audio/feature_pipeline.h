@@ -63,4 +63,4 @@ class FeaturePipeline : public FrontendInterface {
   private:
     std::unique_ptr<FrontendInterface> base_extractor_;
 };
-}
+}  // namespace ppspeech

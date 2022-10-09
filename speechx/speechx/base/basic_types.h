@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "kaldi/base/kaldi-types.h"
-
 #include <limits>
+
+#include "kaldi/base/kaldi-types.h"
 
 typedef float BaseFloat;
 typedef double double64;

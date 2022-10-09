@@ -12,7 +12,6 @@
 #include "lm/enumerate_vocab.hh"
 #include "lm/virtual_interface.hh"
 #include "lm/word_index.hh"
-
 #include "path_trie.h"
 
 const double OOV_SCORE = -1000.0;

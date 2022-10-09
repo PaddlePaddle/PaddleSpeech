@@ -88,4 +88,4 @@ std::string TLGDecoder::GetFinalBestPath() {
     }
     return words;
 }
-}
+}  // namespace ppspeech

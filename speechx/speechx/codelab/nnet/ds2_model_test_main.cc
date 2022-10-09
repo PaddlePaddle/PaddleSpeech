@@ -21,6 +21,7 @@
 #include <iterator>
 #include <numeric>
 #include <thread>
+
 #include "base/flags.h"
 #include "base/log.h"
 #include "paddle_inference_api.h"

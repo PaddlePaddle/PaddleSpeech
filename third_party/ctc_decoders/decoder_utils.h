@@ -17,6 +17,7 @@
 
 #include <string>
 #include <utility>
+
 #include "fst/log.h"
 #include "path_trie.h"
 

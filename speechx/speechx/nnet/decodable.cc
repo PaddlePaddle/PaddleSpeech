@@ -18,8 +18,8 @@ namespace ppspeech {
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
-using std::vector;
 using kaldi::Vector;
+using std::vector;
 
 Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
                      const std::shared_ptr<FrontendInterface>& frontend,

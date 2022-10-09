@@ -91,4 +91,4 @@ class CTCBeamSearch {
     DISALLOW_COPY_AND_ASSIGN(CTCBeamSearch);
 };
 
-}  // namespace basr
+}  // namespace ppspeech

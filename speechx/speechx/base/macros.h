@@ -22,4 +22,4 @@ namespace ppspeech {
     void operator=(const TypeName&) = delete
 #endif
 
-}  // namespace pp_speech
+}  // namespace ppspeech

@@ -13,13 +13,14 @@
 // limitations under the License.
 
 #include "frontend/audio/audio_cache.h"
+
 #include "kaldi/base/timer.h"
 
 namespace ppspeech {
 
 using kaldi::BaseFloat;
-using kaldi::VectorBase;
 using kaldi::Vector;
+using kaldi::VectorBase;
 
 AudioCache::AudioCache(int buffer_size, bool to_float32)
     : finished_(false),

@@ -16,16 +16,15 @@
 
 #include "base/flags.h"
 #include "base/log.h"
-#include "kaldi/feat/wave-reader.h"
-#include "kaldi/util/kaldi-io.h"
-#include "kaldi/util/table-types.h"
-
 #include "frontend/audio/audio_cache.h"
 #include "frontend/audio/data_cache.h"
 #include "frontend/audio/fbank.h"
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/normalizer.h"
+#include "kaldi/feat/wave-reader.h"
+#include "kaldi/util/kaldi-io.h"
+#include "kaldi/util/table-types.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");

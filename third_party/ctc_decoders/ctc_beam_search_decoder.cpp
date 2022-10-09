@@ -22,9 +22,8 @@
 #include <utility>
 
 #include "ThreadPool.h"
-#include "fst/fstlib.h"
-
 #include "decoder_utils.h"
+#include "fst/fstlib.h"
 #include "path_trie.h"
 
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;

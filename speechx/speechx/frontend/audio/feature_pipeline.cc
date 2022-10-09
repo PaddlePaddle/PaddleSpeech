@@ -42,4 +42,4 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
         new ppspeech::Assembler(opts.assembler_opts, std::move(cache)));
 }
 
-}  // ppspeech
+}  // namespace ppspeech

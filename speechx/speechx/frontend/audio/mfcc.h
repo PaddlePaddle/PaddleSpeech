@@ -15,7 +15,6 @@
 #pragma once
 
 #include "kaldi/feat/feature-mfcc.h"
-#include "kaldi/feat/feature-mfcc.h"
 #include "kaldi/matrix/kaldi-vector.h"
 
 namespace ppspeech {

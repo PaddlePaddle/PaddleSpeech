@@ -1,8 +1,8 @@
 include(FetchContent)
 FetchContent_Declare(
   gtest
-  URL      https://github.com/google/googletest/archive/release-1.10.0.zip
-  URL_HASH SHA256=94c634d499558a76fa649edb13721dce6e98fb1e7018dfaeba3cd7a083945e91
+  URL      https://github.com/google/googletest/archive/release-1.11.0.zip
+  URL_HASH SHA256=353571c2440176ded91c2de6d6cd88ddd41401d14692ec1f99e35d013feda55a
 )
 FetchContent_MakeAvailable(gtest)
 

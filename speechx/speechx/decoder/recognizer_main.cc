@@ -23,8 +23,11 @@ DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     ppspeech::RecognizerResource resource = ppspeech::InitRecognizerResoure();
     ppspeech::Recognizer recognizer(resource);

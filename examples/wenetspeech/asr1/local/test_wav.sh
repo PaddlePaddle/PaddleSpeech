@@ -42,6 +42,7 @@ for type in  attention_rescoring; do
     output_dir=${ckpt_prefix}
     mkdir -p ${output_dir}
     python3 -u ${BIN_DIR}/test_wav.py \
+    --debug True \
     --ngpu ${ngpu} \
     --config ${config_path} \
     --decode_cfg ${decode_config_path} \

@@ -55,8 +55,11 @@ using std::vector;
 
 // test TLG decoder by feeding speech feature.
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);

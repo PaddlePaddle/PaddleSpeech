@@ -1,4 +1,4 @@
-project(websocket)
+# project(websocket)
 
 add_library(websocket STATIC
   websocket_server.cc

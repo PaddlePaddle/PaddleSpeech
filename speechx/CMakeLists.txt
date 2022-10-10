@@ -31,9 +31,13 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall
 ###############################################################################
 # Option Configurations
 ###############################################################################
-# option configurations 
 option(TEST_DEBUG "option for debug" OFF)
+option(USE_PROFILING "enable c++ profling" OFF)
 
+option(USING_U2  "compile u2 model." ON)
+option(USING_DS2 "compile with ds2 model." ON)
+
+option(USING_GPU "u2 compute on GPU." OFF)
 
 ###############################################################################
 # Include third party
@@ -83,6 +87,41 @@ add_dependencies(openfst gflags glog)
 
 # paddle lib
 include(paddleinference)
+
+
+# paddle core.so
+find_package(Threads REQUIRED)
+find_package(PythonLibs REQUIRED)
+find_package(Python3 REQUIRED)
+find_package(pybind11 CONFIG)
+
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
+message(STATUS "Pybind11_INCLUDES = ${pybind11_INCLUDE_DIRS}, pybind11_LIBRARIES=${pybind11_LIBRARIES}, pybind11_DEFINITIONS=${pybind11_DEFINITIONS}")
+
+# paddle include and link option
+execute_process(
+    COMMAND python -c "import paddle ; print(' '.join(paddle.sysconfig.get_link_flags()), end='')"
+    OUTPUT_VARIABLE PADDLE_LINK_FLAGS
+    RESULT_VARIABLE SUCESS)
+
+message(STATUS PADDLE_LINK_FLAGS= ${PADDLE_LINK_FLAGS})
+string(STRIP ${PADDLE_LINK_FLAGS} PADDLE_LINK_FLAGS)
+
+# paddle compile option
+execute_process(
+    COMMAND python -c "import paddle ; print(' '.join(paddle.sysconfig.get_compile_flags()), end='')"
+    OUTPUT_VARIABLE PADDLE_COMPILE_FLAGS)
+message(STATUS PADDLE_COMPILE_FLAGS= ${PADDLE_COMPILE_FLAGS})
+string(STRIP ${PADDLE_COMPILE_FLAGS} PADDLE_COMPILE_FLAGS)
+
+
+# for LD_LIBRARY_PATH
+# set(PADDLE_LIB_DIRS /workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/fluid:/workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/libs/)
+execute_process(
+    COMMAND python -c "import paddle ; print(':'.join(paddle.sysconfig.get_lib()), end='')"
+    OUTPUT_VARIABLE PADDLE_LIB_DIRS)
+message(STATUS PADDLE_LIB_DIRS= ${PADDLE_LIB_DIRS})
 
 
 ###############################################################################

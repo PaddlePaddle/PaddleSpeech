@@ -16,6 +16,8 @@ import os
 import sys
 from pathlib import Path
 
+import distutils
+import numpy as np
 import paddle
 import soundfile
 from yacs.config import CfgNode
@@ -74,6 +76,8 @@ class U2Infer():
             # fbank
             feat = self.preprocessing(audio, **self.preprocess_args)
             logger.info(f"feat shape: {feat.shape}")
+            if self.args.debug:
+                np.savetxt("feat.transform.txt", feat)
 
             ilen = paddle.to_tensor(feat.shape[0])
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
@@ -125,6 +129,11 @@ if __name__ == "__main__":
         "--result_file", type=str, help="path of save the asr result")
     parser.add_argument(
         "--audio_file", type=str, help="path of the input audio file")
+    parser.add_argument(
+        "--debug",
+        type=distutils.util.strtobool,
+        default=False,
+        help="for debug.")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

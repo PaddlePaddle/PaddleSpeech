@@ -53,8 +53,11 @@ using std::vector;
 
 // test ds2 online decoder by feeding speech feature
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     CHECK(FLAGS_result_wspecifier != "");
     CHECK(FLAGS_feature_rspecifier != "");

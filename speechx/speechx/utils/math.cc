@@ -38,11 +38,11 @@ float LogSumExp(float x, float y) {
 template <typename T>
 struct ValGreaterComp {
     bool operator()(const std::pair<T, int32_t>& lhs,
-                    const std::pair<T, int32_>& rhs) const {
+                    const std::pair<T, int32_t>& rhs) const {
         return lhs.first > rhs.first ||
                (lhs.first == rhs.first && lhs.second < rhs.second);
     }
-}
+};
 
 template <typename T>
 void TopK(const std::vector<T>& data,

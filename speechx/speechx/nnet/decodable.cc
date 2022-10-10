@@ -30,6 +30,7 @@ Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
       frames_ready_(0),
       acoustic_scale_(acoustic_scale) {}
 
+// for debug
 void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
     nnet_cache_ = likelihood;
     frames_ready_ += likelihood.NumRows();
@@ -40,6 +41,7 @@ void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
 
 // return the size of frame have computed.
 int32 Decodable::NumFramesReady() const { return frames_ready_; }
+
 
 // frame idx is from 0 to frame_ready_ -1;
 bool Decodable::IsLastFrame(int32 frame) {
@@ -72,26 +74,38 @@ bool Decodable::EnsureFrameHaveComputed(int32 frame) {
 }
 
 bool Decodable::AdvanceChunk() {
+    // read feats
     Vector<BaseFloat> features;
     if (frontend_ == NULL || frontend_->Read(&features) == false) {
+        // no feat or frontend_ not init.
         return false;
     }
-    int32 nnet_dim = 0;
-    Vector<BaseFloat> inferences;
-    nnet_->FeedForward(features, frontend_->Dim(), &inferences, &nnet_dim);
-    nnet_cache_.Resize(inferences.Dim() / nnet_dim, nnet_dim);
-    nnet_cache_.CopyRowsFromVec(inferences);
 
+    // forward feats
+    int32 vocab_dim = 0;
+    Vector<BaseFloat> probs;
+    nnet_->FeedForward(features, frontend_->Dim(), &probs, &vocab_dim);
+
+    // cache nnet outupts
+    nnet_cache_.Resize(probs.Dim() / vocab_dim, vocab_dim);
+    nnet_cache_.CopyRowsFromVec(probs);
+
+    // update state
     frame_offset_ = frames_ready_;
     frames_ready_ += nnet_cache_.NumRows();
     return true;
 }
 
+// read one frame likelihood
 bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
-    std::vector<BaseFloat> result;
-    if (EnsureFrameHaveComputed(frame) == false) return false;
-    likelihood->resize(nnet_cache_.NumCols());
-    for (int32 idx = 0; idx < nnet_cache_.NumCols(); ++idx) {
+    if (EnsureFrameHaveComputed(frame) == false) {
+        return false;
+    }
+
+    int vocab_size = nnet_cache_.NumCols();
+    likelihood->resize(vocab_size);
+
+    for (int32 idx = 0; idx < vocab_size; ++idx) {
         (*likelihood)[idx] =
             nnet_cache_(frame - frame_offset_, idx) * acoustic_scale_;
     }

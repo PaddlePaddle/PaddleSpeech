@@ -30,8 +30,11 @@ DEFINE_bool(binary, true, "write cmvn in binary (true) or text(false)");
 using namespace boost::json;  // from <boost/json.hpp>
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     LOG(INFO) << "cmvn josn path: " << FLAGS_json_file;
 

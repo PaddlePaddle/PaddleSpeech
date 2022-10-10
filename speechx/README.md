@@ -3,10 +3,13 @@
 ## Environment
 
 We develop under:
+* python - 3.7
 * docker - `registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7`
 * os - Ubuntu 16.04.7 LTS
 * gcc/g++/gfortran - 8.2.0
 * cmake - 3.16.0
+
+> Please using `tools/env.sh` to create python `venv`, then `source venv/bin/activate` to build speechx.
 
 > We make sure all things work fun under docker, and recommend using it to develop and deploy.
 
@@ -24,13 +27,16 @@ docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspace --nam
 
 * More `Paddle` docker images you can see [here](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html).
 
+2. Create python environment.
+
+```
+bash tools/venv.sh
+```
 
 2. Build `speechx` and `examples`.
 
-> Do not source venv.
-
 ```
-pushd /path/to/speechx
+source venv/bin/activate
 ./build.sh
 ```
 

@@ -11,12 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import math
 
-from packaging import version
-from paddle import Tensor, nn
-
+from paddle import nn
+from paddle import Tensor
 
 from paddlespeech.s2t.utils.log import Log
 logger = Log(__name__).getlog()
@@ -29,7 +27,9 @@ class NewGELUActivation(nn.Layer):
     """
 
     def forward(self, input: Tensor) -> Tensor:
-        return 0.5 * input * (1.0 + paddle.tanh(math.sqrt(2.0 / math.pi) * (input + 0.044715 * paddle.pow(input, 3.0))))
+        return 0.5 * input * (1.0 + paddle.tanh(
+            math.sqrt(2.0 / math.pi) *
+            (input + 0.044715 * paddle.pow(input, 3.0))))
 
 
 class GELUActivation(nn.Layer):
@@ -40,7 +40,7 @@ class GELUActivation(nn.Layer):
     Also see the Gaussian Error Linear Units paper: https://arxiv.org/abs/1606.08415
     """
 
-    def __init__(self, use_gelu_python: bool = False):
+    def __init__(self, use_gelu_python: bool=False):
         super().__init__()
         self.act = nn.functional.gelu
 
@@ -57,7 +57,9 @@ class FastGELUActivation(nn.Layer):
     """
 
     def forward(self, input: Tensor) -> Tensor:
-        return 0.5 * input * (1.0 + paddle.tanh(input * 0.7978845608 * (1.0 + 0.044715 * input * input)))
+        return 0.5 * input * (
+            1.0 + paddle.tanh(input * 0.7978845608 *
+                              (1.0 + 0.044715 * input * input)))
 
 
 class QuickGELUActivation(nn.Layer):
@@ -84,7 +86,8 @@ class ClippedGELUActivation(nn.Layer):
 
     def __init__(self, min: float, max: float):
         if min > max:
-            raise ValueError(f"min should be < max (got min: {min}, max: {max})")
+            raise ValueError(
+                f"min should be < max (got min: {min}, max: {max})")
 
         super().__init__()
         self.min = min
@@ -161,7 +164,9 @@ def get_activation(activation_string):
     if activation_string in ACT2FN:
         return ACT2FN[activation_string]
     else:
-        raise KeyError(f"function {activation_string} not found in ACT2FN mapping {list(ACT2FN.keys())}")
+        raise KeyError(
+            f"function {activation_string} not found in ACT2FN mapping {list(ACT2FN.keys())}"
+        )
 
 
 # For backwards compatibility with: from activations import gelu_python

@@ -3,6 +3,7 @@ Authors
 * Elena Rastorgueva 2020
 """
 import paddle
+
 from paddlespeech.s2t.models.wav2vec2.modules import containers
 from paddlespeech.s2t.models.wav2vec2.modules import linear
 
@@ -27,12 +28,11 @@ class VanillaNN(containers.Sequential):
     """
 
     def __init__(
-        self,
-        input_shape,
-        activation=paddle.nn.LeakyReLU,
-        dnn_blocks=2,
-        dnn_neurons=512,
-    ):
+            self,
+            input_shape,
+            activation=paddle.nn.LeakyReLU,
+            dnn_blocks=2,
+            dnn_neurons=512, ):
         super().__init__(input_shape=input_shape)
 
         for block_index in range(dnn_blocks):
@@ -40,6 +40,5 @@ class VanillaNN(containers.Sequential):
                 linear.Linear,
                 n_neurons=dnn_neurons,
                 bias=True,
-                layer_name="linear",
-            )
+                layer_name="linear", )
             self.append(activation(), layer_name="act")

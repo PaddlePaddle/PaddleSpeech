@@ -27,6 +27,7 @@ from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
 logger = Log(__name__).getlog()
 
+
 class Wav2vec2Infer():
     def __init__(self, config, args):
         self.args = args
@@ -34,8 +35,7 @@ class Wav2vec2Infer():
         self.audio_file = args.audio_file
 
         self.text_feature = TextFeaturizer(
-            unit_type=config.unit_type,
-            vocab=config.vocab_filepath)
+            unit_type=config.unit_type, vocab=config.vocab_filepath)
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
 
         # model
@@ -63,10 +63,10 @@ class Wav2vec2Infer():
             xs = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
             decode_config = self.config.decode
             result_transcripts, result_tokenids = self.model.decode(
-                    xs,
-                    text_feature=self.text_feature,
-                    decoding_method=decode_config.decoding_method,
-                    beam_size=decode_config.beam_size)
+                xs,
+                text_feature=self.text_feature,
+                decoding_method=decode_config.decoding_method,
+                beam_size=decode_config.beam_size)
             rsl = result_transcripts[0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {rsl}")

@@ -7,10 +7,8 @@ Authors
  * Samuele Cornell 2020
  * Sarthak Yadav 2022
 """
-import paddle
-import math
-from packaging import version
 import numpy as np
+import paddle
 
 
 def blackman_window(window_length, periodic=True):
@@ -90,15 +88,14 @@ def compute_amplitude(waveforms, lengths=None, amp_type="avg", scale="linear"):
 
 
 def convolve1d(
-    waveform,
-    kernel,
-    padding=0,
-    pad_type="constant",
-    stride=1,
-    groups=1,
-    use_fft=False,
-    rotation_index=0,
-):
+        waveform,
+        kernel,
+        padding=0,
+        pad_type="constant",
+        stride=1,
+        groups=1,
+        use_fft=False,
+        rotation_index=0, ):
     """Use paddle.nn.functional to perform 1d padding and conv.
     Arguments
     ---------
@@ -150,8 +147,7 @@ def convolve1d(
     # Padding can be a tuple (left_pad, right_pad) or an int
     if isinstance(padding, tuple):
         waveform = paddle.nn.functional.pad(
-            x=waveform, pad=padding, mode=pad_type, data_format='NCL'
-        )
+            x=waveform, pad=padding, mode=pad_type, data_format='NCL')
 
     # This approach uses FFT, which is more efficient if the kernel is large
     if use_fft:
@@ -165,9 +161,7 @@ def convolve1d(
 
         # Perform rotation to ensure alignment
         zeros = paddle.zeros(
-            [kernel.shape[0], kernel.shape[1], zero_length],
-            dtype=kernel.dtype
-        )
+            [kernel.shape[0], kernel.shape[1], zero_length], dtype=kernel.dtype)
         after_index = kernel[..., rotation_index:]
         before_index = kernel[..., :rotation_index]
         kernel = paddle.concat((after_index, zeros, before_index), axis=-1)
@@ -185,11 +179,11 @@ def convolve1d(
             weight=kernel,
             stride=stride,
             groups=groups,
-            padding=padding if not isinstance(padding, tuple) else 0,
-        )
+            padding=padding if not isinstance(padding, tuple) else 0, )
 
     # Return time dimension to the second dimension.
     return convolved.transpose([0, 2, 1])
+
 
 def notch_filter(notch_freq, filter_width=101, notch_width=0.05):
     """Returns a notch filter constructed from a high-pass and low-pass filter.
@@ -224,7 +218,8 @@ def notch_filter(notch_freq, filter_width=101, notch_width=0.05):
             return paddle.sin(x) / x
 
         # The zero is at the middle index
-        return paddle.concat([_sinc(x[:pad]), paddle.ones([1]), _sinc(x[pad + 1 :])])
+        return paddle.concat(
+            [_sinc(x[:pad]), paddle.ones([1]), _sinc(x[pad + 1:])])
 
     # Compute a low-pass filter with cutoff frequency notch_freq.
     hlpf = sinc(3 * (notch_freq - notch_width) * inputs)
@@ -239,4 +234,3 @@ def notch_filter(notch_freq, filter_width=101, notch_width=0.05):
 
     # Adding filters creates notch filter
     return (hlpf + hhpf).view(1, -1, 1)
-

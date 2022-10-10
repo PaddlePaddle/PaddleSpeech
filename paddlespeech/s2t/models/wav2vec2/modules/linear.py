@@ -3,10 +3,10 @@ Authors
  * Mirco Ravanelli 2020
  * Davide Borra 2021
 """
-
 import logging
+
 import paddle
-import paddle.nn as nn
+
 from paddlespeech.s2t.modules import align
 
 logger = logging.getLogger(__name__)
@@ -37,13 +37,12 @@ class Linear(paddle.nn.Layer):
     """
 
     def __init__(
-        self,
-        n_neurons,
-        input_shape=None,
-        input_size=None,
-        bias=True,
-        combine_dims=False,
-    ):
+            self,
+            n_neurons,
+            input_shape=None,
+            input_size=None,
+            bias=True,
+            combine_dims=False, ):
         super().__init__()
         self.combine_dims = combine_dims
 

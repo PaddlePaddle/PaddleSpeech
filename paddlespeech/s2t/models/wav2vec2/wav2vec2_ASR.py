@@ -1,30 +1,24 @@
-import numpy as np
-import os
-
+from collections import defaultdict
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Tuple
 
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
+
 from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2ConfigPure
 from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2Model
-from paddlespeech.s2t.modules.mask import make_pad_mask
-from paddlespeech.s2t.utils.utility import log_add
-
-from collections import defaultdict
-
 from paddlespeech.s2t.models.wav2vec2.modules.VanillaNN import VanillaNN
 from paddlespeech.s2t.modules.ctc import CTCDecoderBase as CTC
 from paddlespeech.s2t.utils.ctc_utils import remove_duplicates_and_blank
-from yacs.config import CfgNode
+from paddlespeech.s2t.utils.utility import log_add
+
 
 class Wav2vec2ASR(nn.Layer):
     def __init__(self, config: dict):
         super().__init__()
-        
+
         wav2vec2_config = Wav2Vec2ConfigPure(config)
         wav2vec2 = Wav2Vec2Model(wav2vec2_config)
         model_dict = paddle.load(config.wav2vec2_params_path)
@@ -36,8 +30,16 @@ class Wav2vec2ASR(nn.Layer):
             for parm in wav2vec2.parameters():
                 parm.trainable = False
         self.wav2vec2 = wav2vec2
-        self.enc = VanillaNN(input_shape=[None,None,wav2vec2_config.hidden_size], activation=nn.LeakyReLU, dnn_blocks=config.dnn_blocks, dnn_neurons=config.dnn_neurons)
-        self.ctc = CTC(odim=config.output_dim, enc_n_units=config.dnn_neurons, blank_id=config.blank_id, dropout_rate=config.ctc_dropout_rate, reduction=True)
+        self.enc = VanillaNN(
+            input_shape=[None, None, wav2vec2_config.hidden_size],
+            activation=nn.LeakyReLU,
+            dnn_blocks=config.dnn_blocks,
+            dnn_neurons=config.dnn_neurons)
+        self.ctc = CTC(odim=config.output_dim,
+                       enc_n_units=config.dnn_neurons,
+                       blank_id=config.blank_id,
+                       dropout_rate=config.ctc_dropout_rate,
+                       reduction=True)
 
     def forward(self, wav, wavs_lens_rate, target, target_lens_rate):
         if self.normalize_wav:
@@ -51,25 +53,27 @@ class Wav2vec2ASR(nn.Layer):
 
         x = self.enc(feats)
         x_lens = (wavs_lens_rate * x.shape[1]).round().astype(paddle.int64)
-        target_lens = (target_lens_rate * target.shape[1]).round().astype(paddle.int64)
-        
+        target_lens = (target_lens_rate *
+                       target.shape[1]).round().astype(paddle.int64)
+
         ctc_loss = self.ctc(x, x_lens, target, target_lens)
         return ctc_loss
 
     @paddle.no_grad()
-    def decode(self, 
+    def decode(self,
                feats: paddle.Tensor,
                text_feature: Dict[str, int],
                decoding_method: str,
                beam_size: int):
         batch_size = feats.shape[0]
-        if decoding_method is 'ctc_prefix_beam_search' and batch_size > 1:
+
+        if decoding_method == 'ctc_prefix_beam_search' and batch_size > 1:
             logger.error(
                 f'decoding mode {decoding_method} must be running with batch_size == 1'
             )
             logger.error(f"current batch_size is {batch_size}")
             sys.exit(1)
-        
+
         if decoding_method == 'ctc_greedy_search':
             hyps = self.ctc_greedy_search(feats)
             res = [text_feature.defeaturize(hyp) for hyp in hyps]
@@ -79,13 +83,12 @@ class Wav2vec2ASR(nn.Layer):
         # with other batch decoding mode
         elif decoding_method == 'ctc_prefix_beam_search':
             assert feats.shape[0] == 1
-            hyp = self.ctc_prefix_beam_search(
-                feats,
-                beam_size)
+            hyp = self.ctc_prefix_beam_search(feats, beam_size)
             res = [text_feature.defeaturize(hyp)]
             res_tokenids = [hyp]
         else:
-            raise ValueError(f"wav2vec2 not support decoding method: {decoding_method}")
+            raise ValueError(
+                f"wav2vec2 not support decoding method: {decoding_method}")
 
         return res, res_tokenids
 
@@ -94,8 +97,7 @@ class Wav2vec2ASR(nn.Layer):
         model = cls(config)
         return model
 
-    def ctc_greedy_search(
-            self, wav) -> List[List[int]]:
+    def ctc_greedy_search(self, wav) -> List[List[int]]:
         """ Apply CTC greedy search
         Args:
             speech (paddle.Tensor): (batch, max_len)
@@ -104,7 +106,7 @@ class Wav2vec2ASR(nn.Layer):
             List[List[int]]: best path result
         """
         batch_size = wav.shape[0]
-        wav = wav[:,:,0]
+        wav = wav[:, :, 0]
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape[1:])
         # Extract wav2vec output
@@ -124,7 +126,10 @@ class Wav2vec2ASR(nn.Layer):
         return hyps
 
     def _ctc_prefix_beam_search(
-           self, wav, beam_size, blank_id: int=0, ) -> Tuple[List[Tuple[int, float]], paddle.Tensor]:
+            self,
+            wav,
+            beam_size,
+            blank_id: int=0, ) -> Tuple[List[Tuple[int, float]], paddle.Tensor]:
         """ CTC prefix beam search inner implementation
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -142,7 +147,7 @@ class Wav2vec2ASR(nn.Layer):
             paddle.Tensor: encoder output, (1, max_len, encoder_dim),
                 it will be used for rescoring in attention rescoring mode
         """
-        wav = wav[:,:,0]
+        wav = wav[:, :, 0]
 
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape[1:])
@@ -219,29 +224,5 @@ class Wav2vec2ASR(nn.Layer):
         Returns:
             List[int]: CTC prefix beam search nbest results
         """
-        hyps = self._ctc_prefix_beam_search(
-            wav, beam_size)
+        hyps = self._ctc_prefix_beam_search(wav, beam_size)
         return hyps[0][0]
-
-    # @jit.to_static
-    # def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:
-    #     """ Export interface for c++ call, apply linear transform and log
-    #         softmax before ctc
-    #     Args:
-    #         xs (paddle.Tensor): encoder output, (B, T, D)
-    #     Returns:
-    #         paddle.Tensor: activation before ctc
-    #     """
-    #     return self.ctc.log_softmax(xs)
-
-
-    # def _get_data(self):
-    #     data_dir = "data"
-    #     wavs = np.load(os.path.join(data_dir, "wavs.npy"))
-    #     wavs_lens = np.load(os.path.join(data_dir, "wavs_lens.npy"))
-    #     tokens = np.load(os.path.join(data_dir, "tokens.npy"))
-    #     tokens_lens = np.load(os.path.join(data_dir, "tokens_lens.npy"))
-        
-    #     batch = (paddle.to_tensor(wavs), paddle.to_tensor(wavs_lens, dtype='float32'), 
-    #         paddle.to_tensor(tokens, dtype='int32'), paddle.to_tensor(tokens_lens, dtype='float32'))
-    #     return batch

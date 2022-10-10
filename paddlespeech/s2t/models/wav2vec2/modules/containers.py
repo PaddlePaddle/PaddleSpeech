@@ -1,8 +1,7 @@
-import paddle
 import inspect
-import logging
-import operator
-import functools
+
+import paddle
+
 
 class Sequential(paddle.nn.LayerDict):
     """A sequence of modules with potentially inferring shape on construction.
@@ -98,13 +97,12 @@ class Sequential(paddle.nn.LayerDict):
         # Finally, append the layer.
         try:
             self[layer_name] = layer
-           # self.add_module(layer_name, layer)
+        # self.add_module(layer_name, layer)
         except TypeError:
             raise ValueError(
                 "Must pass `input_shape` at initialization and use "
                 "modules that take `input_shape` to infer shape when "
-                "using `append()`."
-            )
+                "using `append()`.")
 
     def get_output_shape(self):
         """Returns expected shape of the output.

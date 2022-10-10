@@ -18,53 +18,53 @@ import time
 from collections import defaultdict
 from collections import OrderedDict
 from contextlib import nullcontext
-from paddlespeech.s2t.utils import mp_tools
 
 import jsonlines
 import numpy as np
 import paddle
 from paddle import distributed as dist
+
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import BatchDataLoader
-from paddlespeech.s2t.io.dataloader import StreamDataLoader
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
-from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
+from paddlespeech.s2t.io.dataloader import StreamDataLoader
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
-from paddlespeech.s2t.utils import error_rate
-
+from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
 from paddlespeech.s2t.training.reporter import report
 from paddlespeech.s2t.training.scheduler import LRSchedulerFactory
 from paddlespeech.s2t.training.timer import Timer
 from paddlespeech.s2t.training.trainer import Trainer
-from paddlespeech.s2t.utils.utility import UpdateConfig
+from paddlespeech.s2t.utils import error_rate
 from paddlespeech.s2t.utils import layer_tools
+from paddlespeech.s2t.utils import mp_tools
 from paddlespeech.s2t.utils.log import Log
-
-
+from paddlespeech.s2t.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
+
 
 class Wav2Vec2ASRTrainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
         self.avg_train_loss = 0
+
     def train_batch(self, batch_index, batch, msg):
         train_conf = self.config
         start = time.time()
 
         # forward
         utt, wav, wavs_lens, target, target_lens = batch
-        wavs_lens_rate = wavs_lens / wav.shape[1] 
+        wavs_lens_rate = wavs_lens / wav.shape[1]
         target_lens_rate = target_lens / target.shape[1]
-        wav = wav[:,:,0]
+        wav = wav[:, :, 0]
         wav = self.speech_augmentation(wav, wavs_lens_rate)
         loss = self.model(wav, wavs_lens_rate, target, target_lens_rate)
         # pring(wav, wavs_lens_rate, target, target_lens_rate)
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
-        
+
         losses_np = {'loss': float(loss) * train_conf.accum_grad}
 
         # loss backward
@@ -108,15 +108,16 @@ class Wav2Vec2ASRTrainer(Trainer):
     def valid(self):
         self.model.eval()
         if not self.use_streamdata:
-            logger.info(f"Valid Total Examples: {len(self.valid_loader.dataset)}")
+            logger.info(
+                f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = defaultdict(list)
         num_seen_utts = 1
         total_loss = 0.0
         for i, batch in enumerate(self.valid_loader):
             utt, wav, wavs_lens, target, target_lens = batch
-            wavs_lens_rate = wavs_lens / wav.shape[1] 
+            wavs_lens_rate = wavs_lens / wav.shape[1]
             target_lens_rate = target_lens / target.shape[1]
-            wav = wav[:,:,0]
+            wav = wav[:, :, 0]
             loss = self.model(wav, wavs_lens_rate, target, target_lens_rate)
 
             if paddle.isfinite(loss):
@@ -134,7 +135,8 @@ class Wav2Vec2ASRTrainer(Trainer):
                 msg += "epoch: {}, ".format(self.epoch)
                 msg += "step: {}, ".format(self.iteration)
                 if not self.use_streamdata:
-                    msg += "batch: {}/{}, ".format(i + 1, len(self.valid_loader))
+                    msg += "batch: {}/{}, ".format(i + 1,
+                                                   len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                  for k, v in valid_dump.items())
                 logger.info(msg)
@@ -155,7 +157,8 @@ class Wav2Vec2ASRTrainer(Trainer):
         self.before_train()
 
         if not self.use_streamdata:
-            logger.info(f"Train Total Examples: {len(self.train_loader.dataset)}")
+            logger.info(
+                f"Train Total Examples: {len(self.train_loader.dataset)}")
         while self.epoch < self.config.n_epoch:
             with Timer("Epoch-Train Time Cost: {}"):
                 self.model.train()
@@ -223,14 +226,18 @@ class Wav2Vec2ASRTrainer(Trainer):
         config = self.config.clone()
         self.use_streamdata = config.get("use_stream_data", False)
         if self.train:
-            self.train_loader = DataLoaderFactory.get_dataloader('train', config, self.args)
-            self.valid_loader = DataLoaderFactory.get_dataloader('valid', config, self.args)
+            self.train_loader = DataLoaderFactory.get_dataloader(
+                'train', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader(
+                'valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
             decode_batch_size = config.get('decode', dict()).get(
                 'decode_batch_size', 1)
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config, self.args)
-            self.align_loader = DataLoaderFactory.get_dataloader('align', config, self.args)
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
+                                                                self.args)
+            self.align_loader = DataLoaderFactory.get_dataloader(
+                'align', config, self.args)
             logger.info("Setup test/align Dataloader!")
 
     def setup_model(self):
@@ -248,7 +255,7 @@ class Wav2Vec2ASRTrainer(Trainer):
         model = Wav2vec2ASR.from_config(model_conf)
 
         if self.parallel:
-            model = paddle.DataParallel(model, find_unused_parameters=True) 
+            model = paddle.DataParallel(model, find_unused_parameters=True)
 
         logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
@@ -312,14 +319,14 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
         self.text_featurizer = TextFeaturizer(
             unit_type=config.unit_type, vocab=config.vocab_filepath)
         self.vocab_list = self.text_featurizer.vocab_list
+
     def id2token(self, texts, texts_len):
         """ ord() id to chr() chr """
         trans = []
         for text, n in zip(texts, texts_len):
             n = n.numpy().item()
             ids = text[:n]
-            trans.append(
-                self.text_featurizer.defeaturize(ids.numpy().tolist()))
+            trans.append(self.text_featurizer.defeaturize(ids.numpy().tolist()))
         return trans
 
     def compute_metrics(self,
@@ -337,10 +344,10 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
         start_time = time.time()
         target_transcripts = self.id2token(texts, texts_len)
         result_transcripts, result_tokenids = self.model.decode(
-                    audio,
-                    text_feature=self.text_featurizer,
-                    decoding_method=decode_cfg.decoding_method,
-                    beam_size=decode_cfg.beam_size)
+            audio,
+            text_feature=self.text_featurizer,
+            decoding_method=decode_cfg.decoding_method,
+            beam_size=decode_cfg.beam_size)
         decode_time = time.time() - start_time
 
         for utt, target, result, rec_tids in zip(

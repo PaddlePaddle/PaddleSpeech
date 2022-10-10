@@ -382,6 +382,36 @@ class LogMelSpectrogramKaldi():
         return mat
 
 
+class WavProcess():
+    def __init__(self, dither=0.1):
+        """
+        Args:
+            dither (float): Dithering constant
+
+        Returns:
+        """
+
+        self.dither = dither
+
+    def __call__(self, x, train):
+        """
+        Args:
+            x (np.ndarray): shape (Ti,)
+            train (bool): True, train mode.
+
+        Raises:
+            ValueError: not support (Ti, C)
+
+        Returns:
+            np.ndarray: (T, D)
+        """
+        dither = self.dither if train else 0.0
+        if x.ndim != 1:
+            raise ValueError("Not support x: [Time, Channel]")
+        waveform = np.expand_dims(x, -1)
+        return waveform
+
+
 class LogMelSpectrogramKaldi_decay():
     def __init__(
             self,

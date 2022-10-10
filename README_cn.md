@@ -215,14 +215,14 @@
 
 ### 相关依赖
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.3.1
++ paddlepaddle >= 2.4rc
 + python >= 3.7
 + linux(推荐), mac, windows
 
 PaddleSpeech 依赖于 paddlepaddle，安装可以参考[ paddlepaddle 官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出 cpu 版本示例，其它版本大家可以根据自己机器的情况进行安装。
 
 ```shell
-pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+pip install paddlepaddle==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
 ```
 
 PaddleSpeech 快速安装方式有两种，一种是 pip 安装，一种是源码编译（推荐）。

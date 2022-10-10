@@ -14,7 +14,7 @@
 ### 1. 安装
 安装 PaddleSpeech 的详细过程请看 [安装文档](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md)。
 
-推荐使用 **paddlepaddle 2.3.1** 或以上版本。
+推荐使用 **paddlepaddle 2.4rc** 或以上版本。
 
 你可以从简单，中等，困难 几种方式中选择一种方式安装 PaddleSpeech。
 

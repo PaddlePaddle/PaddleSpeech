@@ -337,6 +337,7 @@ class U2Tester(U2Trainer):
         errors_sum, len_refs, num_ins = 0.0, 0, 0
         errors_func = error_rate.char_errors if decode_config.error_rate_type == 'cer' else error_rate.word_errors
         error_rate_func = error_rate.cer if decode_config.error_rate_type == 'cer' else error_rate.wer
+        reverse_weight = getattr(decode_config, 'reverse_weight', 0.0)
 
         start_time = time.time()
         target_transcripts = self.id2token(texts, texts_len, self.text_feature)
@@ -351,7 +352,7 @@ class U2Tester(U2Trainer):
             decoding_chunk_size=decode_config.decoding_chunk_size,
             num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
             simulate_streaming=decode_config.simulate_streaming,
-            reverse_weight=decode_config.reverse_weight)
+            reverse_weight=reverse_weight)
         decode_time = time.time() - start_time
 
         for utt, target, result, rec_tids in zip(

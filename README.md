@@ -183,19 +183,19 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.3.1*.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.4rc*.
 
 ### **Dependency Introduction**
 
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.3.1
++ paddlepaddle >= 2.4rc
 + python >= 3.7
 + OS support:  Linux(recommend), Windows, Mac OSX
 
 PaddleSpeech depends on paddlepaddle. For installation, please refer to the official website of [paddlepaddle](https://www.paddlepaddle.org.cn/en) and choose according to your own machine. Here is an example of the cpu version.
 
 ```bash
-pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+pip install paddlepaddle==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
 ```
 
 There are two quick installation methods for PaddleSpeech, one is pip installation, and the other is source code compilation (recommended).

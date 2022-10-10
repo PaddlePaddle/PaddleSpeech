@@ -11,8 +11,8 @@ This document introduces a client for streaming asr service: microphone
 ### 1. Install
 Refer [Install](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
- **paddlepaddle 2.2.1** 或以上版本。
-It is recommended to use **paddlepaddle 2.2.1** or above.
+ **paddlepaddle 2.4rc** 或以上版本。
+It is recommended to use **paddlepaddle 2.4rc** or above.
 You can choose one way from meduim and hard to install paddlespeech.
 
 

@@ -14,7 +14,7 @@ Streaming ASR server only support `websocket` protocol, and doesn't support `htt
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.3.1** or above.
+It is recommended to use **paddlepaddle 2.4rc** or above.
 
 You can choose one way from easy, meduim and hard to install paddlespeech.
 

@@ -95,29 +95,29 @@ int main(int argc, char* argv[]) {
         //                    kaldi::kCopyData);
         // }
 
-        int32 num_chunks = (feature.NumRows() - chunk_size) / chunk_stride + 1;
         int32 frame_idx = 0;
         std::vector<kaldi::Vector<kaldi::BaseFloat>> prob_vec;
         int32 ori_feature_len = feature.NumRows();
+        int32 num_chunks = feature.NumRows() / chunk_stride + 1;
+        LOG(INFO) << "num_chunks: " << num_chunks;
 
         for (int chunk_idx = 0; chunk_idx < num_chunks; ++chunk_idx) {
-            kaldi::Vector<kaldi::BaseFloat> feature_chunk(chunk_size *
-                                                          feat_dim);
-
-            int32 feature_chunk_size = 0;
+            int32 this_chunk_size = 0;
             if (ori_feature_len > chunk_idx * chunk_stride) {
-                feature_chunk_size = std::min(
+                this_chunk_size = std::min(
                     ori_feature_len - chunk_idx * chunk_stride, chunk_size);
             }
-            if (feature_chunk_size < receptive_field_length) {
+            if (this_chunk_size < receptive_field_length) {
                 LOG(WARNING) << "utt: " << utt << " skip last "
-                             << feature_chunk_size << " frames, expect is "
+                             << this_chunk_size << " frames, expect is "
                              << receptive_field_length;
                 break;
             }
 
+            kaldi::Vector<kaldi::BaseFloat> feature_chunk(this_chunk_size *
+                                                          feat_dim);
             int32 start = chunk_idx * chunk_stride;
-            for (int row_id = 0; row_id < chunk_size; ++row_id) {
+            for (int row_id = 0; row_id < this_chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> feat_row(feature, start);
                 kaldi::SubVector<kaldi::BaseFloat> feature_chunk_row(
                     feature_chunk.Data() + row_id * feat_dim, feat_dim);

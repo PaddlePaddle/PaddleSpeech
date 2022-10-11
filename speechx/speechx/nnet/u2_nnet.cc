@@ -313,10 +313,8 @@ void U2Nnet::ForwardEncoderChunkImpl(
     // call.
     std::vector<paddle::Tensor> inputs = {
         feats, offset, /*required_cache_size, */ att_cache_, cnn_cache_};
-    VLOG(3) << "inputs size: " << inputs.size();
     CHECK(inputs.size() == 4);
     std::vector<paddle::Tensor> outputs = forward_encoder_chunk_(inputs);
-    VLOG(3) << "outputs size: " << outputs.size();
     CHECK(outputs.size() == 3);
 
 #ifdef USE_GPU
@@ -351,10 +349,12 @@ void U2Nnet::ForwardEncoderChunkImpl(
     // current offset in decoder frame
     // not used in nnet
     offset_ += chunk_out.shape()[1];
+    VLOG(2) << "encoder out chunk size: " << chunk_out.shape()[1] << " total: " << offset_ ;
+    
 
     // collects encoder outs.
-    VLOG(2) << "encoder_outs_ size: " << encoder_outs_.size();
     encoder_outs_.push_back(chunk_out);
+    VLOG(2) << "encoder_outs_ size: " << encoder_outs_.size();
 
 #ifdef TEST_DEBUG
     {

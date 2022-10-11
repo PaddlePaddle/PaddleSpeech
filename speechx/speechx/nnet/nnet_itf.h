@@ -21,15 +21,15 @@
 
 namespace ppspeech {
 
-struct NnetOut{
-  // nnet out, maybe logprob or prob
-  kaldi::Vector<kaldi::BaseFloat> logprobs;
-  int32 vocab_dim;
+struct NnetOut {
+    // nnet out, maybe logprob or prob
+    kaldi::Vector<kaldi::BaseFloat> logprobs;
+    int32 vocab_dim;
 
-  // nnet state. Only using in Attention model.
-  std::vector<std::vector<kaldi::BaseFloat>> encoder_outs;
+    // nnet state. Only using in Attention model.
+    std::vector<std::vector<kaldi::BaseFloat>> encoder_outs;
 
-  NnetOut() : logprobs({}), vocab_dim(-1), encoder_outs({}) {} 
+    NnetOut() : logprobs({}), vocab_dim(-1), encoder_outs({}) {}
 };
 
 

@@ -137,9 +137,8 @@ class U2Nnet : public U2NnetBase {
     // debug
     void FeedEncoderOuts(paddle::Tensor& encoder_out);
 
-    const std::vector<paddle::Tensor>& EncoderOuts() const {
-        return encoder_outs_;
-    }
+    void EncoderOuts(
+        std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const;
 
   private:
     U2ModelOptions opts_;

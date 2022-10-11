@@ -96,15 +96,21 @@ class PaddleNnet : public NnetInterface {
   public:
     PaddleNnet(const ModelOptions& opts);
 
-    virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
-                             const int32& feature_dim,
-                             NnetOut* out);
+    void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
+                     const int32& feature_dim,
+                     NnetOut* out) override;
 
     void Dim();
-    virtual void Reset();
+
+    void Reset() override;
+
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(
         const std::string& name);
+
     void InitCacheEncouts(const ModelOptions& opts);
+
+    void EncoderOuts(std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out)
+        const override {}
 
   private:
     paddle_infer::Predictor* GetPredictor();

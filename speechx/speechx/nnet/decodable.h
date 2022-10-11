@@ -55,6 +55,8 @@ class Decodable : public kaldi::DecodableInterface {
 
     int32 TokenId2NnetId(int32 token_id);
 
+    std::shared_ptr<NnetInterface> Nnet() { return nnet_; }
+
   private:
     bool AdvanceChunk();
 

@@ -21,6 +21,7 @@
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");
+DEFINE_string(nnet_encoder_outs_wspecifier, "", "nnet encoder outs wspecifier");
 
 DEFINE_string(model_path, "", "paddle nnet model");
 
@@ -52,9 +53,10 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "input rspecifier: " << FLAGS_feature_rspecifier;
     LOG(INFO) << "output wspecifier: " << FLAGS_nnet_prob_wspecifier;
     LOG(INFO) << "model path: " << FLAGS_model_path;
-    kaldi::SequentialBaseFloatMatrixReader feature_reader(
-        FLAGS_feature_rspecifier);
+
+    kaldi::SequentialBaseFloatMatrixReader feature_reader(FLAGS_feature_rspecifier);
     kaldi::BaseFloatMatrixWriter nnet_out_writer(FLAGS_nnet_prob_wspecifier);
+    kaldi::BaseFloatMatrixWriter nnet_encoder_outs_writer(FLAGS_nnet_encoder_outs_wspecifier);
 
     ppspeech::U2ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
@@ -97,6 +99,7 @@ int main(int argc, char* argv[]) {
 
         int32 frame_idx = 0;
         std::vector<kaldi::Vector<kaldi::BaseFloat>> prob_vec;
+        std::vector<kaldi::Vector<kaldi::BaseFloat>> encoder_out_vec;
         int32 ori_feature_len = feature.NumRows();
         int32 num_chunks = feature.NumRows() / chunk_stride + 1;
         LOG(INFO) << "num_chunks: " << num_chunks;
@@ -144,29 +147,51 @@ int main(int argc, char* argv[]) {
                 prob_vec.push_back(vec_tmp);
                 frame_idx++;
             }
+
+
         }
+
+        // get encoder out
+        decodable->Nnet()->EncoderOuts(&encoder_out_vec);
 
         // after process one utt, then reset decoder state.
         decodable->Reset();
 
-        if (prob_vec.size() == 0) {
+        if (prob_vec.size() == 0 || encoder_out_vec.size() == 0) {
             // the TokenWriter can not write empty string.
             ++num_err;
-            LOG(WARNING) << " the nnet prob of " << utt << " is empty";
+            LOG(WARNING) << " the nnet prob/encoder_out of " << utt << " is empty";
             continue;
         }
 
-        // writer nnet output
-        kaldi::MatrixIndexT nrow = prob_vec.size();
-        kaldi::MatrixIndexT ncol = prob_vec[0].Dim();
-        LOG(INFO) << "nnet out shape: " << nrow << ", " << ncol;
-        kaldi::Matrix<kaldi::BaseFloat> result(nrow, ncol);
-        for (int32 row_idx = 0; row_idx < nrow; ++row_idx) {
-            for (int32 col_idx = 0; col_idx < ncol; ++col_idx) {
-                result(row_idx, col_idx) = prob_vec[row_idx](col_idx);
+        {
+            // writer nnet output
+            kaldi::MatrixIndexT nrow = prob_vec.size();
+            kaldi::MatrixIndexT ncol = prob_vec[0].Dim();
+            LOG(INFO) << "nnet out shape: " << nrow << ", " << ncol;
+            kaldi::Matrix<kaldi::BaseFloat> nnet_out(nrow, ncol);
+            for (int32 row_idx = 0; row_idx < nrow; ++row_idx) {
+                for (int32 col_idx = 0; col_idx < ncol; ++col_idx) {
+                    nnet_out(row_idx, col_idx) = prob_vec[row_idx](col_idx);
+                }
             }
+            nnet_out_writer.Write(utt, nnet_out);
         }
-        nnet_out_writer.Write(utt, result);
+
+
+        {
+            // writer nnet encoder outs
+            kaldi::MatrixIndexT nrow = encoder_out_vec.size();
+            kaldi::MatrixIndexT ncol = encoder_out_vec[0].Dim();
+            LOG(INFO) << "nnet encoder outs shape: " << nrow << ", " << ncol;
+            kaldi::Matrix<kaldi::BaseFloat> encoder_outs(nrow, ncol);
+            for (int32 row_idx = 0; row_idx < nrow; ++row_idx) {
+                for (int32 col_idx = 0; col_idx < ncol; ++col_idx) {
+                    encoder_outs(row_idx, col_idx) = encoder_out_vec[row_idx](col_idx);
+                }
+            }
+            nnet_encoder_outs_writer.Write(utt, encoder_outs);
+        }
 
         ++num_done;
     }

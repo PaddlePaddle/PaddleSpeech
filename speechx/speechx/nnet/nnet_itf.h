@@ -22,7 +22,7 @@
 namespace ppspeech {
 
 struct NnetOut {
-    // nnet out, maybe logprob or prob
+    // nnet out. maybe logprob or prob. Almost time this is logprob.
     kaldi::Vector<kaldi::BaseFloat> logprobs;
     int32 vocab_dim;
 
@@ -35,11 +35,21 @@ struct NnetOut {
 
 class NnetInterface {
   public:
+    virtual ~NnetInterface() {}
+
+    // forward feat with nnet.
+    // nnet do not cache feats, feats cached by frontend.
+    // nnet cache model outputs, i.e. logprobs/encoder_outs.
     virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
                              const int32& feature_dim,
                              NnetOut* out) = 0;
+
+    // reset nnet state, e.g. nnet_logprob_cache_, offset_, encoder_outs_.
     virtual void Reset() = 0;
-    virtual ~NnetInterface() {}
+
+    // using to get encoder outs. e.g. seq2seq with Attention model.
+    virtual void EncoderOuts(
+        std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const = 0;
 };
 
 }  // namespace ppspeech

@@ -40,6 +40,7 @@ cmvn_json2kaldi_main \
     --json_file  $model_dir/mean_std.json \
     --cmvn_write_path $exp/cmvn.ark \
     --binary=false
+
 echo "convert json cmvn to kaldi ark."
 
 compute_fbank_main \
@@ -47,6 +48,7 @@ compute_fbank_main \
     --wav_rspecifier=scp:$data/wav.scp \
     --cmvn_file=$exp/cmvn.ark \
     --feature_wspecifier=ark,t:$exp/fbank.ark
+
 echo "compute fbank feature."
 
 u2_nnet_main \
@@ -56,4 +58,7 @@ u2_nnet_main \
     --receptive_field_length=7 \
     --downsampling_rate=4 \
     --acoustic_scale=1.0 \
-    --nnet_prob_wspecifier=ark,t:$exp/probs.ark
+    --nnet_encoder_outs_wspecifier=ark,t:$exp/encoder_outs.ark \
+    --nnet_prob_wspecifier=ark,t:$exp/logprobs.ark
+
+echo "u2 nnet decode."

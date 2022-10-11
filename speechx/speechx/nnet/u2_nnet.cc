@@ -705,4 +705,30 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 }
 
+
+void U2Nnet::EncoderOuts(std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const {
+    // list of (B=1,T,D)
+    int size = encoder_outs_.size();
+    VLOG(1) << "encoder_outs_ size: " << size;
+
+    for (int i = 0; i < size; i++){
+        const paddle::Tensor& item = encoder_outs_[i];
+        const std::vector<int64_t> shape = item.shape();
+        CHECK(shape.size() == 3);
+        const int& B = shape[0];
+        const int& T = shape[1];
+        const int& D = shape[2];
+        CHECK(B == 1) << "Only support batch one.";
+        VLOG(1) << "encoder out " << i << " shape: (" << B << "," << T << "," << D << ")";
+
+        const float *this_tensor_ptr = item.data<float>();
+        for (int j = 0; j < T; j++){
+            const float* cur = this_tensor_ptr + j * D; 
+            kaldi::Vector<kaldi::BaseFloat> out(D);
+            std::memcpy(out.Data(), cur, D * sizeof(kaldi::BaseFloat));
+            encoder_out->emplace_back(out);
+        }
+    }
+ }
+
 }  // namespace ppspeech

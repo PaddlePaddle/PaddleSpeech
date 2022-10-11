@@ -55,8 +55,15 @@ pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 然后你可以使用如下命令：
 ```bash
-pip install paddlepaddle==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
+pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+你也可以安装指定版本的paddlepaddle，或者安装 develop 版本。
+```bash
+# 安装2.3.1版本. 注意：2.3.1只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
+pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# 安装 develop 版本
+pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```
 > 如果您在使用 paddlespeech 的过程中遇到关于下载 **nltk_data** 的问题，可能是您的网络不佳，我们建议您下载我们提供的 [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) 并解压缩到您的 `${HOME}` 目录下。
 
@@ -113,6 +120,7 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ### 安装 PaddlePaddle
 你可以根据系统配置选择 PaddlePaddle 版本，例如系统使用 CUDA 10.2， CuDNN7.5 ，你可以安装 paddlepaddle-gpu 2.4rc：
 ```bash
+# 注意：2.4rc 只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
 python3 -m pip install paddlepaddle-gpu==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
 ```
 你也可以安装 develop 版本的PaddlePaddle. 例如系统使用 CUDA 10.2， CuDNN7.5 ，你可以安装 paddlepaddle-gpu develop:
@@ -183,6 +191,7 @@ python3 -m pip install paddlepaddle-gpu==0.0.0.post102 -f https://www.paddlepadd
 ### 用开发者模式安装 PaddleSpeech
 部分用户系统由于默认源的问题，安装中会出现 kaldiio 安转出错的问题，建议首先安装 pytest-runner:
 ```bash
+# 注意：2.4rc 只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple 
 ```
 然后安装 PaddleSpeech：

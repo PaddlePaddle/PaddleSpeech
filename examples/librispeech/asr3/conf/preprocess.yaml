@@ -1,4 +1,4 @@
 process:
-  # extract kaldi fbank from PCM
+    # use raw audio
   - type: wav_process
-    dither: 0.1
+    dither: 0.0

@@ -25,9 +25,7 @@ import paddle
 from paddle import distributed as dist
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
-from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
-from paddlespeech.s2t.io.dataloader import StreamDataLoader
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
 from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
@@ -300,7 +298,6 @@ class Wav2Vec2ASRTrainer(Trainer):
                 "epsilon": optim_conf.epsilon,
                 "rho": optim_conf.rho,
                 "parameters": parameters,
-                "epsilon": 1e-9 if optim_type == 'noam' else None,
                 "beta1": 0.9 if optim_type == 'noam' else None,
                 "beat2": 0.98 if optim_type == 'noam' else None,
             }

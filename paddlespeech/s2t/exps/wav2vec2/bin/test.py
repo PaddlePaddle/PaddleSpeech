@@ -20,8 +20,6 @@ from paddlespeech.s2t.exps.wav2vec2.model import Wav2Vec2ASRTester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.utility import print_arguments
 
-# TODO(hui zhang): dynamic load
-
 
 def main_sp(config, args):
     exp = Tester(config, args)

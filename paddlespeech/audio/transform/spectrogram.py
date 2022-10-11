@@ -383,7 +383,7 @@ class LogMelSpectrogramKaldi():
 
 
 class WavProcess():
-    def __init__(self, dither=0.1):
+    def __init__(self, dither=0.0):
         """
         Args:
             dither (float): Dithering constant

@@ -39,7 +39,7 @@ class Wav2vec2ASR(nn.Layer):
                        enc_n_units=config.dnn_neurons,
                        blank_id=config.blank_id,
                        dropout_rate=config.ctc_dropout_rate,
-                       reduction=True)
+                       reduction='mean')
 
     def forward(self, wav, wavs_lens_rate, target, target_lens_rate):
         if self.normalize_wav:

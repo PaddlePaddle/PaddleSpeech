@@ -36,9 +36,8 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     avg.sh best exp/${ckpt}/checkpoints ${avg_num}
 fi
 
-
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    # attetion resocre decoder
+    # greedy search decoder
     CUDA_VISIBLE_DEVICES=${gpus} ./local/test.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 fi
 

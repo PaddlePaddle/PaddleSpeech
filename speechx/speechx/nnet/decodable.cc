@@ -32,7 +32,7 @@ Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
 
 // for debug
 void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
-    nnet_cache_ = likelihood;
+    nnet_out_cache_ = likelihood;
     frames_ready_ += likelihood.NumRows();
 }
 
@@ -56,13 +56,13 @@ int32 Decodable::NumIndices() const { return 0; }
 int32 Decodable::TokenId2NnetId(int32 token_id) { return token_id - 1; }
 
 BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
-    CHECK_LE(index, nnet_cache_.NumCols());
+    CHECK_LE(index, nnet_out_cache_.NumCols());
     CHECK_LE(frame, frames_ready_);
     int32 frame_idx = frame - frame_offset_;
     // the nnet output is prob ranther than log prob
     // the index - 1, because the ilabel
     return acoustic_scale_ *
-           std::log(nnet_cache_(frame_idx, TokenId2NnetId(index)) +
+           std::log(nnet_out_cache_(frame_idx, TokenId2NnetId(index)) +
                     std::numeric_limits<float>::min());
 }
 
@@ -82,17 +82,18 @@ bool Decodable::AdvanceChunk() {
     }
 
     // forward feats
-    int32 vocab_dim = 0;
-    Vector<BaseFloat> probs;
-    nnet_->FeedForward(features, frontend_->Dim(), &probs, &vocab_dim);
+    NnetOut out;
+    nnet_->FeedForward(features, frontend_->Dim(), &out);
+    int32& vocab_dim = out.vocab_dim;
+    Vector<BaseFloat>& probs = out.logprobs;
 
     // cache nnet outupts
-    nnet_cache_.Resize(probs.Dim() / vocab_dim, vocab_dim);
-    nnet_cache_.CopyRowsFromVec(probs);
+    nnet_out_cache_.Resize(probs.Dim() / vocab_dim, vocab_dim);
+    nnet_out_cache_.CopyRowsFromVec(probs);
 
     // update state
     frame_offset_ = frames_ready_;
-    frames_ready_ += nnet_cache_.NumRows();
+    frames_ready_ += nnet_out_cache_.NumRows();
     return true;
 }
 
@@ -102,12 +103,12 @@ bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
         return false;
     }
 
-    int vocab_size = nnet_cache_.NumCols();
+    int vocab_size = nnet_out_cache_.NumCols();
     likelihood->resize(vocab_size);
 
     for (int32 idx = 0; idx < vocab_size; ++idx) {
         (*likelihood)[idx] =
-            nnet_cache_(frame - frame_offset_, idx) * acoustic_scale_;
+            nnet_out_cache_(frame - frame_offset_, idx) * acoustic_scale_;
     }
     return true;
 }
@@ -117,7 +118,7 @@ void Decodable::Reset() {
     if (nnet_ != nullptr) nnet_->Reset();
     frame_offset_ = 0;
     frames_ready_ = 0;
-    nnet_cache_.Resize(0, 0);
+    nnet_out_cache_.Resize(0, 0);
 }
 
 }  // namespace ppspeech

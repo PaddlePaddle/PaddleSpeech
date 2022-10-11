@@ -97,9 +97,8 @@ class PaddleNnet : public NnetInterface {
     PaddleNnet(const ModelOptions& opts);
 
     virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
-                             int32 feature_dim,
-                             kaldi::Vector<kaldi::BaseFloat>* inferences,
-                             int32* inference_dim);
+                             const int32& feature_dim,
+                             NnetOut* out);
 
     void Dim();
     virtual void Reset();

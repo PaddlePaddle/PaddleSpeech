@@ -61,7 +61,7 @@ class U2NnetBase : public NnetInterface {
 
     virtual void ForwardEncoderChunk(
         const std::vector<kaldi::BaseFloat>& chunk_feats,
-        int32 feat_dim,
+        const int32& feat_dim,
         std::vector<kaldi::BaseFloat>* ctc_probs,
         int32* vocab_dim);
 
@@ -72,7 +72,7 @@ class U2NnetBase : public NnetInterface {
   protected:
     virtual void ForwardEncoderChunkImpl(
         const std::vector<kaldi::BaseFloat>& chunk_feats,
-        int32 feat_dim,
+        const int32& feat_dim,
         std::vector<kaldi::BaseFloat>* ctc_probs,
         int32* vocab_dim) = 0;
 
@@ -93,7 +93,7 @@ class U2NnetBase : public NnetInterface {
                           // case. Otherwise, none streaming case
     int num_left_chunks_{-1};  // -1 means all left chunks
 
-    // asr decoder state
+    // asr decoder state, not used in nnet
     int offset_{0};  // current offset in encoder output time stamp. Used by
                      // position embedding.
     std::vector<std::vector<float>> cached_feats_{};  // features cache
@@ -106,9 +106,8 @@ class U2Nnet : public U2NnetBase {
     U2Nnet(const U2Nnet& other);
 
     void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
-                     int32 feature_dim,
-                     kaldi::Vector<kaldi::BaseFloat>* inferences,
-                     int32* inference_dim) override;
+                     const int32& feature_dim,
+                     NnetOut* out) override;
 
     void Reset() override;
 
@@ -123,7 +122,7 @@ class U2Nnet : public U2NnetBase {
 
     void ForwardEncoderChunkImpl(
         const std::vector<kaldi::BaseFloat>& chunk_feats,
-        int32 feat_dim,
+        const int32& feat_dim,
         std::vector<kaldi::BaseFloat>* ctc_probs,
         int32* vocab_dim) override;
 
@@ -137,6 +136,8 @@ class U2Nnet : public U2NnetBase {
 
     // debug
     void FeedEncoderOuts(paddle::Tensor& encoder_out);
+
+    const std::vector<paddle::Tensor>& EncoderOuts() const {return encoder_outs_; }
 
   private:
     U2ModelOptions opts_;

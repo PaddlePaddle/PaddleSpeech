@@ -14,7 +14,6 @@ target_link_libraries(nnet absl::strings)
 if(USING_U2)
   target_compile_options(nnet  PUBLIC ${PADDLE_COMPILE_FLAGS})
   target_include_directories(nnet  PUBLIC ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
-  # target_link_libraries(nnet  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})
 endif()
 
 

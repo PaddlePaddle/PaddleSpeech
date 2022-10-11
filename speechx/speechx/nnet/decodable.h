@@ -62,7 +62,7 @@ class Decodable : public kaldi::DecodableInterface {
     std::shared_ptr<NnetInterface> nnet_;
 
     // nnet outputs' cache
-    kaldi::Matrix<kaldi::BaseFloat> nnet_cache_;
+    kaldi::Matrix<kaldi::BaseFloat> nnet_out_cache_;
 
     // the frame is nnet prob frame rather than audio feature frame
     // nnet frame subsample the feature frame

@@ -64,7 +64,7 @@ void U2NnetBase::CacheFeature(const std::vector<kaldi::BaseFloat>& chunk_feats,
 
 void U2NnetBase::ForwardEncoderChunk(
     const std::vector<kaldi::BaseFloat>& chunk_feats,
-    int32 feat_dim,
+    const int32& feat_dim,
     std::vector<kaldi::BaseFloat>* ctc_probs,
     int32* vocab_dim) {
     ctc_probs->clear();
@@ -221,16 +221,17 @@ void U2Nnet::FeedEncoderOuts(paddle::Tensor& encoder_out) {
 
 
 void U2Nnet::FeedForward(const kaldi::Vector<BaseFloat>& features,
-                         int32 feature_dim,
-                         kaldi::Vector<BaseFloat>* inferences,
-                         int32* inference_dim) {
+                         const int32& feature_dim,
+                         NnetOut* out) {
     std::vector<kaldi::BaseFloat> chunk_feats(features.Data(),
                                               features.Data() + features.Dim());
+
     std::vector<kaldi::BaseFloat> ctc_probs;
     ForwardEncoderChunkImpl(
-        chunk_feats, feature_dim, &ctc_probs, inference_dim);
-    inferences->Resize(ctc_probs.size(), kaldi::kSetZero);
-    std::memcpy(inferences->Data(),
+        chunk_feats, feature_dim, &ctc_probs, &out->vocab_dim);
+
+    out->logprobs.Resize(ctc_probs.size(), kaldi::kSetZero);
+    std::memcpy(out->logprobs.Data(),
                 ctc_probs.data(),
                 ctc_probs.size() * sizeof(kaldi::BaseFloat));
 }
@@ -238,9 +239,10 @@ void U2Nnet::FeedForward(const kaldi::Vector<BaseFloat>& features,
 
 void U2Nnet::ForwardEncoderChunkImpl(
     const std::vector<kaldi::BaseFloat>& chunk_feats,
-    int32 feat_dim,
+    const int32& feat_dim,
     std::vector<kaldi::BaseFloat>* out_prob,
     int32* vocab_dim) {
+
 #ifdef USE_PROFILING
     RecordEvent event(
         "ForwardEncoderChunkImpl", TracerEventType::UserDefined, 1);

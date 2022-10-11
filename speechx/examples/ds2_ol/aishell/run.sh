@@ -1,5 +1,5 @@
 #!/bin/bash
-set +x
+set -x
 set -e
 
 . path.sh
@@ -11,7 +11,7 @@ stop_stage=100
 . utils/parse_options.sh
 
 # 1. compile
-if [ ! -d ${SPEECHX_EXAMPLES} ]; then
+if [ ! -d ${SPEECHX_BUILD} ]; then
     pushd ${SPEECHX_ROOT} 
     bash build.sh
     popd

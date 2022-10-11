@@ -143,9 +143,8 @@ shared_ptr<Tensor<BaseFloat>> PaddleNnet::GetCacheEncoder(const string& name) {
 }
 
 void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
-                             int32 feature_dim,
-                             Vector<BaseFloat>* inferences,
-                             int32* inference_dim) {
+                             const int32& feature_dim,
+                             NnetOut* out) {
     paddle_infer::Predictor* predictor = GetPredictor();
 
     int feat_row = features.Dim() / feature_dim;
@@ -203,9 +202,13 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     std::vector<int> output_shape = output_tensor->shape();
     int32 row = output_shape[1];
     int32 col = output_shape[2];
-    inferences->Resize(row * col);
-    *inference_dim = col;
-    output_tensor->CopyToCpu(inferences->Data());
+
+
+    // inferences->Resize(row * col);
+    // *inference_dim = col;
+    out->logprobs.Resize(row*col);
+    out->vocab_dim = col;
+    output_tensor->CopyToCpu(out->logprobs.Data());
 
     ReleasePredictor(predictor);
 }

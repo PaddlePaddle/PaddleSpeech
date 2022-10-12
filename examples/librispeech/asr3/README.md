@@ -88,6 +88,12 @@ data/
 |-- test.meta
 `-- train.meta
 ```
+
+Stage 0 also downloads the pre-trained [wav2vec2](https://paddlespeech.bj.bcebos.com/wav2vec/wav2vec2-large-960h-lv60-self.pdparams) model.
+```bash
+mkdir -p exp/wav2vec2
+wget -P exp/wav2vec2 https://paddlespeech.bj.bcebos.com/wav2vec/wav2vec2-large-960h-lv60-self.pdparams
+```
 ## Stage 1: Model Training
 If you want to train the model. you can use stage 1 in `run.sh`. The code is shown below. 
 ```bash

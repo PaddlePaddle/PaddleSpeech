@@ -1,7 +1,7 @@
 ############################################
 #          Network Architecture           #
 ############################################
-freeze_wav2vec2: False
+freeze_wav2vec2: True
 normalize_wav: True
 output_norm: True
 dnn_blocks: 2

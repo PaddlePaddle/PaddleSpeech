@@ -111,10 +111,7 @@ class U2STBaseModel(nn.Layer):
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
         encoder_time = time.time() - start
         #logger.debug(f"encoder time: {encoder_time}")
-        #TODO(Hui Zhang): sum not support bool type
-        #encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
-        encoder_out_lens = encoder_mask.squeeze(1).cast(paddle.int64).sum(
-            1)  #[B, 1, T] -> [B]
+        encoder_out_lens = encoder_mask.squeeze(1).sum(1)  #[B, 1, T] -> [B]
 
         # 2a. ST-decoder branch
         start = time.time()

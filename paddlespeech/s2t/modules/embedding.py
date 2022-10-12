@@ -89,7 +89,7 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
         self.max_len = max_len
         self.xscale = paddle.to_tensor(math.sqrt(self.d_model))
         self.dropout = nn.Dropout(p=dropout_rate)
-        self.pe = paddle.zeros([self.max_len, self.d_model])  #[T,D]
+        self.pe = paddle.zeros([1, self.max_len, self.d_model])  #[B=1,T,D]
 
         position = paddle.arange(
             0, self.max_len, dtype=paddle.float32).unsqueeze(1)  #[T, 1]
@@ -97,9 +97,8 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
             paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
             -(math.log(10000.0) / self.d_model))
 
-        self.pe[:, 0::2] = paddle.sin(position * div_term)
-        self.pe[:, 1::2] = paddle.cos(position * div_term)
-        self.pe = self.pe.unsqueeze(0)  #[1, T, D]
+        self.pe[:, :, 0::2] = paddle.sin(position * div_term)
+        self.pe[:, :, 1::2] = paddle.cos(position * div_term)
 
     def forward(self, x: paddle.Tensor,
                 offset: int=0) -> Tuple[paddle.Tensor, paddle.Tensor]:
@@ -111,12 +110,10 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
             paddle.Tensor: Encoded tensor. Its shape is (batch, time, ...)
             paddle.Tensor: for compatibility to RelPositionalEncoding, (batch=1, time, ...)
         """
-        T = x.shape[1]
         assert offset + x.shape[
             1] < self.max_len, "offset: {} + x.shape[1]: {} is larger than the max_len: {}".format(
                 offset, x.shape[1], self.max_len)
-        #TODO(Hui Zhang): using T = paddle.shape(x)[1], __getitem__ not support Tensor
-        pos_emb = self.pe[:, offset:offset + T]
+        pos_emb = self.pe[:, offset:offset + x.shape[1]]
         x = x * self.xscale + pos_emb
         return self.dropout(x), self.dropout(pos_emb)
 
@@ -165,6 +162,5 @@ class RelPositionalEncoding(PositionalEncoding):
             1] < self.max_len, "offset: {} + x.shape[1]: {} is larger than the max_len: {}".format(
                 offset, x.shape[1], self.max_len)
         x = x * self.xscale
-        #TODO(Hui Zhang): using paddle.shape(x)[1], __getitem__ not support Tensor
         pos_emb = self.pe[:, offset:offset + x.shape[1]]
         return self.dropout(x), self.dropout(pos_emb)

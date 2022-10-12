@@ -67,6 +67,7 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
     frame_opts.dither = 0.0;
     frame_opts.frame_shift_ms = 10;
     opts.use_fbank = FLAGS_use_fbank;
+    LOG(INFO) << "feature type: " << opts.use_fbank ? "fbank" : "linear";
     if (opts.use_fbank) {
         opts.to_float32 = false;
         frame_opts.window_type = "povey";

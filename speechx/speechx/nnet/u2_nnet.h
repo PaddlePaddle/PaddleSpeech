@@ -17,27 +17,13 @@
 #include "base/common.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 
-#include "kaldi/util/options-itf.h"
-#include "nnet/nnet_itf.h"
 
+#include "nnet/nnet_itf.h"
 #include "paddle/extension.h"
 #include "paddle/jit/all.h"
 #include "paddle/phi/api/all.h"
 
 namespace ppspeech {
-
-struct U2ModelOptions {
-    std::string model_path;
-    int thread_num;
-    bool use_gpu;
-    U2ModelOptions() : model_path(""), thread_num(1), use_gpu(false) {}
-
-    void Register(kaldi::OptionsItf* opts) {
-        opts->Register("model-path", &model_path, "model file path");
-        opts->Register("thread-num", &thread_num, "thread num");
-        opts->Register("use-gpu", &use_gpu, "if use gpu");
-    }
-};
 
 
 class U2NnetBase : public NnetInterface {
@@ -64,10 +50,6 @@ class U2NnetBase : public NnetInterface {
         const int32& feat_dim,
         std::vector<kaldi::BaseFloat>* ctc_probs,
         int32* vocab_dim);
-
-    virtual void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
-                                    float reverse_weight,
-                                    std::vector<float>* rescoring_score) = 0;
 
   protected:
     virtual void ForwardEncoderChunkImpl(
@@ -102,7 +84,7 @@ class U2NnetBase : public NnetInterface {
 
 class U2Nnet : public U2NnetBase {
   public:
-    U2Nnet(const U2ModelOptions& opts);
+    U2Nnet(const ModelOptions& opts);
     U2Nnet(const U2Nnet& other);
 
     void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
@@ -143,7 +125,7 @@ class U2Nnet : public U2NnetBase {
         std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const;
 
   private:
-    U2ModelOptions opts_;
+    ModelOptions opts_;
 
     phi::Place dev_;
     std::shared_ptr<paddle::jit::Layer> model_{nullptr};

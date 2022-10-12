@@ -12,7 +12,7 @@ add_library(decoder STATIC
 target_link_libraries(decoder PUBLIC kenlm utils fst frontend nnet kaldi-decoder)
 
 set(BINS 
-  ctc_prefix_beam_search_decoder_main
+  ctc_beam_search_decoder_main
   nnet_logprob_decoder_main
   recognizer_main
   tlg_decoder_main

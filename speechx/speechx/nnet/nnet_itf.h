@@ -18,8 +18,55 @@
 #include "base/basic_types.h"
 #include "kaldi/base/kaldi-types.h"
 #include "kaldi/matrix/kaldi-matrix.h"
+#include "kaldi/util/options-itf.h"
 
 namespace ppspeech {
+
+
+struct ModelOptions {
+    std::string model_path;
+    std::string param_path;
+    int thread_num;  // predictor thread pool size for ds2;
+    bool use_gpu;
+    bool switch_ir_optim;
+    std::string input_names;
+    std::string output_names;
+    std::string cache_names;
+    std::string cache_shape;
+    bool enable_fc_padding;
+    bool enable_profile;
+    ModelOptions()
+        : model_path(""),
+          param_path(""),
+          thread_num(1),
+          use_gpu(false),
+          input_names(""),
+          output_names(""),
+          cache_names(""),
+          cache_shape(""),
+          switch_ir_optim(false),
+          enable_fc_padding(false),
+          enable_profile(false) {}
+
+    void Register(kaldi::OptionsItf* opts) {
+        opts->Register("model-path", &model_path, "model file path");
+        opts->Register("model-param", &param_path, "params model file path");
+        opts->Register("thread-num", &thread_num, "thread num");
+        opts->Register("use-gpu", &use_gpu, "if use gpu");
+        opts->Register("input-names", &input_names, "paddle input names");
+        opts->Register("output-names", &output_names, "paddle output names");
+        opts->Register("cache-names", &cache_names, "cache names");
+        opts->Register("cache-shape", &cache_shape, "cache shape");
+        opts->Register("switch-ir-optiom",
+                       &switch_ir_optim,
+                       "paddle SwitchIrOptim option");
+        opts->Register("enable-fc-padding",
+                       &enable_fc_padding,
+                       "paddle EnableFCPadding option");
+        opts->Register(
+            "enable-profile", &enable_profile, "paddle EnableProfile option");
+    }
+};
 
 struct NnetOut {
     // nnet out. maybe logprob or prob. Almost time this is logprob.
@@ -44,6 +91,10 @@ class NnetInterface {
     virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
                              const int32& feature_dim,
                              NnetOut* out) = 0;
+
+    virtual void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
+                                    float reverse_weight,
+                                    std::vector<float>* rescoring_score) = 0;
 
     // reset nnet state, e.g. nnet_logprob_cache_, offset_, encoder_outs_.
     virtual void Reset() = 0;

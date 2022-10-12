@@ -30,22 +30,30 @@ class Decodable : public kaldi::DecodableInterface {
 
     // void Init(DecodableOpts config);
 
-    // nnet logprob output
+    // nnet logprob output, used by wfst
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
+
+    // nnet output
+    virtual bool FrameLikelihood(int32 frame,
+                                 std::vector<kaldi::BaseFloat>* likelihood);
+
+    // forward nnet with feats
+    bool AdvanceChunk();
+    
+    // forward nnet with feats, and get nnet output
+    bool AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
+                      int* vocab_dim);
+                      
+    void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
+                          float reverse_weight,
+                          std::vector<float>* rescoring_score);
 
     virtual bool IsLastFrame(int32 frame);
 
     // nnet output dim, e.g. vocab size
     virtual int32 NumIndices() const;
 
-    // nnet prob output
-    virtual bool FrameLikelihood(int32 frame,
-                                 std::vector<kaldi::BaseFloat>* likelihood);
-
     virtual int32 NumFramesReady() const;
-
-    // for offline test
-    void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
 
     void Reset();
 
@@ -57,11 +65,8 @@ class Decodable : public kaldi::DecodableInterface {
 
     std::shared_ptr<NnetInterface> Nnet() { return nnet_; }
 
-    // forward nnet with feats
-    bool AdvanceChunk();
-    // forward nnet with feats, and get nnet output
-    bool AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
-                      int* vocab_dim);
+    // for offline test
+    void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
 
   private:
     std::shared_ptr<FrontendInterface> frontend_;

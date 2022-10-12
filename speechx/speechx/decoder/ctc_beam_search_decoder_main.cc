@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// todo refactor, repalce with gtest
+// used by deepspeech2
 
 #include "base/flags.h"
 #include "base/log.h"

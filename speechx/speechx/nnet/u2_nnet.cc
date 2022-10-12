@@ -166,7 +166,7 @@ void U2Nnet::Warmup() {
     Reset();
 }
 
-U2Nnet::U2Nnet(const U2ModelOptions& opts) : opts_(opts) {
+U2Nnet::U2Nnet(const ModelOptions& opts) : opts_(opts) {
     LoadModel(opts_.model_path);
 }
 

@@ -157,4 +157,10 @@ void Decodable::Reset() {
     nnet_out_cache_.Resize(0, 0);
 }
 
+void Decodable::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
+                          float reverse_weight,
+                          std::vector<float>* rescoring_score){
+    nnet_->AttentionRescoring(hyps, reverse_weight, rescoring_score);
+}
+
 }  // namespace ppspeech

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// used by deepspeech2
+
 #include "base/common.h"
 #include "decoder/ctc_decoders/path_trie.h"
 #include "decoder/ctc_decoders/scorer.h"

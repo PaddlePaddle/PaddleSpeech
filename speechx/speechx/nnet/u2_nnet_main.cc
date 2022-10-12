@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     kaldi::BaseFloatMatrixWriter nnet_out_writer(FLAGS_nnet_prob_wspecifier);
     kaldi::BaseFloatMatrixWriter nnet_encoder_outs_writer(FLAGS_nnet_encoder_outs_wspecifier);
 
-    ppspeech::U2ModelOptions model_opts;
+    ppspeech::ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
 
     int32 chunk_size =

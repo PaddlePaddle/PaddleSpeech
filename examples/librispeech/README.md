@@ -3,7 +3,7 @@
 * asr0 - deepspeech2 Streaming/Non-Streaming
 * asr1 - transformer/conformer Streaming/Non-Streaming
 * asr2 - transformer/conformer Streaming/Non-Streaming with Kaldi feature
-
+* asr3 - wav2vecASR, ASR model with pre-trained wav2vec2 and CTC
 
 ## Data
 | Data Subset | Duration in Seconds |

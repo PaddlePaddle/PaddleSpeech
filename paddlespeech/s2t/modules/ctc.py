@@ -53,7 +53,7 @@ class CTCDecoderBase(nn.Layer):
                  enc_n_units,
                  blank_id=0,
                  dropout_rate: float=0.0,
-                 reduction: bool=True,
+                 reduction: Union[str, bool]=True,
                  batch_average: bool=True,
                  grad_norm_type: Union[str, None]=None):
         """CTC decoder
@@ -73,7 +73,10 @@ class CTCDecoderBase(nn.Layer):
         self.odim = odim
         self.dropout = nn.Dropout(dropout_rate)
         self.ctc_lo = Linear(enc_n_units, self.odim)
-        reduction_type = "sum" if reduction else "none"
+        if isinstance(reduction, bool):
+            reduction_type = "sum" if reduction else "none"
+        else:
+            reduction_type = reduction
         self.criterion = CTCLoss(
             blank=self.blank_id,
             reduction=reduction_type,

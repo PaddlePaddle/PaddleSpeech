@@ -1,0 +1,120 @@
+############################################
+#          Network Architecture           #
+############################################
+freeze_wav2vec2: True
+normalize_wav: True
+output_norm: True
+dnn_blocks: 2
+dnn_neurons: 1024
+blank_id: 0
+ctc_dropout_rate: 0.0
+wav2vec2_params_path: "exp/wav2vec2/wav2vec2-large-960h-lv60-self.pdparams"
+
+############################################
+#               Wav2Vec2.0                 #
+############################################
+vocab_size: 32
+hidden_size: 1024
+num_hidden_layers: 24
+num_attention_heads: 16
+intermediate_size: 4096
+hidden_act: "gelu"
+hidden_dropout: 0.1
+activation_dropout: 0.1
+attention_dropout: 0.1
+feat_proj_dropout: 0.1
+feat_quantizer_dropout: 0.0
+final_dropout: 0.1
+layerdrop: 0.1
+initializer_range: 0.02
+layer_norm_eps: 1e-5
+feat_extract_norm: "layer"
+feat_extract_activation: "gelu"
+conv_dim: [512, 512, 512, 512, 512, 512, 512]
+conv_stride: [5, 2, 2, 2, 2, 2, 2]
+conv_kernel: [10, 3, 3, 3, 3, 2, 2]
+conv_bias: True
+num_conv_pos_embeddings: 128
+num_conv_pos_embedding_groups: 16
+do_stable_layer_norm: True
+apply_spec_augment: False
+mask_time_prob: 0.05
+mask_time_length: 10
+mask_time_min_masks: 2
+mask_feature_prob: 0.0
+mask_feature_length: 10
+mask_feature_min_masks: 0
+num_codevectors_per_group: 320
+num_codevector_groups: 2
+contrastive_logits_temperature: 0.1
+num_negatives: 100
+codevector_dim: 256
+proj_codevector_dim: 256
+diversity_loss_weight: 0.1
+ctc_loss_reduction: "sum"
+ctc_zero_infinity: False
+use_weighted_layer_sum: False
+pad_token_id: 0
+bos_token_id: 1
+eos_token_id: 2
+add_adapter: False
+adapter_kernel_size: 3
+adapter_stride: 2
+num_adapter_layers: 3
+output_hidden_size: None
+
+###########################################
+#                   Data                  #
+###########################################
+train_manifest: data/manifest.train
+dev_manifest: data/manifest.dev
+test_manifest: data/manifest.test-clean
+
+
+###########################################
+#              Dataloader                 #
+###########################################
+vocab_filepath: data/lang_char/vocab.txt 
+unit_type: 'char'
+mean_std_filepath: ""
+preprocess_config: conf/preprocess.yaml
+sortagrad: -1 # Feed samples from shortest to longest ; -1: enabled for all epochs 0: disabled other: enabled for 'other' epochs 
+batch_size: 10  # Different batch_size may cause large differences in results
+maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
+maxlen_out: 1500000  # if output length > maxlen-out batchsize is automatically reduced
+minibatches: 0 # for debug
+batch_count: auto
+batch_bins: 0 
+batch_frames_in: 0
+batch_frames_out: 0
+batch_frames_inout: 0
+num_workers: 0
+subsampling_factor: 1
+num_encs: 1
+dist_sampler: True
+shortest_first: True
+return_lens_rate: True
+  
+
+###########################################
+#                 Training                #
+###########################################
+n_epoch: 1
+accum_grad: 1
+global_grad_clip: 3.0
+model_optim: adadelta
+model_optim_conf:
+  lr: 0.9
+  epsilon: 1.0e-6
+  rho: 0.95
+scheduler: constantlr    
+scheduler_conf:
+  warmup_steps: 25000
+  lr_decay: 1.0
+log_interval: 1
+checkpoint:
+  kbest_n: 50
+  latest_n: 5
+augment: True
+
+

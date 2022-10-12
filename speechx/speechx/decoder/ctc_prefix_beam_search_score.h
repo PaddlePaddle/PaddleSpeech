@@ -20,28 +20,23 @@
 
 namespace ppspeech {
 
-struct PrefxiScore {
+class ContextGraph;
+
+struct PrefixScore {
     // decoding, unit in log scale
-    float b = -kFloatMax;   // blank ending score
-    float nb = -kFloatMax;  // none-blank ending score
-
-    // timestamp, unit in log sclae
-    float v_b = -kFloatMax;             // viterbi blank ending score
-    float v_nb = -kFloatMax;            // niterbi none-blank ending score
-    float cur_token_prob = -kFloatMax;  // prob of current token
-    std::vector<int> times_b;           // times of viterbi blank path
-    std::vector<int> times_nb;          // times of viterbi non-blank path
-
-    // context state
-    bool has_context = false;
-    int context_state = 0;
-    float context_score = 0;
+    float b = -kBaseFloatMax;   // blank ending score
+    float nb = -kBaseFloatMax;  // none-blank ending score
 
     // decoding score, sum
     float Score() const { return LogSumExp(b, nb); }
 
-    // decodign score with context bias
-    float TotalScore() const { return Score() + context_score; }
+    // timestamp, unit in log sclae
+    float v_b = -kBaseFloatMax;             // viterbi blank ending score
+    float v_nb = -kBaseFloatMax;            // niterbi none-blank ending score
+    float cur_token_prob = -kBaseFloatMax;  // prob of current token
+    std::vector<int> times_b;               // times of viterbi blank path
+    std::vector<int> times_nb;              // times of viterbi non-blank path
+
 
     // timestamp score, max
     float ViterbiScore() const { return std::max(v_b, v_nb); }
@@ -49,6 +44,31 @@ struct PrefxiScore {
     // get timestamp
     const std::vector<int>& Times() const {
         return v_b > v_nb ? times_b : times_nb;
+    }
+
+    // context state
+    bool has_context = false;
+    int context_state = 0;
+    float context_score = 0;
+    std::vector<int> start_boundaries;
+    std::vector<int> end_boundaries;
+
+
+    // decodign score with context bias
+    float TotalScore() const { return Score() + context_score; }
+
+    void CopyContext(const PrefixScore& prefix_score) {
+        context_state = prefix_score.context_state;
+        context_score = prefix_score.context_score;
+        start_boundaries = prefix_score.start_boundaries;
+        end_boundaries = prefix_score.end_boundaries;
+    }
+
+    void UpdateContext(const std::shared_ptr<ContextGraph>& constext_graph,
+                       const PrefixScore& prefix_score,
+                       int word_id,
+                       int prefix_len) {
+        CHECK(false);
     }
 };
 

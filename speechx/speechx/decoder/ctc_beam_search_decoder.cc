@@ -26,9 +26,7 @@ using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
     : opts_(opts),
       init_ext_scorer_(nullptr),
-      blank_id_(opts.blank),
       space_id_(-1),
-      num_frame_decoded_(0),
       root_(nullptr) {
     LOG(INFO) << "dict path: " << opts_.dict_file;
     if (!ReadFileToVector(opts_.dict_file, &vocabulary_)) {
@@ -43,7 +41,7 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
             opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
     }
 
-    CHECK(blank_id_==0);
+    CHECK(opts_.blank==0);
 
     auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
     space_id_ = it - vocabulary_.begin();
@@ -167,7 +165,7 @@ void CTCBeamSearch::AdvanceDecoding(const vector<vector<BaseFloat>>& probs) {
                 continue;
             }
             min_cutoff = prefixes_[num_prefixes_ - 1]->score +
-                         std::log(prob[blank_id_]) -
+                         std::log(prob[opts_.blank]) -
                          std::max(0.0, init_ext_scorer_->beta);
 
             full_beam = (num_prefixes_ == beam_size);
@@ -195,9 +193,9 @@ void CTCBeamSearch::AdvanceDecoding(const vector<vector<BaseFloat>>& probs) {
             for (size_t i = beam_size; i < prefixes_.size(); ++i) {
                 prefixes_[i]->remove();
             }
-        }  // if
+        }  // end if
         num_frame_decoded_++;
-    }  // for probs_seq
+    }  // end for probs_seq
 }
 
 int32 CTCBeamSearch::SearchOneChar(
@@ -215,7 +213,7 @@ int32 CTCBeamSearch::SearchOneChar(
             break;
         }
 
-        if (c == blank_id_) {
+        if (c == opts_.blank) {
             prefix->log_prob_b_cur =
                 log_sum_exp(prefix->log_prob_b_cur, log_prob_c + prefix->score);
             continue;

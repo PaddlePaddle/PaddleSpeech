@@ -28,8 +28,8 @@ namespace ppspeech {
 
 // Sum in log scale
 float LogSumExp(float x, float y) {
-    if (x <= -kFloatMax) return y;
-    if (y <= -kFloatMax) return x;
+    if (x <= -kBaseFloatMax) return y;
+    if (y <= -kBaseFloatMax) return x;
     float max = std::max(x, y);
     return max + std::log(std::exp(x - max) + std::exp(y - max));
 }

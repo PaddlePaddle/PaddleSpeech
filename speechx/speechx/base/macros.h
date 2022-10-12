@@ -25,8 +25,7 @@ namespace ppspeech {
     void operator=(const TypeName&) = delete
 #endif
 
-constexpr float kFloatMax = std::numeric_limits<float>::max();
-
+// kSpaceSymbol in UTF-8 is: ▁
 const std::string kSpaceSymbol = "\xe2\x96\x81";
 
 }  // namespace ppspeech

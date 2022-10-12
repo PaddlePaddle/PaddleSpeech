@@ -63,8 +63,6 @@ class TLGDecoder : public DecoderInterface {
     std::shared_ptr<kaldi::LatticeFasterOnlineDecoder> decoder_;
     std::shared_ptr<fst::Fst<fst::StdArc>> fst_;
     std::shared_ptr<fst::SymbolTable> word_symbol_table_;
-    // the frame size which have decoded starts from 0.
-    int32 num_frame_decoded_;
 };
 
 

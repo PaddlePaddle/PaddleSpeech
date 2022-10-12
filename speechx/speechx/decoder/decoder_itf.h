@@ -31,7 +31,6 @@ class DecoderInterface {
     virtual void AdvanceDecode(
         const std::shared_ptr<kaldi::DecodableInterface>& decodable) = 0;
 
-
     virtual std::string GetFinalBestPath() = 0;
 
     virtual std::string GetPartialResult() = 0;
@@ -46,7 +45,7 @@ class DecoderInterface {
     //                       std::vector<std::string>& nbest_words);
 
 
-  private:
+  protected:
     // void AdvanceDecoding(kaldi::DecodableInterface* decodable);
 
     // current decoding frame number

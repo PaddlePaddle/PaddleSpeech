@@ -66,11 +66,10 @@ class CTCBeamSearch : public DecoderInterface {
     CTCBeamSearchOptions opts_;
     std::shared_ptr<Scorer> init_ext_scorer_;  // todo separate later
     std::vector<std::string> vocabulary_;      // todo remove later
-    size_t blank_id_;
     int space_id_;
     std::shared_ptr<PathTrie> root_;
     std::vector<PathTrie*> prefixes_;
-    int num_frame_decoded_;
+
     DISALLOW_COPY_AND_ASSIGN(CTCBeamSearch);
 };
 

@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
         // }
 
         int32 frame_idx = 0;
+        int vocab_dim = 0;
         std::vector<kaldi::Vector<kaldi::BaseFloat>> prob_vec;
         std::vector<kaldi::Vector<kaldi::BaseFloat>> encoder_out_vec;
         int32 ori_feature_len = feature.NumRows();
@@ -138,17 +139,17 @@ int main(int argc, char* argv[]) {
             }
 
             // get nnet outputs
-            vector<kaldi::BaseFloat> prob;
-            while (decodable->FrameLikelihood(frame_idx, &prob)) {
-                kaldi::Vector<kaldi::BaseFloat> vec_tmp(prob.size());
-                std::memcpy(vec_tmp.Data(),
-                            prob.data(),
-                            sizeof(kaldi::BaseFloat) * prob.size());
+            kaldi::Timer timer;
+            kaldi::Vector<kaldi::BaseFloat> logprobs;
+            bool isok = decodable->AdvanceChunk(&logprobs, &vocab_dim);
+            CHECK(isok == true);
+            for (int row_idx = 0; row_idx < logprobs.Dim() / vocab_dim; row_idx ++) {
+                kaldi::Vector<kaldi::BaseFloat> vec_tmp(vocab_dim);
+                std::memcpy(vec_tmp.Data(), logprobs.Data() + row_idx*vocab_dim, sizeof(kaldi::BaseFloat) * vocab_dim);
                 prob_vec.push_back(vec_tmp);
-                frame_idx++;
             }
 
-
+            VLOG(2) << "frame_idx: " << frame_idx << " elapsed: " << timer.Elapsed() << " sec.";
         }
 
         // get encoder out
@@ -196,8 +197,9 @@ int main(int argc, char* argv[]) {
         ++num_done;
     }
 
+
     double elapsed = timer.Elapsed();
-    LOG(INFO) << " cost:" << elapsed << " sec";
+    LOG(INFO) << "Program cost:" << elapsed << " sec";
 
     LOG(INFO) << "Done " << num_done << " utterances, " << num_err
               << " with errors.";

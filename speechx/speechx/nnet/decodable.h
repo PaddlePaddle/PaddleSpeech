@@ -57,9 +57,13 @@ class Decodable : public kaldi::DecodableInterface {
 
     std::shared_ptr<NnetInterface> Nnet() { return nnet_; }
 
-  private:
+    // forward nnet with feats
     bool AdvanceChunk();
+    // forward nnet with feats, and get nnet output
+    bool AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
+                      int* vocab_dim);
 
+  private:
     std::shared_ptr<FrontendInterface> frontend_;
     std::shared_ptr<NnetInterface> nnet_;
 

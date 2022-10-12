@@ -104,6 +104,8 @@ class PaddleNnet : public NnetInterface {
 
     void Reset() override;
 
+    bool IsLogProb() override { return false; }
+
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(
         const std::string& name);
 

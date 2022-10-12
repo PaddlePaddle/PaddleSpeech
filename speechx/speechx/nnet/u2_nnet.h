@@ -111,6 +111,8 @@ class U2Nnet : public U2NnetBase {
 
     void Reset() override;
 
+    bool IsLogProb() override { return true; }
+
     void Dim();
 
     void LoadModel(const std::string& model_path_w_prefix);

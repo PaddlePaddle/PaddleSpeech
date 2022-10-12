@@ -14,13 +14,15 @@
 
 // todo refactor, repalce with gtest
 
-#include "base/flags.h"
-#include "base/log.h"
-#include "decoder/ctc_tlg_decoder.h"
+#include "base/common.h"
+
 #include "frontend/audio/data_cache.h"
-#include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/ds2_nnet.h"
+#include "decoder/ctc_tlg_decoder.h"
+
+#include "kaldi/util/table-types.h"
+
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");

@@ -15,7 +15,7 @@ set(BINS
   ctc_beam_search_decoder_main
   nnet_logprob_decoder_main
   recognizer_main
-  tlg_decoder_main
+  ctc_tlg_decoder_main
 )
 
 foreach(bin_name IN LISTS BINS)

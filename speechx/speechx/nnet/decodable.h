@@ -39,14 +39,14 @@ class Decodable : public kaldi::DecodableInterface {
 
     // forward nnet with feats
     bool AdvanceChunk();
-    
+
     // forward nnet with feats, and get nnet output
     bool AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
                       int* vocab_dim);
-                      
+
     void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
-                          float reverse_weight,
-                          std::vector<float>* rescoring_score);
+                            float reverse_weight,
+                            std::vector<float>* rescoring_score);
 
     virtual bool IsLastFrame(int32 frame);
 

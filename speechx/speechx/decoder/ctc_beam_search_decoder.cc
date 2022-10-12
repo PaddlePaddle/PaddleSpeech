@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/ctc_beam_search_decoder.h"
 
-#include "base/basic_types.h"
+#include "base/common.h"
 #include "decoder/ctc_decoders/decoder_utils.h"
+#include "decoder/ctc_beam_search_decoder.h"
 #include "utils/file_utils.h"
 
 namespace ppspeech {
@@ -26,7 +26,7 @@ using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
     : opts_(opts),
       init_ext_scorer_(nullptr),
-      blank_id_(-1),
+      blank_id_(opts.blank),
       space_id_(-1),
       num_frame_decoded_(0),
       root_(nullptr) {
@@ -43,9 +43,9 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
             opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
     }
 
-    blank_id_ = 0;
-    auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
+    CHECK(blank_id_==0);
 
+    auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
     space_id_ = it - vocabulary_.begin();
     // if no space in vocabulary
     if ((size_t)space_id_ >= vocabulary_.size()) {

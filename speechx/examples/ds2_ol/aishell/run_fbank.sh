@@ -133,7 +133,7 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.wfst.log \
-    tlg_decoder_main \
+    ctc_tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \

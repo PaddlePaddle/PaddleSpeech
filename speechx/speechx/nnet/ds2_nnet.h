@@ -56,9 +56,9 @@ class PaddleNnet : public NnetInterface {
                      NnetOut* out) override;
 
     void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
-                                    float reverse_weight,
-                                    std::vector<float>* rescoring_score) override {
-      VLOG(2) << "deepspeech2 not has AttentionRescoring.";
+                            float reverse_weight,
+                            std::vector<float>* rescoring_score) override {
+        VLOG(2) << "deepspeech2 not has AttentionRescoring.";
     }
 
     void Dim();

@@ -14,8 +14,9 @@
 
 #pragma once
 
-#include "base/basic_types.h"
-#include "kaldi/decoder/decodable-itf.h"
+#include "base/common.h"
+#include "decoder/decoder_itf.h"
+
 #include "kaldi/decoder/lattice-faster-online-decoder.h"
 #include "util/parse-options.h"
 
@@ -30,21 +31,31 @@ struct TLGDecoderOptions {
     TLGDecoderOptions() : word_symbol_table(""), fst_path("") {}
 };
 
-class TLGDecoder {
+class TLGDecoder : public DecoderInterface {
   public:
     explicit TLGDecoder(TLGDecoderOptions opts);
+    ~TLGDecoder() = default;
+
     void InitDecoder();
-    void Decode();
-    std::string GetBestPath();
-    std::vector<std::pair<double, std::string>> GetNBestPath();
+    void Reset();
+
+    void AdvanceDecode(
+        const std::shared_ptr<kaldi::DecodableInterface>& decodable);
+
+
     std::string GetFinalBestPath();
     std::string GetPartialResult();
+
+
+    void Decode();
+
+    std::string GetBestPath();
+    std::vector<std::pair<double, std::string>> GetNBestPath();
+
     int NumFrameDecoded();
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
                           std::vector<std::string>& nbest_words);
-    void AdvanceDecode(
-        const std::shared_ptr<kaldi::DecodableInterface>& decodable);
-    void Reset();
+
 
   private:
     void AdvanceDecoding(kaldi::DecodableInterface* decodable);
@@ -53,7 +64,7 @@ class TLGDecoder {
     std::shared_ptr<fst::Fst<fst::StdArc>> fst_;
     std::shared_ptr<fst::SymbolTable> word_symbol_table_;
     // the frame size which have decoded starts from 0.
-    int32 frame_decoded_size_;
+    int32 num_frame_decoded_;
 };
 
 

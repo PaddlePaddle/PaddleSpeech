@@ -7,7 +7,7 @@ For more information on training Fastspeech2 with AISHELL-3, You can refer [exam
 ## Prepare 
 ### Download Pretrained model
 Assume the path to the model is `./pretrained_models`. </br>
-If you want to finetune Chinese pretrained model, you need to download Fastspeech2 pretrained model with AISHELL-3: [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune Chinese pretrained model, you need to download Fastspeech2 pretrained model with AISHELL-3: [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
@@ -34,7 +34,7 @@ unzip hifigan_vctk_ckpt_0.2.0.zip
 cd ../
 ```
 
-If you want to finetune Chinese-English Mixed pretrained model, you need to download Fastspeech2 pretrained model with mix datasets: [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune Chinese-English Mixed pretrained model, you need to download Fastspeech2 pretrained model with mix datasets: [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
@@ -50,7 +50,11 @@ cd ../
 ### Prepare your data
 Assume the path to the dataset is `./input` which contains a speaker folder. Speaker folder contains audio files (*.wav) and label file (labels.txt). The format of the audio file is wav. The format of the label file is: utt_id|pronunciation. </br>
 
-If you want to finetune Chinese pretrained model, you need to prepare Chinese data. Chinese label example: 000001|ka2 er2 pu3 pei2 wai4 sun1 wan2 hua2 ti1</br>
+If you want to finetune Chinese pretrained model, you need to prepare Chinese data. Chinese label example: 
+```
+000001|ka2 er2 pu3 pei2 wai4 sun1 wan2 hua2 ti1
+```
+
 Here is an example of the first 200 data of csmsc.
 
 ```bash
@@ -60,7 +64,11 @@ unzip csmsc_mini.zip
 cd ../
 ```
 
-If you want to finetune English pretrained model, you need to prepare English data. English label example: LJ001-0001|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition </br>
+If you want to finetune English pretrained model, you need to prepare English data. English label example: 
+```
+LJ001-0001|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition
+```
+
 Here is an example of the first 200 data of ljspeech.
 
 ```bash
@@ -162,7 +170,7 @@ Arguments:
 
 
 ## Get Started
-For finetune Chinese pretrained model, execute `./run.sh`. For finetune English pretrained model, execute `./run_en.sh`. For finetune Chinese-English Mixed pretrained model, execute `./run_mix.sh`. </br>
+For finetuning Chinese pretrained model, execute `./run.sh`. For finetuning English pretrained model, execute `./run_en.sh`. For finetuning Chinese-English Mixed pretrained model, execute `./run_mix.sh`. </br>
 Run the command below to
 1. **source path**.
 2. finetune the model. 
@@ -196,7 +204,7 @@ optional arguments:
                        directory to save feature files and metadata
   --output_dir OUTPUT_DIR      
                        Directory to save finetune model 
-  --ngpu NGPU          The number of gpu, if ngpu=0, use cpuSSB
+  --ngpu NGPU          The number of gpu, if ngpu=0, use cpu
   --epoch EPOCH        The epoch of finetune
   --finetune_config FINETUNE_CONFIG        
                        Path to finetune config file

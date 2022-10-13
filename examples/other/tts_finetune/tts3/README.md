@@ -7,7 +7,7 @@ For more information on training Fastspeech2 with AISHELL-3, You can refer [exam
 ## Prepare 
 ### Download Pretrained model
 Assume the path to the model is `./pretrained_models`. </br>
-If you want to finetune Chinese data, you need to download Fastspeech2 pretrained model with AISHELL-3: [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune Chinese pretrained model, you need to download Fastspeech2 pretrained model with AISHELL-3: [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
@@ -21,7 +21,7 @@ cd ../
 ```
 
 
-If you want to finetune English data, you need to download Fastspeech2 pretrained model with VCTK: [fastspeech2_vctk_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with VCTK: [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune English pretrained model, you need to download Fastspeech2 pretrained model with VCTK: [fastspeech2_vctk_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with VCTK: [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
@@ -31,6 +31,59 @@ unzip fastspeech2_vctk_ckpt_1.2.0.zip
 # pretrained hifigan model
 wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
 unzip hifigan_vctk_ckpt_0.2.0.zip
+cd ../
+```
+
+If you want to finetune Chinese-English Mixed pretrained model, you need to download Fastspeech2 pretrained model with mix datasets: [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
+
+```bash
+mkdir -p pretrained_models && cd pretrained_models
+# pretrained fastspeech2 model
+wget https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip
+unzip fastspeech2_mix_ckpt_1.2.0.zip
+# pretrained hifigan model
+wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
+unzip hifigan_aishell3_ckpt_0.2.0.zip
+cd ../
+```
+
+### Prepare your data
+Assume the path to the dataset is `./input` which contains a speaker folder. Speaker folder contains audio files (*.wav) and label file (labels.txt). The format of the audio file is wav. The format of the label file is: utt_id|pronunciation. </br>
+
+If you want to finetune Chinese pretrained model, you need to prepare Chinese data. Chinese label example: 
+```
+000001|ka2 er2 pu3 pei2 wai4 sun1 wan2 hua2 ti1
+```
+
+Here is an example of the first 200 data of csmsc.
+
+```bash
+mkdir -p input && cd input
+wget https://paddlespeech.bj.bcebos.com/datasets/csmsc_mini.zip
+unzip csmsc_mini.zip
+cd ../
+```
+
+If you want to finetune English pretrained model, you need to prepare English data. English label example: 
+```
+LJ001-0001|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition
+```
+
+Here is an example of the first 200 data of ljspeech.
+
+```bash
+mkdir -p input && cd input
+wget https://paddlespeech.bj.bcebos.com/datasets/ljspeech_mini.zip
+unzip ljspeech_mini.zip
+cd ../
+```
+
+If you want to finetune Chinese-English Mixed pretrained model, you need to prepare Chinese data or English data. Here is an example of the first 12 data of SSB0005 (the speaker of aishell3).
+
+```bash
+mkdir -p input && cd input
+wget https://paddlespeech.bj.bcebos.com/datasets/SSB0005_mini.zip
+unzip SSB0005_mini.zip
 cd ../
 ```
 
@@ -46,7 +99,7 @@ cp montreal-forced-aligner/lib/libpython3.6m.so.1.0 montreal-forced-aligner/lib/
 mkdir -p aligner && cd aligner
 ```
 
-If you want to finetune Chinese data, you need to download pretrained MFA models with aishell3: [aishell3_model.zip](https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/aishell3_model.zip) and unzip it.
+If you want to get mfa result of Chinese data, you need to download pretrained MFA models with aishell3: [aishell3_model.zip](https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/aishell3_model.zip) and unzip it.
 
 ```bash
 # pretrained mfa model for Chinese data
@@ -56,30 +109,17 @@ wget https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/simple.lexicon
 cd ../../
 ```
 
-If you want to finetune English data, you need to download pretrained MFA models with vctk: [vctk_model.zip](https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip) and unzip it.
+If you want to get mfa result of English data, you need to download pretrained MFA models with vctk: [vctk_model.zip](https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip) and unzip it.
 
 ```bash
-# pretrained mfa model for Chinese data
+# pretrained mfa model for English data
 wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip
 unzip vctk_model.zip
 wget https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/cmudict-0.7b
 cd ../../
 ```
 
-### Prepare your data
-Assume the path to the dataset is `./input` which contains a speaker folder. Speaker folder contains audio files (*.wav) and label file (labels.txt). The format of the audio file is wav. The format of the label file is: utt_id|pronunciation. </br>
-
-If you want to finetune Chinese data, Chinese label example: 000001|ka2 er2 pu3 pei2 wai4 sun1 wan2 hua2 ti1</br>
-Here is an example of the first 200 data of csmsc.
-
-```bash
-mkdir -p input && cd input
-wget https://paddlespeech.bj.bcebos.com/datasets/csmsc_mini.zip
-unzip csmsc_mini.zip
-cd ../
-```
-
-When "Prepare" done. The structure of the current directory is listed below.
+When "Prepare" done. The structure of the current directory is similar to the following.
 ```text
 ├── input
 │   ├── csmsc_mini
@@ -119,56 +159,6 @@ When "Prepare" done. The structure of the current directory is listed below.
 
 ```
 
-If you want to finetune English data, English label example: LJ001-0001|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition </br>
-Here is an example of the first 200 data of ljspeech.
-
-```bash
-mkdir -p input && cd input
-wget https://paddlespeech.bj.bcebos.com/datasets/ljspeech_mini.zip
-unzip ljspeech_mini.zip
-cd ../
-```
-
-When "Prepare" done. The structure of the current directory is listed below.
-```text
-├── input
-│   ├── ljspeech_mini
-│   │   ├── LJ001-0001.wav
-│   │   ├── LJ001-0002.wav
-│   │   ├── LJ001-0003.wav
-│   │   ├── ...
-│   │   ├── LJ002-0014.wav
-│   │   ├── labels.txt
-│   └── ljspeech_mini.zip
-├── pretrained_models
-│   ├── fastspeech2_vctk_ckpt_1.2.0
-│   │   ├── default.yaml
-│   │   ├── energy_stats.npy
-│   │   ├── phone_id_map.txt
-│   │   ├── pitch_stats.npy
-│   │   ├── snapshot_iter_66200.pdz
-│   │   ├── speaker_id_map.txt
-│   │   └── speech_stats.npy
-│   ├── fastspeech2_vctk_ckpt_1.2.0.zip
-│   ├── hifigan_vctk_ckpt_0.2.0    
-│   │   ├── default.yaml
-│   │   ├── feats_stats.npy
-│   │   └── snapshot_iter_2500000.pdz
-│   └── hifigan_vctk_ckpt_0.2.0.zip
-└── tools
-    ├── aligner
-    │   ├── vctk_model
-    │   ├── vctk_model.zip
-    │   └── cmudict-0.7b
-    ├── montreal-forced-aligner
-    │   ├── bin
-    │   ├── lib
-    │   └── pretrained_models
-    └── montreal-forced-aligner_linux.tar.gz
-    ...
-
-```
-
 ### Set finetune.yaml
 `conf/finetune.yaml` contains some configurations for fine-tuning. You can try various options to fine better result. The value of frozen_layers can be change according `conf/fastspeech2_layers.txt` which is the model layer of fastspeech2.
 
@@ -180,7 +170,7 @@ Arguments:
 
 
 ## Get Started
-For Chinese data finetune, execute `./run.sh`. For English data finetune, execute `./run_en.sh`. </br>
+For finetuning Chinese pretrained model, execute `./run.sh`. For finetuning English pretrained model, execute `./run_en.sh`. For finetuning Chinese-English Mixed pretrained model, execute `./run_mix.sh`. </br>
 Run the command below to
 1. **source path**.
 2. finetune the model. 

@@ -71,9 +71,9 @@ asr_dynamic_pretrained_models = {
     "conformer_u2pp_wenetspeech-zh-16k": {
         '1.1': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.1.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.3.model.tar.gz',
             'md5':
-            'eae678c04ed3b3f89672052fdc0c5e10',
+            '662b347e1d2131b7a4dc5398365e2134',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
@@ -91,9 +91,9 @@ asr_dynamic_pretrained_models = {
     "conformer_u2pp_online_wenetspeech-zh-16k": {
         '1.1': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.2.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.4.model.tar.gz',
             'md5':
-            '925d047e9188dea7f421a718230c9ae3',
+            '3100fc1eac5779486cab859366992d0b',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

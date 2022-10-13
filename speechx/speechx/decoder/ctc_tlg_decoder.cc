@@ -18,16 +18,23 @@ namespace ppspeech {
 TLGDecoder::TLGDecoder(TLGDecoderOptions opts) {
     fst_.reset(fst::Fst<fst::StdArc>::Read(opts.fst_path));
     CHECK(fst_ != nullptr);
+
     word_symbol_table_.reset(
         fst::SymbolTable::ReadText(opts.word_symbol_table));
+
     decoder_.reset(new kaldi::LatticeFasterOnlineDecoder(*fst_, opts.opts));
+
+    Reset();
+}
+
+void TLGDecoder::Reset() {
     decoder_->InitDecoding();
     num_frame_decoded_ = 0;
+    return;
 }
 
 void TLGDecoder::InitDecoder() {
-    decoder_->InitDecoding();
-    num_frame_decoded_ = 0;
+    Reset();
 }
 
 void TLGDecoder::AdvanceDecode(
@@ -42,10 +49,7 @@ void TLGDecoder::AdvanceDecoding(kaldi::DecodableInterface* decodable) {
     num_frame_decoded_++;
 }
 
-void TLGDecoder::Reset() {
-    InitDecoder();
-    return;
-}
+
 
 std::string TLGDecoder::GetPartialResult() {
     if (num_frame_decoded_ == 0) {
@@ -88,4 +92,5 @@ std::string TLGDecoder::GetFinalBestPath() {
     }
     return words;
 }
+
 }

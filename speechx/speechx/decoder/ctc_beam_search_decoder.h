@@ -35,20 +35,17 @@ class CTCBeamSearch : public DecoderInterface {
     void AdvanceDecode(
         const std::shared_ptr<kaldi::DecodableInterface>& decodable);
 
+    void Decode(std::shared_ptr<kaldi::DecodableInterface> decodable);
+
+    std::string GetBestPath();
+    std::vector<std::pair<double, std::string>> GetNBestPath();
+    std::vector<std::pair<double, std::string>> GetNBestPath(int n);
     std::string GetFinalBestPath();
 
     std::string GetPartialResult() {
         CHECK(false) << "Not implement.";
         return {};
     }
-
-    void Decode(std::shared_ptr<kaldi::DecodableInterface> decodable);
-
-    std::string GetBestPath();
-    std::vector<std::pair<double, std::string>> GetNBestPath();
-
-
-    int NumFrameDecoded();
 
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
                           std::vector<std::string>& nbest_words);

@@ -36,29 +36,8 @@ ckpt_dir=./data/model
 model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model/
 
 
-cmvn_json2kaldi_main \
-    --json_file  $model_dir/mean_std.json \
-    --cmvn_write_path $exp/cmvn.ark \
-    --binary=false
+./local/feat.sh
 
-echo "convert json cmvn to kaldi ark."
+./local/nnet.sh
 
-compute_fbank_main \
-    --num_bins 80 \
-    --wav_rspecifier=scp:$data/wav.scp \
-    --cmvn_file=$exp/cmvn.ark \
-    --feature_wspecifier=ark,t:$exp/fbank.ark
-
-echo "compute fbank feature."
-
-u2_nnet_main \
-    --model_path=$model_dir/export.jit \
-    --feature_rspecifier=ark,t:$exp/fbank.ark \
-    --nnet_decoder_chunk=16 \
-    --receptive_field_length=7 \
-    --downsampling_rate=4 \
-    --acoustic_scale=1.0 \
-    --nnet_encoder_outs_wspecifier=ark,t:$exp/encoder_outs.ark \
-    --nnet_prob_wspecifier=ark,t:$exp/logprobs.ark
-
-echo "u2 nnet decode."
+./local/decode.sh

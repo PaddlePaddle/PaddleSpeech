@@ -15,6 +15,7 @@
 #pragma once
 
 #include "decoder/ctc_beam_search_opt.h"
+#include "decoder/ctc_prefix_beam_search_result.h"
 #include "decoder/ctc_prefix_beam_search_score.h"
 #include "decoder/decoder_itf.h"
 
@@ -25,48 +26,37 @@ class CTCPrefixBeamSearch : public DecoderInterface {
     explicit CTCPrefixBeamSearch(const CTCBeamSearchOptions& opts);
     ~CTCPrefixBeamSearch() {}
 
-    void InitDecoder();
+    void InitDecoder() override;
 
-    void Reset();
+    void Reset() override;
 
     void AdvanceDecode(
-        const std::shared_ptr<kaldi::DecodableInterface>& decodable);
+        const std::shared_ptr<kaldi::DecodableInterface>& decodable) override;
 
-    std::string GetFinalBestPath();
+    std::string GetFinalBestPath() override;
+    std::string GetPartialResult() override;
 
-    std::string GetPartialResult() {
-        CHECK(false) << "Not implement.";
-        return {};
-    }
+    void FinalizeSearch();
 
-    void Decode(std::shared_ptr<kaldi::DecodableInterface> decodable);
+  protected:
+    std::string GetBestPath() override;
+    std::vector<std::pair<double, std::string>> GetNBestPath() override;
+    std::vector<std::pair<double, std::string>> GetNBestPath(int n) override;
 
-    std::string GetBestPath();
-
-    std::vector<std::pair<double, std::string>> GetNBestPath();
-
-
-    int NumFrameDecoded();
-
-    int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
-                          std::vector<std::string>& nbest_words);
-
+    const std::vector<std::vector<int>>& Inputs() const { return hypotheses_; }
+    const std::vector<std::vector<int>>& Outputs() const { return outputs_; }
+    const std::vector<float>& Likelihood() const { return likelihood_; }
     const std::vector<float>& ViterbiLikelihood() const {
         return viterbi_likelihood_;
     }
-
-    const std::vector<std::vector<int>>& Inputs() const { return hypotheses_; }
-
-    const std::vector<std::vector<int>>& Outputs() const { return outputs_; }
-
-    const std::vector<float>& Likelihood() const { return likelihood_; }
     const std::vector<std::vector<int>>& Times() const { return times_; }
 
 
   private:
-    void AdvanceDecoding(const std::vector<std::vector<BaseFloat>>& logp);
+    std::string GetBestPath(int index);
 
-    void FinalizeSearch();
+    void AdvanceDecoding(
+        const std::vector<std::vector<kaldi::BaseFloat>>& logp);
 
     void UpdateOutputs(const std::pair<std::vector<int>, PrefixScore>& prefix);
     void UpdateHypotheses(
@@ -76,8 +66,6 @@ class CTCPrefixBeamSearch : public DecoderInterface {
 
   private:
     CTCBeamSearchOptions opts_;
-
-    int abs_time_step_ = 0;
 
     std::unordered_map<std::vector<int>, PrefixScore, PrefixScoreHash>
         cur_hyps_;
@@ -95,6 +83,31 @@ class CTCPrefixBeamSearch : public DecoderInterface {
     std::shared_ptr<ContextGraph> context_graph_ = nullptr;
 
     DISALLOW_COPY_AND_ASSIGN(CTCPrefixBeamSearch);
+};
+
+
+class CTCPrefixBeamSearchDecoder : public CTCPrefixBeamSearch {
+  public:
+    explicit CTCPrefixBeamSearchDecoder(const CTCBeamSearchDecoderOptions& opts)
+        : CTCPrefixBeamSearch(opts.ctc_prefix_search_opts), opts_(opts) {}
+
+    ~CTCPrefixBeamSearchDecoder() {}
+
+  private:
+    CTCBeamSearchDecoderOptions opts_;
+
+    // cache feature
+    bool start_ = false;  // false, this is first frame.
+    // for continues decoding
+    int num_frames_ = 0;
+    int global_frame_offset_ = 0;
+    const int time_stamp_gap_ =
+        100;  // timestamp gap between words in a sentence
+
+    // std::unique_ptr<CtcEndpoint> ctc_endpointer_;
+
+    int num_frames_in_current_chunk_ = 0;
+    std::vector<DecodeResult> result_;
 };
 
 }  // namespace ppspeech

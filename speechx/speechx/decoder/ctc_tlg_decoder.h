@@ -42,20 +42,27 @@ class TLGDecoder : public DecoderInterface {
     void AdvanceDecode(
         const std::shared_ptr<kaldi::DecodableInterface>& decodable);
 
-
-    std::string GetFinalBestPath();
-    std::string GetPartialResult();
-
-
     void Decode();
 
-    std::string GetBestPath();
-    std::vector<std::pair<double, std::string>> GetNBestPath();
+    std::string GetFinalBestPath() override;
+    std::string GetPartialResult() override;
 
-    int NumFrameDecoded();
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
                           std::vector<std::string>& nbest_words);
 
+  protected:
+    std::string GetBestPath() override {
+        CHECK(false);
+        return {};
+    }
+    std::vector<std::pair<double, std::string>> GetNBestPath() override {
+        CHECK(false);
+        return {};
+    }
+    std::vector<std::pair<double, std::string>> GetNBestPath(int n) override {
+        CHECK(false);
+        return {};
+    }
 
   private:
     void AdvanceDecoding(kaldi::DecodableInterface* decodable);

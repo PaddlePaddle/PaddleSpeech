@@ -28,27 +28,31 @@ class DecoderInterface {
 
     virtual void Reset() = 0;
 
+    // call AdvanceDecoding
     virtual void AdvanceDecode(
         const std::shared_ptr<kaldi::DecodableInterface>& decodable) = 0;
 
+    // call GetBestPath
     virtual std::string GetFinalBestPath() = 0;
 
     virtual std::string GetPartialResult() = 0;
 
-    // void Decode();
+  protected:
+    // virtual void AdvanceDecoding(kaldi::DecodableInterface* decodable) = 0;
 
-    // std::string GetBestPath();
-    // std::vector<std::pair<double, std::string>> GetNBestPath();
+    // virtual void Decode() = 0;
 
-    // int NumFrameDecoded();
-    // int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
-    //                       std::vector<std::string>& nbest_words);
+    virtual std::string GetBestPath() = 0;
 
+    virtual std::vector<std::pair<double, std::string>> GetNBestPath() = 0;
+
+    virtual std::vector<std::pair<double, std::string>> GetNBestPath(int n) = 0;
+
+    // start from one
+    int NumFrameDecoded() { return num_frame_decoded_ + 1; }
 
   protected:
-    // void AdvanceDecoding(kaldi::DecodableInterface* decodable);
-
-    // current decoding frame number
+    // current decoding frame number, abs_time_step_
     int32 num_frame_decoded_;
 };
 

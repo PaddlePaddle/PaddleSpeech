@@ -68,7 +68,7 @@ void TopK(const std::vector<T>& data,
     for (int i = k; i < n; i++) {
         if (pq.top().first < data[i]) {
             pq.pop();
-            pq.emplace_back(data[i], i);
+            pq.emplace(data[i], i);
         }
     }
 
@@ -87,5 +87,10 @@ void TopK(const std::vector<T>& data,
         cur--;
     }
 }
+
+template void TopK<float>(const std::vector<float>& data,
+          int32_t k,
+          std::vector<float>* values,
+          std::vector<int>* indices) ;
 
 }  // namespace ppspeech

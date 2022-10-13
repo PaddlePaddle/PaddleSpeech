@@ -12,8 +12,7 @@ TOOLS_BIN=$SPEECHX_TOOLS/valgrind/install/bin
 
 export LC_AL=C
 
-SPEECHX_BIN=$SPEECHX_BUILD/nnet
-export PATH=$PATH:$SPEECHX_BIN:$TOOLS_BIN
+export PATH=$PATH:$TOOLS_BIN:$SPEECHX_BUILD/nnet:$SPEECHX_BUILD/decoder:$SPEECHX_BUILD/frontend/audio
 
 PADDLE_LIB_PATH=$(python -c "import paddle ; print(':'.join(paddle.sysconfig.get_lib()), end='')")
 export LD_LIBRARY_PATH=$PADDLE_LIB_PATH:$LD_LIBRARY_PATH

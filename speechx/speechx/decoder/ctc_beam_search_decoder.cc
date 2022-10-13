@@ -82,8 +82,6 @@ void CTCBeamSearch::Decode(
     return;
 }
 
-int32 CTCBeamSearch::NumFrameDecoded() { return num_frame_decoded_ + 1; }
-
 // todo rename, refactor
 void CTCBeamSearch::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
@@ -110,15 +108,19 @@ void CTCBeamSearch::ResetPrefixes() {
 int CTCBeamSearch::DecodeLikelihoods(const vector<vector<float>>& probs,
                                      vector<string>& nbest_words) {
     kaldi::Timer timer;
-    timer.Reset();
     AdvanceDecoding(probs);
     LOG(INFO) << "ctc decoding elapsed time(s) "
               << static_cast<float>(timer.Elapsed()) / 1000.0f;
     return 0;
 }
 
+vector<std::pair<double, string>> CTCBeamSearch::GetNBestPath(int n) {
+    int beam_size = n == -1 ?  opts_.beam_size: std::min(n, opts_.beam_size);
+    return get_beam_search_result(prefixes_, vocabulary_, beam_size);
+}
+
 vector<std::pair<double, string>> CTCBeamSearch::GetNBestPath() {
-    return get_beam_search_result(prefixes_, vocabulary_, opts_.beam_size);
+    return GetNBestPath(-1);
 }
 
 string CTCBeamSearch::GetBestPath() {

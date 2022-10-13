@@ -56,13 +56,15 @@ def get_stats(pretrained_model_dir: Path):
 
 def get_map(duration_file: Union[str, Path],
             dump_dir: Path,
-            pretrained_model_dir: Path):
+            pretrained_model_dir: Path,
+            replace_spkid: int=0):
     """get phone map and speaker map, save on dump_dir
 
     Args:
         duration_file (str): durantions.txt
         dump_dir (Path): dump dir
         pretrained_model_dir (Path): pretrained model dir
+        replace_spkid (int): replace spk id 
     """
     # copy phone map file from pretrained model path
     phones_dict = dump_dir / "phone_id_map.txt"
@@ -75,14 +77,24 @@ def get_map(duration_file: Union[str, Path],
     speakers = sorted(list(speaker_set))
     num = len(speakers)
     speaker_dict = dump_dir / "speaker_id_map.txt"
-    with open(speaker_dict, 'w') as f, open(pretrained_model_dir /
-                                            "speaker_id_map.txt", 'r') as fr:
-        for i, spk in enumerate(speakers):
-            f.write(spk + ' ' + str(i) + '\n')
+    spk_dict = {}
+    # get raw spkid-spk dict 
+    with open(pretrained_model_dir / "speaker_id_map.txt", 'r') as fr:
         for line in fr.readlines():
-            spk_id = line.strip().split(" ")[-1]
-            if int(spk_id) >= num:
-                f.write(line)
+            spk = line.strip().split(" ")[0]
+            spk_id = line.strip().split(" ")[1]
+            spk_dict[spk_id] = spk
+
+    # replace spk on spkid-spk dict
+    assert replace_spkid + num - 1 < len(
+        spk_dict), "Please set correct replace spk id."
+    for i, spk in enumerate(speakers):
+        spk_dict[str(replace_spkid + i)] = spk
+
+    # write a new spk map file
+    with open(speaker_dict, 'w') as f:
+        for spk_id in spk_dict.keys():
+            f.write(spk_dict[spk_id] + ' ' + spk_id + '\n')
 
     vocab_phones = {}
     with open(phones_dict, 'rt') as f:
@@ -206,10 +218,11 @@ def extract_feature(duration_file: str,
                     config,
                     input_dir: Path,
                     dump_dir: Path,
-                    pretrained_model_dir: Path):
+                    pretrained_model_dir: Path,
+                    replace_spkid: int=0):
 
-    sentences, vocab_phones, vocab_speaker = get_map(duration_file, dump_dir,
-                                                     pretrained_model_dir)
+    sentences, vocab_phones, vocab_speaker = get_map(
+        duration_file, dump_dir, pretrained_model_dir, replace_spkid)
     mel_extractor, pitch_extractor, energy_extractor = get_extractor(config)
 
     wav_files = sorted(list((input_dir).rglob("*.wav")))
@@ -315,6 +328,9 @@ if __name__ == '__main__':
         default="./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0",
         help="Path to pretrained model")
 
+    parser.add_argument(
+        "--replace_spkid", type=int, default=0, help="replace spk id")
+
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir).expanduser()
@@ -332,4 +348,5 @@ if __name__ == '__main__':
         config=config,
         input_dir=input_dir,
         dump_dir=dump_dir,
-        pretrained_model_dir=pretrained_model_dir)
+        pretrained_model_dir=pretrained_model_dir,
+        replace_spkid=args.replace_spkid)

@@ -19,12 +19,15 @@
 #include "decoder/ctc_tlg_decoder.h"
 #include "frontend/audio/feature_pipeline.h"
 
+
 // feature
 DEFINE_bool(use_fbank, false, "False for fbank; or linear feature");
 // DEFINE_bool(to_float32, true, "audio convert to pcm32. True for linear
 // feature, or fbank");
 DEFINE_int32(num_bins, 161, "num bins of mel");
 DEFINE_string(cmvn_file, "", "read cmvn");
+
+
 // feature sliding window
 DEFINE_int32(receptive_field_length,
              7,
@@ -33,6 +36,8 @@ DEFINE_int32(downsampling_rate,
              4,
              "two CNN(kernel=3) module downsampling rate.");
 DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
+
+
 // nnet
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
@@ -87,36 +92,6 @@ FeaturePipelineOptions InitFeaturePipelineOptions() {
     opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
 
     return opts;
-}
-
-ModelOptions InitModelOptions() {
-    ModelOptions model_opts;
-    model_opts.model_path = FLAGS_model_path;
-    model_opts.param_path = FLAGS_param_path;
-    model_opts.cache_names = FLAGS_model_cache_names;
-    model_opts.cache_shape = FLAGS_model_cache_shapes;
-    model_opts.input_names = FLAGS_model_input_names;
-    model_opts.output_names = FLAGS_model_output_names;
-    return model_opts;
-}
-
-TLGDecoderOptions InitDecoderOptions() {
-    TLGDecoderOptions decoder_opts;
-    decoder_opts.word_symbol_table = FLAGS_word_symbol_table;
-    decoder_opts.fst_path = FLAGS_graph_path;
-    decoder_opts.opts.max_active = FLAGS_max_active;
-    decoder_opts.opts.beam = FLAGS_beam;
-    decoder_opts.opts.lattice_beam = FLAGS_lattice_beam;
-    return decoder_opts;
-}
-
-RecognizerResource InitRecognizerResoure() {
-    RecognizerResource resource;
-    resource.acoustic_scale = FLAGS_acoustic_scale;
-    resource.feature_pipeline_opts = InitFeaturePipelineOptions();
-    resource.model_opts = InitModelOptions();
-    resource.tlg_opts = InitDecoderOptions();
-    return resource;
 }
 
 }  // namespace ppspeech

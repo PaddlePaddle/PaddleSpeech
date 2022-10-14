@@ -25,16 +25,11 @@
 namespace ppspeech {
 
 struct RecognizerResource {
-    FeaturePipelineOptions feature_pipeline_opts;
-    ModelOptions model_opts;
-    TLGDecoderOptions tlg_opts;
+    FeaturePipelineOptions feature_pipeline_opts{};
+    ModelOptions model_opts{};
+    TLGDecoderOptions tlg_opts{};
     //    CTCBeamSearchOptions beam_search_opts;
-    kaldi::BaseFloat acoustic_scale;
-    RecognizerResource()
-        : acoustic_scale(1.0),
-          feature_pipeline_opts(),
-          model_opts(),
-          tlg_opts() {}
+    kaldi::BaseFloat acoustic_scale{1.0};
 };
 
 class Recognizer {

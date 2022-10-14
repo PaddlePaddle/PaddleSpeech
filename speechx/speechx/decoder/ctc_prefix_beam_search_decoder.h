@@ -15,16 +15,20 @@
 #pragma once
 
 #include "decoder/ctc_beam_search_opt.h"
-#include "decoder/ctc_prefix_beam_search_result.h"
 #include "decoder/ctc_prefix_beam_search_score.h"
 #include "decoder/decoder_itf.h"
+
+#include "fst/symbol-table.h"
 
 namespace ppspeech {
 class ContextGraph;
 class CTCPrefixBeamSearch : public DecoderInterface {
   public:
-    explicit CTCPrefixBeamSearch(const CTCBeamSearchOptions& opts);
+    explicit CTCPrefixBeamSearch(const std::string vocab_path,
+                                 const CTCBeamSearchOptions& opts);
     ~CTCPrefixBeamSearch() {}
+
+    SearchType Type() const { return SearchType::kPrefixBeamSearch; }
 
     void InitDecoder() override;
 
@@ -38,10 +42,9 @@ class CTCPrefixBeamSearch : public DecoderInterface {
 
     void FinalizeSearch();
 
-  protected:
-    std::string GetBestPath() override;
-    std::vector<std::pair<double, std::string>> GetNBestPath() override;
-    std::vector<std::pair<double, std::string>> GetNBestPath(int n) override;
+    const std::shared_ptr<fst::SymbolTable> VocabTable() const {
+        return unit_table_;
+    }
 
     const std::vector<std::vector<int>>& Inputs() const { return hypotheses_; }
     const std::vector<std::vector<int>>& Outputs() const { return outputs_; }
@@ -51,6 +54,11 @@ class CTCPrefixBeamSearch : public DecoderInterface {
     }
     const std::vector<std::vector<int>>& Times() const { return times_; }
 
+
+  protected:
+    std::string GetBestPath() override;
+    std::vector<std::pair<double, std::string>> GetNBestPath() override;
+    std::vector<std::pair<double, std::string>> GetNBestPath(int n) override;
 
   private:
     std::string GetBestPath(int index);
@@ -66,6 +74,7 @@ class CTCPrefixBeamSearch : public DecoderInterface {
 
   private:
     CTCBeamSearchOptions opts_;
+    std::shared_ptr<fst::SymbolTable> unit_table_;
 
     std::unordered_map<std::vector<int>, PrefixScore, PrefixScoreHash>
         cur_hyps_;
@@ -85,29 +94,5 @@ class CTCPrefixBeamSearch : public DecoderInterface {
     DISALLOW_COPY_AND_ASSIGN(CTCPrefixBeamSearch);
 };
 
-
-class CTCPrefixBeamSearchDecoder : public CTCPrefixBeamSearch {
-  public:
-    explicit CTCPrefixBeamSearchDecoder(const CTCBeamSearchDecoderOptions& opts)
-        : CTCPrefixBeamSearch(opts.ctc_prefix_search_opts), opts_(opts) {}
-
-    ~CTCPrefixBeamSearchDecoder() {}
-
-  private:
-    CTCBeamSearchDecoderOptions opts_;
-
-    // cache feature
-    bool start_ = false;  // false, this is first frame.
-    // for continues decoding
-    int num_frames_ = 0;
-    int global_frame_offset_ = 0;
-    const int time_stamp_gap_ =
-        100;  // timestamp gap between words in a sentence
-
-    // std::unique_ptr<CtcEndpoint> ctc_endpointer_;
-
-    int num_frames_in_current_chunk_ = 0;
-    std::vector<DecodeResult> result_;
-};
 
 }  // namespace ppspeech

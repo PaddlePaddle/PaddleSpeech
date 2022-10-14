@@ -20,6 +20,10 @@
 
 namespace ppspeech {
 
+enum SearchType {
+    kPrefixBeamSearch = 0,
+    kWfstBeamSearch = 1,
+};
 class DecoderInterface {
   public:
     virtual ~DecoderInterface() {}

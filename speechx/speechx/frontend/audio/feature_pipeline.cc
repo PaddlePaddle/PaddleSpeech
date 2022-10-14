@@ -18,7 +18,7 @@ namespace ppspeech {
 
 using std::unique_ptr;
 
-FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
+FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) : opts_(opts) {
     unique_ptr<FrontendInterface> data_source(
         new ppspeech::AudioCache(1000 * kint16max, opts.to_float32));
 

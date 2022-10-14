@@ -55,13 +55,11 @@ int main(int argc, char* argv[]) {
     CHECK(FLAGS_vocab_path != "");
     CHECK(FLAGS_model_path != "");
     LOG(INFO) << "model path: " << FLAGS_model_path;
+    LOG(INFO) << "Reading vocab table " << FLAGS_vocab_path;
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
-
-    LOG(INFO) << "Reading vocab table " << FLAGS_vocab_path;
-    fst::SymbolTable* unit_table = fst::SymbolTable::ReadText(FLAGS_vocab_path);
 
     // nnet
     ppspeech::ModelOptions model_opts;
@@ -75,16 +73,11 @@ int main(int argc, char* argv[]) {
         new ppspeech::Decodable(nnet, raw_data));
 
     // decoder
-    ppspeech::CTCBeamSearchDecoderOptions opts;
-    opts.chunk_size = 16;
-    opts.num_left_chunks = -1;
-    opts.ctc_weight = 0.5;
-    opts.rescoring_weight = 1.0;
-    opts.reverse_weight = 0.3;
-    opts.ctc_prefix_search_opts.blank = 0;
-    opts.ctc_prefix_search_opts.first_beam_size = 10;
-    opts.ctc_prefix_search_opts.second_beam_size = 10;
-    ppspeech::CTCPrefixBeamSearchDecoder decoder(opts);
+    ppspeech::CTCBeamSearchOptions opts;
+    opts.blank = 0;
+    opts.first_beam_size = 10;
+    opts.second_beam_size = 10;
+    ppspeech::CTCPrefixBeamSearch decoder(FLAGS_vocab_path, opts);
 
 
     int32 chunk_size = FLAGS_receptive_field_length +
@@ -150,17 +143,14 @@ int main(int argc, char* argv[]) {
 
             // forward nnet
             decoder.AdvanceDecode(decodable);
+
+            LOG(INFO) << "Partial result: " << decoder.GetPartialResult();
         }
 
         decoder.FinalizeSearch();
 
         // get 1-best result
-        std::string result_ints = decoder.GetFinalBestPath();
-        std::vector<std::string> tokenids = absl::StrSplit(result_ints, ppspeech::kSpaceSymbol);
-        std::string result;
-        for (int i = 0; i < tokenids.size(); i++){
-            result += unit_table->Find(std::stoi(tokenids[i]));
-        }
+        std::string result = decoder.GetFinalBestPath();
   
         // after process one utt, then reset state.
         decodable->Reset();

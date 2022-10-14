@@ -30,8 +30,14 @@ using paddle::platform::TracerEventType;
 
 namespace ppspeech {
 
-CTCPrefixBeamSearch::CTCPrefixBeamSearch(const CTCBeamSearchOptions& opts)
+CTCPrefixBeamSearch::CTCPrefixBeamSearch(
+    const std::string vocab_path, 
+    const CTCBeamSearchOptions& opts)
     : opts_(opts) {
+        
+    unit_table_ = std::shared_ptr<fst::SymbolTable>(fst::SymbolTable::ReadText(vocab_path));
+    CHECK(unit_table_ != nullptr);
+
     Reset();
 }
 
@@ -322,7 +328,11 @@ void CTCPrefixBeamSearch::UpdateFinalContext() {
     CHECK(n_hyps > 0);
     CHECK(index < n_hyps);
     std::vector<int> one = Outputs()[index];
-    return std::string(absl::StrJoin(one, kSpaceSymbol));
+    std::string sentence;
+    for (int i = 0; i < one.size(); i++){
+        sentence += unit_table_->Find(one[i]);
+    }
+    return sentence;
   }
 
   std::string  CTCPrefixBeamSearch::GetBestPath() {

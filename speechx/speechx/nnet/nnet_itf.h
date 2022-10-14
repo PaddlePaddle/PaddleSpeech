@@ -35,6 +35,7 @@ struct ModelOptions {
     std::string cache_shape;
     bool enable_fc_padding;
     bool enable_profile;
+    int subsample_rate;
     ModelOptions()
         : model_path(""),
           param_path(""),
@@ -46,7 +47,8 @@ struct ModelOptions {
           cache_shape(""),
           switch_ir_optim(false),
           enable_fc_padding(false),
-          enable_profile(false) {}
+          enable_profile(false),
+          subsample_rate(0) {}
 
     void Register(kaldi::OptionsItf* opts) {
         opts->Register("model-path", &model_path, "model file path");
@@ -102,9 +104,14 @@ class NnetInterface {
     // true, nnet output is logprob; otherwise is prob,
     virtual bool IsLogProb() = 0;
 
+    int SubsamplingRate() const { return subsampling_rate_; }
+
     // using to get encoder outs. e.g. seq2seq with Attention model.
     virtual void EncoderOuts(
         std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const = 0;
+
+  protected:
+    int subsampling_rate_{1};
 };
 
 }  // namespace ppspeech

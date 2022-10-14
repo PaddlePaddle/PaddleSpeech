@@ -26,7 +26,6 @@
 #include "frontend/audio/normalizer.h"
 
 namespace ppspeech {
-
 struct FeaturePipelineOptions {
     std::string cmvn_file;
     bool to_float32;  // true, only for linear feature
@@ -60,7 +59,21 @@ class FeaturePipeline : public FrontendInterface {
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
     virtual void Reset() { base_extractor_->Reset(); }
 
+    const FeaturePipelineOptions& Config() { return opts_; }
+
+    const BaseFloat FrameShift() const {
+        return opts_.fbank_opts.frame_opts.frame_shift_ms;
+    }
+    const BaseFloat FrameLength() const {
+        return opts_.fbank_opts.frame_opts.frame_length_ms;
+    }
+    const BaseFloat SampleRate() const {
+        return opts_.fbank_opts.frame_opts.samp_freq;
+    }
+
   private:
+    FeaturePipelineOptions opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
 };
-}
+
+}  // namespace ppspeech

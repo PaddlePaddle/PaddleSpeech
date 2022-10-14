@@ -67,6 +67,7 @@ class PaddleNnet : public NnetInterface {
 
     bool IsLogProb() override { return false; }
 
+
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(
         const std::string& name);
 
@@ -85,6 +86,7 @@ class PaddleNnet : public NnetInterface {
     std::map<paddle_infer::Predictor*, int> predictor_to_thread_id;
     std::map<std::string, int> cache_names_idx_;
     std::vector<std::shared_ptr<Tensor<kaldi::BaseFloat>>> cache_encouts_;
+
     ModelOptions opts_;
 
   public:

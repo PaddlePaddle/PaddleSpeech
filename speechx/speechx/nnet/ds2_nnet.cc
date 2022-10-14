@@ -48,6 +48,7 @@ void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
 }
 
 PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
+    subsampling_rate_ = opts.subsample_rate;
     paddle_infer::Config config;
     config.SetModel(opts.model_path, opts.param_path);
     if (opts.use_gpu) {

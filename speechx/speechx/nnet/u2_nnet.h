@@ -30,7 +30,7 @@ class U2NnetBase : public NnetInterface {
   public:
     virtual int context() const { return right_context_ + 1; }
     virtual int right_context() const { return right_context_; }
-    virtual int subsampling_rate() const { return subsampling_rate_; }
+
     virtual int eos() const { return eos_; }
     virtual int sos() const { return sos_; }
     virtual int is_bidecoder() const { return is_bidecoder_; }
@@ -64,7 +64,6 @@ class U2NnetBase : public NnetInterface {
   protected:
     // model specification
     int right_context_{0};
-    int subsampling_rate_{1};
 
     int sos_{0};
     int eos_{0};

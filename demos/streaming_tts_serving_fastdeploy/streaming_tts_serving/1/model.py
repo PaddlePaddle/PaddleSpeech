@@ -1,21 +1,17 @@
-import json
-import sys
-import locale
 import codecs
+import json
+import math
+import sys
 import threading
+import time
+
+import numpy as np
+import onnxruntime as ort
 import triton_python_backend_utils as pb_utils
 
-import math
-import time
-import numpy as np
-
-import onnxruntime as ort
-
-from paddlespeech.server.utils.audio_process import float2pcm
 from paddlespeech.server.utils.util import denorm
 from paddlespeech.server.utils.util import get_chunks
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
-
 
 voc_block = 36
 voc_pad = 14
@@ -52,6 +48,7 @@ am_postnet_sess = ort.InferenceSession(
 voc_melgan_sess = ort.InferenceSession(
     onnx_voc_melgan, providers=providers, sess_options=sess_options)
 
+
 def depadding(data, chunk_num, chunk_id, block, pad, upsample):
     """
     Streaming inference removes the result of pad inference
@@ -68,6 +65,7 @@ def depadding(data, chunk_num, chunk_id, block, pad, upsample):
         data = data[front_pad * upsample:(front_pad + block) * upsample]
 
     return data
+
 
 class TritonPythonModel:
     """Your Python model must use the same class name. Every Python model
@@ -146,8 +144,8 @@ class TritonPythonModel:
         # This model does not support batching, so 'request_count' should always
         # be 1.
         if len(requests) != 1:
-            raise pb_utils.TritonModelException("unsupported batch size " +
-                                                len(requests))
+            raise pb_utils.TritonModelException("unsupported batch size " + len(
+                requests))
 
         input_data = []
         for idx in range(len(self.input_names)):
@@ -160,9 +158,9 @@ class TritonPythonModel:
 
         # Start a separate thread to send the responses for the request. The
         # sending back the responses is delegated to this thread.
-        thread = threading.Thread(target=self.response_thread,
-                                  args=(requests[0].get_response_sender(),text)
-                                 )
+        thread = threading.Thread(
+            target=self.response_thread,
+            args=(requests[0].get_response_sender(), text))
         thread.daemon = True
         with self.inflight_thread_count_lck:
             self.inflight_thread_count += 1
@@ -180,13 +178,15 @@ class TritonPythonModel:
         return None
 
     def response_thread(self, response_sender, text):
-        input_ids = frontend.get_input_ids(text, merge_sentences=False, get_tone_ids=False)
+        input_ids = frontend.get_input_ids(
+            text, merge_sentences=False, get_tone_ids=False)
         phone_ids = input_ids["phone_ids"]
         for i in range(len(phone_ids)):
             part_phone_ids = phone_ids[i].numpy()
             voc_chunk_id = 0
 
-            orig_hs = am_encoder_infer_sess.run(None, input_feed={'text': part_phone_ids})
+            orig_hs = am_encoder_infer_sess.run(
+                None, input_feed={'text': part_phone_ids})
             orig_hs = orig_hs[0]
 
             # streaming voc chunk info
@@ -199,27 +199,31 @@ class TritonPythonModel:
             hss = get_chunks(orig_hs, am_block, am_pad, "am")
             am_chunk_num = len(hss)
             for i, hs in enumerate(hss):
-                am_decoder_output = am_decoder_sess.run(None, input_feed={'xs': hs})
+                am_decoder_output = am_decoder_sess.run(
+                    None, input_feed={'xs': hs})
                 am_postnet_output = am_postnet_sess.run(
                     None,
                     input_feed={
                         'xs': np.transpose(am_decoder_output[0], (0, 2, 1))
                     })
-                am_output_data = am_decoder_output + np.transpose(am_postnet_output[0], (0, 2, 1))
+                am_output_data = am_decoder_output + np.transpose(
+                    am_postnet_output[0], (0, 2, 1))
                 normalized_mel = am_output_data[0][0]
 
                 sub_mel = denorm(normalized_mel, am_mu, am_std)
-                sub_mel = depadding(sub_mel, am_chunk_num, i, am_block, am_pad, 1)
+                sub_mel = depadding(sub_mel, am_chunk_num, i, am_block, am_pad,
+                                    1)
 
                 if i == 0:
                     mel_streaming = sub_mel
                 else:
-                    mel_streaming = np.concatenate((mel_streaming, sub_mel), axis=0)
-
+                    mel_streaming = np.concatenate(
+                        (mel_streaming, sub_mel), axis=0)
 
                 # streaming voc
                 # 当流式AM推理的mel帧数大于流式voc推理的chunk size，开始进行流式voc 推理
-                while (mel_streaming.shape[0] >= end and voc_chunk_id < voc_chunk_num):
+                while (mel_streaming.shape[0] >= end and
+                       voc_chunk_id < voc_chunk_num):
                     voc_chunk = mel_streaming[start:end, :]
 
                     sub_wav = voc_melgan_sess.run(
@@ -228,13 +232,17 @@ class TritonPythonModel:
                                         voc_block, voc_pad, voc_upsample)
 
                     output_np = np.array(sub_wav, dtype=self.output_dtype[0])
-                    out_tensor1 = pb_utils.Tensor(self.output_names[0], output_np)
+                    out_tensor1 = pb_utils.Tensor(self.output_names[0],
+                                                  output_np)
 
-                    status = 0 if voc_chunk_id != (voc_chunk_num-1) else 1
-                    output_status = np.array([status], dtype=self.output_dtype[1])
-                    out_tensor2 = pb_utils.Tensor(self.output_names[1], output_status)
+                    status = 0 if voc_chunk_id != (voc_chunk_num - 1) else 1
+                    output_status = np.array(
+                        [status], dtype=self.output_dtype[1])
+                    out_tensor2 = pb_utils.Tensor(self.output_names[1],
+                                                  output_status)
 
-                    inference_response = pb_utils.InferenceResponse(output_tensors=[out_tensor1,out_tensor2])
+                    inference_response = pb_utils.InferenceResponse(
+                        output_tensors=[out_tensor1, out_tensor2])
 
                     #yield sub_wav
                     response_sender.send(inference_response)
@@ -252,7 +260,7 @@ class TritonPythonModel:
 
         with self.inflight_thread_count_lck:
             self.inflight_thread_count -= 1
-            
+
     def finalize(self):
         """`finalize` is called only once when the model is being unloaded.
         Implementing `finalize` function is OPTIONAL. This function allows

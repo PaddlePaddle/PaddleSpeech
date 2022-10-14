@@ -580,6 +580,7 @@ class PaddleASRConnectionHanddler:
         self.update_result()
 
         beam_size = self.ctc_decode_config.beam_size
+        reverse_weight = getattr(self.ctc_decode_config, 'reverse_weight', 0.0)
         hyps = self.searcher.get_hyps()
         if hyps is None or len(hyps) == 0:
             logger.info("No Hyps!")
@@ -613,7 +614,7 @@ class PaddleASRConnectionHanddler:
         # ctc score in ln domain
         # (beam_size, max_hyps_len, vocab_size)
         decoder_out, r_decoder_out = self.model.forward_attention_decoder(
-            hyps_pad, hyps_lens, self.encoder_out, self.model.reverse_weight)
+            hyps_pad, hyps_lens, self.encoder_out, reverse_weight)
 
         decoder_out = decoder_out.numpy()
         # r_decoder_out will be 0.0, if reverse_weight is 0.0 or decoder is a
@@ -631,13 +632,12 @@ class PaddleASRConnectionHanddler:
 
             # last decoder output token is `eos`, for laste decoder input token.
             score += decoder_out[i][len(hyp[0])][self.model.eos]
-            if self.model.reverse_weight > 0:
+            if reverse_weight > 0:
                 r_score = 0.0
                 for j, w in enumerate(hyp[0]):
                     r_score += r_decoder_out[i][len(hyp[0]) - j - 1][w]
                 r_score += r_decoder_out[i][len(hyp[0])][self.model.eos]
-                score = score * (1 - self.model.reverse_weight
-                                 ) + r_score * self.model.reverse_weight
+                score = score * (1 - reverse_weight) + r_score * reverse_weight
             # add ctc score (which in ln domain)
             score += hyp[1] * self.ctc_decode_config.ctc_weight
 

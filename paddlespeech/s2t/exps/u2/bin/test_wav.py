@@ -79,6 +79,7 @@ class U2Infer():
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
             decode_config = self.config.decode
             logger.info(f"decode cfg: {decode_config}")
+            reverse_weight = getattr(decode_config, 'reverse_weight', 0.0)
             result_transcripts = self.model.decode(
                 xs,
                 ilen,
@@ -89,7 +90,7 @@ class U2Infer():
                 decoding_chunk_size=decode_config.decoding_chunk_size,
                 num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
                 simulate_streaming=decode_config.simulate_streaming,
-                reverse_weight=decode_config.reverse_weight)
+                reverse_weight=reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {result_transcripts[0][0]}")

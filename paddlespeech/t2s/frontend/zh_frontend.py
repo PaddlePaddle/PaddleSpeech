@@ -13,6 +13,7 @@
 # limitations under the License.
 import os
 import re
+from operator import itemgetter
 from typing import Dict
 from typing import List
 
@@ -31,6 +32,7 @@ from paddlespeech.t2s.frontend.g2pw import G2PWOnnxConverter
 from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
+from paddlespeech.t2s.ssml.xml_processor import MixTextProcessor
 
 INITIALS = [
     'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'zh', 'ch', 'sh',
@@ -81,6 +83,7 @@ class Frontend():
                  g2p_model="g2pW",
                  phone_vocab_path=None,
                  tone_vocab_path=None):
+        self.mix_ssml_processor = MixTextProcessor()
         self.tone_modifier = ToneSandhi()
         self.text_normalizer = TextNormalizer()
         self.punc = "：，；。？！“”‘’':,;.?!"
@@ -143,6 +146,7 @@ class Frontend():
                 tone_id = [line.strip().split() for line in f.readlines()]
             for tone, id in tone_id:
                 self.vocab_tones[tone] = int(id)
+        self.mix_ssml_processor.__repr__()
 
     def _init_pypinyin(self):
         large_pinyin.load()
@@ -281,6 +285,65 @@ class Frontend():
             phones_list.append(merge_list)
         return phones_list
 
+    def _split_word_to_char(self, words):
+        res = []
+        for x in words:
+            res.append(x)
+        return res
+
+    # if using ssml, have pingyin specified, assign pinyin to words
+    def _g2p_assign(self,
+                    words: List[str],
+                    pinyin_spec: List[str],
+                    merge_sentences: bool=True) -> List[List[str]]:
+        phones_list = []
+        initials = []
+        finals = []
+
+        words = self._split_word_to_char(words[0])
+        for pinyin, char in zip(pinyin_spec, words):
+            sub_initials = []
+            sub_finals = []
+            pinyin = pinyin.replace("u:", "v")
+            #self.pinyin2phone: is a dict with all pinyin mapped with sheng_mu yun_mu
+            if pinyin in self.pinyin2phone:
+                initial_final_list = self.pinyin2phone[pinyin].split(" ")
+                if len(initial_final_list) == 2:
+                    sub_initials.append(initial_final_list[0])
+                    sub_finals.append(initial_final_list[1])
+                elif len(initial_final_list) == 1:
+                    sub_initials.append('')
+                    sub_finals.append(initial_final_list[1])
+            else:
+                # If it's not pinyin (possibly punctuation) or no conversion is required
+                sub_initials.append(pinyin)
+                sub_finals.append(pinyin)
+            initials.append(sub_initials)
+            finals.append(sub_finals)
+
+        initials = sum(initials, [])
+        finals = sum(finals, [])
+        phones = []
+        for c, v in zip(initials, finals):
+            # NOTE: post process for pypinyin outputs
+            # we discriminate i, ii and iii
+            if c and c not in self.punc:
+                phones.append(c)
+            if c and c in self.punc:
+                phones.append('sp')
+            if v and v not in self.punc:
+                phones.append(v)
+        phones_list.append(phones)
+        if merge_sentences:
+            merge_list = sum(phones_list, [])
+            # rm the last 'sp' to avoid the noise at the end
+            # cause in the training data, no 'sp' in the end
+            if merge_list[-1] == 'sp':
+                merge_list = merge_list[:-1]
+            phones_list = []
+            phones_list.append(merge_list)
+        return phones_list
+
     def _merge_erhua(self,
                      initials: List[str],
                      finals: List[str],
@@ -396,6 +459,52 @@ class Frontend():
             print("----------------------------")
         return phonemes
 
+    #@an added for ssml pinyin 
+    def get_phonemes_ssml(self,
+                          ssml_inputs: list,
+                          merge_sentences: bool=True,
+                          with_erhua: bool=True,
+                          robot: bool=False,
+                          print_info: bool=False) -> List[List[str]]:
+        all_phonemes = []
+        for word_pinyin_item in ssml_inputs:
+            phonemes = []
+            sentence, pinyin_spec = itemgetter(0, 1)(word_pinyin_item)
+            sentences = self.text_normalizer.normalize(sentence)
+            if len(pinyin_spec) == 0:
+                phonemes = self._g2p(
+                    sentences,
+                    merge_sentences=merge_sentences,
+                    with_erhua=with_erhua)
+            else:
+                # phonemes should be pinyin_spec 
+                phonemes = self._g2p_assign(
+                    sentences, pinyin_spec, merge_sentences=merge_sentences)
+
+            all_phonemes = all_phonemes + phonemes
+
+        if robot:
+            new_phonemes = []
+            for sentence in all_phonemes:
+                new_sentence = []
+                for item in sentence:
+                    # `er` only have tone `2`
+                    if item[-1] in "12345" and item != "er2":
+                        item = item[:-1] + "1"
+                    new_sentence.append(item)
+                new_phonemes.append(new_sentence)
+            all_phonemes = new_phonemes
+
+        if print_info:
+            print("----------------------------")
+            print("text norm results:")
+            print(sentences)
+            print("----------------------------")
+            print("g2p results:")
+            print(all_phonemes[0])
+            print("----------------------------")
+        return [sum(all_phonemes, [])]
+
     def get_input_ids(self,
                       sentence: str,
                       merge_sentences: bool=True,
@@ -405,8 +514,55 @@ class Frontend():
                       add_blank: bool=False,
                       blank_token: str="<pad>",
                       to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+
         phonemes = self.get_phonemes(
             sentence,
+            merge_sentences=merge_sentences,
+            print_info=print_info,
+            robot=robot)
+        result = {}
+        phones = []
+        tones = []
+        temp_phone_ids = []
+        temp_tone_ids = []
+
+        for part_phonemes in phonemes:
+            phones, tones = self._get_phone_tone(
+                part_phonemes, get_tone_ids=get_tone_ids)
+            if add_blank:
+                phones = insert_after_character(phones, blank_token)
+            if tones:
+                tone_ids = self._t2id(tones)
+                if to_tensor:
+                    tone_ids = paddle.to_tensor(tone_ids)
+                temp_tone_ids.append(tone_ids)
+            if phones:
+                phone_ids = self._p2id(phones)
+                # if use paddle.to_tensor() in onnxruntime, the first time will be too low
+                if to_tensor:
+                    phone_ids = paddle.to_tensor(phone_ids)
+                temp_phone_ids.append(phone_ids)
+        if temp_tone_ids:
+            result["tone_ids"] = temp_tone_ids
+        if temp_phone_ids:
+            result["phone_ids"] = temp_phone_ids
+        return result
+
+    # @an added for ssml
+    def get_input_ids_ssml(
+            self,
+            sentence: str,
+            merge_sentences: bool=True,
+            get_tone_ids: bool=False,
+            robot: bool=False,
+            print_info: bool=False,
+            add_blank: bool=False,
+            blank_token: str="<pad>",
+            to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+
+        l_inputs = MixTextProcessor.get_pinyin_split(sentence)
+        phonemes = self.get_phonemes_ssml(
+            l_inputs,
             merge_sentences=merge_sentences,
             print_info=print_info,
             robot=robot)

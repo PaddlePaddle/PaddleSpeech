@@ -15,6 +15,7 @@ output_dir=./exp/default
 lang=zh
 ngpu=1
 finetune_config=./conf/finetune.yaml
+replace_spkid=0
 
 ckpt=snapshot_iter_96699
 
@@ -62,7 +63,8 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --duration_file="./durations.txt" \
         --input_dir=${new_dir} \
         --dump_dir=${dump_dir} \
-        --pretrained_model_dir=${pretrained_model_dir}
+        --pretrained_model_dir=${pretrained_model_dir} \
+        --replace_spkid=$replace_spkid
 fi
 
 # create finetune env
@@ -102,5 +104,5 @@ if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
         --output_dir=./test_e2e/ \
         --phones_dict=${dump_dir}/phone_id_map.txt \
         --speaker_dict=${dump_dir}/speaker_id_map.txt \
-        --spk_id=0 
+        --spk_id=$replace_spkid
 fi

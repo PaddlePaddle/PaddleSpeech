@@ -28,6 +28,8 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 * [speechbrain](https://github.com/speechbrain/speechbrain/blob/develop/LICENSE)
 - Apache-2.0 License
 - ECAPA-TDNN SV model
+- ASR with CTC and pre-trained wav2vec2 models.
+
 
 * [chainer](https://github.com/chainer/chainer/blob/master/LICENSE)
 - MIT License
@@ -43,3 +45,7 @@ We borrowed a lot of code from these repos to build `model` and `engine`, thanks
 
 * [g2pW](https://github.com/GitYCC/g2pW/blob/master/LICENCE)
 - Apache-2.0 license
+
+*[transformers](https://github.com/huggingface/transformers)
+- Apache-2.0 License
+- Wav2vec2.0

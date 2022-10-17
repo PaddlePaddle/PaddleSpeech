@@ -21,14 +21,14 @@ Paddle Speech Demo 是一个以 PaddleSpeech 的语音交互功能为主体开�
 
 + 小数据微调：基于小数据集的微调方案，内置用12句话标贝中文女声微调示例，你也可以通过一键重置，录制自己的声音，注意在安静环境下录制，效果会更好。你可以在 [【Finetune your own AM based on FastSpeech2 with AISHELL-3】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/tts_finetune/tts3)中尝试使用自己的数据集进行微调。
 
-+ ENIRE-SAT：语言-语音跨模态大模型 ENIRE-SAT 可视化展示示例，支持个性化合成，跨语言语音合成（音频为中文则输入英文文本进行合成），语音编辑（修改音频文字中间的结果）功能。 ENIRE-SAT 更多实现细节，可以参考：
++ ERNIE-SAT：语言-语音跨模态大模型 ERNIE-SAT 可视化展示示例，支持个性化合成，跨语言语音合成（音频为中文则输入英文文本进行合成），语音编辑（修改音频文字中间的结果）功能。 ERNIE-SAT 更多实现细节，可以参考：
   + [【ERNIE-SAT with AISHELL-3 dataset】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/ernie_sat)
   + [【ERNIE-SAT with with AISHELL3 and VCTK datasets】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3_vctk/ernie_sat)
   + [【ERNIE-SAT with VCTK dataset】](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/ernie_sat)
 
 运行效果：
 
- ![效果](https://user-images.githubusercontent.com/30135920/192155349-9ef93d20-730b-413d-8d50-412fedf11d4b.png)
+ ![效果](https://user-images.githubusercontent.com/30135920/196076507-7eb33d39-2345-4268-aee7-6270b9ac8b98.png)
 
 
 

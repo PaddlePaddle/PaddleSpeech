@@ -16,11 +16,12 @@
 
 
 #include "decoder/ctc_prefix_beam_search_decoder.h"
+
+#include "absl/strings/str_join.h"
 #include "base/common.h"
 #include "decoder/ctc_beam_search_opt.h"
 #include "decoder/ctc_prefix_beam_search_score.h"
 #include "utils/math.h"
-#include "absl/strings/str_join.h"
 
 #ifdef USE_PROFILING
 #include "paddle/fluid/platform/profiler.h"
@@ -30,18 +31,17 @@ using paddle::platform::TracerEventType;
 
 namespace ppspeech {
 
-CTCPrefixBeamSearch::CTCPrefixBeamSearch(
-    const std::string vocab_path, 
-    const CTCBeamSearchOptions& opts)
+CTCPrefixBeamSearch::CTCPrefixBeamSearch(const std::string vocab_path,
+                                         const CTCBeamSearchOptions& opts)
     : opts_(opts) {
-        
-    unit_table_ = std::shared_ptr<fst::SymbolTable>(fst::SymbolTable::ReadText(vocab_path));
+    unit_table_ = std::shared_ptr<fst::SymbolTable>(
+        fst::SymbolTable::ReadText(vocab_path));
     CHECK(unit_table_ != nullptr);
 
     Reset();
 }
 
-void CTCPrefixBeamSearch::Reset() { 
+void CTCPrefixBeamSearch::Reset() {
     num_frame_decoded_ = 0;
 
     cur_hyps_.clear();
@@ -65,10 +65,9 @@ void CTCPrefixBeamSearch::Reset() {
     hypotheses_.emplace_back(empty);
     likelihood_.emplace_back(prefix_score.TotalScore());
     times_.emplace_back(empty);
- }
+}
 
-void CTCPrefixBeamSearch::InitDecoder() {  Reset(); }
-
+void CTCPrefixBeamSearch::InitDecoder() { Reset(); }
 
 
 void CTCPrefixBeamSearch::AdvanceDecode(
@@ -296,9 +295,7 @@ void CTCPrefixBeamSearch::UpdateOutputs(
     outputs_.emplace_back(output);
 }
 
-void CTCPrefixBeamSearch::FinalizeSearch() { 
-  UpdateFinalContext(); 
-}
+void CTCPrefixBeamSearch::FinalizeSearch() { UpdateFinalContext(); }
 
 void CTCPrefixBeamSearch::UpdateFinalContext() {
     if (context_graph_ == nullptr) return;
@@ -311,8 +308,8 @@ void CTCPrefixBeamSearch::UpdateFinalContext() {
     for (const auto& prefix : hypotheses_) {
         PrefixScore& prefix_score = cur_hyps_[prefix];
         if (prefix_score.context_score != 0) {
-             prefix_score.UpdateContext(context_graph_, prefix_score, 0,
-                                 prefix.size());
+            prefix_score.UpdateContext(
+                context_graph_, prefix_score, 0, prefix.size());
         }
     }
     std::vector<std::pair<std::vector<int>, PrefixScore>> arr(cur_hyps_.begin(),
@@ -323,48 +320,44 @@ void CTCPrefixBeamSearch::UpdateFinalContext() {
     UpdateHypotheses(arr);
 }
 
-  std::string CTCPrefixBeamSearch::GetBestPath(int index) {
+std::string CTCPrefixBeamSearch::GetBestPath(int index) {
     int n_hyps = Outputs().size();
     CHECK(n_hyps > 0);
     CHECK(index < n_hyps);
     std::vector<int> one = Outputs()[index];
     std::string sentence;
-    for (int i = 0; i < one.size(); i++){
+    for (int i = 0; i < one.size(); i++) {
         sentence += unit_table_->Find(one[i]);
     }
     return sentence;
-  }
+}
 
-  std::string  CTCPrefixBeamSearch::GetBestPath() {
-    return GetBestPath(0);
-  }
+std::string CTCPrefixBeamSearch::GetBestPath() { return GetBestPath(0); }
 
-  std::vector<std::pair<double, std::string>>  CTCPrefixBeamSearch::GetNBestPath(int n) {
-      int hyps_size = hypotheses_.size();
-      CHECK(hyps_size > 0);
+std::vector<std::pair<double, std::string>> CTCPrefixBeamSearch::GetNBestPath(
+    int n) {
+    int hyps_size = hypotheses_.size();
+    CHECK(hyps_size > 0);
 
-      int min_n = n == -1 ? hypotheses_.size() : std::min(n,  hyps_size);
+    int min_n = n == -1 ? hypotheses_.size() : std::min(n, hyps_size);
 
-      std::vector<std::pair<double, std::string>> n_best;
-      n_best.reserve(min_n);
+    std::vector<std::pair<double, std::string>> n_best;
+    n_best.reserve(min_n);
 
-      for (int i = 0; i < min_n; i++){
-        n_best.emplace_back(Likelihood()[i], GetBestPath(i) );
-      }
-      return n_best;
-  }
+    for (int i = 0; i < min_n; i++) {
+        n_best.emplace_back(Likelihood()[i], GetBestPath(i));
+    }
+    return n_best;
+}
 
-  std::vector<std::pair<double, std::string>>  CTCPrefixBeamSearch::GetNBestPath() {
+std::vector<std::pair<double, std::string>>
+CTCPrefixBeamSearch::GetNBestPath() {
     return GetNBestPath(-1);
-  }
-
-std::string CTCPrefixBeamSearch::GetFinalBestPath() {
-  return GetBestPath();
 }
 
-std::string CTCPrefixBeamSearch::GetPartialResult() {
-  return GetBestPath();
-}
+std::string CTCPrefixBeamSearch::GetFinalBestPath() { return GetBestPath(); }
+
+std::string CTCPrefixBeamSearch::GetPartialResult() { return GetBestPath(); }
 
 
 }  // namespace ppspeech

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/recognizer.h"
 #include "decoder/param.h"
+#include "decoder/recognizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/table-types.h"
 
@@ -25,8 +25,9 @@ DEFINE_int32(sample_rate, 16000, "sample rate");
 ppspeech::RecognizerResource InitRecognizerResoure() {
     ppspeech::RecognizerResource resource;
     resource.acoustic_scale = FLAGS_acoustic_scale;
-    resource.feature_pipeline_opts = ppspeech::FeaturePipelineOptions::InitFromFlags();
-    resource.model_opts =  ppspeech::ModelOptions::InitFromFlags();
+    resource.feature_pipeline_opts =
+        ppspeech::FeaturePipelineOptions::InitFromFlags();
+    resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
     resource.tlg_opts = ppspeech::TLGDecoderOptions::InitFromFlags();
     return resource;
 }

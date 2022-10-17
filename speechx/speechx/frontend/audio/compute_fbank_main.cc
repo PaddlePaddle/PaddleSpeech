@@ -16,16 +16,15 @@
 
 #include "base/flags.h"
 #include "base/log.h"
-#include "kaldi/feat/wave-reader.h"
-#include "kaldi/util/kaldi-io.h"
-#include "kaldi/util/table-types.h"
-
 #include "frontend/audio/audio_cache.h"
 #include "frontend/audio/data_cache.h"
 #include "frontend/audio/fbank.h"
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/normalizer.h"
+#include "kaldi/feat/wave-reader.h"
+#include "kaldi/util/kaldi-io.h"
+#include "kaldi/util/table-types.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
@@ -86,24 +85,27 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (sec): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    for (; !wav_reader.Done() && !wav_info_reader.Done(); wav_reader.Next(), wav_info_reader.Next()) {
+    for (; !wav_reader.Done() && !wav_info_reader.Done();
+         wav_reader.Next(), wav_info_reader.Next()) {
         const std::string& utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
 
         const std::string& utt2 = wav_info_reader.Key();
         const kaldi::WaveInfo& wave_info = wav_info_reader.Value();
 
-        CHECK(utt == utt2) << "wav reader and wav info reader using diff rspecifier!!!";
+        CHECK(utt == utt2)
+            << "wav reader and wav info reader using diff rspecifier!!!";
         LOG(INFO) << "utt: " << utt;
         LOG(INFO) << "samples: " << wave_info.SampleCount();
         LOG(INFO) << "dur: " << wave_info.Duration() << " sec";
-        CHECK(wave_info.SampFreq() == FLAGS_sample_rate) << "need " << FLAGS_sample_rate << " get " << wave_info.SampFreq();
+        CHECK(wave_info.SampFreq() == FLAGS_sample_rate)
+            << "need " << FLAGS_sample_rate << " get " << wave_info.SampFreq();
 
         // load first channel wav
         int32 this_channel = 0;
         kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
                                                     this_channel);
-    
+
         // compute feat chunk by chunk
         int tot_samples = waveform.Dim();
         int sample_offset = 0;
@@ -157,7 +159,8 @@ int main(int argc, char* argv[]) {
                 ++cur_idx;
             }
         }
-        LOG(INFO) << "feat shape: " << features.NumRows() << " , " << features.NumCols();
+        LOG(INFO) << "feat shape: " << features.NumRows() << " , "
+                  << features.NumCols();
         feat_writer.Write(utt, features);
 
         // reset frontend pipeline state

@@ -18,8 +18,8 @@ namespace ppspeech {
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
-using std::vector;
 using kaldi::Vector;
+using std::vector;
 
 Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
                      const std::shared_ptr<FrontendInterface>& frontend,
@@ -54,7 +54,6 @@ int32 Decodable::NumIndices() const { return 0; }
 // the ilable(TokenId) of wfst(TLG) insert <eps>(id = 0) in front of Nnet prob
 // id.
 int32 Decodable::TokenId2NnetId(int32 token_id) { return token_id - 1; }
-
 
 
 bool Decodable::EnsureFrameHaveComputed(int32 frame) {
@@ -92,14 +91,15 @@ bool Decodable::AdvanceChunk() {
     return true;
 }
 
-bool Decodable::AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs, int* vocab_dim) {
+bool Decodable::AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
+                             int* vocab_dim) {
     if (AdvanceChunk() == false) {
         return false;
     }
 
     int nrows = nnet_out_cache_.NumRows();
-    CHECK(nrows ==  (frames_ready_ - frame_offset_));
-    if (nrows <= 0){
+    CHECK(nrows == (frames_ready_ - frame_offset_));
+    if (nrows <= 0) {
         LOG(WARNING) << "No new nnet out in cache.";
         return false;
     }
@@ -107,7 +107,7 @@ bool Decodable::AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs, int* voc
     logprobs->Resize(nnet_out_cache_.NumRows() * nnet_out_cache_.NumCols());
     logprobs->CopyRowsFromMat(nnet_out_cache_);
 
-    *vocab_dim =  nnet_out_cache_.NumCols();
+    *vocab_dim = nnet_out_cache_.NumCols();
     return true;
 }
 
@@ -140,7 +140,7 @@ BaseFloat Decodable::LogLikelihood(int32 frame, int32 index) {
     BaseFloat logprob = 0.0;
     int32 frame_idx = frame - frame_offset_;
     BaseFloat nnet_out = nnet_out_cache_(frame_idx, TokenId2NnetId(index));
-    if (nnet_->IsLogProb()){
+    if (nnet_->IsLogProb()) {
         logprob = nnet_out;
     } else {
         logprob = std::log(nnet_out + std::numeric_limits<float>::epsilon());
@@ -158,8 +158,8 @@ void Decodable::Reset() {
 }
 
 void Decodable::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
-                          float reverse_weight,
-                          std::vector<float>* rescoring_score){
+                                   float reverse_weight,
+                                   std::vector<float>* rescoring_score) {
     nnet_->AttentionRescoring(hyps, reverse_weight, rescoring_score);
 }
 

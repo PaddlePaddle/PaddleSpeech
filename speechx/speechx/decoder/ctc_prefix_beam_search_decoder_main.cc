@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/strings/str_split.h"
 #include "base/common.h"
 #include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "frontend/audio/data_cache.h"
+#include "fst/symbol-table.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/u2_nnet.h"
-#include "absl/strings/str_split.h"
-#include "fst/symbol-table.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
@@ -64,8 +64,7 @@ int main(int argc, char* argv[]) {
     // nnet
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
-    std::shared_ptr<ppspeech::U2Nnet> nnet(
-        new ppspeech::U2Nnet(model_opts));
+    std::shared_ptr<ppspeech::U2Nnet> nnet(new ppspeech::U2Nnet(model_opts));
 
     // decodeable
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
@@ -114,9 +113,9 @@ int main(int argc, char* argv[]) {
                     ori_feature_len - chunk_idx * chunk_stride, chunk_size);
             }
             if (this_chunk_size < receptive_field_length) {
-                LOG(WARNING) << "utt: " << utt << " skip last "
-                             << this_chunk_size << " frames, expect is "
-                             << receptive_field_length;
+                LOG(WARNING)
+                    << "utt: " << utt << " skip last " << this_chunk_size
+                    << " frames, expect is " << receptive_field_length;
                 break;
             }
 
@@ -127,7 +126,7 @@ int main(int argc, char* argv[]) {
             for (int row_id = 0; row_id < this_chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> feat_row(feature, start);
                 kaldi::SubVector<kaldi::BaseFloat> feature_chunk_row(
-                    feature_chunk.Data() + row_id * feat_dim,  feat_dim);
+                    feature_chunk.Data() + row_id * feat_dim, feat_dim);
 
                 feature_chunk_row.CopyFromVec(feat_row);
                 ++start;
@@ -151,7 +150,7 @@ int main(int argc, char* argv[]) {
 
         // get 1-best result
         std::string result = decoder.GetFinalBestPath();
-  
+
         // after process one utt, then reset state.
         decodable->Reset();
         decoder.Reset();

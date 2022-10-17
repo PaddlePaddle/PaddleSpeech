@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/u2_recognizer.h"
 #include "decoder/param.h"
+#include "decoder/u2_recognizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/table-types.h"
 
@@ -43,7 +43,8 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    ppspeech::U2RecognizerResource resource = ppspeech::U2RecognizerResource::InitFromFlags();
+    ppspeech::U2RecognizerResource resource =
+        ppspeech::U2RecognizerResource::InitFromFlags();
     ppspeech::U2Recognizer recognizer(resource);
 
     kaldi::Timer timer;
@@ -103,7 +104,7 @@ int main(int argc, char* argv[]) {
     }
 
     double elapsed = timer.Elapsed();
-  
+
     LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
     LOG(INFO) << "cost:" << elapsed << " sec";
     LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";

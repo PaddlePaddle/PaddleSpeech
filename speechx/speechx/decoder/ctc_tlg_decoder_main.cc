@@ -15,14 +15,12 @@
 // todo refactor, repalce with gtest
 
 #include "base/common.h"
-
+#include "decoder/ctc_tlg_decoder.h"
+#include "decoder/param.h"
 #include "frontend/audio/data_cache.h"
+#include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/ds2_nnet.h"
-#include "decoder/param.h"
-#include "decoder/ctc_tlg_decoder.h"
-
-#include "kaldi/util/table-types.h"
 
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
@@ -47,12 +45,13 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    ppspeech::TLGDecoderOptions opts = ppspeech::TLGDecoderOptions::InitFromFlags();
+    ppspeech::TLGDecoderOptions opts =
+        ppspeech::TLGDecoderOptions::InitFromFlags();
     opts.opts.beam = 15.0;
     opts.opts.lattice_beam = 7.5;
     ppspeech::TLGDecoder decoder(opts);
 
-    ppspeech::ModelOptions model_opts =  ppspeech::ModelOptions::InitFromFlags();
+    ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
 
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
@@ -67,7 +66,7 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (frame): " << chunk_size;
     LOG(INFO) << "chunk stride (frame): " << chunk_stride;
     LOG(INFO) << "receptive field (frame): " << receptive_field_length;
-    
+
     decoder.InitDecoder();
     kaldi::Timer timer;
     for (; !feature_reader.Done(); feature_reader.Next()) {

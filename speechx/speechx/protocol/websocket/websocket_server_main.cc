@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "websocket/websocket_server.h"
 #include "decoder/param.h"
+#include "websocket/websocket_server.h"
 
 DEFINE_int32(port, 8082, "websocket listening port");
 
 ppspeech::RecognizerResource InitRecognizerResoure() {
     ppspeech::RecognizerResource resource;
     resource.acoustic_scale = FLAGS_acoustic_scale;
-    resource.feature_pipeline_opts = ppspeech::FeaturePipelineOptions::InitFromFlags();
+    resource.feature_pipeline_opts =
+        ppspeech::FeaturePipelineOptions::InitFromFlags();
     resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
-    resource.tlg_opts =  ppspeech::TLGDecoderOptions::InitFromFlags();
+    resource.tlg_opts = ppspeech::TLGDecoderOptions::InitFromFlags();
     return resource;
 }
 

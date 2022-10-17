@@ -33,9 +33,7 @@ void TLGDecoder::Reset() {
     return;
 }
 
-void TLGDecoder::InitDecoder() {
-    Reset();
-}
+void TLGDecoder::InitDecoder() { Reset(); }
 
 void TLGDecoder::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
@@ -48,7 +46,6 @@ void TLGDecoder::AdvanceDecoding(kaldi::DecodableInterface* decodable) {
     decoder_->AdvanceDecoding(decodable, 1);
     num_frame_decoded_++;
 }
-
 
 
 std::string TLGDecoder::GetPartialResult() {
@@ -93,4 +90,4 @@ std::string TLGDecoder::GetFinalBestPath() {
     return words;
 }
 
-}
+}  // namespace ppspeech

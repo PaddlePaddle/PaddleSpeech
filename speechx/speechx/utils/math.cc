@@ -16,12 +16,12 @@
 
 #include "utils/math.h"
 
-#include "base/common.h"
-
 #include <algorithm>
 #include <cmath>
 #include <queue>
 #include <utility>
+
+#include "base/common.h"
 
 
 namespace ppspeech {
@@ -89,8 +89,8 @@ void TopK(const std::vector<T>& data,
 }
 
 template void TopK<float>(const std::vector<float>& data,
-          int32_t k,
-          std::vector<float>* values,
-          std::vector<int>* indices) ;
+                          int32_t k,
+                          std::vector<float>* values,
+                          std::vector<int>* indices);
 
 }  // namespace ppspeech

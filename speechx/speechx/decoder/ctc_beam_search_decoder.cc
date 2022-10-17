@@ -13,9 +13,10 @@
 // limitations under the License.
 
 
+#include "decoder/ctc_beam_search_decoder.h"
+
 #include "base/common.h"
 #include "decoder/ctc_decoders/decoder_utils.h"
-#include "decoder/ctc_beam_search_decoder.h"
 #include "utils/file_utils.h"
 
 namespace ppspeech {
@@ -24,10 +25,7 @@ using std::vector;
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 
 CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
-    : opts_(opts),
-      init_ext_scorer_(nullptr),
-      space_id_(-1),
-      root_(nullptr) {
+    : opts_(opts), init_ext_scorer_(nullptr), space_id_(-1), root_(nullptr) {
     LOG(INFO) << "dict path: " << opts_.dict_file;
     if (!ReadFileToVector(opts_.dict_file, &vocabulary_)) {
         LOG(INFO) << "load the dict failed";
@@ -41,7 +39,7 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
             opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
     }
 
-    CHECK(opts_.blank==0);
+    CHECK(opts_.blank == 0);
 
     auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
     space_id_ = it - vocabulary_.begin();
@@ -115,7 +113,7 @@ int CTCBeamSearch::DecodeLikelihoods(const vector<vector<float>>& probs,
 }
 
 vector<std::pair<double, string>> CTCBeamSearch::GetNBestPath(int n) {
-    int beam_size = n == -1 ?  opts_.beam_size: std::min(n, opts_.beam_size);
+    int beam_size = n == -1 ? opts_.beam_size : std::min(n, opts_.beam_size);
     return get_beam_search_result(prefixes_, vocabulary_, beam_size);
 }
 

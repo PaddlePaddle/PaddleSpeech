@@ -14,17 +14,18 @@
 
 
 #include "frontend/audio/cmvn.h"
+
 #include "kaldi/feat/cmvn.h"
 #include "kaldi/util/kaldi-io.h"
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
+using kaldi::SubVector;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
-using std::vector;
-using kaldi::SubVector;
 using std::unique_ptr;
+using std::vector;
 
 
 CMVN::CMVN(std::string cmvn_file, unique_ptr<FrontendInterface> base_extractor)
@@ -57,7 +58,7 @@ bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
 // feats contain num_frames feature.
 void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
     KALDI_ASSERT(feats != NULL);
-   
+
     if (stats_.NumRows() > 2 || stats_.NumRows() < 1 ||
         feats->Dim() % dim_ != 0) {
         KALDI_ERR << "Dim mismatch: cmvn " << stats_.NumRows() << ','

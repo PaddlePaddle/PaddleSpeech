@@ -146,7 +146,6 @@ class Frontend():
                 tone_id = [line.strip().split() for line in f.readlines()]
             for tone, id in tone_id:
                 self.vocab_tones[tone] = int(id)
-        self.mix_ssml_processor.__repr__()
 
     def _init_pypinyin(self):
         large_pinyin.load()

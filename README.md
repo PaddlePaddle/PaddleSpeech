@@ -21,7 +21,7 @@
     <a href="#quick-start"> Quick Start </a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
-  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
+  | <a href="https://aistudio.baidu.com/aistudio/course/introduce/25130"> AIStudio Courses </a>
   | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 Best Demo Award Paper </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee </a>
 </h4>

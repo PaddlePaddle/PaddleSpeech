@@ -17,7 +17,6 @@
 #include "decoder/ctc_beam_search_opt.h"
 #include "decoder/ctc_prefix_beam_search_score.h"
 #include "decoder/decoder_itf.h"
-
 #include "fst/symbol-table.h"
 
 namespace ppspeech {

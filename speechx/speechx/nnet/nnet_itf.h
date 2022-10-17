@@ -48,25 +48,25 @@ struct ModelOptions {
     bool enable_fc_padding{false};
     bool enable_profile{false};
 
-    static ModelOptions InitFromFlags(){
+    static ModelOptions InitFromFlags() {
         ModelOptions opts;
         opts.subsample_rate = FLAGS_subsampling_rate;
-        LOG(INFO) << "subsampling rate: " <<  opts.subsample_rate;
+        LOG(INFO) << "subsampling rate: " << opts.subsample_rate;
         opts.model_path = FLAGS_model_path;
-        LOG(INFO) << "model path: " << opts.model_path ;
+        LOG(INFO) << "model path: " << opts.model_path;
 
         opts.param_path = FLAGS_param_path;
-        LOG(INFO) << "param path: " << opts.param_path ;
+        LOG(INFO) << "param path: " << opts.param_path;
 
         LOG(INFO) << "DS2 param: ";
         opts.cache_names = FLAGS_model_cache_names;
-        LOG(INFO) << "  cache names: " <<    opts.cache_names;
+        LOG(INFO) << "  cache names: " << opts.cache_names;
         opts.cache_shape = FLAGS_model_cache_shapes;
-        LOG(INFO) << "  cache shape: " <<  opts.cache_shape;
+        LOG(INFO) << "  cache shape: " << opts.cache_shape;
         opts.input_names = FLAGS_model_input_names;
-        LOG(INFO) << "  input names: " <<  opts.input_names;
+        LOG(INFO) << "  input names: " << opts.input_names;
         opts.output_names = FLAGS_model_output_names;
-        LOG(INFO) << "  output names: " <<  opts.output_names;
+        LOG(INFO) << "  output names: " << opts.output_names;
         return opts;
     }
 };

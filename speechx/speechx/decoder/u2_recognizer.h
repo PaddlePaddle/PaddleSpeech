@@ -21,10 +21,9 @@
 #include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "decoder/decoder_itf.h"
 #include "frontend/audio/feature_pipeline.h"
-#include "nnet/decodable.h"
-
 #include "fst/fstlib.h"
 #include "fst/symbol-table.h"
+#include "nnet/decodable.h"
 
 DECLARE_int32(nnet_decoder_chunk);
 DECLARE_int32(num_left_chunks);
@@ -63,9 +62,9 @@ struct DecodeOptions {
     // CtcEndpointConfig ctc_endpoint_opts;
     CTCBeamSearchOptions ctc_prefix_search_opts{};
 
-    static DecodeOptions InitFromFlags(){
+    static DecodeOptions InitFromFlags() {
         DecodeOptions decoder_opts;
-        decoder_opts.chunk_size=FLAGS_nnet_decoder_chunk;
+        decoder_opts.chunk_size = FLAGS_nnet_decoder_chunk;
         decoder_opts.num_left_chunks = FLAGS_num_left_chunks;
         decoder_opts.ctc_weight = FLAGS_ctc_weight;
         decoder_opts.rescoring_weight = FLAGS_rescoring_weight;
@@ -86,15 +85,16 @@ struct U2RecognizerResource {
     DecodeOptions decoder_opts{};
 
     static U2RecognizerResource InitFromFlags() {
-    U2RecognizerResource resource;
-    resource.vocab_path = FLAGS_vocab_path;
-    resource.acoustic_scale = FLAGS_acoustic_scale;
+        U2RecognizerResource resource;
+        resource.vocab_path = FLAGS_vocab_path;
+        resource.acoustic_scale = FLAGS_acoustic_scale;
 
-    resource.feature_pipeline_opts = ppspeech::FeaturePipelineOptions::InitFromFlags();
-    resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
-    resource.decoder_opts = ppspeech::DecodeOptions::InitFromFlags();
-    return resource;
-}
+        resource.feature_pipeline_opts =
+            ppspeech::FeaturePipelineOptions::InitFromFlags();
+        resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
+        resource.decoder_opts = ppspeech::DecodeOptions::InitFromFlags();
+        return resource;
+    }
 };
 
 

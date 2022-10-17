@@ -46,17 +46,17 @@ struct FeaturePipelineOptions {
     FeatureCacheOptions feature_cache_opts{};
     AssemblerOptions assembler_opts{};
 
-    static FeaturePipelineOptions InitFromFlags(){
+    static FeaturePipelineOptions InitFromFlags() {
         FeaturePipelineOptions opts;
         opts.cmvn_file = FLAGS_cmvn_file;
-        LOG(INFO) << "cmvn file: " <<  opts.cmvn_file;
+        LOG(INFO) << "cmvn file: " << opts.cmvn_file;
 
         // frame options
         kaldi::FrameExtractionOptions frame_opts;
         frame_opts.dither = 0.0;
-        LOG(INFO) << "dither: " <<  frame_opts.dither;
+        LOG(INFO) << "dither: " << frame_opts.dither;
         frame_opts.frame_shift_ms = 10;
-        LOG(INFO) << "frame shift ms: " <<  frame_opts.frame_shift_ms;
+        LOG(INFO) << "frame shift ms: " << frame_opts.frame_shift_ms;
         opts.use_fbank = FLAGS_use_fbank;
         LOG(INFO) << "feature type: " << (opts.use_fbank ? "fbank" : "linear");
         if (opts.use_fbank) {
@@ -76,15 +76,19 @@ struct FeaturePipelineOptions {
 
             opts.linear_spectrogram_opts.frame_opts = frame_opts;
         }
-        LOG(INFO) << "frame length ms: " <<  frame_opts.frame_length_ms;
+        LOG(INFO) << "frame length ms: " << frame_opts.frame_length_ms;
 
         // assembler opts
         opts.assembler_opts.subsampling_rate = FLAGS_subsampling_rate;
-        LOG(INFO) << "subsampling rate: " << opts.assembler_opts.subsampling_rate;
-        opts.assembler_opts.receptive_filed_length = FLAGS_receptive_field_length;
-        LOG(INFO) << "nnet receptive filed length: " <<  opts.assembler_opts.receptive_filed_length;
+        LOG(INFO) << "subsampling rate: "
+                  << opts.assembler_opts.subsampling_rate;
+        opts.assembler_opts.receptive_filed_length =
+            FLAGS_receptive_field_length;
+        LOG(INFO) << "nnet receptive filed length: "
+                  << opts.assembler_opts.receptive_filed_length;
         opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
-        LOG(INFO) << "nnet chunk size: " <<  opts.assembler_opts.nnet_decoder_chunk;
+        LOG(INFO) << "nnet chunk size: "
+                  << opts.assembler_opts.nnet_decoder_chunk;
         return opts;
     }
 };

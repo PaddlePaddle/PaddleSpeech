@@ -56,4 +56,4 @@ class DataCache : public FrontendInterface {
 
     DISALLOW_COPY_AND_ASSIGN(DataCache);
 };
-}
+}  // namespace ppspeech

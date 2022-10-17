@@ -13,6 +13,7 @@
 // limitations under the License.
 #pragma once
 #include <numeric>
+
 #include "base/common.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "nnet/nnet_itf.h"

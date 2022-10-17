@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "base/common.h"
-
 #include "boost/asio/connect.hpp"
 #include "boost/asio/ip/tcp.hpp"
 #include "boost/beast/core.hpp"
@@ -54,4 +53,4 @@ class WebSocketClient {
     websocket::stream<tcp::socket> ws_{ioc_};
     std::unique_ptr<std::thread> t_{nullptr};
 };
-}
+}  // namespace ppspeech

@@ -32,15 +32,15 @@ struct RecognizerResource {
     ModelOptions model_opts{};
     TLGDecoderOptions tlg_opts{};
     //    CTCBeamSearchOptions beam_search_opts;
- 
-    static RecognizerResource InitFromFlags(){
+
+    static RecognizerResource InitFromFlags() {
         RecognizerResource resource;
         resource.acoustic_scale = FLAGS_acoustic_scale;
-        resource.feature_pipeline_opts = FeaturePipelineOptions::InitFromFlags();
+        resource.feature_pipeline_opts =
+            FeaturePipelineOptions::InitFromFlags();
         resource.model_opts = ModelOptions::InitFromFlags();
-        resource.tlg_opts =  TLGDecoderOptions::InitFromFlags();
-      return resource;
-
+        resource.tlg_opts = TLGDecoderOptions::InitFromFlags();
+        return resource;
     }
 };
 

@@ -15,12 +15,10 @@
 #pragma once
 
 #include "base/common.h"
-
 #include "boost/asio/connect.hpp"
 #include "boost/asio/ip/tcp.hpp"
 #include "boost/beast/core.hpp"
 #include "boost/beast/websocket.hpp"
-
 #include "decoder/recognizer.h"
 #include "frontend/audio/feature_pipeline.h"
 

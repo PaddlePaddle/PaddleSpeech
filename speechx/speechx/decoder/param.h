@@ -30,7 +30,7 @@ DEFINE_int32(receptive_field_length,
              7,
              "receptive field of two CNN(kernel=3) downsampling module.");
 DEFINE_int32(subsampling_rate,
-             4, 
+             4,
              "two CNN(kernel=3) module downsampling rate.");
 DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 
@@ -60,7 +60,6 @@ DEFINE_string(word_symbol_table, "words.txt", "word symbol table");
 DEFINE_int32(max_active, 7500, "max active");
 DEFINE_double(beam, 15.0, "decoder beam");
 DEFINE_double(lattice_beam, 7.5, "decoder beam");
-
 
 
 // DecodeOptions flags

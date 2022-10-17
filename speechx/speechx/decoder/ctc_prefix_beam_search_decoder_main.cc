@@ -30,7 +30,7 @@ DEFINE_string(model_path, "", "paddle nnet model");
 DEFINE_int32(receptive_field_length,
              7,
              "receptive field of two CNN(kernel=3) downsampling module.");
-DEFINE_int32(downsampling_rate,
+DEFINE_int32(subsampling_rate,
              4,
              "two CNN(kernel=3) module downsampling rate.");
 
@@ -81,8 +81,8 @@ int main(int argc, char* argv[]) {
 
 
     int32 chunk_size = FLAGS_receptive_field_length +
-                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
-    int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
+                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_subsampling_rate;
+    int32 chunk_stride = FLAGS_subsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;
     LOG(INFO) << "chunk stride (frame): " << chunk_stride;

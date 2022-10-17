@@ -22,35 +22,6 @@ DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
-
-ppspeech::U2RecognizerResource InitOpts() {
-    ppspeech::U2RecognizerResource resource;
-    resource.vocab_path = FLAGS_vocab_path;
-    resource.acoustic_scale = FLAGS_acoustic_scale;
-
-    resource.feature_pipeline_opts = ppspeech::InitFeaturePipelineOptions();
-    LOG(INFO) << "feature!";
-    ppspeech::ModelOptions model_opts;
-    model_opts.model_path = FLAGS_model_path;
-
-    resource.model_opts = model_opts;
-     LOG(INFO) << "model!";
-
-    ppspeech::DecodeOptions decoder_opts;
-    decoder_opts.chunk_size=16;
-    decoder_opts.num_left_chunks = -1;
-    decoder_opts.ctc_weight = 0.5;
-    decoder_opts.rescoring_weight = 1.0;
-    decoder_opts.reverse_weight = 0.3;
-    decoder_opts.ctc_prefix_search_opts.blank = 0;
-    decoder_opts.ctc_prefix_search_opts.first_beam_size = 10;
-    decoder_opts.ctc_prefix_search_opts.second_beam_size = 10;
-
-    resource.decoder_opts = decoder_opts;
-    LOG(INFO) << "decoder!";
-    return resource;
-}
-
 int main(int argc, char* argv[]) {
     gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -72,7 +43,7 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    ppspeech::U2RecognizerResource resource = InitOpts();
+    ppspeech::U2RecognizerResource resource = ppspeech::U2RecognizerResource::InitFromFlags();
     ppspeech::U2Recognizer recognizer(resource);
 
     kaldi::Timer timer;

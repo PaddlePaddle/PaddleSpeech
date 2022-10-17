@@ -26,15 +26,25 @@
 #include "fst/fstlib.h"
 #include "fst/symbol-table.h"
 
-namespace ppspeech {
+DECLARE_int32(nnet_decoder_chunk);
+DECLARE_int32(num_left_chunks);
+DECLARE_double(ctc_weight);
+DECLARE_double(rescoring_weight);
+DECLARE_double(reverse_weight);
+DECLARE_int32(nbest);
+DECLARE_int32(blank);
 
+DECLARE_double(acoustic_scale);
+DECLARE_string(vocab_path);
+
+namespace ppspeech {
 
 struct DecodeOptions {
     // chunk_size is the frame number of one chunk after subsampling.
     // e.g. if subsample rate is 4 and chunk_size = 16, the frames in
     // one chunk are 67=16*4 + 3, stride is 64=16*4
-    int chunk_size;
-    int num_left_chunks;
+    int chunk_size{16};
+    int num_left_chunks{-1};
 
     // final_score = rescoring_weight * rescoring_score + ctc_weight *
     // ctc_score;
@@ -46,50 +56,26 @@ struct DecodeOptions {
     // it's a sum(prefix) score + context score For CtcWfstBeamSerch, it's a
     // max(viterbi) path score + context score So we should carefully set
     // ctc_weight accroding to the search methods.
-    float ctc_weight;
-    float rescoring_weight;
-    float reverse_weight;
+    float ctc_weight{0.0};
+    float rescoring_weight{1.0};
+    float reverse_weight{0.0};
 
     // CtcEndpointConfig ctc_endpoint_opts;
-    CTCBeamSearchOptions ctc_prefix_search_opts;
+    CTCBeamSearchOptions ctc_prefix_search_opts{};
 
-    DecodeOptions()
-        : chunk_size(16),
-          num_left_chunks(-1),
-          ctc_weight(0.5),
-          rescoring_weight(1.0),
-          reverse_weight(0.0) {}
-
-    void Register(kaldi::OptionsItf* opts) {
-        std::string module = "DecoderConfig: ";
-        opts->Register(
-            "chunk-size",
-            &chunk_size,
-            module + "the frame number of one chunk after subsampling.");
-        opts->Register("num-left-chunks",
-                       &num_left_chunks,
-                       module + "the left history chunks number.");
-        opts->Register("ctc-weight",
-                       &ctc_weight,
-                       module +
-                           "ctc weight for rescore. final_score = "
-                           "rescoring_weight * rescoring_score + ctc_weight * "
-                           "ctc_score.");
-        opts->Register("rescoring-weight",
-                       &rescoring_weight,
-                       module +
-                           "attention score weight for rescore. final_score = "
-                           "rescoring_weight * rescoring_score + ctc_weight * "
-                           "ctc_score.");
-        opts->Register("reverse-weight",
-                       &reverse_weight,
-                       module +
-                           "reverse decoder weight. rescoring_score = "
-                           "left_to_right_score * (1 - reverse_weight) + "
-                           "right_to_left_score * reverse_weight.");
+    static DecodeOptions InitFromFlags(){
+        DecodeOptions decoder_opts;
+        decoder_opts.chunk_size=FLAGS_nnet_decoder_chunk;
+        decoder_opts.num_left_chunks = FLAGS_num_left_chunks;
+        decoder_opts.ctc_weight = FLAGS_ctc_weight;
+        decoder_opts.rescoring_weight = FLAGS_rescoring_weight;
+        decoder_opts.reverse_weight = FLAGS_reverse_weight;
+        decoder_opts.ctc_prefix_search_opts.blank = FLAGS_blank;
+        decoder_opts.ctc_prefix_search_opts.first_beam_size = FLAGS_nbest;
+        decoder_opts.ctc_prefix_search_opts.second_beam_size = FLAGS_nbest;
+        return decoder_opts;
     }
 };
-
 
 struct U2RecognizerResource {
     kaldi::BaseFloat acoustic_scale{1.0};
@@ -98,7 +84,17 @@ struct U2RecognizerResource {
     FeaturePipelineOptions feature_pipeline_opts{};
     ModelOptions model_opts{};
     DecodeOptions decoder_opts{};
-    //    CTCBeamSearchOptions beam_search_opts;
+
+    static U2RecognizerResource InitFromFlags() {
+    U2RecognizerResource resource;
+    resource.vocab_path = FLAGS_vocab_path;
+    resource.acoustic_scale = FLAGS_acoustic_scale;
+
+    resource.feature_pipeline_opts = ppspeech::FeaturePipelineOptions::InitFromFlags();
+    resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
+    resource.decoder_opts = ppspeech::DecodeOptions::InitFromFlags();
+    return resource;
+}
 };
 
 

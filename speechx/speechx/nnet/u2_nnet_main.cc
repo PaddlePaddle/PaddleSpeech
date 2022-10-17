@@ -12,27 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "nnet/u2_nnet.h"
+
 #include "base/common.h"
 #include "frontend/audio/assembler.h"
 #include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
+#include "decoder/param.h"
+#include "nnet/u2_nnet.h"
+
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");
 DEFINE_string(nnet_encoder_outs_wspecifier, "", "nnet encoder outs wspecifier");
-
-DEFINE_string(model_path, "", "paddle nnet model");
-
-DEFINE_int32(nnet_decoder_chunk, 16, "nnet forward chunk");
-DEFINE_int32(receptive_field_length,
-             7,
-             "receptive field of two CNN(kernel=3) downsampling module.");
-DEFINE_int32(downsampling_rate,
-             4,
-             "two CNN(kernel=3) module downsampling rate.");
-DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
@@ -58,13 +50,12 @@ int main(int argc, char* argv[]) {
     kaldi::BaseFloatMatrixWriter nnet_out_writer(FLAGS_nnet_prob_wspecifier);
     kaldi::BaseFloatMatrixWriter nnet_encoder_outs_writer(FLAGS_nnet_encoder_outs_wspecifier);
 
-    ppspeech::ModelOptions model_opts;
-    model_opts.model_path = FLAGS_model_path;
+    ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
 
     int32 chunk_size =
-        (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate +
+        (FLAGS_nnet_decoder_chunk - 1) * FLAGS_subsampling_rate +
         FLAGS_receptive_field_length;
-    int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
+    int32 chunk_stride = FLAGS_subsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;
     LOG(INFO) << "chunk stride (frame): " << chunk_stride;

@@ -31,7 +31,7 @@ DEFINE_string(lm_path, "", "language model");
 DEFINE_int32(receptive_field_length,
              7,
              "receptive field of two CNN(kernel=3) downsampling module.");
-DEFINE_int32(downsampling_rate,
+DEFINE_int32(subsampling_rate,
              4,
              "two CNN(kernel=3) module downsampling rate.");
 DEFINE_string(
@@ -81,13 +81,8 @@ int main(int argc, char* argv[]) {
     opts.lm_path = lm_path;
     ppspeech::CTCBeamSearch decoder(opts);
 
-    ppspeech::ModelOptions model_opts;
-    model_opts.model_path = model_path;
-    model_opts.param_path = model_params;
-    model_opts.cache_names = FLAGS_model_cache_names;
-    model_opts.cache_shape = FLAGS_model_cache_shapes;
-    model_opts.input_names = FLAGS_model_input_names;
-    model_opts.output_names = FLAGS_model_output_names;
+    ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
+
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
@@ -95,8 +90,8 @@ int main(int argc, char* argv[]) {
         new ppspeech::Decodable(nnet, raw_data));
 
     int32 chunk_size = FLAGS_receptive_field_length +
-                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
-    int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
+                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_subsampling_rate;
+    int32 chunk_stride = FLAGS_subsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;
     LOG(INFO) << "chunk stride (frame): " << chunk_stride;

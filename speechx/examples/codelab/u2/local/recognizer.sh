@@ -16,7 +16,7 @@ u2_recognizer_main \
     --model_path=$model_dir/export.jit \
     --nnet_decoder_chunk=16 \
     --receptive_field_length=7 \
-    --downsampling_rate=4 \
+    --subsampling_rate=4 \
     --vocab_path=$model_dir/unit.txt \
     --wav_rspecifier=scp:$data/wav.scp \
     --result_wspecifier=ark,t:$exp/result.ark

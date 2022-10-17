@@ -17,7 +17,6 @@
 #include "base/common.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 
-
 #include "nnet/nnet_itf.h"
 #include "paddle/extension.h"
 #include "paddle/jit/all.h"

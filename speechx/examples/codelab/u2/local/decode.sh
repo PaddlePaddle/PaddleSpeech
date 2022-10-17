@@ -14,7 +14,7 @@ ctc_prefix_beam_search_decoder_main \
     --model_path=$model_dir/export.jit \
     --nnet_decoder_chunk=16 \
     --receptive_field_length=7 \
-    --downsampling_rate=4 \
+    --subsampling_rate=4 \
     --vocab_path=$model_dir/unit.txt \
     --feature_rspecifier=ark,t:$exp/fbank.ark \
     --result_wspecifier=ark,t:$exp/result.ark

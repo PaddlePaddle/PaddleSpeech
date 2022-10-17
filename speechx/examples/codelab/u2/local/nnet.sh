@@ -15,7 +15,7 @@ u2_nnet_main \
     --feature_rspecifier=ark,t:$exp/fbank.ark \
     --nnet_decoder_chunk=16 \
     --receptive_field_length=7 \
-    --downsampling_rate=4 \
+    --subsampling_rate=4 \
     --acoustic_scale=1.0 \
     --nnet_encoder_outs_wspecifier=ark,t:$exp/encoder_outs.ark \
     --nnet_prob_wspecifier=ark,t:$exp/logprobs.ark

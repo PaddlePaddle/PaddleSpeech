@@ -25,27 +25,9 @@ DEFINE_int32(sample_rate, 16000, "sample rate");
 ppspeech::RecognizerResource InitRecognizerResoure() {
     ppspeech::RecognizerResource resource;
     resource.acoustic_scale = FLAGS_acoustic_scale;
-    resource.feature_pipeline_opts = ppspeech::InitFeaturePipelineOptions();
-
-    ppspeech::ModelOptions model_opts;
-    model_opts.model_path = FLAGS_model_path;
-    model_opts.param_path = FLAGS_param_path;
-    model_opts.cache_names = FLAGS_model_cache_names;
-    model_opts.cache_shape = FLAGS_model_cache_shapes;
-    model_opts.input_names = FLAGS_model_input_names;
-    model_opts.output_names = FLAGS_model_output_names;
-    model_opts.subsample_rate = FLAGS_downsampling_rate;
-    resource.model_opts = model_opts;
-
-    ppspeech::TLGDecoderOptions decoder_opts;
-    decoder_opts.word_symbol_table = FLAGS_word_symbol_table;
-    decoder_opts.fst_path = FLAGS_graph_path;
-    decoder_opts.opts.max_active = FLAGS_max_active;
-    decoder_opts.opts.beam = FLAGS_beam;
-    decoder_opts.opts.lattice_beam = FLAGS_lattice_beam;
-
-    resource.tlg_opts = decoder_opts;
-
+    resource.feature_pipeline_opts = ppspeech::FeaturePipelineOptions::InitFromFlags();
+    resource.model_opts =  ppspeech::ModelOptions::InitFromFlags();
+    resource.tlg_opts = ppspeech::TLGDecoderOptions::InitFromFlags();
     return resource;
 }
 

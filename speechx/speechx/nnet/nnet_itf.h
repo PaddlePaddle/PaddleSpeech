@@ -20,53 +20,54 @@
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/options-itf.h"
 
+DECLARE_int32(subsampling_rate);
+DECLARE_string(model_path);
+DECLARE_string(param_path);
+DECLARE_string(model_input_names);
+DECLARE_string(model_output_names);
+DECLARE_string(model_cache_names);
+DECLARE_string(model_cache_shapes);
+
 namespace ppspeech {
 
-
 struct ModelOptions {
+    // common
+    int subsample_rate{1};
+    int thread_num{1};  // predictor thread pool size for ds2;
+    bool use_gpu{false};
     std::string model_path;
-    std::string param_path;
-    int thread_num;  // predictor thread pool size for ds2;
-    bool use_gpu;
-    bool switch_ir_optim;
-    std::string input_names;
-    std::string output_names;
-    std::string cache_names;
-    std::string cache_shape;
-    bool enable_fc_padding;
-    bool enable_profile;
-    int subsample_rate;
-    ModelOptions()
-        : model_path(""),
-          param_path(""),
-          thread_num(1),
-          use_gpu(false),
-          input_names(""),
-          output_names(""),
-          cache_names(""),
-          cache_shape(""),
-          switch_ir_optim(false),
-          enable_fc_padding(false),
-          enable_profile(false),
-          subsample_rate(0) {}
 
-    void Register(kaldi::OptionsItf* opts) {
-        opts->Register("model-path", &model_path, "model file path");
-        opts->Register("model-param", &param_path, "params model file path");
-        opts->Register("thread-num", &thread_num, "thread num");
-        opts->Register("use-gpu", &use_gpu, "if use gpu");
-        opts->Register("input-names", &input_names, "paddle input names");
-        opts->Register("output-names", &output_names, "paddle output names");
-        opts->Register("cache-names", &cache_names, "cache names");
-        opts->Register("cache-shape", &cache_shape, "cache shape");
-        opts->Register("switch-ir-optiom",
-                       &switch_ir_optim,
-                       "paddle SwitchIrOptim option");
-        opts->Register("enable-fc-padding",
-                       &enable_fc_padding,
-                       "paddle EnableFCPadding option");
-        opts->Register(
-            "enable-profile", &enable_profile, "paddle EnableProfile option");
+    std::string param_path;
+
+    // ds2 for inference
+    std::string input_names{};
+    std::string output_names{};
+    std::string cache_names{};
+    std::string cache_shape{};
+    bool switch_ir_optim{false};
+    bool enable_fc_padding{false};
+    bool enable_profile{false};
+
+    static ModelOptions InitFromFlags(){
+        ModelOptions opts;
+        opts.subsample_rate = FLAGS_subsampling_rate;
+        LOG(INFO) << "subsampling rate: " <<  opts.subsample_rate;
+        opts.model_path = FLAGS_model_path;
+        LOG(INFO) << "model path: " << opts.model_path ;
+
+        opts.param_path = FLAGS_param_path;
+        LOG(INFO) << "param path: " << opts.param_path ;
+
+        LOG(INFO) << "DS2 param: ";
+        opts.cache_names = FLAGS_model_cache_names;
+        LOG(INFO) << "  cache names: " <<    opts.cache_names;
+        opts.cache_shape = FLAGS_model_cache_shapes;
+        LOG(INFO) << "  cache shape: " <<  opts.cache_shape;
+        opts.input_names = FLAGS_model_input_names;
+        LOG(INFO) << "  input names: " <<  opts.input_names;
+        opts.output_names = FLAGS_model_output_names;
+        LOG(INFO) << "  output names: " <<  opts.output_names;
+        return opts;
     }
 };
 

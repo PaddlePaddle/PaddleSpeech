@@ -25,25 +25,70 @@
 #include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/normalizer.h"
 
-namespace ppspeech {
-struct FeaturePipelineOptions {
-    std::string cmvn_file;
-    bool to_float32;  // true, only for linear feature
-    bool use_fbank;
-    LinearSpectrogramOptions linear_spectrogram_opts;
-    kaldi::FbankOptions fbank_opts;
-    FeatureCacheOptions feature_cache_opts;
-    AssemblerOptions assembler_opts;
+// feature
+DECLARE_bool(use_fbank);
+DECLARE_int32(num_bins);
+DECLARE_string(cmvn_file);
 
-    FeaturePipelineOptions()
-        : cmvn_file(""),
-          to_float32(false),  // true, only for linear feature
-          use_fbank(true),
-          linear_spectrogram_opts(),
-          fbank_opts(),
-          feature_cache_opts(),
-          assembler_opts() {}
+// feature sliding window
+DECLARE_int32(receptive_field_length);
+DECLARE_int32(subsampling_rate);
+DECLARE_int32(nnet_decoder_chunk);
+
+namespace ppspeech {
+
+struct FeaturePipelineOptions {
+    std::string cmvn_file{};
+    bool to_float32{false};  // true, only for linear feature
+    bool use_fbank{true};
+    LinearSpectrogramOptions linear_spectrogram_opts{};
+    kaldi::FbankOptions fbank_opts{};
+    FeatureCacheOptions feature_cache_opts{};
+    AssemblerOptions assembler_opts{};
+
+    static FeaturePipelineOptions InitFromFlags(){
+        FeaturePipelineOptions opts;
+        opts.cmvn_file = FLAGS_cmvn_file;
+        LOG(INFO) << "cmvn file: " <<  opts.cmvn_file;
+
+        // frame options
+        kaldi::FrameExtractionOptions frame_opts;
+        frame_opts.dither = 0.0;
+        LOG(INFO) << "dither: " <<  frame_opts.dither;
+        frame_opts.frame_shift_ms = 10;
+        LOG(INFO) << "frame shift ms: " <<  frame_opts.frame_shift_ms;
+        opts.use_fbank = FLAGS_use_fbank;
+        LOG(INFO) << "feature type: " << (opts.use_fbank ? "fbank" : "linear");
+        if (opts.use_fbank) {
+            opts.to_float32 = false;
+            frame_opts.window_type = "povey";
+            frame_opts.frame_length_ms = 25;
+            opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
+            LOG(INFO) << "num bins: " << opts.fbank_opts.mel_opts.num_bins;
+
+            opts.fbank_opts.frame_opts = frame_opts;
+        } else {
+            opts.to_float32 = true;
+            frame_opts.remove_dc_offset = false;
+            frame_opts.frame_length_ms = 20;
+            frame_opts.window_type = "hanning";
+            frame_opts.preemph_coeff = 0.0;
+
+            opts.linear_spectrogram_opts.frame_opts = frame_opts;
+        }
+        LOG(INFO) << "frame length ms: " <<  frame_opts.frame_length_ms;
+
+        // assembler opts
+        opts.assembler_opts.subsampling_rate = FLAGS_subsampling_rate;
+        LOG(INFO) << "subsampling rate: " << opts.assembler_opts.subsampling_rate;
+        opts.assembler_opts.receptive_filed_length = FLAGS_receptive_field_length;
+        LOG(INFO) << "nnet receptive filed length: " <<  opts.assembler_opts.receptive_filed_length;
+        opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
+        LOG(INFO) << "nnet chunk size: " <<  opts.assembler_opts.nnet_decoder_chunk;
+        return opts;
+    }
 };
+
 
 class FeaturePipeline : public FrontendInterface {
   public:

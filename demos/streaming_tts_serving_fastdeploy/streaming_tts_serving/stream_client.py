@@ -74,7 +74,6 @@ if __name__ == '__main__':
     values = ["哈哈哈哈"]
 
     request_id = "0"
-    #string_sequence_id0 = str(uuid.uuid4())
 
     string_result0_list = []
 
@@ -111,7 +110,7 @@ if __name__ == '__main__':
                 status = data_item.as_numpy('status')
                 print('sub_wav = ', sub_wav, "subwav.shape = ", sub_wav.shape)
                 print('status = ', status)
-                if status[0] is True:
+                if status[0] == 1:
                     break
             recv_count += 1
 

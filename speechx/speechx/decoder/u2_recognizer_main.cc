@@ -25,13 +25,16 @@ DEFINE_int32(sample_rate, 16000, "sample rate");
 
 ppspeech::U2RecognizerResource InitOpts() {
     ppspeech::U2RecognizerResource resource;
+    resource.vocab_path = FLAGS_vocab_path;
     resource.acoustic_scale = FLAGS_acoustic_scale;
-    resource.feature_pipeline_opts = ppspeech::InitFeaturePipelineOptions();
 
+    resource.feature_pipeline_opts = ppspeech::InitFeaturePipelineOptions();
+    LOG(INFO) << "feature!";
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
 
     resource.model_opts = model_opts;
+     LOG(INFO) << "model!";
 
     ppspeech::DecodeOptions decoder_opts;
     decoder_opts.chunk_size=16;
@@ -44,6 +47,7 @@ ppspeech::U2RecognizerResource InitOpts() {
     decoder_opts.ctc_prefix_search_opts.second_beam_size = 10;
 
     resource.decoder_opts = decoder_opts;
+    LOG(INFO) << "decoder!";
     return resource;
 }
 
@@ -57,9 +61,6 @@ int main(int argc, char* argv[]) {
     int32 num_done = 0, num_err = 0;
     double tot_wav_duration = 0.0;
 
-    ppspeech::U2RecognizerResource resource = InitOpts();
-    ppspeech::U2Recognizer recognizer(resource);
-
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
     kaldi::TokenWriter result_writer(FLAGS_result_wspecifier);
@@ -71,8 +72,10 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    kaldi::Timer timer;
+    ppspeech::U2RecognizerResource resource = InitOpts();
+    ppspeech::U2Recognizer recognizer(resource);
 
+    kaldi::Timer timer;
     for (; !wav_reader.Done(); wav_reader.Next()) {
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();

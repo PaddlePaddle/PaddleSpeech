@@ -92,12 +92,13 @@ struct DecodeOptions {
 
 
 struct U2RecognizerResource {
+    kaldi::BaseFloat acoustic_scale{1.0};
+    std::string vocab_path{};
+
     FeaturePipelineOptions feature_pipeline_opts{};
     ModelOptions model_opts{};
     DecodeOptions decoder_opts{};
     //    CTCBeamSearchOptions beam_search_opts;
-    kaldi::BaseFloat acoustic_scale{1.0};
-    std::string vocab_path{};
 };
 
 

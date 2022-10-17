@@ -33,12 +33,15 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource): opts_(resource
     BaseFloat am_scale = resource.acoustic_scale;
     decodable_.reset(new Decodable(nnet, feature_pipeline_, am_scale));
 
+    CHECK(resource.vocab_path != "");
     decoder_.reset(new CTCPrefixBeamSearch(resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts));
 
     unit_table_ = decoder_->VocabTable();
     symbol_table_ = unit_table_;
 
     input_finished_ = false;
+
+    Reset();
 }
 
 void U2Recognizer::Reset() {
@@ -69,6 +72,7 @@ void U2Recognizer::Accept(const VectorBase<BaseFloat>& waves) {
 
 void U2Recognizer::Decode() { 
     decoder_->AdvanceDecode(decodable_); 
+    UpdateResult(false);
 }
 
 void U2Recognizer::Rescoring() {

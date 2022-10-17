@@ -29,7 +29,9 @@ using std::unique_ptr;
 
 CMVN::CMVN(std::string cmvn_file, unique_ptr<FrontendInterface> base_extractor)
     : var_norm_(true) {
+    CHECK(cmvn_file != "");
     base_extractor_ = std::move(base_extractor);
+
     bool binary;
     kaldi::Input ki(cmvn_file, &binary);
     stats_.Read(ki.Stream(), binary);
@@ -55,11 +57,11 @@ bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
 // feats contain num_frames feature.
 void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
     KALDI_ASSERT(feats != NULL);
-    int32 dim = stats_.NumCols() - 1;
+   
     if (stats_.NumRows() > 2 || stats_.NumRows() < 1 ||
-        feats->Dim() % dim != 0) {
-        KALDI_ERR << "Dim mismatch: cmvn " << stats_.NumRows() << 'x'
-                  << stats_.NumCols() << ", feats " << feats->Dim() << 'x';
+        feats->Dim() % dim_ != 0) {
+        KALDI_ERR << "Dim mismatch: cmvn " << stats_.NumRows() << ','
+                  << stats_.NumCols() - 1 << ", feats " << feats->Dim() << 'x';
     }
     if (stats_.NumRows() == 1 && var_norm_) {
         KALDI_ERR
@@ -67,7 +69,7 @@ void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
             << "are supplied.";
     }
 
-    double count = stats_(0, dim);
+    double count = stats_(0, dim_);
     // Do not change the threshold of 1.0 here: in the balanced-cmvn code, when
     // computing an offset and representing it as stats_, we use a count of one.
     if (count < 1.0)
@@ -77,14 +79,14 @@ void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
 
     if (!var_norm_) {
         Vector<BaseFloat> offset(feats->Dim());
-        SubVector<double> mean_stats(stats_.RowData(0), dim);
+        SubVector<double> mean_stats(stats_.RowData(0), dim_);
         Vector<double> mean_stats_apply(feats->Dim());
-        // fill the datat of mean_stats in mean_stats_appy whose dim is equal
-        // with the dim of feature.
-        // the dim of feats = dim * num_frames;
-        for (int32 idx = 0; idx < feats->Dim() / dim; ++idx) {
-            SubVector<double> stats_tmp(mean_stats_apply.Data() + dim * idx,
-                                        dim);
+        // fill the datat of mean_stats in mean_stats_appy whose dim_ is equal
+        // with the dim_ of feature.
+        // the dim_ of feats = dim_ * num_frames;
+        for (int32 idx = 0; idx < feats->Dim() / dim_; ++idx) {
+            SubVector<double> stats_tmp(mean_stats_apply.Data() + dim_ * idx,
+                                        dim_);
             stats_tmp.CopyFromVec(mean_stats);
         }
         offset.AddVec(-1.0 / count, mean_stats_apply);
@@ -94,7 +96,7 @@ void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
     // norm(0, d) = mean offset;
     // norm(1, d) = scale, e.g. x(d) <-- x(d)*norm(1, d) + norm(0, d).
     kaldi::Matrix<BaseFloat> norm(2, feats->Dim());
-    for (int32 d = 0; d < dim; d++) {
+    for (int32 d = 0; d < dim_; d++) {
         double mean, offset, scale;
         mean = stats_(0, d) / count;
         double var = (stats_(1, d) / count) - mean * mean, floor = 1.0e-20;
@@ -111,7 +113,7 @@ void CMVN::Compute(VectorBase<BaseFloat>* feats) const {
         for (int32 d_skip = d; d_skip < feats->Dim();) {
             norm(0, d_skip) = offset;
             norm(1, d_skip) = scale;
-            d_skip = d_skip + dim;
+            d_skip = d_skip + dim_;
         }
     }
     // Apply the normalization.

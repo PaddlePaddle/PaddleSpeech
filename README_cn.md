@@ -23,7 +23,7 @@
   | <a href="#快速开始"> 快速开始 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
-  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
+  | <a href="https://aistudio.baidu.com/aistudio/course/introduce/25130"> AIStudio 课程 </a>
   | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 论文 </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee 
 </h4>

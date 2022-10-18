@@ -37,18 +37,20 @@ class FastSpeech2Updater(StandardUpdater):
                  dataloader: DataLoader,
                  init_state=None,
                  use_masking: bool=False,
+                 spk_loss_scale: float=0.02,
                  use_weighted_masking: bool=False,
                  output_dir: Path=None):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         self.criterion = FastSpeech2Loss(
-            use_masking=use_masking, use_weighted_masking=use_weighted_masking)
+            use_masking=use_masking, use_weighted_masking=use_weighted_masking,)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
         logger.addHandler(self.filehandler)
         self.logger = logger
         self.msg = ""
+        self.spk_loss_scale = spk_loss_scale
 
     def update_core(self, batch):
         self.msg = "Rank: {}, ".format(dist.get_rank())
@@ -60,7 +62,7 @@ class FastSpeech2Updater(StandardUpdater):
         if spk_emb is not None:
             spk_id = None
 
-        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens = self.model(
+        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -71,7 +73,7 @@ class FastSpeech2Updater(StandardUpdater):
             spk_id=spk_id,
             spk_emb=spk_emb)
 
-        l1_loss, duration_loss, pitch_loss, energy_loss = self.criterion(
+        l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion(
             after_outs=after_outs,
             before_outs=before_outs,
             d_outs=d_outs,
@@ -82,9 +84,11 @@ class FastSpeech2Updater(StandardUpdater):
             ps=batch["pitch"],
             es=batch["energy"],
             ilens=batch["text_lengths"],
-            olens=olens)
+            olens=olens,
+            spk_logits=spk_logits,
+            spk_ids=spk_id,)
 
-        loss = l1_loss + duration_loss + pitch_loss + energy_loss
+        loss = l1_loss + duration_loss + pitch_loss + energy_loss + self.spk_loss_scale * speaker_loss
 
         optimizer = self.optimizer
         optimizer.clear_grad()
@@ -96,11 +100,16 @@ class FastSpeech2Updater(StandardUpdater):
         report("train/duration_loss", float(duration_loss))
         report("train/pitch_loss", float(pitch_loss))
         report("train/energy_loss", float(energy_loss))
+        report("train/speaker_loss", float(speaker_loss))
+        report("train/speaker_loss_0.02", float(self.spk_loss_scale * speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
         losses_dict["pitch_loss"] = float(pitch_loss)
         losses_dict["energy_loss"] = float(energy_loss)
+        losses_dict["energy_loss"] = float(energy_loss)
+        losses_dict["speaker_loss"] = float(speaker_loss)
+        losses_dict["speaker_loss_0.02"] = float(self.spk_loss_scale * speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
@@ -112,6 +121,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
                  dataloader: DataLoader,
                  use_masking: bool=False,
                  use_weighted_masking: bool=False,
+                 spk_loss_scale: float=0.02,
                  output_dir: Path=None):
         super().__init__(model, dataloader)
 
@@ -120,6 +130,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
         logger.addHandler(self.filehandler)
         self.logger = logger
         self.msg = ""
+        self.spk_loss_scale = spk_loss_scale
 
         self.criterion = FastSpeech2Loss(
             use_masking=use_masking, use_weighted_masking=use_weighted_masking)
@@ -133,7 +144,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens = self.model(
+        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
@@ -144,7 +155,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
             spk_id=spk_id,
             spk_emb=spk_emb)
 
-        l1_loss, duration_loss, pitch_loss, energy_loss = self.criterion(
+        l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion(
             after_outs=after_outs,
             before_outs=before_outs,
             d_outs=d_outs,
@@ -155,8 +166,10 @@ class FastSpeech2Evaluator(StandardEvaluator):
             ps=batch["pitch"],
             es=batch["energy"],
             ilens=batch["text_lengths"],
-            olens=olens, )
-        loss = l1_loss + duration_loss + pitch_loss + energy_loss
+            olens=olens, 
+            spk_logits=spk_logits,
+            spk_ids=spk_id,)
+        loss = l1_loss + duration_loss + pitch_loss + energy_loss + self.spk_loss_scale * speaker_loss
 
         report("eval/loss", float(loss))
         report("eval/l1_loss", float(l1_loss))

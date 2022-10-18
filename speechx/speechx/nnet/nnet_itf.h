@@ -11,8 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-
 #pragma once
 
 #include "base/basic_types.h"
@@ -105,11 +103,15 @@ class NnetInterface {
     // true, nnet output is logprob; otherwise is prob,
     virtual bool IsLogProb() = 0;
 
-    int SubsamplingRate() const { return subsampling_rate_; }
-
     // using to get encoder outs. e.g. seq2seq with Attention model.
     virtual void EncoderOuts(
         std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const = 0;
+};
+
+
+class NnetBase : public NnetInterface {
+  public:
+    int SubsamplingRate() const { return subsampling_rate_; }
 
   protected:
     int subsampling_rate_{1};

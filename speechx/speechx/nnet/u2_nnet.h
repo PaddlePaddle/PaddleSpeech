@@ -24,7 +24,7 @@
 namespace ppspeech {
 
 
-class U2NnetBase : public NnetInterface {
+class U2NnetBase : public NnetBase {
   public:
     virtual int context() const { return right_context_ + 1; }
     virtual int right_context() const { return right_context_; }
@@ -41,7 +41,7 @@ class U2NnetBase : public NnetInterface {
     // start: false, it is the start chunk of one sentence, else true
     virtual int num_frames_for_chunk(bool start) const;
 
-    virtual std::shared_ptr<NnetInterface> Copy() const = 0;
+    virtual std::shared_ptr<NnetBase> Copy() const = 0;
 
     virtual void ForwardEncoderChunk(
         const std::vector<kaldi::BaseFloat>& chunk_feats,
@@ -99,7 +99,7 @@ class U2Nnet : public U2NnetBase {
 
     std::shared_ptr<paddle::jit::Layer> model() const { return model_; }
 
-    std::shared_ptr<NnetInterface> Copy() const override;
+    std::shared_ptr<NnetBase> Copy() const override;
 
     void ForwardEncoderChunkImpl(
         const std::vector<kaldi::BaseFloat>& chunk_feats,

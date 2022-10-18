@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "decoder/param.h"
-#include "decoder/recognizer.h"
+#include "recognizer/recognizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/table-types.h"
 
@@ -22,15 +22,6 @@ DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
-ppspeech::RecognizerResource InitRecognizerResoure() {
-    ppspeech::RecognizerResource resource;
-    resource.acoustic_scale = FLAGS_acoustic_scale;
-    resource.feature_pipeline_opts =
-        ppspeech::FeaturePipelineOptions::InitFromFlags();
-    resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
-    resource.tlg_opts = ppspeech::TLGDecoderOptions::InitFromFlags();
-    return resource;
-}
 
 int main(int argc, char* argv[]) {
     gflags::SetUsageMessage("Usage:");
@@ -39,7 +30,7 @@ int main(int argc, char* argv[]) {
     google::InstallFailureSignalHandler();
     FLAGS_logtostderr = 1;
 
-    ppspeech::RecognizerResource resource = InitRecognizerResoure();
+    ppspeech::RecognizerResource resource = ppspeech::RecognizerResource::InitFromFlags();
     ppspeech::Recognizer recognizer(resource);
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(

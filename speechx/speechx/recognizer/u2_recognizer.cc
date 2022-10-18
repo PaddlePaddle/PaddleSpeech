@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/u2_recognizer.h"
+#include "recognizer/u2_recognizer.h"
 
 #include "nnet/u2_nnet.h"
 
@@ -30,7 +30,7 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
     feature_pipeline_.reset(new FeaturePipeline(feature_opts));
 
-    std::shared_ptr<NnetInterface> nnet(new U2Nnet(resource.model_opts));
+    std::shared_ptr<NnetBase> nnet(new U2Nnet(resource.model_opts));
 
     BaseFloat am_scale = resource.acoustic_scale;
     decodable_.reset(new Decodable(nnet, feature_pipeline_, am_scale));

@@ -48,7 +48,7 @@ class Tensor {
     std::vector<T> _data;
 };
 
-class PaddleNnet : public NnetInterface {
+class PaddleNnet : public NnetBase {
   public:
     PaddleNnet(const ModelOptions& opts);
 

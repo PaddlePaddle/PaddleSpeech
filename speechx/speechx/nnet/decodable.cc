@@ -21,7 +21,7 @@ using kaldi::Matrix;
 using kaldi::Vector;
 using std::vector;
 
-Decodable::Decodable(const std::shared_ptr<NnetInterface>& nnet,
+Decodable::Decodable(const std::shared_ptr<NnetBase>& nnet,
                      const std::shared_ptr<FrontendInterface>& frontend,
                      kaldi::BaseFloat acoustic_scale)
     : frontend_(frontend),

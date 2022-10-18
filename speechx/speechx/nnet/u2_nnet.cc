@@ -193,7 +193,7 @@ U2Nnet::U2Nnet(const U2Nnet& other) {
     // ignore inner states
 }
 
-std::shared_ptr<NnetInterface> U2Nnet::Copy() const {
+std::shared_ptr<NnetBase> U2Nnet::Copy() const {
     auto asr_model = std::make_shared<U2Nnet>(*this);
     // reset inner state for new decoding
     asr_model->Reset();

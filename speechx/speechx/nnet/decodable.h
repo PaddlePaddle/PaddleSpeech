@@ -24,7 +24,7 @@ struct DecodableOpts;
 
 class Decodable : public kaldi::DecodableInterface {
   public:
-    explicit Decodable(const std::shared_ptr<NnetInterface>& nnet,
+    explicit Decodable(const std::shared_ptr<NnetBase>& nnet,
                        const std::shared_ptr<FrontendInterface>& frontend,
                        kaldi::BaseFloat acoustic_scale = 1.0);
 
@@ -63,14 +63,14 @@ class Decodable : public kaldi::DecodableInterface {
 
     int32 TokenId2NnetId(int32 token_id);
 
-    std::shared_ptr<NnetInterface> Nnet() { return nnet_; }
+    std::shared_ptr<NnetBase> Nnet() { return nnet_; }
 
     // for offline test
     void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
 
   private:
     std::shared_ptr<FrontendInterface> frontend_;
-    std::shared_ptr<NnetInterface> nnet_;
+    std::shared_ptr<NnetBase> nnet_;
 
     // nnet outputs' cache
     kaldi::Matrix<kaldi::BaseFloat> nnet_out_cache_;

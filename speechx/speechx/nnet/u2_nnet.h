@@ -28,28 +28,20 @@ namespace ppspeech {
 
 class U2NnetBase : public NnetBase {
   public:
-    virtual int context() const { return right_context_ + 1; }
-    virtual int right_context() const { return right_context_; }
+    virtual int Context() const { return right_context_ + 1; }
+    virtual int RightContext() const { return right_context_; }
 
-    virtual int eos() const { return eos_; }
-    virtual int sos() const { return sos_; }
-    virtual int is_bidecoder() const { return is_bidecoder_; }
+    virtual int EOS() const { return eos_; }
+    virtual int SOS() const { return sos_; }
+    virtual int IsBidecoder() const { return is_bidecoder_; }
     // current offset in decoder frame
-    virtual int offset() const { return offset_; }
-    virtual void set_chunk_size(int chunk_size) { chunk_size_ = chunk_size; }
-    virtual void set_num_left_chunks(int num_left_chunks) {
+    virtual int Offset() const { return offset_; }
+    virtual void SetChunkSize(int chunk_size) { chunk_size_ = chunk_size; }
+    virtual void SetNumLeftChunks(int num_left_chunks) {
         num_left_chunks_ = num_left_chunks;
     }
-    // start: false, it is the start chunk of one sentence, else true
-    virtual int num_frames_for_chunk(bool start) const;
 
     virtual std::shared_ptr<NnetBase> Copy() const = 0;
-
-    virtual void ForwardEncoderChunk(
-        const std::vector<kaldi::BaseFloat>& chunk_feats,
-        const int32& feat_dim,
-        std::vector<kaldi::BaseFloat>* ctc_probs,
-        int32* vocab_dim);
 
   protected:
     virtual void ForwardEncoderChunkImpl(
@@ -57,9 +49,6 @@ class U2NnetBase : public NnetBase {
         const int32& feat_dim,
         std::vector<kaldi::BaseFloat>* ctc_probs,
         int32* vocab_dim) = 0;
-
-    virtual void CacheFeature(const std::vector<kaldi::BaseFloat>& chunk_feats,
-                              int32 feat_dim);
 
   protected:
     // model specification

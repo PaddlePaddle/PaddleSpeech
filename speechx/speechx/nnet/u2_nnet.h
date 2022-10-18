@@ -1,3 +1,4 @@
+// Copyright 2022 Horizon Robotics. All Rights Reserved.
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// modified from https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/asr_model.h
 #pragma once
 
 #include "base/common.h"

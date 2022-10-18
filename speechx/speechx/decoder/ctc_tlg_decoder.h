@@ -54,7 +54,7 @@ struct TLGDecoderOptions {
     }
 };
 
-class TLGDecoder : public DecoderInterface {
+class TLGDecoder : public DecoderBase {
   public:
     explicit TLGDecoder(TLGDecoderOptions opts);
     ~TLGDecoder() = default;

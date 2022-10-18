@@ -51,7 +51,10 @@ class DecoderInterface {
     virtual std::vector<std::pair<double, std::string>> GetNBestPath() = 0;
 
     virtual std::vector<std::pair<double, std::string>> GetNBestPath(int n) = 0;
+};
 
+class DecoderBase : public DecoderInterface {
+  protected:
     // start from one
     int NumFrameDecoded() { return num_frame_decoded_ + 1; }
 

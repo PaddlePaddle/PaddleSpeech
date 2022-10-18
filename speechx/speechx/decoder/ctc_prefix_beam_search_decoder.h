@@ -1,3 +1,4 @@
+// Copyright (c) 2020 Mobvoi Inc (Binbin Zhang)
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// modified from https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/ctc_prefix_beam_search.cc
+
 #pragma once
 
 #include "decoder/ctc_beam_search_opt.h"
@@ -21,7 +24,7 @@
 
 namespace ppspeech {
 class ContextGraph;
-class CTCPrefixBeamSearch : public DecoderInterface {
+class CTCPrefixBeamSearch : public DecoderBase {
   public:
     explicit CTCPrefixBeamSearch(const std::string vocab_path,
                                  const CTCBeamSearchOptions& opts);

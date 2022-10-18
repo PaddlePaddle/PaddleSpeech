@@ -23,7 +23,7 @@
 
 namespace ppspeech {
 
-class CTCBeamSearch : public DecoderInterface {
+class CTCBeamSearch : public DecoderBase {
   public:
     explicit CTCBeamSearch(const CTCBeamSearchOptions& opts);
     ~CTCBeamSearch() {}

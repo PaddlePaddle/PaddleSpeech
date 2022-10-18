@@ -35,10 +35,14 @@ bash tools/venv.sh
 
 2. Build `speechx` and `examples`.
 
+For now we using feature under `develop` branch of paddle, so we need install `paddlepaddle` nightly build version.
+For example: 
 ```
 source venv/bin/activate
+python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ./build.sh
 ```
+
 
 3. Go to `examples` to have a fun.
 

@@ -2,4 +2,4 @@
 
 ## Examples
 
-* `wenetspeech` - Streaming Decoding using wenetspeech u2/u2++ model. Using aishell test data for testing.    
+* `wenetspeech` - Streaming Decoding with wenetspeech u2/u2++ model. Using aishell test data for testing.    

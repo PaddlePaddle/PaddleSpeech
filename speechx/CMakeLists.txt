@@ -100,8 +100,9 @@ message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
 message(STATUS "Pybind11_INCLUDES = ${pybind11_INCLUDE_DIRS}, pybind11_LIBRARIES=${pybind11_LIBRARIES}, pybind11_DEFINITIONS=${pybind11_DEFINITIONS}")
 
 # paddle include and link option
+# -L/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/libs -L/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/fluid -l:libpaddle.so -l:libdnnl.so.2 -l:libiomp5.so
 execute_process(
-    COMMAND python -c "import paddle ; print(' '.join(paddle.sysconfig.get_link_flags()), end='')"
+    COMMAND python -c "import os; import paddle; include_dir=paddle.sysconfig.get_include(); paddle_dir=os.path.split(include_dir)[0]; libs_dir=os.path.join(paddle_dir, 'libs'); fluid_dir=os.path.join(paddle_dir, 'fluid'); out=' '.join([\"-L\" + libs_dir, \"-L\" + fluid_dir]); out += \" -l:libpaddle.so -l:libdnnl.so.2 -l:libiomp5.so\"; print(out);"
     OUTPUT_VARIABLE PADDLE_LINK_FLAGS
     RESULT_VARIABLE SUCESS)
 
@@ -109,8 +110,9 @@ message(STATUS PADDLE_LINK_FLAGS= ${PADDLE_LINK_FLAGS})
 string(STRIP ${PADDLE_LINK_FLAGS} PADDLE_LINK_FLAGS)
 
 # paddle compile option
+# -I/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/include
 execute_process(
-    COMMAND python -c "import paddle ; print(' '.join(paddle.sysconfig.get_compile_flags()), end='')"
+    COMMAND python -c "import paddle; include_dir = paddle.sysconfig.get_include(); print(f\"-I{include_dir}\");"
     OUTPUT_VARIABLE PADDLE_COMPILE_FLAGS)
 message(STATUS PADDLE_COMPILE_FLAGS= ${PADDLE_COMPILE_FLAGS})
 string(STRIP ${PADDLE_COMPILE_FLAGS} PADDLE_COMPILE_FLAGS)
@@ -119,7 +121,7 @@ string(STRIP ${PADDLE_COMPILE_FLAGS} PADDLE_COMPILE_FLAGS)
 # for LD_LIBRARY_PATH
 # set(PADDLE_LIB_DIRS /workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/fluid:/workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/libs/)
 execute_process(
-    COMMAND python -c "import paddle ; print(':'.join(paddle.sysconfig.get_lib()), end='')"
+    COMMAND python -c "import os; import paddle; include_dir=paddle.sysconfig.get_include(); paddle_dir=os.path.split(include_dir)[0]; libs_dir=os.path.join(paddle_dir, 'libs'); fluid_dir=os.path.join(paddle_dir, 'fluid'); out=':'.join([libs_dir, fluid_dir]); print(out);"
     OUTPUT_VARIABLE PADDLE_LIB_DIRS)
 message(STATUS PADDLE_LIB_DIRS= ${PADDLE_LIB_DIRS})
 

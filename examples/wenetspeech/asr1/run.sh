@@ -3,10 +3,10 @@
 . path.sh || exit 1;
 set -e
 
-gpus=0,1,2,3,4,5,6,7
-stage=0
+gpus=1
+stage=3
 stop_stage=100
-conf_path=conf/conformer.yaml
+conf_path=conf/bitransformer_decoder_conformer.yaml
 ips=  #xxx.xxx.xxx.xxx,xxx.xxx.xxx.xxx
 decode_conf_path=conf/tuning/decode.yaml
 average_checkpoint=true

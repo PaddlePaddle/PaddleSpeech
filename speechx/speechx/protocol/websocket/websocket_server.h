@@ -19,8 +19,8 @@
 #include "boost/asio/ip/tcp.hpp"
 #include "boost/beast/core.hpp"
 #include "boost/beast/websocket.hpp"
-#include "recognizer/recognizer.h"
 #include "frontend/audio/feature_pipeline.h"
+#include "recognizer/recognizer.h"
 
 namespace beast = boost::beast;          // from <boost/beast.hpp>
 namespace http = beast::http;            // from <boost/beast/http.hpp>

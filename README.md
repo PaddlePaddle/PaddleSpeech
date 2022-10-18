@@ -179,7 +179,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - Scan the QR code below with your Wechat, you can access to official technical exchange group and get the bonus ( more than 20GB learning materials, such as papers, codes and videos ) and the live link of the lessons. Look forward to your participation.
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
 </div>
 
 ## Installation

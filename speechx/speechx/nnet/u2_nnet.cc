@@ -153,6 +153,7 @@ void U2Nnet::Reset() {
         std::move(paddle::zeros({0, 0, 0, 0}, paddle::DataType::FLOAT32));
 
     encoder_outs_.clear();
+    VLOG(1) << "u2nnet reset";
 }
 
 // Debug API

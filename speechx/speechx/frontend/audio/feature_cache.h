@@ -51,11 +51,12 @@ class FeatureCache : public FrontendInterface {
 
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
 
-    virtual void Reset() {
+    void Reset() override {
+        std::queue<kaldi::Vector<BaseFloat>> empty;
+        std::swap(cache_, empty);
+        nframe_ = 0;
         base_extractor_->Reset();
-        while (!cache_.empty()) {
-            cache_.pop();
-        }
+        VLOG(1) << "feature cache reset: cache size: " << cache_.size();
     }
 
   private:
@@ -74,6 +75,7 @@ class FeatureCache : public FrontendInterface {
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
 
+    int32 nframe_; // num of feature computed
     DISALLOW_COPY_AND_ASSIGN(FeatureCache);
 };
 

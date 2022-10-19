@@ -82,9 +82,13 @@ int main(int argc, char* argv[]) {
             // no overlap
             sample_offset += cur_chunk_size;
         }
+        CHECK(sample_offset == tot_samples);
+
+        // recognizer.SetFinished();
+
         // second pass decoding
         recognizer.Rescoring();
-
+    
         std::string result = recognizer.GetFinalResult();
 
         recognizer.Reset();

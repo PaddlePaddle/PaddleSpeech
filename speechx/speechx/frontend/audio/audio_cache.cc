@@ -83,6 +83,10 @@ bool AudioCache::Read(Vector<BaseFloat>* waves) {
     }
     size_ -= chunk_size;
     offset_ = (offset_ + chunk_size) % ring_buffer_.size();
+
+    nsamples_ += chunk_size;
+    VLOG(1) << "nsamples readed: " <<  nsamples_;
+    
     ready_feed_condition_.notify_one();
     return true;
 }

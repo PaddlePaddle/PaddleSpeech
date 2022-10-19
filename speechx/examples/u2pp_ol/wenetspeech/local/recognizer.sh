@@ -6,10 +6,13 @@ set -e
 data=data
 exp=exp
 nj=20
+
+
 mkdir -p $exp
 ckpt_dir=./data/model
 model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model/
 aishell_wav_scp=aishell_test.scp
+text=$data/test/text
 
 ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
@@ -27,8 +30,8 @@ u2_recognizer_main \
     --result_wspecifier=ark,t:$data/split${nj}/JOB/result_recognizer.ark
 
 
-cat $data/split${nj}/*/result_recognizer.ark > $exp/${label_file}_recognizer
-utils/compute-wer.py --char=1 --v=1 $text $exp/${label_file}_recognizer > $exp/${wer}.recognizer
+cat $data/split${nj}/*/result_recognizer.ark > $exp/aishell_recognizer
+utils/compute-wer.py --char=1 --v=1 $text $exp/aishell_recognizer > $exp/aishell.recognizer.err
 echo "recognizer test have finished!!!"
-echo "please checkout in ${exp}/${wer}.recognizer"
-tail -n 7 $exp/${wer}.recognizer
+echo "please checkout in $exp/aishell.recognizer.err"
+tail -n 7 $exp/aishell.recognizer.err

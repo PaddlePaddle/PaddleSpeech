@@ -18,6 +18,8 @@
 ./run.sh --stage 3 --stop-stage 3
 ```
 ## Pretrained Model
-The pretrained model can be downloaded below, and you should put it into `exp/YOUREXP/checkpoints` folder:
+The pretrained model can be downloaded here:
 
 [snapshot_iter_2600.pdz](https://paddlespeech.bj.bcebos.com/Rhy_Prediction/snapshot_iter_2600.pdz)
+
+And you should put it into `exp/YOUREXP/checkpoints` folder.

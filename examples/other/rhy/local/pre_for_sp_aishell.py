@@ -26,7 +26,8 @@ def pre_and_write(data, file):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train a Rhy prediction model.")
+    parser = argparse.ArgumentParser(
+        description="Train a Rhy prediction model.")
     parser.add_argument("--data", type=str, default="label_train-set.txt")
     parser.add_argument(
         "--processed_path", type=str, default="../data/rhy_predict")

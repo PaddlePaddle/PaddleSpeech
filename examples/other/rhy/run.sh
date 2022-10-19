@@ -3,11 +3,11 @@ set -e
 source path.sh
 
 gpus=1
-stage=3
-stop_stage=3
+stage=0
+stop_stage=0
 
 aishell_data=label_train-set.txt
-biaobei_data=000001-010000.txt
+csmsc_data=000001-010000.txt
 processed_path=data/rhy_predict
 
 conf_path=conf/default.yaml
@@ -22,7 +22,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
-    ./local/data.sh ${aishell_data} ${biaobei_data} ${processed_path}
+    ./local/data.sh ${aishell_data} ${csmsc_data} ${processed_path}
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then

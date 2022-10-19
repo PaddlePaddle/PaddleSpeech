@@ -39,7 +39,7 @@ tar zxvf asr1_chunk_conformer_u2_wenetspeech_ckpt_1.1.0.model.tar.gz
 
 ### U2++ chunk conformer
 >> BiDecoder
->> https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.0.model.tar.gz
+>> https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.3.0.model.tar.gz
 >> Make sure `reverse_weight` in config is not `0.0`
 
 ```

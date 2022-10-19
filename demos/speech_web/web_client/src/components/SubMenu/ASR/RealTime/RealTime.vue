@@ -58,9 +58,6 @@ export default {
     mounted () {
         this.wsUrl = apiURL.ASR_SOCKET_RECORD
         this.ws = new WebSocket(this.wsUrl)
-        if(this.ws.readyState === this.ws.CONNECTING){
-            this.$message.success("实时识别 Websocket 连接成功")
-        }
         var _that = this
         this.ws.addEventListener('message', function (event) {
                 var temp = JSON.parse(event.data);
@@ -78,7 +75,7 @@ export default {
             // 检查 websocket 状态
             // debugger
             if(this.ws.readyState != this.ws.OPEN){
-                this.$message.error("websocket 链接失败，请检查链接地址是否正确")
+                this.$message.error("websocket 链接失败，请检查 Websocket 后端服务是否正确开启")
                 return
             }
 

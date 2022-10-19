@@ -40,6 +40,13 @@ class GlobalCMVN(nn.Layer):
         self.register_buffer("mean", mean)
         self.register_buffer("istd", istd)
 
+    def __repr__(self):
+        return ("{name}(mean={mean}, istd={istd}, norm_var={norm_var})".format(
+            name=self.__class__.__name__,
+            mean=self.mean,
+            istd=self.istd,
+            norm_var=self.norm_var))
+
     def forward(self, x: paddle.Tensor):
         """
         Args:

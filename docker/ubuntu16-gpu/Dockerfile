@@ -62,7 +62,7 @@ RUN mkdir -p ~/.pip && echo "[global]" > ~/.pip/pip.conf && \
     echo "index-url=https://mirror.baidu.com/pypi/simple" >> ~/.pip/pip.conf && \
     echo "trusted-host=mirror.baidu.com" >> ~/.pip/pip.conf && \
     python3 -m pip install --upgrade pip && \
-    pip install paddlepaddle-gpu==2.3.1.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html && \
+    pip install paddlepaddle-gpu==2.4.0rc0.post112 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html && \
     rm -rf ~/.cache/pip
 
 RUN git clone https://github.com/PaddlePaddle/PaddleSpeech.git && cd PaddleSpeech && \

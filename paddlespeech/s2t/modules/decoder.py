@@ -140,9 +140,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         # m: (1, L, L)
         m = subsequent_mask(tgt_mask.shape[-1]).unsqueeze(0)
         # tgt_mask: (B, L, L)
-        # TODO(Hui Zhang): not support & for tensor
-        # tgt_mask = tgt_mask & m
-        tgt_mask = tgt_mask.logical_and(m)
+        tgt_mask = tgt_mask & m
 
         x, _ = self.embed(tgt)
         for layer in self.decoders:
@@ -153,9 +151,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        # TODO(Hui Zhang): reduce_sum not support bool type
-        # olens = tgt_mask.sum(1)
-        olens = tgt_mask.astype(paddle.int).sum(1)
+        olens = tgt_mask.sum(1)
         return x, paddle.to_tensor(0.0), olens
 
     def forward_one_step(
@@ -247,7 +243,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             ]
 
         # batch decoding
-        ys_mask = subsequent_mask(paddle.shape(ys)[-1]).unsqueeze(0)  # (B,L,L)
+        ys_mask = subsequent_mask(ys.shape[-1]).unsqueeze(0)  # (B,L,L)
         xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
         logp, states = self.forward_one_step(
             xs, xs_mask, ys, ys_mask, cache=batch_state)
@@ -343,7 +339,7 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
         """
         l_x, _, olens = self.left_decoder(memory, memory_mask, ys_in_pad,
                                           ys_in_lens)
-        r_x = paddle.to_tensor(0.0)
+        r_x = paddle.zeros([1])
         if reverse_weight > 0.0:
             r_x, _, olens = self.right_decoder(memory, memory_mask, r_ys_in_pad,
                                                ys_in_lens)

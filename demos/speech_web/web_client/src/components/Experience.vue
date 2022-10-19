@@ -7,7 +7,7 @@ import VPRT from './SubMenu/VPR/VPRT.vue'
 import IET from './SubMenu/IE/IET.vue'
 
 import VoiceCloneT from './SubMenu/VoiceClone/VoiceClone.vue'
-import ENIRE_SATT from './SubMenu/ENIRE_SAT/ENIRE_SAT.vue'
+import ERNIE_SATT from './SubMenu/ERNIE_SAT/ERNIE_SAT.vue'
 import FineTuneT from './SubMenu/FineTune/FineTune.vue'
 
 </script>
@@ -47,8 +47,8 @@ import FineTuneT from './SubMenu/FineTune/FineTune.vue'
             <el-tab-pane label="小数据微调" key="7">
             <FineTuneT></FineTuneT>
             </el-tab-pane>
-            <el-tab-pane label="ENIRE SAT" key="8">
-            <ENIRE_SATT></ENIRE_SATT>
+            <el-tab-pane label="ERNIE-SAT" key="8">
+            <ERNIE_SATT></ERNIE_SATT>
             </el-tab-pane>
           </el-tabs>
         </div>

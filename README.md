@@ -19,11 +19,9 @@
 <div align="center">  
 <h4>
     <a href="#quick-start"> Quick Start </a>
-  | <a href="#quick-start-server"> Quick Start Server </a>
-  | <a href="#quick-start-streaming-server"> Quick Start Streaming Server</a>
   | <a href="#documents"> Documents </a>
   | <a href="#model-list"> Models List </a>
-  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio Courses </a>
+  | <a href="https://aistudio.baidu.com/aistudio/course/introduce/25130"> AIStudio Courses </a>
   | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 Best Demo Award Paper </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee </a>
 </h4>
@@ -159,6 +157,9 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 👑 2022.10.11: Add [Wav2vec2ASR](./examples/librispeech/asr3), wav2vec2.0 fine-tuning for ASR on LibriSpeech.
+- 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and ERNIE-SAT in [PaddleSpeech Web Demo](./demos/speech_web).
+- ⚡ 2022.09.09: Add AISHELL-3 Voice Cloning [example](./examples/aishell3/vc2) with ECAPA-TDNN speaker encoder.
 - ⚡ 2022.08.25: Release TTS [finetune](./examples/other/tts_finetune/tts3) example.
 - 🔥 2022.08.22: Add ERNIE-SAT models: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat).
 - 🔥 2022.08.15: Add [g2pW](https://github.com/GitYCC/g2pW) into TTS Chinese Text Frontend.
@@ -178,17 +179,17 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - Scan the QR code below with your Wechat, you can access to official technical exchange group and get the bonus ( more than 20GB learning materials, such as papers, codes and videos ) and the live link of the lessons. Look forward to your participation.
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
 </div>
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.3.1*.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.4rc*.
 
 ### **Dependency Introduction**
 
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.3.1
++ paddlepaddle >= 2.4rc
 + python >= 3.7
 + OS support:  Linux(recommend), Windows, Mac OSX
 
@@ -196,6 +197,13 @@ PaddleSpeech depends on paddlepaddle. For installation, please refer to the offi
 
 ```bash
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
+```
+You can also specify the version of paddlepaddle or install the develop version. 
+```bash
+# install 2.3.1 version. Note, 2.3.1 is just an example, please follow the minimum dependency of paddlepaddle for your selection
+pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# install develop version
+pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```
 
 There are two quick installation methods for PaddleSpeech, one is pip installation, and the other is source code compilation (recommended).
@@ -705,10 +713,35 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   <tbody>
   <tr>
       <td>Speaker Verification</td>
-      <td>VoxCeleb12</td>
+      <td>VoxCeleb1/2</td>
       <td>ECAPA-TDNN</td>
       <td>
       <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a name="SpeakerDiarization"></a>
+
+**Speaker Diarization**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Example </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Speaker Diarization</td>
+     <td>AMI</td>
+      <td>ECAPA-TDNN + AHC / SC</td>
+      <td>
+      <a href = "./examples/ami/sd0">ecapa-tdnn-ami</a>
       </td>
     </tr>
   </tbody>
@@ -767,6 +800,7 @@ Normally, [Speech SoTA](https://paperswithcode.com/area/speech), [Audio SoTA](ht
   - [Text-to-Speech](#TextToSpeech)
   - [Audio Classification](#AudioClassification)
   - [Speaker Verification](#SpeakerVerification)
+  - [Speaker Diarization](#SpeakerDiarization)
   - [Punctuation Restoration](#PunctuationRestoration)
 - [Community](#Community)
 - [Welcome to contribute](#contribution)

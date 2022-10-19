@@ -281,15 +281,18 @@ async def VcCloneG2P(base: VcBaseText):
             if base.func == 'ge2e':
                 wavName = base.wavName
                 wavPath = os.path.join(VC_OUT_PATH, wavName)
-                vc_model.vc(
+                wavPath = vc_model.vc(
                     text=base.text, input_wav=base.wavPath, out_wav=wavPath)
             else:
                 wavName = base.wavName
                 wavPath = os.path.join(VC_OUT_PATH, wavName)
-                vc_model_tdnn.vc(
+                wavPath = vc_model_tdnn.vc(
                     text=base.text, input_wav=base.wavPath, out_wav=wavPath)
-            res = {"wavName": wavName, "wavPath": wavPath}
-            return SuccessRequest(result=res)
+            if wavPath:
+                res = {"wavName": wavName, "wavPath": wavPath}
+                return SuccessRequest(result=res)
+            else:
+                return ErrorRequest(message="克隆失败，检查克隆脚本是否有效")
         except Exception as e:
             print(e)
             return ErrorRequest(message="克隆失败，合成过程报错")

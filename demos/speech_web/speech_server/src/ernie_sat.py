@@ -1,5 +1,6 @@
 import os
 
+from .util import get_ngpu
 from .util import MAIN_ROOT
 from .util import run_cmd
 
@@ -171,6 +172,7 @@ class SAT:
                 output_name: str,
                 source_lang: str,
                 target_lang: str):
+        ngpu = get_ngpu()
         cmd = f"""
             FLAGS_allocator_strategy=naive_best_fit \
             FLAGS_fraction_of_gpu_memory_to_use=0.01 \
@@ -189,7 +191,8 @@ class SAT:
                 --voc_config={voc_config} \
                 --voc_ckpt={voc_ckpt} \
                 --voc_stat={voc_stat} \
-                --output_name={output_name}
+                --output_name={output_name} \
+                --ngpu={ngpu}
         """
 
         return cmd

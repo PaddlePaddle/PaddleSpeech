@@ -580,6 +580,7 @@ class PaddleASRConnectionHanddler:
         self.update_result()
 
         beam_size = self.ctc_decode_config.beam_size
+        reverse_weight = getattr(self.ctc_decode_config, 'reverse_weight', 0.0)
         hyps = self.searcher.get_hyps()
         if hyps is None or len(hyps) == 0:
             logger.info("No Hyps!")
@@ -602,6 +603,7 @@ class PaddleASRConnectionHanddler:
 
         hyps_pad = pad_sequence(
             hyp_list, batch_first=True, padding_value=self.model.ignore_id)
+        ori_hyps_pad = hyps_pad
         hyps_lens = paddle.to_tensor(
             [len(hyp[0]) for hyp in hyps], place=self.device,
             dtype=paddle.long)  # (beam_size,)
@@ -609,16 +611,15 @@ class PaddleASRConnectionHanddler:
                                   self.model.ignore_id)
         hyps_lens = hyps_lens + 1  # Add <sos> at begining
 
-        encoder_out = self.encoder_out.repeat(beam_size, 1, 1)
-        encoder_mask = paddle.ones(
-            (beam_size, 1, encoder_out.shape[1]), dtype=paddle.bool)
-
-        decoder_out, _, _ = self.model.decoder(
-            encoder_out, encoder_mask, hyps_pad,
-            hyps_lens)  # (beam_size, max_hyps_len, vocab_size)
         # ctc score in ln domain
-        decoder_out = paddle.nn.functional.log_softmax(decoder_out, axis=-1)
+        # (beam_size, max_hyps_len, vocab_size)
+        decoder_out, r_decoder_out = self.model.forward_attention_decoder(
+            hyps_pad, hyps_lens, self.encoder_out, reverse_weight)
+
         decoder_out = decoder_out.numpy()
+        # r_decoder_out will be 0.0, if reverse_weight is 0.0 or decoder is a
+        # conventional transformer decoder.
+        r_decoder_out = r_decoder_out.numpy()
 
         # Only use decoder score for rescoring
         best_score = -float('inf')
@@ -631,6 +632,12 @@ class PaddleASRConnectionHanddler:
 
             # last decoder output token is `eos`, for laste decoder input token.
             score += decoder_out[i][len(hyp[0])][self.model.eos]
+            if reverse_weight > 0:
+                r_score = 0.0
+                for j, w in enumerate(hyp[0]):
+                    r_score += r_decoder_out[i][len(hyp[0]) - j - 1][w]
+                r_score += r_decoder_out[i][len(hyp[0])][self.model.eos]
+                score = score * (1 - reverse_weight) + r_score * reverse_weight
             # add ctc score (which in ln domain)
             score += hyp[1] * self.ctc_decode_config.ctc_weight
 

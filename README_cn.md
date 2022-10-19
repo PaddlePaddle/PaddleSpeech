@@ -19,13 +19,11 @@
 </p>
 <div align="center">  
 <h4>
-  <a href="#安装"> 安装 </a>
+    <a href="#安装"> 安装 </a>
   | <a href="#快速开始"> 快速开始 </a>
-  | <a href="#快速使用服务"> 快速使用服务 </a>
-  | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
-  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
+  | <a href="https://aistudio.baidu.com/aistudio/course/introduce/25130"> AIStudio 课程 </a>
   | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 论文 </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee 
 </h4>
@@ -164,23 +162,11 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 
-### 近期活动
-
- ❗️重磅❗️飞桨智慧金融行业系列直播课
-✅ 覆盖智能风控、智能运维、智能营销、智能客服四大金融主流场景
-
-📆 9月6日-9月29日每周二、四19:00
-+ 智慧金融行业深入洞察
-+ 8节理论+实践精品直播课
-+ 10+真实产业场景范例教学及实践
-+ 更有免费算力+结业证书等礼品等你来拿
-扫码报名码住直播链接，与行业精英深度交流
-
-<div align="center">
-<img src="https://user-images.githubusercontent.com/30135920/188431897-a02f028f-dd13-41e8-8ff6-749468cdc850.jpg"  width = "200"  />
-</div>
-
+  
 ### 近期更新
+- 👑 2022.10.11: 新增 [Wav2vec2ASR](./examples/librispeech/asr3), 在 LibriSpeech 上针对ASR任务对wav2vec2.0 的fine-tuning.
+- 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 ERNIE-SAT 到 [PaddleSpeech 网页应用](./demos/speech_web)。
+- ⚡ 2022.09.09: 新增基于 ECAPA-TDNN 声纹模型的 AISHELL-3 Voice Cloning [示例](./examples/aishell3/vc2)。
 - ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
 - 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
 - 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。
@@ -199,13 +185,13 @@
 
  ### 🔥 加入技术交流群获取入群福利
 
- - 3 日直播课链接: 深度解读 PP-TTS、PP-ASR、PP-VPR 三项核心语音系统关键技术
+ - 3 日直播课链接: 深度解读 【一句话语音合成】【小样本语音合成】【定制化语音识别】语音交互技术
  - 20G 学习大礼包：视频课程、前沿论文与学习资料
   
 微信扫描二维码关注公众号，点击“马上报名”填写问卷加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
 </div>
 
 <a name="安装"></a>
@@ -215,7 +201,7 @@
 
 ### 相关依赖
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.3.1
++ paddlepaddle >= 2.4rc
 + python >= 3.7
 + linux(推荐), mac, windows
 
@@ -224,7 +210,13 @@ PaddleSpeech 依赖于 paddlepaddle，安装可以参考[ paddlepaddle 官网](h
 ```shell
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 ```
-
+你也可以安装指定版本的paddlepaddle，或者安装 develop 版本。
+```bash
+# 安装2.3.1版本. 注意：2.3.1只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
+pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# 安装 develop 版本
+pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
+```
 PaddleSpeech 快速安装方式有两种，一种是 pip 安装，一种是源码编译（推荐）。
 
 ### pip 安装
@@ -717,11 +709,36 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </thead>
   <tbody>
   <tr>
-      <td>Speaker Verification</td>
-      <td>VoxCeleb12</td>
+      <td>声纹识别</td>
+      <td>VoxCeleb1/2</td>
       <td>ECAPA-TDNN</td>
       <td>
       <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a name="说话人日志模型"></a>
+
+**说话人日志**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>说话人日志</td>
+      <td>AMI</td>
+      <td>ECAPA-TDNN + AHC / SC</td>
+      <td>
+      <a href = "./examples/ami/sd0">ecapa-tdnn-ami</a>
       </td>
     </tr>
   </tbody>
@@ -786,6 +803,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   - [语音合成](#语音合成模型)
   - [声音分类](#声音分类模型)
   - [声纹识别](#声纹识别模型)
+  - [说话人日志](#说话人日志模型)
   - [标点恢复](#标点恢复模型)
 - [技术交流群](#技术交流群)
 - [欢迎贡献](#欢迎贡献)

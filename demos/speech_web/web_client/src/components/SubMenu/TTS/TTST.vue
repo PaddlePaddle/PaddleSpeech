@@ -228,6 +228,10 @@ export default {
         },
         // 基于WS的流式合成
         async getTtsChunkWavWS(){
+            if(this.ws.readyState != this.ws.OPEN){
+                this.$message.error("websocket 链接失败，请检查 Websocket 后端服务是否正确开启")
+                return
+            }
             // 初始化 chunks
             chunks = []
             chunk_index = 0

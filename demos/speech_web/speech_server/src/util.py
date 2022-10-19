@@ -2,8 +2,17 @@ import os
 import random
 import subprocess
 
+import paddle
+
 NOW_FILE_PATH = os.path.dirname(__file__)
 MAIN_ROOT = os.path.realpath(os.path.join(NOW_FILE_PATH, "../../../../"))
+
+
+def get_ngpu():
+    if paddle.device.get_device() == "cpu":
+        return 0
+    else:
+        return 1
 
 
 def randName(n=5):

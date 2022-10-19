@@ -1,5 +1,6 @@
 import os
 
+from .util import get_ngpu
 from .util import MAIN_ROOT
 from .util import run_cmd
 
@@ -38,7 +39,7 @@ class FineTune:
         dump_dir = os.path.join(exp_dir, 'dump')
         output_dir = os.path.join(exp_dir, 'exp')
         lang = "zh"
-        ngpu = 1
+        ngpu = get_ngpu()
 
         cmd = f"""
             # check oov
@@ -91,7 +92,7 @@ class FineTune:
         output_dir = os.path.join(exp_dir, 'exp')
         text_path = os.path.join(exp_dir, 'sentences.txt')
         lang = "zh"
-        ngpu = 1
+        ngpu = get_ngpu()
 
         model_path = f"{output_dir}/checkpoints"
         ckpt = find_max_ckpt(model_path)
@@ -117,7 +118,8 @@ class FineTune:
                 --output_dir={out_wav_dir} \
                 --phones_dict={dump_dir}/phone_id_map.txt \
                 --speaker_dict={dump_dir}/speaker_id_map.txt \
-                --spk_id=0 
+                --spk_id=0 \
+                --ngpu={ngpu}
         """
 
         out_path = os.path.join(out_wav_dir, f"{wav_name}.wav")

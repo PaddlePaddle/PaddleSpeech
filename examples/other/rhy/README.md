@@ -22,4 +22,4 @@ The pretrained model can be downloaded here:
 
 [snapshot_iter_2600.pdz](https://paddlespeech.bj.bcebos.com/Rhy_Prediction/snapshot_iter_2600.pdz)
 
-And you should put it into `exp/ YOUR EXP /checkpoints` folder.
+And you should put it into `exp/YOUREXP/checkpoints` folder.

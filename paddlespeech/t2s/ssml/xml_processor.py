@@ -35,8 +35,8 @@ class MixTextProcessor():
             return None
 
     def get_content_split(self, mixstr):
-        ''' 文本分解，顺序加了列表中，按非xml 和 xml 分开，对应的字符串,带标点符号
-        不能去除空格，因为xml 中tag 属性带空格
+        ''' 文本分解，顺序加了列表中，按非 xml 和 xml 分开，对应的字符串,带标点符号
+        不能去除空格，因为 xml 中tag 属性带空格
         '''
         ctlist = []
         # print("Testing:",mixstr[:20])
@@ -77,17 +77,12 @@ class MixTextProcessor():
 
 class DomXml():
     def __init__(self, xmlstr):
-        print("Parse xml str:", xmlstr)
         self.tdom = parseString(xmlstr)  #Document
-        # print("tdom:",type(self.tdom)) 
         self.root = self.tdom.documentElement  #Element
-        # print("root:",type(self.root)) 
         self.rnode = self.tdom.childNodes  #NodeList
-        # print("rnode:",type(self.rnode))
-        pass
 
     def get_text(self):
-        '''返回xml 内容的所有文本内容的 列表'''
+        '''返回 xml 内容的所有文本内容的列表'''
         res = []
 
         for x1 in self.rnode:
@@ -107,7 +102,7 @@ class DomXml():
         return res
 
     def get_xmlchild_list(self):
-        '''返回xml 内容的列表， 包括所有文本内容(不带tag)'''
+        '''返回 xml 内容的列表，包括所有文本内容(不带 tag)'''
         res = []
 
         for x1 in self.rnode:
@@ -127,7 +122,7 @@ class DomXml():
         return res
 
     def get_pinyins_for_xml(self):
-        '''返回xml 内容，如果字符串 和 拼音的 list , 如 ['''
+        '''返回 xml 内容，字符串和拼音的 list '''
         res = []
 
         for x1 in self.rnode:
@@ -155,7 +150,7 @@ class DomXml():
         return res
 
     def get_all_tags(self, tag_name):
-        '''获取所有的tag 及属性值'''
+        '''获取所有的 tag 及属性值'''
         alltags = self.root.getElementsByTagName(tag_name)
         for x in alltags:
             if x.hasAttribute('pinyin'):  # pinyin

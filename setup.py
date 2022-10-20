@@ -77,7 +77,7 @@ base = [
     "pybind11",
 ]
 
-server = ["fastapi", "uvicorn<=0.18.3", "pattern_singleton", "websockets"]
+server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
 
 requirements = {
     "install":

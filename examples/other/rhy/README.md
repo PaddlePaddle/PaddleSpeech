@@ -20,6 +20,6 @@
 ## Pretrained Model
 The pretrained model can be downloaded here:
 
-[snapshot_iter_2600.pdz](https://paddlespeech.bj.bcebos.com/Rhy_Prediction/snapshot_iter_2600.pdz)
+[ernie-1.0_aishellcsmsc_ckpt_1.3.0](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/rhy_predict/ernie-1.0_aishellcsmsc_ckpt_1.3.0.zip)
 
 And you should put it into `exp/YOUREXP/checkpoints` folder.

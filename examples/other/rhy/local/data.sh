@@ -1,11 +1,11 @@
 #!/bin/bash
 
 if [ ! -f 000001-010000.txt ]; then
-    wget https://paddlespeech.bj.bcebos.com/Rhy_Prediction/000001-010000.txt
+    wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/rhy_predict/000001-010000.txt
 fi
 
 if [ ! -f label_train-set.txt ]; then
-    wget https://paddlespeech.bj.bcebos.com/Rhy_Prediction/label_train-set.txt
+    wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/rhy_predict/label_train-set.txt
 fi
 
 

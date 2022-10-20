@@ -68,32 +68,12 @@ asr_dynamic_pretrained_models = {
             '',
         },
     },
-    "conformer_u2pp_wenetspeech-zh-16k": {
-        '1.1': {
-            'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.3.model.tar.gz',
-            'md5':
-            '662b347e1d2131b7a4dc5398365e2134',
-            'cfg_path':
-            'model.yaml',
-            'ckpt_path':
-            'exp/chunk_conformer_u2pp/checkpoints/avg_10',
-            'model':
-            'exp/chunk_conformer_u2pp/checkpoints/avg_10.pdparams',
-            'params':
-            'exp/chunk_conformer_u2pp/checkpoints/avg_10.pdparams',
-            'lm_url':
-            '',
-            'lm_md5':
-            '',
-        },
-    },
     "conformer_u2pp_online_wenetspeech-zh-16k": {
-        '1.1': {
+        '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.1.4.model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.3.0.model.tar.gz',
             'md5':
-            '3100fc1eac5779486cab859366992d0b',
+            '62d230c1bf27731192aa9d3b8deca300',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

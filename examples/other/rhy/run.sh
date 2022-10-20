@@ -4,7 +4,7 @@ source path.sh
 
 gpus=1
 stage=0
-stop_stage=0
+stop_stage=100
 
 aishell_data=label_train-set.txt
 csmsc_data=000001-010000.txt

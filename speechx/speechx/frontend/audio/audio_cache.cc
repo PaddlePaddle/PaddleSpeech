@@ -13,13 +13,14 @@
 // limitations under the License.
 
 #include "frontend/audio/audio_cache.h"
+
 #include "kaldi/base/timer.h"
 
 namespace ppspeech {
 
 using kaldi::BaseFloat;
-using kaldi::VectorBase;
 using kaldi::Vector;
+using kaldi::VectorBase;
 
 AudioCache::AudioCache(int buffer_size, bool to_float32)
     : finished_(false),
@@ -85,8 +86,8 @@ bool AudioCache::Read(Vector<BaseFloat>* waves) {
     offset_ = (offset_ + chunk_size) % ring_buffer_.size();
 
     nsamples_ += chunk_size;
-    VLOG(1) << "nsamples readed: " <<  nsamples_;
-    
+    VLOG(1) << "nsamples readed: " << nsamples_;
+
     ready_feed_condition_.notify_one();
     return true;
 }

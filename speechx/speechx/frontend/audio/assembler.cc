@@ -16,9 +16,9 @@
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
 using std::unique_ptr;
 
 Assembler::Assembler(AssemblerOptions opts,
@@ -51,9 +51,11 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
         Vector<BaseFloat> feature;
         bool result = base_extractor_->Read(&feature);
         if (result == false || feature.Dim() == 0) {
-            VLOG(1) << "result: " << result << " feature dim: " << feature.Dim();
+            VLOG(1) << "result: " << result
+                    << " feature dim: " << feature.Dim();
             if (IsFinished() == false) {
-                VLOG(1) << "finished reading feature. cache size: " << feature_cache_.size();
+                VLOG(1) << "finished reading feature. cache size: "
+                        << feature_cache_.size();
                 return false;
             } else {
                 VLOG(1) << "break";
@@ -69,7 +71,8 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     }
 
     if (feature_cache_.size() < receptive_filed_length_) {
-        VLOG(1) << "feature_cache less than receptive_filed_lenght. " << feature_cache_.size() << ": " << receptive_filed_length_;
+        VLOG(1) << "feature_cache less than receptive_filed_lenght. "
+                << feature_cache_.size() << ": " << receptive_filed_length_;
         return false;
     }
 
@@ -81,7 +84,8 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
         }
     }
 
-    int32 this_chunk_size = std::min(static_cast<int32>(feature_cache_.size()), frame_chunk_size_);
+    int32 this_chunk_size =
+        std::min(static_cast<int32>(feature_cache_.size()), frame_chunk_size_);
     feats->Resize(dim_ * this_chunk_size);
     VLOG(1) << "read " << this_chunk_size << " feat.";
 
@@ -89,7 +93,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     while (counter < this_chunk_size) {
         Vector<BaseFloat>& val = feature_cache_.front();
         CHECK(val.Dim() == dim_) << val.Dim();
-      
+
         int32 start = counter * dim_;
         feats->Range(start, dim_).CopyFromVec(val);
 
@@ -99,7 +103,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
 
         // val is reference, so we should pop here
         feature_cache_.pop();
-  
+
         counter++;
     }
     CHECK(feature_cache_.size() == cache_size_);
@@ -108,11 +112,11 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
 }
 
 
- void Assembler::Reset() { 
+void Assembler::Reset() {
     std::queue<kaldi::Vector<kaldi::BaseFloat>> empty;
     std::swap(feature_cache_, empty);
     nframes_ = 0;
-    base_extractor_->Reset(); 
+    base_extractor_->Reset();
 }
 
 }  // namespace ppspeech

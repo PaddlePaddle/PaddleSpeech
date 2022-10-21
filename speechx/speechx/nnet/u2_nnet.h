@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// modified from https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/asr_model.h
+// modified from
+// https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/asr_model.h
 #pragma once
 
 #include "base/common.h"

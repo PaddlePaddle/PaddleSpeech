@@ -96,13 +96,14 @@ struct U2RecognizerResource {
         U2RecognizerResource resource;
         resource.vocab_path = FLAGS_vocab_path;
         resource.acoustic_scale = FLAGS_acoustic_scale;
-        LOG(INFO) << "vocab path: " <<  resource.vocab_path;
-        LOG(INFO) << "acoustic_scale: " <<  resource.acoustic_scale;
+        LOG(INFO) << "vocab path: " << resource.vocab_path;
+        LOG(INFO) << "acoustic_scale: " << resource.acoustic_scale;
 
         resource.feature_pipeline_opts =
             ppspeech::FeaturePipelineOptions::InitFromFlags();
         resource.feature_pipeline_opts.assembler_opts.fill_zero = false;
-        LOG(INFO) << "u2 need fill zero be false: " << resource.feature_pipeline_opts.assembler_opts.fill_zero;
+        LOG(INFO) << "u2 need fill zero be false: "
+                  << resource.feature_pipeline_opts.assembler_opts.fill_zero;
         resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
         resource.decoder_opts = ppspeech::DecodeOptions::InitFromFlags();
         return resource;

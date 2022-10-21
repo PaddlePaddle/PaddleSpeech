@@ -79,7 +79,8 @@ bool Decodable::AdvanceChunk() {
     int32& vocab_dim = out.vocab_dim;
     Vector<BaseFloat>& logprobs = out.logprobs;
 
-    VLOG(2) << "Forward out " << logprobs.Dim() / vocab_dim  << " decoder frames.";
+    VLOG(2) << "Forward out " << logprobs.Dim() / vocab_dim
+            << " decoder frames.";
     // cache nnet outupts
     nnet_out_cache_.Resize(logprobs.Dim() / vocab_dim, vocab_dim);
     nnet_out_cache_.CopyRowsFromVec(logprobs);
@@ -127,7 +128,9 @@ bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
         (*likelihood)[idx] =
             nnet_out_cache_(frame - frame_offset_, idx) * acoustic_scale_;
 
-        VLOG(4) << "nnet out: " << frame  << " offset:" << frame_offset_  << " " << nnet_out_cache_.NumRows() << " logprob: " <<  nnet_out_cache_(frame - frame_offset_, idx);
+        VLOG(4) << "nnet out: " << frame << " offset:" << frame_offset_ << " "
+                << nnet_out_cache_.NumRows()
+                << " logprob: " << nnet_out_cache_(frame - frame_offset_, idx);
     }
     return true;
 }

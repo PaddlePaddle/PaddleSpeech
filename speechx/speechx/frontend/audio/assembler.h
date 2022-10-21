@@ -25,7 +25,8 @@ struct AssemblerOptions {
     int32 receptive_filed_length{1};
     int32 subsampling_rate{1};
     int32 nnet_decoder_chunk{1};
-    bool fill_zero{false}; // whether fill zero when last chunk is not equal to frame_chunk_size_
+    bool fill_zero{false};  // whether fill zero when last chunk is not equal to
+                            // frame_chunk_size_
 };
 
 class Assembler : public FrontendInterface {
@@ -62,7 +63,7 @@ class Assembler : public FrontendInterface {
     std::queue<kaldi::Vector<kaldi::BaseFloat>> feature_cache_;
     std::unique_ptr<FrontendInterface> base_extractor_;
 
-    int32 nframes_; // num frame computed
+    int32 nframes_;  // num frame computed
     DISALLOW_COPY_AND_ASSIGN(Assembler);
 };
 

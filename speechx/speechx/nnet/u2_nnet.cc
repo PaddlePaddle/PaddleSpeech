@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// modified from https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/asr_model.cc
+// modified from
+// https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/asr_model.cc
 
 #include "nnet/u2_nnet.h"
 
@@ -129,7 +130,7 @@ U2Nnet::U2Nnet(const U2Nnet& other) {
     forward_attention_decoder_ = other.forward_attention_decoder_;
     ctc_activation_ = other.ctc_activation_;
 
-    offset_ = other.offset_; 
+    offset_ = other.offset_;
 
     // copy model ptr
     model_ = other.model_;
@@ -626,8 +627,10 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
         // combinded left-to-right and right-to-lfet score
         (*rescoring_score)[i] =
             score * (1 - reverse_weight) + r_score * reverse_weight;
-        VLOG(1) << "hyp " << i << " " << hyp.size() << " score: " << score << " r_score: " << r_score
-                << " reverse_weight: " << reverse_weight << " final score: " << (*rescoring_score)[i];
+        VLOG(1) << "hyp " << i << " " << hyp.size() << " score: " << score
+                << " r_score: " << r_score
+                << " reverse_weight: " << reverse_weight
+                << " final score: " << (*rescoring_score)[i];
     }
 }
 

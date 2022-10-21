@@ -62,7 +62,7 @@ class AudioCache : public FrontendInterface {
     kaldi::int32 timeout_;  // millisecond
     bool to_float32_;       // int16 -> float32. used in linear_spectrogram
 
-    int32 nsamples_; // number samples readed.
+    int32 nsamples_;  // number samples readed.
     DISALLOW_COPY_AND_ASSIGN(AudioCache);
 };
 

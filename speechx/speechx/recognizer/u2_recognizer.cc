@@ -190,12 +190,15 @@ void U2Recognizer::AttentionRescoring() {
     // combine ctc score and rescoring score
     for (size_t i = 0; i < num_hyps; i++) {
         VLOG(1) << "hyp " << i << " rescoring_score: " << rescoring_score[i]
-                << " ctc_score: " << result_[i].score << " rescoring_weight: " <<  opts_.decoder_opts.rescoring_weight << " ctc_weight: " <<  opts_.decoder_opts.ctc_weight;
+                << " ctc_score: " << result_[i].score
+                << " rescoring_weight: " << opts_.decoder_opts.rescoring_weight
+                << " ctc_weight: " << opts_.decoder_opts.ctc_weight;
         result_[i].score =
             opts_.decoder_opts.rescoring_weight * rescoring_score[i] +
             opts_.decoder_opts.ctc_weight * result_[i].score;
 
-        VLOG(1) << "hyp: " << result_[0].sentence << " score: " << result_[0].score;
+        VLOG(1) << "hyp: " << result_[0].sentence
+                << " score: " << result_[0].score;
     }
 
     std::sort(result_.begin(), result_.end(), DecodeResult::CompareFunc);

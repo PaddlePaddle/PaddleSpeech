@@ -78,7 +78,8 @@ int main(int argc, char* argv[]) {
                 recognizer.SetFinished();
             }
             recognizer.Decode();
-            LOG(INFO) << "Pratial result: " << cnt << " " << recognizer.GetPartialResult();
+            LOG(INFO) << "Pratial result: " << cnt << " "
+                      << recognizer.GetPartialResult();
 
             // no overlap
             sample_offset += cur_chunk_size;
@@ -88,7 +89,7 @@ int main(int argc, char* argv[]) {
 
         // second pass decoding
         recognizer.Rescoring();
-    
+
         std::string result = recognizer.GetFinalResult();
 
         recognizer.Reset();

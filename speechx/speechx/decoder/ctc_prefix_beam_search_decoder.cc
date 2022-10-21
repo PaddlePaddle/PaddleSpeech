@@ -118,11 +118,13 @@ void CTCPrefixBeamSearch::AdvanceDecoding(
         std::vector<float> topk_score;
         std::vector<int32_t> topk_index;
         TopK(logp_t, first_beam_size, &topk_score, &topk_index);
-        VLOG(2) << "topk: " << num_frame_decoded_ << " " <<  *std::max_element(logp_t.begin(), logp_t.end()) << " " << topk_score[0];
-        for (int i = 0; i < topk_score.size(); i++){
-             VLOG(2) << "topk: " << num_frame_decoded_ << " " << topk_score[i];
+        VLOG(2) << "topk: " << num_frame_decoded_ << " "
+                << *std::max_element(logp_t.begin(), logp_t.end()) << " "
+                << topk_score[0];
+        for (int i = 0; i < topk_score.size(); i++) {
+            VLOG(2) << "topk: " << num_frame_decoded_ << " " << topk_score[i];
         }
-       
+
         // 2. token passing
         for (int i = 0; i < topk_index.size(); ++i) {
             int id = topk_index[i];
@@ -303,15 +305,16 @@ void CTCPrefixBeamSearch::UpdateOutputs(
     outputs_.emplace_back(output);
 }
 
-void CTCPrefixBeamSearch::FinalizeSearch() { 
-    UpdateFinalContext(); 
-    
+void CTCPrefixBeamSearch::FinalizeSearch() {
+    UpdateFinalContext();
+
     VLOG(2) << "num_frame_decoded_: " << num_frame_decoded_;
     int cnt = 0;
-    for (int i = 0; i < hypotheses_.size(); i ++){
-        VLOG(2) << "hyp " << cnt << " len: " << hypotheses_[i].size() << " ctc score: " << likelihood_[i];
-        for (int j = 0; j < hypotheses_[i].size(); j ++){
-            VLOG(2) <<  hypotheses_[i][j];
+    for (int i = 0; i < hypotheses_.size(); i++) {
+        VLOG(2) << "hyp " << cnt << " len: " << hypotheses_[i].size()
+                << " ctc score: " << likelihood_[i];
+        for (int j = 0; j < hypotheses_[i].size(); j++) {
+            VLOG(2) << hypotheses_[i][j];
         }
     }
 }

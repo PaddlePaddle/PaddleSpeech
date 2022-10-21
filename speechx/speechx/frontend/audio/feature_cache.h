@@ -77,7 +77,7 @@ class FeatureCache : public FrontendInterface {
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;
 
-    int32 nframe_; // num of feature computed
+    int32 nframe_;  // num of feature computed
     DISALLOW_COPY_AND_ASSIGN(FeatureCache);
 };
 

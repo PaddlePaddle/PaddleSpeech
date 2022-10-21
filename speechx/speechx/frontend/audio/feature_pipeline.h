@@ -91,8 +91,7 @@ struct FeaturePipelineOptions {
                   << opts.assembler_opts.receptive_filed_length;
         LOG(INFO) << "nnet chunk size: "
                   << opts.assembler_opts.nnet_decoder_chunk;
-        LOG(INFO) << "frontend fill zeros: "
-                  << opts.assembler_opts.fill_zero;
+        LOG(INFO) << "frontend fill zeros: " << opts.assembler_opts.fill_zero;
         return opts;
     }
 };

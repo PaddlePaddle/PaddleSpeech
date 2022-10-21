@@ -79,10 +79,10 @@ void TopK(const std::vector<T>& data,
     int cur = values->size() - 1;
     while (!pq.empty()) {
         const auto& item = pq.top();
-    
+
         (*values)[cur] = item.first;
         (*indices)[cur] = item.second;
-         
+
         // item if reference, must pop here
         pq.pop();
 

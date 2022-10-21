@@ -72,6 +72,14 @@ struct DecodeOptions {
         decoder_opts.ctc_prefix_search_opts.blank = FLAGS_blank;
         decoder_opts.ctc_prefix_search_opts.first_beam_size = FLAGS_nbest;
         decoder_opts.ctc_prefix_search_opts.second_beam_size = FLAGS_nbest;
+        LOG(INFO) << "chunk_size: " << decoder_opts.chunk_size;
+        LOG(INFO) << "num_left_chunks: " << decoder_opts.num_left_chunks;
+        LOG(INFO) << "ctc_weight: " << decoder_opts.ctc_weight;
+        LOG(INFO) << "rescoring_weight: " << decoder_opts.rescoring_weight;
+        LOG(INFO) << "reverse_weight: " << decoder_opts.reverse_weight;
+        LOG(INFO) << "blank: " << FLAGS_blank;
+        LOG(INFO) << "first_beam_size: " << FLAGS_nbest;
+        LOG(INFO) << "second_beam_size: " << FLAGS_nbest;
         return decoder_opts;
     }
 };
@@ -88,6 +96,8 @@ struct U2RecognizerResource {
         U2RecognizerResource resource;
         resource.vocab_path = FLAGS_vocab_path;
         resource.acoustic_scale = FLAGS_acoustic_scale;
+        LOG(INFO) << "vocab path: " <<  resource.vocab_path;
+        LOG(INFO) << "acoustic_scale: " <<  resource.acoustic_scale;
 
         resource.feature_pipeline_opts =
             ppspeech::FeaturePipelineOptions::InitFromFlags();

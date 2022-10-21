@@ -5,7 +5,7 @@ set -e
 
 data=data
 exp=exp
-nj=40
+nj=20
 
 
 mkdir -p $exp

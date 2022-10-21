@@ -105,7 +105,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     }
     CHECK(feature_cache_.size() == cache_size_ );
 
-    return result;
+    return true;
 }
 
 

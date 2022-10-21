@@ -62,6 +62,7 @@ int main(int argc, char* argv[]) {
         LOG(INFO) << "wav len (sample): " << tot_samples;
 
         int sample_offset = 0;
+        int cnt = 0;
         while (sample_offset < tot_samples) {
             int cur_chunk_size =
                 std::min(chunk_sample_size, tot_samples - sample_offset);
@@ -77,12 +78,14 @@ int main(int argc, char* argv[]) {
                 recognizer.SetFinished();
             }
             recognizer.Decode();
-            LOG(INFO) << "Pratial result: " << recognizer.GetPartialResult();
+            LOG(INFO) << "Pratial result: " << cnt << " " << recognizer.GetPartialResult();
 
             // no overlap
             sample_offset += cur_chunk_size;
+            cnt++;
         }
         CHECK(sample_offset == tot_samples);
+        VLOG(1) << "num decode: " << cnt;
 
         // recognizer.SetFinished();
 

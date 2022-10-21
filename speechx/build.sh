@@ -20,4 +20,4 @@ fi
 mkdir -p build
 
 cmake -B build -DBOOST_ROOT:STRING=${boost_SOURCE_DIR}
-cmake --build build
+cmake --build build -j

@@ -36,8 +36,6 @@ void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
     frames_ready_ += likelihood.NumRows();
 }
 
-// Decodable::Init(DecodableConfig config) {
-//}
 
 // return the size of frame have computed.
 int32 Decodable::NumFramesReady() const { return frames_ready_; }
@@ -70,9 +68,10 @@ bool Decodable::AdvanceChunk() {
     Vector<BaseFloat> features;
     if (frontend_ == NULL || frontend_->Read(&features) == false) {
         // no feat or frontend_ not init.
+        VLOG(1) << "decodable exit;";
         return false;
     }
-    VLOG(2) << "Forward with " << features.Dim() << " frames.";
+    VLOG(2) << "Forward in " << features.Dim() / frontend_->Dim() << " feats.";
 
     // forward feats
     NnetOut out;
@@ -80,6 +79,7 @@ bool Decodable::AdvanceChunk() {
     int32& vocab_dim = out.vocab_dim;
     Vector<BaseFloat>& logprobs = out.logprobs;
 
+    VLOG(2) << "Forward out " << logprobs.Dim() / vocab_dim  << " decoder frames.";
     // cache nnet outupts
     nnet_out_cache_.Resize(logprobs.Dim() / vocab_dim, vocab_dim);
     nnet_out_cache_.CopyRowsFromVec(logprobs);
@@ -114,15 +114,20 @@ bool Decodable::AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
 // read one frame likelihood
 bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
     if (EnsureFrameHaveComputed(frame) == false) {
+        LOG(INFO) << "framelikehood exit.";
         return false;
     }
 
+    int nrows = nnet_out_cache_.NumRows();
+    CHECK(nrows == (frames_ready_ - frame_offset_));
     int vocab_size = nnet_out_cache_.NumCols();
     likelihood->resize(vocab_size);
 
     for (int32 idx = 0; idx < vocab_size; ++idx) {
         (*likelihood)[idx] =
             nnet_out_cache_(frame - frame_offset_, idx) * acoustic_scale_;
+
+        VLOG(4) << "nnet out: " << frame  << " offset:" << frame_offset_  << " " << nnet_out_cache_.NumRows() << " logprob: " <<  nnet_out_cache_(frame - frame_offset_, idx);
     }
     return true;
 }

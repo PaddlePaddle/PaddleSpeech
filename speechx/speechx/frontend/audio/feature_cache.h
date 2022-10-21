@@ -41,12 +41,14 @@ class FeatureCache : public FrontendInterface {
     virtual size_t Dim() const { return dim_; }
 
     virtual void SetFinished() {
+        LOG(INFO) << "set finished";
         // std::unique_lock<std::mutex> lock(mutex_);
         base_extractor_->SetFinished();
-        LOG(INFO) << "set finished";
+
         // read the last chunk data
         Compute();
         // ready_feed_condition_.notify_one();
+        LOG(INFO) << "compute last feats done.";
     }
 
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }

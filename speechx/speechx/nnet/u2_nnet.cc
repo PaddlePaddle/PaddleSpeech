@@ -440,6 +440,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
         max_hyps_len = std::max(max_hyps_len, len);
         hyps_len_ptr[i] = static_cast<int64_t>(len);
     }
+    VLOG(2) << "max_hyps_len: " << max_hyps_len;
 
     paddle::Tensor hyps_tensor =
         paddle::full({num_hyps, max_hyps_len}, eos_, paddle::DataType::INT64);
@@ -625,8 +626,8 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
         // combinded left-to-right and right-to-lfet score
         (*rescoring_score)[i] =
             score * (1 - reverse_weight) + r_score * reverse_weight;
-        VLOG(1) << "hyp " << i << " score: " << score << " r_score: " << r_score
-                << " reverse_weight: " << reverse_weight;
+        VLOG(1) << "hyp " << i << " " << hyp.size() << " score: " << score << " r_score: " << r_score
+                << " reverse_weight: " << reverse_weight << " final score: " << (*rescoring_score)[i];
     }
 }
 

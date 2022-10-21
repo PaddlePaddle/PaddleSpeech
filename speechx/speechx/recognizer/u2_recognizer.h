@@ -101,6 +101,8 @@ struct U2RecognizerResource {
 
         resource.feature_pipeline_opts =
             ppspeech::FeaturePipelineOptions::InitFromFlags();
+        resource.feature_pipeline_opts.assembler_opts.fill_zero = false;
+        LOG(INFO) << "u2 need fill zero be false: " << resource.feature_pipeline_opts.assembler_opts.fill_zero;
         resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
         resource.decoder_opts = ppspeech::DecodeOptions::InitFromFlags();
         return resource;

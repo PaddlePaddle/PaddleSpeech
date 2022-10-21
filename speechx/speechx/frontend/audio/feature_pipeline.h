@@ -27,6 +27,7 @@
 
 // feature
 DECLARE_bool(use_fbank);
+DECLARE_bool(fill_zero);
 DECLARE_int32(num_bins);
 DECLARE_string(cmvn_file);
 
@@ -80,15 +81,18 @@ struct FeaturePipelineOptions {
 
         // assembler opts
         opts.assembler_opts.subsampling_rate = FLAGS_subsampling_rate;
-        LOG(INFO) << "subsampling rate: "
-                  << opts.assembler_opts.subsampling_rate;
         opts.assembler_opts.receptive_filed_length =
             FLAGS_receptive_field_length;
+        opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
+        opts.assembler_opts.fill_zero = FLAGS_fill_zero;
+        LOG(INFO) << "subsampling rate: "
+                  << opts.assembler_opts.subsampling_rate;
         LOG(INFO) << "nnet receptive filed length: "
                   << opts.assembler_opts.receptive_filed_length;
-        opts.assembler_opts.nnet_decoder_chunk = FLAGS_nnet_decoder_chunk;
         LOG(INFO) << "nnet chunk size: "
                   << opts.assembler_opts.nnet_decoder_chunk;
+        LOG(INFO) << "frontend fill zeros: "
+                  << opts.assembler_opts.fill_zero;
         return opts;
     }
 };

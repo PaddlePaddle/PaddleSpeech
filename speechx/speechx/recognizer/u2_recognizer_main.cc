@@ -85,9 +85,6 @@ int main(int argc, char* argv[]) {
             cnt++;
         }
         CHECK(sample_offset == tot_samples);
-        VLOG(1) << "num decode: " << cnt;
-
-        // recognizer.SetFinished();
 
         // second pass decoding
         recognizer.Rescoring();

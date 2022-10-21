@@ -114,7 +114,7 @@ bool Decodable::AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
 // read one frame likelihood
 bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
     if (EnsureFrameHaveComputed(frame) == false) {
-        LOG(INFO) << "framelikehood exit.";
+        VLOG(1) << "framelikehood exit.";
         return false;
     }
 

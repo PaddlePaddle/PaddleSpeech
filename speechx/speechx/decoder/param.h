@@ -20,6 +20,7 @@
 
 // feature
 DEFINE_bool(use_fbank, false, "False for fbank; or linear feature");
+DEFINE_bool(fill_zero, false, "fill zero at last chunk, when chunk < chunk_size");
 // DEFINE_bool(to_float32, true, "audio convert to pcm32. True for linear
 // feature, or fbank");
 DEFINE_int32(num_bins, 161, "num bins of mel");

@@ -47,17 +47,16 @@ bool Assembler::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 // read frame by frame from base_feature_extractor_ into cache_
 bool Assembler::Compute(Vector<BaseFloat>* feats) {
     // compute and feed frame by frame
-    bool result = false;
     while (feature_cache_.size() < frame_chunk_size_) {
         Vector<BaseFloat> feature;
-        result = base_extractor_->Read(&feature);
+        bool result = base_extractor_->Read(&feature);
         if (result == false || feature.Dim() == 0) {
-            VLOG(1) << "result: " << result << "feature dim: " << feature.Dim();
+            VLOG(1) << "result: " << result << " feature dim: " << feature.Dim();
             if (IsFinished() == false) {
-                LOG(INFO) << "finished reading feature. cache size: " << feature_cache_.size();
+                VLOG(1) << "finished reading feature. cache size: " << feature_cache_.size();
                 return false;
             } else {
-                LOG(INFO) << "break";
+                VLOG(1) << "break";
                 break;
             }
         }
@@ -103,7 +102,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
   
         counter++;
     }
-    CHECK(feature_cache_.size() == cache_size_ );
+    CHECK(feature_cache_.size() == cache_size_);
 
     return true;
 }

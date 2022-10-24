@@ -7,7 +7,7 @@ set -e
 data=data
 exp=exp
 mkdir -p $exp
-ckpt_dir=./data/model
+ckpt_dir=$data/model
 model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model/
 
 ctc_prefix_beam_search_decoder_main \

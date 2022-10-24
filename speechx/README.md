@@ -9,7 +9,7 @@ We develop under:
 * gcc/g++/gfortran - 8.2.0
 * cmake - 3.16.0
 
-> Please using `tools/env.sh` to create python `venv`, then `source venv/bin/activate` to build speechx.
+> Please use `tools/env.sh` to create python `venv`, then `source venv/bin/activate` to build speechx.
 
 > We make sure all things work fun under docker, and recommend using it to develop and deploy.
 
@@ -35,7 +35,7 @@ bash tools/venv.sh
 
 2. Build `speechx` and `examples`.
 
-For now we using feature under `develop` branch of paddle, so we need install `paddlepaddle` nightly build version.
+For now we are using feature under `develop` branch of paddle, so we need to install `paddlepaddle` nightly build version.
 For example: 
 ```
 source venv/bin/activate

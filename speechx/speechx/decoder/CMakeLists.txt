@@ -4,11 +4,11 @@ set(srcs)
 
 if (USING_DS2)
 list(APPEND srcs
-ctc_decoders/decoder_utils.cpp
-ctc_decoders/path_trie.cpp
-ctc_decoders/scorer.cpp
-ctc_beam_search_decoder.cc
-ctc_tlg_decoder.cc
+  ctc_decoders/decoder_utils.cpp
+  ctc_decoders/path_trie.cpp
+  ctc_decoders/scorer.cpp
+  ctc_beam_search_decoder.cc
+  ctc_tlg_decoder.cc
 )
 endif()
 

@@ -1,14 +1,5 @@
 set(paddle_SOURCE_DIR ${fc_patch}/paddle-lib)
 set(paddle_PREFIX_DIR ${fc_patch}/paddle-lib-prefix)
-# ExternalProject_Add(paddle
-#   URL      https://paddle-inference-lib.bj.bcebos.com/2.2.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
-#   URL_HASH SHA256=7c6399e778c6554a929b5a39ba2175e702e115145e8fa690d2af974101d98873
-#   PREFIX            ${paddle_PREFIX_DIR} 
-#   SOURCE_DIR        ${paddle_SOURCE_DIR}
-#   CONFIGURE_COMMAND ""
-#   BUILD_COMMAND     ""
-#   INSTALL_COMMAND   ""
-# )
 
 include(FetchContent)
 FetchContent_Declare(

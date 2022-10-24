@@ -27,7 +27,7 @@ namespace ppspeech {
 class ContextGraph;
 class CTCPrefixBeamSearch : public DecoderBase {
   public:
-    explicit CTCPrefixBeamSearch(const std::string& vocab_path,
+    CTCPrefixBeamSearch(const std::string& vocab_path,
                                  const CTCBeamSearchOptions& opts);
     ~CTCPrefixBeamSearch() {}
 

@@ -107,12 +107,12 @@ void CTCPrefixBeamSearch::AdvanceDecoding(
         std::min(static_cast<int>(logp[0].size()), opts_.first_beam_size);
 
     for (int t = 0; t < logp.size(); ++t, ++num_frame_decoded_) {
-        const std::vector<float>& logp_t = logp[t];
+        const std::vector<kaldi::BaseFloat>& logp_t = logp[t];
         std::unordered_map<std::vector<int>, PrefixScore, PrefixScoreHash>
             next_hyps;
 
         // 1. first beam prune, only select topk candidates
-        std::vector<float> topk_score;
+        std::vector<kaldi::BaseFloat> topk_score;
         std::vector<int32_t> topk_index;
         TopK(logp_t, first_beam_size, &topk_score, &topk_index);
         VLOG(2) << "topk: " << num_frame_decoded_ << " "

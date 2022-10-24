@@ -43,18 +43,18 @@ typedef unsigned long long uint64;  // NOLINT
 
 typedef signed int char32;
 
-const uint8 kuint8max = (static_cast<uint8> 0xFF);
-const uint16 kuint16max = (static_cast<uint16> 0xFFFF);
-const uint32 kuint32max = (static_cast<uint32> 0xFFFFFFFF);
-const uint64 kuint64max = (static_cast<uint64>(0xFFFFFFFFFFFFFFFFLL));
-const int8 kint8min = (static_cast<int8> 0x80);
-const int8 kint8max = (static_cast<int8> 0x7F);
-const int16 kint16min = (static_cast<int16> 0x8000);
-const int16 kint16max = (static_cast<int16> 0x7FFF);
-const int32 kint32min = (static_cast<int32> 0x80000000);
-const int32 kint32max = (static_cast<int32> 0x7FFFFFFF);
-const int64 kint64min = (static_cast<int64>(0x8000000000000000LL));
-const int64 kint64max = (static_cast<int64>(0x7FFFFFFFFFFFFFFFLL));
+const uint8 kuint8max = static_cast<uint8>(0xFF);
+const uint16 kuint16max = static_cast<uint16>(0xFFFF);
+const uint32 kuint32max = static_cast<uint32>(0xFFFFFFFF);
+const uint64 kuint64max = static_cast<uint64>(0xFFFFFFFFFFFFFFFFLL);
+const int8 kint8min = static_cast<int8> (0x80);
+const int8 kint8max = static_cast<int8> (0x7F);
+const int16 kint16min = static_cast<int16> (0x8000);
+const int16 kint16max = static_cast<int16> (0x7FFF);
+const int32 kint32min = static_cast<int32>(0x80000000);
+const int32 kint32max = static_cast<int32>(0x7FFFFFFF);
+const int64 kint64min = static_cast<int64>(0x8000000000000000LL);
+const int64 kint64max = static_cast<int64>(0x7FFFFFFFFFFFFFFFLL);
 
 const BaseFloat kBaseFloatMax = std::numeric_limits<BaseFloat>::max();
 const BaseFloat kBaseFloatMin = std::numeric_limits<BaseFloat>::min();

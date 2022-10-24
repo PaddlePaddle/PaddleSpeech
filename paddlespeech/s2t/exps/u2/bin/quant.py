@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Evaluation for U2 model."""
-import os
-import sys
-from pathlib import Path
-
 import paddle
-import soundfile
+from kaldiio import ReadHelper
 from paddleslim import PTQ
 from yacs.config import CfgNode
-from kaldiio import ReadHelper
 
 from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
@@ -91,7 +86,8 @@ class U2Infer():
                         beam_size=decode_config.beam_size,
                         ctc_weight=decode_config.ctc_weight,
                         decoding_chunk_size=decode_config.decoding_chunk_size,
-                        num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
+                        num_decoding_left_chunks=decode_config.
+                        num_decoding_left_chunks,
                         simulate_streaming=decode_config.simulate_streaming,
                         reverse_weight=decode_config.reverse_weight)
                     rsl = result_transcripts[0][0]
@@ -99,7 +95,6 @@ class U2Infer():
                     logger.info(f"hyp: {utt} {rsl}")
                     # print(self.model)
                     # print(self.model.forward_encoder_chunk)
-
 
         logger.info("-------------start quant ----------------------")
         batch_size = 1
@@ -189,7 +184,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--audio_scp", type=str, help="path of the input audio file")
     parser.add_argument(
-        "--num_utts", type=int, default=200, help="num utts for quant calibrition.")
+        "--num_utts",
+        type=int,
+        default=200,
+        help="num utts for quant calibrition.")
     parser.add_argument(
         "--export_path",
         type=str,

@@ -71,7 +71,7 @@ class TLGDecoder : public DecoderBase {
     std::string GetPartialResult() override;
 
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
-                          std::vector<std::string>& nbest_words);
+                          const std::vector<std::string>& nbest_words);
 
   protected:
     std::string GetBestPath() override {

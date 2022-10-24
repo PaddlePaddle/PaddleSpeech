@@ -158,7 +158,7 @@ void U2Nnet::Reset() {
 }
 
 // Debug API
-void U2Nnet::FeedEncoderOuts(paddle::Tensor& encoder_out) {
+void U2Nnet::FeedEncoderOuts(const paddle::Tensor& encoder_out) {
     // encoder_out (T,D)
     encoder_outs_.clear();
     encoder_outs_.push_back(encoder_out);
@@ -206,7 +206,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     float* feats_ptr = feats.mutable_data<float>();
 
     // not cache feature in nnet
-    CHECK(cached_feats_.size() == 0);
+    CHECK_EQ(cached_feats_.size(), 0);
     // CHECK_EQ(std::is_same<float, kaldi::BaseFloat>::value, true);
     std::memcpy(feats_ptr,
                 chunk_feats.data(),
@@ -247,9 +247,9 @@ void U2Nnet::ForwardEncoderChunkImpl(
     // call.
     std::vector<paddle::Tensor> inputs = {
         feats, offset, /*required_cache_size, */ att_cache_, cnn_cache_};
-    CHECK(inputs.size() == 4);
+    CHECK_EQ(inputs.size(), 4);
     std::vector<paddle::Tensor> outputs = forward_encoder_chunk_(inputs);
-    CHECK(outputs.size() == 3);
+    CHECK_EQ(outputs.size(), 3);
 
 #ifdef USE_GPU
     paddle::Tensor chunk_out = outputs[0].copy_to(paddle::CPUPlace());
@@ -319,9 +319,9 @@ void U2Nnet::ForwardEncoderChunkImpl(
     inputs.clear();
     outputs.clear();
     inputs.push_back(chunk_out);
-    CHECK(inputs.size() == 1);
+    CHECK_EQ(inputs.size(), 1);
     outputs = ctc_activation_(inputs);
-    CHECK(outputs.size() == 1);
+    CHECK_EQ(outputs.size(), 1);
     paddle::Tensor ctc_log_probs = outputs[0];
 
 #ifdef TEST_DEBUG
@@ -350,9 +350,9 @@ void U2Nnet::ForwardEncoderChunkImpl(
 
     // Copy to output, (B=1,T,D)
     std::vector<int64_t> ctc_log_probs_shape = ctc_log_probs.shape();
-    CHECK(ctc_log_probs_shape.size() == 3);
+    CHECK_EQ(ctc_log_probs_shape.size(), 3);
     int B = ctc_log_probs_shape[0];
-    CHECK(B == 1);
+    CHECK_EQ(B, 1);
     int T = ctc_log_probs_shape[1];
     int D = ctc_log_probs_shape[2];
     *vocab_dim = D;
@@ -393,9 +393,9 @@ float U2Nnet::ComputePathScore(const paddle::Tensor& prob,
     // hyp (U,)
     float score = 0.0f;
     std::vector<int64_t> dims = prob.shape();
-    CHECK(dims.size() == 3);
+    CHECK_EQ(dims.size(), 3);
     VLOG(2) << "prob shape: " << dims[0] << ", " << dims[1] << ", " << dims[2];
-    CHECK(dims[0] == 1);
+    CHECK_EQ(dims[0], 1);
     int vocab_dim = static_cast<int>(dims[2]);
 
     const float* prob_ptr = prob.data<float>();
@@ -520,14 +520,14 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     std::vector<paddle::experimental::Tensor> inputs{
         hyps_tensor, hyps_lens, encoder_out};
     std::vector<paddle::Tensor> outputs = forward_attention_decoder_(inputs);
-    CHECK(outputs.size() == 2);
+    CHECK_EQ(outputs.size(), 2);
 
     // (B, Umax, V)
     paddle::Tensor probs = outputs[0];
     std::vector<int64_t> probs_shape = probs.shape();
-    CHECK(probs_shape.size() == 3);
-    CHECK(probs_shape[0] == num_hyps);
-    CHECK(probs_shape[1] == max_hyps_len);
+    CHECK_EQ(probs_shape.size(), 3);
+    CHECK_EQ(probs_shape[0], num_hyps);
+    CHECK_EQ(probs_shape[1], max_hyps_len);
 
 #ifdef TEST_DEBUG
     {
@@ -582,13 +582,13 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     paddle::Tensor r_probs = outputs[1];
     std::vector<int64_t> r_probs_shape = r_probs.shape();
     if (is_bidecoder_ && reverse_weight > 0) {
-        CHECK(r_probs_shape.size() == 3);
-        CHECK(r_probs_shape[0] == num_hyps);
-        CHECK(r_probs_shape[1] == max_hyps_len);
+        CHECK_EQ(r_probs_shape.size(), 3);
+        CHECK_EQ(r_probs_shape[0], num_hyps);
+        CHECK_EQ(r_probs_shape[1], max_hyps_len);
     } else {
         // dump r_probs
-        CHECK(r_probs_shape.size() == 1);
-        CHECK(r_probs_shape[0] == 1) << r_probs_shape[0];
+        CHECK_EQ(r_probs_shape.size(), 1);
+        CHECK_EQ(r_probs_shape[0], 1) << r_probs_shape[0];
     }
 
     // compute rescoring score
@@ -644,7 +644,7 @@ void U2Nnet::EncoderOuts(
     for (int i = 0; i < size; i++) {
         const paddle::Tensor& item = encoder_outs_[i];
         const std::vector<int64_t> shape = item.shape();
-        CHECK(shape.size() == 3);
+        CHECK_EQ(shape.size(), 3);
         const int& B = shape[0];
         const int& T = shape[1];
         const int& D = shape[2];

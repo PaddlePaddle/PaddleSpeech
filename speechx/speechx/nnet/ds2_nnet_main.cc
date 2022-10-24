@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "nnet/ds2_nnet.h"
 #include "base/common.h"
 #include "decoder/param.h"
 #include "frontend/audio/assembler.h"
 #include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
+#include "nnet/ds2_nnet.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    ppspeech::ModelOptions model_opts =  ppspeech::ModelOptions::InitFromFlags();
+    ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
 
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));

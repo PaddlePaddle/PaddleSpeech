@@ -30,7 +30,7 @@ using std::vector;
 
 CMVN::CMVN(std::string cmvn_file, unique_ptr<FrontendInterface> base_extractor)
     : var_norm_(true) {
-    CHECK(cmvn_file != "");
+    CHECK_NE(cmvn_file, "");
     base_extractor_ = std::move(base_extractor);
 
     bool binary;

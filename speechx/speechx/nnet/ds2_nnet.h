@@ -26,7 +26,7 @@ template <typename T>
 class Tensor {
   public:
     Tensor() {}
-    Tensor(const std::vector<int>& shape) : _shape(shape) {
+    explicit Tensor(const std::vector<int>& shape) : _shape(shape) {
         int neml = std::accumulate(
             _shape.begin(), _shape.end(), 1, std::multiplies<int>());
         LOG(INFO) << "Tensor neml: " << neml;
@@ -50,7 +50,7 @@ class Tensor {
 
 class PaddleNnet : public NnetBase {
   public:
-    PaddleNnet(const ModelOptions& opts);
+    explicit PaddleNnet(const ModelOptions& opts);
 
     void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
                      const int32& feature_dim,

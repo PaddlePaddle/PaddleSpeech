@@ -39,7 +39,8 @@ struct RecognizerResource {
         resource.feature_pipeline_opts =
             FeaturePipelineOptions::InitFromFlags();
         resource.feature_pipeline_opts.assembler_opts.fill_zero = true;
-        LOG(INFO) << "ds2 need fill zero be true: " << resource.feature_pipeline_opts.assembler_opts.fill_zero;
+        LOG(INFO) << "ds2 need fill zero be true: "
+                  << resource.feature_pipeline_opts.assembler_opts.fill_zero;
         resource.model_opts = ModelOptions::InitFromFlags();
         resource.tlg_opts = TLGDecoderOptions::InitFromFlags();
         return resource;

@@ -329,8 +329,8 @@ void CTCPrefixBeamSearch::UpdateFinalContext() {
 
 std::string CTCPrefixBeamSearch::GetBestPath(int index) {
     int n_hyps = Outputs().size();
-    CHECK(n_hyps > 0);
-    CHECK(index < n_hyps);
+    CHECK_GT(n_hyps, 0);
+    CHECK_LT(index, n_hyps);
     std::vector<int> one = Outputs()[index];
     std::string sentence;
     for (int i = 0; i < one.size(); i++) {
@@ -344,7 +344,7 @@ std::string CTCPrefixBeamSearch::GetBestPath() { return GetBestPath(0); }
 std::vector<std::pair<double, std::string>> CTCPrefixBeamSearch::GetNBestPath(
     int n) {
     int hyps_size = hypotheses_.size();
-    CHECK(hyps_size > 0);
+    CHECK_GT(hyps_size, 0);
 
     int min_n = n == -1 ? hypotheses_.size() : std::min(n, hyps_size);
 

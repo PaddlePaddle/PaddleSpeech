@@ -39,12 +39,12 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
             opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
     }
 
-    CHECK(opts_.blank == 0);
+    CHECK_EQ(opts_.blank, 0);
 
     auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
     space_id_ = it - vocabulary_.begin();
     // if no space in vocabulary
-    if ((size_t)space_id_ >= vocabulary_.size()) {
+    if (static_cast<size_t>(space_id_) >= vocabulary_.size()) {
         space_id_ = -2;
     }
 }
@@ -104,7 +104,7 @@ void CTCBeamSearch::ResetPrefixes() {
 }
 
 int CTCBeamSearch::DecodeLikelihoods(const vector<vector<float>>& probs,
-                                     vector<string>& nbest_words) {
+                                     const vector<string>& nbest_words) {
     kaldi::Timer timer;
     AdvanceDecoding(probs);
     LOG(INFO) << "ctc decoding elapsed time(s) "

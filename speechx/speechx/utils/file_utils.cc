@@ -40,4 +40,4 @@ std::string ReadFile2String(const std::string& path) {
     return std::string((std::istreambuf_iterator<char>(input_file)),
                        std::istreambuf_iterator<char>());
 }
-}
+}  // namespace ppspeech

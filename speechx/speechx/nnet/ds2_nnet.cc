@@ -13,15 +13,16 @@
 // limitations under the License.
 
 #include "nnet/ds2_nnet.h"
+
 #include "absl/strings/str_split.h"
 
 namespace ppspeech {
 
-using std::vector;
-using std::string;
-using std::shared_ptr;
 using kaldi::Matrix;
 using kaldi::Vector;
+using std::shared_ptr;
+using std::string;
+using std::vector;
 
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
     std::vector<std::string> cache_names;
@@ -207,7 +208,7 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
 
     // inferences->Resize(row * col);
     // *inference_dim = col;
-    out->logprobs.Resize(row*col);
+    out->logprobs.Resize(row * col);
     out->vocab_dim = col;
     output_tensor->CopyToCpu(out->logprobs.Data());
 

@@ -59,8 +59,8 @@ int main(int argc, char* argv[]) {
     google::InstallFailureSignalHandler();
     FLAGS_logtostderr = 1;
 
-    CHECK(FLAGS_result_wspecifier != "");
-    CHECK(FLAGS_feature_rspecifier != "");
+    CHECK_NE(FLAGS_result_wspecifier, "");
+    CHECK_NE(FLAGS_feature_rspecifier, "");
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);

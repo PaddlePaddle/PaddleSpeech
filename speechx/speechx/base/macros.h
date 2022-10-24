@@ -26,6 +26,6 @@ namespace ppspeech {
 #endif
 
 // kSpaceSymbol in UTF-8 is: ▁
-const std::string kSpaceSymbol = "\xe2\x96\x81";
+const char[] kSpaceSymbol = "\xe2\x96\x81";
 
 }  // namespace ppspeech

@@ -50,10 +50,10 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    CHECK(FLAGS_result_wspecifier != "");
-    CHECK(FLAGS_feature_rspecifier != "");
-    CHECK(FLAGS_vocab_path != "");
-    CHECK(FLAGS_model_path != "");
+    CHECK_NE(FLAGS_result_wspecifier, "");
+    CHECK_NE(FLAGS_feature_rspecifier, "");
+    CHECK_NE(FLAGS_vocab_path, "");
+    CHECK_NE(FLAGS_model_path, "");
     LOG(INFO) << "model path: " << FLAGS_model_path;
     LOG(INFO) << "Reading vocab table " << FLAGS_vocab_path;
 
@@ -64,11 +64,14 @@ int main(int argc, char* argv[]) {
     // nnet
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
-    std::shared_ptr<ppspeech::U2Nnet> nnet = std::make_shared<ppspeech::U2Nnet>(model_opts);
+    std::shared_ptr<ppspeech::U2Nnet> nnet =
+        std::make_shared<ppspeech::U2Nnet>(model_opts);
 
     // decodeable
-    std::shared_ptr<ppspeech::DataCache> raw_data = std::make_shared<ppspeech::DataCache>();
-    std::shared_ptr<ppspeech::Decodable> decodable = std::make_shared<ppspeech::Decodable>(nnet, raw_data);
+    std::shared_ptr<ppspeech::DataCache> raw_data =
+        std::make_shared<ppspeech::DataCache>();
+    std::shared_ptr<ppspeech::Decodable> decodable =
+        std::make_shared<ppspeech::Decodable>(nnet, raw_data);
 
     // decoder
     ppspeech::CTCBeamSearchOptions opts;

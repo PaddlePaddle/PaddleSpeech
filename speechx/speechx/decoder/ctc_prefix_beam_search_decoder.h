@@ -28,7 +28,7 @@ class ContextGraph;
 class CTCPrefixBeamSearch : public DecoderBase {
   public:
     CTCPrefixBeamSearch(const std::string& vocab_path,
-                                 const CTCBeamSearchOptions& opts);
+                        const CTCBeamSearchOptions& opts);
     ~CTCPrefixBeamSearch() {}
 
     SearchType Type() const { return SearchType::kPrefixBeamSearch; }

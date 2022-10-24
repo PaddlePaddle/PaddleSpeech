@@ -48,7 +48,7 @@ class CTCBeamSearch : public DecoderBase {
     }
 
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
-                          std::vector<std::string>& nbest_words);
+                          const std::vector<std::string>& nbest_words);
 
   private:
     void ResetPrefixes();

@@ -33,7 +33,7 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts)
             opts.linear_spectrogram_opts, std::move(data_source)));
     }
 
-    CHECK(opts.cmvn_file != "");
+    CHECK_NE(opts.cmvn_file, "");
     unique_ptr<FrontendInterface> cmvn(
         new ppspeech::CMVN(opts.cmvn_file, std::move(base_feature)));
 

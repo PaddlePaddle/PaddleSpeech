@@ -35,7 +35,7 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     BaseFloat am_scale = resource.acoustic_scale;
     decodable_.reset(new Decodable(nnet, feature_pipeline_, am_scale));
 
-    CHECK(resource.vocab_path != "");
+    CHECK_NE(resource.vocab_path, "");
     decoder_.reset(new CTCPrefixBeamSearch(
         resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts));
 

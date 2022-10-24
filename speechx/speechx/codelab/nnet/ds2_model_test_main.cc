@@ -64,8 +64,8 @@ void model_forward_test() {
     ;
     std::string model_graph = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
-    CHECK(model_graph != "");
-    CHECK(model_params != "");
+    CHECK_NE(model_graph, "");
+    CHECK_NE(model_params, "");
     cout << "model path: " << model_graph << endl;
     cout << "model param path : " << model_params << endl;
 

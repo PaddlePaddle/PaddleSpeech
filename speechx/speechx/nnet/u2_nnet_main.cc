@@ -39,9 +39,9 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    CHECK(FLAGS_feature_rspecifier.size() > 0);
-    CHECK(FLAGS_nnet_prob_wspecifier.size() > 0);
-    CHECK(FLAGS_model_path.size() > 0);
+    CHECK_GT(FLAGS_feature_rspecifier.size(), 0);
+    CHECK_GT(FLAGS_nnet_prob_wspecifier.size(), 0);
+    CHECK_GT(FLAGS_model_path.size(), 0);
     LOG(INFO) << "input rspecifier: " << FLAGS_feature_rspecifier;
     LOG(INFO) << "output wspecifier: " << FLAGS_nnet_prob_wspecifier;
     LOG(INFO) << "model path: " << FLAGS_model_path;

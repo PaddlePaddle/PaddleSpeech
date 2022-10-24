@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
     google::InstallFailureSignalHandler();
     FLAGS_logtostderr = 1;
 
-    CHECK(FLAGS_wav_rspecifier.size() > 0);
-    CHECK(FLAGS_feature_wspecifier.size() > 0);
+    CHECK_GT(FLAGS_wav_rspecifier.size(), 0);
+    CHECK_GT(FLAGS_feature_wspecifier.size(), 0);
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
     kaldi::SequentialTableReader<kaldi::WaveInfoHolder> wav_info_reader(

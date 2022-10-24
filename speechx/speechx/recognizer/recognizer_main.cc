@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "decoder/param.h"
-#include "recognizer/recognizer.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/table-types.h"
+#include "recognizer/recognizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
@@ -30,7 +30,8 @@ int main(int argc, char* argv[]) {
     google::InstallFailureSignalHandler();
     FLAGS_logtostderr = 1;
 
-    ppspeech::RecognizerResource resource = ppspeech::RecognizerResource::InitFromFlags();
+    ppspeech::RecognizerResource resource =
+        ppspeech::RecognizerResource::InitFromFlags();
     ppspeech::Recognizer recognizer(resource);
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(

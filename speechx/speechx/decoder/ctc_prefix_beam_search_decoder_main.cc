@@ -64,12 +64,11 @@ int main(int argc, char* argv[]) {
     // nnet
     ppspeech::ModelOptions model_opts;
     model_opts.model_path = FLAGS_model_path;
-    std::shared_ptr<ppspeech::U2Nnet> nnet(new ppspeech::U2Nnet(model_opts));
+    std::shared_ptr<ppspeech::U2Nnet> nnet = std::make_shared<ppspeech::U2Nnet>(model_opts);
 
     // decodeable
-    std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
-    std::shared_ptr<ppspeech::Decodable> decodable(
-        new ppspeech::Decodable(nnet, raw_data));
+    std::shared_ptr<ppspeech::DataCache> raw_data = std::make_shared<ppspeech::DataCache>();
+    std::shared_ptr<ppspeech::Decodable> decodable = std::make_shared<ppspeech::Decodable>(nnet, raw_data);
 
     // decoder
     ppspeech::CTCBeamSearchOptions opts;

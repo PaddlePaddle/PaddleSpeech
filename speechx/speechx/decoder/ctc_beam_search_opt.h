@@ -37,13 +37,13 @@ struct CTCBeamSearchOptions {
     // u2
     int first_beam_size;
     int second_beam_size;
-    CTCBeamSearchOptions()
+    explicit CTCBeamSearchOptions()
         : blank(0),
           dict_file("vocab.txt"),
           lm_path(""),
+          beam_size(300),
           alpha(1.9f),
           beta(5.0),
-          beam_size(300),
           cutoff_prob(0.99f),
           cutoff_top_n(40),
           num_proc_bsearch(10),

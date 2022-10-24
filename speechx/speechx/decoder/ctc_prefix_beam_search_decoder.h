@@ -27,7 +27,7 @@ namespace ppspeech {
 class ContextGraph;
 class CTCPrefixBeamSearch : public DecoderBase {
   public:
-    explicit CTCPrefixBeamSearch(const std::string vocab_path,
+    explicit CTCPrefixBeamSearch(const std::string& vocab_path,
                                  const CTCBeamSearchOptions& opts);
     ~CTCPrefixBeamSearch() {}
 
@@ -77,7 +77,7 @@ class CTCPrefixBeamSearch : public DecoderBase {
 
   private:
     CTCBeamSearchOptions opts_;
-    std::shared_ptr<fst::SymbolTable> unit_table_;
+    std::shared_ptr<fst::SymbolTable> unit_table_{nullptr};
 
     std::unordered_map<std::vector<int>, PrefixScore, PrefixScoreHash>
         cur_hyps_;
@@ -92,7 +92,7 @@ class CTCPrefixBeamSearch : public DecoderBase {
     // Outputs contain the hypotheses_ and tags lik: <context> and </context>
     std::vector<std::vector<int>> outputs_;
 
-    std::shared_ptr<ContextGraph> context_graph_ = nullptr;
+    std::shared_ptr<ContextGraph> context_graph_{nullptr};
 
     DISALLOW_COPY_AND_ASSIGN(CTCPrefixBeamSearch);
 };

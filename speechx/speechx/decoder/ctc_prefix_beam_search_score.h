@@ -73,6 +73,13 @@ struct PrefixScore {
                        int prefix_len) {
         CHECK(false);
     }
+
+    void InitEmpty() {
+        b = 0.0f;             // log(1)
+        nb = -kBaseFloatMax;  // log(0)
+        v_b = 0.0f;           // log(1)
+        v_nb = 0.0f;          // log(1)
+    }
 };
 
 struct PrefixScoreHash {

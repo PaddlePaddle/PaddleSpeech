@@ -31,7 +31,7 @@ using paddle::platform::TracerEventType;
 
 namespace ppspeech {
 
-CTCPrefixBeamSearch::CTCPrefixBeamSearch(const std::string vocab_path,
+CTCPrefixBeamSearch::CTCPrefixBeamSearch(const std::string& vocab_path,
                                          const CTCBeamSearchOptions& opts)
     : opts_(opts) {
     unit_table_ = std::shared_ptr<fst::SymbolTable>(
@@ -55,10 +55,7 @@ void CTCPrefixBeamSearch::Reset() {
     // empty hyp with Score
     std::vector<int> empty;
     PrefixScore prefix_score;
-    prefix_score.b = 0.0f;             // log(1)
-    prefix_score.nb = -kBaseFloatMax;  // log(0)
-    prefix_score.v_b = 0.0f;           // log(1)
-    prefix_score.v_nb = 0.0f;          // log(1)
+    prefix_score.InitEmpty();
     cur_hyps_[empty] = prefix_score;
 
     outputs_.emplace_back(empty);
@@ -287,19 +284,7 @@ void CTCPrefixBeamSearch::UpdateOutputs(
     int s = 0;
     int e = 0;
     for (int i = 0; i < input.size(); ++i) {
-        // if (s < start_boundaries.size() && i == start_boundaries[s]){
-        //     // <context>
-        //     output.emplace_back(context_graph_->start_tag_id());
-        //     ++s;
-        // }
-
         output.emplace_back(input[i]);
-
-        // if (e < end_boundaries.size() && i == end_boundaries[e]){
-        //     // </context>
-        //     output.emplace_back(context_graph_->end_tag_id());
-        //     ++e;
-        // }
     }
 
     outputs_.emplace_back(output);

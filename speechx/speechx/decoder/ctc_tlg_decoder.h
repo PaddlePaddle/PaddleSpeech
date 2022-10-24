@@ -31,8 +31,8 @@ namespace ppspeech {
 struct TLGDecoderOptions {
     kaldi::LatticeFasterDecoderConfig opts{};
     // todo remove later, add into decode resource
-    std::string word_symbol_table{};
-    std::string fst_path{};
+    std::string word_symbol_table;
+    std::string fst_path;
 
     static TLGDecoderOptions InitFromFlags() {
         TLGDecoderOptions decoder_opts;

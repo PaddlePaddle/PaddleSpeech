@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
         }
 
         LOG(INFO) << utt << " " << result;
-        LOG(INFO) << " RTF: " << dur / local_timer.Elapsed() << " dur: " << dur
+        LOG(INFO) << " RTF: " << local_timer.Elapsed() / dur << " dur: " << dur
                   << " cost: " << local_timer.Elapsed();
 
         result_writer.Write(utt, result);

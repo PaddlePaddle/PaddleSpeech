@@ -2,14 +2,14 @@
 #                       DATA SETTING                      #
 ###########################################################
 dataset_type: Ernie
-train_path: data/rhy_predict/train.txt
-dev_path: data/rhy_predict/dev.txt
-test_path: data/rhy_predict/test.txt
+train_path: data/train.txt
+dev_path: data/dev.txt
+test_path: data/test.txt
 batch_size: 64
 num_workers: 2
 data_params: 
     pretrained_token: ernie-1.0
-    punc_path: data/rhy_predict/rhy_token
+    punc_path: data/rhy_token
     seq_len: 100
 
 

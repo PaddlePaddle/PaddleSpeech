@@ -2,18 +2,19 @@
 set -e
 source path.sh
 
-gpus=1
+gpus=0
 stage=0
 stop_stage=100
 
 aishell_data=label_train-set.txt
 csmsc_data=000001-010000.txt
-processed_path=data/rhy_predict
+processed_path=data
 
 conf_path=conf/default.yaml
 train_output_path=exp/rhy
 ckpt_name=snapshot_iter_2600.pdz
 text=我们城市的复苏有赖于他强有力的政策。
+print_eval=false
 
 # with the following command, you can choose the stage range you want to run
 # such as `./run.sh --stage 0 --stop-stage 0`
@@ -31,7 +32,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-   CUDA_VISIBLE_DEVICES=${gpus} ./local/test.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
+   CUDA_VISIBLE_DEVICES=${gpus} ./local/test.sh ${conf_path} ${train_output_path} ${ckpt_name} ${print_eval} || exit -1
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then

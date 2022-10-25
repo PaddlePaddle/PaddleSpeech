@@ -26,6 +26,8 @@ from yacs.config import CfgNode
 from paddlespeech.text.models.ernie_linear import ErnieLinear
 from paddlespeech.text.models.ernie_linear import PuncDataset
 from paddlespeech.text.models.ernie_linear import PuncDatasetFromErnieTokenizer
+from paddlespeech.t2s.utils import str2bool
+
 
 DefinedClassifier = {
     'ErnieLinear': ErnieLinear,
@@ -91,9 +93,12 @@ def test(args):
     t = classification_report(
         test_total_label, test_total_predict, target_names=punc_list)
     print(t)
-    t2 = evaluation(test_total_label, test_total_predict)
-    print('=========================================================')
-    print(t2)
+    if args.print_eval:
+        t2 = evaluation(test_total_label, test_total_predict)
+        print('=========================================================')
+        print(t2)
+    else:
+        pass
 
 
 def main():
@@ -101,6 +106,10 @@ def main():
     parser = argparse.ArgumentParser(description="Test a ErnieLinear model.")
     parser.add_argument("--config", type=str, help="ErnieLinear config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
+    parser.add_argument(
+        "--print_eval",
+        type=str2bool,
+        default=False)
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
 

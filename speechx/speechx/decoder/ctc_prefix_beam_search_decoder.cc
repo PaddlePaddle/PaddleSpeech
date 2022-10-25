@@ -74,7 +74,7 @@ void CTCPrefixBeamSearch::AdvanceDecode(
         std::vector<kaldi::BaseFloat> frame_prob;
         bool flag = decodable->FrameLikelihood(num_frame_decoded_, &frame_prob);
         if (flag == false) {
-            LOG(INFO) << "decoder advance decode exit." << frame_prob.size();
+            VLOG(1) << "decoder advance decode exit." << frame_prob.size();
             break;
         }
 

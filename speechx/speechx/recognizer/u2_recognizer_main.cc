@@ -49,11 +49,13 @@ int main(int argc, char* argv[]) {
 
     kaldi::Timer timer;
     for (; !wav_reader.Done(); wav_reader.Next()) {
+        kaldi::Timer local_timer;
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
         LOG(INFO) << "utt: " << utt;
         LOG(INFO) << "wav dur: " << wave_data.Duration() << " sec.";
-        tot_wav_duration += wave_data.Duration();
+        double dur = wave_data.Duration();
+        tot_wav_duration += dur;
 
         int32 this_channel = 0;
         kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
@@ -63,6 +65,7 @@ int main(int argc, char* argv[]) {
 
         int sample_offset = 0;
         int cnt = 0;
+
         while (sample_offset < tot_samples) {
             int cur_chunk_size =
                 std::min(chunk_sample_size, tot_samples - sample_offset);
@@ -78,8 +81,10 @@ int main(int argc, char* argv[]) {
                 recognizer.SetFinished();
             }
             recognizer.Decode();
-            LOG(INFO) << "Pratial result: " << cnt << " "
-                      << recognizer.GetPartialResult();
+            if (recognizer.DecodedSomething()) {
+                LOG(INFO) << "Pratial result: " << cnt << " "
+                          << recognizer.GetPartialResult();
+            }
 
             // no overlap
             sample_offset += cur_chunk_size;
@@ -101,7 +106,9 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
-        LOG(INFO) << " the result of " << utt << " is " << result;
+        LOG(INFO) << utt << " " << result;
+        LOG(INFO) << " RTF: " << dur / local_timer.Elapsed() << " dur: " << dur
+                  << " cost: " << local_timer.Elapsed();
 
         result_writer.Write(utt, result);
 
@@ -111,7 +118,7 @@ int main(int argc, char* argv[]) {
     double elapsed = timer.Elapsed();
 
     LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
-    LOG(INFO) << "cost:" << elapsed << " sec";
+    LOG(INFO) << "total cost:" << elapsed << " sec";
     LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";
-    LOG(INFO) << "the RTF is: " << elapsed / tot_wav_duration;
+    LOG(INFO) << "RTF is: " << elapsed / tot_wav_duration;
 }

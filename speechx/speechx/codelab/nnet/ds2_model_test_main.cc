@@ -21,6 +21,7 @@
 #include <iterator>
 #include <numeric>
 #include <thread>
+
 #include "base/flags.h"
 #include "base/log.h"
 #include "paddle_inference_api.h"
@@ -63,8 +64,8 @@ void model_forward_test() {
     ;
     std::string model_graph = FLAGS_model_path;
     std::string model_params = FLAGS_param_path;
-    CHECK(model_graph != "");
-    CHECK(model_params != "");
+    CHECK_NE(model_graph, "");
+    CHECK_NE(model_params, "");
     cout << "model path: " << model_graph << endl;
     cout << "model param path : " << model_params << endl;
 
@@ -195,8 +196,11 @@ void model_forward_test() {
 }
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     model_forward_test();
     return 0;

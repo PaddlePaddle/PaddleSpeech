@@ -17,7 +17,7 @@
 int main(int argc, char* argv[]) {
     // Initialize Google’s logging library.
     google::InitGoogleLogging(argv[0]);
-
+    google::InstallFailureSignalHandler();
     FLAGS_logtostderr = 1;
 
     LOG(INFO) << "Found " << 10 << " cookies";

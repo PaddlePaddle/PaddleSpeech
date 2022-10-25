@@ -30,8 +30,11 @@ DEFINE_bool(binary, true, "write cmvn in binary (true) or text(false)");
 using namespace boost::json;  // from <boost/json.hpp>
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     LOG(INFO) << "cmvn josn path: " << FLAGS_json_file;
 
@@ -44,13 +47,13 @@ int main(int argc, char* argv[]) {
 
     for (auto obj : value.as_object()) {
         if (obj.key() == "mean_stat") {
-            LOG(INFO) << "mean_stat:" << obj.value();
+            VLOG(2) << "mean_stat:" << obj.value();
         }
         if (obj.key() == "var_stat") {
-            LOG(INFO) << "var_stat: " << obj.value();
+            VLOG(2) << "var_stat: " << obj.value();
         }
         if (obj.key() == "frame_num") {
-            LOG(INFO) << "frame_num: " << obj.value();
+            VLOG(2) << "frame_num: " << obj.value();
         }
     }
 
@@ -76,7 +79,7 @@ int main(int argc, char* argv[]) {
         cmvn_stats(1, idx) = var_stat_vec[idx];
     }
     cmvn_stats(0, mean_size) = frame_num;
-    LOG(INFO) << cmvn_stats;
+    VLOG(2) << cmvn_stats;
 
     kaldi::WriteKaldiObject(cmvn_stats, FLAGS_cmvn_write_path, FLAGS_binary);
     LOG(INFO) << "cmvn stats have write into: " << FLAGS_cmvn_write_path;

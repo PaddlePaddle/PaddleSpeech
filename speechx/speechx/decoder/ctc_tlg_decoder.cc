@@ -18,37 +18,38 @@ namespace ppspeech {
 TLGDecoder::TLGDecoder(TLGDecoderOptions opts) {
     fst_.reset(fst::Fst<fst::StdArc>::Read(opts.fst_path));
     CHECK(fst_ != nullptr);
+
     word_symbol_table_.reset(
         fst::SymbolTable::ReadText(opts.word_symbol_table));
+
     decoder_.reset(new kaldi::LatticeFasterOnlineDecoder(*fst_, opts.opts));
-    decoder_->InitDecoding();
-    frame_decoded_size_ = 0;
+
+    Reset();
 }
 
-void TLGDecoder::InitDecoder() {
+void TLGDecoder::Reset() {
     decoder_->InitDecoding();
-    frame_decoded_size_ = 0;
+    num_frame_decoded_ = 0;
+    return;
 }
+
+void TLGDecoder::InitDecoder() { Reset(); }
 
 void TLGDecoder::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
-    while (!decodable->IsLastFrame(frame_decoded_size_)) {
+    while (!decodable->IsLastFrame(num_frame_decoded_)) {
         AdvanceDecoding(decodable.get());
     }
 }
 
 void TLGDecoder::AdvanceDecoding(kaldi::DecodableInterface* decodable) {
     decoder_->AdvanceDecoding(decodable, 1);
-    frame_decoded_size_++;
+    num_frame_decoded_++;
 }
 
-void TLGDecoder::Reset() {
-    InitDecoder();
-    return;
-}
 
 std::string TLGDecoder::GetPartialResult() {
-    if (frame_decoded_size_ == 0) {
+    if (num_frame_decoded_ == 0) {
         // Assertion failed: (this->NumFramesDecoded() > 0 && "You cannot call
         // BestPathEnd if no frames were decoded.")
         return std::string("");
@@ -68,7 +69,7 @@ std::string TLGDecoder::GetPartialResult() {
 }
 
 std::string TLGDecoder::GetFinalBestPath() {
-    if (frame_decoded_size_ == 0) {
+    if (num_frame_decoded_ == 0) {
         // Assertion failed: (this->NumFramesDecoded() > 0 && "You cannot call
         // BestPathEnd if no frames were decoded.")
         return std::string("");
@@ -88,4 +89,5 @@ std::string TLGDecoder::GetFinalBestPath() {
     }
     return words;
 }
-}
+
+}  // namespace ppspeech

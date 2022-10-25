@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -xe
 
 # the build script had verified in the paddlepaddle docker image.
 # please follow the instruction below to install PaddlePaddle image.
@@ -17,11 +18,6 @@ fi
 
 #rm -rf build
 mkdir -p build
-cd build
 
-cmake .. -DBOOST_ROOT:STRING=${boost_SOURCE_DIR}
-#cmake .. 
-
-make -j
-
-cd -
+cmake -B build -DBOOST_ROOT:STRING=${boost_SOURCE_DIR}
+cmake --build build -j

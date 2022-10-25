@@ -42,8 +42,8 @@ mkdir -p $exp_dir
 export GLOG_logtostderr=1
 
 cmvn_json2kaldi_main \
-    --json_file  $model_dir/data/mean_std.json \
-    --cmvn_write_path $exp_dir/cmvn.ark \
+    --json_file=$model_dir/data/mean_std.json \
+    --cmvn_write_path=$exp_dir/cmvn.ark \
     --binary=false
 echo "convert json cmvn to kaldi ark."
 
@@ -54,4 +54,10 @@ compute_linear_spectrogram_main \
     --cmvn_file=$exp_dir/cmvn.ark
 echo "compute linear spectrogram feature."
 
+compute_fbank_main \
+    --num_bins=161 \
+    --wav_rspecifier=scp:$data_dir/wav.scp \
+    --feature_wspecifier=ark,t:$exp_dir/fbank.ark \
+    --cmvn_file=$exp_dir/cmvn.ark
+echo "compute fbank feature."
 

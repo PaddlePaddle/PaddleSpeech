@@ -53,3 +53,22 @@ Pretrain model from https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1
 | conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_greedy_search | -1 | 0.061884 |  
 | conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_prefix_beam_search | -1 | 0.062056 |  
 | conformer | 32.52 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention_rescoring | -1 |  0.052110 |
+
+
+## U2PP Steaming Pretrained Model
+
+Pretrain model from https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.3.0.model.tar.gz
+
+| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size | CER |  
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention | 16 | 0.057031 |  
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_greedy_search | 16 | 0.068826 |  
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_prefix_beam_search | 16 | 0.069111 |  
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention_rescoring | 16 | 0.059213 |
+
+| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size | CER |  
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention | -1 | 0.049256 |  
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_greedy_search | -1 | 0.052086 |  
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | ctc_prefix_beam_search | -1 | 0.052267 |  
+| conformer | 122.88 M | conf/chunk_conformer.yaml | spec_aug  | aishell1 | attention_rescoring | -1 |  0.047198 |

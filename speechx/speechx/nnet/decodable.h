@@ -24,38 +24,68 @@ struct DecodableOpts;
 
 class Decodable : public kaldi::DecodableInterface {
   public:
-    explicit Decodable(const std::shared_ptr<NnetInterface>& nnet,
+    explicit Decodable(const std::shared_ptr<NnetBase>& nnet,
                        const std::shared_ptr<FrontendInterface>& frontend,
                        kaldi::BaseFloat acoustic_scale = 1.0);
+
     // void Init(DecodableOpts config);
+
+    // nnet logprob output, used by wfst
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
-    virtual bool IsLastFrame(int32 frame);
-    virtual int32 NumIndices() const;
-    // not logprob
+
+    // nnet output
     virtual bool FrameLikelihood(int32 frame,
                                  std::vector<kaldi::BaseFloat>* likelihood);
+
+    // forward nnet with feats
+    bool AdvanceChunk();
+
+    // forward nnet with feats, and get nnet output
+    bool AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
+                      int* vocab_dim);
+
+    void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
+                            float reverse_weight,
+                            std::vector<float>* rescoring_score);
+
+    virtual bool IsLastFrame(int32 frame);
+
+    // nnet output dim, e.g. vocab size
+    virtual int32 NumIndices() const;
+
     virtual int32 NumFramesReady() const;
-    // for offline test
-    void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
+
     void Reset();
+
     bool IsInputFinished() const { return frontend_->IsFinished(); }
+
     bool EnsureFrameHaveComputed(int32 frame);
+
     int32 TokenId2NnetId(int32 token_id);
 
+    std::shared_ptr<NnetBase> Nnet() { return nnet_; }
+
+    // for offline test
+    void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
+
   private:
-    bool AdvanceChunk();
     std::shared_ptr<FrontendInterface> frontend_;
-    std::shared_ptr<NnetInterface> nnet_;
-    kaldi::Matrix<kaldi::BaseFloat> nnet_cache_;
+    std::shared_ptr<NnetBase> nnet_;
+
+    // nnet outputs' cache
+    kaldi::Matrix<kaldi::BaseFloat> nnet_out_cache_;
+
     // the frame is nnet prob frame rather than audio feature frame
     // nnet frame subsample the feature frame
     // eg: 35 frame features output 8 frame inferences
     int32 frame_offset_;
     int32 frames_ready_;
+
     // todo: feature frame mismatch with nnet inference frame
     // so use subsampled_frame
     int32 current_log_post_subsampled_offset_;
     int32 num_chunk_computed_;
+
     kaldi::BaseFloat acoustic_scale_;
 };
 

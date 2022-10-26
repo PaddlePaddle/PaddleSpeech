@@ -75,6 +75,7 @@ base = [
     "braceexpand",
     "pyyaml",
     "pybind11",
+    "paddleslim==2.3.4",
 ]
 
 server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]

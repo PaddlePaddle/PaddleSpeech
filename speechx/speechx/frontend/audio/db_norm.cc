@@ -14,17 +14,18 @@
 
 
 #include "frontend/audio/db_norm.h"
+
 #include "kaldi/feat/cmvn.h"
 #include "kaldi/util/kaldi-io.h"
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
+using kaldi::SubVector;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
-using std::vector;
-using kaldi::SubVector;
 using std::unique_ptr;
+using std::vector;
 
 DecibelNormalizer::DecibelNormalizer(
     const DecibelNormalizerOptions& opts,

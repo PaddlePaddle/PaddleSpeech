@@ -14,16 +14,15 @@
 
 #include "base/flags.h"
 #include "base/log.h"
-#include "kaldi/feat/wave-reader.h"
-#include "kaldi/util/kaldi-io.h"
-#include "kaldi/util/table-types.h"
-
 #include "frontend/audio/audio_cache.h"
 #include "frontend/audio/data_cache.h"
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
 #include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/normalizer.h"
+#include "kaldi/feat/wave-reader.h"
+#include "kaldi/util/kaldi-io.h"
+#include "kaldi/util/table-types.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav scp path");
 DEFINE_string(feature_wspecifier, "", "output feats wspecifier");
@@ -31,8 +30,11 @@ DEFINE_string(cmvn_file, "./cmvn.ark", "read cmvn");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);

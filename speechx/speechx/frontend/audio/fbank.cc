@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "frontend/audio/fbank.h"
+
 #include "kaldi/base/kaldi-math.h"
 #include "kaldi/feat/feature-common.h"
 #include "kaldi/feat/feature-functions.h"
@@ -20,12 +21,12 @@
 
 namespace ppspeech {
 
-using kaldi::int32;
 using kaldi::BaseFloat;
-using kaldi::Vector;
-using kaldi::SubVector;
-using kaldi::VectorBase;
+using kaldi::int32;
 using kaldi::Matrix;
+using kaldi::SubVector;
+using kaldi::Vector;
+using kaldi::VectorBase;
 using std::vector;
 
 FbankComputer::FbankComputer(const Options& opts)

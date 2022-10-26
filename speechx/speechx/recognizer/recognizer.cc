@@ -12,25 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/recognizer.h"
+#include "recognizer/recognizer.h"
+
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
+using kaldi::SubVector;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
-using std::vector;
-using kaldi::SubVector;
 using std::unique_ptr;
+using std::vector;
+
 
 Recognizer::Recognizer(const RecognizerResource& resource) {
     // resource_ = resource;
     const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
     feature_pipeline_.reset(new FeaturePipeline(feature_opts));
+
     std::shared_ptr<PaddleNnet> nnet(new PaddleNnet(resource.model_opts));
+
     BaseFloat ac_scale = resource.acoustic_scale;
     decodable_.reset(new Decodable(nnet, feature_pipeline_, ac_scale));
+
     decoder_.reset(new TLGDecoder(resource.tlg_opts));
+
     input_finished_ = false;
 }
 

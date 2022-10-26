@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/recognizer.h"
 #include "decoder/param.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/table-types.h"
+#include "recognizer/u2_recognizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
@@ -23,11 +23,14 @@ DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
-    ppspeech::RecognizerResource resource = ppspeech::InitRecognizerResoure();
-    ppspeech::Recognizer recognizer(resource);
+    int32 num_done = 0, num_err = 0;
+    double tot_wav_duration = 0.0;
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
@@ -40,25 +43,29 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    int32 num_done = 0, num_err = 0;
-    double tot_wav_duration = 0.0;
+    ppspeech::U2RecognizerResource resource =
+        ppspeech::U2RecognizerResource::InitFromFlags();
+    ppspeech::U2Recognizer recognizer(resource);
 
     kaldi::Timer timer;
-
     for (; !wav_reader.Done(); wav_reader.Next()) {
+        kaldi::Timer local_timer;
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
+        LOG(INFO) << "utt: " << utt;
+        LOG(INFO) << "wav dur: " << wave_data.Duration() << " sec.";
+        double dur = wave_data.Duration();
+        tot_wav_duration += dur;
 
         int32 this_channel = 0;
         kaldi::SubVector<kaldi::BaseFloat> waveform(wave_data.Data(),
                                                     this_channel);
         int tot_samples = waveform.Dim();
-        tot_wav_duration += tot_samples * 1.0 / sample_rate;
         LOG(INFO) << "wav len (sample): " << tot_samples;
 
         int sample_offset = 0;
-        std::vector<kaldi::Vector<BaseFloat>> feats;
-        int feature_rows = 0;
+        int cnt = 0;
+
         while (sample_offset < tot_samples) {
             int cur_chunk_size =
                 std::min(chunk_sample_size, tot_samples - sample_offset);
@@ -74,27 +81,44 @@ int main(int argc, char* argv[]) {
                 recognizer.SetFinished();
             }
             recognizer.Decode();
+            if (recognizer.DecodedSomething()) {
+                LOG(INFO) << "Pratial result: " << cnt << " "
+                          << recognizer.GetPartialResult();
+            }
 
             // no overlap
             sample_offset += cur_chunk_size;
+            cnt++;
         }
+        CHECK(sample_offset == tot_samples);
 
-        std::string result;
-        result = recognizer.GetFinalResult();
+        // second pass decoding
+        recognizer.Rescoring();
+
+        std::string result = recognizer.GetFinalResult();
+
         recognizer.Reset();
+
         if (result.empty()) {
             // the TokenWriter can not write empty string.
             ++num_err;
-            KALDI_LOG << " the result of " << utt << " is empty";
+            LOG(INFO) << " the result of " << utt << " is empty";
             continue;
         }
-        KALDI_LOG << " the result of " << utt << " is " << result;
+
+        LOG(INFO) << utt << " " << result;
+        LOG(INFO) << " RTF: " << local_timer.Elapsed() / dur << " dur: " << dur
+                  << " cost: " << local_timer.Elapsed();
+
         result_writer.Write(utt, result);
+
         ++num_done;
     }
+
     double elapsed = timer.Elapsed();
-    KALDI_LOG << "Done " << num_done << " out of " << (num_err + num_done);
-    KALDI_LOG << " cost:" << elapsed << " s";
-    KALDI_LOG << "total wav duration is: " << tot_wav_duration << " s";
-    KALDI_LOG << "the RTF is: " << elapsed / tot_wav_duration;
+
+    LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
+    LOG(INFO) << "total cost:" << elapsed << " sec";
+    LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";
+    LOG(INFO) << "RTF is: " << elapsed / tot_wav_duration;
 }

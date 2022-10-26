@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "nnet/paddle_nnet.h"
+#include "nnet/ds2_nnet.h"
+
 #include "absl/strings/str_split.h"
 
 namespace ppspeech {
 
-using std::vector;
-using std::string;
-using std::shared_ptr;
 using kaldi::Matrix;
 using kaldi::Vector;
+using std::shared_ptr;
+using std::string;
+using std::vector;
 
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
     std::vector<std::string> cache_names;
@@ -48,6 +49,7 @@ void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
 }
 
 PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
+    subsampling_rate_ = opts.subsample_rate;
     paddle_infer::Config config;
     config.SetModel(opts.model_path, opts.param_path);
     if (opts.use_gpu) {
@@ -143,9 +145,8 @@ shared_ptr<Tensor<BaseFloat>> PaddleNnet::GetCacheEncoder(const string& name) {
 }
 
 void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
-                             int32 feature_dim,
-                             Vector<BaseFloat>* inferences,
-                             int32* inference_dim) {
+                             const int32& feature_dim,
+                             NnetOut* out) {
     paddle_infer::Predictor* predictor = GetPredictor();
 
     int feat_row = features.Dim() / feature_dim;
@@ -203,9 +204,13 @@ void PaddleNnet::FeedForward(const Vector<BaseFloat>& features,
     std::vector<int> output_shape = output_tensor->shape();
     int32 row = output_shape[1];
     int32 col = output_shape[2];
-    inferences->Resize(row * col);
-    *inference_dim = col;
-    output_tensor->CopyToCpu(inferences->Data());
+
+
+    // inferences->Resize(row * col);
+    // *inference_dim = col;
+    out->logprobs.Resize(row * col);
+    out->vocab_dim = col;
+    output_tensor->CopyToCpu(out->logprobs.Data());
 
     ReleasePredictor(predictor);
 }

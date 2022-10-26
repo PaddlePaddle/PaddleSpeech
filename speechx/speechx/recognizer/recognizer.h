@@ -20,21 +20,31 @@
 #include "decoder/ctc_tlg_decoder.h"
 #include "frontend/audio/feature_pipeline.h"
 #include "nnet/decodable.h"
-#include "nnet/paddle_nnet.h"
+#include "nnet/ds2_nnet.h"
+
+DECLARE_double(acoustic_scale);
 
 namespace ppspeech {
 
 struct RecognizerResource {
-    FeaturePipelineOptions feature_pipeline_opts;
-    ModelOptions model_opts;
-    TLGDecoderOptions tlg_opts;
+    kaldi::BaseFloat acoustic_scale{1.0};
+    FeaturePipelineOptions feature_pipeline_opts{};
+    ModelOptions model_opts{};
+    TLGDecoderOptions tlg_opts{};
     //    CTCBeamSearchOptions beam_search_opts;
-    kaldi::BaseFloat acoustic_scale;
-    RecognizerResource()
-        : acoustic_scale(1.0),
-          feature_pipeline_opts(),
-          model_opts(),
-          tlg_opts() {}
+
+    static RecognizerResource InitFromFlags() {
+        RecognizerResource resource;
+        resource.acoustic_scale = FLAGS_acoustic_scale;
+        resource.feature_pipeline_opts =
+            FeaturePipelineOptions::InitFromFlags();
+        resource.feature_pipeline_opts.assembler_opts.fill_zero = true;
+        LOG(INFO) << "ds2 need fill zero be true: "
+                  << resource.feature_pipeline_opts.assembler_opts.fill_zero;
+        resource.model_opts = ModelOptions::InitFromFlags();
+        resource.tlg_opts = TLGDecoderOptions::InitFromFlags();
+        return resource;
+    }
 };
 
 class Recognizer {

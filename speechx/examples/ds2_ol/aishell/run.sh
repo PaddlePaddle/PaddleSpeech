@@ -1,5 +1,5 @@
 #!/bin/bash
-set +x
+set -x
 set -e
 
 . path.sh
@@ -11,7 +11,7 @@ stop_stage=100
 . utils/parse_options.sh
 
 # 1. compile
-if [ ! -d ${SPEECHX_EXAMPLES} ]; then
+if [ ! -d ${SPEECHX_BUILD} ]; then
     pushd ${SPEECHX_ROOT} 
     bash build.sh
     popd
@@ -84,7 +84,7 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     #  recognizer
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wolm.log \
-    ctc_prefix_beam_search_decoder_main \
+    ctc_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
@@ -103,7 +103,7 @@ fi
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     #  decode with lm
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.lm.log \
-    ctc_prefix_beam_search_decoder_main \
+    ctc_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
@@ -135,7 +135,7 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wfst.log \
-    tlg_decoder_main \
+    ctc_tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \

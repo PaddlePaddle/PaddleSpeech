@@ -1,12 +1,11 @@
 #!/bin/bash
 set -e
 
-. path.sh
-
 data=data
 exp=exp
-nj=1
+nj=20
 
+. utils/parse_options.sh
 
 mkdir -p $exp
 ckpt_dir=./data/model

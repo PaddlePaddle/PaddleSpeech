@@ -94,3 +94,18 @@ CMake Error at CMakeLists.txt:131 (string):
 ```
 
 please install paddlepaddle >= 2.4rc
+
+2. `u2_recognizer_main: error while loading shared libraries: liblibpaddle.so: cannot open shared object file: No such file or directory`
+
+
+```
+cd $YOUR_ENV_PATH/lib/python3.7/site-packages/paddle/fluid
+patchelf --set-soname libpaddle.so libpaddle.so
+```
+
+3. `u2_recognizer_main: error while loading shared libraries: libgfortran.so.5: cannot open shared object file: No such file or directory`
+
+```
+# my gcc version is 8.2
+apt-get install gfortran-8
+```

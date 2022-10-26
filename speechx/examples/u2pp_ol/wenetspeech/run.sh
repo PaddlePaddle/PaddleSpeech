@@ -13,7 +13,7 @@ stop_stage=5
 data=data
 exp=exp
 mkdir -p $exp $data
-
+aishell_wav_scp=aishell_test.scp
 
 # 1. compile
 if [ ! -d ${SPEECHX_BUILD} ]; then

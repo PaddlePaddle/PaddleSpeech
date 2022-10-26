@@ -19,15 +19,13 @@ import pandas as pd
 import yaml
 from paddle import nn
 from paddle.io import DataLoader
-from sklearn.metrics import classification_report
-from sklearn.metrics import precision_recall_fscore_support
-from yacs.config import CfgNode
-
+from paddlespeech.t2s.utils import str2bool
 from paddlespeech.text.models.ernie_linear import ErnieLinear
 from paddlespeech.text.models.ernie_linear import PuncDataset
 from paddlespeech.text.models.ernie_linear import PuncDatasetFromErnieTokenizer
-from paddlespeech.t2s.utils import str2bool
-
+from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_fscore_support
+from yacs.config import CfgNode
 
 DefinedClassifier = {
     'ErnieLinear': ErnieLinear,
@@ -104,10 +102,7 @@ def main():
     parser = argparse.ArgumentParser(description="Test a ErnieLinear model.")
     parser.add_argument("--config", type=str, help="ErnieLinear config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
-    parser.add_argument(
-        "--print_eval",
-        type=str2bool,
-        default=True)
+    parser.add_argument("--print_eval", type=str2bool, default=True)
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
 

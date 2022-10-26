@@ -13,64 +13,20 @@
 // limitations under the License.
 #pragma once
 #include <numeric>
+
 #include "base/common.h"
 #include "kaldi/matrix/kaldi-matrix.h"
-#include "kaldi/util/options-itf.h"
 #include "nnet/nnet_itf.h"
 #include "paddle_inference_api.h"
 
 namespace ppspeech {
 
-struct ModelOptions {
-    std::string model_path;
-    std::string param_path;
-    int thread_num;  // predictor thread pool size
-    bool use_gpu;
-    bool switch_ir_optim;
-    std::string input_names;
-    std::string output_names;
-    std::string cache_names;
-    std::string cache_shape;
-    bool enable_fc_padding;
-    bool enable_profile;
-    ModelOptions()
-        : model_path(""),
-          param_path(""),
-          thread_num(2),
-          use_gpu(false),
-          input_names(""),
-          output_names(""),
-          cache_names(""),
-          cache_shape(""),
-          switch_ir_optim(false),
-          enable_fc_padding(false),
-          enable_profile(false) {}
-
-    void Register(kaldi::OptionsItf* opts) {
-        opts->Register("model-path", &model_path, "model file path");
-        opts->Register("model-param", &param_path, "params model file path");
-        opts->Register("thread-num", &thread_num, "thread num");
-        opts->Register("use-gpu", &use_gpu, "if use gpu");
-        opts->Register("input-names", &input_names, "paddle input names");
-        opts->Register("output-names", &output_names, "paddle output names");
-        opts->Register("cache-names", &cache_names, "cache names");
-        opts->Register("cache-shape", &cache_shape, "cache shape");
-        opts->Register("switch-ir-optiom",
-                       &switch_ir_optim,
-                       "paddle SwitchIrOptim option");
-        opts->Register("enable-fc-padding",
-                       &enable_fc_padding,
-                       "paddle EnableFCPadding option");
-        opts->Register(
-            "enable-profile", &enable_profile, "paddle EnableProfile option");
-    }
-};
 
 template <typename T>
 class Tensor {
   public:
     Tensor() {}
-    Tensor(const std::vector<int>& shape) : _shape(shape) {
+    explicit Tensor(const std::vector<int>& shape) : _shape(shape) {
         int neml = std::accumulate(
             _shape.begin(), _shape.end(), 1, std::multiplies<int>());
         LOG(INFO) << "Tensor neml: " << neml;
@@ -92,20 +48,34 @@ class Tensor {
     std::vector<T> _data;
 };
 
-class PaddleNnet : public NnetInterface {
+class PaddleNnet : public NnetBase {
   public:
-    PaddleNnet(const ModelOptions& opts);
+    explicit PaddleNnet(const ModelOptions& opts);
 
-    virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
-                             int32 feature_dim,
-                             kaldi::Vector<kaldi::BaseFloat>* inferences,
-                             int32* inference_dim);
+    void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
+                     const int32& feature_dim,
+                     NnetOut* out) override;
+
+    void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
+                            float reverse_weight,
+                            std::vector<float>* rescoring_score) override {
+        VLOG(2) << "deepspeech2 not has AttentionRescoring.";
+    }
 
     void Dim();
-    virtual void Reset();
+
+    void Reset() override;
+
+    bool IsLogProb() override { return false; }
+
+
     std::shared_ptr<Tensor<kaldi::BaseFloat>> GetCacheEncoder(
         const std::string& name);
+
     void InitCacheEncouts(const ModelOptions& opts);
+
+    void EncoderOuts(std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out)
+        const override {}
 
   private:
     paddle_infer::Predictor* GetPredictor();
@@ -117,6 +87,7 @@ class PaddleNnet : public NnetInterface {
     std::map<paddle_infer::Predictor*, int> predictor_to_thread_id;
     std::map<std::string, int> cache_names_idx_;
     std::vector<std::shared_ptr<Tensor<kaldi::BaseFloat>>> cache_encouts_;
+
     ModelOptions opts_;
 
   public:

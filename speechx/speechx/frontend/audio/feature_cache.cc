@@ -16,12 +16,12 @@
 
 namespace ppspeech {
 
+using kaldi::BaseFloat;
+using kaldi::SubVector;
 using kaldi::Vector;
 using kaldi::VectorBase;
-using kaldi::BaseFloat;
-using std::vector;
-using kaldi::SubVector;
 using std::unique_ptr;
+using std::vector;
 
 FeatureCache::FeatureCache(FeatureCacheOptions opts,
                            unique_ptr<FrontendInterface> base_extractor) {
@@ -73,6 +73,9 @@ bool FeatureCache::Compute() {
     if (result == false || feature.Dim() == 0) return false;
 
     int32 num_chunk = feature.Dim() / dim_;
+    nframe_ += num_chunk;
+    VLOG(1) << "nframe computed: " << nframe_;
+
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
         int32 start = chunk_idx * dim_;
         Vector<BaseFloat> feature_chunk(dim_);

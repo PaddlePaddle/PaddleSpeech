@@ -14,6 +14,9 @@
 
 #pragma once
 
+#include <limits>
+#include <string>
+
 namespace ppspeech {
 
 #ifndef DISALLOW_COPY_AND_ASSIGN
@@ -22,4 +25,7 @@ namespace ppspeech {
     void operator=(const TypeName&) = delete
 #endif
 
-}  // namespace pp_speech
+// kSpaceSymbol in UTF-8 is: ▁
+const char kSpaceSymbo[] = "\xe2\x96\x81";
+
+}  // namespace ppspeech

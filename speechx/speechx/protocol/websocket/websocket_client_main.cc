@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "websocket/websocket_client.h"
 #include "kaldi/feat/wave-reader.h"
 #include "kaldi/util/kaldi-io.h"
 #include "kaldi/util/table-types.h"
+#include "websocket/websocket_client.h"
 
 DEFINE_string(host, "127.0.0.1", "host of websocket server");
 DEFINE_int32(port, 8082, "port of websocket server");

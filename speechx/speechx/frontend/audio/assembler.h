@@ -22,14 +22,11 @@ namespace ppspeech {
 struct AssemblerOptions {
     // refer:https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/paddlespeech/s2t/exps/deepspeech2/model.py
     // the nnet batch forward
-    int32 receptive_filed_length;
-    int32 subsampling_rate;
-    int32 nnet_decoder_chunk;
-
-    AssemblerOptions()
-        : receptive_filed_length(1),
-          subsampling_rate(1),
-          nnet_decoder_chunk(1) {}
+    int32 receptive_filed_length{1};
+    int32 subsampling_rate{1};
+    int32 nnet_decoder_chunk{1};
+    bool fill_zero{false};  // whether fill zero when last chunk is not equal to
+                            // frame_chunk_size_
 };
 
 class Assembler : public FrontendInterface {
@@ -39,29 +36,34 @@ class Assembler : public FrontendInterface {
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) override;
 
     // feats size = num_frames * feat_dim
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
+    bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) override;
 
     // feat dim
-    virtual size_t Dim() const { return dim_; }
+    size_t Dim() const override { return dim_; }
 
-    virtual void SetFinished() { base_extractor_->SetFinished(); }
+    void SetFinished() override { base_extractor_->SetFinished(); }
 
-    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+    bool IsFinished() const override { return base_extractor_->IsFinished(); }
 
-    virtual void Reset() { base_extractor_->Reset(); }
+    void Reset() override;
 
   private:
     bool Compute(kaldi::Vector<kaldi::BaseFloat>* feats);
 
-    int32 dim_;
+    bool fill_zero_{false};
+
+    int32 dim_;                 // feat dim
     int32 frame_chunk_size_;    // window
     int32 frame_chunk_stride_;  // stride
+    int32 cache_size_;          // window - stride
     int32 receptive_filed_length_;
     std::queue<kaldi::Vector<kaldi::BaseFloat>> feature_cache_;
     std::unique_ptr<FrontendInterface> base_extractor_;
+
+    int32 nframes_;  // num frame computed
     DISALLOW_COPY_AND_ASSIGN(Assembler);
 };
 

@@ -113,7 +113,7 @@ class ServerExecutor(BaseExecutor):
         """
         config = get_config(config_file)
         if self.init(config):
-            uvicorn.run(app, host=config.host, port=config.port, debug=True)
+            uvicorn.run(app, host=config.host, port=config.port)
 
 
 @cli_server_register(

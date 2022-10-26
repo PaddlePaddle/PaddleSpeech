@@ -19,13 +19,14 @@ import pandas as pd
 import yaml
 from paddle import nn
 from paddle.io import DataLoader
+from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_fscore_support
+from yacs.config import CfgNode
+
 from paddlespeech.t2s.utils import str2bool
 from paddlespeech.text.models.ernie_linear import ErnieLinear
 from paddlespeech.text.models.ernie_linear import PuncDataset
 from paddlespeech.text.models.ernie_linear import PuncDatasetFromErnieTokenizer
-from sklearn.metrics import classification_report
-from sklearn.metrics import precision_recall_fscore_support
-from yacs.config import CfgNode
 
 DefinedClassifier = {
     'ErnieLinear': ErnieLinear,

@@ -1,4 +1,4 @@
-# Rhythm Prediction with CSMSC and AiShell3
+# Prosody Prediction with CSMSC and AISHELL-3
 
 ## Get Started
 ### Data Preprocessing
@@ -13,7 +13,7 @@
 ```bash
 ./run.sh --stage 2 --stop-stage 2
 ```
-### Punctuation Restoration
+### Prosody Prediction
 ```bash
 ./run.sh --stage 3 --stop-stage 3
 ```

@@ -97,8 +97,6 @@ def test(args):
         t2 = evaluation(test_total_label, test_total_predict)
         print('=========================================================')
         print(t2)
-    else:
-        pass
 
 
 def main():
@@ -109,7 +107,7 @@ def main():
     parser.add_argument(
         "--print_eval",
         type=str2bool,
-        default=False)
+        default=True)
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
 

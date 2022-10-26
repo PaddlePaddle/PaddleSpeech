@@ -5,12 +5,12 @@ set -e
 
 data=data
 exp=exp
-nj=20
+nj=1
 
 
 mkdir -p $exp
 ckpt_dir=./data/model
-model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model/
+model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model/
 aishell_wav_scp=aishell_test.scp
 text=$data/test/text
 

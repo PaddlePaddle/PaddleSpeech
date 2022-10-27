@@ -834,6 +834,20 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 要引用 PaddleSpeech 进行研究，请使用以下格式进行引用。
 ```text
+@InProceedings{pmlr-v162-bai22d,
+  title = {{A}$^3${T}: Alignment-Aware Acoustic and Text Pretraining for Speech Synthesis and Editing},
+  author = {Bai, He and Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Li, Xintong and Huang, Liang},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
+  pages = {1399--1411},
+  year = {2022},
+  volume = {162},
+  series = {Proceedings of Machine Learning Research},
+  month = {17--23 Jul},
+  publisher = {PMLR},
+  pdf = {https://proceedings.mlr.press/v162/bai22d/bai22d.pdf},
+  url = {https://proceedings.mlr.press/v162/bai22d.html},
+}
+
 @inproceedings{zhang2022paddlespeech,
     title = {PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
     author = {Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},

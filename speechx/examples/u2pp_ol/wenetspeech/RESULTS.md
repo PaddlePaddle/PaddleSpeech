@@ -14,7 +14,8 @@ Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
 ### RTF 
 
 > RTF with feature and decoder which is more end to end.
-> Intel(R) Xeon(R) Gold 6148 CPU @ 2.40GHz
+
+* Intel(R) Xeon(R) Gold 6148 CPU @ 2.40GHz, FP32 model
 
 ```
 I1026 16:13:26.247121 48038 u2_recognizer_main.cc:123] total wav duration is: 36108.9 sec

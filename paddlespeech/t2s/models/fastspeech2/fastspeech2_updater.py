@@ -62,16 +62,17 @@ class FastSpeech2Updater(StandardUpdater):
         if spk_emb is not None:
             spk_id = None
 
-        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
-            text=batch["text"],
-            text_lengths=batch["text_lengths"],
-            speech=batch["speech"],
-            speech_lengths=batch["speech_lengths"],
-            durations=batch["durations"],
-            pitch=batch["pitch"],
-            energy=batch["energy"],
-            spk_id=spk_id,
-            spk_emb=spk_emb)
+        with self.model.no_sync():
+            before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
+                text=batch["text"],
+                text_lengths=batch["text_lengths"],
+                speech=batch["speech"],
+                speech_lengths=batch["speech_lengths"],
+                durations=batch["durations"],
+                pitch=batch["pitch"],
+                energy=batch["energy"],
+                spk_id=spk_id,
+                spk_emb=spk_emb)
 
         l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion(
             after_outs=after_outs,
@@ -101,7 +102,7 @@ class FastSpeech2Updater(StandardUpdater):
         report("train/pitch_loss", float(pitch_loss))
         report("train/energy_loss", float(energy_loss))
         report("train/speaker_loss", float(speaker_loss))
-        report("train/speaker_loss_0.02", float(self.spk_loss_scale * speaker_loss))
+        report("train/scale_speaker_loss", float(self.spk_loss_scale * speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
@@ -109,7 +110,7 @@ class FastSpeech2Updater(StandardUpdater):
         losses_dict["energy_loss"] = float(energy_loss)
         losses_dict["energy_loss"] = float(energy_loss)
         losses_dict["speaker_loss"] = float(speaker_loss)
-        losses_dict["speaker_loss_0.02"] = float(self.spk_loss_scale * speaker_loss)
+        losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale * speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
@@ -144,16 +145,17 @@ class FastSpeech2Evaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
-            text=batch["text"],
-            text_lengths=batch["text_lengths"],
-            speech=batch["speech"],
-            speech_lengths=batch["speech_lengths"],
-            durations=batch["durations"],
-            pitch=batch["pitch"],
-            energy=batch["energy"],
-            spk_id=spk_id,
-            spk_emb=spk_emb)
+        with self.model.no_sync():
+            before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
+                text=batch["text"],
+                text_lengths=batch["text_lengths"],
+                speech=batch["speech"],
+                speech_lengths=batch["speech_lengths"],
+                durations=batch["durations"],
+                pitch=batch["pitch"],
+                energy=batch["energy"],
+                spk_id=spk_id,
+                spk_emb=spk_emb)
 
         l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion(
             after_outs=after_outs,
@@ -176,11 +178,15 @@ class FastSpeech2Evaluator(StandardEvaluator):
         report("eval/duration_loss", float(duration_loss))
         report("eval/pitch_loss", float(pitch_loss))
         report("eval/energy_loss", float(energy_loss))
+        report("train/speaker_loss", float(speaker_loss))
+        report("train/scale_speaker_loss", float(self.spk_loss_scale * speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
         losses_dict["pitch_loss"] = float(pitch_loss)
         losses_dict["energy_loss"] = float(energy_loss)
+        losses_dict["speaker_loss"] = float(speaker_loss)
+        losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale * speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())

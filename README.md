@@ -828,7 +828,21 @@ The Text-to-Speech module is originally called [Parakeet](https://github.com/Pad
 ## Citation
 
 To cite PaddleSpeech for research, please use the following format.
-```tex
+```text
+@InProceedings{pmlr-v162-bai22d,
+  title = {{A}$^3${T}: Alignment-Aware Acoustic and Text Pretraining for Speech Synthesis and Editing},
+  author = {Bai, He and Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Li, Xintong and Huang, Liang},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
+  pages = {1399--1411},
+  year = {2022},
+  volume = {162},
+  series = {Proceedings of Machine Learning Research},
+  month = {17--23 Jul},
+  publisher = {PMLR},
+  pdf = {https://proceedings.mlr.press/v162/bai22d/bai22d.pdf},
+  url = {https://proceedings.mlr.press/v162/bai22d.html},
+}
+
 @inproceedings{zhang2022paddlespeech,
     title = {PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
     author = {Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},

@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from Cross-Lingual-Voice-Cloning(https://github.com/deterministic-algorithms-lab/Cross-Lingual-Voice-Cloning)
-
-from paddle import nn
 import paddle
+from paddle import nn
 from typeguard import check_argument_types
 
+
 class SpeakerClassifier(nn.Layer):
-    
-    def __init__(self, idim: int, hidden_sc_dim: int, spk_num: int, ):
+    def __init__(
+            self,
+            idim: int,
+            hidden_sc_dim: int,
+            spk_num: int, ):
         assert check_argument_types()
         super().__init__()
         # store hyperparameters
@@ -27,11 +30,13 @@ class SpeakerClassifier(nn.Layer):
         self.hidden_sc_dim = hidden_sc_dim
         self.spk_num = spk_num
 
-        self.model = nn.Sequential(nn.Linear(self.idim, self.hidden_sc_dim),
-                                   nn.Linear(self.hidden_sc_dim, self.spk_num))
-    
+        self.model = nn.Sequential(
+            nn.Linear(self.idim, self.hidden_sc_dim),
+            nn.Linear(self.hidden_sc_dim, self.spk_num))
+
     def parse_outputs(self, out, text_lengths):
-        mask = paddle.arange(out.shape[1]).expand([out.shape[0], out.shape[1]]) < text_lengths.unsqueeze(1)
+        mask = paddle.arange(out.shape[1]).expand(
+            [out.shape[0], out.shape[1]]) < text_lengths.unsqueeze(1)
         out = paddle.transpose(out, perm=[2, 0, 1])
         out = out * mask
         out = paddle.transpose(out, perm=[1, 2, 0])
@@ -44,7 +49,7 @@ class SpeakerClassifier(nn.Layer):
         
         log probabilities of speaker classification = [batch_size, seq_len, spk_num]
         """
-        
-        out = self.model(encoder_outputs) 
+
+        out = self.model(encoder_outputs)
         out = self.parse_outputs(out, text_lengths)
         return out

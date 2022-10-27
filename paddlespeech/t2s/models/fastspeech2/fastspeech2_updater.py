@@ -14,6 +14,7 @@
 import logging
 from pathlib import Path
 
+from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.nn import Layer
@@ -23,6 +24,7 @@ from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Loss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -43,7 +45,8 @@ class FastSpeech2Updater(StandardUpdater):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         self.criterion = FastSpeech2Loss(
-            use_masking=use_masking, use_weighted_masking=use_weighted_masking,)
+            use_masking=use_masking,
+            use_weighted_masking=use_weighted_masking, )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -62,7 +65,21 @@ class FastSpeech2Updater(StandardUpdater):
         if spk_emb is not None:
             spk_id = None
 
-        with self.model.no_sync():
+        if type(
+                self.model
+        ) == DataParallel and self.model._layers.spk_num and self.model._layers.enable_speaker_classifier:
+            with self.model.no_sync():
+                before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
+                    text=batch["text"],
+                    text_lengths=batch["text_lengths"],
+                    speech=batch["speech"],
+                    speech_lengths=batch["speech_lengths"],
+                    durations=batch["durations"],
+                    pitch=batch["pitch"],
+                    energy=batch["energy"],
+                    spk_id=spk_id,
+                    spk_emb=spk_emb)
+        else:
             before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
                 text=batch["text"],
                 text_lengths=batch["text_lengths"],
@@ -87,7 +104,7 @@ class FastSpeech2Updater(StandardUpdater):
             ilens=batch["text_lengths"],
             olens=olens,
             spk_logits=spk_logits,
-            spk_ids=spk_id,)
+            spk_ids=spk_id, )
 
         loss = l1_loss + duration_loss + pitch_loss + energy_loss + self.spk_loss_scale * speaker_loss
 
@@ -101,16 +118,20 @@ class FastSpeech2Updater(StandardUpdater):
         report("train/duration_loss", float(duration_loss))
         report("train/pitch_loss", float(pitch_loss))
         report("train/energy_loss", float(energy_loss))
-        report("train/speaker_loss", float(speaker_loss))
-        report("train/scale_speaker_loss", float(self.spk_loss_scale * speaker_loss))
+        if speaker_loss != 0.0:
+            report("train/speaker_loss", float(speaker_loss))
+            report("train/scale_speaker_loss",
+                   float(self.spk_loss_scale * speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
         losses_dict["pitch_loss"] = float(pitch_loss)
         losses_dict["energy_loss"] = float(energy_loss)
         losses_dict["energy_loss"] = float(energy_loss)
-        losses_dict["speaker_loss"] = float(speaker_loss)
-        losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale * speaker_loss)
+        if speaker_loss != 0.0:
+            losses_dict["speaker_loss"] = float(speaker_loss)
+            losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale *
+                                                      speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
@@ -145,7 +166,21 @@ class FastSpeech2Evaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        with self.model.no_sync():
+        if type(
+                self.model
+        ) == DataParallel and self.model._layers.spk_num and self.model._layers.enable_speaker_classifier:
+            with self.model.no_sync():
+                before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
+                    text=batch["text"],
+                    text_lengths=batch["text_lengths"],
+                    speech=batch["speech"],
+                    speech_lengths=batch["speech_lengths"],
+                    durations=batch["durations"],
+                    pitch=batch["pitch"],
+                    energy=batch["energy"],
+                    spk_id=spk_id,
+                    spk_emb=spk_emb)
+        else:
             before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
                 text=batch["text"],
                 text_lengths=batch["text_lengths"],
@@ -168,9 +203,9 @@ class FastSpeech2Evaluator(StandardEvaluator):
             ps=batch["pitch"],
             es=batch["energy"],
             ilens=batch["text_lengths"],
-            olens=olens, 
+            olens=olens,
             spk_logits=spk_logits,
-            spk_ids=spk_id,)
+            spk_ids=spk_id, )
         loss = l1_loss + duration_loss + pitch_loss + energy_loss + self.spk_loss_scale * speaker_loss
 
         report("eval/loss", float(loss))
@@ -178,15 +213,19 @@ class FastSpeech2Evaluator(StandardEvaluator):
         report("eval/duration_loss", float(duration_loss))
         report("eval/pitch_loss", float(pitch_loss))
         report("eval/energy_loss", float(energy_loss))
-        report("train/speaker_loss", float(speaker_loss))
-        report("train/scale_speaker_loss", float(self.spk_loss_scale * speaker_loss))
+        if speaker_loss != 0.0:
+            report("train/speaker_loss", float(speaker_loss))
+            report("train/scale_speaker_loss",
+                   float(self.spk_loss_scale * speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
         losses_dict["pitch_loss"] = float(pitch_loss)
         losses_dict["energy_loss"] = float(energy_loss)
-        losses_dict["speaker_loss"] = float(speaker_loss)
-        losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale * speaker_loss)
+        if speaker_loss != 0.0:
+            losses_dict["speaker_loss"] = float(speaker_loss)
+            losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale *
+                                                      speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())

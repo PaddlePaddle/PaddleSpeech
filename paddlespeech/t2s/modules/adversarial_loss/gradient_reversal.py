@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import paddle
-from paddle.autograd import PyLayer
 import paddle.nn as nn
+from paddle.autograd import PyLayer
+
 
 class GradientReversalFunction(PyLayer):
     """Gradient Reversal Layer from:
@@ -57,4 +57,3 @@ class GradientReversalLayer(nn.Layer):
         """Forward in networks
         """
         return GradientReversalFunction.apply(x, self.lambda_)
-

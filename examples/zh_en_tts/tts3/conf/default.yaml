@@ -74,7 +74,7 @@ model:
     stop_gradient_from_energy_predictor: False # whether to stop the gradient from energy predictor to encoder
     spk_embed_dim: 256                         # speaker embedding dimension
     spk_embed_integration_type: concat         # speaker embedding integration type
-    enable_speaker_classifier: True            # Whether to use speaker classifier module
+    enable_speaker_classifier: False           # Whether to use speaker classifier module
     hidden_sc_dim: 256                         # The hidden layer dim of speaker classifier
     
 

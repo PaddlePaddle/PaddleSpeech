@@ -12,45 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "base/flags.h"
-#include "base/log.h"
+#include "base/common.h"
+#include "decoder/param.h"
 #include "frontend/audio/assembler.h"
 #include "frontend/audio/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
-#include "nnet/paddle_nnet.h"
+#include "nnet/ds2_nnet.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");
-DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
-DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
-DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
-DEFINE_int32(receptive_field_length,
-             7,
-             "receptive field of two CNN(kernel=3) downsampling module.");
-DEFINE_int32(downsampling_rate,
-             4,
-             "two CNN(kernel=3) module downsampling rate.");
-DEFINE_string(
-    model_input_names,
-    "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box",
-    "model input names");
-DEFINE_string(model_output_names,
-              "softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0",
-              "model output names");
-DEFINE_string(model_cache_names,
-              "chunk_state_h_box,chunk_state_c_box",
-              "model cache names");
-DEFINE_string(model_cache_shapes, "5-1-1024,5-1-1024", "model cache shapes");
-DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
 
 using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
@@ -62,13 +44,8 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
 
-    ppspeech::ModelOptions model_opts;
-    model_opts.model_path = model_graph;
-    model_opts.param_path = model_params;
-    model_opts.cache_names = FLAGS_model_cache_names;
-    model_opts.cache_shape = FLAGS_model_cache_shapes;
-    model_opts.input_names = FLAGS_model_input_names;
-    model_opts.output_names = FLAGS_model_output_names;
+    ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
+
     std::shared_ptr<ppspeech::PaddleNnet> nnet(
         new ppspeech::PaddleNnet(model_opts));
     std::shared_ptr<ppspeech::DataCache> raw_data(new ppspeech::DataCache());
@@ -76,8 +53,8 @@ int main(int argc, char* argv[]) {
         new ppspeech::Decodable(nnet, raw_data, FLAGS_acoustic_scale));
 
     int32 chunk_size = FLAGS_receptive_field_length +
-                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_downsampling_rate;
-    int32 chunk_stride = FLAGS_downsampling_rate * FLAGS_nnet_decoder_chunk;
+                       (FLAGS_nnet_decoder_chunk - 1) * FLAGS_subsampling_rate;
+    int32 chunk_stride = FLAGS_subsampling_rate * FLAGS_nnet_decoder_chunk;
     int32 receptive_field_length = FLAGS_receptive_field_length;
     LOG(INFO) << "chunk size (frame): " << chunk_size;
     LOG(INFO) << "chunk stride (frame): " << chunk_stride;
@@ -146,7 +123,7 @@ int main(int argc, char* argv[]) {
         }
         kaldi::Matrix<kaldi::BaseFloat> result(prob_vec.size(),
                                                prob_vec[0].Dim());
-        for (int32 row_idx = 0; row_idx < prob_vec.size(); ++row_idx) {
+        for (int row_idx = 0; row_idx < prob_vec.size(); ++row_idx) {
             for (int32 col_idx = 0; col_idx < prob_vec[0].Dim(); ++col_idx) {
                 result(row_idx, col_idx) = prob_vec[row_idx](col_idx);
             }

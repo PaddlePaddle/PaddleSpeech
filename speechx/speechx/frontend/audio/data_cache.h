@@ -27,7 +27,7 @@ namespace ppspeech {
 // pre-recorded audio/feature
 class DataCache : public FrontendInterface {
   public:
-    explicit DataCache() { finished_ = false; }
+    DataCache() { finished_ = false; }
 
     // accept waves/feats
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
@@ -56,4 +56,4 @@ class DataCache : public FrontendInterface {
 
     DISALLOW_COPY_AND_ASSIGN(DataCache);
 };
-}
+}  // namespace ppspeech

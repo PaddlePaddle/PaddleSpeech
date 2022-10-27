@@ -18,7 +18,8 @@ namespace ppspeech {
 
 using std::unique_ptr;
 
-FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
+FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts)
+    : opts_(opts) {
     unique_ptr<FrontendInterface> data_source(
         new ppspeech::AudioCache(1000 * kint16max, opts.to_float32));
 
@@ -32,6 +33,7 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
             opts.linear_spectrogram_opts, std::move(data_source)));
     }
 
+    CHECK_NE(opts.cmvn_file, "");
     unique_ptr<FrontendInterface> cmvn(
         new ppspeech::CMVN(opts.cmvn_file, std::move(base_feature)));
 
@@ -42,4 +44,4 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts) {
         new ppspeech::Assembler(opts.assembler_opts, std::move(cache)));
 }
 
-}  // ppspeech
+}  // namespace ppspeech

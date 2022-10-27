@@ -13,7 +13,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(speechx_cmake_dir ${PROJECT_SOURCE_DIR}/cmake)
 
 # Modules
-list(APPEND CMAKE_MODULE_PATH ${speechx_cmake_dir}/external)
 list(APPEND CMAKE_MODULE_PATH ${speechx_cmake_dir})
 include(FetchContent)
 include(ExternalProject)
@@ -32,9 +31,13 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall
 ###############################################################################
 # Option Configurations
 ###############################################################################
-# option configurations 
 option(TEST_DEBUG "option for debug" OFF)
+option(USE_PROFILING "enable c++ profling" OFF)
 
+option(USING_U2  "compile u2 model." ON)
+option(USING_DS2 "compile with ds2 model." ON)
+
+option(USING_GPU "u2 compute on GPU." OFF)
 
 ###############################################################################
 # Include third party
@@ -83,48 +86,65 @@ add_dependencies(openfst gflags glog)
 
 
 # paddle lib
-set(paddle_SOURCE_DIR ${fc_patch}/paddle-lib)
-set(paddle_PREFIX_DIR ${fc_patch}/paddle-lib-prefix)
-ExternalProject_Add(paddle
-  URL      https://paddle-inference-lib.bj.bcebos.com/2.2.2/cxx_c/Linux/CPU/gcc8.2_avx_mkl/paddle_inference.tgz
-  URL_HASH SHA256=7c6399e778c6554a929b5a39ba2175e702e115145e8fa690d2af974101d98873
-  PREFIX            ${paddle_PREFIX_DIR} 
-  SOURCE_DIR        ${paddle_SOURCE_DIR}
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND     ""
-  INSTALL_COMMAND   ""
-)
+include(paddleinference)
 
-set(PADDLE_LIB ${fc_patch}/paddle-lib)
-include_directories("${PADDLE_LIB}/paddle/include")
-set(PADDLE_LIB_THIRD_PARTY_PATH "${PADDLE_LIB}/third_party/install/")
-include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/include")
-include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/include")
-include_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/include")
 
-link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}protobuf/lib")
-link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}xxhash/lib")
-link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}cryptopp/lib")
-link_directories("${PADDLE_LIB}/paddle/lib")
-link_directories("${PADDLE_LIB_THIRD_PARTY_PATH}mklml/lib")
+# paddle core.so
+find_package(Threads REQUIRED)
+find_package(PythonLibs REQUIRED)
+find_package(Python3 REQUIRED)
+find_package(pybind11 CONFIG)
 
-##paddle with mkl
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-set(MATH_LIB_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mklml")
-include_directories("${MATH_LIB_PATH}/include")
-set(MATH_LIB ${MATH_LIB_PATH}/lib/libmklml_intel${CMAKE_SHARED_LIBRARY_SUFFIX}
-                 ${MATH_LIB_PATH}/lib/libiomp5${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(MKLDNN_PATH "${PADDLE_LIB_THIRD_PARTY_PATH}mkldnn")
-include_directories("${MKLDNN_PATH}/include")
-set(MKLDNN_LIB ${MKLDNN_PATH}/lib/libmkldnn.so.0)
-set(EXTERNAL_LIB "-lrt -ldl -lpthread")
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
+message(STATUS "Pybind11_INCLUDES = ${pybind11_INCLUDE_DIRS}, pybind11_LIBRARIES=${pybind11_LIBRARIES}, pybind11_DEFINITIONS=${pybind11_DEFINITIONS}")
 
-set(DEPS ${PADDLE_LIB}/paddle/lib/libpaddle_inference${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(DEPS ${DEPS}
-      ${MATH_LIB} ${MKLDNN_LIB}
-      glog gflags protobuf xxhash cryptopp
-      ${EXTERNAL_LIB})
+# paddle include and link option
+# -L/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/libs -L/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/fluid -l:libpaddle.so -l:libdnnl.so.2 -l:libiomp5.so
+execute_process(
+    COMMAND python -c "\
+import os;\
+import paddle;\
+include_dir=paddle.sysconfig.get_include();\
+paddle_dir=os.path.split(include_dir)[0];\
+libs_dir=os.path.join(paddle_dir, 'libs');\
+fluid_dir=os.path.join(paddle_dir, 'fluid');\
+out=' '.join([\"-L\" + libs_dir, \"-L\" + fluid_dir]);\
+out += \" -l:libpaddle.so -l:libdnnl.so.2 -l:libiomp5.so\"; print(out);\
+    "
+    OUTPUT_VARIABLE PADDLE_LINK_FLAGS
+    RESULT_VARIABLE SUCESS)
 
+message(STATUS PADDLE_LINK_FLAGS= ${PADDLE_LINK_FLAGS})
+string(STRIP ${PADDLE_LINK_FLAGS} PADDLE_LINK_FLAGS)
+
+# paddle compile option
+# -I/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/include
+execute_process(
+    COMMAND python -c "\
+import paddle; \
+include_dir = paddle.sysconfig.get_include(); \
+print(f\"-I{include_dir}\"); \
+    "
+    OUTPUT_VARIABLE PADDLE_COMPILE_FLAGS)
+message(STATUS PADDLE_COMPILE_FLAGS= ${PADDLE_COMPILE_FLAGS})
+string(STRIP ${PADDLE_COMPILE_FLAGS} PADDLE_COMPILE_FLAGS)
+
+
+# for LD_LIBRARY_PATH
+# set(PADDLE_LIB_DIRS /workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/fluid:/workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/libs/)
+execute_process(
+    COMMAND python -c " \
+import os; \
+import paddle; \
+include_dir=paddle.sysconfig.get_include(); \
+paddle_dir=os.path.split(include_dir)[0]; \
+libs_dir=os.path.join(paddle_dir, 'libs'); \
+fluid_dir=os.path.join(paddle_dir, 'fluid'); \
+out=':'.join([libs_dir, fluid_dir]); print(out); \
+    "
+    OUTPUT_VARIABLE PADDLE_LIB_DIRS)
+message(STATUS PADDLE_LIB_DIRS= ${PADDLE_LIB_DIRS})
 
 
 ###############################################################################

@@ -14,47 +14,47 @@
 
 #pragma once
 
-#include "kaldi/base/kaldi-types.h"
-
 #include <limits>
+
+#include "kaldi/base/kaldi-types.h"
 
 typedef float BaseFloat;
 typedef double double64;
 
 typedef signed char int8;
-typedef short int16;
-typedef int int32;
+typedef short int16;  // NOLINT
+typedef int int32;    // NOLINT
 
 #if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
-typedef long int64;
+typedef long int64;  // NOLINT
 #else
-typedef long long int64;
+typedef long long int64;            // NOLINT
 #endif
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
+typedef unsigned char uint8;    // NOLINT
+typedef unsigned short uint16;  // NOLINT
+typedef unsigned int uint32;    // NOLINT
 
 #if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
-typedef unsigned long uint64;
+typedef unsigned long uint64;  // NOLINT
 #else
-typedef unsigned long long uint64;
+typedef unsigned long long uint64;  // NOLINT
 #endif
 
 typedef signed int char32;
 
-const uint8 kuint8max = ((uint8)0xFF);
-const uint16 kuint16max = ((uint16)0xFFFF);
-const uint32 kuint32max = ((uint32)0xFFFFFFFF);
-const uint64 kuint64max = ((uint64)(0xFFFFFFFFFFFFFFFFLL));
-const int8 kint8min = ((int8)0x80);
-const int8 kint8max = ((int8)0x7F);
-const int16 kint16min = ((int16)0x8000);
-const int16 kint16max = ((int16)0x7FFF);
-const int32 kint32min = ((int32)0x80000000);
-const int32 kint32max = ((int32)0x7FFFFFFF);
-const int64 kint64min = ((int64)(0x8000000000000000LL));
-const int64 kint64max = ((int64)(0x7FFFFFFFFFFFFFFFLL));
+const uint8 kuint8max = static_cast<uint8>(0xFF);
+const uint16 kuint16max = static_cast<uint16>(0xFFFF);
+const uint32 kuint32max = static_cast<uint32>(0xFFFFFFFF);
+const uint64 kuint64max = static_cast<uint64>(0xFFFFFFFFFFFFFFFFLL);
+const int8 kint8min = static_cast<int8>(0x80);
+const int8 kint8max = static_cast<int8>(0x7F);
+const int16 kint16min = static_cast<int16>(0x8000);
+const int16 kint16max = static_cast<int16>(0x7FFF);
+const int32 kint32min = static_cast<int32>(0x80000000);
+const int32 kint32max = static_cast<int32>(0x7FFFFFFF);
+const int64 kint64min = static_cast<int64>(0x8000000000000000LL);
+const int64 kint64max = static_cast<int64>(0x7FFFFFFFFFFFFFFFLL);
 
 const BaseFloat kBaseFloatMax = std::numeric_limits<BaseFloat>::max();
 const BaseFloat kBaseFloatMin = std::numeric_limits<BaseFloat>::min();

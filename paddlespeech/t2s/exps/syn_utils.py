@@ -13,6 +13,7 @@
 # limitations under the License.
 import math
 import os
+import re
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -33,6 +34,7 @@ from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
+
 # remove [W:onnxruntime: xxx] from ort
 ort.set_default_logger_severity(3)
 
@@ -103,14 +105,15 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     sentences = []
     with open(text_file, 'rt') as f:
         for line in f:
-            items = line.strip().split()
-            utt_id = items[0]
-            if lang == 'zh':
-                sentence = "".join(items[1:])
-            elif lang == 'en':
-                sentence = " ".join(items[1:])
-            elif lang == 'mix':
-                sentence = " ".join(items[1:])
+            if line.strip() != "":
+                items = re.split(r"\s+", line.strip(), 1)
+                utt_id = items[0]
+                if lang == 'zh':
+                    sentence = "".join(items[1:])
+                elif lang == 'en':
+                    sentence = " ".join(items[1:])
+                elif lang == 'mix':
+                    sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
     return sentences
 
@@ -180,11 +183,20 @@ def run_frontend(frontend: object,
                  to_tensor: bool=True):
     outs = dict()
     if lang == 'zh':
-        input_ids = frontend.get_input_ids(
-            text,
-            merge_sentences=merge_sentences,
-            get_tone_ids=get_tone_ids,
-            to_tensor=to_tensor)
+        input_ids = {}
+        if text.strip() != "" and re.match(r".*?<speak>.*?</speak>.*", text,
+                                           re.DOTALL):
+            input_ids = frontend.get_input_ids_ssml(
+                text,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                to_tensor=to_tensor)
+        else:
+            input_ids = frontend.get_input_ids(
+                text,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]

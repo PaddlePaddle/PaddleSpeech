@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 #include "decoder/ctc_beam_search_decoder.h"
 
-#include "base/basic_types.h"
+#include "base/common.h"
 #include "decoder/ctc_decoders/decoder_utils.h"
 #include "utils/file_utils.h"
 
@@ -24,12 +25,7 @@ using std::vector;
 using FSTMATCH = fst::SortedMatcher<fst::StdVectorFst>;
 
 CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
-    : opts_(opts),
-      init_ext_scorer_(nullptr),
-      blank_id_(-1),
-      space_id_(-1),
-      num_frame_decoded_(0),
-      root_(nullptr) {
+    : opts_(opts), init_ext_scorer_(nullptr), space_id_(-1), root_(nullptr) {
     LOG(INFO) << "dict path: " << opts_.dict_file;
     if (!ReadFileToVector(opts_.dict_file, &vocabulary_)) {
         LOG(INFO) << "load the dict failed";
@@ -43,12 +39,12 @@ CTCBeamSearch::CTCBeamSearch(const CTCBeamSearchOptions& opts)
             opts_.alpha, opts_.beta, opts_.lm_path, vocabulary_);
     }
 
-    blank_id_ = 0;
-    auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
+    CHECK_EQ(opts_.blank, 0);
 
+    auto it = std::find(vocabulary_.begin(), vocabulary_.end(), " ");
     space_id_ = it - vocabulary_.begin();
     // if no space in vocabulary
-    if ((size_t)space_id_ >= vocabulary_.size()) {
+    if (static_cast<size_t>(space_id_) >= vocabulary_.size()) {
         space_id_ = -2;
     }
 }
@@ -84,8 +80,6 @@ void CTCBeamSearch::Decode(
     return;
 }
 
-int32 CTCBeamSearch::NumFrameDecoded() { return num_frame_decoded_ + 1; }
-
 // todo rename, refactor
 void CTCBeamSearch::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
@@ -110,17 +104,21 @@ void CTCBeamSearch::ResetPrefixes() {
 }
 
 int CTCBeamSearch::DecodeLikelihoods(const vector<vector<float>>& probs,
-                                     vector<string>& nbest_words) {
+                                     const vector<string>& nbest_words) {
     kaldi::Timer timer;
-    timer.Reset();
     AdvanceDecoding(probs);
     LOG(INFO) << "ctc decoding elapsed time(s) "
               << static_cast<float>(timer.Elapsed()) / 1000.0f;
     return 0;
 }
 
+vector<std::pair<double, string>> CTCBeamSearch::GetNBestPath(int n) {
+    int beam_size = n == -1 ? opts_.beam_size : std::min(n, opts_.beam_size);
+    return get_beam_search_result(prefixes_, vocabulary_, beam_size);
+}
+
 vector<std::pair<double, string>> CTCBeamSearch::GetNBestPath() {
-    return get_beam_search_result(prefixes_, vocabulary_, opts_.beam_size);
+    return GetNBestPath(-1);
 }
 
 string CTCBeamSearch::GetBestPath() {
@@ -167,7 +165,7 @@ void CTCBeamSearch::AdvanceDecoding(const vector<vector<BaseFloat>>& probs) {
                 continue;
             }
             min_cutoff = prefixes_[num_prefixes_ - 1]->score +
-                         std::log(prob[blank_id_]) -
+                         std::log(prob[opts_.blank]) -
                          std::max(0.0, init_ext_scorer_->beta);
 
             full_beam = (num_prefixes_ == beam_size);
@@ -195,9 +193,9 @@ void CTCBeamSearch::AdvanceDecoding(const vector<vector<BaseFloat>>& probs) {
             for (size_t i = beam_size; i < prefixes_.size(); ++i) {
                 prefixes_[i]->remove();
             }
-        }  // if
+        }  // end if
         num_frame_decoded_++;
-    }  // for probs_seq
+    }  // end for probs_seq
 }
 
 int32 CTCBeamSearch::SearchOneChar(
@@ -215,7 +213,7 @@ int32 CTCBeamSearch::SearchOneChar(
             break;
         }
 
-        if (c == blank_id_) {
+        if (c == opts_.blank) {
             prefix->log_prob_b_cur =
                 log_sum_exp(prefix->log_prob_b_cur, log_prob_c + prefix->score);
             continue;

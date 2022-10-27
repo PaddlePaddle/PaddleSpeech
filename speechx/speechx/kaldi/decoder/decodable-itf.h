@@ -101,7 +101,9 @@ namespace kaldi {
 */
 class DecodableInterface {
   public:
-    /// Returns the log likelihood, which will be negated in the decoder.
+    virtual ~DecodableInterface() {}
+
+    /// Returns the log likelihood(logprob), which will be negated in the decoder.
     /// The "frame" starts from zero.  You should verify that NumFramesReady() >
     /// frame
     /// before calling this.
@@ -143,11 +145,12 @@ class DecodableInterface {
     /// this is for compatibility with OpenFst).
     virtual int32 NumIndices() const = 0;
 
+    /// Returns the likelihood(prob), which will be postive in the decoder.
+    /// The "frame" starts from zero.  You should verify that NumFramesReady() >
+    /// frame
+    /// before calling this.
     virtual bool FrameLikelihood(
         int32 frame, std::vector<kaldi::BaseFloat>* likelihood) = 0;
-
-
-    virtual ~DecodableInterface() {}
 };
 /// @}
 }  // namespace Kaldi

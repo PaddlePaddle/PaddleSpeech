@@ -69,20 +69,30 @@ void CTCPrefixBeamSearch::InitDecoder() { Reset(); }
 
 void CTCPrefixBeamSearch::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
+    double search_cost = 0.0;
+    double feat_nnet_cost = 0.0;
     while (1) {
         // forward frame by frame
+        kaldi::Timer timer;
         std::vector<kaldi::BaseFloat> frame_prob;
         bool flag = decodable->FrameLikelihood(num_frame_decoded_, &frame_prob);
+        feat_nnet_cost += timer.Elapsed();
         if (flag == false) {
-            VLOG(1) << "decoder advance decode exit." << frame_prob.size();
+            VLOG(3) << "decoder advance decode exit." << frame_prob.size();
             break;
         }
 
+        timer.Reset();
         std::vector<std::vector<kaldi::BaseFloat>> likelihood;
         likelihood.push_back(frame_prob);
         AdvanceDecoding(likelihood);
+        search_cost += timer.Elapsed();
+
         VLOG(2) << "num_frame_decoded_: " << num_frame_decoded_;
     }
+    VLOG(1) << "AdvanceDecode feat + forward  cost: " << feat_nnet_cost
+            << " sec.";
+    VLOG(1) << "AdvanceDecode search  cost: " << search_cost << " sec.";
 }
 
 static bool PrefixScoreCompare(

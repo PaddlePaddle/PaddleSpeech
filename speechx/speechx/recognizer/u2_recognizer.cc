@@ -67,7 +67,10 @@ void U2Recognizer::ResetContinuousDecoding() {
 
 
 void U2Recognizer::Accept(const VectorBase<BaseFloat>& waves) {
+    kaldi::Timer timer;
     feature_pipeline_->Accept(waves);
+    VLOG(1) << "feed waves cost: " << timer.Elapsed() << " sec. " << waves.Dim()
+            << " samples.";
 }
 
 
@@ -78,9 +81,7 @@ void U2Recognizer::Decode() {
 
 void U2Recognizer::Rescoring() {
     // Do attention Rescoring
-    kaldi::Timer timer;
     AttentionRescoring();
-    VLOG(1) << "Rescoring cost latency: " << timer.Elapsed() << " sec.";
 }
 
 void U2Recognizer::UpdateResult(bool finish) {
@@ -181,15 +182,13 @@ void U2Recognizer::AttentionRescoring() {
         return;
     }
 
-    kaldi::Timer timer;
     std::vector<float> rescoring_score;
     decodable_->AttentionRescoring(
         hypotheses, opts_.decoder_opts.reverse_weight, &rescoring_score);
-    VLOG(1) << "Attention Rescoring takes " << timer.Elapsed() << " sec.";
 
     // combine ctc score and rescoring score
     for (size_t i = 0; i < num_hyps; i++) {
-        VLOG(1) << "hyp " << i << " rescoring_score: " << rescoring_score[i]
+        VLOG(3) << "hyp " << i << " rescoring_score: " << rescoring_score[i]
                 << " ctc_score: " << result_[i].score
                 << " rescoring_weight: " << opts_.decoder_opts.rescoring_weight
                 << " ctc_weight: " << opts_.decoder_opts.ctc_weight;
@@ -197,12 +196,12 @@ void U2Recognizer::AttentionRescoring() {
             opts_.decoder_opts.rescoring_weight * rescoring_score[i] +
             opts_.decoder_opts.ctc_weight * result_[i].score;
 
-        VLOG(1) << "hyp: " << result_[0].sentence
+        VLOG(3) << "hyp: " << result_[0].sentence
                 << " score: " << result_[0].score;
     }
 
     std::sort(result_.begin(), result_.end(), DecodeResult::CompareFunc);
-    VLOG(1) << "result: " << result_[0].sentence
+    VLOG(3) << "result: " << result_[0].sentence
             << " score: " << result_[0].score;
 }
 

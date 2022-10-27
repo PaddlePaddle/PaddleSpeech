@@ -68,9 +68,10 @@ bool Decodable::AdvanceChunk() {
     Vector<BaseFloat> features;
     if (frontend_ == NULL || frontend_->Read(&features) == false) {
         // no feat or frontend_ not init.
-        VLOG(1) << "decodable exit;";
+        VLOG(3) << "decodable exit;";
         return false;
     }
+    VLOG(1) << "AdvanceChunk feat cost: " << timer.Elapsed() << " sec.";
     VLOG(2) << "Forward in " << features.Dim() / frontend_->Dim() << " feats.";
 
     // forward feats
@@ -88,7 +89,8 @@ bool Decodable::AdvanceChunk() {
     // update state, decoding frame.
     frame_offset_ = frames_ready_;
     frames_ready_ += nnet_out_cache_.NumRows();
-    VLOG(2) << "Forward feat chunk cost: " << timer.Elapsed() << " sec.";
+    VLOG(1) << "AdvanceChunk feat + forward cost: " << timer.Elapsed()
+            << " sec.";
     return true;
 }
 
@@ -115,7 +117,7 @@ bool Decodable::AdvanceChunk(kaldi::Vector<kaldi::BaseFloat>* logprobs,
 // read one frame likelihood
 bool Decodable::FrameLikelihood(int32 frame, vector<BaseFloat>* likelihood) {
     if (EnsureFrameHaveComputed(frame) == false) {
-        VLOG(1) << "framelikehood exit.";
+        VLOG(3) << "framelikehood exit.";
         return false;
     }
 
@@ -168,7 +170,9 @@ void Decodable::Reset() {
 void Decodable::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
                                    float reverse_weight,
                                    std::vector<float>* rescoring_score) {
+    kaldi::Timer timer;
     nnet_->AttentionRescoring(hyps, reverse_weight, rescoring_score);
+    VLOG(1) << "Attention Rescoring cost:  " << timer.Elapsed() << " sec.";
 }
 
 }  // namespace ppspeech

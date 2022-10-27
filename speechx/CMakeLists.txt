@@ -134,7 +134,7 @@ string(STRIP ${PADDLE_COMPILE_FLAGS} PADDLE_COMPILE_FLAGS)
 # for LD_LIBRARY_PATH
 # set(PADDLE_LIB_DIRS /workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/fluid:/workspace/DeepSpeech-2.x/tools/venv/lib/python3.7/site-packages/paddle/libs/)
 execute_process(
-    COMMAND python -c " \
+    COMMAND python -c "\
 import os; \
 import paddle; \
 include_dir=paddle.sysconfig.get_include(); \

@@ -109,3 +109,7 @@ patchelf --set-soname libpaddle.so libpaddle.so
 # my gcc version is 8.2
 apt-get install gfortran-8
 ```
+
+4. `Undefined reference to '_gfortran_concat_string'`
+
+using gcc 8.2, gfortran 8.2.

@@ -28,13 +28,24 @@ model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model/
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
-    #  download model
+    #  download u2pp model
     if [ ! -f $ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz ]; then
         mkdir -p $ckpt_dir
         pushd $ckpt_dir
 
         wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
         tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
+
+        popd
+    fi
+
+    # download u2pp quant model
+    if [ ! -f $ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz ]; then
+        mkdir -p $ckpt_dir
+        pushd $ckpt_dir
+
+        wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
+        tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
 
         popd
     fi

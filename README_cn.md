@@ -696,6 +696,31 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </table>
 
 
+<a name="唤醒模型"></a>
+
+**唤醒**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>唤醒</td>
+      <td>hey-snips</td>
+      <td>PANN</td>
+      <td>
+      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <a name="声纹识别模型"></a>
 
 **声纹识别**

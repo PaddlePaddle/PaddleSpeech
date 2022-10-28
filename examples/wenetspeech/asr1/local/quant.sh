@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# ./local/quant.sh conf/chunk_conformer_u2pp.yaml conf/tuning/chunk_decode.yaml exp/chunk_conformer_u2pp/checkpoints/avg_10 data/wav.aishell.test.scp 
 if [ $# != 4 ];then
     echo "usage: ${0} config_path decode_config_path ckpt_path_prefix audio_scp"
     exit -1
@@ -48,6 +49,7 @@ for type in  attention_rescoring; do
     --checkpoint_path ${ckpt_prefix} \
     --opts decode.decoding_method ${type} \
     --opts decode.decode_batch_size ${batch_size} \
+    --num_utts 200 \
     --audio_scp ${audio_scp}
 
     if [ $? -ne 0 ]; then

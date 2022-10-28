@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Evaluation for U2 model."""
+"""Quantzation U2 model."""
 import paddle
 from kaldiio import ReadHelper
 from paddleslim import PTQ
@@ -159,17 +159,12 @@ class U2Infer():
 
         # jit save
         logger.info(f"export save: {self.args.export_path}")
-        config = {
-            'is_static': True,
-            'combine_params': True,
-            'skip_forward': True
-        }
-        self.ptq.save_quantized_model(self.model, self.args.export_path)
-        # paddle.jit.save(
-        #     self.model,
-        #     self.args.export_path,
-        #     combine_params=True,
-        #     skip_forward=True)
+        self.ptq.save_quantized_model(
+            self.model, 
+            self.args.export_path, 
+            postprocess=False, 
+            combine_params=True, 
+            skip_forward=True)
 
 
 def main(config, args):
@@ -191,7 +186,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--export_path",
         type=str,
-        default='export',
+        default='export.jit.quant',
         help="path of the input audio file")
     args = parser.parse_args()
 

@@ -58,7 +58,7 @@ class FeatureCache : public FrontendInterface {
         std::swap(cache_, empty);
         nframe_ = 0;
         base_extractor_->Reset();
-        VLOG(1) << "feature cache reset: cache size: " << cache_.size();
+        VLOG(3) << "feature cache reset: cache size: " << cache_.size();
     }
 
   private:

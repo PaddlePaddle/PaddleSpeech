@@ -50,8 +50,11 @@ bool CMVN::Read(kaldi::Vector<BaseFloat>* feats) {
     if (base_extractor_->Read(feats) == false || feats->Dim() == 0) {
         return false;
     }
+
     // appply cmvn
+    kaldi::Timer timer;
     Compute(feats);
+    VLOG(1) << "CMVN::Read cost: " << timer.Elapsed() << " sec.";
     return true;
 }
 

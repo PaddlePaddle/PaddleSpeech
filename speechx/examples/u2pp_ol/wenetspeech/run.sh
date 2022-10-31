@@ -1,12 +1,11 @@
 #!/bin/bash
-set +x
 set -e
 
 . path.sh
 
 nj=40
-stage=0
-stop_stage=5
+stage=-1
+stop_stage=100
 
 . utils/parse_options.sh
 
@@ -14,7 +13,7 @@ stop_stage=5
 data=data
 exp=exp
 mkdir -p $exp $data
-
+aishell_wav_scp=aishell_test.scp
 
 # 1. compile
 if [ ! -d ${SPEECHX_BUILD} ]; then
@@ -25,17 +24,28 @@ fi
 
 
 ckpt_dir=$data/model
-model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model/
+model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model/
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
-    #  download model
-    if [ ! -f $ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz ]; then
+    #  download u2pp model
+    if [ ! -f $ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz ]; then
         mkdir -p $ckpt_dir
         pushd $ckpt_dir
 
-        wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz
-        tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz
+        wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
+        tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
+
+        popd
+    fi
+
+    # download u2pp quant model
+    if [ ! -f $ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz ]; then
+        mkdir -p $ckpt_dir
+        pushd $ckpt_dir
+
+        wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
+        tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
 
         popd
     fi

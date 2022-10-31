@@ -8,7 +8,7 @@ data=data
 exp=exp
 mkdir -p $exp
 ckpt_dir=./data/model
-model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model/
+model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model/
 
 u2_nnet_main \
     --model_path=$model_dir/export.jit \

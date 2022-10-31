@@ -34,6 +34,7 @@ FeatureCache::FeatureCache(FeatureCacheOptions opts,
 void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
     // read inputs
     base_extractor_->Accept(inputs);
+
     // feed current data
     bool result = false;
     do {
@@ -62,6 +63,7 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     feats->CopyFromVec(cache_.front());
     cache_.pop();
     ready_feed_condition_.notify_one();
+    VLOG(1) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
     return true;
 }
 
@@ -72,9 +74,11 @@ bool FeatureCache::Compute() {
     bool result = base_extractor_->Read(&feature);
     if (result == false || feature.Dim() == 0) return false;
 
+    kaldi::Timer timer;
+
     int32 num_chunk = feature.Dim() / dim_;
     nframe_ += num_chunk;
-    VLOG(1) << "nframe computed: " << nframe_;
+    VLOG(3) << "nframe computed: " << nframe_;
 
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
         int32 start = chunk_idx * dim_;
@@ -92,7 +96,10 @@ bool FeatureCache::Compute() {
         cache_.push(feature_chunk);
         ready_read_condition_.notify_one();
     }
-    return result;
+
+    VLOG(1) << "FeatureCache::Compute cost: " << timer.Elapsed() << " sec. "
+            << num_chunk << " feats.";
+    return true;
 }
 
 }  // namespace ppspeech

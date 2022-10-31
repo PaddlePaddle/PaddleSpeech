@@ -18,6 +18,7 @@ import inspect
 
 import paddle
 
+
 class Sequential(paddle.nn.LayerDict):
     """A sequence of modules with potentially inferring shape on construction.
     If layers are passed with names, these can be referenced with dot notation.

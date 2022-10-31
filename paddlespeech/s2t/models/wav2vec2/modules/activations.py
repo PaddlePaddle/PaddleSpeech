@@ -1,8 +1,5 @@
-# Authors
-#  * Mirco Ravanelli 2020
-#  * Jianyuan Zhong 2020
-# """
 # Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+# Copyright 2020 The HuggingFace Team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

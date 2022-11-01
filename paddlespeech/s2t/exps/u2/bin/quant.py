@@ -159,12 +159,12 @@ class U2Infer():
 
         # jit save
         logger.info(f"export save: {self.args.export_path}")
-        self.ptq.save_quantized_model(
-            self.model, 
-            self.args.export_path, 
-            postprocess=False, 
-            combine_params=True, 
-            skip_forward=True)
+        self.ptq.ptq._convert(self.model)
+        paddle.jit.save(
+                self.model,
+                self.args.export_path,
+                combine_params=True,
+                skip_forward=True)
 
 
 def main(config, args):

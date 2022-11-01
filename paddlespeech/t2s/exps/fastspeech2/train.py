@@ -145,17 +145,27 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
+    if "enable_speaker_classifier" in config.model:
+        enable_spk_cls = config.model.enable_speaker_classifier
+    else:
+        enable_spk_cls = False
+
     updater = FastSpeech2Updater(
         model=model,
         optimizer=optimizer,
         dataloader=train_dataloader,
         output_dir=output_dir,
-        **config["updater"])
+        **config["updater"],
+        enable_spk_cls=enable_spk_cls)
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
     evaluator = FastSpeech2Evaluator(
-        model, dev_dataloader, output_dir=output_dir, **config["updater"])
+        model,
+        dev_dataloader,
+        output_dir=output_dir,
+        **config["updater"],
+        enable_spk_cls=enable_spk_cls)
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))

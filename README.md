@@ -699,6 +699,31 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+<a name="KeywordSpotting"></a>
+
+**Keyword Spotting**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Example </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Keyword Spotting</td>
+      <td>hey-snips</td>
+      <td>PANN</td>
+      <td>
+      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <a name="SpeakerVerification"></a>
 
 **Speaker Verification**

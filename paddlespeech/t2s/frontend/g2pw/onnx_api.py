@@ -210,7 +210,8 @@ class G2PWOnnxConverter:
         for sent_id, sent in enumerate(sentences):
             # pypinyin works well for Simplified Chinese than Traditional Chinese
             sent_s = tranditional_to_simplified(sent)
-            pypinyin_result = pinyin(sent_s, style=Style.TONE3)
+            pypinyin_result = pinyin(
+                sent_s, neutral_tone_with_five=True, style=Style.TONE3)
             partial_result = [None] * len(sent)
             for i, char in enumerate(sent):
                 if char in self.polyphonic_chars_new:

@@ -34,6 +34,7 @@ bool StreamingFeatureTpl<F>::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     bool flag = base_extractor_->Read(&wav);
     if (flag == false || wav.Dim() == 0) return false;
 
+    kaldi::Timer timer;
     // append remaned waves
     int32 wav_len = wav.Dim();
     int32 left_len = remained_wav_.Dim();
@@ -52,6 +53,8 @@ bool StreamingFeatureTpl<F>::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     remained_wav_.Resize(left_samples);
     remained_wav_.CopyFromVec(
         waves.Range(frame_shift * num_frames, left_samples));
+    VLOG(1) << "StreamingFeatureTpl<F>::Read cost: " << timer.Elapsed()
+            << " sec.";
     return true;
 }
 

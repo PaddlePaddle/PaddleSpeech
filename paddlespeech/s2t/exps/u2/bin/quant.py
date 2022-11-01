@@ -161,10 +161,10 @@ class U2Infer():
         logger.info(f"export save: {self.args.export_path}")
         self.ptq.ptq._convert(self.model)
         paddle.jit.save(
-                self.model,
-                self.args.export_path,
-                combine_params=True,
-                skip_forward=True)
+            self.model,
+            self.args.export_path,
+            combine_params=True,
+            skip_forward=True)
 
 
 def main(config, args):

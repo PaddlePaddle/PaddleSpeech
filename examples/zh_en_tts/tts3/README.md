@@ -116,7 +116,7 @@ optional arguments:
 5. `--phones-dict` is the path of the phone vocabulary file.
 6. `--speaker-dict` is the path of the speaker id map file when training a multi-speaker FastSpeech2.
 
-We have **added module speaker classifier** with reference to [Learning to Speak Fluently in a Foreign Language: Multilingual Speech Synthesis and Cross-Language Voice Cloning](https://arxiv.org/pdf/1907.04448.pdf). The main parameter configuration: config["model"]["enable_speaker_classifier"], config["model"]["hidden_sc_dim"] and config["updater"]["spk_loss_scale"] in `conf/default.yaml`. The current experimental results show that this module can decouple text information and speaker information, and more experiments are still being sorted out. This module is currently not enabled by default, if you are interested, you can try it yourself.
+We have **added module speaker classifier** with reference to [Learning to Speak Fluently in a Foreign Language: Multilingual Speech Synthesis and Cross-Language Voice Cloning](https://arxiv.org/pdf/1907.04448.pdf). The main parameter configuration: `config["model"]["enable_speaker_classifier"]`, `config["model"]["hidden_sc_dim"]` and `config["updater"]["spk_loss_scale"]` in `conf/default.yaml`. The current experimental results show that this module can decouple text information and speaker information, and more experiments are still being sorted out. This module is currently not enabled by default, if you are interested, you can try it yourself.
 
 
 ### Synthesizing

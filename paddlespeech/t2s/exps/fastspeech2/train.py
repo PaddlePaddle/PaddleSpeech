@@ -155,8 +155,8 @@ def train_sp(args, config):
         optimizer=optimizer,
         dataloader=train_dataloader,
         output_dir=output_dir,
-        **config["updater"],
-        enable_spk_cls=enable_spk_cls)
+        enable_spk_cls=enable_spk_cls,
+        **config["updater"], )
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
@@ -164,8 +164,8 @@ def train_sp(args, config):
         model,
         dev_dataloader,
         output_dir=output_dir,
-        **config["updater"],
-        enable_spk_cls=enable_spk_cls)
+        enable_spk_cls=enable_spk_cls,
+        **config["updater"], )
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))

@@ -109,7 +109,8 @@ class FastSpeech2Updater(StandardUpdater):
             spk_logits=spk_logits,
             spk_ids=spk_id, )
 
-        loss = l1_loss + duration_loss + pitch_loss + energy_loss + self.spk_loss_scale * speaker_loss
+        scaled_speaker_loss = self.spk_loss_scale * speaker_loss
+        loss = l1_loss + duration_loss + pitch_loss + energy_loss + scaled_speaker_loss
 
         optimizer = self.optimizer
         optimizer.clear_grad()
@@ -123,8 +124,7 @@ class FastSpeech2Updater(StandardUpdater):
         report("train/energy_loss", float(energy_loss))
         if self.enable_spk_cls:
             report("train/speaker_loss", float(speaker_loss))
-            report("train/scale_speaker_loss",
-                   float(self.spk_loss_scale * speaker_loss))
+            report("train/scaled_speaker_loss", float(scaled_speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
@@ -133,8 +133,7 @@ class FastSpeech2Updater(StandardUpdater):
         losses_dict["energy_loss"] = float(energy_loss)
         if self.enable_spk_cls:
             losses_dict["speaker_loss"] = float(speaker_loss)
-            losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale *
-                                                      speaker_loss)
+            losses_dict["scaled_speaker_loss"] = float(scaled_speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
@@ -211,7 +210,9 @@ class FastSpeech2Evaluator(StandardEvaluator):
             olens=olens,
             spk_logits=spk_logits,
             spk_ids=spk_id, )
-        loss = l1_loss + duration_loss + pitch_loss + energy_loss + self.spk_loss_scale * speaker_loss
+
+        scaled_speaker_loss = self.spk_loss_scale * speaker_loss
+        loss = l1_loss + duration_loss + pitch_loss + energy_loss + scaled_speaker_loss
 
         report("eval/loss", float(loss))
         report("eval/l1_loss", float(l1_loss))
@@ -220,8 +221,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
         report("eval/energy_loss", float(energy_loss))
         if self.enable_spk_cls:
             report("train/speaker_loss", float(speaker_loss))
-            report("train/scale_speaker_loss",
-                   float(self.spk_loss_scale * speaker_loss))
+            report("train/scaled_speaker_loss", float(scaled_speaker_loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["duration_loss"] = float(duration_loss)
@@ -229,8 +229,7 @@ class FastSpeech2Evaluator(StandardEvaluator):
         losses_dict["energy_loss"] = float(energy_loss)
         if self.enable_spk_cls:
             losses_dict["speaker_loss"] = float(speaker_loss)
-            losses_dict["scale_speaker_loss"] = float(self.spk_loss_scale *
-                                                      speaker_loss)
+            losses_dict["scaled_speaker_loss"] = float(scaled_speaker_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())

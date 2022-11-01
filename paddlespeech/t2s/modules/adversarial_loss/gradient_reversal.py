@@ -37,7 +37,6 @@ class GradientReversalFunction(PyLayer):
         """
         lambda_, = ctx.saved_tensor()
         dx = -lambda_ * grads
-        #return dx
         return paddle.clip(dx, min=-0.5, max=0.5)
 
 

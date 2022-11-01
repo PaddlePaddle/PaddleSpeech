@@ -1,4 +1,4 @@
-# coding=utf-8
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 # Copyright 2021 The Fairseq Authors and the HuggingFace Inc. team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

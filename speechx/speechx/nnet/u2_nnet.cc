@@ -154,7 +154,7 @@ void U2Nnet::Reset() {
         std::move(paddle::zeros({0, 0, 0, 0}, paddle::DataType::FLOAT32));
 
     encoder_outs_.clear();
-    VLOG(1) << "u2nnet reset";
+    VLOG(3) << "u2nnet reset";
 }
 
 // Debug API
@@ -168,6 +168,7 @@ void U2Nnet::FeedEncoderOuts(const paddle::Tensor& encoder_out) {
 void U2Nnet::FeedForward(const kaldi::Vector<BaseFloat>& features,
                          const int32& feature_dim,
                          NnetOut* out) {
+    kaldi::Timer timer;
     std::vector<kaldi::BaseFloat> chunk_feats(features.Data(),
                                               features.Data() + features.Dim());
 
@@ -179,6 +180,8 @@ void U2Nnet::FeedForward(const kaldi::Vector<BaseFloat>& features,
     std::memcpy(out->logprobs.Data(),
                 ctc_probs.data(),
                 ctc_probs.size() * sizeof(kaldi::BaseFloat));
+    VLOG(1) << "FeedForward cost: " << timer.Elapsed() << " sec. "
+            << chunk_feats.size() / feature_dim << " frames.";
 }
 
 
@@ -415,7 +418,6 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
 #ifdef USE_PROFILING
     RecordEvent event("AttentionRescoring", TracerEventType::UserDefined, 1);
 #endif
-
     CHECK(rescoring_score != nullptr);
 
     int num_hyps = hyps.size();
@@ -627,7 +629,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
         // combinded left-to-right and right-to-lfet score
         (*rescoring_score)[i] =
             score * (1 - reverse_weight) + r_score * reverse_weight;
-        VLOG(1) << "hyp " << i << " " << hyp.size() << " score: " << score
+        VLOG(3) << "hyp " << i << " " << hyp.size() << " score: " << score
                 << " r_score: " << r_score
                 << " reverse_weight: " << reverse_weight
                 << " final score: " << (*rescoring_score)[i];
@@ -639,7 +641,7 @@ void U2Nnet::EncoderOuts(
     std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const {
     // list of (B=1,T,D)
     int size = encoder_outs_.size();
-    VLOG(1) << "encoder_outs_ size: " << size;
+    VLOG(3) << "encoder_outs_ size: " << size;
 
     for (int i = 0; i < size; i++) {
         const paddle::Tensor& item = encoder_outs_[i];
@@ -649,7 +651,7 @@ void U2Nnet::EncoderOuts(
         const int& T = shape[1];
         const int& D = shape[2];
         CHECK(B == 1) << "Only support batch one.";
-        VLOG(1) << "encoder out " << i << " shape: (" << B << "," << T << ","
+        VLOG(3) << "encoder out " << i << " shape: (" << B << "," << T << ","
                 << D << ")";
 
         const float* this_tensor_ptr = item.data<float>();

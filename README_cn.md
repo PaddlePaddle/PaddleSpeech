@@ -164,7 +164,8 @@
 
   
 ### 近期更新
- - 🎉 2022.10.21: TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
+- 🔥 2022.10.26: TTS 新增[韵律预测](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy)功能。
+- 🎉 2022.10.21: TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
 - 👑 2022.10.11: 新增 [Wav2vec2ASR](./examples/librispeech/asr3), 在 LibriSpeech 上针对 ASR 任务对 wav2vec2.0 的 finetuning。
 - 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 ERNIE-SAT 到 [PaddleSpeech 网页应用](./demos/speech_web)。
 - ⚡ 2022.09.09: 新增基于 ECAPA-TDNN 声纹模型的 AISHELL-3 Voice Cloning [示例](./examples/aishell3/vc2)。
@@ -695,6 +696,31 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </table>
 
 
+<a name="唤醒模型"></a>
+
+**唤醒**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>唤醒</td>
+      <td>hey-snips</td>
+      <td>PANN</td>
+      <td>
+      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <a name="声纹识别模型"></a>
 
 **声纹识别**
@@ -833,6 +859,20 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 要引用 PaddleSpeech 进行研究，请使用以下格式进行引用。
 ```text
+@InProceedings{pmlr-v162-bai22d,
+  title = {{A}$^3${T}: Alignment-Aware Acoustic and Text Pretraining for Speech Synthesis and Editing},
+  author = {Bai, He and Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Li, Xintong and Huang, Liang},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
+  pages = {1399--1411},
+  year = {2022},
+  volume = {162},
+  series = {Proceedings of Machine Learning Research},
+  month = {17--23 Jul},
+  publisher = {PMLR},
+  pdf = {https://proceedings.mlr.press/v162/bai22d/bai22d.pdf},
+  url = {https://proceedings.mlr.press/v162/bai22d.html},
+}
+
 @inproceedings{zhang2022paddlespeech,
     title = {PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
     author = {Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},

@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
     double tot_wav_duration = 0.0;
+    double tot_decode_time = 0.0;
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
         FLAGS_wav_rspecifier);
@@ -47,9 +48,7 @@ int main(int argc, char* argv[]) {
         ppspeech::U2RecognizerResource::InitFromFlags();
     ppspeech::U2Recognizer recognizer(resource);
 
-    kaldi::Timer timer;
     for (; !wav_reader.Done(); wav_reader.Next()) {
-        kaldi::Timer local_timer;
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
         LOG(INFO) << "utt: " << utt;
@@ -65,6 +64,8 @@ int main(int argc, char* argv[]) {
 
         int sample_offset = 0;
         int cnt = 0;
+        kaldi::Timer timer;
+        kaldi::Timer local_timer;
 
         while (sample_offset < tot_samples) {
             int cur_chunk_size =
@@ -95,6 +96,8 @@ int main(int argc, char* argv[]) {
         // second pass decoding
         recognizer.Rescoring();
 
+        tot_decode_time += timer.Elapsed();
+
         std::string result = recognizer.GetFinalResult();
 
         recognizer.Reset();
@@ -115,10 +118,8 @@ int main(int argc, char* argv[]) {
         ++num_done;
     }
 
-    double elapsed = timer.Elapsed();
-
     LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
-    LOG(INFO) << "total cost:" << elapsed << " sec";
     LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";
-    LOG(INFO) << "RTF is: " << elapsed / tot_wav_duration;
+    LOG(INFO) << "total decode cost:" << tot_decode_time << " sec";
+    LOG(INFO) << "RTF is: " << tot_decode_time / tot_wav_duration;
 }

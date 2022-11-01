@@ -40,7 +40,9 @@ void Assembler::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
 
 // pop feature chunk
 bool Assembler::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
+    kaldi::Timer timer;
     bool result = Compute(feats);
+    VLOG(1) << "Assembler::Read cost: " << timer.Elapsed() << " sec.";
     return result;
 }
 
@@ -51,14 +53,14 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
         Vector<BaseFloat> feature;
         bool result = base_extractor_->Read(&feature);
         if (result == false || feature.Dim() == 0) {
-            VLOG(1) << "result: " << result
+            VLOG(3) << "result: " << result
                     << " feature dim: " << feature.Dim();
             if (IsFinished() == false) {
-                VLOG(1) << "finished reading feature. cache size: "
+                VLOG(3) << "finished reading feature. cache size: "
                         << feature_cache_.size();
                 return false;
             } else {
-                VLOG(1) << "break";
+                VLOG(3) << "break";
                 break;
             }
         }
@@ -67,11 +69,11 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
         feature_cache_.push(feature);
 
         nframes_ += 1;
-        VLOG(1) << "nframes: " << nframes_;
+        VLOG(3) << "nframes: " << nframes_;
     }
 
     if (feature_cache_.size() < receptive_filed_length_) {
-        VLOG(1) << "feature_cache less than receptive_filed_lenght. "
+        VLOG(3) << "feature_cache less than receptive_filed_lenght. "
                 << feature_cache_.size() << ": " << receptive_filed_length_;
         return false;
     }
@@ -87,7 +89,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     int32 this_chunk_size =
         std::min(static_cast<int32>(feature_cache_.size()), frame_chunk_size_);
     feats->Resize(dim_ * this_chunk_size);
-    VLOG(1) << "read " << this_chunk_size << " feat.";
+    VLOG(3) << "read " << this_chunk_size << " feat.";
 
     int32 counter = 0;
     while (counter < this_chunk_size) {

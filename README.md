@@ -157,6 +157,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 🔥 2022.10.26: Add [Prosody Prediction](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy) for TTS.
 - 🎉 2022.10.21: Add [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) for TTS Chinese Text Frontend.
 - 👑 2022.10.11: Add [Wav2vec2ASR](./examples/librispeech/asr3), wav2vec2.0 fine-tuning for ASR on LibriSpeech.
 - 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and ERNIE-SAT in [PaddleSpeech Web Demo](./demos/speech_web).
@@ -698,6 +699,31 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </tbody>
 </table>
 
+<a name="KeywordSpotting"></a>
+
+**Keyword Spotting**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> Task </th>
+      <th> Dataset </th>
+      <th> Model Type </th>
+      <th> Example </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>Keyword Spotting</td>
+      <td>hey-snips</td>
+      <td>PANN</td>
+      <td>
+      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <a name="SpeakerVerification"></a>
 
 **Speaker Verification**
@@ -827,7 +853,21 @@ The Text-to-Speech module is originally called [Parakeet](https://github.com/Pad
 ## Citation
 
 To cite PaddleSpeech for research, please use the following format.
-```tex
+```text
+@InProceedings{pmlr-v162-bai22d,
+  title = {{A}$^3${T}: Alignment-Aware Acoustic and Text Pretraining for Speech Synthesis and Editing},
+  author = {Bai, He and Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Li, Xintong and Huang, Liang},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
+  pages = {1399--1411},
+  year = {2022},
+  volume = {162},
+  series = {Proceedings of Machine Learning Research},
+  month = {17--23 Jul},
+  publisher = {PMLR},
+  pdf = {https://proceedings.mlr.press/v162/bai22d/bai22d.pdf},
+  url = {https://proceedings.mlr.press/v162/bai22d.html},
+}
+
 @inproceedings{zhang2022paddlespeech,
     title = {PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
     author = {Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},

@@ -188,10 +188,6 @@ conda activate tools/venv
 conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### Install PaddlePaddle
-Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first；
-```bash
-pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
 Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.6 install paddle 2.4rc:
 ```bash
 # Note, 2.4rc is just an example, please follow the minimum dependency of paddlepaddle for your selection
@@ -202,6 +198,11 @@ You can also install the develop version of paddlepaddle. For example, for CUDA 
 python3 -m pip install paddlepaddle-gpu==0.0.0.post102 -f https://www.paddlepaddle.org.cn/whl/linux/gpu/develop.html
 ```
 ### Install PaddleSpeech in Developing Mode
+Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first:
+```bash
+pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+Then install PaddleSpeech:
 ```bash
 pip install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```

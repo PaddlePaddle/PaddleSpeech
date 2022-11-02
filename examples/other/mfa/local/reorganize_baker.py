@@ -23,6 +23,7 @@ for more details.
 """
 import argparse
 import os
+import re
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -55,9 +56,13 @@ def resample_and_save(source, target, sr=16000):
 
 def reorganize_baker(root_dir: Union[str, Path],
                      output_dir: Union[str, Path]=None,
-                     resample_audio=False):
+                     resample_audio=False,
+                     rhy_dur=False):
     root_dir = Path(root_dir).expanduser()
-    transcript_path = root_dir / "ProsodyLabeling" / "000001-010000.txt"
+    if rhy_dur:
+        transcript_path = root_dir / "ProsodyLabeling" / "000001-010000_rhy.txt"
+    else:
+        transcript_path = root_dir / "ProsodyLabeling" / "000001-010000.txt"
     transcriptions = get_transcripts(transcript_path)
 
     wave_dir = root_dir / "Wave"
@@ -92,6 +97,45 @@ def reorganize_baker(root_dir: Union[str, Path],
     print("Done!")
 
 
+def insert_rhy(sentence_first, sentence_second):
+    sub = '#'
+    return_words = []
+    rhy_idx = [substr.start() for substr in re.finditer(sub, sentence_first)]
+    re_rhy_idx = []
+    sentence_first_ = sentence_first.replace("#1", "").replace(
+        "#2", "").replace("#3", "").replace("#4", "")
+    sentence_seconds = sentence_second.split(" ")
+    for i, w in enumerate(rhy_idx):
+        re_rhy_idx.append(w - i * 2)
+    i = 0
+    # print("re_rhy_idx: ", re_rhy_idx)
+    for sentence_s in (sentence_seconds):
+        return_words.append(sentence_s)
+        if i < len(re_rhy_idx) and len(return_words) - i == re_rhy_idx[i]:
+            return_words.append("sp" + sentence_first[rhy_idx[i] + 1:rhy_idx[i]
+                                                      + 2])
+            i = i + 1
+    return return_words
+
+
+def normalize_rhy(root_dir: Union[str, Path]):
+    root_dir = Path(root_dir).expanduser()
+    transcript_path = root_dir / "ProsodyLabeling" / "000001-010000.txt"
+    target_transcript_path = root_dir / "ProsodyLabeling" / "000001-010000_rhy.txt"
+
+    with open(transcript_path) as f:
+        lines = f.readlines()
+
+    with open(target_transcript_path, 'wt') as f:
+        for i in range(0, len(lines), 2):
+            sentence_first = lines[i]  #第一行直接保存
+            f.write(sentence_first)
+            transcription = lines[i + 1].strip()
+            f.write("\t" + " ".join(
+                insert_rhy(sentence_first.split('\t')[1], transcription)) +
+                    "\n")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorganize Baker dataset for MFA")
@@ -104,6 +148,12 @@ if __name__ == "__main__":
         "--resample-audio",
         action="store_true",
         help="To resample audio files or just copy them")
+    parser.add_argument(
+        "--rhy-with-duration",
+        action="store_true", )
     args = parser.parse_args()
 
-    reorganize_baker(args.root_dir, args.output_dir, args.resample_audio)
+    if args.rhy_with_duration:
+        normalize_rhy(args.root_dir)
+    reorganize_baker(args.root_dir, args.output_dir, args.resample_audio,
+                     args.rhy_with_duration)

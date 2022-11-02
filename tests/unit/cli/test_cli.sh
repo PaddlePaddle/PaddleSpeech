@@ -16,6 +16,7 @@ paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_wenetspeech --input ./zh.wav
 paddlespeech asr --model conformer_online_multicn --input ./zh.wav
+paddlespeech asr --model conformer_u2pp_online_wenetspeech --lang zh --input zh.wav
 paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
 paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav

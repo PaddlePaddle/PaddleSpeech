@@ -1,0 +1,10 @@
+0001 考古人员<speak>西<say-as pinyin='zang4'>藏</say-as>布达拉宫里发现一个被隐<say-as pinyin="cang2">藏</say-as>的装有宝<say-as pinyin="zang4">藏</say-as></speak>箱子。
+0002 <speak>有人询问中国银<say-as pinyin='hang2'>行</say-as>北京分<say-as pinyin='hang2 hang2'>行行</say-as>长是否叫任我<say-as pinyin='xing2'>行</say-as></speak>。
+0003 <speak>市委书记亲自<say-as pinyin='shuai4'>率</say-as>领审计员对这家公司进行财务审计，发现企业的利润<say-as pinyin='lv4'>率</say-as>数据虚假</speak>。
+0004 <speak>学生们对代<say-as pinyin='shu4'>数</say-as>理解不深刻，特别是小<say-as pinyin='shu4'>数</say-as>点，在<say-as pinyin='shu3 shu4'>数数</say-as>时容易弄错</speak>。
+0005 <speak>赵<say-as pinyin='chang2'>长</say-as>军从小学习武术，擅<say-as pinyin='chang2'>长</say-as>散打，<say-as pinyin='zhang3'>长</say-as>大后参军，担任连<say-as pinyin='zhang3'>长</say-as></speak>。
+0006 <speak>我说她<say-as pinyin='zhang3'>涨</say-as>了工资，她就<say-as pinyin='zhang4'>涨</say-as>红着脸，摇头否认</speak>。
+0007 <speak>请把这封信交<say-as pinyin='gei3'>给</say-as>团长，告诉他，前线的供<say-as pinyin='ji3'>给</say-as>一定要有保障</speak>。
+0008 <speak>矿下的<say-as pinyin='hang4'>巷</say-as>道，与北京四合院的小<say-as pinyin='xiang4'>巷</say-as>有点相似</speak>。
+0009 <speak>他常叹自己命<say-as pinyin='bo2'>薄</say-as>,几亩<say-as pinyin='bao2'>薄</say-as>田，种点<say-as pinyin='bo4'>薄</say-as>荷</speak>。
+0010 <speak>小明对天相很有研究，在<say-as pinyin='su4'>宿</say-as>舍说了一<say-as pinyin='xiu3'>宿</say-as>有关星<say-as pinyin='xiu4'>宿</say-as>的常识</speak>。

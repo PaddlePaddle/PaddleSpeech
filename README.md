@@ -717,9 +717,9 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   <tr>
       <td>Keyword Spotting</td>
       <td>hey-snips</td>
-      <td>PANN</td>
+      <td>MDTC</td>
       <td>
-      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      <a href = "./examples/hey_snips/kws0">mdtc-hey-snips</a>
       </td>
     </tr>
   </tbody>

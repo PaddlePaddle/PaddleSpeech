@@ -697,9 +697,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </table>
 
 
-<a name="唤醒模型"></a>
+<a name="语音唤醒模型"></a>
 
-**唤醒**
+**语音唤醒**
 
 <table style="width:100%">
   <thead>
@@ -712,11 +712,11 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </thead>
   <tbody>
   <tr>
-      <td>唤醒</td>
+      <td>语音唤醒</td>
       <td>hey-snips</td>
-      <td>PANN</td>
+      <td>MDTC</td>
       <td>
-      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      <a href = "./examples/hey_snips/kws0">mdtc-hey-snips</a>
       </td>
     </tr>
   </tbody>

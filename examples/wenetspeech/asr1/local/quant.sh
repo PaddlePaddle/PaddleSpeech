@@ -1,7 +1,8 @@
 #!/bin/bash
 
+# ./local/quant.sh conf/chunk_conformer_u2pp.yaml conf/tuning/chunk_decode.yaml exp/chunk_conformer_u2pp/checkpoints/avg_10 data/wav.aishell.test.scp 
 if [ $# != 4 ];then
-    echo "usage: ${0} config_path decode_config_path ckpt_path_prefix audio_file"
+    echo "usage: ${0} config_path decode_config_path ckpt_path_prefix audio_scp"
     exit -1
 fi
 
@@ -11,16 +12,15 @@ echo "using $ngpu gpus..."
 config_path=$1
 decode_config_path=$2
 ckpt_prefix=$3
-audio_file=$4
+audio_scp=$4
 
 mkdir -p data
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-if [ ! -f ${audio_file} ]; then
-    echo "Plase input the right audio_file path"
+if [ ! -f ${audio_scp} ]; then
+    echo "Plase input the right audio_scp path"
     exit 1
 fi
 
@@ -49,7 +49,8 @@ for type in  attention_rescoring; do
     --checkpoint_path ${ckpt_prefix} \
     --opts decode.decoding_method ${type} \
     --opts decode.decode_batch_size ${batch_size} \
-    --audio_file ${audio_file}
+    --num_utts 200 \
+    --audio_scp ${audio_scp}
 
     if [ $? -ne 0 ]; then
         echo "Failed in evaluation!"

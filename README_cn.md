@@ -164,6 +164,7 @@
 
   
 ### 近期更新
+- 👑 2022.11.01: [中英文混合 TTS](./examples/zh_en_tts/tts3) 新增 [Adversarial Loss](https://arxiv.org/pdf/1907.04448.pdf) 模块。
 - 🔥 2022.10.26: TTS 新增[韵律预测](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy)功能。
 - 🎉 2022.10.21: TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
 - 👑 2022.10.11: 新增 [Wav2vec2ASR](./examples/librispeech/asr3), 在 LibriSpeech 上针对 ASR 任务对 wav2vec2.0 的 finetuning。
@@ -696,9 +697,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </table>
 
 
-<a name="唤醒模型"></a>
+<a name="语音唤醒模型"></a>
 
-**唤醒**
+**语音唤醒**
 
 <table style="width:100%">
   <thead>
@@ -711,11 +712,11 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </thead>
   <tbody>
   <tr>
-      <td>唤醒</td>
+      <td>语音唤醒</td>
       <td>hey-snips</td>
-      <td>PANN</td>
+      <td>MDTC</td>
       <td>
-      <a href = "./examples/hey_snips/kws0">pann-hey-snips</a>
+      <a href = "./examples/hey_snips/kws0">mdtc-hey-snips</a>
       </td>
     </tr>
   </tbody>

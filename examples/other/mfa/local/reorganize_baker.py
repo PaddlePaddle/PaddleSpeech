@@ -33,6 +33,22 @@ import librosa
 import soundfile as sf
 from tqdm import tqdm
 
+repalce_dict = {
+    "；": "",
+    "。": "",
+    "：": "",
+    "—": "",
+    "）": "",
+    "，": "",
+    "“": "",
+    "（": "",
+    "、": "",
+    "…": "",
+    "！": "",
+    "？": "",
+    "”": ""
+}
+
 
 def get_transcripts(path: Union[str, Path]):
     transcripts = {}
@@ -100,6 +116,7 @@ def reorganize_baker(root_dir: Union[str, Path],
 def insert_rhy(sentence_first, sentence_second):
     sub = '#'
     return_words = []
+    sentence_first = sentence_first.translate(str.maketrans(repalce_dict))
     rhy_idx = [substr.start() for substr in re.finditer(sub, sentence_first)]
     re_rhy_idx = []
     sentence_first_ = sentence_first.replace("#1", "").replace(

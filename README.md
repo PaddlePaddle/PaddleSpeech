@@ -161,10 +161,10 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 🔥 2022.10.26: Add [Prosody Prediction](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy) for TTS.
 - 🎉 2022.10.21: Add [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) for TTS Chinese Text Frontend.
 - 👑 2022.10.11: Add [Wav2vec2ASR](./examples/librispeech/asr3), wav2vec2.0 fine-tuning for ASR on LibriSpeech.
-- 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and ERNIE-SAT in [PaddleSpeech Web Demo](./demos/speech_web).
+- 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and [ERNIE-SAT](https://arxiv.org/abs/2211.03545) in [PaddleSpeech Web Demo](./demos/speech_web).
 - ⚡ 2022.09.09: Add AISHELL-3 Voice Cloning [example](./examples/aishell3/vc2) with ECAPA-TDNN speaker encoder.
 - ⚡ 2022.08.25: Release TTS [finetune](./examples/other/tts_finetune/tts3) example.
-- 🔥 2022.08.22: Add ERNIE-SAT models: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat).
+- 🔥 2022.08.22: Add [ERNIE-SAT](https://arxiv.org/abs/2211.03545) models: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat).
 - 🔥 2022.08.15: Add [g2pW](https://github.com/GitYCC/g2pW) into TTS Chinese Text Frontend.
 - 🔥 2022.08.09: Release [Chinese English mixed TTS](./examples/zh_en_tts/tts3).
 - ⚡ 2022.08.03: Add ONNXRuntime infer for  TTS CLI.
@@ -579,7 +579,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
     <tr>
-      <td>ERNIE-SAT</td>
+      <td><a href = "https://arxiv.org/abs/2211.03545">ERNIE-SAT</a></td>
       <td>VCTK / AISHELL-3 / ZH_EN</td>
       <td>
       <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>

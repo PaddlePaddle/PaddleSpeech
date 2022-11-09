@@ -279,7 +279,7 @@ class Wav2Vec2ASRTrainer(Trainer):
         logger.info("Setup model!")
 
         # setup speech augmentation for wav2vec2
-        if hasattr(config, 'speech_augment'):
+        if hasattr(config, 'speech_augment') and self.train:
             speechaugment_config = TimeDomainSpecAugmentConfig(
                 config.speech_augment)
             self.speech_augmentation = TimeDomainSpecAugment(

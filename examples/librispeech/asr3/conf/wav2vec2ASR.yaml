@@ -9,6 +9,9 @@ dnn_neurons: 1024
 blank_id: 0
 ctc_dropout_rate: 0.0
 wav2vec2_params_path: "exp/wav2vec2/wav2vec2-large-960h-lv60-self.pdparams"
+speech_augment:
+  sample_rate: 16000
+  speeds: [95, 100, 105]
 
 ############################################
 #               Wav2Vec2.0                 #
@@ -70,7 +73,6 @@ train_manifest: data/manifest.train
 dev_manifest: data/manifest.dev
 test_manifest: data/manifest.test-clean
 
-
 ###########################################
 #              Dataloader                 #
 ###########################################
@@ -115,6 +117,3 @@ log_interval: 1
 checkpoint:
   kbest_n: 50
   latest_n: 5
-augment: True
-
-

@@ -641,15 +641,56 @@ class DropChunk(nn.Layer):
 
 class TimeDomainSpecAugment(nn.Layer):
     """A time-domain approximation of the SpecAugment algorithm.
-
+    ---------
     This augmentation module implements three augmentations in
     the time-domain.
-
      1. Drop chunks of the audio (zero amplitude or white noise)
      2. Drop frequency bands (with band-drop filters)
      3. Speed peturbation (via resampling to slightly different rate)
 
-    Arguments
+    Example
+    -------
+    >>> inputs = paddle.randn([10, 16000])
+    >>> feature_maker = TimeDomainSpecAugment(speeds=[80])
+    >>> feats = feature_maker(inputs, paddle.ones(10))
+    >>> feats.shape
+    paddle.shape([10, 12800])
+    """
+
+    def __init__(self, config):
+        super().__init__()
+        self.speed_perturb = SpeedPerturb(
+            perturb_prob=config.perturb_prob,
+            orig_freq=config.sample_rate,
+            speeds=config.speeds)
+        self.drop_freq = DropFreq(
+            drop_prob=config.drop_freq_prob,
+            drop_count_low=config.drop_freq_count_low,
+            drop_count_high=config.drop_freq_count_high)
+        self.drop_chunk = DropChunk(
+            drop_prob=config.drop_chunk_prob,
+            drop_count_low=config.drop_chunk_count_low,
+            drop_count_high=config.drop_chunk_count_high,
+            drop_length_low=config.drop_chunk_length_low,
+            drop_length_high=config.drop_chunk_length_high,
+            noise_factor=config.drop_chunk_noise_factor)
+
+    def forward(self, waveforms, lengths):
+        """Returns the distorted waveforms.
+        ---------
+        waveforms : tensor
+            The waveforms to distort
+        """
+        # Augmentation
+        with paddle.no_grad():
+            waveforms = self.speed_perturb(waveforms)
+            waveforms = self.drop_freq(waveforms)
+            waveforms = self.drop_chunk(waveforms, lengths)
+        return waveforms
+
+
+class TimeDomainSpecAugmentConfig():
+    """Augmentation configuration for time domain spectrograms.
     ---------
     perturb_prob : float from 0 to 1
         The probability that a batch will have speed perturbation applied.
@@ -677,56 +718,26 @@ class TimeDomainSpecAugment(nn.Layer):
     drop_chunk_noise_factor : float
         The noise factor used to scale the white noise inserted, relative to
         the average amplitude of the utterance. Default 0 (no noise inserted).
-
-    Example
-    -------
-    >>> inputs = paddle.randn([10, 16000])
-    >>> feature_maker = TimeDomainSpecAugment(speeds=[80])
-    >>> feats = feature_maker(inputs, paddle.ones(10))
-    >>> feats.shape
-    paddle.shape([10, 12800])
     """
 
-    def __init__(
-            self,
-            perturb_prob=1.0,
-            drop_freq_prob=1.0,
-            drop_chunk_prob=1.0,
-            speeds=[95, 100, 105],
-            sample_rate=16000,
-            drop_freq_count_low=0,
-            drop_freq_count_high=3,
-            drop_chunk_count_low=0,
-            drop_chunk_count_high=5,
-            drop_chunk_length_low=1000,
-            drop_chunk_length_high=2000,
-            drop_chunk_noise_factor=0, ):
-        super().__init__()
-        self.speed_perturb = SpeedPerturb(
-            perturb_prob=perturb_prob, orig_freq=sample_rate, speeds=speeds)
-        self.drop_freq = DropFreq(
-            drop_prob=drop_freq_prob,
-            drop_count_low=drop_freq_count_low,
-            drop_count_high=drop_freq_count_high, )
-        self.drop_chunk = DropChunk(
-            drop_prob=drop_chunk_prob,
-            drop_count_low=drop_chunk_count_low,
-            drop_count_high=drop_chunk_count_high,
-            drop_length_low=drop_chunk_length_low,
-            drop_length_high=drop_chunk_length_high,
-            noise_factor=drop_chunk_noise_factor, )
+    def __init__(self, config):
+        # speedperturb config
+        self.perturb_prob = getattr(config, 'perturb_prob', 1.0)
+        self.sample_rate = getattr(config, 'sample_rate', 16000)
+        self.speeds = getattr(config, 'speeds', [95, 100, 105])
 
-    def forward(self, waveforms, lengths):
-        """Returns the distorted waveforms.
+        # dropfreq config
+        self.drop_freq_prob = getattr(config, 'drop_freq_prob', 1.0)
+        self.drop_freq_count_low = getattr(config, 'drop_freq_count_low', 0)
+        self.drop_freq_count_high = getattr(config, 'drop_freq_count_high', 3)
 
-        Arguments
-        ---------
-        waveforms : tensor
-            The waveforms to distort
-        """
-        # Augmentation
-        with paddle.no_grad():
-            waveforms = self.speed_perturb(waveforms)
-            waveforms = self.drop_freq(waveforms)
-            waveforms = self.drop_chunk(waveforms, lengths)
-        return waveforms
+        # dropchunk config
+        self.drop_chunk_prob = getattr(config, 'drop_chunk_prob', 1.0)
+        self.drop_chunk_count_low = getattr(config, 'drop_chunk_count_low', 0)
+        self.drop_chunk_count_high = getattr(config, 'drop_chunk_count_high', 5)
+        self.drop_chunk_length_low = getattr(config, 'drop_chunk_length_low',
+                                             1000)
+        self.drop_chunk_length_high = getattr(config, 'drop_chunk_length_high',
+                                              2000)
+        self.drop_chunk_noise_factor = getattr(config,
+                                               'drop_chunk_noise_factor', 0)

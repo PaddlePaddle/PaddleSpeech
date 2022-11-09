@@ -28,7 +28,6 @@ from paddle import distributed as dist
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
-from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugmentConfig
 from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
@@ -279,11 +278,9 @@ class Wav2Vec2ASRTrainer(Trainer):
         logger.info("Setup model!")
 
         # setup speech augmentation for wav2vec2
-        if hasattr(config, 'speech_augment') and self.train:
-            speechaugment_config = TimeDomainSpecAugmentConfig(
-                config.speech_augment)
+        if hasattr(config, 'audio_augment') and self.train:
             self.speech_augmentation = TimeDomainSpecAugment(
-                speechaugment_config)
+                **config.audio_augment)
 
         if not self.train:
             return

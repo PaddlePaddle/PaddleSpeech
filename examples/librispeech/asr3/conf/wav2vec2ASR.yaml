@@ -9,9 +9,6 @@ dnn_neurons: 1024
 blank_id: 0
 ctc_dropout_rate: 0.0
 wav2vec2_params_path: "exp/wav2vec2/wav2vec2-large-960h-lv60-self.pdparams"
-speech_augment:
-  sample_rate: 16000
-  speeds: [95, 100, 105]
 
 ############################################
 #               Wav2Vec2.0                 #
@@ -97,6 +94,12 @@ dist_sampler: True
 shortest_first: True
 return_lens_rate: True
   
+############################################
+#             Data Augmentation            #
+############################################
+audio_augment:  # for raw audio 
+  sample_rate: 16000
+  speeds: [95, 100, 105]
 
 ###########################################
 #                 Training                #

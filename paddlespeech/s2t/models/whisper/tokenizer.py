@@ -2,13 +2,16 @@
 # Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
 # 
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper/tokenizer.py)
-
 import os
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import List, Optional, Tuple, Union
-import paddle
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
+
 import numpy as np
+import paddle
 from transformers import GPT2TokenizerFast
 
 LANGUAGES = {
@@ -141,7 +144,9 @@ class Tokenizer:
     def encode(self, text, **kwargs):
         return self.tokenizer.encode(text, **kwargs)
 
-    def decode(self, token_ids: Union[int, List[int], np.ndarray, paddle.Tensor], **kwargs):
+    def decode(self,
+               token_ids: Union[int, List[int], np.ndarray, paddle.Tensor],
+               **kwargs):
         return self.tokenizer.decode(token_ids, **kwargs)
 
     def decode_with_timestamps(self, tokens) -> str:
@@ -157,7 +162,10 @@ class Tokenizer:
                 outputs.append([])
             else:
                 outputs[-1].append(token)
-        outputs = [s if isinstance(s, str) else self.tokenizer.decode(s) for s in outputs]
+        outputs = [
+            s if isinstance(s, str) else self.tokenizer.decode(s)
+            for s in outputs
+        ]
         return "".join(outputs)
 
     @property
@@ -200,14 +208,13 @@ class Tokenizer:
     def language_token(self) -> int:
         """Returns the token id corresponding to the value of the `language` field"""
         if self.language is None:
-            raise ValueError(f"This tokenizer does not have language token configured")
+            raise ValueError(
+                "This tokenizer does not have language token configured")
 
         additional_tokens = dict(
             zip(
                 self.tokenizer.additional_special_tokens,
-                self.tokenizer.additional_special_tokens_ids,
-            )
-        )
+                self.tokenizer.additional_special_tokens_ids, ))
         candidate = f"<|{self.language}|>"
         if candidate in additional_tokens:
             return additional_tokens[candidate]
@@ -219,9 +226,8 @@ class Tokenizer:
     def all_language_tokens(self) -> Tuple[int]:
         result = []
         for token, token_id in zip(
-            self.tokenizer.additional_special_tokens,
-            self.tokenizer.additional_special_tokens_ids,
-        ):
+                self.tokenizer.additional_special_tokens,
+                self.tokenizer.additional_special_tokens_ids, ):
             if token.strip("<|>") in LANGUAGES:
                 result.append(token_id)
         return tuple(result)
@@ -229,7 +235,8 @@ class Tokenizer:
     @property
     @lru_cache()
     def all_language_codes(self) -> Tuple[str]:
-        return tuple(self.decode([l]).strip("<|>") for l in self.all_language_tokens)
+        return tuple(
+            self.decode([l]).strip("<|>") for l in self.all_language_tokens)
 
     @property
     @lru_cache()
@@ -250,7 +257,8 @@ class Tokenizer:
         keeping basic punctuations like commas, periods, question marks, exclamation points, etc.
         """
         symbols = list("\"#()*+/:;<=>@[\\]^_`{|}~「」『』")
-        symbols += "<< >> <<< >>> -- --- -( -[ (' (\" (( )) ((( ))) [[ ]] {{ }} ♪♪ ♪♪♪".split()
+        symbols += "<< >> <<< >>> -- --- -( -[ (' (\" (( )) ((( ))) [[ ]] {{ }} ♪♪ ♪♪♪".split(
+        )
 
         # symbols that may be a single token or multiple tokens depending on the tokenizer.
         # In case they're multiple tokens, suppress the first token, which is safe because:
@@ -260,9 +268,14 @@ class Tokenizer:
         assert all(0x2640 <= ord(c) <= 0x267F for c in miscellaneous)
 
         # allow hyphens "-" and single quotes "'" between words, but not at the beginning of a word
-        result = {self.tokenizer.encode(" -")[0], self.tokenizer.encode(" '")[0]}
+        result = {
+            self.tokenizer.encode(" -")[0], self.tokenizer.encode(" '")[0]
+        }
         for symbol in symbols + list(miscellaneous):
-            for tokens in [self.tokenizer.encode(symbol), self.tokenizer.encode(" " + symbol)]:
+            for tokens in [
+                    self.tokenizer.encode(symbol),
+                    self.tokenizer.encode(" " + symbol)
+            ]:
                 if len(tokens) == 1 or symbol in miscellaneous:
                     result.add(tokens[0])
 
@@ -275,14 +288,14 @@ class Tokenizer:
 
 
 @lru_cache(maxsize=None)
-def build_tokenizer(name: str = "gpt2"):
+def build_tokenizer(name: str="gpt2"):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     path = os.path.join(os.path.dirname(__file__), "assets", name)
     tokenizer = GPT2TokenizerFast.from_pretrained(path)
 
     specials = [
         "<|startoftranscript|>",
-        *[f"<|{lang}|>" for lang in LANGUAGES.keys()],
+        * [f"<|{lang}|>" for lang in LANGUAGES.keys()],
         "<|translate|>",
         "<|transcribe|>",
         "<|startoflm|>",
@@ -297,11 +310,10 @@ def build_tokenizer(name: str = "gpt2"):
 
 @lru_cache(maxsize=None)
 def get_tokenizer(
-    multilingual: bool,
-    *,
-    task: Optional[str] = None,  # Literal["transcribe", "translate", None]
-    language: Optional[str] = None,
-) -> Tokenizer:
+        multilingual: bool,
+        *,
+        task: Optional[str]=None,  # Literal["transcribe", "translate", None]
+        language: Optional[str]=None, ) -> Tokenizer:
     if language is not None:
         language = language.lower()
         if language not in LANGUAGES:
@@ -332,4 +344,7 @@ def get_tokenizer(
     if task is not None:
         sot_sequence.append(transcribe if task == "transcribe" else translate)
 
-    return Tokenizer(tokenizer=tokenizer, language=language, sot_sequence=tuple(sot_sequence))
+    return Tokenizer(
+        tokenizer=tokenizer,
+        language=language,
+        sot_sequence=tuple(sot_sequence))

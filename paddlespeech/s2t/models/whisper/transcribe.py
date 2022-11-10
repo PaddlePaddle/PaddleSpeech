@@ -2,39 +2,43 @@
 # Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
 # 
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper/transcribe.py)
-
-import argparse
-import os
-import warnings
-from typing import List, Optional, Tuple, Union, TYPE_CHECKING
+from typing import Optional
+from typing import Tuple
+from typing import TYPE_CHECKING
+from typing import Union
 
 import numpy as np
 import paddle
-from paddlespeech.s2t.models.whisper import audio, model
 import tqdm
-from paddlespeech.s2t.modules.fbank import KaldiFbank
-from paddlespeech.s2t.models.whisper.audio import SAMPLE_RATE, N_FRAMES, HOP_LENGTH, pad_or_trim, log_mel_spectrogram
-from paddlespeech.s2t.models.whisper.decoding import DecodingOptions, DecodingResult
-from paddlespeech.s2t.models.whisper.tokenizer import LANGUAGES, TO_LANGUAGE_CODE, get_tokenizer
-from paddlespeech.s2t.models.whisper.utils import exact_div, format_timestamp, optional_int, optional_float, str2bool, write_txt, write_vtt, write_srt
-from paddlespeech.s2t.frontend.featurizer.audio_featurizer import AudioFeaturizer
+
+from paddlespeech.s2t.models.whisper.audio import HOP_LENGTH
+from paddlespeech.s2t.models.whisper.audio import log_mel_spectrogram
+from paddlespeech.s2t.models.whisper.audio import N_FRAMES
+from paddlespeech.s2t.models.whisper.audio import pad_or_trim
+from paddlespeech.s2t.models.whisper.audio import SAMPLE_RATE
+from paddlespeech.s2t.models.whisper.decoding import DecodingOptions
+from paddlespeech.s2t.models.whisper.decoding import DecodingResult
+from paddlespeech.s2t.models.whisper.tokenizer import get_tokenizer
+from paddlespeech.s2t.models.whisper.tokenizer import LANGUAGES
+from paddlespeech.s2t.models.whisper.utils import exact_div
+from paddlespeech.s2t.models.whisper.utils import format_timestamp
 
 if TYPE_CHECKING:
     from paddlespeech.s2t.models.whisper.model import Whisper
 
 
 def transcribe(
-    model: "Whisper",
-    audio:  Union[str, np.ndarray, paddle.Tensor],
-    *,
-    verbose: Optional[bool] = None,
-    temperature: Union[float, Tuple[float, ...]] = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-    compression_ratio_threshold: Optional[float] = 2.4,
-    logprob_threshold: Optional[float] = -1.0,
-    no_speech_threshold: Optional[float] = 0.6,
-    condition_on_previous_text: bool = True,
-    **decode_options,
-):
+        model: "Whisper",
+        audio: Union[str, np.ndarray, paddle.Tensor],
+        *,
+        verbose: Optional[bool]=None,
+        temperature: Union[float, Tuple[float, ...]]=(0.0, 0.2, 0.4, 0.6, 0.8,
+                                                      1.0),
+        compression_ratio_threshold: Optional[float]=2.4,
+        logprob_threshold: Optional[float]=-1.0,
+        no_speech_threshold: Optional[float]=0.6,
+        condition_on_previous_text: bool=True,
+        **decode_options, ):
     """
     Transcribe an audio file using Whisper
 
@@ -77,7 +81,7 @@ def transcribe(
     A dictionary containing the resulting text ("text") and segment-level details ("segments"), and
     the spoken language ("language"), which is detected when `decode_options["language"]` is None.
     """
-    dtype = np.float32 #paddle only support float32
+    dtype = np.float32  #paddle only support float32
 
     if dtype == np.float32:
         decode_options["fp16"] = False
@@ -89,19 +93,25 @@ def transcribe(
             decode_options["language"] = "en"
         else:
             if verbose:
-                print("Detecting language using up to the first 30 seconds. Use `--language` to specify the language")
+                print(
+                    "Detecting language using up to the first 30 seconds. Use `--language` to specify the language"
+                )
             segment = pad_or_trim(mel, N_FRAMES)
             _, probs = model.detect_language(segment)
             decode_options["language"] = max(probs, key=probs.get)
             if verbose is not None:
-                print(f"Detected language: {LANGUAGES[decode_options['language']].title()}")
+                print(
+                    f"Detected language: {LANGUAGES[decode_options['language']].title()}"
+                )
 
     language = decode_options["language"]
     task = decode_options.get("task", "transcribe")
-    tokenizer = get_tokenizer(model.is_multilingual, language=language, task=task)
+    tokenizer = get_tokenizer(
+        model.is_multilingual, language=language, task=task)
 
     def decode_with_fallback(segment: paddle.Tensor) -> DecodingResult:
-        temperatures = [temperature] if isinstance(temperature, (int, float)) else temperature
+        temperatures = [temperature] if isinstance(temperature, (
+            int, float)) else temperature
         decode_result = None
 
         for t in temperatures:
@@ -130,11 +140,9 @@ def transcribe(
 
     seek = 0
     input_stride = exact_div(
-        N_FRAMES, model.dims.n_audio_ctx
-    )  # mel frames per output token: 2
-    time_precision = (
-        input_stride * HOP_LENGTH / SAMPLE_RATE
-    )  # time per output token: 0.02 (seconds)
+        N_FRAMES, model.dims.n_audio_ctx)  # mel frames per output token: 2
+    time_precision = (input_stride * HOP_LENGTH /
+                      SAMPLE_RATE)  # time per output token: 0.02 (seconds)
     all_tokens = []
     all_segments = []
     prompt_reset_since = 0
@@ -144,35 +152,40 @@ def transcribe(
         initial_prompt = tokenizer.encode(" " + initial_prompt.strip())
         all_tokens.extend(initial_prompt)
 
-    def add_segment(
-        *, start: float, end: float, text_tokens: paddle.Tensor, result: DecodingResult
-    ):
-        text = tokenizer.decode([token for token in text_tokens if token < tokenizer.eot])
+    def add_segment(*,
+                    start: float,
+                    end: float,
+                    text_tokens: paddle.Tensor,
+                    result: DecodingResult):
+        text = tokenizer.decode(
+            [token for token in text_tokens if token < tokenizer.eot])
         if len(text.strip()) == 0:  # skip empty text output
             return
 
-        all_segments.append(
-            {
-                "id": len(all_segments),
-                "seek": seek,
-                "start": start,
-                "end": end,
-                "text": text,
-                "tokens": result.tokens,
-                "temperature": result.temperature,
-                "avg_logprob": result.avg_logprob,
-                "compression_ratio": result.compression_ratio,
-                "no_speech_prob": result.no_speech_prob,
-            }
-        )
+        all_segments.append({
+            "id": len(all_segments),
+            "seek": seek,
+            "start": start,
+            "end": end,
+            "text": text,
+            "tokens": result.tokens,
+            "temperature": result.temperature,
+            "avg_logprob": result.avg_logprob,
+            "compression_ratio": result.compression_ratio,
+            "no_speech_prob": result.no_speech_prob,
+        })
         if verbose:
-            print(f"[{format_timestamp(start)} --> {format_timestamp(end)}] {text}")
+            print(
+                f"[{format_timestamp(start)} --> {format_timestamp(end)}] {text}"
+            )
 
     # show the progress bar when verbose is False (otherwise the transcribed text will be printed)
     num_frames = mel.shape[-1]
     previous_seek_value = seek
 
-    with tqdm.tqdm(total=num_frames, unit='frames', disable=verbose is not False) as pbar:
+    with tqdm.tqdm(
+            total=num_frames, unit='frames',
+            disable=verbose is not False) as pbar:
         while seek < num_frames:
             timestamp_offset = float(seek * HOP_LENGTH / SAMPLE_RATE)
             segment = pad_or_trim(mel[:, seek:], N_FRAMES)
@@ -190,50 +203,54 @@ def transcribe(
                     should_skip = False
 
                 if should_skip:
-                    seek += segment.shape[-1]  # fast-forward to the next segment boundary
+                    seek += segment.shape[
+                        -1]  # fast-forward to the next segment boundary
                     continue
 
-            timestamp_tokens: paddle.Tensor = tokens.greater_equal(paddle.to_tensor(tokenizer.timestamp_begin))
-            
-            consecutive = paddle.where(timestamp_tokens[:-1] & timestamp_tokens[1:])[0]
-            if len(consecutive) > 0:  # if the output contains two consecutive timestamp tokens
-                consecutive = paddle.add(consecutive,paddle.to_tensor(1))
+            timestamp_tokens: paddle.Tensor = tokens.greater_equal(
+                paddle.to_tensor(tokenizer.timestamp_begin))
+
+            consecutive = paddle.where(timestamp_tokens[:-1] & timestamp_tokens[
+                1:])[0]
+            if len(
+                    consecutive
+            ) > 0:  # if the output contains two consecutive timestamp tokens
+                consecutive = paddle.add(consecutive, paddle.to_tensor(1))
                 last_slice = 0
                 for current_slice in consecutive:
                     sliced_tokens = tokens[last_slice:current_slice]
                     start_timestamp_position = (
-                        sliced_tokens[0].item() - tokenizer.timestamp_begin
-                    )
+                        sliced_tokens[0].item() - tokenizer.timestamp_begin)
                     end_timestamp_position = (
-                        sliced_tokens[-1].item() - tokenizer.timestamp_begin
-                    )
+                        sliced_tokens[-1].item() - tokenizer.timestamp_begin)
                     add_segment(
-                        start=timestamp_offset + start_timestamp_position * time_precision,
-                        end=timestamp_offset + end_timestamp_position * time_precision,
+                        start=timestamp_offset + start_timestamp_position *
+                        time_precision,
+                        end=timestamp_offset + end_timestamp_position *
+                        time_precision,
                         text_tokens=sliced_tokens[1:-1],
-                        result=result,
-                    )
+                        result=result, )
                     last_slice = current_slice
                 last_timestamp_position = (
-                    tokens[last_slice - 1].item() - tokenizer.timestamp_begin
-                )
+                    tokens[last_slice - 1].item() - tokenizer.timestamp_begin)
                 seek += last_timestamp_position * input_stride
-                all_tokens.extend(tokens[: last_slice + 1].tolist())
+                all_tokens.extend(tokens[:last_slice + 1].tolist())
             else:
                 duration = segment_duration
                 timestamps = tokens[timestamp_tokens.nonzero().flatten()]
-                if len(timestamps) > 0 and timestamps[-1].item() != tokenizer.timestamp_begin:
+                if len(timestamps) > 0 and timestamps[
+                        -1].item() != tokenizer.timestamp_begin:
                     # no consecutive timestamps but it has a timestamp; use the last one.
                     # single timestamp at the end means no speech after the last timestamp.
-                    last_timestamp_position = timestamps[-1].item() - tokenizer.timestamp_begin
+                    last_timestamp_position = timestamps[
+                        -1].item() - tokenizer.timestamp_begin
                     duration = last_timestamp_position * time_precision
 
                 add_segment(
                     start=timestamp_offset,
                     end=timestamp_offset + duration,
                     text_tokens=tokens,
-                    result=result,
-                )
+                    result=result, )
 
                 seek += segment.shape[-1]
                 all_tokens.extend(tokens.tolist())
@@ -246,4 +263,7 @@ def transcribe(
             pbar.update(min(num_frames, seek) - previous_seek_value)
             previous_seek_value = seek
 
-    return dict(text=tokenizer.decode(all_tokens[len(initial_prompt):]), segments=all_segments, language=language)
+    return dict(
+        text=tokenizer.decode(all_tokens[len(initial_prompt):]),
+        segments=all_segments,
+        language=language)

@@ -2,9 +2,9 @@
 # Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
 # 
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper/utils.py)
-
 import zlib
-from typing import Iterator, TextIO
+from typing import Iterator
+from typing import TextIO
 
 
 def exact_div(x, y):
@@ -32,7 +32,9 @@ def compression_ratio(text) -> float:
     return len(text) / len(zlib.compress(text.encode("utf-8")))
 
 
-def format_timestamp(seconds: float, always_include_hours: bool = False, decimal_marker: str = '.'):
+def format_timestamp(seconds: float,
+                     always_include_hours: bool=False,
+                     decimal_marker: str='.'):
     assert seconds >= 0, "non-negative timestamp expected"
     milliseconds = round(seconds * 1000.0)
 
@@ -61,8 +63,7 @@ def write_vtt(transcript: Iterator[dict], file: TextIO):
             f"{format_timestamp(segment['start'])} --> {format_timestamp(segment['end'])}\n"
             f"{segment['text'].strip().replace('-->', '->')}\n",
             file=file,
-            flush=True,
-        )
+            flush=True, )
 
 
 def write_srt(transcript: Iterator[dict], file: TextIO):
@@ -88,5 +89,4 @@ def write_srt(transcript: Iterator[dict], file: TextIO):
             f"{format_timestamp(segment['end'], always_include_hours=True, decimal_marker=',')}\n"
             f"{segment['text'].strip().replace('-->', '->')}\n",
             file=file,
-            flush=True,
-        )
+            flush=True, )

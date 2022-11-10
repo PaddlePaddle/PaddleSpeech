@@ -66,6 +66,7 @@ Please see [here](../../speechx/README.md).
 
 > CER compute under aishell-test.
 > RTF compute with feature and decoder, which is more end to end.
+> Machine Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz avx512_vnni
 
 ### FP32
 
@@ -76,11 +77,19 @@ English -> 0.00 % N=0 C=0 S=0 D=0 I=0
 Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
 ```
 
+```
+RTF is: 0.315337
+```
+
 ### INT8
 
 ```
-Overall -> 5.87 % N=104765 C=98909 S=5711 D=145 I=289
-Mandarin -> 5.86 % N=104762 C=98909 S=5708 D=145 I=289
+Overall -> 5.83 % N=104765 C=98943 S=5675 D=147 I=286
+Mandarin -> 5.83 % N=104762 C=98943 S=5672 D=147 I=286
 English -> 0.00 % N=0 C=0 S=0 D=0 I=0
 Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
+```
+
+```
+RTF is: 0.269674
 ```

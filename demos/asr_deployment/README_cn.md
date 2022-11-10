@@ -66,6 +66,7 @@
 
 > CER 测试集为 aishell-test
 > RTF 计算包含提特征和解码
+> 测试机器： Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz avx512_vnni
 
 ### FP32
 
@@ -74,6 +75,10 @@ Overall -> 5.75 % N=104765 C=99035 S=5587 D=143 I=294
 Mandarin -> 5.75 % N=104762 C=99035 S=5584 D=143 I=294
 English -> 0.00 % N=0 C=0 S=0 D=0 I=0
 Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
+```
+
+```
+RTF is: 0.315337
 ```
 
 ### INT8

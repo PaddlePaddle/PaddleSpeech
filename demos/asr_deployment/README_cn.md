@@ -42,7 +42,7 @@ u2++ 识别部署参看[这里](../../speechx/examples/u2pp_ol/wenetspeech/)。
   
   ```bash
   # FP32
-  ./loca/recognizer.sh
+  ./local/recognizer.sh
 
   # INT8
   ./local/recognizer_quant.sh

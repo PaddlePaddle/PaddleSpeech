@@ -42,7 +42,7 @@ First go to `speechx/speechx/examples/u2pp_ol/wenetspeech` dir.
   
   ```bash
   # FP32
-  ./loca/recognizer.sh
+  ./local/recognizer.sh
 
   # INT8
   ./local/recognizer_quant.sh

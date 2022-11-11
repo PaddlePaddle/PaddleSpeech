@@ -23,14 +23,19 @@
 更多信息可以参看[文档](../../speechx/README.md)。
 
 ### 3. 例子
+
+u2++ 识别部署参看[这里](../../speechx/examples/u2pp_ol/wenetspeech/)。
+
+以下是在 `speechx/speechx/examples/u2pp_ol/wenetspeech`.
+
 - Source path.sh
   ```bash
   source path.sh
   ```
 
-- 下载模型并准备测试数据
+- 下载模型，准备测试数据和cmvn文件
   ```bash
-  run.sh --stage 0 --stop_stage 0
+  run.sh --stage 0 --stop_stage 1
   ```
 
 - 解码

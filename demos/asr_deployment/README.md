@@ -23,14 +23,19 @@ More info please see [here](../../speechx/README.md).
 Please see [here](../../speechx/README.md).
 
 ### 3. Usage
+
+For u2++ asr deployment example, please to see [here](../../speechx/examples/u2pp_ol/wenetspeech/).
+
+First go to `speechx/speechx/examples/u2pp_ol/wenetspeech` dir.
+
 - Source path.sh
   ```bash
   source path.sh
   ```
 
-- Download Model and Prepare test data
+- Download Model, Prepare test data and cmvn
   ```bash
-  run.sh --stage 0 --stop_stage 0
+  run.sh --stage 0 --stop_stage 1
   ```
 
 - Decode with WAV

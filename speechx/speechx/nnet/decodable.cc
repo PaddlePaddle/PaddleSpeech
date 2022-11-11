@@ -71,6 +71,7 @@ bool Decodable::AdvanceChunk() {
         VLOG(3) << "decodable exit;";
         return false;
     }
+    CHECK_GE(frontend_->Dim(), 0);
     VLOG(1) << "AdvanceChunk feat cost: " << timer.Elapsed() << " sec.";
     VLOG(2) << "Forward in " << features.Dim() / frontend_->Dim() << " feats.";
 

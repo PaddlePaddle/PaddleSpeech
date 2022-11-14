@@ -10,7 +10,7 @@ mkdir -p $exp
 ckpt_dir=./data/model
 model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model/
 
-utils/run.pl JOB=1:$nj $data/split${nj}/JOB/decoder.fbank.wolm.log \
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/decoder.log \
 ctc_prefix_beam_search_decoder_main \
     --model_path=$model_dir/export.jit \
     --vocab_path=$model_dir/unit.txt \

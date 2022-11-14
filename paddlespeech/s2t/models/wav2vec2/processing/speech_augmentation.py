@@ -641,14 +641,11 @@ class DropChunk(nn.Layer):
 
 class TimeDomainSpecAugment(nn.Layer):
     """A time-domain approximation of the SpecAugment algorithm.
-
     This augmentation module implements three augmentations in
     the time-domain.
-
      1. Drop chunks of the audio (zero amplitude or white noise)
      2. Drop frequency bands (with band-drop filters)
      3. Speed peturbation (via resampling to slightly different rate)
-
     Arguments
     ---------
     perturb_prob : float from 0 to 1
@@ -677,7 +674,6 @@ class TimeDomainSpecAugment(nn.Layer):
     drop_chunk_noise_factor : float
         The noise factor used to scale the white noise inserted, relative to
         the average amplitude of the utterance. Default 0 (no noise inserted).
-
     Example
     -------
     >>> inputs = paddle.randn([10, 16000])
@@ -718,7 +714,6 @@ class TimeDomainSpecAugment(nn.Layer):
 
     def forward(self, waveforms, lengths):
         """Returns the distorted waveforms.
-
         Arguments
         ---------
         waveforms : tensor

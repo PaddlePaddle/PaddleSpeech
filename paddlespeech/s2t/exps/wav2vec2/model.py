@@ -71,7 +71,8 @@ class Wav2Vec2ASRTrainer(Trainer):
         wavs_lens_rate = wavs_lens / wav.shape[1]
         target_lens_rate = target_lens / target.shape[1]
         wav = wav[:, :, 0]
-        wav = self.speech_augmentation(wav, wavs_lens_rate)
+        if hasattr(train_conf, 'speech_augment'):
+            wav = self.speech_augmentation(wav, wavs_lens_rate)
         loss = self.model(wav, wavs_lens_rate, target, target_lens_rate)
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
@@ -277,7 +278,9 @@ class Wav2Vec2ASRTrainer(Trainer):
         logger.info("Setup model!")
 
         # setup speech augmentation for wav2vec2
-        self.speech_augmentation = TimeDomainSpecAugment()
+        if hasattr(config, 'audio_augment') and self.train:
+            self.speech_augmentation = TimeDomainSpecAugment(
+                **config.audio_augment)
 
         if not self.train:
             return

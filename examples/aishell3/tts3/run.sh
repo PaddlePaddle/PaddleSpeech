@@ -58,3 +58,13 @@ fi
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/ort_predict.sh ${train_output_path}
 fi
+
+if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+    # This model is not supported, because 3 ops are not supported on 'arm'. These unsupported ops are: 'round, set_value, share_data'.
+    # This model is not supported, because 4 ops are not supported on 'x86'. These unsupported ops are: 'matmul_v2, round, set_value, share_data'.
+    # ./local/export2lite.sh ${train_output_path} inference pdlite fastspeech2_aishell3 x86
+    # x86 ok, arm Segmentation fault
+    # ./local/export2lite.sh ${train_output_path} inference pdlite pwgan_aishell3 x86  
+    # x86 ok, arm ok
+    ./local/export2lite.sh ${train_output_path} inference pdlite hifigan_aishell3 x86
+fi

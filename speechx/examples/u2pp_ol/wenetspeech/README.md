@@ -2,10 +2,10 @@
 
 ## Testing with Aishell Test Data
 
-## Download wav and model
+### Download wav and model
 
 ```
-run.sh --stop_stage 0
+./run.sh --stop_stage 0
 ```
 
 ### compute feature
@@ -21,7 +21,6 @@ run.sh --stop_stage 0
 ```
 
 ### decoding using wav
-
 
 ```
 ./run.sh --stage 3 --stop_stage 3

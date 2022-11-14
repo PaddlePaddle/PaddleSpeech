@@ -46,6 +46,7 @@ from .phonecode import RE_TELEPHONE
 from .phonecode import replace_mobile
 from .phonecode import replace_phone
 from .quantifier import RE_TEMPERATURE
+from .quantifier import replace_measure
 from .quantifier import replace_temperature
 
 
@@ -91,6 +92,7 @@ class TextNormalizer():
         sentence = RE_TIME.sub(replace_time, sentence)
 
         sentence = RE_TEMPERATURE.sub(replace_temperature, sentence)
+        sentence = replace_measure(sentence)
         sentence = RE_FRAC.sub(replace_frac, sentence)
         sentence = RE_PERCENTAGE.sub(replace_percentage, sentence)
         sentence = RE_MOBILE_PHONE.sub(replace_mobile, sentence)

@@ -83,7 +83,8 @@ model_name_format = {
     'st': 'Model-Source language-Target language',
     'text': 'Model-Task-Language',
     'tts': 'Model-Language',
-    'vector': 'Model-Sample Rate'
+    'vector': 'Model-Sample Rate',
+    'ssl': 'Model-Language-Sample Rate'
 }
 
 
@@ -94,7 +95,9 @@ class StatsCommand:
     def __init__(self):
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech.stats', add_help=True)
-        self.task_choices = ['asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws']
+        self.task_choices = [
+            'asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws', 'ssl'
+        ]
         self.parser.add_argument(
             '--task',
             type=str,
@@ -141,6 +144,8 @@ _commands = {
     'tts': ['Text to Speech infer command.', 'TTSExecutor'],
     'vector': ['Speech to vector embedding infer command.', 'VectorExecutor'],
     'kws': ['Keyword Spotting infer command.', 'KWSExecutor'],
+    'ssl':
+    ['Self-Supervised Learning Pretrained model infer command.', 'SSLExecutor']
 }
 
 for com, info in _commands.items():

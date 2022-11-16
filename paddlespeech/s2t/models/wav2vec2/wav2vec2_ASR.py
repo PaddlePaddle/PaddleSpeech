@@ -34,8 +34,6 @@ class Wav2vec2ASR(nn.Layer):
 
         wav2vec2_config = Wav2Vec2ConfigPure(config)
         wav2vec2 = Wav2Vec2Model(wav2vec2_config)
-        model_dict = paddle.load(config.wav2vec2_params_path)
-        wav2vec2.set_state_dict(model_dict)
         self.normalize_wav = config.normalize_wav
         self.output_norm = config.output_norm
         if config.freeze_wav2vec2:
@@ -239,3 +237,33 @@ class Wav2vec2ASR(nn.Layer):
         """
         hyps = self._ctc_prefix_beam_search(wav, beam_size)
         return hyps[0][0]
+
+
+class Wav2vec2Base(nn.Layer):
+    """Wav2vec2 model"""
+
+    def __init__(self, config: dict):
+        super().__init__()
+        wav2vec2_config = Wav2Vec2ConfigPure(config)
+        wav2vec2 = Wav2Vec2Model(wav2vec2_config)
+        self.wav2vec2 = wav2vec2
+
+    @classmethod
+    def from_config(cls, configs: dict):
+        """init model.
+
+        Args:
+            configs (dict): config dict.
+
+        Raises:
+            ValueError: raise when using not support encoder type.
+
+        Returns:
+            nn.Layer: Wav2Vec2Base
+        """
+        model = cls(configs)
+        return model
+
+    def forward(self, wav):
+        out = self.wav2vec2(wav)
+        return out

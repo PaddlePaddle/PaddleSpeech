@@ -269,6 +269,10 @@ class Wav2Vec2ASRTrainer(Trainer):
 
         model = Wav2vec2ASR.from_config(model_conf)
 
+        # load pretrained wav2vec2 model params
+        wav2vec2_dict = paddle.load(config.wav2vec2_params_path)
+        model.wav2vec2.set_state_dict(wav2vec2_dict)
+
         if self.parallel:
             model = paddle.DataParallel(model, find_unused_parameters=True)
 

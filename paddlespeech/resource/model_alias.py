@@ -19,6 +19,12 @@ __all__ = [
 # Records of model name to import class
 model_alias = {
     # ---------------------------------
+    # -------------- SSL --------------
+    # ---------------------------------
+    "wav2vec2ASR": ["paddlespeech.s2t.models.wav2vec2:Wav2vec2ASR"],
+    "wav2vec2": ["paddlespeech.s2t.models.wav2vec2:Wav2vec2Base"],
+
+    # ---------------------------------
     # -------------- ASR --------------
     # ---------------------------------
     "deepspeech2offline": ["paddlespeech.s2t.models.ds2:DeepSpeech2Model"],

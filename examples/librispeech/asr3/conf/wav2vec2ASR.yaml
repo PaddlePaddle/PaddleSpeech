@@ -70,7 +70,6 @@ train_manifest: data/manifest.train
 dev_manifest: data/manifest.dev
 test_manifest: data/manifest.test-clean
 
-
 ###########################################
 #              Dataloader                 #
 ###########################################
@@ -95,6 +94,12 @@ dist_sampler: True
 shortest_first: True
 return_lens_rate: True
   
+############################################
+#             Data Augmentation            #
+############################################
+audio_augment:  # for raw audio 
+  sample_rate: 16000
+  speeds: [95, 100, 105]
 
 ###########################################
 #                 Training                #
@@ -115,6 +120,3 @@ log_interval: 1
 checkpoint:
   kbest_n: 50
   latest_n: 5
-augment: True
-
-

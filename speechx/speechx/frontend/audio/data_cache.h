@@ -32,7 +32,6 @@ class DataCache : public FrontendInterface {
     // accept waves/feats
     void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) override {
         data_ = inputs;
-        SetDim(data_.Dim());
     }
 
     bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) override {
@@ -41,7 +40,6 @@ class DataCache : public FrontendInterface {
         }
         (*feats) = data_;
         data_.Resize(0);
-        SetDim(data_.Dim());
         return true;
     }
 

@@ -12,7 +12,8 @@ from typing import Union
 
 import numpy as np
 import paddle
-from transformers import GPT2TokenizerFast
+from paddlenlp.transformers import GPTTokenizer
+#from transformers import GPT2TokenizerFast
 
 LANGUAGES = {
     "en": "english",
@@ -135,9 +136,9 @@ TO_LANGUAGE_CODE = {
 
 @dataclass(frozen=True)
 class Tokenizer:
-    """A thin wrapper around `GPT2TokenizerFast` providing quick access to special tokens"""
+    """A thin wrapper around `GPTTokenizer` providing quick access to special tokens"""
 
-    tokenizer: "GPT2TokenizerFast"
+    tokenizer: "GPTTokenizer"
     language: Optional[str]
     sot_sequence: Tuple[int]
 
@@ -147,6 +148,15 @@ class Tokenizer:
     def decode(self,
                token_ids: Union[int, List[int], np.ndarray, paddle.Tensor],
                **kwargs):
+        if len(token_ids) > 1:
+            ids_list = []
+            for ids in token_ids:
+                if paddle.is_tensor(ids):
+                    ids = ids.item()
+                if ids < len(self.tokenizer):
+                    ids_list.append(ids)
+            token_ids = ids_list
+
         return self.tokenizer.decode(token_ids, **kwargs)
 
     def decode_with_timestamps(self, tokens) -> str:
@@ -269,12 +279,13 @@ class Tokenizer:
 
         # allow hyphens "-" and single quotes "'" between words, but not at the beginning of a word
         result = {
-            self.tokenizer.encode(" -")[0], self.tokenizer.encode(" '")[0]
+            self.tokenizer.encode(" -").input_ids[0],
+            self.tokenizer.encode(" '").input_ids[0]
         }
         for symbol in symbols + list(miscellaneous):
             for tokens in [
-                    self.tokenizer.encode(symbol),
-                    self.tokenizer.encode(" " + symbol)
+                    self.tokenizer.encode(symbol).input_ids,
+                    self.tokenizer.encode(" " + symbol).input_ids
             ]:
                 if len(tokens) == 1 or symbol in miscellaneous:
                     result.add(tokens[0])
@@ -282,7 +293,7 @@ class Tokenizer:
         return tuple(sorted(result))
 
     def _get_single_token_id(self, text) -> int:
-        tokens = self.tokenizer.encode(text)
+        tokens = self.tokenizer.encode(text).input_ids
         assert len(tokens) == 1, f"{text} is not encoded as a single token"
         return tokens[0]
 
@@ -291,7 +302,7 @@ class Tokenizer:
 def build_tokenizer(name: str="gpt2"):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     path = os.path.join(os.path.dirname(__file__), "assets", name)
-    tokenizer = GPT2TokenizerFast.from_pretrained(path)
+    tokenizer = GPTTokenizer.from_pretrained(path)
 
     specials = [
         "<|startoftranscript|>",

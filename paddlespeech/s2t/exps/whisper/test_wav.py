@@ -15,13 +15,14 @@
 import os.path
 import sys
 
+import distutils
+import numpy as np
 import paddle
 import soundfile
+from yacs.config import CfgNode
 
-from paddlespeech.s2t.models.whisper import _download
 from paddlespeech.s2t.models.whisper import ModelDimensions
 from paddlespeech.s2t.models.whisper import transcribe
-from paddlespeech.s2t.models.whisper import utils
 from paddlespeech.s2t.models.whisper import Whisper
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
@@ -29,17 +30,43 @@ from paddlespeech.s2t.utils.log import Log
 logger = Log(__name__).getlog()
 
 
-def load_model(model_file):
-    logger.info("download and loading the model file......")
-    download_root = os.getenv(
-        "XDG_CACHE_HOME",
-        os.path.join(os.path.expanduser("~"), ".cache", "whisper"))
-    model_file = _download(args.model_file, download_root, in_memory=False)
-    model_dict = paddle.load(model_file)
-    dims = ModelDimensions(**model_dict["dims"])
-    model = Whisper(dims)
-    model.load_dict(model_dict)
-    return model
+class WhisperInfer():
+    def __init__(self, config, args):
+        self.args = args
+        self.config = config
+        self.audio_file = args.audio_file
+
+        paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
+        config.pop("ngpu")
+
+        #load_model
+        model_dict = paddle.load(self.config.model_file)
+        config.pop("model_file")
+        dims = ModelDimensions(**model_dict["dims"])
+        self.model = Whisper(dims)
+        self.model.load_dict(model_dict)
+
+    def run(self):
+        check(args.audio_file)
+
+        with paddle.no_grad():
+            temperature = config.pop("temperature")
+            temperature_increment_on_fallback = config.pop(
+                "temperature_increment_on_fallback")
+            if temperature_increment_on_fallback is not None:
+                temperature = tuple(
+                    np.arange(temperature, 1.0 + 1e-6,
+                              temperature_increment_on_fallback))
+            else:
+                temperature = [temperature]
+
+            result = transcribe(
+                self.model, args.audio_file, temperature=temperature, **config)
+            if args.result_file is not None:
+                with open(args.result_file, 'w') as f:
+                    f.write(str(result))
+            print("result", result)
+            return result
 
 
 def check(audio_file: str):
@@ -49,7 +76,7 @@ def check(audio_file: str):
 
     logger.info("checking the audio file format......")
     try:
-        sig, sample_rate = soundfile.read(audio_file)
+        _, sample_rate = soundfile.read(audio_file)
     except Exception as e:
         logger.error(str(e))
         logger.error(
@@ -60,38 +87,33 @@ def check(audio_file: str):
     logger.info("The audio file format is right")
 
 
+def main(config, args):
+    WhisperInfer(config, args).run()
+
+
 if __name__ == "__main__":
     parser = default_argument_parser()
-
+    # save asr result to
     parser.add_argument(
         "--result_file", type=str, help="path of save the asr result")
     parser.add_argument(
         "--audio_file", type=str, help="path of the input audio file")
     parser.add_argument(
-        "--model_file",
-        default="large",
-        type=str,
-        help="path of the input model file")
-    parser.add_argument("--beam_size", type=utils.optional_int, default=5)
-    parser.add_argument("--verbose", type=utils.str2bool, default=True)
-    parser.add_argument("--device", default="gpu")
-
+        "--debug",
+        type=distutils.util.strtobool,
+        default=False,
+        help="for debug.")
     args = parser.parse_args()
 
-    check(args.audio_file)
+    config = CfgNode(new_allowed=True)
 
-    available_device = paddle.get_device()
-    if args.device == "cpu" and "gpu:" in available_device:
-        warnings.warn("Performing inference on CPU when CUDA is available")
-        paddle.set_device("cpu")
-    else:
-        paddle.set_device("gpu")
-
-    model = load_model(args.model_file)
-
-    result = transcribe(
-        model,
-        args.audio_file,
-        beam_size=args.beam_size,
-        fp16=False,
-        verbose=True)
+    if args.config:
+        config.merge_from_file(args.config)
+    if args.decode_cfg:
+        decode_confs = CfgNode(new_allowed=True)
+        decode_confs.merge_from_file(args.decode_cfg)
+        config.decode = decode_confs
+    if args.opts:
+        config.merge_from_list(args.opts)
+    config.freeze()
+    main(config, args)

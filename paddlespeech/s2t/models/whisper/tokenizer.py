@@ -13,7 +13,6 @@ from typing import Union
 import numpy as np
 import paddle
 from paddlenlp.transformers import GPTTokenizer
-#from transformers import GPT2TokenizerFast
 
 LANGUAGES = {
     "en": "english",

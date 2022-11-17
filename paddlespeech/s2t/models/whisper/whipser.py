@@ -1,7 +1,7 @@
 # MIT License, Copyright (c) 2022 OpenAI.
 # Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
 # 
-# Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper/__init__.py)
+# Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper)
 import os
 from dataclasses import dataclass
 from dataclasses import field
@@ -418,7 +418,7 @@ def detect_language(model: "Whisper",
 
 def transcribe(
         model: "Whisper",
-        audio: Union[str, np.ndarray, paddle.Tensor],
+        mel: paddle.Tensor,
         *,
         verbose: Optional[bool]=None,
         temperature: Union[float, Tuple[float, ...]]=(0.0, 0.2, 0.4, 0.6, 0.8,
@@ -436,8 +436,8 @@ def transcribe(
     model: Whisper
         The Whisper model instance
 
-    audio: Union[str, np.ndarray, torch.Tensor]
-        The path to the audio file to open, or the audio waveform
+    mel: torch.Tensor
+        The audio feature
 
     verbose: bool
         Whether to display the text being decoded to the console. If True, displays all the details,
@@ -474,8 +474,6 @@ def transcribe(
 
     if dtype == np.float32:
         decode_options["fp16"] = False
-
-    mel = log_mel_spectrogram(audio)
 
     if decode_options.get("language", None) is None:
         if not model.is_multilingual:
@@ -1193,9 +1191,8 @@ class DecodingTask:
                 DecodingResult(
                     audio_features=features,
                     language=language,
-                    language_probs=probs)
-                for features, language, probs in zip(audio_features, languages,
-                                                     language_probs)
+                    language_probs=probs) for features, language, probs in
+                zip(audio_features, languages, language_probs)
             ]
 
         # repeat the audio & text tensors by the group size, for beam search or best-of-n sampling

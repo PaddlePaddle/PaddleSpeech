@@ -21,6 +21,7 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
+from paddlespeech.s2t.models.whisper import log_mel_spectrogram
 from paddlespeech.s2t.models.whisper import ModelDimensions
 from paddlespeech.s2t.models.whisper import transcribe
 from paddlespeech.s2t.models.whisper import Whisper
@@ -60,12 +61,14 @@ class WhisperInfer():
             else:
                 temperature = [temperature]
 
+            #load audio
+            mel = log_mel_spectrogram(args.audio)
+
             result = transcribe(
-                self.model, args.audio_file, temperature=temperature, **config)
+                self.model, mel, temperature=temperature, **config)
             if args.result_file is not None:
                 with open(args.result_file, 'w') as f:
                     f.write(str(result))
-            print("result", result)
             return result
 
 

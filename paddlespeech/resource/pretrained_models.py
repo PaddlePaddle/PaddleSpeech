@@ -726,9 +726,9 @@ tts_dynamic_pretrained_models = {
     "fastspeech2_male-zh": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_ckpt_1.0.zip',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_ckpt_1.3.0.zip',
             'md5':
-            'e7a42e9f126deb164ee902e4d14a64d3',
+            'a4b1a2f667b878ec8f67375357b04282',
             'config':
             'default.yaml',
             'ckpt':
@@ -832,9 +832,9 @@ tts_dynamic_pretrained_models = {
     "pwgan_male-zh": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_male_ckpt_1.0.zip',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_male_ckpt_1.3.0.zip',
             'md5':
-            '26ae7eb8c52741a90e863f0443097f80',
+            'c98cdb889c809973f8cc764437311132',
             'config':
             'default.yaml',
             'ckpt':

@@ -1191,8 +1191,9 @@ class DecodingTask:
                 DecodingResult(
                     audio_features=features,
                     language=language,
-                    language_probs=probs) for features, language, probs in
-                zip(audio_features, languages, language_probs)
+                    language_probs=probs)
+                for features, language, probs in zip(audio_features, languages,
+                                                     language_probs)
             ]
 
         # repeat the audio & text tensors by the group size, for beam search or best-of-n sampling

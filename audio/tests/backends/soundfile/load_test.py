@@ -13,11 +13,11 @@ from common import skipIfFormatNotSupported
 from paddleaudio.backends import soundfile_backend
 from parameterized import parameterized
 
-from tests.common_utils import get_wav_data
-from tests.common_utils import load_wav
-from tests.common_utils import normalize_wav
-from tests.common_utils import save_wav
-from tests.common_utils import TempDirMixin
+from common_utils import get_wav_data
+from common_utils import load_wav
+from common_utils import normalize_wav
+from common_utils import save_wav
+from common_utils import TempDirMixin
 
 
 def _get_mock_path(

@@ -7,7 +7,7 @@ import paddle
 from parameterized import parameterized
 from paddleaudio.backends import sox_io_backend
 
-from tests.unit.common_utils import (
+from common_utils import (
     get_wav_data,
     load_wav,
     save_wav,

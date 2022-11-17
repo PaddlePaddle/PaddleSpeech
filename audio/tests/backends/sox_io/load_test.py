@@ -6,7 +6,7 @@ import numpy as np
 from paddleaudio._internal import module_utils as _mod_utils
 from paddleaudio.backends import sox_io_backend
 
-from tests.unit.common_utils import (
+from common_utils import (
     get_wav_data,
     load_wav,
     save_wav,

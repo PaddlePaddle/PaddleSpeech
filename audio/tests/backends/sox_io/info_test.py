@@ -9,16 +9,15 @@ import os
 import io
 
 from parameterized import parameterized
-from tests.unit.audio.backends.common import get_bits_per_sample, get_encoding 
+from common import get_bits_per_sample, get_encoding 
 from paddleaudio.backends import sox_io_backend
 
-from tests.unit.common_utils import (
+from common_utils import (
     get_wav_data,
     load_wav,
     save_wav,
     TempDirMixin,
     sox_utils,
-    data_utils
 )
 
 #code is from:https://github.com/pytorch/audio/blob/main/torchaudio/test/torchaudio_unittest/backend/sox_io/info_test.py

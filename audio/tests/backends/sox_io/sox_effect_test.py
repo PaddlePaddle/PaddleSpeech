@@ -9,7 +9,7 @@ import numpy as np
 from parameterized import parameterized
 from paddleaudio import sox_effects
 from paddleaudio._internal import module_utils as _mod_utils
-from tests.unit.common_utils import (
+from common_utils import (
     get_sinusoid,
     get_wav_data,
     load_wav,

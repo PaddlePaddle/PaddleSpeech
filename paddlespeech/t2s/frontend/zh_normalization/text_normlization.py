@@ -85,8 +85,6 @@ class TextNormalizer():
         sentence = sentence.replace('⑨','九').replace('９','9')
         sentence = sentence.replace('⑩','十').replace('０','0')
 
- 
-
         return sentence
 
     def normalize_sentence(self, sentence: str) -> str:

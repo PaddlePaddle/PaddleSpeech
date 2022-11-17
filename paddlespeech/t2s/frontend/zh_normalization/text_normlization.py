@@ -74,7 +74,18 @@ class TextNormalizer():
     def _post_replace(self, sentence: str) -> str:
         sentence = sentence.replace('/', '每')
         sentence = sentence.replace('~', '至').replace('～', '至')
+        sentence = sentence.replace('①','一').replace('１','1')
+        sentence = sentence.replace('②','二').replace('２','2')
+        sentence = sentence.replace('③','三').replace('３','3')
+        sentence = sentence.replace('④','四').replace('４','4')
+        sentence = sentence.replace('⑤','五').replace('５','5')
+        sentence = sentence.replace('⑥','六').replace('６','6')
+        sentence = sentence.replace('⑦','七').replace('７','7')
+        sentence = sentence.replace('⑧','八').replace('８','8')
+        sentence = sentence.replace('⑨','九').replace('９','9')
+        sentence = sentence.replace('⑩','十').replace('０','0')
 
+ 
 
         return sentence
 

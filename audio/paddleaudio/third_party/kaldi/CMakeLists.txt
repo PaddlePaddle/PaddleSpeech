@@ -2,24 +2,12 @@
 # compile kaldi without openfst
 add_definitions("-DCOMPILE_WITHOUT_OPENFST")
 
-# function (define_library name source include_dirs link_libraries compile_defs)
-#   add_library(${name} INTERFACE ${source})
-#   target_include_directories(${name} INTERFACE ${include_dirs})
-#   target_link_libraries(${name} INTERFACE ${link_libraries})
-#   target_compile_definitions(${name} INTERFACE ${compile_defs})
-#   set_target_properties(${name} PROPERTIES PREFIX "")
-#   if (MSVC)
-#     set_target_properties(${name} PROPERTIES SUFFIX ".pyd")
-#   endif(MSVC)
-#   install(
-#     TARGETS ${name}
-#     LIBRARY DESTINATION lib
-#     RUNTIME DESTINATION lib  # For Windows
-#     )
-# endfunction()
-
-
-
+if ((NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/base))
+    file(COPY ../../../../speechx/speechx/kaldi/base DESTINATION ${CMAKE_CURRENT_LIST_DIR})
+    file(COPY ../../../../speechx/speechx/kaldi/feat DESTINATION ${CMAKE_CURRENT_LIST_DIR})
+    file(COPY ../../../../speechx/speechx/kaldi/matrix DESTINATION ${CMAKE_CURRENT_LIST_DIR})
+    file(COPY ../../../../speechx/speechx/kaldi/util DESTINATION ${CMAKE_CURRENT_LIST_DIR})
+endif()
 
 # kaldi-base
 add_library(kaldi-base STATIC

@@ -181,18 +181,13 @@ class WhisperExecutor(BaseExecutor):
                                        resource_md5)
             else:
                 raise Exception("wrong type")
-        #model_name = model_type
-        #model_class = self.task_resource.get_model_class(model_name)
-        #model_conf = self.config
-        #model = model_class.from_config(model_conf)
-        #self.model = model
-        #self.model.eval()
 
         # load model
         model_dict = paddle.load(self.ckpt_path)
         dims = ModelDimensions(**model_dict["dims"])
         self.model = Whisper(dims)
         self.model.load_dict(model_dict)
+        self.model.eval()
 
         #set task
         if task is not None:

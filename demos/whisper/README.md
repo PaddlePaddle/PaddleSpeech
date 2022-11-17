@@ -65,7 +65,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
    print('ASR Result: \n{}'.format(text))
 
    # to recognize text and translate to English
-   feature = ssl_executor(
+   feature = whisper_executor(
        model='whisper-large',
        task='translate',
        sample_rate=16000,

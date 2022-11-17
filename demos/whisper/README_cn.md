@@ -66,7 +66,7 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
    print('ASR Result: \n{}'.format(text))
 
     # 将语音翻译成英语
-   feature = ssl_executor(
+   feature = whisper_executor(
        model='whisper-large',
        task='translate',
        sample_rate=16000,

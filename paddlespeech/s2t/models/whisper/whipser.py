@@ -194,7 +194,7 @@ class AudioEncoder(nn.Layer):
 
     def forward(self, x: paddle.Tensor):
         """
-        x : torch.Tensor, shape = (batch_size, n_mels, n_ctx)
+        x : paddle.Tensor, shape = (batch_size, n_mels, n_ctx)
             the mel spectrogram of the audio
         """
         x = F.gelu(self.conv1(x))
@@ -241,9 +241,9 @@ class TextDecoder(nn.Layer):
                 xa: paddle.Tensor,
                 kv_cache: Optional[dict]=None):
         """
-        x : torch.LongTensor, shape = (batch_size, <= n_ctx)
+        x : paddle.LongTensor, shape = (batch_size, <= n_ctx)
             the text tokens
-        xa : torch.Tensor, shape = (batch_size, n_mels, n_audio_ctx)
+        xa : paddle.Tensor, shape = (batch_size, n_mels, n_audio_ctx)
             the encoded audio features to be attended on
         """
         offset = next(iter(kv_cache.values())).shape[1] if kv_cache else 0
@@ -436,7 +436,7 @@ def transcribe(
     model: Whisper
         The Whisper model instance
 
-    mel: torch.Tensor
+    mel: paddle.Tensor
         The audio feature
 
     verbose: bool
@@ -1264,7 +1264,7 @@ def decode(model: "Whisper",
     model: Whisper
         the Whisper model instance
 
-    mel: torch.Tensor, shape = (80, 3000) or (*, 80, 3000)
+    mel: paddle.Tensor, shape = (80, 3000) or (*, 80, 3000)
         A tensor containing the Mel spectrogram(s)
 
     options: DecodingOptions
@@ -1331,7 +1331,7 @@ class Whisper(nn.Layer):
 
         Returns
         -------
-        cache : Dict[nn.Module, torch.Tensor]
+        cache : Dict[nn.Layer, paddle.Tensor]
             A dictionary object mapping the key/value projection modules to its cache
         hooks : List[RemovableHandle]
             List of PyTorch RemovableHandle objects to stop the hooks to be called
@@ -1429,7 +1429,7 @@ def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
 
     Parameters
     ----------
-    audio: Union[str, np.ndarray, torch.Tensor], shape = (*)
+    audio: Union[str, np.ndarray, paddle.Tensor], shape = (*)
         The path to audio or either a NumPy array or Tensor containing the audio waveform in 16 kHz
 
     n_mels: int
@@ -1437,7 +1437,7 @@ def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
 
     Returns
     -------
-    torch.Tensor, shape = (80, n_frames)
+    paddle.Tensor, shape = (80, n_frames)
         A Tensor that contains the Mel spectrogram
     """
     if not paddle.is_tensor(audio):

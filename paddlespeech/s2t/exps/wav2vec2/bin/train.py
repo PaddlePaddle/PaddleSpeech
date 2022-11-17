@@ -34,9 +34,10 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
+    parser.add_argument(
+        '--resume', type=str, default="", nargs="?", help='resume ckpt path.')
     args = parser.parse_args()
     print_arguments(args, globals())
-
     # https://yaml.org/type/float.html
     config = CfgNode(new_allowed=True)
     if args.config:

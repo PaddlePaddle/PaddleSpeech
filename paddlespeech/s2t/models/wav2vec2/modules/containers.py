@@ -141,5 +141,4 @@ class Sequential(paddle.nn.LayerDict):
             x = layer(x)
             if isinstance(x, tuple):
                 x = x[0]
-
         return x

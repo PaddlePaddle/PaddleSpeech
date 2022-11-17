@@ -3,9 +3,9 @@ from typing import List, Optional, Tuple
 import paddle
 import numpy
 
-from paddlespeech.audio._internal import module_utils as _mod_utils
-from paddlespeech.audio.utils.sox_utils import list_effects
-from paddlespeech.audio import _paddleaudio as paddleaudio
+from paddleaudio._internal import module_utils as _mod_utils
+from paddleaudio.utils.sox_utils import list_effects
+from paddleaudio import _paddleaudio as paddleaudio
 
 #code is from: https://github.com/pytorch/audio/blob/main/torchaudio/sox_effects/sox_effects.py
 

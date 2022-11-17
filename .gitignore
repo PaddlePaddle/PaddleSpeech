@@ -20,6 +20,10 @@ paddlespeech/audio/_paddleaudio.so
 paddlespeech/audio/lib/libpaddleaudio.so
 paddlespeech/version.py
 
+audio/dist/
+audio/fc_patch/
+audio/paddleaudio/version.py
+
 docs/build/
 docs/topic/ctc/warp-ctc/
 

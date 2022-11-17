@@ -1,4 +1,4 @@
-from paddlespeech.audio._internal import module_utils as _mod_utils
+from paddleaudio._internal import module_utils as _mod_utils
 
 from .sox_effects import (
     apply_effects_file,

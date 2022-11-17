@@ -106,7 +106,7 @@ def _load_lib(lib: str) -> bool:
     if not path.exists():
         warnings.warn("lib path is not exists:" + str(path))
         return False
-    #paddleaudio.audio.ops.load_library(path)
+    #paddleaudio.ops.load_library(path)
     ops.load_library(path)
     return True
 
@@ -119,7 +119,7 @@ def _init_ffmpeg():
     if _FFMPEG_INITIALIZED:
         return
 
-    if not paddleaudio.audio._paddlleaudio.is_ffmpeg_available():
+    if not paddleaudio._paddlleaudio.is_ffmpeg_available():
         raise RuntimeError(
             "paddlleaudio is not compiled with FFmpeg integration. Please set USE_FFMPEG=1 when compiling paddlleaudio."
         )
@@ -132,9 +132,9 @@ def _init_ffmpeg():
 
     import paddllespeech.audio._paddlleaudio_ffmpeg  # noqa
 
-    paddleaudio.audio._paddlleaudio.ffmpeg_init()
-    if paddleaudio.audio._paddlleaudio.ffmpeg_get_log_level() > 8:
-        paddleaudio.audio._paddlleaudio.ffmpeg_set_log_level(8)
+    paddleaudio._paddlleaudio.ffmpeg_init()
+    if paddleaudio._paddlleaudio.ffmpeg_get_log_level() > 8:
+        paddleaudio._paddlleaudio.ffmpeg_set_log_level(8)
 
     _FFMPEG_INITIALIZED = True
 

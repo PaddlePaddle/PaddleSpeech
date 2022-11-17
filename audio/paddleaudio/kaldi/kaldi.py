@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import paddlespeech
-from paddlespeech.audio._internal import module_utils 
+import paddleaudio
+from paddleaudio._internal import module_utils 
 
 __all__ = [
     'fbank',
@@ -50,9 +50,9 @@ def fbank(
         htk_compat: bool=False,
         use_log_fbank: bool=True,
         use_power: bool=True):
-    frame_opts = paddlespeech.audio._paddleaudio.FrameExtractionOptions()
-    mel_opts = paddlespeech.audio._paddleaudio.MelBanksOptions()
-    fbank_opts = paddlespeech.audio._paddleaudio.FbankOptions()
+    frame_opts = paddleaudio._paddleaudio.FrameExtractionOptions()
+    mel_opts = paddleaudio._paddleaudio.MelBanksOptions()
+    fbank_opts = paddleaudio._paddleaudio.FbankOptions()
     frame_opts.samp_freq = samp_freq
     frame_opts.frame_shift_ms = frame_shift_ms
     frame_opts.frame_length_ms = frame_length_ms
@@ -81,7 +81,7 @@ def fbank(
     fbank_opts.htk_compat = htk_compat
     fbank_opts.use_log_fbank = use_log_fbank
     fbank_opts.use_power = use_power
-    feat = paddlespeech.audio._paddleaudio.ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
+    feat = paddleaudio._paddleaudio.ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
     return feat
 
 
@@ -107,7 +107,7 @@ def pitch(wav,
           recompute_frame: int=500,
           nccf_ballast_online: bool=False,
           snip_edges: bool=True):
-    pitch_opts = paddlespeech.audio._paddleaudio.PitchExtractionOptions()
+    pitch_opts = paddleaudio._paddleaudio.PitchExtractionOptions()
     pitch_opts.samp_freq = samp_freq
     pitch_opts.frame_shift_ms = frame_shift_ms
     pitch_opts.frame_length_ms = frame_length_ms
@@ -128,5 +128,5 @@ def pitch(wav,
     pitch_opts.recompute_frame = recompute_frame
     pitch_opts.nccf_ballast_online = nccf_ballast_online
     pitch_opts.snip_edges = snip_edges
-    pitch = paddlespeech.audio._paddleaudio.ComputeKaldiPitch(pitch_opts, wav)
+    pitch = paddleaudio._paddleaudio.ComputeKaldiPitch(pitch_opts, wav)
     return pitch

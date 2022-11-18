@@ -127,6 +127,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [hifigan_vctk_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_onnx_1.1.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [hifigan_vctk_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_pdlite_1.3.0.zip)
+
 
 Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:

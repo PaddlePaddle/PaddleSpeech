@@ -238,6 +238,11 @@ The ONNX model can be downloaded here:
 - [fastspeech2_cnndecoder_csmsc_onnx_1.0.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_onnx_1.0.0.zip)
 - [fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [fastspeech2_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_pdlite_1.3.0.zip)
+- [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)
+- [fastspeech2_cnndecoder_csmsc_streaming_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_pdlite_1.3.0.zip)
+
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:
 default| 2(gpu) x 76000|1.0991|0.59132|0.035815|0.31915|0.15287|

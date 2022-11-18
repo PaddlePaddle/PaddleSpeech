@@ -1,4 +1,3 @@
-// Copyright (c) 2017 Facebook Inc. (Soumith Chintala), All rights reserved.
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 
 #include "paddleaudio/src/pybind/kaldi/kaldi_feature.h"

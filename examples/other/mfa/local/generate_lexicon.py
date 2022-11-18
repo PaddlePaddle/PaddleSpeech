@@ -182,12 +182,17 @@ if __name__ == "__main__":
         "--with-tone", action="store_true", help="whether to consider tone.")
     parser.add_argument(
         "--with-r", action="store_true", help="whether to consider erhua.")
+    parser.add_argument(
+        "--rhy-with-duration",
+        action="store_true", )
     args = parser.parse_args()
 
     lexicon = generate_lexicon(args.with_tone, args.with_r)
     symbols = generate_symbols(lexicon)
 
     with open(args.output + ".lexicon", 'wt') as f:
+        if args.rhy_with_duration:
+            f.write("sp1 sp1\nsp2 sp2\nsp3 sp3\nsp4 sp4\n")
         for k, v in lexicon.items():
             f.write(f"{k} {v}\n")
 

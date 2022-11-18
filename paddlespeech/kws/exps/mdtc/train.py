@@ -110,7 +110,7 @@ if __name__ == '__main__':
             optimizer.clear_grad()
 
             # Calculate loss
-            avg_loss += loss.numpy()[0]
+            avg_loss += float(loss)
 
             # Calculate metrics
             num_corrects += corrects

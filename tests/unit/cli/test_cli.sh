@@ -16,6 +16,7 @@ paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_wenetspeech --input ./zh.wav
 paddlespeech asr --model conformer_online_multicn --input ./zh.wav
+paddlespeech asr --model conformer_u2pp_online_wenetspeech --lang zh --input zh.wav
 paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav
 paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav
@@ -53,6 +54,7 @@ paddlespeech tts --am fastspeech2_vctk --voc hifigan_vctk --input "Life was like
 paddlespeech tts --am tacotron2_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_csmsc --voc wavernn_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
+paddlespeech tts --am fastspeech2_male --voc pwgan_male --input "你好，欢迎使用百度飞桨深度学习框架！"
 # mix tts
 # The `am` must be `fastspeech2_mix`!
 # The `lang` must be `mix`!

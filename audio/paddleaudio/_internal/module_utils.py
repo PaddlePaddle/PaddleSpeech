@@ -2,8 +2,9 @@ import importlib.util
 import warnings
 from functools import wraps
 from typing import Optional
+import platform
 
-#code is from https://github.com/pytorch/audio/blob/main/torchaudio/_internal/module_utils.py
+#code is from https://github.com/pytorch/audio/blob/main/torchaudio/_internal/module_utils.py with modification.
 
 
 def is_module_available(*modules: str) -> bool:
@@ -127,6 +128,8 @@ def requires_soundfile():
 
 
 def is_sox_available():
+    if platform.system() == "Windows": # not support sox in windows
+        return False
     return is_module_available("paddleaudio._paddleaudio")
 
 

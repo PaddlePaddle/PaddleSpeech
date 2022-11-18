@@ -42,7 +42,7 @@ ssl_dynamic_pretrained_models = {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2-large-960h-lv60-self_ckpt_1.3.0.model.tar.gz',
             'md5':
-            'd00de8506ac8e67751419c932fb4d84e',
+            'acc46900680e341e500437aa59193518',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
@@ -58,7 +58,7 @@ ssl_dynamic_pretrained_models = {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2ASR-large-960h-librispeech_ckpt_1.3.1.model.tar.gz',
             'md5':
-            'fee083b3463ceaaec960fce84fdba0cd',
+            '71ee652cdae60fc289a467291017b51c',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

@@ -1,7 +1,7 @@
 # LibriSpeech
 
 ## Wav2VecASR
-train: Epoch 1, 1*V100-32G, batchsize:10
+train: Epoch 1, 1*V100-32G, batchsize: 6
 
 | Model | Params | Config | Augmentation| Test set | Decode method | WER |  
 | --- | --- | --- | --- | --- | --- | --- |

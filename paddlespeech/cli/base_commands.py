@@ -84,7 +84,7 @@ model_name_format = {
     'text': 'Model-Task-Language',
     'tts': 'Model-Language',
     'vector': 'Model-Sample Rate',
-    'ssl': 'Model-Language-Sample Rate'
+    'ssl': 'Model-Language-Sample Rate',
     'whisper': 'Model-Language-Sample Rate'
 }
 

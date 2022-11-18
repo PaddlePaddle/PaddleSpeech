@@ -25,6 +25,7 @@ __all__ = [
     'tts_static_pretrained_models',
     'tts_onnx_pretrained_models',
     'vector_dynamic_pretrained_models',
+    'whisper_dynamic_pretrained_models',
 ]
 
 # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
@@ -420,6 +421,31 @@ asr_onnx_pretrained_models = {
             'https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm',
             'lm_md5':
             '29e02312deb2e59b3c8686c7966d4fe3'
+        },
+    },
+}
+
+whisper_dynamic_pretrained_models = {
+    "whisper-large-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/whisper-large-model.tar.gz',
+            'md5':
+            '364c4d670835e5ca489045e1c29d75fe',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-large-model',
+            'model':
+            'whisper-large-model.pdparams',
+            'params':
+            'whisper-large-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
         },
     },
 }

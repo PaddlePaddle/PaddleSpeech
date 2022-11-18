@@ -94,5 +94,11 @@ paddlespeech stats --task text
 paddlespeech stats --task vector
 paddlespeech stats --task st
 
+# whisper text recognize
+paddlespeech whisper --task transcribe --input ./zh.wav
+
+# whisper recognize text and translate to English
+paddlespeech whisper --task translate --input ./zh.wav
+
 
 echo -e "\033[32mTest success !!!\033[0m"

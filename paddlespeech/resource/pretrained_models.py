@@ -59,7 +59,7 @@ ssl_dynamic_pretrained_models = {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2ASR-large-960h-librispeech_ckpt_1.3.1.model.tar.gz',
             'md5':
-            '71ee652cdae60fc289a467291017b51c',
+            'cbe28d6c78f3dd2e189968402381f454',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

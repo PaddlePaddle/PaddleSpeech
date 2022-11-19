@@ -108,7 +108,7 @@ audio_augment:  # for raw audio
 ###########################################
 n_epoch: 1
 accum_grad: 1
-global_grad_clip: 3.0
+global_grad_clip: 5.0
 model_optim: adadelta
 model_optim_conf:
   lr: 0.9

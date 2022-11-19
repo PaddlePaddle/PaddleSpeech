@@ -17,7 +17,6 @@ from . import compliance
 from . import datasets
 from . import features
 from . import functional
-from . import io
 from . import metric
 from . import sox_effects
 from . import utils

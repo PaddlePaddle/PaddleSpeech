@@ -106,7 +106,6 @@ def _load_lib(lib: str) -> bool:
     if not path.exists():
         warnings.warn("lib path is not exists:" + str(path))
         return False
-    #paddleaudio.ops.load_library(path)
     ops.load_library(path)
     return True
 

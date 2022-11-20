@@ -30,6 +30,11 @@ model_alias = {
     "wenetspeech": ["paddlespeech.s2t.models.u2:U2Model"],
 
     # ---------------------------------
+    # ------------ Whisper ------------
+    # ---------------------------------
+    "whisper": ["paddlespeech.s2t.models.whisper:Whisper"],
+
+    # ---------------------------------
     # -------------- CLS --------------
     # ---------------------------------
     "panns_cnn6": ["paddlespeech.cls.models.panns:CNN6"],

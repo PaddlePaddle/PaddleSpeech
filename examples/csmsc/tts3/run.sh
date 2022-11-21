@@ -64,6 +64,9 @@ fi
 
 # must run after stage 3 (which stage generated static models)
 if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+    # NOTE by yuantian 2022.11.21: please compile develop version of Paddle-Lite to export and run TTS models,
+    #                   cause TTS models are supported by https://github.com/PaddlePaddle/Paddle-Lite/pull/9587 
+    #                   and https://github.com/PaddlePaddle/Paddle-Lite/pull/9706
     ./local/export2lite.sh ${train_output_path} inference pdlite fastspeech2_csmsc x86
     ./local/export2lite.sh ${train_output_path} inference pdlite pwgan_csmsc x86
     # ./local/export2lite.sh ${train_output_path} inference pdlite mb_melgan_csmsc x86

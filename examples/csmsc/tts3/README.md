@@ -239,6 +239,7 @@ The ONNX model can be downloaded here:
 - [fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip)
 
 The Paddle-Lite model can be downloaded here:
+> please compile develop version of Paddle-Lite to export and run TTS models, cause TTS models are supported by https://github.com/PaddlePaddle/Paddle-Lite/pull/9587 and https://github.com/PaddlePaddle/Paddle-Lite/pull/9706
 - [fastspeech2_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_pdlite_1.3.0.zip)
 - [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)
 - [fastspeech2_cnndecoder_csmsc_streaming_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_pdlite_1.3.0.zip)

@@ -520,7 +520,6 @@ def get_lite_predictor(model_dir: Optional[os.PathLike]=None,
                        cpu_threads: int=1):
     config = MobileConfig()
     config.set_model_from_file(str(Path(model_dir) / model_file))
-    # config.set_threads(cpu_threads)
     predictor = create_paddle_predictor(config)
     return predictor
 

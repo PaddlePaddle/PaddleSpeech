@@ -18,6 +18,7 @@ import paddle
 
 from paddlespeech.s2t.models.wav2vec2.modules import containers
 from paddlespeech.s2t.models.wav2vec2.modules import linear
+from paddlespeech.s2t.models.wav2vec2.modules.normalization import BatchNorm1d
 
 
 class VanillaNN(containers.Sequential):
@@ -39,18 +40,34 @@ class VanillaNN(containers.Sequential):
     paddle.shape([10, 120, 512])
     """
 
-    def __init__(
-            self,
-            input_shape,
-            activation=paddle.nn.LeakyReLU,
-            dnn_blocks=2,
-            dnn_neurons=512, ):
-        super().__init__(input_shape=input_shape)
+    def __init__(self,
+                 input_shape,
+                 dnn_blocks=2,
+                 dnn_neurons=512,
+                 activation=True,
+                 normalization=False,
+                 dropout_rate=0.0):
+        super().__init__(input_shape=[None, None, input_shape])
+
+        if not isinstance(dropout_rate, list):
+            dropout_rate = [dropout_rate] * dnn_blocks
+        else:
+            assert len(
+                dropout_rate
+            ) == dnn_blocks, "len(dropout_rate) must equal to dnn_blocks"
 
         for block_index in range(dnn_blocks):
             self.append(
                 linear.Linear,
                 n_neurons=dnn_neurons,
-                bias=True,
+                bias_attr=None,
                 layer_name="linear", )
-            self.append(activation(), layer_name="act")
+            if normalization:
+                self.append(
+                    BatchNorm1d, input_size=dnn_neurons, layer_name='bn')
+            if activation:
+                self.append(paddle.nn.LeakyReLU(), layer_name="act")
+            self.append(
+                paddle.nn.Dropout(),
+                p=dropout_rate[block_index],
+                layer_name='dropout')

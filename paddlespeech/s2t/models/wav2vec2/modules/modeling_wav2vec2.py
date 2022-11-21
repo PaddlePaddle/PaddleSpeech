@@ -1120,9 +1120,6 @@ class Wav2Vec2ConfigPure():
         self.output_hidden_states = False
         self.use_return_dict = True
 
-        self.pad_token_id = config.pad_token_id
-        self.bos_token_id = config.bos_token_id
-        self.eos_token_id = config.eos_token_id
         self.hidden_size = config.hidden_size
         self.feat_extract_norm = config.feat_extract_norm
         self.feat_extract_activation = config.feat_extract_activation
@@ -1145,7 +1142,6 @@ class Wav2Vec2ConfigPure():
         self.layerdrop = config.layerdrop
         self.layer_norm_eps = config.layer_norm_eps
         self.initializer_range = config.initializer_range
-        self.vocab_size = config.vocab_size
         self.do_stable_layer_norm = config.do_stable_layer_norm
         self.use_weighted_layer_sum = config.use_weighted_layer_sum
 

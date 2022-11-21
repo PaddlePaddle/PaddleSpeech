@@ -25,6 +25,7 @@ __all__ = [
     'tts_static_pretrained_models',
     'tts_onnx_pretrained_models',
     'vector_dynamic_pretrained_models',
+    'ssl_dynamic_pretrained_models',
     'whisper_dynamic_pretrained_models',
 ]
 
@@ -32,6 +33,44 @@ __all__ = [
 # e.g. "conformer_wenetspeech-zh-16k" and "panns_cnn6-32k".
 # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
 # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
+
+# ---------------------------------
+# -------------- SSL --------------
+# ---------------------------------
+ssl_dynamic_pretrained_models = {
+    "wav2vec2-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2-large-960h-lv60-self_ckpt_1.3.0.model.tar.gz',
+            'md5':
+            'acc46900680e341e500437aa59193518',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'wav2vec2-large-960h-lv60-self',
+            'model':
+            'wav2vec2-large-960h-lv60-self.pdparams',
+            'params':
+            'wav2vec2-large-960h-lv60-self.pdparams',
+        },
+    },
+    "wav2vec2ASR_librispeech-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2ASR-large-960h-librispeech_ckpt_1.3.1.model.tar.gz',
+            'md5':
+            'cbe28d6c78f3dd2e189968402381f454',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/wav2vec2ASR/checkpoints/avg_1',
+            'model':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+            'params':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+        },
+    },
+}
 
 # ---------------------------------
 # -------------- ASR --------------

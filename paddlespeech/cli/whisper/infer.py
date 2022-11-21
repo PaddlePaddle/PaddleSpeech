@@ -36,6 +36,8 @@ from ..utils import timer_register
 from paddlespeech.s2t.models.whisper import log_mel_spectrogram
 from paddlespeech.s2t.models.whisper import ModelDimensions
 from paddlespeech.s2t.models.whisper import Whisper
+from paddlespeech.s2t.models.whisper.tokenizer import LANGUAGES
+from paddlespeech.s2t.models.whisper.tokenizer import TO_LANGUAGE_CODE
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['WhisperExecutor']
@@ -53,15 +55,13 @@ class WhisperExecutor(BaseExecutor):
             '--model',
             type=str,
             default='whisper',
-            choices=[
-                tag[:tag.index('-')]
-                for tag in self.task_resource.pretrained_models.keys()
-            ],
+            choices=['whisper'],
             help='Choose model type of asr task.')
         self.parser.add_argument(
             '--lang',
             type=str,
             default='',
+            choices=['', 'en'],
             help='Choose model language. Default is "", English-only model set [en].'
         )
         self.parser.add_argument(
@@ -74,12 +74,15 @@ class WhisperExecutor(BaseExecutor):
             '--size',
             type=str,
             default='large',
+            choices=['large', 'medium', 'base', 'small', 'tiny'],
             help='Choose model size. now only support large, large:[whisper-large-16k]'
         )
         self.parser.add_argument(
             '--language',
             type=str,
             default='None',
+            choices=sorted(LANGUAGES.keys()) + sorted(
+                [k.title() for k in TO_LANGUAGE_CODE.keys()]),
             help='Choose model decode language. Default is None, recognized by model.'
         )
         self.parser.add_argument(

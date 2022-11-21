@@ -1,0 +1,16 @@
+See https://github.com/pytorch/audio/pull/1297
+diff -ru sox/src/formats.c sox/src/formats.c
+--- sox/src/formats.c	2014-10-26 19:55:50.000000000 -0700
++++ sox/src/formats.c	2021-02-22 16:01:02.833144070 -0800
+@@ -333,6 +333,10 @@
+   assert(ft);
+   if (!ft->fp)
+     return sox_false;
+-  fstat(fileno((FILE*)ft->fp), &st);
++  int fd = fileno((FILE*)ft->fp);
++  if (fd < 0)
++    return sox_false;
++  if (fstat(fd, &st) < 0)
++    return sox_false;
+   return ((st.st_mode & S_IFMT) == S_IFREG);
+ }

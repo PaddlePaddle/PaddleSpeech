@@ -10,10 +10,10 @@ from common import parameterize
 from common import skipIfFormatNotSupported
 from paddleaudio.backends import soundfile_backend
 
-from tests.common_utils import get_wav_data
-from tests.common_utils import load_wav
-from tests.common_utils import nested_params
-from tests.common_utils import TempDirMixin
+from common_utils import get_wav_data
+from common_utils import load_wav
+from common_utils import nested_params
+from common_utils import TempDirMixin
 
 
 class MockedSaveTest(unittest.TestCase):

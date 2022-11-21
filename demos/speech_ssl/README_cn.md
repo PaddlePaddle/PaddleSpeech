@@ -83,8 +83,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   输出：
   ```bash
   ASR Result:
-  我认为跑步最重要的就是给我带来了身体健康
-
+  i knocked at the door on the ancient side of the building
+  
   Representation:
   Tensor(shape=[1, 164, 1024], dtype=float32, place=Place(gpu:0), stop_gradient=True,
        [[[ 0.02351918, -0.12980647,  0.17868176, ...,  0.10118122,

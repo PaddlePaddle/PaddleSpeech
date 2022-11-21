@@ -12,8 +12,8 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 - Python >= 3.7
 - PaddlePaddle latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 - C++ compilation environment
-- Hip: For Linux and Mac, do not use command `sh` instead of command `bash` in installation document.
-- Hip: We recommand you to install `paddlepaddle` from https://mirror.baidu.com/pypi/simple and install `paddlespeech` from https://pypi.tuna.tsinghua.edu.cn/simple. 
+- Tip: For Linux and Mac, do not use command `sh` instead of command `bash` in installation document.
+- Tip: We recommand you to install `paddlepaddle` from https://mirror.baidu.com/pypi/simple and install `paddlespeech` from https://pypi.tuna.tsinghua.edu.cn/simple. 
 
 ## Easy: Get the Basic Function (Support Linux, Mac, and Windows)
 - If you are newer to `PaddleSpeech` and want to experience it easily without your machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step [tutorial](https://aistudio.baidu.com/aistudio/education/group/info/25130) for `PaddleSpeech`, and you can use the basic function of `PaddleSpeech` with a free machine.

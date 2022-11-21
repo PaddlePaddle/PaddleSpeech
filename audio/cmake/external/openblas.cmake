@@ -39,7 +39,7 @@ if(NOT WIN32)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86(_64)?$")
       set(OPTIONAL_ARGS DYNAMIC_ARCH=1 NUM_THREADS=64)
     endif()
-    set(COMMON_ARGS CC=${OPENBLAS_CC} NO_SHARED=1 libs)
+    set(COMMON_ARGS CC=${OPENBLAS_CC} NO_SHARED=1)
   endif()
 
   ExternalProject_Add(

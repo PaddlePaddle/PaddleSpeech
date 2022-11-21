@@ -20,12 +20,6 @@ add_library(kaldi-base STATIC
 target_include_directories(kaldi-base PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # kaldi-matrix
-if (MSVC OR APPLE)
-    find_package(GFortranLibs REQUIRED)
-    include(FortranCInterface)
-    include(FindGFortranLibs REQUIRED)
-endif()
-
 if (APPLE)
     find_package(GFortranLibs REQUIRED)
     include(FortranCInterface)

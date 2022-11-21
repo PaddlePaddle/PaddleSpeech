@@ -27,6 +27,9 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
    # 识别文本
    paddlespeech whisper --task transcribe --input ./zh.wav
 
+   #选择只支持英文的模型，并且更换不同大小的模型
+   paddlespeech whisper --lang en --size base --task transcribe  --input ./en.wav
+
    # 将语音翻译成英语
    paddlespeech whisper --task translate --input ./zh.wav
    ```
@@ -38,7 +41,9 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
    - `input`(必须输入)：用于识别的音频文件。
    - `model`：ASR 任务的模型，默认值：`whisper-large`。
    - `task`：输出类别，默认值：`transcribe`。
-   - `lang`：模型语言，默认值：`None`，强制设定识别出的语言，默认为模型自行判定。
+   - `lang`: 模型语言，默认值：``，使用`en`选择只支持英文的模型，目前可选择`en`的模型有[medium,base,small,tiny]。
+   - `size`: 模型大小，默认值：`large`，目前支持[large,medium,base,small,tiny]。
+   - `language`：设定解码语言，默认值：`None`，强制设定识别出的语言，默认为模型自行判定。
    - `sample_rate`：音频采样率，默认值：`16000`，目前Whisper暂不支持其他采样率。
    - `config`：ASR 任务的参数文件，若不设置则使用预训练模型中的默认配置，默认值：`None`。
    - `ckpt_path`：模型参数文件，若不设置则下载解码模型使用，默认值：`None`。

@@ -61,8 +61,8 @@ class WhisperExecutor(BaseExecutor):
         self.parser.add_argument(
             '--lang',
             type=str,
-            default='None',
-            help='Choose model decode language. Default is None, recognized by model.'
+            default='',
+            help='Choose model language. Default is "", English-only model set [en].'
         )
         self.parser.add_argument(
             '--task',
@@ -75,6 +75,12 @@ class WhisperExecutor(BaseExecutor):
             type=str,
             default='large',
             help='Choose model size. now only support large, large:[whisper-large-16k]'
+        )
+        self.parser.add_argument(
+            '--language',
+            type=str,
+            default='None',
+            help='Choose model decode language. Default is None, recognized by model.'
         )
         self.parser.add_argument(
             "--sample_rate",
@@ -129,9 +135,10 @@ class WhisperExecutor(BaseExecutor):
 
     def _init_from_path(self,
                         model_type: str='whisper',
-                        lang: str='None',
+                        lang: str='',
                         task: str='transcribe',
                         size: str='large',
+                        language: str='None',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         decode_method: str='ctc_prefix_beam_search',
@@ -149,7 +156,10 @@ class WhisperExecutor(BaseExecutor):
 
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-            tag = model_type + '-' + size + '-' + sample_rate_str
+            if lang == "":
+                tag = model_type + '-' + size + '-' + sample_rate_str
+            else:
+                tag = model_type + '-' + size + '-' + lang + '-' + sample_rate_str
             self.task_resource.set_task_model(tag, version=None)
             self.res_path = self.task_resource.res_dir
 
@@ -194,8 +204,13 @@ class WhisperExecutor(BaseExecutor):
             self.task = task
 
         #set language
-        if lang is not None:
-            self.language = lang
+        if language is not None:
+            if lang == 'en' and language != 'en':
+                logger.info(
+                    "{tag} is an English-only model, set language=English .")
+                self.language = 'en'
+            else:
+                self.language = language
 
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
         """
@@ -234,7 +249,6 @@ class WhisperExecutor(BaseExecutor):
         audio = log_mel_spectrogram(audio)
 
         audio_len = paddle.to_tensor(audio.shape[0])
-        #audio = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
 
         self._inputs["audio"] = audio
         self._inputs["audio_len"] = audio_len
@@ -381,6 +395,7 @@ class WhisperExecutor(BaseExecutor):
         lang = parser_args.lang
         task = parser_args.task
         size = parser_args.size
+        language = parser_args.language
         sample_rate = parser_args.sample_rate
         config = parser_args.config
         ckpt_path = parser_args.ckpt_path
@@ -404,6 +419,7 @@ class WhisperExecutor(BaseExecutor):
                     lang=lang,
                     task=task,
                     size=size,
+                    language=language,
                     sample_rate=sample_rate,
                     config=config,
                     ckpt_path=ckpt_path,
@@ -431,9 +447,10 @@ class WhisperExecutor(BaseExecutor):
     def __call__(self,
                  audio_file: os.PathLike,
                  model: str='whisper',
-                 lang: str='None',
+                 lang: str='',
                  task: str='transcribe',
                  size: str='large',
+                 language: str='None',
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
@@ -447,8 +464,9 @@ class WhisperExecutor(BaseExecutor):
         """
         audio_file = os.path.abspath(audio_file)
         paddle.set_device(device)
-        self._init_from_path(model, lang, task, size, sample_rate, config,
-                             decode_method, num_decoding_left_chunks, ckpt_path)
+        self._init_from_path(model, lang, task, size, language, sample_rate,
+                             config, decode_method, num_decoding_left_chunks,
+                             ckpt_path)
         if not self._check(audio_file, sample_rate, force_yes):
             sys.exit(-1)
         if rtf:

@@ -98,32 +98,27 @@ fi
 
 # must run after stage 3 (which stage generated static models)
 if [ ${stage} -le 11 ] && [ ${stop_stage} -ge 11 ]; then
-    # This model is not supported, because 3 ops are not supported on 'arm'. These unsupported ops are: 'round, set_value, share_data'.
-    # This model is not supported, because 4 ops are not supported on 'x86'. These unsupported ops are: 'matmul_v2, round, set_value, share_data'.
     ./local/export2lite.sh ${train_output_path} inference pdlite fastspeech2_csmsc x86
-    # x86 ok, arm Segmentation fault
-    # ./local/export2lite.sh ${train_output_path} inference pdlite pwgan_csmsc x86
-    # x86 ok, arm Segmentation fault
+    ./local/export2lite.sh ${train_output_path} inference pdlite pwgan_csmsc x86
     # ./local/export2lite.sh ${train_output_path} inference pdlite mb_melgan_csmsc x86
-    # x86 ok, arm ok
     # ./local/export2lite.sh ${train_output_path} inference pdlite hifigan_csmsc x86
 fi
 
-# must run after stage 5 (which stage generated static models)
 if [ ${stage} -le 12 ] && [ ${stop_stage} -ge 12 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/lite_predict.sh ${train_output_path} || exit -1
+fi
+
+# must run after stage 5 (which stage generated static models)
+if [ ${stage} -le 13 ] && [ ${stop_stage} -ge 13 ]; then
     # streaming acoustic model
-    # This model is not supported, because 3 ops are not supported on 'arm'. These unsupported ops are: 'round, set_value, share_data'.
-    # This model is not supported, because 4 ops are not supported on 'x86'. These unsupported ops are: 'matmul_v2, round, set_value, share_data'.
-    # ./local/export2lite.sh ${train_output_path} inference pdlite fastspeech2_csmsc x86
     ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming fastspeech2_csmsc_am_encoder_infer x86
-    # x86 ok, arm Segmentation fault
     ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming fastspeech2_csmsc_am_decoder x86
-    # x86 ok, arm Segmentation fault
     ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming fastspeech2_csmsc_am_postnet x86
-    # x86 ok, arm Segmentation fault
-    # ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming pwgan_csmsc x86
-    # x86 ok, arm Segmentation fault
+    ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming pwgan_csmsc x86
     # ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming mb_melgan_csmsc x86
-    # x86 ok, arm ok
     # ./local/export2lite.sh ${train_output_path} inference_streaming pdlite_streaming hifigan_csmsc x86
+fi
+
+if [ ${stage} -le 14 ] && [ ${stop_stage} -ge 14 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/lite_predict_streaming.sh ${train_output_path} || exit -1
 fi

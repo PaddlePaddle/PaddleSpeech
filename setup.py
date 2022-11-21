@@ -75,6 +75,7 @@ base = [
     "braceexpand",
     "pyyaml",
     "pybind11",
+    "paddlelite",
     "paddleslim==2.3.4",
 ]
 

@@ -230,6 +230,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [speedyspeech_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_onnx_0.2.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [speedyspeech_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/speedyspeech/speedyspeech_csmsc_pdlite_1.3.0.zip)
+
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/ssim_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:|:--------:

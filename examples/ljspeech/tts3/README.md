@@ -221,6 +221,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [fastspeech2_ljspeech_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_ljspeech_onnx_1.1.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [fastspeech2_ljspeech_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_ljspeech_pdlite_1.3.0.zip)
+
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:

@@ -36,9 +36,9 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   ```
   参数：
   - `input`(必须输入)：用于识别的音频文件。
-  - `model`：ASR 任务的模型，默认值：`conformer_wenetspeech`。
+  - `model`：ASR 任务的模型，默认值：`wav2vec2ASR_librispeech`。
   - `task`：输出类别，默认值：`asr`。
-  - `lang`：模型语言，默认值：`zh`。
+  - `lang`：模型语言，默认值：`en`。
   - `sample_rate`：音频采样率，默认值：`16000`。
   - `config`：ASR 任务的参数文件，若不设置则使用预训练模型中的默认配置，默认值：`None`。
   - `ckpt_path`：模型参数文件，若不设置则下载预训练模型使用，默认值：`None`。

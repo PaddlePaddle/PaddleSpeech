@@ -298,9 +298,10 @@ class Tokenizer:
 
 
 @lru_cache(maxsize=None)
-def build_tokenizer(name: str="gpt2"):
+def build_tokenizer(resource_path: str, name: str="gpt2"):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    path = os.path.join(os.path.dirname(__file__), "assets", name)
+    #path = os.path.join(os.path.dirname(__file__), "assets", name)
+    path = os.path.join(resource_path, "assets", name)
     tokenizer = GPTTokenizer.from_pretrained(path)
 
     specials = [
@@ -321,6 +322,7 @@ def build_tokenizer(name: str="gpt2"):
 @lru_cache(maxsize=None)
 def get_tokenizer(
         multilingual: bool,
+        resource_path: str,
         *,
         task: Optional[str]=None,  # Literal["transcribe", "translate", None]
         language: Optional[str]=None, ) -> Tokenizer:
@@ -341,7 +343,8 @@ def get_tokenizer(
         task = None
         language = None
 
-    tokenizer = build_tokenizer(name=tokenizer_name)
+    tokenizer = build_tokenizer(
+        resource_path=resource_path, name=tokenizer_name)
     all_special_ids: List[int] = tokenizer.all_special_ids
     sot: int = all_special_ids[1]
     translate: int = all_special_ids[-6]

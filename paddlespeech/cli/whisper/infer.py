@@ -27,6 +27,7 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
+from ...utils.env import DATA_HOME
 from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
@@ -189,11 +190,10 @@ class WhisperExecutor(BaseExecutor):
             if "whisper" in model_type:
                 resource_url = self.task_resource.res_dict['resource_data']
                 resource_md5 = self.task_resource.res_dict['resource_data_md5']
-                resource_path = self.task_resource.res_dict['resource_path']
-                resource_path = os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)), '../../',
-                    resource_path)
-                self.download_resource(resource_url, resource_path,
+
+                self.resource_path = os.path.join(
+                    DATA_HOME, self.task_resource.version, 'whisper')
+                self.download_resource(resource_url, self.resource_path,
                                        resource_md5)
             else:
                 raise Exception("wrong type")
@@ -252,7 +252,7 @@ class WhisperExecutor(BaseExecutor):
 
         logger.debug(f"audio shape: {audio.shape}")
         # fbank
-        audio = log_mel_spectrogram(audio)
+        audio = log_mel_spectrogram(audio, resource_path=self.resource_path)
 
         audio_len = paddle.to_tensor(audio.shape[0])
 
@@ -282,6 +282,7 @@ class WhisperExecutor(BaseExecutor):
             verbose=cfg.verbose,
             task=self.task,
             language=self.language,
+            resource_path=self.resource_path,
             temperature=temperature,
             compression_ratio_threshold=cfg.compression_ratio_threshold,
             logprob_threshold=cfg.logprob_threshold,

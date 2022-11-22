@@ -187,10 +187,13 @@ class WhisperExecutor(BaseExecutor):
 
         with UpdateConfig(self.config):
             if "whisper" in model_type:
-                resource_url = self.task_resource.res_dict['resuource_data']
-                resource_md5 = self.task_resource.res_dict['resuource_data_md5']
-                resuource_path = self.task_resource.res_dict['resuource_path']
-                self.download_resource(resource_url, resuource_path,
+                resource_url = self.task_resource.res_dict['resource_data']
+                resource_md5 = self.task_resource.res_dict['resource_data_md5']
+                resource_path = self.task_resource.res_dict['resource_path']
+                resource_path = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), '../../',
+                    resource_path)
+                self.download_resource(resource_url, resource_path,
                                        resource_md5)
             else:
                 raise Exception("wrong type")

@@ -61,7 +61,7 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
 
    # 识别文本
    text = whisper_executor(
-       model='whisper-large',
+       model='whisper',
        task='transcribe',
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
@@ -72,7 +72,7 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
 
     # 将语音翻译成英语
    feature = whisper_executor(
-       model='whisper-large',
+       model='whisper',
        task='translate',
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.

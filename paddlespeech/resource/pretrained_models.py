@@ -479,12 +479,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-large-model.pdparams',
             'params':
             'whisper-large-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-base-en-16k": {
@@ -501,12 +501,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-base-en-model.pdparams',
             'params':
             'whisper-base-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-base-16k": {
@@ -523,12 +523,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-base-model.pdparams',
             'params':
             'whisper-base-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-medium-en-16k": {
@@ -545,12 +545,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-medium-en-model.pdparams',
             'params':
             'whisper-medium-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-medium-16k": {
@@ -567,12 +567,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-medium-model.pdparams',
             'params':
             'whisper-medium-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-small-en-16k": {
@@ -589,12 +589,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-small-en-model.pdparams',
             'params':
             'whisper-small-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-small-16k": {
@@ -611,12 +611,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-small-model.pdparams',
             'params':
             'whisper-small-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-tiny-en-16k": {
@@ -633,12 +633,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-tiny-en-model.pdparams',
             'params':
             'whisper-tiny-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
     "whisper-tiny-16k": {
@@ -655,12 +655,12 @@ whisper_dynamic_pretrained_models = {
             'whisper-tiny-model.pdparams',
             'params':
             'whisper-tiny-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
+            'resource_path':
+            's2t/models/whisper',
         },
     },
 }

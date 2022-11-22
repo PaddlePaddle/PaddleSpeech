@@ -487,6 +487,182 @@ whisper_dynamic_pretrained_models = {
             'paddlespeech/s2t/models/whisper',
         },
     },
+    "whisper-base-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-base-en-model.tar.gz',
+            'md5':
+            'f5bb8cdff42c7031d9e4c0ea20f7ceee',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-base-en-model',
+            'model':
+            'whisper-base-en-model.pdparams',
+            'params':
+            'whisper-base-en-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-base-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-base-model.tar.gz',
+            'md5':
+            '46f254e89a01b71586af1a46d28d7ce9',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-base-model',
+            'model':
+            'whisper-base-model.pdparams',
+            'params':
+            'whisper-base-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-medium-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-medium-en-model.tar.gz',
+            'md5':
+            '98228f3ba94636c2760b51e5f3d6885f',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-medium-en-model',
+            'model':
+            'whisper-medium-en-model.pdparams',
+            'params':
+            'whisper-medium-en-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-medium-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-medium-model.tar.gz',
+            'md5':
+            '51ac154b264db75492ed1cc5280baebf',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-medium-model',
+            'model':
+            'whisper-medium-model.pdparams',
+            'params':
+            'whisper-medium-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-small-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-small-en-model.tar.gz',
+            'md5':
+            '973b784a335580a393e13a13995b110a',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-small-en-model',
+            'model':
+            'whisper-small-en-model.pdparams',
+            'params':
+            'whisper-small-en-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-small-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-small-model.tar.gz',
+            'md5':
+            '57a7530851cc98631c6fb29c606489c6',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-small-model',
+            'model':
+            'whisper-small-model.pdparams',
+            'params':
+            'whisper-small-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-tiny-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-tiny-en-model.tar.gz',
+            'md5':
+            '3ef5c0777e0bd4a1a240895167b0eb0d',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-tiny-en-model',
+            'model':
+            'whisper-tiny-en-model.pdparams',
+            'params':
+            'whisper-tiny-en-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
+    "whisper-tiny-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-tiny-model.tar.gz',
+            'md5':
+            'ddf232cd16c85120e89c870a53451e53',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-tiny-model',
+            'model':
+            'whisper-tiny-model.pdparams',
+            'params':
+            'whisper-tiny-model.pdparams',
+            'resuource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resuource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+            'resuource_path':
+            'paddlespeech/s2t/models/whisper',
+        },
+    },
 }
 
 # ---------------------------------

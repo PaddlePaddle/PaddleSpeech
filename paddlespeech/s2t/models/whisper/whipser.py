@@ -475,7 +475,8 @@ def transcribe(
     if dtype == np.float32:
         decode_options["fp16"] = False
 
-    if decode_options.get("language", None) is None:
+    if decode_options.get(
+            "language", 'None') or decode_options.get("language", None) is None:
         if not model.is_multilingual:
             decode_options["language"] = "en"
         else:

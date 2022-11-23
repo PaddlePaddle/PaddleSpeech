@@ -62,7 +62,8 @@ class WhisperInfer():
                 temperature = [temperature]
 
             #load audio
-            mel = log_mel_spectrogram(args.audio)
+            mel = log_mel_spectrogram(
+                args.audio_file, resource_path=config.resource_path)
 
             result = transcribe(
                 self.model, mel, temperature=temperature, **config)

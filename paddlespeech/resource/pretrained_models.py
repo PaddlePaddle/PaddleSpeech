@@ -468,9 +468,9 @@ whisper_dynamic_pretrained_models = {
     "whisper-large-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/whisper-large-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-large-model.tar.gz',
             'md5':
-            '364c4d670835e5ca489045e1c29d75fe',
+            'cf1557af9d8ffa493fefad9cb08ae189',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -479,20 +479,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-large-model.pdparams',
             'params':
             'whisper-large-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-base-en-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-base-en-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-base-en-model.tar.gz',
             'md5':
-            'f5bb8cdff42c7031d9e4c0ea20f7ceee',
+            'b156529aefde6beb7726d2ea98fd067a',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -501,20 +499,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-base-en-model.pdparams',
             'params':
             'whisper-base-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-base-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-base-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-base-model.tar.gz',
             'md5':
-            '46f254e89a01b71586af1a46d28d7ce9',
+            '6b012a5abd583db14398c3492e47120b',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -523,20 +519,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-base-model.pdparams',
             'params':
             'whisper-base-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-medium-en-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-medium-en-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-medium-en-model.tar.gz',
             'md5':
-            '98228f3ba94636c2760b51e5f3d6885f',
+            'c7f57d270bd20c7b170ba9dcf6c16f74',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -545,20 +539,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-medium-en-model.pdparams',
             'params':
             'whisper-medium-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-medium-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-medium-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-medium-model.tar.gz',
             'md5':
-            '51ac154b264db75492ed1cc5280baebf',
+            '4c7dcd0df25f408199db4a4548336786',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -567,20 +559,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-medium-model.pdparams',
             'params':
             'whisper-medium-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-small-en-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-small-en-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-small-en-model.tar.gz',
             'md5':
-            '973b784a335580a393e13a13995b110a',
+            '2b24efcb2e93f3275af7c0c7f598ff1c',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -589,20 +579,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-small-en-model.pdparams',
             'params':
             'whisper-small-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-small-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-small-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-small-model.tar.gz',
             'md5':
-            '57a7530851cc98631c6fb29c606489c6',
+            '5a57911dd41651dd6ed78c5763912825',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -611,20 +599,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-small-model.pdparams',
             'params':
             'whisper-small-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-tiny-en-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-tiny-en-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-tiny-en-model.tar.gz',
             'md5':
-            '3ef5c0777e0bd4a1a240895167b0eb0d',
+            '14969164a3f713fd58e56978c34188f6',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -633,20 +619,18 @@ whisper_dynamic_pretrained_models = {
             'whisper-tiny-en-model.pdparams',
             'params':
             'whisper-tiny-en-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
     "whisper-tiny-16k": {
         '1.3': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221118/whisper-tiny-model.tar.gz',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-tiny-model.tar.gz',
             'md5':
-            'ddf232cd16c85120e89c870a53451e53',
+            'a5b82a1f2067a2ca400f17fabd62b81b',
             'cfg_path':
             'whisper.yaml',
             'ckpt_path':
@@ -655,12 +639,10 @@ whisper_dynamic_pretrained_models = {
             'whisper-tiny-model.pdparams',
             'params':
             'whisper-tiny-model.pdparams',
-            'resuource_data':
+            'resource_data':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
-            'resuource_data_md5':
+            'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
-            'resuource_path':
-            'paddlespeech/s2t/models/whisper',
         },
     },
 }

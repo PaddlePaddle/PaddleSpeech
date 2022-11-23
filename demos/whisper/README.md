@@ -61,7 +61,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
 
    # to recognize text 
    text = whisper_executor(
-       model='whisper-large',
+       model='whisper',
        task='transcribe',
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
@@ -72,7 +72,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
 
    # to recognize text and translate to English
    feature = whisper_executor(
-       model='whisper-large',
+       model='whisper',
        task='translate',
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.

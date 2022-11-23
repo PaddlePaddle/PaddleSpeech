@@ -55,7 +55,7 @@ If you want to finetune Chinese pretrained model, you need to prepare Chinese da
 000001|ka2 er2 pu3 pei2 wai4 sun1 wan2 hua2 ti1
 ```
 
-Here is an example of the first 200 data of csmsc.
+Here is a Chinese data example of the first 200 data of csmsc.
 
 ```bash
 mkdir -p input && cd input
@@ -69,7 +69,7 @@ If you want to finetune English pretrained model, you need to prepare English da
 LJ001-0001|Printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the Exhibition
 ```
 
-Here is an example of the first 200 data of ljspeech.
+Here is an English data example of the first 200 data of ljspeech.
 
 ```bash
 mkdir -p input && cd input
@@ -78,7 +78,7 @@ unzip ljspeech_mini.zip
 cd ../
 ```
 
-If you want to finetune Chinese-English Mixed pretrained model, you need to prepare Chinese data or English data. Here is an example of the first 12 data of SSB0005 (the speaker of aishell3).
+If you want to finetune Chinese-English Mixed pretrained model, you need to prepare Chinese data or English data. Here is a Chinese data example of the first 12 data of SSB0005 (the speaker of aishell3).
 
 ```bash
 mkdir -p input && cd input

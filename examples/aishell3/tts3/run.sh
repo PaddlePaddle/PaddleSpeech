@@ -58,3 +58,13 @@ fi
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/ort_predict.sh ${train_output_path}
 fi
+
+if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+    ./local/export2lite.sh ${train_output_path} inference pdlite fastspeech2_aishell3 x86
+    ./local/export2lite.sh ${train_output_path} inference pdlite pwgan_aishell3 x86
+    # ./local/export2lite.sh ${train_output_path} inference pdlite hifigan_aishell3 x86
+fi
+
+if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/lite_predict.sh ${train_output_path} || exit -1
+fi

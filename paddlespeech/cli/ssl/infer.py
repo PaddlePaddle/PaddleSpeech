@@ -27,8 +27,11 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
+<<<<<<< HEAD
 from ...utils.env import MODEL_HOME
 from ..download import get_path_from_url
+=======
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import CLI_TIMER
@@ -86,7 +89,12 @@ class SSLExecutor(BaseExecutor):
             type=str,
             default='ctc_greedy_search',
             choices=[
+<<<<<<< HEAD
                 'ctc_greedy_search', 'ctc_prefix_beam_search', 
+=======
+                'ctc_greedy_search',
+                'ctc_prefix_beam_search',
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
             ],
             help='only support asr task')
         self.parser.add_argument(
@@ -218,9 +226,13 @@ class SSLExecutor(BaseExecutor):
             # pcm16 -> pcm 32
             audio = self._pcm16to32(audio)
             audio = librosa.resample(
+<<<<<<< HEAD
                 audio,
                 orig_sr=audio_sample_rate,
                 target_sr=self.sample_rate)
+=======
+                audio, orig_sr=audio_sample_rate, target_sr=self.sample_rate)
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
             audio_sample_rate = self.sample_rate
             # pcm32 -> pcm 16
             audio = self._pcm32to16(audio)
@@ -262,7 +274,11 @@ class SSLExecutor(BaseExecutor):
                 logger.exception(e)
         else:
             logger.debug(
+<<<<<<< HEAD
                 f"we will use the wav2vec2 like model to extract audio feature")
+=======
+                "we will use the wav2vec2 like model to extract audio feature")
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
             try:
                 out_feature = self.model(audio[:, :, 0])
                 self._outputs["result"] = out_feature[0]
@@ -399,7 +415,11 @@ class SSLExecutor(BaseExecutor):
                     rtf=rtf,
                     device=device)
                 task_results[id_] = res
+<<<<<<< HEAD
                
+=======
+
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
             except Exception as e:
                 has_exceptions = True
                 task_results[id_] = f'{e.__class__.__name__}: {e}'
@@ -432,7 +452,12 @@ class SSLExecutor(BaseExecutor):
 
         audio_file = os.path.abspath(audio_file)
         paddle.set_device(device)
+<<<<<<< HEAD
         self._init_from_path(model, task, lang, sample_rate, config, decode_method, ckpt_path)
+=======
+        self._init_from_path(model, task, lang, sample_rate, config,
+                             decode_method, ckpt_path)
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
         if not self._check(audio_file, sample_rate, force_yes):
             sys.exit(-1)
         if rtf:

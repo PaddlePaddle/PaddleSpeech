@@ -145,7 +145,7 @@ def main():
     # warmup
     for utt_id, sentence in sentences[:3]:
         with timer() as t:
-            am_output_data = get_am_output(
+            mel = get_am_output(
                 input=sentence,
                 am_predictor=am_predictor,
                 am=args.am,
@@ -154,12 +154,11 @@ def main():
                 merge_sentences=merge_sentences,
                 speaker_dict=args.speaker_dict,
                 spk_id=args.spk_id, )
-            wav = get_voc_output(
-                voc_predictor=voc_predictor, input=am_output_data)
+            wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
         speed = wav.size / t.elapse
         rtf = fs / speed
         print(
-            f"{utt_id}, mel: {am_output_data.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
 
     print("warm up done!")
@@ -168,7 +167,7 @@ def main():
     T = 0
     for utt_id, sentence in sentences:
         with timer() as t:
-            am_output_data = get_am_output(
+            mel = get_am_output(
                 input=sentence,
                 am_predictor=am_predictor,
                 am=args.am,
@@ -177,8 +176,7 @@ def main():
                 merge_sentences=merge_sentences,
                 speaker_dict=args.speaker_dict,
                 spk_id=args.spk_id, )
-            wav = get_voc_output(
-                voc_predictor=voc_predictor, input=am_output_data)
+            wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
 
         N += wav.size
         T += t.elapse
@@ -187,7 +185,7 @@ def main():
 
         sf.write(output_dir / (utt_id + ".wav"), wav, samplerate=fs)
         print(
-            f"{utt_id}, mel: {am_output_data.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
 
         print(f"{utt_id} done!")

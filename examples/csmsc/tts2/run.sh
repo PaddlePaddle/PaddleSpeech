@@ -60,3 +60,15 @@ fi
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
     ./local/ort_predict.sh ${train_output_path}
 fi
+
+# must run after stage 3 (which stage generated static models)
+if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
+    ./local/export2lite.sh ${train_output_path} inference pdlite speedyspeech_csmsc x86
+    ./local/export2lite.sh ${train_output_path} inference pdlite pwgan_csmsc x86
+    # ./local/export2lite.sh ${train_output_path} inference pdlite mb_melgan_csmsc x86
+    # ./local/export2lite.sh ${train_output_path} inference pdlite hifigan_csmsc x86
+fi
+
+if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/lite_predict.sh ${train_output_path} || exit -1
+fi

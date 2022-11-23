@@ -1,3 +1,4 @@
+// Copyright (c) 2020 Mobvoi Inc (Binbin Zhang)
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +13,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "base/basic_types.h"
+#pragma once
+
+#include "base/common.h"
 
 struct DecoderResult {
     BaseFloat acoustic_score;
     std::vector<int32> words_idx;
-    std::vector<pair<int32, int32>> time_stamp;
+    std::vector<std::pair<int32, int32>> time_stamp;
 };
+
+
+namespace ppspeech {
+
+struct WordPiece {
+    std::string word;
+    int start = -1;
+    int end = -1;
+
+    WordPiece(std::string word, int start, int end)
+        : word(std::move(word)), start(start), end(end) {}
+};
+
+struct DecodeResult {
+    float score = -kBaseFloatMax;
+    std::string sentence;
+    std::vector<WordPiece> word_pieces;
+
+    static bool CompareFunc(const DecodeResult& a, const DecodeResult& b) {
+        return a.score > b.score;
+    }
+};
+
+}  // namespace ppspeech

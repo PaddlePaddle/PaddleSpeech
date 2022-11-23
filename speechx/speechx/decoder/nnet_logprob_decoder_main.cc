@@ -30,8 +30,11 @@ using std::vector;
 
 // test decoder by feeding nnet posterior probability
 int main(int argc, char* argv[]) {
+    gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    FLAGS_logtostderr = 1;
 
     kaldi::SequentialBaseFloatMatrixReader likelihood_reader(
         FLAGS_nnet_prob_respecifier);

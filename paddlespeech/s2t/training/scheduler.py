@@ -229,6 +229,125 @@ class NewBobScheduler(LRScheduler):
 
 
 
+@register_scheduler
+class NewBobScheduler(LRScheduler):
+    """Scheduler with new-bob technique, used for LR annealing.
+
+    The learning rate is annealed based on the validation performance.
+    In particular: if (past_loss-current_loss)/past_loss< impr_threshold:
+    lr=lr * annealing_factor.
+
+    Arguments
+    ---------
+    initial_value : float
+        The initial hyperparameter value.
+    annealing_factor : float
+        It is annealing factor used in new_bob strategy.
+    improvement_threshold : float
+        It is the improvement rate between losses used to perform learning
+        annealing in new_bob strategy.
+    patient : int
+        When the annealing condition is violated patient times,
+        the learning rate is finally reduced.
+
+    Example
+    -------
+    >>> scheduler = NewBobScheduler(initial_value=1.0)
+    >>> scheduler(metric_value=10.0)
+    (1.0, 1.0)
+    >>> scheduler(metric_value=2.0)
+    (1.0, 1.0)
+    >>> scheduler(metric_value=2.5)
+    (1.0, 0.5)
+    """
+
+    def __init__(
+            self,
+            learning_rate,
+            last_epoch=-1,
+            verbose=False,
+            annealing_factor=0.5,
+            improvement_threshold=0.0025,
+            patient=0, ):
+        self.hyperparam_value = learning_rate
+        self.annealing_factor = annealing_factor
+        self.improvement_threshold = improvement_threshold
+        self.patient = patient
+        self.metric_values = []
+        self.current_patient = self.patient
+        super().__init__(learning_rate, last_epoch, verbose)
+
+    def step(self, metric_value=None):
+        """
+
+        ``step`` should be called after ``optimizer.step`` . It will update the learning rate in optimizer according to current ``epoch`` .
+        The new learning rate will take effect on next ``optimizer.step`` .
+
+        Args:
+            epoch (int, None): specify current epoch. Default: None. Auto-increment from last_epoch=-1.
+
+        Returns:
+            None
+        """
+        if metric_value is None:
+            self.last_epoch += 1
+            self.last_lr = self.hyperparam_value
+        else:
+            self.last_epoch += 1
+            self.last_lr = self.get_lr(metric_value)
+
+        if self.verbose:
+            print('Epoch {}: {} set learning rate to {}.'.format(
+                self.last_epoch, self.__class__.__name__, self.last_lr))
+
+    def get_lr(self, metric_value):
+        """Returns the current and new value for the hyperparameter.
+
+        Arguments
+        ---------
+        metric_value : int
+            A number for determining whether to change the hyperparameter value.
+        """
+        new_value = self.hyperparam_value
+        if len(self.metric_values) > 0:
+            prev_metric = self.metric_values[-1]
+            # Update value if improvement too small and patience is 0
+            if prev_metric == 0:  # Prevent division by zero
+                improvement = 0
+            else:
+                improvement = (prev_metric - metric_value) / prev_metric
+            if improvement < self.improvement_threshold:
+                if self.current_patient == 0:
+                    new_value *= self.annealing_factor
+                    self.current_patient = self.patient
+                else:
+                    self.current_patient -= 1
+
+        # Store relevant info
+        self.metric_values.append(metric_value)
+        self.hyperparam_value = new_value
+
+        return new_value
+
+    def save(self):
+        """Saves the current metrics on the specified path."""
+        data = {
+            "current_epoch_index": self.last_epoch,
+            "hyperparam_value": self.hyperparam_value,
+            "metric_values": self.metric_values,
+            "current_patient": self.current_patient
+        }
+        return data
+
+    def load(self, data):
+        """Loads the needed information."""
+        data = paddle.load(data)
+        self.last_epoch = data["current_epoch_index"]
+        self.hyperparam_value = data["hyperparam_value"]
+        self.metric_values = data["metric_values"]
+        self.current_patient = data["current_patient"]
+
+
 def dynamic_import_scheduler(module):
     """Import Scheduler class dynamically.
 

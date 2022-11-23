@@ -141,6 +141,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [pwgan_vctk_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_onnx_1.1.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [pwgan_vctk_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_pdlite_1.3.0.zip)
+
 
 Parallel WaveGAN checkpoint contains files listed below.
 

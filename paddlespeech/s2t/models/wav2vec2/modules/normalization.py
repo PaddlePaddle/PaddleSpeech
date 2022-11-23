@@ -16,12 +16,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from speechbrain(https://github.com/speechbrain/speechbrain/blob/develop/speechbrain/nnet/normalization.py)
+<<<<<<< HEAD
 
 
 import paddle
 import paddle.nn as nn
 from paddlespeech.s2t.modules.align import BatchNorm1D
 
+=======
+import paddle.nn as nn
+
+from paddlespeech.s2t.modules.align import BatchNorm1D
+
+
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
 class BatchNorm1d(nn.Layer):
     """Applies 1d batch normalization to the input tensor.
     Arguments
@@ -52,6 +60,7 @@ class BatchNorm1d(nn.Layer):
     """
 
     def __init__(
+<<<<<<< HEAD
         self,
         input_shape=None,
         input_size=None,
@@ -60,6 +69,15 @@ class BatchNorm1d(nn.Layer):
         combine_batch_time=False,
         skip_transpose=False,
     ):
+=======
+            self,
+            input_shape=None,
+            input_size=None,
+            eps=1e-05,
+            momentum=0.9,
+            combine_batch_time=False,
+            skip_transpose=False, ):
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
         super().__init__()
         self.combine_batch_time = combine_batch_time
         self.skip_transpose = skip_transpose
@@ -69,11 +87,15 @@ class BatchNorm1d(nn.Layer):
         elif input_size is None:
             input_size = input_shape[-1]
 
+<<<<<<< HEAD
         self.norm = nn.BatchNorm1D(
             input_size,
             momentum=momentum,
             epsilon=eps
         )
+=======
+        self.norm = BatchNorm1D(input_size, momentum=momentum, epsilon=eps)
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
 
     def forward(self, x):
         """Returns the normalized input tensor.
@@ -88,9 +110,14 @@ class BatchNorm1d(nn.Layer):
             if x.ndim == 3:
                 x = x.reshape(shape_or[0] * shape_or[1], shape_or[2])
             else:
+<<<<<<< HEAD
                 x = x.reshape(
                     shape_or[0] * shape_or[1], shape_or[3], shape_or[2]
                 )
+=======
+                x = x.reshape(shape_or[0] * shape_or[1], shape_or[3],
+                              shape_or[2])
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
 
         elif not self.skip_transpose:
             x = x.transpose([0, 2, 1])
@@ -101,4 +128,8 @@ class BatchNorm1d(nn.Layer):
         elif not self.skip_transpose:
             x_n = x_n.transpose([0, 2, 1])
 
+<<<<<<< HEAD
         return x_n
+=======
+        return x_n
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1

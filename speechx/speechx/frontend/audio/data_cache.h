@@ -27,14 +27,14 @@ namespace ppspeech {
 // pre-recorded audio/feature
 class DataCache : public FrontendInterface {
   public:
-    explicit DataCache() { finished_ = false; }
+    DataCache() : finished_{false}, dim_{0} {}
 
     // accept waves/feats
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+    void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) override {
         data_ = inputs;
     }
 
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
+    bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) override {
         if (data_.Dim() == 0) {
             return false;
         }
@@ -43,11 +43,14 @@ class DataCache : public FrontendInterface {
         return true;
     }
 
-    virtual void SetFinished() { finished_ = true; }
-    virtual bool IsFinished() const { return finished_; }
-    virtual size_t Dim() const { return dim_; }
+    void SetFinished() override { finished_ = true; }
+    bool IsFinished() const override { return finished_; }
+    size_t Dim() const override { return dim_; }
     void SetDim(int32 dim) { dim_ = dim; }
-    virtual void Reset() { finished_ = true; }
+    void Reset() override {
+        finished_ = true;
+        dim_ = 0;
+    }
 
   private:
     kaldi::Vector<kaldi::BaseFloat> data_;
@@ -56,4 +59,4 @@ class DataCache : public FrontendInterface {
 
     DISALLOW_COPY_AND_ASSIGN(DataCache);
 };
-}
+}  // namespace ppspeech

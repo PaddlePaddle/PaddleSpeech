@@ -41,10 +41,11 @@ class AudioCache : public FrontendInterface {
 
     virtual bool IsFinished() const { return finished_; }
 
-    virtual void Reset() {
+    void Reset() override {
         offset_ = 0;
         size_ = 0;
         finished_ = false;
+        nsamples_ = 0;
     }
 
   private:
@@ -61,6 +62,7 @@ class AudioCache : public FrontendInterface {
     kaldi::int32 timeout_;  // millisecond
     bool to_float32_;       // int16 -> float32. used in linear_spectrogram
 
+    int32 nsamples_;  // number samples readed.
     DISALLOW_COPY_AND_ASSIGN(AudioCache);
 };
 

@@ -36,9 +36,15 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   ```
   参数：
   - `input`(必须输入)：用于识别的音频文件。
+<<<<<<< HEAD
   - `model`：ASR 任务的模型，默认值：`conformer_wenetspeech`。
   - `task`：输出类别，默认值：`asr`。
   - `lang`：模型语言，默认值：`zh`。
+=======
+  - `model`：ASR 任务的模型，默认值：`wav2vec2ASR_librispeech`。
+  - `task`：输出类别，默认值：`asr`。
+  - `lang`：模型语言，默认值：`en`。
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
   - `sample_rate`：音频采样率，默认值：`16000`。
   - `config`：ASR 任务的参数文件，若不设置则使用预训练模型中的默认配置，默认值：`None`。
   - `ckpt_path`：模型参数文件，若不设置则下载预训练模型使用，默认值：`None`。
@@ -83,8 +89,13 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   输出：
   ```bash
   ASR Result:
+<<<<<<< HEAD
   我认为跑步最重要的就是给我带来了身体健康
 
+=======
+  i knocked at the door on the ancient side of the building
+  
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1
   Representation:
   Tensor(shape=[1, 164, 1024], dtype=float32, place=Place(gpu:0), stop_gradient=True,
        [[[ 0.02351918, -0.12980647,  0.17868176, ...,  0.10118122,
@@ -100,4 +111,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
           -0.04687393,  0.17864393],
          [ 0.05269200,  0.01297141, -0.23336855, ..., -0.11257174,
           -0.17227529,  0.20338398]]])
+<<<<<<< HEAD
   ```
+=======
+  ```
+>>>>>>> 45426846942f68cf43a23677d8d55f6d4ab93ab1

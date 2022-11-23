@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,9 +34,10 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
+    parser.add_argument(
+        '--resume', type=str, default="", nargs="?", help='resume ckpt path.')
     args = parser.parse_args()
     print_arguments(args, globals())
-
     # https://yaml.org/type/float.html
     config = CfgNode(new_allowed=True)
     if args.config:

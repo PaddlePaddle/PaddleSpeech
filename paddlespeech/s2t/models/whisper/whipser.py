@@ -1422,7 +1422,7 @@ def hann_window(n_fft: int=N_FFT):
 
 
 @lru_cache(maxsize=None)
-def mel_filters(resource_path: str=None, n_mels: int=N_MELS) -> paddle.Tensor:
+def mel_filters(resource_path: str, n_mels: int=N_MELS) -> paddle.Tensor:
     """
     load the mel filterbank matrix for projecting STFT into a Mel spectrogram.
     Allows decoupling librosa dependency; saved using:
@@ -1468,7 +1468,7 @@ def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
 
     magnitudes = stft[:, :-1].abs()**2
 
-    filters = mel_filters(resource_path=resource_path, n_mels=n_mels)
+    filters = mel_filters(resource_path, n_mels)
     mel_spec = filters @ magnitudes
     mel_spec = paddle.to_tensor(mel_spec.numpy().tolist())
 

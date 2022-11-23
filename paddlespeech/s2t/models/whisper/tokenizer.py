@@ -300,7 +300,6 @@ class Tokenizer:
 @lru_cache(maxsize=None)
 def build_tokenizer(resource_path: str, name: str="gpt2"):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    #path = os.path.join(os.path.dirname(__file__), "assets", name)
     path = os.path.join(resource_path, "assets", name)
     tokenizer = GPTTokenizer.from_pretrained(path)
 

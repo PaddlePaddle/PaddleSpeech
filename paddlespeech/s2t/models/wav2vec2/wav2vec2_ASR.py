@@ -1,16 +1,3 @@
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 from collections import defaultdict
 from typing import Dict
 from typing import List
@@ -57,18 +44,27 @@ class Wav2vec2ASR(nn.Layer):
     def forward(self, wav, wavs_lens_rate, target, target_lens):
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape)
+
         # Extract wav2vec output
         out = self.wav2vec2(wav)[0]
         # We normalize the output if required
         if self.output_norm:
             out = F.layer_norm(out, out.shape)
-        if self.train and hasattr(self.config, 'spec_augment'):
+
+        if self.training and hasattr(self.config, 'spec_augment'):
             feats = self.spec_augment(out)
         else:
             feats = out
         x = self.enc(feats)
+
         x_lens = (wavs_lens_rate * x.shape[1]).round().astype(paddle.int64)
+
+        # sb target_lens = rate 
+        # target_lens = (target_lens *
+        #                target.shape[1]).round().astype(paddle.int64)
+
         ctc_loss = self.ctc(x, x_lens, target, target_lens)
+        # print(target_lens_rate)
         return ctc_loss
 
     @paddle.no_grad()
@@ -76,7 +72,8 @@ class Wav2vec2ASR(nn.Layer):
                feats: paddle.Tensor,
                text_feature: Dict[str, int],
                decoding_method: str,
-               beam_size: int):
+               beam_size: int,
+               sb_pipeline=False):
         batch_size = feats.shape[0]
 
         if decoding_method == 'ctc_prefix_beam_search' and batch_size > 1:
@@ -87,9 +84,32 @@ class Wav2vec2ASR(nn.Layer):
             sys.exit(1)
 
         if decoding_method == 'ctc_greedy_search':
-            hyps = self.ctc_greedy_search(feats)
-            res = [text_feature.defeaturize(hyp) for hyp in hyps]
-            res_tokenids = [hyp for hyp in hyps]
+            if not sb_pipeline:
+                hyps = self.ctc_greedy_search(feats)
+                res = [text_feature.defeaturize(hyp) for hyp in hyps]
+                res_tokenids = [hyp for hyp in hyps]
+            else:
+                hyps = self.ctc_greedy_search(feats.unsqueeze(-1))
+                
+                predicted_words_list = []
+                for sequence in hyps:
+                    # Decode token terms to words
+                    predicted_tokens = text_feature.convert_ids_to_tokens(
+                        sequence
+                    )
+
+                    predicted_words = []
+                    for c in predicted_tokens:
+                        if c == "[CLS]":
+                            continue
+                        elif c == "[SEP]" or c == "[PAD]":
+                            break
+                        else:
+                            predicted_words.append(c)
+                    print(predicted_words)
+                    exit()
+                    predicted_words_list.append(predicted_words)
+
         # ctc_prefix_beam_search and attention_rescoring only return one
         # result in List[int], change it to List[List[int]] for compatible
         # with other batch decoding mode
@@ -238,33 +258,3 @@ class Wav2vec2ASR(nn.Layer):
         """
         hyps = self._ctc_prefix_beam_search(wav, beam_size)
         return hyps[0][0]
-
-
-class Wav2vec2Base(nn.Layer):
-    """Wav2vec2 model"""
-
-    def __init__(self, config: dict):
-        super().__init__()
-        wav2vec2_config = Wav2Vec2ConfigPure(config)
-        wav2vec2 = Wav2Vec2Model(wav2vec2_config)
-        self.wav2vec2 = wav2vec2
-
-    @classmethod
-    def from_config(cls, configs: dict):
-        """init model.
-
-        Args:
-            configs (dict): config dict.
-
-        Raises:
-            ValueError: raise when using not support encoder type.
-
-        Returns:
-            nn.Layer: Wav2Vec2Base
-        """
-        model = cls(configs)
-        return model
-
-    def forward(self, wav):
-        out = self.wav2vec2(wav)
-        return out

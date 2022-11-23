@@ -1,0 +1,86 @@
+# ############################################################################
+# Model: CTC-wav2vec2
+# Encoder: wav2vec2
+# Decoder: -
+# Tokens: Char
+# losses: CTC
+# Training: AISHELL-1
+# Authors:  Yingzhi WANG 2022
+# ############################################################################
+
+seed: 10
+__set_seed: !apply:torch.manual_seed [!ref <seed>]
+output_folder: !ref /home/zhangtianhao/workspace/speechbrain/recipes/AISHELL-1/ASR/CTC/results/ctc_wav2vec/<seed>
+cer_file: !ref <output_folder>/cer.txt
+save_folder: !ref <output_folder>/save
+train_log: !ref <output_folder>/train_log.txt
+
+# Data files
+data_folder: /home/zhangtianhao/workspace/PaddleSpeech/dataset/aishell # e,g./path/to/aishell
+
+skip_prep: False
+ckpt_interval_minutes: 15 # save checkpoint every N min
+train_data: !ref <output_folder>/train.csv
+valid_data: !ref <output_folder>/dev.csv
+test_data: !ref <output_folder>/test.csv
+
+wav2vec2_hub: TencentGameMate/chinese-wav2vec2-large
+
+# Training parameters
+number_of_epochs: 80
+lr: 1.0
+lr_wav2vec: 0.0001
+sorting: ascending
+auto_mix_prec: False
+sample_rate: 16000
+
+# With data_parallel batch_size is split into N jobs
+# With DDP batch_size is multiplied by N jobs
+# Must be 8 per GPU to fit 32GB of VRAM
+batch_size: 12
+test_batch_size: 8
+
+dynamic_batching: False
+dynamic_batch_sampler:
+   feats_hop_size: 0.01
+   max_batch_len: 15 # in terms of "duration" in annotations by default, second here
+   left_bucket_len: 200 # old implementation attributs
+   multiplier: 1.1 # old implementation attributs
+   shuffle_ex: False # if true re-creates batches at each epoch shuffling examples.
+   num_buckets: 10 # floor(log(max_batch_len/left_bucket_len, multiplier)) + 1
+   batch_ordering: ascending
+
+num_workers: 4
+
+# Dataloader options
+train_dataloader_opts:
+   batch_size: !ref <batch_size>
+   num_workers: !ref <num_workers>
+valid_dataloader_opts:
+   batch_size: !ref <test_batch_size>
+   num_workers: !ref <num_workers>
+test_dataloader_opts:
+   batch_size: !ref <test_batch_size>
+   num_workers: !ref <num_workers>
+
+wav2vec_output_dim: 1024
+dnn_neurons: 1024
+freeze_wav2vec: False
+dropout: 0.15
+
+tokenizer: !apply:transformers.BertTokenizer.from_pretrained
+   pretrained_model_name_or_path: bert-base-chinese
+# bert-base-chinese tokens length
+output_neurons: 21128
+
+# Decoding parameters
+# Be sure that the bos and eos index match with the BPEs ones
+blank_index: 0
+
+# AISHELL-1 has spaces between words in the transcripts,
+# which Chinese writing normally does not do.
+# If remove_spaces, spaces are removed
+# from the transcript before computing CER.
+# (e.g., 祝 可爱 的 你 —> 祝可爱的你)
+remove_spaces: True
+split_tokens: !apply:operator.not_ [!ref <remove_spaces>]

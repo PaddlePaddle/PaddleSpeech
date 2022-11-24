@@ -85,7 +85,32 @@ class TextNormalizer():
         sentence = sentence.replace('⑧', '八')
         sentence = sentence.replace('⑨', '九')
         sentence = sentence.replace('⑩', '十')
-
+        sentence = sentence.replace('α', '阿尔法')
+        sentence = sentence.replace('β', '贝塔')
+        sentence = sentence.replace('γ', '伽玛').replace('Γ', '伽玛')
+        sentence = sentence.replace('δ', '德尔塔').replace('Δ', '德尔塔')
+        sentence = sentence.replace('ε', '艾普西龙')
+        sentence = sentence.replace('ζ', '捷塔')
+        sentence = sentence.replace('η', '依塔')
+        sentence = sentence.replace('θ', '西塔').replace('Θ', '西塔')
+        sentence = sentence.replace('ι', '艾欧塔')
+        sentence = sentence.replace('κ', '喀帕')
+        sentence = sentence.replace('λ', '拉姆达').replace('Λ', '拉姆达')
+        sentence = sentence.replace('μ', '缪')
+        sentence = sentence.replace('ν', '拗')
+        sentence = sentence.replace('ξ', '克西').replace('Ξ', '克西')
+        sentence = sentence.replace('ο', '欧米克伦')
+        sentence = sentence.replace('π', '派').replace('Π', '派')
+        sentence = sentence.replace('ρ', '肉')
+        sentence = sentence.replace('ς', '西格玛').replace('Σ', '西格玛').replace(
+            'σ', '西格玛')
+        sentence = sentence.replace('τ', '套')
+        sentence = sentence.replace('υ', '宇普西龙')
+        sentence = sentence.replace('φ', '服艾').replace('Φ', '服艾')
+        sentence = sentence.replace('χ', '器')
+        sentence = sentence.replace('ψ', '普赛').replace('Ψ', '普赛')
+        sentence = sentence.replace('ω', '欧米伽').replace('Ω', '欧米伽')
+        sentence = sentence.replace("——", "--")
         return sentence
 
     def normalize_sentence(self, sentence: str) -> str:

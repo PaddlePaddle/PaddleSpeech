@@ -1,4 +1,4 @@
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,71 +27,53 @@ import paddle
 import soundfile
 from yacs.config import CfgNode
 
-from ...utils.env import DATA_HOME
-from ..download import get_path_from_url
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import CLI_TIMER
 from ..utils import stats_wrapper
 from ..utils import timer_register
-from paddlespeech.s2t.models.whisper import log_mel_spectrogram
-from paddlespeech.s2t.models.whisper import ModelDimensions
-from paddlespeech.s2t.models.whisper import Whisper
-from paddlespeech.s2t.models.whisper.tokenizer import LANGUAGES
-from paddlespeech.s2t.models.whisper.tokenizer import TO_LANGUAGE_CODE
+from paddlespeech.audio.transform.transformation import Transformation
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
-__all__ = ['WhisperExecutor']
+__all__ = ['SSLExecutor']
 
 
 @timer_register
-class WhisperExecutor(BaseExecutor):
+class SSLExecutor(BaseExecutor):
     def __init__(self):
-        super().__init__('whisper')
+        super().__init__('ssl')
         self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.whisper', add_help=True)
+            prog='paddlespeech.ssl', add_help=True)
         self.parser.add_argument(
             '--input', type=str, default=None, help='Audio file to recognize.')
         self.parser.add_argument(
             '--model',
             type=str,
-            default='whisper',
-            choices=['whisper'],
+            default='wav2vec2ASR_librispeech',
+            choices=[
+                tag[:tag.index('-')]
+                for tag in self.task_resource.pretrained_models.keys()
+            ],
             help='Choose model type of asr task.')
-        self.parser.add_argument(
-            '--lang',
-            type=str,
-            default='',
-            choices=['', 'en'],
-            help='Choose model language. Default is "", English-only model set [en].'
-        )
         self.parser.add_argument(
             '--task',
             type=str,
-            default='transcribe',
-            choices=["transcribe", "translate"],
-            help='Choose task tpye for transcribe or translate.')
+            default='asr',
+            choices=['asr', 'vector'],
+            help='Choose output type for ssl task')
         self.parser.add_argument(
-            '--size',
+            '--lang',
             type=str,
-            default='large',
-            choices=['large', 'medium', 'base', 'small', 'tiny'],
-            help='Choose model size. now only support large, large:[whisper-large-16k]'
-        )
-        self.parser.add_argument(
-            '--language',
-            type=str,
-            default='None',
-            choices=sorted(LANGUAGES.keys()) + sorted(
-                [k.title() for k in TO_LANGUAGE_CODE.keys()]),
-            help='Choose model decode language. Default is None, recognized by model.'
+            default='en',
+            help='Choose model language. zh or en, zh:[wav2vec2ASR_aishell1-zh-16k], en:[wav2vec2ASR_librispeech-en-16k]'
         )
         self.parser.add_argument(
             "--sample_rate",
             type=int,
             default=16000,
-            choices=[16000],
-            help='Choose the audio sample rate of the model. only support 16000')
+            choices=[8000, 16000],
+            help='Choose the audio sample rate of the model. 8000 or 16000')
         self.parser.add_argument(
             '--config',
             type=str,
@@ -100,9 +82,12 @@ class WhisperExecutor(BaseExecutor):
         self.parser.add_argument(
             '--decode_method',
             type=str,
-            default='ctc_prefix_beam_search',
-            choices=['ctc_greedy_search', 'ctc_prefix_beam_search'],
-            help='only support transformer and conformer model')
+            default='ctc_greedy_search',
+            choices=[
+                'ctc_greedy_search',
+                'ctc_prefix_beam_search',
+            ],
+            help='only support asr task')
         self.parser.add_argument(
             '--ckpt_path',
             type=str,
@@ -138,15 +123,12 @@ class WhisperExecutor(BaseExecutor):
             help='Increase logger verbosity of current task.')
 
     def _init_from_path(self,
-                        model_type: str='whisper',
-                        lang: str='',
-                        task: str='transcribe',
-                        size: str='large',
-                        language: str='None',
+                        model_type: str='wav2vec2ASR_librispeech',
+                        task: str='asr',
+                        lang: str='en',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
-                        decode_method: str='ctc_prefix_beam_search',
-                        num_decoding_left_chunks: int=-1,
+                        decode_method: str='ctc_greedy_search',
                         ckpt_path: Optional[os.PathLike]=None):
         """
         Init model and other resources from a specific path.
@@ -157,13 +139,12 @@ class WhisperExecutor(BaseExecutor):
         if hasattr(self, 'model'):
             logger.debug('Model had been initialized.')
             return
-
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-            if lang == "":
-                tag = model_type + '-' + size + '-' + sample_rate_str
+            if task == 'asr':
+                tag = model_type + '-' + lang + '-' + sample_rate_str
             else:
-                tag = model_type + '-' + size + '-' + lang + '-' + sample_rate_str
+                tag = 'wav2vec2' + '-' + lang + '-' + sample_rate_str
             self.task_resource.set_task_model(tag, version=None)
             self.res_path = self.task_resource.res_dir
 
@@ -173,7 +154,6 @@ class WhisperExecutor(BaseExecutor):
                 self.res_path,
                 self.task_resource.res_dict['ckpt_path'] + ".pdparams")
             logger.debug(self.res_path)
-
         else:
             self.cfg_path = os.path.abspath(cfg_path)
             self.ckpt_path = os.path.abspath(ckpt_path + ".pdparams")
@@ -185,38 +165,29 @@ class WhisperExecutor(BaseExecutor):
         #Init body.
         self.config = CfgNode(new_allowed=True)
         self.config.merge_from_file(self.cfg_path)
+        if task == 'asr':
+            with UpdateConfig(self.config):
+                self.text_feature = TextFeaturizer(
+                    unit_type=self.config.unit_type,
+                    vocab=self.config.vocab_filepath)
+                self.config.decode.decoding_method = decode_method
+            model_name = model_type[:model_type.rindex(
+                '_')]  # model_type: {model_name}_{dataset}
+        else:
+            model_name = 'wav2vec2'
+        model_class = self.task_resource.get_model_class(model_name)
 
-        with UpdateConfig(self.config):
-            if "whisper" in model_type:
-                resource_url = self.task_resource.res_dict['resource_data']
-                resource_md5 = self.task_resource.res_dict['resource_data_md5']
-
-                self.resource_path = os.path.join(
-                    DATA_HOME, self.task_resource.version, 'whisper')
-                self.download_resource(resource_url, self.resource_path,
-                                       resource_md5)
-            else:
-                raise Exception("wrong type")
+        model_conf = self.config
+        model = model_class.from_config(model_conf)
+        self.model = model
+        self.model.eval()
 
         # load model
         model_dict = paddle.load(self.ckpt_path)
-        dims = ModelDimensions(**model_dict["dims"])
-        self.model = Whisper(dims)
-        self.model.load_dict(model_dict)
-        self.model.eval()
-
-        #set task
-        if task is not None:
-            self.task = task
-
-        #set language
-        if language is not None:
-            if lang == 'en' and language != 'en':
-                logger.info(
-                    "{tag} is an English-only model, set language=English .")
-                self.language = 'en'
-            else:
-                self.language = language
+        if task == 'asr':
+            self.model.set_state_dict(model_dict)
+        else:
+            self.model.wav2vec2.set_state_dict(model_dict)
 
     def preprocess(self, model_type: str, input: Union[str, os.PathLike]):
         """
@@ -231,10 +202,13 @@ class WhisperExecutor(BaseExecutor):
             audio_file.seek(0)
 
         # Get the object for feature extraction
-        # whisper hard-coded audio hyperparameters, params in paddlespeech/s2t/models/whisper/whisper.py
+        logger.debug("get the preprocess conf")
+        preprocess_conf = self.config.preprocess_config
+        preprocess_args = {"train": False}
+        preprocessing = Transformation(preprocess_conf)
         logger.debug("read the audio file")
         audio, audio_sample_rate = soundfile.read(
-            audio_file, dtype="float32", always_2d=True)
+            audio_file, dtype="int16", always_2d=True)
         if self.change_format:
             if audio.shape[1] >= 2:
                 audio = audio.mean(axis=1, dtype=np.int16)
@@ -252,9 +226,10 @@ class WhisperExecutor(BaseExecutor):
 
         logger.debug(f"audio shape: {audio.shape}")
         # fbank
-        audio = log_mel_spectrogram(audio, resource_path=self.resource_path)
+        audio = preprocessing(audio, **preprocess_args)
 
         audio_len = paddle.to_tensor(audio.shape[0])
+        audio = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
 
         self._inputs["audio"] = audio
         self._inputs["audio_len"] = audio_len
@@ -263,49 +238,39 @@ class WhisperExecutor(BaseExecutor):
         logger.debug("audio feat process success")
 
     @paddle.no_grad()
-    def infer(self, model_type: str):
+    def infer(self, model_type: str, task: str):
         """
         Model inference and result stored in self.output.
         """
         logger.debug("start to infer the model to get the output")
-        cfg = self.config
         audio = self._inputs["audio"]
-        if cfg.temperature_increment_on_fallback is not None:
-            temperature = tuple(
-                np.arange(cfg.temperature, 1.0 + 1e-6,
-                          cfg.temperature_increment_on_fallback))
+        if task == 'asr':
+            cfg = self.config.decode
+            logger.debug(
+                f"we will use the wav2vec2ASR like model : {model_type}")
+            try:
+                result_transcripts = self.model.decode(
+                    audio,
+                    text_feature=self.text_feature,
+                    decoding_method=cfg.decoding_method,
+                    beam_size=cfg.beam_size)
+                self._outputs["result"] = result_transcripts[0][0]
+            except Exception as e:
+                logger.exception(e)
         else:
-            temperature = [cfg.temperature]
-
-        self._outputs["result"] = self.model.transcribe(
-            audio,
-            verbose=cfg.verbose,
-            task=self.task,
-            language=self.language,
-            resource_path=self.resource_path,
-            temperature=temperature,
-            compression_ratio_threshold=cfg.compression_ratio_threshold,
-            logprob_threshold=cfg.logprob_threshold,
-            best_of=cfg.best_of,
-            beam_size=cfg.beam_size,
-            patience=cfg.patience,
-            length_penalty=cfg.length_penalty,
-            initial_prompt=cfg.initial_prompt,
-            condition_on_previous_text=cfg.condition_on_previous_text,
-            no_speech_threshold=cfg.no_speech_threshold)
+            logger.debug(
+                "we will use the wav2vec2 like model to extract audio feature")
+            try:
+                out_feature = self.model(audio[:, :, 0])
+                self._outputs["result"] = out_feature[0]
+            except Exception as e:
+                logger.exception(e)
 
     def postprocess(self) -> Union[str, os.PathLike]:
         """
             Output postprocess and return human-readable results such as texts and audio files.
         """
         return self._outputs["result"]
-
-    def download_resource(self, url, lm_dir, md5sum):
-        download_path = get_path_from_url(
-            url=url,
-            root_dir=lm_dir,
-            md5sum=md5sum,
-            decompress=True, )
 
     def _pcm16to32(self, audio):
         assert (audio.dtype == np.int16)
@@ -399,10 +364,8 @@ class WhisperExecutor(BaseExecutor):
         parser_args = self.parser.parse_args(argv)
 
         model = parser_args.model
-        lang = parser_args.lang
         task = parser_args.task
-        size = parser_args.size
-        language = parser_args.language
+        lang = parser_args.lang
         sample_rate = parser_args.sample_rate
         config = parser_args.config
         ckpt_path = parser_args.ckpt_path
@@ -423,10 +386,8 @@ class WhisperExecutor(BaseExecutor):
                 res = self(
                     audio_file=input_,
                     model=model,
-                    lang=lang,
                     task=task,
-                    size=size,
-                    language=language,
+                    lang=lang,
                     sample_rate=sample_rate,
                     config=config,
                     ckpt_path=ckpt_path,
@@ -435,16 +396,15 @@ class WhisperExecutor(BaseExecutor):
                     rtf=rtf,
                     device=device)
                 task_results[id_] = res
+
             except Exception as e:
                 has_exceptions = True
                 task_results[id_] = f'{e.__class__.__name__}: {e}'
 
         if rtf:
             self.show_rtf(CLI_TIMER[self.__class__.__name__])
-
         self.process_task_results(parser_args.input, task_results,
                                   parser_args.job_dump_result)
-
         if has_exceptions:
             return False
         else:
@@ -453,35 +413,31 @@ class WhisperExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='whisper',
-                 lang: str='',
-                 task: str='transcribe',
-                 size: str='large',
-                 language: str='None',
+                 model: str='wav2vec2ASR_librispeech',
+                 task: str='asr',
+                 lang: str='en',
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
-                 decode_method: str='attention_rescoring',
-                 num_decoding_left_chunks: int=-1,
+                 decode_method: str='ctc_greedy_search',
                  force_yes: bool=False,
                  rtf: bool=False,
                  device=paddle.get_device()):
         """
         Python API to call an executor.
         """
+
         audio_file = os.path.abspath(audio_file)
         paddle.set_device(device)
-        self._init_from_path(model, lang, task, size, language, sample_rate,
-                             config, decode_method, num_decoding_left_chunks,
-                             ckpt_path)
+        self._init_from_path(model, task, lang, sample_rate, config,
+                             decode_method, ckpt_path)
         if not self._check(audio_file, sample_rate, force_yes):
             sys.exit(-1)
         if rtf:
             k = self.__class__.__name__
             CLI_TIMER[k]['start'].append(time.time())
-
         self.preprocess(model, audio_file)
-        self.infer(model)
+        self.infer(model, task)
         res = self.postprocess()  # Retrieve result of asr.
 
         if rtf:

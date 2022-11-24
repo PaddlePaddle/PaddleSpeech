@@ -25,8 +25,12 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
    # to recognize text 
    paddlespeech whisper --task transcribe --input ./zh.wav
 
+   # to change model English-Only base size model
+   paddlespeech whisper --lang en --size base --task transcribe  --input ./en.wav
+
    # to recognize text and translate to English
    paddlespeech whisper --task translate --input ./zh.wav
+   
    ```
 
    Usage:
@@ -37,7 +41,9 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
    - `input`(required): Audio file to recognize.
    - `model`: Model type of asr task. Default: `whisper-large`.
    - `task`: Output type. Default: `transcribe`.
-   - `lang`: Model language. Default: `None`. Forcibly set the recognized language, which is determined by the model itself by default.
+   - `lang`: Model language. Default: ``. Use `en` to choice English-only model. Now [medium,base,small,tiny] size can support English-only.
+   - `size`: Model size for decode. Defalut: `large`. Now can support [large,medium,base,small,tiny].
+   - `language`: Set decode language. Default: `None`. Forcibly set the recognized language, which is determined by the model itself by default. 
    - `sample_rate`: Sample rate of the model. Default: `16000`. Other sampling rates are not supported now.
    - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.
    - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
@@ -55,7 +61,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
 
    # to recognize text 
    text = whisper_executor(
-       model='whisper-large',
+       model='whisper',
        task='transcribe',
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
@@ -66,7 +72,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
 
    # to recognize text and translate to English
    feature = whisper_executor(
-       model='whisper-large',
+       model='whisper',
        task='translate',
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.

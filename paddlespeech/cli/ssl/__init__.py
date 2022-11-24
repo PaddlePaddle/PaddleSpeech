@@ -11,7 +11,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .wav2vec2_ASR import Wav2vec2ASR
-from .wav2vec2_ASR import Wav2vec2Base
-
-__all__ = ["Wav2vec2ASR", "Wav2vec2Base"]
+from .infer import SSLExecutor

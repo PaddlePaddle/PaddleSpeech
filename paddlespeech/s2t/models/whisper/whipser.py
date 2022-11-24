@@ -1,6 +1,6 @@
 # MIT License, Copyright (c) 2022 OpenAI.
 # Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
-# 
+#
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper)
 import os
 from dataclasses import dataclass
@@ -265,7 +265,6 @@ class DecodingOptions:
     task: str = "transcribe"  # whether to perform X->X "transcribe" or X->English "translate"
     language: Optional[
         str] = None  # language that the audio is in; uses detected language if None
-
     # sampling-related options
     temperature: float = 0.0
     sample_len: Optional[int] = None  # maximum number of tokens to sample
@@ -361,10 +360,11 @@ class WhisperInference(Inference):
 
 
 @paddle.no_grad()
-def detect_language(model: "Whisper",
-                    mel: paddle.Tensor,
-                    tokenizer: Tokenizer=None
-                    ) -> Tuple[paddle.Tensor, List[dict]]:
+def detect_language(
+        model: "Whisper",
+        mel: paddle.Tensor,
+        resource_path: str,
+        tokenizer: Tokenizer=None) -> Tuple[paddle.Tensor, List[dict]]:
     """
     Detect the spoken language in the audio, and return them as list of strings, along with the ids
     of the most probable language tokens and the probability distribution over all language tokens.
@@ -378,7 +378,8 @@ def detect_language(model: "Whisper",
         list of dictionaries containing the probability distribution over all languages.
     """
     if tokenizer is None:
-        tokenizer = get_tokenizer(model.is_multilingual)
+        tokenizer = get_tokenizer(
+            model.is_multilingual, resource_path=resource_path)
     if tokenizer.language is None or tokenizer.language_token not in tokenizer.sot_sequence:
         raise ValueError(
             "This model doesn't have language tokens so it can't perform lang id"
@@ -419,6 +420,7 @@ def detect_language(model: "Whisper",
 def transcribe(
         model: "Whisper",
         mel: paddle.Tensor,
+        resource_path: str,
         *,
         verbose: Optional[bool]=None,
         temperature: Union[float, Tuple[float, ...]]=(0.0, 0.2, 0.4, 0.6, 0.8,
@@ -475,7 +477,8 @@ def transcribe(
     if dtype == np.float32:
         decode_options["fp16"] = False
 
-    if decode_options.get("language", None) is None:
+    if decode_options.get(
+            "language", 'None') or decode_options.get("language", None) is None:
         if not model.is_multilingual:
             decode_options["language"] = "en"
         else:
@@ -484,7 +487,7 @@ def transcribe(
                     "Detecting language using up to the first 30 seconds. Use `--language` to specify the language"
                 )
             segment = pad_or_trim(mel, N_FRAMES)
-            _, probs = model.detect_language(segment)
+            _, probs = model.detect_language(segment, resource_path)
             decode_options["language"] = max(probs, key=probs.get)
             if verbose is not None:
                 print(
@@ -494,7 +497,10 @@ def transcribe(
     language = decode_options["language"]
     task = decode_options.get("task", "transcribe")
     tokenizer = get_tokenizer(
-        model.is_multilingual, language=language, task=task)
+        model.is_multilingual,
+        resource_path=resource_path,
+        language=language,
+        task=task)
 
     def decode_with_fallback(segment: paddle.Tensor) -> DecodingResult:
         temperatures = [temperature] if isinstance(temperature, (
@@ -512,7 +518,7 @@ def transcribe(
                 kwargs.pop("best_of", None)
 
             options = DecodingOptions(**kwargs, temperature=t)
-            decode_result = model.decode(segment, options)
+            decode_result = model.decode(segment, options, resource_path)
 
             needs_fallback = False
             if compression_ratio_threshold is not None and decode_result.compression_ratio > compression_ratio_threshold:
@@ -978,14 +984,21 @@ class DecodingTask:
     decoder: TokenDecoder
     logit_filters: List[LogitFilter]
 
-    def __init__(self, model: "Whisper", options: DecodingOptions):
+    def __init__(self,
+                 model: "Whisper",
+                 options: DecodingOptions,
+                 resource_path: str):
         self.model = model
 
         language = options.language or "en"
         tokenizer = get_tokenizer(
-            model.is_multilingual, language=language, task=options.task)
+            model.is_multilingual,
+            resource_path=resource_path,
+            language=language,
+            task=options.task)
         self.tokenizer: Tokenizer = tokenizer
         self.options: DecodingOptions = self._verify_options(options)
+        self.resource_path: str = resource_path
 
         self.beam_size: int = options.beam_size or options.best_of or 1
         self.n_ctx: int = model.dims.n_text_ctx
@@ -1111,13 +1124,14 @@ class DecodingTask:
 
     def _detect_language(self,
                          audio_features: paddle.Tensor,
-                         tokens: paddle.Tensor):
+                         tokens: paddle.Tensor,
+                         resource_path: str):
         languages = [self.options.language] * audio_features.shape[0]
         lang_probs = None
 
         if self.options.language is None or self.options.task == "lang_id":
-            lang_tokens, lang_probs = self.model.detect_language(audio_features,
-                                                                 self.tokenizer)
+            lang_tokens, lang_probs = self.model.detect_language(
+                audio_features, self.tokenizer, self.resource_path)
             languages = [max(probs, key=probs.get) for probs in lang_probs]
             if self.options.language is None:
                 tokens[:, self.sot_index +
@@ -1184,7 +1198,8 @@ class DecodingTask:
 
         # detect language if requested, overwriting the language token
         languages, language_probs = self._detect_language(
-            paddle.to_tensor(audio_features), paddle.to_tensor(tokens))
+            paddle.to_tensor(audio_features),
+            paddle.to_tensor(tokens), self.resource_path)
 
         if self.options.task == "lang_id":
             return [
@@ -1253,10 +1268,11 @@ class DecodingTask:
 
 
 @paddle.no_grad()
-def decode(model: "Whisper",
-           mel: paddle.Tensor,
-           options: DecodingOptions=DecodingOptions()
-           ) -> Union[DecodingResult, List[DecodingResult]]:
+def decode(
+        model: "Whisper",
+        mel: paddle.Tensor,
+        options: DecodingOptions=DecodingOptions(),
+        resource_path=str, ) -> Union[DecodingResult, List[DecodingResult]]:
     """
     Performs decoding of 30-second audio segment(s), provided as Mel spectrogram(s).
 
@@ -1280,7 +1296,7 @@ def decode(model: "Whisper",
     if single:
         mel = mel.unsqueeze(0)
 
-    result = DecodingTask(model, options).run(mel)
+    result = DecodingTask(model, options, resource_path).run(mel)
 
     if single:
         result = result[0]
@@ -1406,7 +1422,7 @@ def hann_window(n_fft: int=N_FFT):
 
 
 @lru_cache(maxsize=None)
-def mel_filters(device, n_mels: int=N_MELS) -> paddle.Tensor:
+def mel_filters(resource_path: str, n_mels: int=N_MELS) -> paddle.Tensor:
     """
     load the mel filterbank matrix for projecting STFT into a Mel spectrogram.
     Allows decoupling librosa dependency; saved using:
@@ -1417,14 +1433,13 @@ def mel_filters(device, n_mels: int=N_MELS) -> paddle.Tensor:
         )
     """
     assert n_mels == 80, f"Unsupported n_mels: {n_mels}"
-    with np.load(
-            os.path.join(
-                os.path.dirname(__file__), "assets", "mel_filters.npz")) as f:
+    with np.load(os.path.join(resource_path, "assets", "mel_filters.npz")) as f:
         return paddle.to_tensor(f[f"mel_{n_mels}"])
 
 
 def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
-                        n_mels: int=N_MELS):
+                        n_mels: int=N_MELS,
+                        resource_path: str=None):
     """
     Compute the log-Mel spectrogram of
 
@@ -1453,7 +1468,7 @@ def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
 
     magnitudes = stft[:, :-1].abs()**2
 
-    filters = mel_filters(audio, n_mels)
+    filters = mel_filters(resource_path, n_mels)
     mel_spec = filters @ magnitudes
     mel_spec = paddle.to_tensor(mel_spec.numpy().tolist())
 

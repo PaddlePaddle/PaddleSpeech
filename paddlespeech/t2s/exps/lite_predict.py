@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
 import argparse
 from pathlib import Path
 
-import paddle
 import soundfile as sf
 from timer import timer
 
-from paddlespeech.t2s.exps.syn_utils import get_am_output
 from paddlespeech.t2s.exps.syn_utils import get_frontend
-from paddlespeech.t2s.exps.syn_utils import get_predictor
+from paddlespeech.t2s.exps.syn_utils import get_lite_am_output
+from paddlespeech.t2s.exps.syn_utils import get_lite_predictor
+from paddlespeech.t2s.exps.syn_utils import get_lite_voc_output
 from paddlespeech.t2s.exps.syn_utils import get_sentences
-from paddlespeech.t2s.exps.syn_utils import get_voc_output
-from paddlespeech.t2s.utils import str2bool
 
 
 def parse_args():
@@ -40,7 +38,6 @@ def parse_args():
             'fastspeech2_aishell3',
             'fastspeech2_ljspeech',
             'fastspeech2_vctk',
-            'tacotron2_csmsc',
             'fastspeech2_mix',
         ],
         help='Choose acoustic model type of tts task.')
@@ -70,7 +67,6 @@ def parse_args():
             'hifigan_aishell3',
             'hifigan_ljspeech',
             'hifigan_vctk',
-            'wavernn_csmsc',
         ],
         help='Choose vocoder type of tts task.')
     # other
@@ -86,22 +82,6 @@ def parse_args():
     parser.add_argument(
         "--inference_dir", type=str, help="dir to save inference models")
     parser.add_argument("--output_dir", type=str, help="output dir")
-    # inference
-    parser.add_argument(
-        "--int8",
-        type=str2bool,
-        default=False,
-        help="Whether to use int8 inference.", )
-    parser.add_argument(
-        "--fp16",
-        type=str2bool,
-        default=False,
-        help="Whether to use float16 inference.", )
-    parser.add_argument(
-        "--device",
-        default="gpu",
-        choices=["gpu", "cpu"],
-        help="Device selected for inference.", )
 
     args, _ = parser.parse_known_args()
     return args
@@ -111,8 +91,6 @@ def parse_args():
 def main():
     args = parse_args()
 
-    paddle.set_device(args.device)
-
     # frontend
     frontend = get_frontend(
         lang=args.lang,
@@ -120,20 +98,14 @@ def main():
         tones_dict=args.tones_dict)
 
     # am_predictor
-    am_predictor = get_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.am + ".pdmodel",
-        params_file=args.am + ".pdiparams",
-        device=args.device)
+    am_predictor = get_lite_predictor(
+        model_dir=args.inference_dir, model_file=args.am + "_x86.nb")
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
     # voc_predictor
-    voc_predictor = get_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.voc + ".pdmodel",
-        params_file=args.voc + ".pdiparams",
-        device=args.device)
+    voc_predictor = get_lite_predictor(
+        model_dir=args.inference_dir, model_file=args.voc + "_x86.nb")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -145,7 +117,7 @@ def main():
     # warmup
     for utt_id, sentence in sentences[:3]:
         with timer() as t:
-            mel = get_am_output(
+            mel = get_lite_am_output(
                 input=sentence,
                 am_predictor=am_predictor,
                 am=args.am,
@@ -154,7 +126,7 @@ def main():
                 merge_sentences=merge_sentences,
                 speaker_dict=args.speaker_dict,
                 spk_id=args.spk_id, )
-            wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
+            wav = get_lite_voc_output(voc_predictor=voc_predictor, input=mel)
         speed = wav.size / t.elapse
         rtf = fs / speed
         print(
@@ -167,7 +139,7 @@ def main():
     T = 0
     for utt_id, sentence in sentences:
         with timer() as t:
-            mel = get_am_output(
+            mel = get_lite_am_output(
                 input=sentence,
                 am_predictor=am_predictor,
                 am=args.am,
@@ -176,7 +148,7 @@ def main():
                 merge_sentences=merge_sentences,
                 speaker_dict=args.speaker_dict,
                 spk_id=args.spk_id, )
-            wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
+            wav = get_lite_voc_output(voc_predictor=voc_predictor, input=mel)
 
         N += wav.size
         T += t.elapse

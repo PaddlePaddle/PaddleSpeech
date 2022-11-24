@@ -224,6 +224,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [fastspeech2_vctk_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_onnx_1.1.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [fastspeech2_vctk_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_pdlite_1.3.0.zip)
+
 FastSpeech2 checkpoint contains files listed below.
 ```text
 fastspeech2_vctk_ckpt_1.2.0

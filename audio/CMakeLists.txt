@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 # Use compiler ID "AppleClang" instead of "Clang" for XCode.
 # Not setting this sometimes makes XCode C compiler gets detected as "Clang",
@@ -50,9 +50,9 @@ set(THIRD_PARTY_PATH ${fc_patch})
 
 include(openblas)
 
-if (NOT PY_VERSION)
-  set(PY_VERSION 3.7)
-endif()
+#if (NOT PY_VERSION)
+#  set(PY_VERSION 3.7)
+#endif()
 set(PYBIND11_PYTHON_VERSION ${PY_VERSION})
 include(pybind)
 

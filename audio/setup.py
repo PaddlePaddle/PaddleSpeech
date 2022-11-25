@@ -44,7 +44,7 @@ base = [
     "colorlog",
     "pathos == 0.2.8",
     "pybind11",
-    "Ninja",
+    "parameterized",
     "tqdm"
 ]
 
@@ -182,10 +182,18 @@ def _get_version(sha):
 
 def _make_version_file(version, sha):
     sha = "Unknown" if sha is None else sha
-    version_path = ROOT_DIR / "paddleaudio" / "version.py"
-    with open(version_path, "w") as f:
+    version_path = ROOT_DIR / "paddleaudio" / "__init__.py"
+    with open(version_path, "a") as f:
         f.write(f"__version__ = '{version}'\n")
-        f.write(f"__commit__ = '{sha}'\n")
+
+def _rm_version():
+    file_ = ROOT_DIR / "paddleaudio" / "__init__.py"
+    with open(file_, "r") as f:
+        lines = f.readlines()
+    with open(file_, "w") as f:
+        for line in lines:
+            if "__version__" not in line:
+                f.write(line)
 
 
 ################################# Steup ##################################
@@ -218,6 +226,7 @@ def main():
     print("-- Git tag:", tag)
     version = _get_version(sha)
     print("-- Building version", version)
+    _rm_version()
     _make_version_file(version, sha)
 
     setup_info = dict(
@@ -233,7 +242,7 @@ def main():
             "audio process"
             "paddlepaddle",
         ],
-        python_requires='>=3.7',
+        python_requires='>=3.6',
         install_requires=requirements["install"],
         extras_require={
             'develop':
@@ -260,13 +269,16 @@ def main():
             'License :: OSI Approved :: Apache Software License',
             'Programming Language :: Python',
             'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
         ],
     )
 
     setup(**setup_info)
+    _rm_version()
 
 
 if __name__ == '__main__':

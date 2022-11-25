@@ -50,9 +50,6 @@ set(THIRD_PARTY_PATH ${fc_patch})
 
 include(openblas)
 
-#if (NOT PY_VERSION)
-#  set(PY_VERSION 3.7)
-#endif()
 set(PYBIND11_PYTHON_VERSION ${PY_VERSION})
 include(pybind)
 

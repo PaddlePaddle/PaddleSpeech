@@ -227,6 +227,7 @@ def main():
     version = _get_version(sha)
     print("-- Building version", version)
     _rm_version()
+
     _make_version_file(version, sha)
 
     setup_info = dict(
@@ -279,7 +280,6 @@ def main():
 
     setup(**setup_info)
     _rm_version()
-
 
 if __name__ == '__main__':
     main()

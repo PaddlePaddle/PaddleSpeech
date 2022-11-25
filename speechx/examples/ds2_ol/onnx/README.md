@@ -1,5 +1,7 @@
 # DeepSpeech2 to ONNX model
 
+## introduce
+
 1. convert deepspeech2 model to ONNX, using Paddle2ONNX.
 2. check paddleinference and onnxruntime output equal.
 3. optimize onnx model
@@ -31,7 +33,18 @@ onnxruntime              1.11.0
 bash run.sh --stage 0 --stop_stage 5
 ```
 
-For more details please see `run.sh`.
+**For more details please see `run.sh`.**
+
+> write more detail in REAME, what's meaning of different stage ? 
+
+## how to use in user's project
+
+> Users want to learn how to use the example for their project ! Not just test standard result ! If users want to use these codes in their project, how to use our code ? For example, there are some audios that needs to be recognized, how to get the result . Please show it in README
+
+> What are the requirements for audio format ? 
+
+> if there are some bins or exes builded by speechx（such as `recognizer_main`）, how to find the enterpoint source code ? how to use these program ? What are the meanings of these parameters ? What are the limits of these parameters ? Please show it in README, not just write it in run.sh .
+
 
 ## Outputs
 The optimized onnx model is `exp/model.opt.onnx`, quanted model is `$exp/model.optset11.quant.onnx`.

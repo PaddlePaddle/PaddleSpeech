@@ -43,7 +43,7 @@ add_library(kaldi-matrix STATIC
 target_include_directories(kaldi-matrix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (NOT MSVC)
-    target_link_libraries(kaldi-matrix PUBLIC kaldi-base libopenblas ${GFORTRAN_LIBRARIES_DIR}/libgfortran.a)
+    target_link_libraries(kaldi-matrix PUBLIC kaldi-base libopenblas ${LIBGFORTRAN_LIBRARIES})
 else()
     target_link_libraries(kaldi-matrix PUBLIC kaldi-base openblas)
 endif()
@@ -108,7 +108,7 @@ add_dependencies(libkaldi kaldi-base kaldi-matrix kaldi-util kaldi-feat-common k
 target_include_directories(libkaldi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (APPLE)
-    target_link_libraries(libkaldi INTERFACE ${KALDI_LIBRARIES} libopenblas ${GFORTRAN_LIBRARIES_DIR}/libgfortran.a)
+    target_link_libraries(libkaldi INTERFACE ${KALDI_LIBRARIES} libopenblas ${LIBGFORTRAN_LIBRARIES})
 elseif (MSVC)
     target_link_libraries(libkaldi INTERFACE kaldi-base kaldi-matrix kaldi-util kaldi-feat-common kaldi-mfcc kaldi-fbank openblas)
 else()

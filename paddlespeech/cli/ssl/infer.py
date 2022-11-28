@@ -138,9 +138,9 @@ class SSLExecutor(BaseExecutor):
 
         if model_type is None:
             if lang == 'en':
-                model_type = wav2vec2ASR_librispeech
+                model_type = 'wav2vec2ASR_librispeech'
             elif lang == 'zh':
-                model_type = wav2vec2ASR_aishell1
+                model_type = 'wav2vec2ASR_aishell1'
             else:
                 logger.error(
                     "invalid lang, please input --lang en or --lang zh")

@@ -164,14 +164,18 @@
 
   
 ### 近期更新
+- 👑 2022.11.18: 新增 [Whisper CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/pull/2640)，支持多种语言的识别与翻译。
+- 🔥 2022.11.18: 新增 [Wav2vec2 CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_ssl), 支持 ASR 和 特征提取.
+- 🎉 2022.11.17: TTS 新增[高质量男性音色](https://github.com/PaddlePaddle/PaddleSpeech/pull/2660)。
+- 🔥 2022.11.07: 新增 [U2/U2++ 高性能流式 ASR C++ 部署](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/speechx/examples/u2pp_ol/wenetspeech)。
 - 👑 2022.11.01: [中英文混合 TTS](./examples/zh_en_tts/tts3) 新增 [Adversarial Loss](https://arxiv.org/pdf/1907.04448.pdf) 模块。
 - 🔥 2022.10.26: TTS 新增[韵律预测](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy)功能。
 - 🎉 2022.10.21: TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
-- 👑 2022.10.11: 新增 [Wav2vec2ASR](./examples/librispeech/asr3), 在 LibriSpeech 上针对 ASR 任务对 wav2vec2.0 的 finetuning。
-- 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 ERNIE-SAT 到 [PaddleSpeech 网页应用](./demos/speech_web)。
+- 👑 2022.10.11: 新增 [Wav2vec2ASR-en](./examples/librispeech/asr3), 在 LibriSpeech 上针对 ASR 任务对 wav2vec2.0 的 finetuning。
+- 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 [ERNIE-SAT](https://arxiv.org/abs/2211.03545) 到 [PaddleSpeech 网页应用](./demos/speech_web)。
 - ⚡ 2022.09.09: 新增基于 ECAPA-TDNN 声纹模型的 AISHELL-3 Voice Cloning [示例](./examples/aishell3/vc2)。
 - ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
-- 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
+- 🔥 2022.08.22: 新增 [ERNIE-SAT](https://arxiv.org/abs/2211.03545) 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
 - 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。
 - 🔥 2022.08.09: 发布[中英文混合 TTS](./examples/zh_en_tts/tts3)。
 - ⚡ 2022.08.03: TTS CLI 新增 ONNXRuntime 推理方式。
@@ -576,7 +580,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td>ERNIE-SAT</td>
+      <td><a href = "https://arxiv.org/abs/2211.03545">ERNIE-SAT</a></td>
       <td>VCTK / AISHELL-3 / ZH_EN</td>
       <td>
       <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>
@@ -983,6 +987,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 - 非常感谢 [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) 基于 PaddleSpeech 的 ASR 与 TTS 设计的可听、说对话机器人。
 - 非常感谢 [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) 对 PaddleSpeech 的 ASR 进行 C++ 推理实现。
+- 非常感谢 [heyudage](https://github.com/heyudage)/[VoiceTyping](https://github.com/heyudage/VoiceTyping) 基于 PaddleSpeech 的 ASR 流式服务实现的实时语音输入法工具。
 
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

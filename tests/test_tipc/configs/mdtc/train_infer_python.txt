@@ -49,9 +49,3 @@ null:null
 null:null
 null:null
 null:null
-===========================train_benchmark_params==========================
-batch_size:16|30
-fp_items:fp32
-iteration:50
---profiler-options:"batch_range=[10,35];state=GPU;tracer_option=Default;profile_path=model.profile"
-flags:null

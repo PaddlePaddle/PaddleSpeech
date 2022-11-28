@@ -4,16 +4,21 @@
 freeze_wav2vec2: True
 normalize_wav: True
 output_norm: True
-dnn_blocks: 2
-dnn_neurons: 1024
-blank_id: 0
-ctc_dropout_rate: 0.0
+init_type: 'kaiming_uniform' # !Warning: need to convergence
+enc:
+  input_shape: 1024
+  dnn_blocks: 2
+  dnn_neurons: 1024
+  activation: True
+ctc:
+  enc_n_units: 1024
+  blank_id: 0
+  dropout_rate: 0.0
 wav2vec2_params_path: "exp/wav2vec2/wav2vec2-large-960h-lv60-self.pdparams"
 
 ############################################
 #               Wav2Vec2.0                 #
 ############################################
-vocab_size: 32
 hidden_size: 1024
 num_hidden_layers: 24
 num_attention_heads: 16
@@ -54,9 +59,6 @@ diversity_loss_weight: 0.1
 ctc_loss_reduction: "sum"
 ctc_zero_infinity: False
 use_weighted_layer_sum: False
-pad_token_id: 0
-bos_token_id: 1
-eos_token_id: 2
 add_adapter: False
 adapter_kernel_size: 3
 adapter_stride: 2
@@ -70,7 +72,6 @@ train_manifest: data/manifest.train
 dev_manifest: data/manifest.dev
 test_manifest: data/manifest.test-clean
 
-
 ###########################################
 #              Dataloader                 #
 ###########################################
@@ -79,7 +80,7 @@ unit_type: 'char'
 mean_std_filepath: ""
 preprocess_config: conf/preprocess.yaml
 sortagrad: -1 # Feed samples from shortest to longest ; -1: enabled for all epochs 0: disabled other: enabled for 'other' epochs 
-batch_size: 10  # Different batch_size may cause large differences in results
+batch_size: 6  # Different batch_size may cause large differences in results
 maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
 maxlen_out: 1500000  # if output length > maxlen-out batchsize is automatically reduced
 minibatches: 0 # for debug
@@ -95,26 +96,38 @@ dist_sampler: True
 shortest_first: True
 return_lens_rate: True
   
+############################################
+#             Data Augmentation            #
+############################################
+audio_augment:  # for raw audio 
+  sample_rate: 16000
+  speeds: [95, 100, 105]
 
 ###########################################
 #                 Training                #
 ###########################################
 n_epoch: 1
 accum_grad: 1
-global_grad_clip: 3.0
+global_grad_clip: 5.0
 model_optim: adadelta
 model_optim_conf:
   lr: 0.9
   epsilon: 1.0e-6
   rho: 0.95
-scheduler: constantlr    
-scheduler_conf:
+model_scheduler: constantlr    
+model_scheduler_conf:
+  warmup_steps: 25000
+  lr_decay: 1.0
+wav2vec2_optim: adadelta
+wav2vec2_optim_conf:
+  lr: 0.9
+  epsilon: 1.0e-6
+  rho: 0.95
+wav2vec2_scheduler: constantlr    
+wav2vec2_scheduler_conf:
   warmup_steps: 25000
   lr_decay: 1.0
 log_interval: 1
 checkpoint:
   kbest_n: 50
   latest_n: 5
-augment: True
-
-

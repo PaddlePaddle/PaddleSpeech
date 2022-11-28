@@ -9,6 +9,10 @@ paddlespeech cls --input ./cat.wav --topk 10
 # Punctuation_restoration
 paddlespeech text --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭 --model ernie_linear_p3_wudao_fast
 
+# Speech SSL
+paddlespeech ssl --task asr --lang en --input ./en.wav
+paddlespeech ssl --task vector --lang en --input ./en.wav
+
 # Speech_recognition
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 paddlespeech asr --input ./zh.wav
@@ -54,6 +58,7 @@ paddlespeech tts --am fastspeech2_vctk --voc hifigan_vctk --input "Life was like
 paddlespeech tts --am tacotron2_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_csmsc --voc wavernn_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
+paddlespeech tts --am fastspeech2_male --voc pwgan_male --input "你好，欢迎使用百度飞桨深度学习框架！"
 # mix tts
 # The `am` must be `fastspeech2_mix`!
 # The `lang` must be `mix`!
@@ -92,6 +97,12 @@ paddlespeech stats --task cls
 paddlespeech stats --task text
 paddlespeech stats --task vector
 paddlespeech stats --task st
+
+# whisper text recognize
+paddlespeech whisper --task transcribe --input ./zh.wav
+
+# whisper recognize text and translate to English
+paddlespeech whisper --task translate --input ./zh.wav
 
 
 echo -e "\033[32mTest success !!!\033[0m"

@@ -19,6 +19,12 @@ __all__ = [
 # Records of model name to import class
 model_alias = {
     # ---------------------------------
+    # -------------- SSL --------------
+    # ---------------------------------
+    "wav2vec2ASR": ["paddlespeech.s2t.models.wav2vec2:Wav2vec2ASR"],
+    "wav2vec2": ["paddlespeech.s2t.models.wav2vec2:Wav2vec2Base"],
+
+    # ---------------------------------
     # -------------- ASR --------------
     # ---------------------------------
     "deepspeech2offline": ["paddlespeech.s2t.models.ds2:DeepSpeech2Model"],
@@ -28,6 +34,11 @@ model_alias = {
     "conformer_u2pp_online": ["paddlespeech.s2t.models.u2:U2Model"],
     "transformer": ["paddlespeech.s2t.models.u2:U2Model"],
     "wenetspeech": ["paddlespeech.s2t.models.u2:U2Model"],
+
+    # ---------------------------------
+    # ------------ Whisper ------------
+    # ---------------------------------
+    "whisper": ["paddlespeech.s2t.models.whisper:Whisper"],
 
     # ---------------------------------
     # -------------- CLS --------------

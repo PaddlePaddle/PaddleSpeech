@@ -67,6 +67,7 @@ class TTSExecutor(BaseExecutor):
                 'fastspeech2_mix',
                 'tacotron2_csmsc',
                 'tacotron2_ljspeech',
+                'fastspeech2_male',
             ],
             help='Choose acoustic model type of tts task.')
         self.parser.add_argument(
@@ -122,6 +123,7 @@ class TTSExecutor(BaseExecutor):
                 'hifigan_aishell3',
                 'hifigan_vctk',
                 'wavernn_csmsc',
+                'pwgan_male',
             ],
             help='Choose vocoder type of tts task.')
 

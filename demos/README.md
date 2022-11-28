@@ -17,3 +17,5 @@ This directory contains many speech applications in multiple scenarios.
 * story talker - book reader based on OCR and TTS  
 * style_fs2 - multi style control for FastSpeech2 model  
 * text_to_speech - convert text into speech 
+* self supervised pretraining - speech feature extraction and speech recognition based on wav2vec2
+* Wishper - speech recognize and translate based on Whisper model

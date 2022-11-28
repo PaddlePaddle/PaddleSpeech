@@ -24,8 +24,6 @@ fi
 
 
 ckpt_dir=$data/model
-model_dir=$ckpt_dir/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model/
-
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     #  download u2pp model

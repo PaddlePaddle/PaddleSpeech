@@ -1173,10 +1173,6 @@ class Wav2Vec2ConfigPure():
         self.proj_codevector_dim = config.proj_codevector_dim
         self.diversity_loss_weight = config.diversity_loss_weight
 
-        # ctc loss
-        self.ctc_loss_reduction = config.ctc_loss_reduction
-        self.ctc_zero_infinity = config.ctc_zero_infinity
-
         # adapter
         self.add_adapter = config.add_adapter
         self.adapter_kernel_size = config.adapter_kernel_size

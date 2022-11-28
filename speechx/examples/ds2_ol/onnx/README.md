@@ -34,7 +34,7 @@ bash run.sh --stage 0 --stop_stage 5
 3. optimize onnx model
 4. check paddleinference and optimized onnxruntime output equal.
 5. quantize onnx model
-4. check paddleinference and optimized onnxruntime output equal.
+6. check paddleinference and optimized onnxruntime output equal.
 
 For more details please see `run.sh`.
 

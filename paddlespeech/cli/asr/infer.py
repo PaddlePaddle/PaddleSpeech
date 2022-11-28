@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import io
 import os
 import sys
 import time
@@ -51,7 +52,7 @@ class ASRExecutor(BaseExecutor):
         self.parser.add_argument(
             '--model',
             type=str,
-            default='conformer_wenetspeech',
+            default='conformer_u2pp_online_wenetspeech',
             choices=[
                 tag[:tag.index('-')]
                 for tag in self.task_resource.pretrained_models.keys()
@@ -229,6 +230,8 @@ class ASRExecutor(BaseExecutor):
         audio_file = input
         if isinstance(audio_file, (str, os.PathLike)):
             logger.debug("Preprocess audio_file:" + audio_file)
+        elif isinstance(audio_file, io.BytesIO):
+            audio_file.seek(0)
 
         # Get the object for feature extraction
         if "deepspeech2" in model_type or "conformer" in model_type or "transformer" in model_type:
@@ -352,6 +355,8 @@ class ASRExecutor(BaseExecutor):
             if not os.path.isfile(audio_file):
                 logger.error("Please input the right audio file path")
                 return False
+        elif isinstance(audio_file, io.BytesIO):
+            audio_file.seek(0)
 
         logger.debug("checking the audio file format......")
         try:
@@ -465,7 +470,7 @@ class ASRExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='conformer_wenetspeech',
+                 model: str='conformer_u2pp_online_wenetspeech',
                  lang: str='zh',
                  sample_rate: int=16000,
                  config: os.PathLike=None,

@@ -25,12 +25,52 @@ __all__ = [
     'tts_static_pretrained_models',
     'tts_onnx_pretrained_models',
     'vector_dynamic_pretrained_models',
+    'ssl_dynamic_pretrained_models',
+    'whisper_dynamic_pretrained_models',
 ]
 
 # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
 # e.g. "conformer_wenetspeech-zh-16k" and "panns_cnn6-32k".
 # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
 # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
+
+# ---------------------------------
+# -------------- SSL --------------
+# ---------------------------------
+ssl_dynamic_pretrained_models = {
+    "wav2vec2-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2-large-960h-lv60-self_ckpt_1.3.0.model.tar.gz',
+            'md5':
+            'acc46900680e341e500437aa59193518',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'wav2vec2-large-960h-lv60-self',
+            'model':
+            'wav2vec2-large-960h-lv60-self.pdparams',
+            'params':
+            'wav2vec2-large-960h-lv60-self.pdparams',
+        },
+    },
+    "wav2vec2ASR_librispeech-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2ASR-large-960h-librispeech_ckpt_1.3.1.model.tar.gz',
+            'md5':
+            'cbe28d6c78f3dd2e189968402381f454',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/wav2vec2ASR/checkpoints/avg_1',
+            'model':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+            'params':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+        },
+    },
+}
 
 # ---------------------------------
 # -------------- ASR --------------
@@ -62,6 +102,26 @@ asr_dynamic_pretrained_models = {
             'exp/chunk_conformer/checkpoints/avg_10.pdparams',
             'params':
             'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+            'lm_url':
+            '',
+            'lm_md5':
+            '',
+        },
+    },
+    "conformer_u2pp_online_wenetspeech-zh-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.3.0.model.tar.gz',
+            'md5':
+            '62d230c1bf27731192aa9d3b8deca300',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/chunk_conformer_u2pp/checkpoints/avg_10',
+            'model':
+            'exp/chunk_conformer_u2pp/checkpoints/avg_10.pdparams',
+            'params':
+            'exp/chunk_conformer_u2pp/checkpoints/avg_10.pdparams',
             'lm_url':
             '',
             'lm_md5':
@@ -404,6 +464,189 @@ asr_onnx_pretrained_models = {
     },
 }
 
+whisper_dynamic_pretrained_models = {
+    "whisper-large-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-large-model.tar.gz',
+            'md5':
+            'cf1557af9d8ffa493fefad9cb08ae189',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-large-model',
+            'model':
+            'whisper-large-model.pdparams',
+            'params':
+            'whisper-large-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-base-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-base-en-model.tar.gz',
+            'md5':
+            'b156529aefde6beb7726d2ea98fd067a',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-base-en-model',
+            'model':
+            'whisper-base-en-model.pdparams',
+            'params':
+            'whisper-base-en-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-base-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-base-model.tar.gz',
+            'md5':
+            '6b012a5abd583db14398c3492e47120b',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-base-model',
+            'model':
+            'whisper-base-model.pdparams',
+            'params':
+            'whisper-base-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-medium-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-medium-en-model.tar.gz',
+            'md5':
+            'c7f57d270bd20c7b170ba9dcf6c16f74',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-medium-en-model',
+            'model':
+            'whisper-medium-en-model.pdparams',
+            'params':
+            'whisper-medium-en-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-medium-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-medium-model.tar.gz',
+            'md5':
+            '4c7dcd0df25f408199db4a4548336786',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-medium-model',
+            'model':
+            'whisper-medium-model.pdparams',
+            'params':
+            'whisper-medium-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-small-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-small-en-model.tar.gz',
+            'md5':
+            '2b24efcb2e93f3275af7c0c7f598ff1c',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-small-en-model',
+            'model':
+            'whisper-small-en-model.pdparams',
+            'params':
+            'whisper-small-en-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-small-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-small-model.tar.gz',
+            'md5':
+            '5a57911dd41651dd6ed78c5763912825',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-small-model',
+            'model':
+            'whisper-small-model.pdparams',
+            'params':
+            'whisper-small-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-tiny-en-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-tiny-en-model.tar.gz',
+            'md5':
+            '14969164a3f713fd58e56978c34188f6',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-tiny-en-model',
+            'model':
+            'whisper-tiny-en-model.pdparams',
+            'params':
+            'whisper-tiny-en-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+    "whisper-tiny-16k": {
+        '1.3': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221122/whisper-tiny-model.tar.gz',
+            'md5':
+            'a5b82a1f2067a2ca400f17fabd62b81b',
+            'cfg_path':
+            'whisper.yaml',
+            'ckpt_path':
+            'whisper-tiny-model',
+            'model':
+            'whisper-tiny-model.pdparams',
+            'params':
+            'whisper-tiny-model.pdparams',
+            'resource_data':
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'resource_data_md5':
+            '37a0a8abdb3641a51194f79567a93b61',
+        },
+    },
+}
+
 # ---------------------------------
 # -------------- CLS --------------
 # ---------------------------------
@@ -529,7 +772,7 @@ text_dynamic_pretrained_models = {
             'ckpt/model_state.pdparams',
             'vocab_file':
             'punc_vocab.txt',
-        },
+        }
     },
     "ernie_linear_p3_wudao-punc-zh": {
         '1.0': {
@@ -543,8 +786,22 @@ text_dynamic_pretrained_models = {
             'ckpt/model_state.pdparams',
             'vocab_file':
             'punc_vocab.txt',
-        },
+        }
     },
+    "ernie_linear_p3_wudao_fast-punc-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/text/ernie_linear_p3_wudao_fast-punc-zh.tar.gz',
+            'md5':
+            'c93f9594119541a5dbd763381a751d08',
+            'cfg_path':
+            'ckpt/model_config.json',
+            'ckpt_path':
+            'ckpt/model_state.pdparams',
+            'vocab_file':
+            'punc_vocab.txt',
+        }
+    }
 }
 
 # ---------------------------------
@@ -689,6 +946,22 @@ tts_dynamic_pretrained_models = {
             'speaker_id_map.txt',
         },
     },
+    "fastspeech2_male-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_ckpt_1.3.0.zip',
+            'md5':
+            'a4b1a2f667b878ec8f67375357b04282',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_76000.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+        },
+    },
     # tacotron2
     "tacotron2_csmsc-zh": {
         '1.0': {
@@ -775,6 +1048,20 @@ tts_dynamic_pretrained_models = {
             'default.yaml',
             'ckpt':
             'snapshot_iter_1500000.pdz',
+            'speech_stats':
+            'feats_stats.npy',
+        },
+    },
+    "pwgan_male-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_male_ckpt_1.3.0.zip',
+            'md5':
+            'c98cdb889c809973f8cc764437311132',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_200000.pdz',
             'speech_stats':
             'feats_stats.npy',
         },

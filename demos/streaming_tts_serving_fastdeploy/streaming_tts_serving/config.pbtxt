@@ -1,0 +1,33 @@
+name: "streaming_tts_serving"
+backend: "python"
+max_batch_size: 0
+model_transaction_policy {
+  decoupled: True
+}
+input [
+  {
+    name: "INPUT_0"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+
+output [
+  {
+    name: "OUTPUT_0"
+    data_type: TYPE_FP32
+    dims: [ -1, 1 ]
+  },
+  {
+    name: "status"
+    data_type: TYPE_BOOL
+    dims: [ 1 ]
+  }
+]
+
+instance_group [
+  {
+      count: 1
+      kind: KIND_CPU
+  }
+]

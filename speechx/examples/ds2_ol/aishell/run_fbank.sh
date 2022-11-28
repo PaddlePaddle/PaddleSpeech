@@ -84,7 +84,7 @@ fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     #  recognizer
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.wolm.log \
-    ctc_prefix_beam_search_decoder_main \
+    ctc_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \
@@ -102,7 +102,7 @@ fi
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     #  decode with lm
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.lm.log \
-    ctc_prefix_beam_search_decoder_main \
+    ctc_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \
@@ -133,7 +133,7 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     #  TLG decoder
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.fbank.wfst.log \
-    tlg_decoder_main \
+    ctc_tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/fbank_feat.scp \
         --model_path=$model_dir/avg_5.jit.pdmodel \
         --param_path=$model_dir/avg_5.jit.pdiparams \

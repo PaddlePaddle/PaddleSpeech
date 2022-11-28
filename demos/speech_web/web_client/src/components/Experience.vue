@@ -6,6 +6,10 @@ import TTST from './SubMenu/TTS/TTST.vue'
 import VPRT from './SubMenu/VPR/VPRT.vue'
 import IET from './SubMenu/IE/IET.vue'
 
+import VoiceCloneT from './SubMenu/VoiceClone/VoiceClone.vue'
+import ERNIE_SATT from './SubMenu/ERNIE_SAT/ERNIE_SAT.vue'
+import FineTuneT from './SubMenu/FineTune/FineTune.vue'
+
 </script>
 
 <template>
@@ -36,6 +40,15 @@ import IET from './SubMenu/IE/IET.vue'
             </el-tab-pane>
             <el-tab-pane label="语音指令" key="5">
             <IET></IET>
+            </el-tab-pane>
+            <el-tab-pane label="一句话合成" key="6">
+            <VoiceCloneT></VoiceCloneT>
+            </el-tab-pane>
+            <el-tab-pane label="小数据微调" key="7">
+            <FineTuneT></FineTuneT>
+            </el-tab-pane>
+            <el-tab-pane label="ERNIE-SAT" key="8">
+            <ERNIE_SATT></ERNIE_SATT>
             </el-tab-pane>
           </el-tabs>
         </div>

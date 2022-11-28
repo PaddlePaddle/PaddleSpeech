@@ -13,7 +13,7 @@ For service interface definition, please check:
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-It is recommended to use **paddlepaddle 2.3.1** or above.
+It is recommended to use **paddlepaddle 2.4rc** or above.
 
 You can choose one way from easy, meduim and hard to install paddlespeech.
 

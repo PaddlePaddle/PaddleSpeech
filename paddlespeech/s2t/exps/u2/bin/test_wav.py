@@ -16,6 +16,8 @@ import os
 import sys
 from pathlib import Path
 
+import distutils
+import numpy as np
 import paddle
 import soundfile
 from yacs.config import CfgNode
@@ -40,7 +42,6 @@ class U2Infer():
         self.preprocess_conf = config.preprocess_config
         self.preprocess_args = {"train": False}
         self.preprocessing = Transformation(self.preprocess_conf)
-
         self.text_feature = TextFeaturizer(
             unit_type=config.unit_type,
             vocab=config.vocab_filepath,
@@ -69,17 +70,20 @@ class U2Infer():
             # read
             audio, sample_rate = soundfile.read(
                 self.audio_file, dtype="int16", always_2d=True)
-
             audio = audio[:, 0]
             logger.info(f"audio shape: {audio.shape}")
 
             # fbank
             feat = self.preprocessing(audio, **self.preprocess_args)
             logger.info(f"feat shape: {feat.shape}")
+            if self.args.debug:
+                np.savetxt("feat.transform.txt", feat)
 
             ilen = paddle.to_tensor(feat.shape[0])
-            xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(axis=0)
+            xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
             decode_config = self.config.decode
+            logger.info(f"decode cfg: {decode_config}")
+            reverse_weight = getattr(decode_config, 'reverse_weight', 0.0)
             result_transcripts = self.model.decode(
                 xs,
                 ilen,
@@ -89,7 +93,8 @@ class U2Infer():
                 ctc_weight=decode_config.ctc_weight,
                 decoding_chunk_size=decode_config.decoding_chunk_size,
                 num_decoding_left_chunks=decode_config.num_decoding_left_chunks,
-                simulate_streaming=decode_config.simulate_streaming)
+                simulate_streaming=decode_config.simulate_streaming,
+                reverse_weight=reverse_weight)
             rsl = result_transcripts[0][0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {result_transcripts[0][0]}")
@@ -125,6 +130,11 @@ if __name__ == "__main__":
         "--result_file", type=str, help="path of save the asr result")
     parser.add_argument(
         "--audio_file", type=str, help="path of the input audio file")
+    parser.add_argument(
+        "--debug",
+        type=distutils.util.strtobool,
+        default=False,
+        help="for debug.")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

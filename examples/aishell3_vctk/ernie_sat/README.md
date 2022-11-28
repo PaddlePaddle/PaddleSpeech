@@ -1,5 +1,5 @@
-# ERNIE-SAT with VCTK dataset
-ERNIE-SAT speech-text joint pretraining framework, which achieves SOTA results in cross-lingual multi-speaker speech synthesis and cross-lingual speech editing tasks, It can be applied to a series of scenarios such as Speech Editing, personalized Speech Synthesis, and Voice Cloning.
+# ERNIE-SAT with AISHELL-3 and VCTK dataset
+[ERNIE-SAT](https://arxiv.org/abs/2211.03545) speech-text joint pretraining framework, which achieves SOTA results in cross-lingual multi-speaker speech synthesis and cross-lingual speech editing tasks, It can be applied to a series of scenarios such as Speech Editing, personalized Speech Synthesis, and Voice Cloning.
 
 ## Model Framework
 In ERNIE-SAT, we propose two innovations:

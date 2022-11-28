@@ -361,7 +361,7 @@ class DataLoaderFactory():
             elif mode == 'valid':
                 config['manifest'] = config.dev_manifest
                 config['train_mode'] = False
-            elif model == 'test' or mode == 'align':
+            elif mode == 'test' or mode == 'align':
                 config['manifest'] = config.test_manifest
                 config['train_mode'] = False
                 config['dither'] = 0.0

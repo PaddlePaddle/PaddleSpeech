@@ -19,13 +19,11 @@
 </p>
 <div align="center">  
 <h4>
-  <a href="#安装"> 安装 </a>
+    <a href="#安装"> 安装 </a>
   | <a href="#快速开始"> 快速开始 </a>
-  | <a href="#快速使用服务"> 快速使用服务 </a>
-  | <a href="#快速使用流式服务"> 快速使用流式服务 </a>
   | <a href="#教程文档"> 教程文档 </a>
   | <a href="#模型列表"> 模型列表 </a>
-  | <a href="https://aistudio.baidu.com/aistudio/education/group/info/25130"> AIStudio 课程 </a>
+  | <a href="https://aistudio.baidu.com/aistudio/course/introduce/25130"> AIStudio 课程 </a>
   | <a href="https://arxiv.org/abs/2205.12007"> NAACL2022 论文 </a>
   | <a href="https://gitee.com/paddlepaddle/PaddleSpeech"> Gitee 
 </h4>
@@ -164,25 +162,20 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 
-### 近期活动
-
- ❗️重磅❗️飞桨智慧金融行业系列直播课
-✅ 覆盖智能风控、智能运维、智能营销、智能客服四大金融主流场景
-
-📆 9月6日-9月29日每周二、四19:00
-+ 智慧金融行业深入洞察
-+ 8节理论+实践精品直播课
-+ 10+真实产业场景范例教学及实践
-+ 更有免费算力+结业证书等礼品等你来拿
-扫码报名码住直播链接，与行业精英深度交流
-
-<div align="center">
-<img src="https://user-images.githubusercontent.com/30135920/188431897-a02f028f-dd13-41e8-8ff6-749468cdc850.jpg"  width = "200"  />
-</div>
-
+  
 ### 近期更新
+- 👑 2022.11.18: 新增 [Whisper CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/pull/2640)，支持多种语言的识别与翻译。
+- 🔥 2022.11.18: 新增 [Wav2vec2 CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_ssl), 支持 ASR 和 特征提取.
+- 🎉 2022.11.17: TTS 新增[高质量男性音色](https://github.com/PaddlePaddle/PaddleSpeech/pull/2660)。
+- 🔥 2022.11.07: 新增 [U2/U2++ 高性能流式 ASR C++ 部署](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/speechx/examples/u2pp_ol/wenetspeech)。
+- 👑 2022.11.01: [中英文混合 TTS](./examples/zh_en_tts/tts3) 新增 [Adversarial Loss](https://arxiv.org/pdf/1907.04448.pdf) 模块。
+- 🔥 2022.10.26: TTS 新增[韵律预测](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy)功能。
+- 🎉 2022.10.21: TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
+- 👑 2022.10.11: 新增 [Wav2vec2ASR-en](./examples/librispeech/asr3), 在 LibriSpeech 上针对 ASR 任务对 wav2vec2.0 的 finetuning。
+- 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 [ERNIE-SAT](https://arxiv.org/abs/2211.03545) 到 [PaddleSpeech 网页应用](./demos/speech_web)。
+- ⚡ 2022.09.09: 新增基于 ECAPA-TDNN 声纹模型的 AISHELL-3 Voice Cloning [示例](./examples/aishell3/vc2)。
 - ⚡ 2022.08.25: 发布 TTS [finetune](./examples/other/tts_finetune/tts3) 示例。
-- 🔥 2022.08.22: 新增 ERNIE-SAT 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
+- 🔥 2022.08.22: 新增 [ERNIE-SAT](https://arxiv.org/abs/2211.03545) 模型: [ERNIE-SAT-vctk](./examples/vctk/ernie_sat)、[ERNIE-SAT-aishell3](./examples/aishell3/ernie_sat)、[ERNIE-SAT-zh_en](./examples/aishell3_vctk/ernie_sat)。
 - 🔥 2022.08.15: 将 [g2pW](https://github.com/GitYCC/g2pW) 引入 TTS 中文文本前端。
 - 🔥 2022.08.09: 发布[中英文混合 TTS](./examples/zh_en_tts/tts3)。
 - ⚡ 2022.08.03: TTS CLI 新增 ONNXRuntime 推理方式。
@@ -199,13 +192,13 @@
 
  ### 🔥 加入技术交流群获取入群福利
 
- - 3 日直播课链接: 深度解读 PP-TTS、PP-ASR、PP-VPR 三项核心语音系统关键技术
+ - 3 日直播课链接: 深度解读 【一句话语音合成】【小样本语音合成】【定制化语音识别】语音交互技术
  - 20G 学习大礼包：视频课程、前沿论文与学习资料
   
 微信扫描二维码关注公众号，点击“马上报名”填写问卷加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/23690325/169763015-cbd8e28d-602c-4723-810d-dbc6da49441e.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
 </div>
 
 <a name="安装"></a>
@@ -215,7 +208,7 @@
 
 ### 相关依赖
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.3.1
++ paddlepaddle >= 2.4rc
 + python >= 3.7
 + linux(推荐), mac, windows
 
@@ -224,7 +217,13 @@ PaddleSpeech 依赖于 paddlepaddle，安装可以参考[ paddlepaddle 官网](h
 ```shell
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 ```
-
+你也可以安装指定版本的paddlepaddle，或者安装 develop 版本。
+```bash
+# 安装2.3.1版本. 注意：2.3.1只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
+pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# 安装 develop 版本
+pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
+```
 PaddleSpeech 快速安装方式有两种，一种是 pip 安装，一种是源码编译（推荐）。
 
 ### pip 安装
@@ -581,7 +580,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
       </td>
     </tr>
     <tr>
-      <td>ERNIE-SAT</td>
+      <td><a href = "https://arxiv.org/abs/2211.03545">ERNIE-SAT</a></td>
       <td>VCTK / AISHELL-3 / ZH_EN</td>
       <td>
       <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>
@@ -702,6 +701,31 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 </table>
 
 
+<a name="语音唤醒模型"></a>
+
+**语音唤醒**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>语音唤醒</td>
+      <td>hey-snips</td>
+      <td>MDTC</td>
+      <td>
+      <a href = "./examples/hey_snips/kws0">mdtc-hey-snips</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <a name="声纹识别模型"></a>
 
 **声纹识别**
@@ -717,11 +741,36 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   </thead>
   <tbody>
   <tr>
-      <td>Speaker Verification</td>
-      <td>VoxCeleb12</td>
+      <td>声纹识别</td>
+      <td>VoxCeleb1/2</td>
       <td>ECAPA-TDNN</td>
       <td>
       <a href = "./examples/voxceleb/sv0">ecapa-tdnn-voxceleb12</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<a name="说话人日志模型"></a>
+
+**说话人日志**
+
+<table style="width:100%">
+  <thead>
+    <tr>
+      <th> 任务 </th>
+      <th> 数据集 </th>
+      <th> 模型类型 </th>
+      <th> 脚本 </th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+      <td>说话人日志</td>
+      <td>AMI</td>
+      <td>ECAPA-TDNN + AHC / SC</td>
+      <td>
+      <a href = "./examples/ami/sd0">ecapa-tdnn-ami</a>
       </td>
     </tr>
   </tbody>
@@ -786,6 +835,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
   - [语音合成](#语音合成模型)
   - [声音分类](#声音分类模型)
   - [声纹识别](#声纹识别模型)
+  - [说话人日志](#说话人日志模型)
   - [标点恢复](#标点恢复模型)
 - [技术交流群](#技术交流群)
 - [欢迎贡献](#欢迎贡献)
@@ -814,6 +864,20 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 要引用 PaddleSpeech 进行研究，请使用以下格式进行引用。
 ```text
+@InProceedings{pmlr-v162-bai22d,
+  title = {{A}$^3${T}: Alignment-Aware Acoustic and Text Pretraining for Speech Synthesis and Editing},
+  author = {Bai, He and Zheng, Renjie and Chen, Junkun and Ma, Mingbo and Li, Xintong and Huang, Liang},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning},
+  pages = {1399--1411},
+  year = {2022},
+  volume = {162},
+  series = {Proceedings of Machine Learning Research},
+  month = {17--23 Jul},
+  publisher = {PMLR},
+  pdf = {https://proceedings.mlr.press/v162/bai22d/bai22d.pdf},
+  url = {https://proceedings.mlr.press/v162/bai22d.html},
+}
+
 @inproceedings{zhang2022paddlespeech,
     title = {PaddleSpeech: An Easy-to-Use All-in-One Speech Toolkit},
     author = {Hui Zhang, Tian Yuan, Junkun Chen, Xintong Li, Renjie Zheng, Yuxin Huang, Xiaojie Chen, Enlei Gong, Zeyu Chen, Xiaoguang Hu, dianhai yu, Yanjun Ma, Liang Huang},
@@ -910,7 +974,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 
 ## 致谢
 - 非常感谢 [HighCWu](https://github.com/HighCWu) 新增 [VITS-aishell3](./examples/aishell3/vits) 和 [VITS-VC](./examples/aishell3/vits-vc) 代码示例。
-- 非常感谢 [david-95](https://github.com/david-95) 修复句尾多标点符号出错的问题，贡献补充多条程序和数据。
+- 非常感谢 [david-95](https://github.com/david-95) 修复 TTS 句尾多标点符号出错的问题，贡献补充多条程序和数据。为 TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
 - 非常感谢 [BarryKCL](https://github.com/BarryKCL) 基于 [G2PW](https://github.com/GitYCC/g2pW) 对 TTS 中文文本前端的优化。
 - 非常感谢 [yeyupiaoling](https://github.com/yeyupiaoling)/[PPASR](https://github.com/yeyupiaoling/PPASR)/[PaddlePaddle-DeepSpeech](https://github.com/yeyupiaoling/PaddlePaddle-DeepSpeech)/[VoiceprintRecognition-PaddlePaddle](https://github.com/yeyupiaoling/VoiceprintRecognition-PaddlePaddle)/[AudioClassification-PaddlePaddle](https://github.com/yeyupiaoling/AudioClassification-PaddlePaddle) 多年来的关注和建议，以及在诸多问题上的帮助。
 - 非常感谢 [mymagicpower](https://github.com/mymagicpower) 采用PaddleSpeech 对 ASR 的[短语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_sdk)及[长语音](https://github.com/mymagicpower/AIAS/tree/main/3_audio_sdks/asr_long_audio_sdk)进行 Java 实现。

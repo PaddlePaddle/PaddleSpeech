@@ -30,6 +30,7 @@ Submodules
 
    paddlespeech.t2s.exps.inference
    paddlespeech.t2s.exps.inference_streaming
+   paddlespeech.t2s.models.vits.monotonic_align
    paddlespeech.t2s.exps.ort_predict
    paddlespeech.t2s.exps.ort_predict_e2e
    paddlespeech.t2s.exps.ort_predict_streaming

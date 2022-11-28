@@ -1,5 +1,3 @@
-project(frontend)
-
 add_library(frontend STATIC
   cmvn.cc
   db_norm.cc

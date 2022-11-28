@@ -35,7 +35,6 @@ from paddlespeech.s2t.modules.mask import make_xs_mask
 from paddlespeech.s2t.modules.mask import subsequent_mask
 from paddlespeech.s2t.modules.positionwise_feed_forward import PositionwiseFeedForward
 from paddlespeech.s2t.utils.log import Log
-
 logger = Log(__name__).getlog()
 
 __all__ = ["TransformerDecoder"]
@@ -116,13 +115,19 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             memory: paddle.Tensor,
             memory_mask: paddle.Tensor,
             ys_in_pad: paddle.Tensor,
-            ys_in_lens: paddle.Tensor, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+            ys_in_lens: paddle.Tensor,
+            r_ys_in_pad: paddle.Tensor=paddle.empty([0]),
+            reverse_weight: float=0.0) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Forward decoder.
         Args:
             memory: encoded memory, float32  (batch, maxlen_in, feat)
             memory_mask: encoder memory mask, (batch, 1, maxlen_in)
             ys_in_pad: padded input token ids, int64 (batch, maxlen_out)
             ys_in_lens: input lengths of this batch (batch)
+            r_ys_in_pad: not used in transformer decoder, in order to unify api
+                with bidirectional decoder
+            reverse_weight: not used in transformer decoder, in order to unify
+                api with bidirectional decode
         Returns:
             (tuple): tuple containing:
                 x: decoded token score before softmax (batch, maxlen_out, vocab_size)
@@ -135,9 +140,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         # m: (1, L, L)
         m = subsequent_mask(tgt_mask.shape[-1]).unsqueeze(0)
         # tgt_mask: (B, L, L)
-        # TODO(Hui Zhang): not support & for tensor
-        # tgt_mask = tgt_mask & m
-        tgt_mask = tgt_mask.logical_and(m)
+        tgt_mask = tgt_mask & m
 
         x, _ = self.embed(tgt)
         for layer in self.decoders:
@@ -148,10 +151,8 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         if self.use_output_layer:
             x = self.output_layer(x)
 
-        # TODO(Hui Zhang): reduce_sum not support bool type
-        # olens = tgt_mask.sum(1)
-        olens = tgt_mask.astype(paddle.int).sum(1)
-        return x, olens
+        olens = tgt_mask.sum(1)
+        return x, paddle.to_tensor(0.0), olens
 
     def forward_one_step(
             self,
@@ -242,7 +243,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             ]
 
         # batch decoding
-        ys_mask = subsequent_mask(paddle.shape(ys)[-1]).unsqueeze(0)  # (B,L,L)
+        ys_mask = subsequent_mask(ys.shape[-1]).unsqueeze(0)  # (B,L,L)
         xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
         logp, states = self.forward_one_step(
             xs, xs_mask, ys, ys_mask, cache=batch_state)
@@ -251,3 +252,119 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         state_list = [[states[i][b] for i in range(n_layers)]
                       for b in range(n_batch)]
         return logp, state_list
+
+
+class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
+    """Base class of Transfomer decoder module.
+    Args:
+        vocab_size: output dim
+        encoder_output_size: dimension of attention
+        attention_heads: the number of heads of multi head attention
+        linear_units: the hidden units number of position-wise feedforward
+        num_blocks: the number of decoder blocks
+        r_num_blocks: the number of right to left decoder blocks
+        dropout_rate: dropout rate
+        self_attention_dropout_rate: dropout rate for attention
+        input_layer: input layer type
+        use_output_layer: whether to use output layer
+        pos_enc_class: PositionalEncoding or ScaledPositionalEncoding
+        normalize_before:
+            True: use layer_norm before each sub-block of a layer.
+            False: use layer_norm after each sub-block of a layer.
+        concat_after: whether to concat attention layer's input and output
+            True: x -> x + linear(concat(x, att(x)))
+            False: x -> x + att(x)
+    """
+
+    def __init__(self,
+                 vocab_size: int,
+                 encoder_output_size: int,
+                 attention_heads: int=4,
+                 linear_units: int=2048,
+                 num_blocks: int=6,
+                 r_num_blocks: int=0,
+                 dropout_rate: float=0.1,
+                 positional_dropout_rate: float=0.1,
+                 self_attention_dropout_rate: float=0.0,
+                 src_attention_dropout_rate: float=0.0,
+                 input_layer: str="embed",
+                 use_output_layer: bool=True,
+                 normalize_before: bool=True,
+                 concat_after: bool=False,
+                 max_len: int=5000):
+
+        assert check_argument_types()
+
+        nn.Layer.__init__(self)
+        self.left_decoder = TransformerDecoder(
+            vocab_size, encoder_output_size, attention_heads, linear_units,
+            num_blocks, dropout_rate, positional_dropout_rate,
+            self_attention_dropout_rate, src_attention_dropout_rate,
+            input_layer, use_output_layer, normalize_before, concat_after,
+            max_len)
+
+        self.right_decoder = TransformerDecoder(
+            vocab_size, encoder_output_size, attention_heads, linear_units,
+            r_num_blocks, dropout_rate, positional_dropout_rate,
+            self_attention_dropout_rate, src_attention_dropout_rate,
+            input_layer, use_output_layer, normalize_before, concat_after,
+            max_len)
+
+    def forward(
+            self,
+            memory: paddle.Tensor,
+            memory_mask: paddle.Tensor,
+            ys_in_pad: paddle.Tensor,
+            ys_in_lens: paddle.Tensor,
+            r_ys_in_pad: paddle.Tensor,
+            reverse_weight: float=0.0,
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+        """Forward decoder.
+        Args:
+            memory: encoded memory, float32  (batch, maxlen_in, feat)
+            memory_mask: encoder memory mask, (batch, 1, maxlen_in)
+            ys_in_pad: padded input token ids, int64 (batch, maxlen_out)
+            ys_in_lens: input lengths of this batch (batch)
+            r_ys_in_pad: padded input token ids, int64 (batch, maxlen_out),
+                used for right to left decoder
+            reverse_weight: used for right to left decoder
+        Returns:
+            (tuple): tuple containing:
+                x: decoded token score before softmax (batch, maxlen_out,
+                    vocab_size) if use_output_layer is True,
+                r_x: x: decoded token score (right to left decoder)
+                    before softmax (batch, maxlen_out, vocab_size)
+                    if use_output_layer is True,
+                olens: (batch, )
+        """
+        l_x, _, olens = self.left_decoder(memory, memory_mask, ys_in_pad,
+                                          ys_in_lens)
+        r_x = paddle.zeros([1])
+        if reverse_weight > 0.0:
+            r_x, _, olens = self.right_decoder(memory, memory_mask, r_ys_in_pad,
+                                               ys_in_lens)
+        return l_x, r_x, olens
+
+    def forward_one_step(
+            self,
+            memory: paddle.Tensor,
+            memory_mask: paddle.Tensor,
+            tgt: paddle.Tensor,
+            tgt_mask: paddle.Tensor,
+            cache: Optional[List[paddle.Tensor]]=None,
+    ) -> Tuple[paddle.Tensor, List[paddle.Tensor]]:
+        """Forward one step.
+            This is only used for decoding.
+        Args:
+            memory: encoded memory, float32  (batch, maxlen_in, feat)
+            memory_mask: encoded memory mask, (batch, 1, maxlen_in)
+            tgt: input token ids, int64 (batch, maxlen_out)
+            tgt_mask: input token mask,  (batch, maxlen_out, maxlen_out)
+                      dtype=paddle.bool
+            cache: cached output list of (batch, max_time_out-1, size)
+        Returns:
+            y, cache: NN output value and cache per `self.decoders`.
+            y.shape` is (batch, maxlen_out, token)
+        """
+        return self.left_decoder.forward_one_step(memory, memory_mask, tgt,
+                                                  tgt_mask, cache)

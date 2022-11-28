@@ -12,7 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   paddlespeech.t2s.models.vits.monotonic_align
    paddlespeech.t2s.models.vits.wavenet
 
 Submodules

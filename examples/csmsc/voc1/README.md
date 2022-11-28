@@ -136,6 +136,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [pwgan_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_onnx_0.2.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [pwgan_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_pdlite_1.3.0.zip)
+
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss| eval/spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:
 default| 1(gpu) x 400000|1.948763|0.670098|0.248882

@@ -45,6 +45,7 @@ class MultiHeadedAttention(nn.Layer):
         """
         super().__init__()
         assert n_feat % n_head == 0
+        self.n_feat = n_feat
         # We assume d_v always equals d_k
         self.d_k = n_feat // n_head
         self.h = n_head
@@ -73,9 +74,11 @@ class MultiHeadedAttention(nn.Layer):
                 (#batch, n_head, time2, d_k).
         """
         n_batch = query.shape[0]
+
         q = self.linear_q(query).view(n_batch, -1, self.h, self.d_k)
         k = self.linear_k(key).view(n_batch, -1, self.h, self.d_k)
         v = self.linear_v(value).view(n_batch, -1, self.h, self.d_k)
+
         q = q.transpose([0, 2, 1, 3])  # (batch, head, time1, d_k)
         k = k.transpose([0, 2, 1, 3])  # (batch, head, time2, d_k)
         v = v.transpose([0, 2, 1, 3])  # (batch, head, time2, d_k)
@@ -108,10 +111,10 @@ class MultiHeadedAttention(nn.Layer):
         # When will `if mask.size(2) > 0` be False?
         # 1. onnx(16/-1, -1/-1, 16/0)
         # 2. jit (16/-1, -1/-1, 16/0, 16/4)
-        if paddle.shape(mask)[2] > 0:  # time2 > 0
+        if mask.shape[2] > 0:  # time2 > 0
             mask = mask.unsqueeze(1).equal(0)  # (batch, 1, *, time2)
             # for last chunk, time2 might be larger than scores.size(-1)
-            mask = mask[:, :, :, :paddle.shape(scores)[-1]]
+            mask = mask[:, :, :, :scores.shape[-1]]
             scores = scores.masked_fill(mask, -float('inf'))
             attn = paddle.softmax(
                 scores, axis=-1).masked_fill(mask,
@@ -179,7 +182,7 @@ class MultiHeadedAttention(nn.Layer):
         # >>> torch.equal(b, c)        # True
         # >>> d = torch.split(a, 2, dim=-1)
         # >>> torch.equal(d[0], d[1])  # True
-        if paddle.shape(cache)[0] > 0:
+        if cache.shape[0] > 0:
             # last dim `d_k * 2` for (key, val)
             key_cache, value_cache = paddle.split(cache, 2, axis=-1)
             k = paddle.concat([key_cache, k], axis=2)
@@ -188,8 +191,9 @@ class MultiHeadedAttention(nn.Layer):
         #   non-trivial to calculate `next_cache_start` here.
         new_cache = paddle.concat((k, v), axis=-1)
 
-        scores = paddle.matmul(q,
-                               k.transpose([0, 1, 3, 2])) / math.sqrt(self.d_k)
+        # scores = paddle.matmul(q,
+        #    k.transpose([0, 1, 3, 2])) / math.sqrt(self.d_k)
+        scores = paddle.matmul(q, k, transpose_y=True) / math.sqrt(self.d_k)
         return self.forward_attention(v, scores, mask), new_cache
 
 
@@ -270,7 +274,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
                 and `head * d_k == size`
         """
         q, k, v = self.forward_qkv(query, key, value)
-        q = q.transpose([0, 2, 1, 3])  # (batch, time1, head, d_k)
+        # q = q.transpose([0, 2, 1, 3])  # (batch, time1, head, d_k)
 
         #   when export onnx model, for 1st chunk, we feed
         #       cache(1, head, 0, d_k * 2) (16/-1, -1/-1, 16/0 mode)
@@ -287,7 +291,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         # >>> torch.equal(b, c)        # True
         # >>> d = torch.split(a, 2, dim=-1)
         # >>> torch.equal(d[0], d[1])  # True
-        if paddle.shape(cache)[0] > 0:
+        if cache.shape[0] > 0:
             # last dim `d_k * 2` for (key, val)
             key_cache, value_cache = paddle.split(cache, 2, axis=-1)
             k = paddle.concat([key_cache, k], axis=2)
@@ -301,19 +305,23 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         p = p.transpose([0, 2, 1, 3])  # (batch, head, time1, d_k)
 
         # (batch, head, time1, d_k)
-        q_with_bias_u = (q + self.pos_bias_u).transpose([0, 2, 1, 3])
+        # q_with_bias_u = (q + self.pos_bias_u).transpose([0, 2, 1, 3])
+        q_with_bias_u = q + self.pos_bias_u.unsqueeze(1)
         # (batch, head, time1, d_k)
-        q_with_bias_v = (q + self.pos_bias_v).transpose([0, 2, 1, 3])
+        # q_with_bias_v = (q + self.pos_bias_v).transpose([0, 2, 1, 3])
+        q_with_bias_v = q + self.pos_bias_v.unsqueeze(1)
 
         # compute attention score
         # first compute matrix a and matrix c
         # as described in https://arxiv.org/abs/1901.02860 Section 3.3
         # (batch, head, time1, time2)
-        matrix_ac = paddle.matmul(q_with_bias_u, k.transpose([0, 1, 3, 2]))
+        # matrix_ac = paddle.matmul(q_with_bias_u, k.transpose([0, 1, 3, 2]))
+        matrix_ac = paddle.matmul(q_with_bias_u, k, transpose_y=True)
 
         # compute matrix b and matrix d
         # (batch, head, time1, time2)
-        matrix_bd = paddle.matmul(q_with_bias_v, p.transpose([0, 1, 3, 2]))
+        # matrix_bd = paddle.matmul(q_with_bias_v, p.transpose([0, 1, 3, 2]))
+        matrix_bd = paddle.matmul(q_with_bias_v, p, transpose_y=True)
         # Remove rel_shift since it is useless in speech recognition,
         # and it requires special attention for streaming.
         # matrix_bd = self.rel_shift(matrix_bd)

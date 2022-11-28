@@ -13,6 +13,7 @@
 # limitations under the License.
 import math
 import os
+import re
 from pathlib import Path
 from typing import Any
 from typing import Dict
@@ -25,6 +26,8 @@ import paddle
 from paddle import inference
 from paddle import jit
 from paddle.static import InputSpec
+from paddlelite.lite import create_paddle_predictor
+from paddlelite.lite import MobileConfig
 from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.data_table import DataTable
@@ -33,6 +36,7 @@ from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
+
 # remove [W:onnxruntime: xxx] from ort
 ort.set_default_logger_severity(3)
 
@@ -103,14 +107,15 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     sentences = []
     with open(text_file, 'rt') as f:
         for line in f:
-            items = line.strip().split()
-            utt_id = items[0]
-            if lang == 'zh':
-                sentence = "".join(items[1:])
-            elif lang == 'en':
-                sentence = " ".join(items[1:])
-            elif lang == 'mix':
-                sentence = " ".join(items[1:])
+            if line.strip() != "":
+                items = re.split(r"\s+", line.strip(), 1)
+                utt_id = items[0]
+                if lang == 'zh':
+                    sentence = "".join(items[1:])
+                elif lang == 'en':
+                    sentence = " ".join(items[1:])
+                elif lang == 'mix':
+                    sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
     return sentences
 
@@ -180,11 +185,20 @@ def run_frontend(frontend: object,
                  to_tensor: bool=True):
     outs = dict()
     if lang == 'zh':
-        input_ids = frontend.get_input_ids(
-            text,
-            merge_sentences=merge_sentences,
-            get_tone_ids=get_tone_ids,
-            to_tensor=to_tensor)
+        input_ids = {}
+        if text.strip() != "" and re.match(r".*?<speak>.*?</speak>.*", text,
+                                           re.DOTALL):
+            input_ids = frontend.get_input_ids_ssml(
+                text,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                to_tensor=to_tensor)
+        else:
+            input_ids = frontend.get_input_ids(
+                text,
+                merge_sentences=merge_sentences,
+                get_tone_ids=get_tone_ids,
+                to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]
@@ -498,3 +512,105 @@ def get_sess(model_path: Optional[os.PathLike],
     sess = ort.InferenceSession(
         model_path, providers=providers, sess_options=sess_options)
     return sess
+
+
+# Paddle-Lite
+def get_lite_predictor(model_dir: Optional[os.PathLike]=None,
+                       model_file: Optional[os.PathLike]=None,
+                       cpu_threads: int=1):
+    config = MobileConfig()
+    config.set_model_from_file(str(Path(model_dir) / model_file))
+    predictor = create_paddle_predictor(config)
+    return predictor
+
+
+def get_lite_am_output(
+        input: str,
+        am_predictor,
+        am: str,
+        frontend: object,
+        lang: str='zh',
+        merge_sentences: bool=True,
+        speaker_dict: Optional[os.PathLike]=None,
+        spk_id: int=0, ):
+    am_name = am[:am.rindex('_')]
+    am_dataset = am[am.rindex('_') + 1:]
+    get_spk_id = False
+    get_tone_ids = False
+    if am_name == 'speedyspeech':
+        get_tone_ids = True
+    if am_dataset in {"aishell3", "vctk", "mix"} and speaker_dict:
+        get_spk_id = True
+        spk_id = np.array([spk_id])
+
+    frontend_dict = run_frontend(
+        frontend=frontend,
+        text=input,
+        merge_sentences=merge_sentences,
+        get_tone_ids=get_tone_ids,
+        lang=lang)
+
+    if get_tone_ids:
+        tone_ids = frontend_dict['tone_ids']
+        tones = tone_ids[0].numpy()
+        tones_handle = am_predictor.get_input(1)
+        tones_handle.from_numpy(tones)
+
+    if get_spk_id:
+        spk_id_handle = am_predictor.get_input(1)
+        spk_id_handle.from_numpy(spk_id)
+    phone_ids = frontend_dict['phone_ids']
+    phones = phone_ids[0].numpy()
+    phones_handle = am_predictor.get_input(0)
+    phones_handle.from_numpy(phones)
+    am_predictor.run()
+    am_output_handle = am_predictor.get_output(0)
+    am_output_data = am_output_handle.numpy()
+    return am_output_data
+
+
+def get_lite_voc_output(voc_predictor, input):
+    mel_handle = voc_predictor.get_input(0)
+    mel_handle.from_numpy(input)
+    voc_predictor.run()
+    voc_output_handle = voc_predictor.get_output(0)
+    wav = voc_output_handle.numpy()
+    return wav
+
+
+def get_lite_am_sublayer_output(am_sublayer_predictor, input):
+    input_handle = am_sublayer_predictor.get_input(0)
+    input_handle.from_numpy(input)
+
+    am_sublayer_predictor.run()
+    am_sublayer_handle = am_sublayer_predictor.get_output(0)
+    am_sublayer_output = am_sublayer_handle.numpy()
+    return am_sublayer_output
+
+
+def get_lite_streaming_am_output(input: str,
+                                 am_encoder_infer_predictor,
+                                 am_decoder_predictor,
+                                 am_postnet_predictor,
+                                 frontend,
+                                 lang: str='zh',
+                                 merge_sentences: bool=True):
+    get_tone_ids = False
+    frontend_dict = run_frontend(
+        frontend=frontend,
+        text=input,
+        merge_sentences=merge_sentences,
+        get_tone_ids=get_tone_ids,
+        lang=lang)
+    phone_ids = frontend_dict['phone_ids']
+    phones = phone_ids[0].numpy()
+    am_encoder_infer_output = get_lite_am_sublayer_output(
+        am_encoder_infer_predictor, input=phones)
+    am_decoder_output = get_lite_am_sublayer_output(
+        am_decoder_predictor, input=am_encoder_infer_output)
+    am_postnet_output = get_lite_am_sublayer_output(
+        am_postnet_predictor, input=np.transpose(am_decoder_output, (0, 2, 1)))
+    am_output_data = am_decoder_output + np.transpose(am_postnet_output,
+                                                      (0, 2, 1))
+    normalized_mel = am_output_data[0]
+    return normalized_mel

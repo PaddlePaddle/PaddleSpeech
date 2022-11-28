@@ -33,7 +33,7 @@ filename =
 # Specify a list of codes to ignore.
 ignore =
     W503
-    E252,E262,E127,E265,E126,E266,E241,E261,E128,E125
+    E252,E262,E127,E265,E126,E266,E241,E261,E128,E125,E129
     W291,W293,W605
     E203,E305,E402,E501,E721,E741,F403,F405,F821,F841,F999,W503,W504,C408,E302,W291,E303,
     # shebang has extra meaning in fbcode lints, so I think it's not worth trying

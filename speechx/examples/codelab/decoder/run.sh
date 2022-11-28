@@ -69,7 +69,7 @@ compute_linear_spectrogram_main \
 echo "compute linear spectrogram feature."
 
 # run ctc beam search decoder as streaming
-ctc_prefix_beam_search_decoder_main \
+ctc_beam_search_decoder_main \
     --result_wspecifier=ark,t:$exp_dir/result.txt \
     --feature_rspecifier=ark:$feat_wspecifier \
     --model_path=$model_dir/avg_1.jit.pdmodel \

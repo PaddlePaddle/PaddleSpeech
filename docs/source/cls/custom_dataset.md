@@ -108,7 +108,7 @@ for epoch in range(1, epochs + 1):
         optimizer.clear_grad()
 
         # Calculate loss
-        avg_loss = loss.numpy()[0]
+        avg_loss = float(loss)
 
         # Calculate metrics
         preds = paddle.argmax(logits, axis=1)

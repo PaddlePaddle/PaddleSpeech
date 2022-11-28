@@ -41,6 +41,7 @@ import_alias = dict(
     utterance_cmvn="paddlespeech.audio.transform.cmvn:UtteranceCMVN",
     fbank="paddlespeech.audio.transform.spectrogram:LogMelSpectrogram",
     spectrogram="paddlespeech.audio.transform.spectrogram:Spectrogram",
+    wav_process="paddlespeech.audio.transform.spectrogram:WavProcess",
     stft="paddlespeech.audio.transform.spectrogram:Stft",
     istft="paddlespeech.audio.transform.spectrogram:IStft",
     stft2fbank="paddlespeech.audio.transform.spectrogram:Stft2LogMelSpectrogram",

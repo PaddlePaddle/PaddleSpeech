@@ -3,10 +3,13 @@
 ## Environment
 
 We develop under:
+* python - 3.7
 * docker - `registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7`
 * os - Ubuntu 16.04.7 LTS
 * gcc/g++/gfortran - 8.2.0
 * cmake - 3.16.0
+
+> Please use `tools/env.sh` to create python `venv`, then `source venv/bin/activate` to build speechx.
 
 > We make sure all things work fun under docker, and recommend using it to develop and deploy.
 
@@ -24,15 +27,22 @@ docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspace --nam
 
 * More `Paddle` docker images you can see [here](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html).
 
+2. Create python environment.
+
+```
+bash tools/venv.sh
+```
 
 2. Build `speechx` and `examples`.
 
-> Do not source venv.
-
+For now we are using feature under `develop` branch of paddle, so we need to install `paddlepaddle` nightly build version.
+For example: 
 ```
-pushd /path/to/speechx
+source venv/bin/activate
+python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ./build.sh
 ```
+
 
 3. Go to `examples` to have a fun.
 
@@ -60,3 +70,46 @@ popd
 
 ### Deepspeech2 with linear feature
 * DecibelNormalizer: there is a small difference between the offline and online db norm. The computation of online db norm reads features chunk by chunk, which causes the feature size to be different different with offline db norm. In `normalizer.cc:73`, the `samples.size()` is different, which causes the different result.
+
+## FAQ
+
+1. No moudle named `paddle`. 
+
+```
+CMake Error at CMakeLists.txt:119 (string):
+  string sub-command STRIP requires two arguments.
+
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'paddle'
+-- PADDLE_COMPILE_FLAGS=
+CMake Error at CMakeLists.txt:131 (string):
+  string sub-command STRIP requires two arguments.
+
+
+  File "<string>", line 1
+    import os; import paddle; include_dir=paddle.sysconfig.get_include(); paddle_dir=os.path.split(include_dir)[0]; libs_dir=os.path.join(paddle_dir, 'libs'); fluid_dir=os.path.join(paddle_dir, 'fluid'); out=':'.join([libs_dir, fluid_dir]); print(out);     
+    ^
+```
+
+please install paddlepaddle >= 2.4rc
+
+2. `u2_recognizer_main: error while loading shared libraries: liblibpaddle.so: cannot open shared object file: No such file or directory`
+
+
+```
+cd $YOUR_ENV_PATH/lib/python3.7/site-packages/paddle/fluid
+patchelf --set-soname libpaddle.so libpaddle.so
+```
+
+3. `u2_recognizer_main: error while loading shared libraries: libgfortran.so.5: cannot open shared object file: No such file or directory`
+
+```
+# my gcc version is 8.2
+apt-get install gfortran-8
+```
+
+4. `Undefined reference to '_gfortran_concat_string'`
+
+using gcc 8.2, gfortran 8.2.

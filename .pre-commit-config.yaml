@@ -53,8 +53,7 @@ repos:
         entry: bash .pre-commit-hooks/clang-format.hook -i
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
-        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin).*(\.cpp|\.cc|\.h|\.py)$
-
+        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h|\.py)$
     #-   id: copyright_checker
     #    name: copyright_checker
     #    entry: python .pre-commit-hooks/copyright-check.hook
@@ -62,6 +61,13 @@ repos:
     #    files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|proto|py)$
     #    exclude: (?=third_party|pypinyin|speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin).*(\.cpp|\.cc|\.h|\.py)$
 
+    -   id: cpplint
+        name: cpplint
+        description: Static code analysis of C/C++ files
+        language: python
+        files: \.(h\+\+|h|hh|hxx|hpp|cuh|c|cc|cpp|cu|c\+\+|cxx|tpp|txx)$
+        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h|\.py)$ 
+        entry: cpplint --filter=-build,-whitespace,+whitespace/comma,-whitespace/indent
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.4.0
     hooks:

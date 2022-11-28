@@ -12,8 +12,8 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 - Python >= 3.7
 - PaddlePaddle latest version (please refer to the [Installation Guide](https://www.paddlepaddle.org.cn/documentation/docs/en/beginners_guide/index_en.html))
 - C++ compilation environment
-- Hip: For Linux and Mac, do not use command `sh` instead of command `bash` in installation document.
-- Hip: We recommand you to install `paddlepaddle` from https://mirror.baidu.com/pypi/simple and install `paddlespeech` from https://pypi.tuna.tsinghua.edu.cn/simple. 
+- Tip: For Linux and Mac, do not use command `sh` instead of command `bash` in installation document.
+- Tip: We recommand you to install `paddlepaddle` from https://mirror.baidu.com/pypi/simple and install `paddlespeech` from https://pypi.tuna.tsinghua.edu.cn/simple. 
 
 ## Easy: Get the Basic Function (Support Linux, Mac, and Windows)
 - If you are newer to `PaddleSpeech` and want to experience it easily without your machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step [tutorial](https://aistudio.baidu.com/aistudio/education/group/info/25130) for `PaddleSpeech`, and you can use the basic function of `PaddleSpeech` with a free machine.
@@ -60,6 +60,13 @@ Then you can use the following commands:
 ```bash
 pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+You can also specify the version of paddlepaddle or install the develop version. 
+```bash
+# install 2.3.1 version. Note, 2.3.1 is just an example, please follow the minimum dependency of paddlepaddle for your selection
+pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# install develop version
+pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```
 > If you encounter problem with downloading **nltk_data** while using paddlespeech, it maybe due to your poor network, we suggest you download the [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) provided by us, and extract it to your `${HOME}`.
 
@@ -117,9 +124,14 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 (Hip: Do not use the last script if you want to install by **Hard** way):
 ### Install PaddlePaddle
-You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.5 install paddlepaddle-gpu 2.3.1:
+You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu 2.4rc:
 ```bash
-python3 -m pip install paddlepaddle-gpu==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# Note, 2.4rc is just an example, please follow the minimum dependency of paddlepaddle for your selection
+python3 -m pip install paddlepaddle-gpu==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
+```
+You can also install the develop version of paddlepaddle. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu develop:
+```bash
+python3 -m pip install paddlepaddle-gpu==0.0.0.post102 -f https://www.paddlepaddle.org.cn/whl/linux/gpu/develop.html
 ```
 ### Install PaddleSpeech 
 You can install  `paddlespeech`  by the following command，then you can use the `ready-made` examples in `paddlespeech` :
@@ -176,15 +188,21 @@ conda activate tools/venv
 conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### Install PaddlePaddle
-Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first；
+Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.6 install paddle 2.4rc:
+```bash
+# Note, 2.4rc is just an example, please follow the minimum dependency of paddlepaddle for your selection
+python3 -m pip install paddlepaddle-gpu==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
+```
+You can also install the develop version of paddlepaddle. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu develop:
+```bash
+python3 -m pip install paddlepaddle-gpu==0.0.0.post102 -f https://www.paddlepaddle.org.cn/whl/linux/gpu/develop.html
+```
+### Install PaddleSpeech in Developing Mode
+Some users may fail to install `kaldiio` due to the default download source, you can install `pytest-runner` at first:
 ```bash
 pip install pytest-runner -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
-Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.5 install paddle 2.3.1:
-```bash
-python3 -m pip install paddlepaddle-gpu==2.3.1 -i https://mirror.baidu.com/pypi/simple
-```
-### Install PaddleSpeech in Developing Mode
+Then install PaddleSpeech:
 ```bash
 pip install -e .[develop] -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```

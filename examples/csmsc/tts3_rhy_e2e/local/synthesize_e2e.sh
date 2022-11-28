@@ -25,9 +25,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --inference_dir=${train_output_path}/inference \
-        --rhy_prediction_model=${MAIN_ROOT}/examples/other/rhy/exp/default/snapshot_iter_2600.pdz \
-        --rhy_token=${MAIN_ROOT}/examples/other/rhy/data/rhy_token \
-        --rhy_config=${MAIN_ROOT}/examples/other/rhy/conf/default.yaml
+        --use_rhy
 fi
 
 # for more GAN Vocoders
@@ -49,9 +47,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --inference_dir=${train_output_path}/inference \
-        --rhy_prediction_model=${MAIN_ROOT}/examples/other/rhy/exp/default/snapshot_iter_2600.pdz \
-        --rhy_token=${MAIN_ROOT}/examples/other/rhy/data/rhy_token \
-        --rhy_config=${MAIN_ROOT}/examples/other/rhy/conf/default.yaml
+        --use_rhy
 fi
 
 # the pretrained models haven't release now
@@ -73,9 +69,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --text=${BIN_DIR}/../sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
-        --rhy_prediction_model=${MAIN_ROOT}/examples/other/rhy/exp/default/snapshot_iter_2600.pdz \
-        --rhy_token=${MAIN_ROOT}/examples/other/rhy/data/rhy_token \
-        --rhy_config=${MAIN_ROOT}/examples/other/rhy/conf/default.yaml
+        --use_rhy
         # --inference_dir=${train_output_path}/inference
 fi
 
@@ -98,9 +92,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --inference_dir=${train_output_path}/inference \
-        --rhy_prediction_model=${MAIN_ROOT}/examples/other/rhy/exp/default/snapshot_iter_2600.pdz \
-        --rhy_token=${MAIN_ROOT}/examples/other/rhy/data/rhy_token \
-        --rhy_config=${MAIN_ROOT}/examples/other/rhy/conf/default.yaml
+        --use_rhy
 fi
 
 
@@ -123,7 +115,5 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --inference_dir=${train_output_path}/inference \
-        --rhy_prediction_model=${MAIN_ROOT}/examples/other/rhy/exp/default/snapshot_iter_2600.pdz \
-        --rhy_token=${MAIN_ROOT}/examples/other/rhy/data/rhy_token \
-        --rhy_config=${MAIN_ROOT}/examples/other/rhy/conf/default.yaml
+        --use_rhy
 fi

@@ -84,7 +84,7 @@ class Frontend():
                  g2p_model="g2pW",
                  phone_vocab_path=None,
                  tone_vocab_path=None,
-                 rhy_tuple=None):
+                 use_rhy=False):
         self.mix_ssml_processor = MixTextProcessor()
         self.tone_modifier = ToneSandhi()
         self.text_normalizer = TextNormalizer()
@@ -107,9 +107,9 @@ class Frontend():
             '嘞': [['lei5']],
             '掺和': [['chan1'], ['huo5']]
         }
-        if rhy_tuple is not None:
-            self.rhy_predictor = Rhy_predictor(rhy_tuple[0], rhy_tuple[1],
-                                               rhy_tuple[2])
+        self.use_rhy = use_rhy
+        if use_rhy:
+            self.rhy_predictor = Rhy_predictor()
             print("Rhythm predictor loaded.")
         # g2p_model can be pypinyin and g2pM and g2pW
         self.g2p_model = g2p_model
@@ -201,12 +201,12 @@ class Frontend():
         segments = sentences
         phones_list = []
         for seg in segments:
-            if self.rhy_predictor is not None:
+            if self.use_rhy:
                 seg = self.rhy_predictor._clean_text(seg)
             phones = []
             # Replace all English words in the sentence
             seg = re.sub('[a-zA-Z]+', '', seg)
-            if self.rhy_predictor is not None:
+            if self.use_rhy:
                 seg = self.rhy_predictor.get_prediction(seg)
             seg_cut = psg.lcut(seg)
             initials = []
@@ -215,14 +215,14 @@ class Frontend():
             # 为了多音词获得更好的效果，这里采用整句预测
             if self.g2p_model == "g2pW":
                 try:
-                    if self.rhy_predictor is not None:
+                    if self.use_rhy:
                         seg = self.rhy_predictor._clean_text(seg)
                     pinyins = self.g2pW_model(seg)[0]
                 except Exception:
                     # g2pW采用模型采用繁体输入，如果有cover不了的简体词，采用g2pM预测
                     print("[%s] not in g2pW dict,use g2pM" % seg)
                     pinyins = self.g2pM_model(seg, tone=True, char_split=False)
-                if self.rhy_predictor is not None:
+                if self.use_rhy:
                     rhy_text = self.rhy_predictor.get_prediction(seg)
                     final_py = self.rhy_predictor.pinyin_align(pinyins,
                                                                rhy_text)
@@ -557,7 +557,7 @@ class Frontend():
             merge_sentences=merge_sentences,
             print_info=print_info,
             robot=robot)
-        if self.rhy_predictor is not None:
+        if self.use_rhy:
             phonemes = self.del_same_sp(phonemes)
             phonemes = self.add_sp_ifno(phonemes)
         result = {}

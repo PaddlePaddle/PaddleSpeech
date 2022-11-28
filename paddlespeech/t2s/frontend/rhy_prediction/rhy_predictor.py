@@ -18,19 +18,28 @@ import yaml
 from paddlenlp.transformers import ErnieTokenizer
 from yacs.config import CfgNode
 
+from paddlespeech.cli.utils import download_and_decompress
+from paddlespeech.resource.pretrained_models import rhy_frontend_models
 from paddlespeech.text.models.ernie_linear import ErnieLinear
+from paddlespeech.utils.env import MODEL_HOME
 
 DefinedClassifier = {
     'ErnieLinear': ErnieLinear,
 }
 
+model_version = '1.0'
+
 
 class Rhy_predictor():
-    def __init__(self, model_path, config_path, punc_path):
-        with open(config_path) as f:
+    def __init__(
+            self,
+            model_dir: os.PathLike=MODEL_HOME, ):
+        uncompress_path = download_and_decompress(
+            rhy_frontend_models['rhy_e2e'][model_version], model_dir)
+        with open(os.path.join(uncompress_path, 'default.yaml')) as f:
             config = CfgNode(yaml.safe_load(f))
         self.punc_list = []
-        with open(punc_path, 'r') as f:
+        with open(os.path.join(uncompress_path, 'rhy_token'), 'r') as f:
             for line in f:
                 self.punc_list.append(line.strip())
         self.punc_list = [0] + self.punc_list
@@ -38,7 +47,8 @@ class Rhy_predictor():
         self.model = DefinedClassifier[config["model_type"]](**config["model"])
         pretrained_token = config['data_params']['pretrained_token']
         self.tokenizer = ErnieTokenizer.from_pretrained(pretrained_token)
-        state_dict = paddle.load(model_path)
+        state_dict = paddle.load(
+            os.path.join(uncompress_path, 'snapshot_iter_153000.pdz'))
         self.model.set_state_dict(state_dict["main_params"])
         self.model.eval()
 

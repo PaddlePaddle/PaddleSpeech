@@ -167,7 +167,9 @@ def get_frontend(lang: str='zh',
                  rhy_tuple=None):
     if lang == 'zh':
         frontend = Frontend(
-            phone_vocab_path=phones_dict, tone_vocab_path=tones_dict, rhy_tuple=rhy_tuple)
+            phone_vocab_path=phones_dict,
+            tone_vocab_path=tones_dict,
+            rhy_tuple=rhy_tuple)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
     elif lang == 'mix':

@@ -45,7 +45,7 @@ def evaluate(args):
 
     sentences = get_sentences(text_file=args.text, lang=args.lang)
 
-    if len(args.rhy_prediction_model)>1:
+    if len(args.rhy_prediction_model) > 1:
         rhy_tuple = (args.rhy_prediction_model, args.rhy_config, args.rhy_token)
     else:
         rhy_tuple = None
@@ -246,10 +246,16 @@ def parse_args():
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
-    parser.add_argument("--rhy_prediction_model", type=str, help="rhy prediction model path.")
-    parser.add_argument("--rhy_token", type=str, help="rhy prediction token path.")
-    parser.add_argument("--rhy_config", type=str, help="rhy prediction config path.")
-    
+    parser.add_argument(
+        "--rhy_prediction_model",
+        type=str,
+        default="",
+        help="rhy prediction model path.")
+    parser.add_argument(
+        "--rhy_token", type=str, help="rhy prediction token path.")
+    parser.add_argument(
+        "--rhy_config", type=str, help="rhy prediction config path.")
+
     args = parser.parse_args()
     return args
 

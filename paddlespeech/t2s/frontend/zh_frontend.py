@@ -30,10 +30,10 @@ from pypinyin_dict.phrase_pinyin_data import large_pinyin
 
 from paddlespeech.t2s.frontend.g2pw import G2PWOnnxConverter
 from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
+from paddlespeech.t2s.frontend.rhy_prediction.rhy_predictor import Rhy_predictor
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
 from paddlespeech.t2s.ssml.xml_processor import MixTextProcessor
-from paddlespeech.t2s.frontend.rhy_prediction.rhy_predictor import Rhy_predictor
 
 INITIALS = [
     'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'zh', 'ch', 'sh',
@@ -108,7 +108,8 @@ class Frontend():
             '掺和': [['chan1'], ['huo5']]
         }
         if rhy_tuple is not None:
-            self.rhy_predictor = Rhy_predictor(rhy_tuple[0], rhy_tuple[1], rhy_tuple[2])
+            self.rhy_predictor = Rhy_predictor(rhy_tuple[0], rhy_tuple[1],
+                                               rhy_tuple[2])
             print("Rhythm predictor loaded.")
         # g2p_model can be pypinyin and g2pM and g2pW
         self.g2p_model = g2p_model
@@ -223,7 +224,8 @@ class Frontend():
                     pinyins = self.g2pM_model(seg, tone=True, char_split=False)
                 if self.rhy_predictor is not None:
                     rhy_text = self.rhy_predictor.get_prediction(seg)
-                    final_py = self.rhy_predictor.pinyin_align(pinyins, rhy_text)
+                    final_py = self.rhy_predictor.pinyin_align(pinyins,
+                                                               rhy_text)
                     pinyins = final_py
                 pre_word_length = 0
                 for word, pos in seg_cut:
@@ -518,7 +520,7 @@ class Frontend():
             print(all_phonemes[0])
             print("----------------------------")
         return [sum(all_phonemes, [])]
-    
+
     def del_same_sp(self, phonemes):
         new_phonemes = []
         for ph_seq in phonemes:

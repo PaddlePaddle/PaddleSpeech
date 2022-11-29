@@ -122,6 +122,9 @@ The static model can be downloaded here:
 The ONNX model can be downloaded here:
 - [hifigan_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_onnx_1.1.0.zip)
 
+The Paddle-Lite model can be downloaded here:
+- [hifigan_aishell3_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_pdlite_1.3.0.zip)
+
 Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:
 default| 1(gpu) x 2500000|24.060|0.1068|7.499

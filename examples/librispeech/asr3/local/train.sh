@@ -10,7 +10,8 @@ echo "using $ngpu gpus..."
 
 config_path=$1
 ckpt_name=$2
-ips=$3
+resume=$3
+ips=$4
 
 if [ ! $ips ];then
   ips_config=
@@ -21,7 +22,7 @@ fi
 mkdir -p exp
 
 # seed may break model convergence
-seed=1998
+seed=1988
 if [ ${seed} != 0 ]; then
     export FLAGS_cudnn_deterministic=True
 fi
@@ -34,13 +35,15 @@ python3 -u ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---seed ${seed} 
+--seed ${seed} \
+--resume ${resume}
 else
 python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${ips_config} ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \
---seed ${seed}
+--seed ${seed} \
+--resume ${resume}
 fi
 
 if [ ${seed} != 0 ]; then

@@ -53,7 +53,7 @@ class Linear(paddle.nn.Layer):
             n_neurons,
             input_shape=None,
             input_size=None,
-            bias=True,
+            bias_attr=None,
             combine_dims=False, ):
         super().__init__()
         self.combine_dims = combine_dims
@@ -67,7 +67,7 @@ class Linear(paddle.nn.Layer):
                 input_size = input_shape[2] * input_shape[3]
 
         # Weights are initialized following paddle approach
-        self.w = align.Linear(input_size, n_neurons, bias_attr=bias)
+        self.w = align.Linear(input_size, n_neurons, bias_attr=bias_attr)
 
     def forward(self, x):
         """Returns the linear transformation of input tensor.

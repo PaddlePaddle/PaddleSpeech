@@ -1,11 +1,8 @@
-# DeepSpeech2 to ONNX model
+# Convert DeepSpeech2 model to ONNX format
 
-1. convert deepspeech2 model to ONNX, using Paddle2ONNX.
-2. check paddleinference and onnxruntime output equal.
-3. optimize onnx model
-4. check paddleinference and optimized onnxruntime output equal.
-5. quantize onnx model
-4. check paddleinference and optimized onnxruntime output equal.
+> We recommend using U2/U2++ model instead of DS2, please see [here](../../u2pp_ol/wenetspeech/).
+
+This example demonstrate converting ds2 model to ONNX fromat.
 
 Please make sure [Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX) and [onnx-simplifier](https://github.com/zh794390558/onnx-simplifier/tree/dyn_time_shape) version is correct.
 
@@ -25,18 +22,24 @@ onnxoptimizer            0.2.7
 onnxruntime              1.11.0
 ```
 
+
 ## Using
 
 ```
 bash run.sh --stage 0 --stop_stage 5
 ```
 
+1. convert deepspeech2 model to ONNX, using Paddle2ONNX.
+2. check paddleinference and onnxruntime output equal.
+3. optimize onnx model
+4. check paddleinference and optimized onnxruntime output equal.
+5. quantize onnx model
+6. check paddleinference and optimized onnxruntime output equal.
+
 For more details please see `run.sh`.
 
 ## Outputs
-The optimized onnx model is `exp/model.opt.onnx`, quanted model is `$exp/model.optset11.quant.onnx`.
-
-To show the graph, please using `local/netron.sh`.
+The optimized onnx model is `exp/model.opt.onnx`, quanted model is `exp/model.optset11.quant.onnx`.
 
 
 ## [Results](https://github.com/PaddlePaddle/PaddleSpeech/wiki/ASR-Benchmark#streaming-asr)

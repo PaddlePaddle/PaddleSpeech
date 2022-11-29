@@ -72,13 +72,16 @@ fi
 
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+    # process cmvn and compute fbank feat
     ./local/feat.sh
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+    # decode with fbank feat input
     ./local/decode.sh
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    # decode with wav input
     ./loca/recognizer.sh
 fi

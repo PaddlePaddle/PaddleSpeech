@@ -51,7 +51,8 @@ set(THIRD_PARTY_PATH ${fc_patch})
 include(openblas)
 
 set(PYBIND11_PYTHON_VERSION ${PY_VERSION})
-include(pybind)
+include(cmake/pybind.cmake)
+include_directories(${PYTHON_INCLUDE_DIR})
 
 # packages
 find_package(Python3 COMPONENTS Interpreter Development)

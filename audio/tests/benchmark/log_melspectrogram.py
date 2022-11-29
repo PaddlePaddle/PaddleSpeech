@@ -55,7 +55,7 @@ def enable_gpu_device():
     paddle.set_device('gpu')
 
 
-log_mel_extractor = paddleaudio.features.LogMelSpectrogram(
+log_mel_extractor = paddle.audio.features.LogMelSpectrogram(
     **mel_conf, f_min=0.0, top_db=80.0, dtype=waveform_tensor.dtype)
 
 

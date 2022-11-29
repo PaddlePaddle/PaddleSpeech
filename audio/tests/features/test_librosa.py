@@ -169,7 +169,7 @@ class TestLibrosa(FeatTest):
         # paddleaudio.features.layer
         x = paddle.to_tensor(
             self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
-        feature_extractor = paddleaudio.features.MelSpectrogram(
+        feature_extractor = paddle.audio.features.MelSpectrogram(
             sr=self.sr,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
@@ -210,7 +210,7 @@ class TestLibrosa(FeatTest):
         # paddleaudio.features.layer
         x = paddle.to_tensor(
             self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
-        feature_extractor = paddleaudio.features.LogMelSpectrogram(
+        feature_extractor = paddle.audio.features.LogMelSpectrogram(
             sr=self.sr,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
@@ -257,10 +257,10 @@ class TestLibrosa(FeatTest):
             fmin=self.fmin,
             top_db=self.top_db)
 
-        # paddleaudio.features.layer
+        # paddle.audio.features.layer
         x = paddle.to_tensor(
             self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
-        feature_extractor = paddleaudio.features.MFCC(
+        feature_extractor = paddle.audio.features.MFCC(
             sr=self.sr,
             n_mfcc=self.n_mfcc,
             n_fft=self.n_fft,

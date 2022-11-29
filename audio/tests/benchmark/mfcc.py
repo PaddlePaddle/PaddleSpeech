@@ -64,7 +64,7 @@ def enable_gpu_device():
     paddle.set_device('gpu')
 
 
-mfcc_extractor = paddleaudio.features.MFCC(
+mfcc_extractor = paddle.audio.features.MFCC(
     **mfcc_conf, f_min=0.0, dtype=waveform_tensor.dtype)
 
 

@@ -25,7 +25,7 @@ import librosa
 import numpy as np
 import paddle
 import soundfile
-import transformers
+from paddlenlp.transformers import AutoTokenizer
 from yacs.config import CfgNode
 
 from ..executor import BaseExecutor
@@ -185,7 +185,7 @@ class SSLExecutor(BaseExecutor):
                         unit_type=self.config.unit_type,
                         vocab=self.config.vocab_filepath)
                 elif lang == 'zh':
-                    self.text_feature = transformers.BertTokenizer.from_pretrained(
+                    self.text_feature = AutoTokenizer.from_pretrained(
                         self.config.tokenizer)
                 self.config.decode.decoding_method = decode_method
             model_name = model_type[:model_type.rindex(

@@ -241,7 +241,7 @@ def parse_args():
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
-    parse.add_argument(
+    parser.add_argument(
         "--use_rhy", action="store_true", help="run rhythm frontend or not")
 
     args = parser.parse_args()

@@ -83,10 +83,10 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # decode with wav input
-    ./loca/recognizer.sh
+    ./local/recognizer.sh
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # decode with wav input with quanted model
-    ./loca/recognizer_quant.sh
+    ./local/recognizer_quant.sh
 fi

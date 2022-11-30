@@ -1,0 +1,1 @@
+../../tts3/local/synthesize.sh

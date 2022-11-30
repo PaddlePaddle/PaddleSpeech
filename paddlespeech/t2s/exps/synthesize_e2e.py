@@ -27,6 +27,7 @@ from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.exps.syn_utils import voc_to_static
+from paddlespeech.t2s.utils import str2bool
 
 
 def evaluate(args):
@@ -242,7 +243,10 @@ def parse_args():
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
     parser.add_argument(
-        "--use_rhy", action="store_true", help="run rhythm frontend or not")
+        "--use_rhy",
+        type=str2bool,
+        default=False,
+        help="run rhythm frontend or not")
 
     args = parser.parse_args()
     return args

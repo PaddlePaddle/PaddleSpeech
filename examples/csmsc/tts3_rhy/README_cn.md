@@ -9,7 +9,7 @@
 
 ### 获取MFA结果并解压
 我们使用 [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) 去获得 fastspeech2 的音素持续时间。
-你们可以从这里直接下载训练好的带节奏时长的 MFA 结果 [sp1_4_duration.zip](https://paddlespeech.bj.bcebos.com/Rhy_e2e/sp1_4_duration.zip), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型。
+你们可以从这里直接下载训练好的带节奏时长的 MFA 结果 [baker_alignment_tone.zip](https://paddlespeech.bj.bcebos.com/Rhy_e2e/baker_alignment_tone.zip), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型。
 利用 mfa repo 去训练自己的模型时，请添加 `--rhy-with-duration` 。
 
 ## 开始

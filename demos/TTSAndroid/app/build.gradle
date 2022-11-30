@@ -1,0 +1,108 @@
+import java.security.MessageDigest
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.baidu.paddle.lite.demo.tts"
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.android.support:design:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation files('libs/PaddlePredictor.jar')
+}
+
+def paddleLiteLibs = 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/paddle_lite_libs_68b66fd3.tar.gz'
+task downloadAndExtractPaddleLiteLibs(type: DefaultTask) {
+    doFirst {
+        println "Downloading and extracting Paddle Lite libs"
+    }
+    doLast {
+        // Prepare cache folder for libs
+        if (!file("cache").exists()) {
+            mkdir "cache"
+        }
+        // Generate cache name for libs
+        MessageDigest messageDigest = MessageDigest.getInstance('MD5')
+        messageDigest.update(paddleLiteLibs.bytes)
+        String cacheName = new BigInteger(1, messageDigest.digest()).toString(32)
+        // Download libs
+        if (!file("cache/${cacheName}.tar.gz").exists()) {
+            ant.get(src: paddleLiteLibs, dest: file("cache/${cacheName}.tar.gz"))
+        }
+        // Unpack libs
+        if (!file("cache/${cacheName}").exists()) {
+            copy {
+                from tarTree("cache/${cacheName}.tar.gz")
+                into "cache/${cacheName}"
+            }
+        }
+        // Copy PaddlePredictor.jar
+        if (!file("libs/PaddlePredictor.jar").exists()) {
+            copy {
+                from "cache/${cacheName}/java/PaddlePredictor.jar"
+                into "libs"
+            }
+        }
+        if (!file("src/main/jniLibs/arm64-v8a/libpaddle_lite_jni.so").exists()) {
+            copy {
+                from "cache/${cacheName}/java/libs/arm64-v8a/"
+                into "src/main/jniLibs/arm64-v8a"
+            }
+        }
+    }
+}
+preBuild.dependsOn downloadAndExtractPaddleLiteLibs
+
+def paddleLiteModels = [['src' : 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz',
+                         'dest': 'src/main/assets/models'],]
+task downloadAndExtractPaddleLiteModels(type: DefaultTask) {
+    doFirst {
+        println "Downloading and extracting Paddle Lite models"
+    }
+    doLast {
+        // Prepare cache folder for models
+        String cachePath = "cache"
+        if (!file("${cachePath}").exists()) {
+            mkdir "${cachePath}"
+        }
+        paddleLiteModels.eachWithIndex { model, index ->
+            MessageDigest messageDigest = MessageDigest.getInstance('MD5')
+            messageDigest.update(model.src.bytes)
+            String cacheName = new BigInteger(1, messageDigest.digest()).toString(32)
+            // Download the target model if not exists
+            boolean copyFiles = !file("${model.dest}").exists()
+            if (!file("${cachePath}/${cacheName}.tar.gz").exists()) {
+                ant.get(src: model.src, dest: file("${cachePath}/${cacheName}.tar.gz"))
+                copyFiles = true // force to copy files from the latest archive files
+            }
+            // Copy model file
+            if (copyFiles) {
+                copy {
+                    from tarTree("${cachePath}/${cacheName}.tar.gz")
+                    into "${model.dest}"
+                }
+            }
+        }
+    }
+}
+preBuild.dependsOn downloadAndExtractPaddleLiteModels

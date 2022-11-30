@@ -37,7 +37,7 @@
 
 * Paddle Lite
   项目：[https://github.com/PaddlePaddle/Paddle-Lite](https://github.com/PaddlePaddle/Paddle-Lite)。
-*
+
 
 参考 [Paddle Lite 源码编译文档](https://www.paddlepaddle.org.cn/lite/v2.11/source_compile/compile_env.html)，编译
 Android 预测库。

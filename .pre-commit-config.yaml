@@ -73,13 +73,3 @@ repos:
     hooks:
       - id: reorder-python-imports
         exclude: (?=third_party).*(\.py)$
-
--   repo: local
-    hooks:
-    -   id: cpplint-cpp-source
-        name: cpplint
-        description: Check C++ code style using cpplint.py.
-        entry: bash .pre-commit-hooks/cpplint.hook
-        language: system
-        files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx)$
-        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|paddlespeech/audio/src/optional).*(\.cpp|\.cc|\.h|\.hpp)$

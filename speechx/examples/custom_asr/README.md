@@ -1,4 +1,4 @@
-# customized Auto Speech Recognition
+# Customized ASR
 
 ## introduction
 These scripts are tutorials to show you how build your own decoding graph.

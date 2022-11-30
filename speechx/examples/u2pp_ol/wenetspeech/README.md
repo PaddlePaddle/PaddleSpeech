@@ -6,13 +6,14 @@ This example will demonstrate how to using the u2/u2++ model to recognize `wav` 
 
 ## Testing with Aishell Test Data
 
-### Source `path.sh` first 
+## Source path.sh
 
-```bash 
-source path.sh
+```bash
+. path.sh
 ```
 
-All bins are under `echo $SPEECHX_BUILD` dir.
+SpeechX bins is under `echo $SPEECHX_BUILD`, more info please see `path.sh`.
+
 
 ### Download dataset and model
 

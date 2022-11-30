@@ -6,6 +6,12 @@ import unittest
 from pathlib import Path
 import numpy as np
 
+import platform
+if platform.system() == "Windows":
+    import warnings
+    warnings.warn("sox io not support in Windows, please skip test.")
+    exit()
+
 from parameterized import parameterized
 from paddleaudio import sox_effects
 from paddleaudio._internal import module_utils as _mod_utils

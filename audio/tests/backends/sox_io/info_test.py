@@ -8,8 +8,16 @@ import paddle
 import os
 import io
 
+import platform
+if platform.system() == "Windows":
+    import warnings
+    warnings.warn("sox io not support in Windows, please skip test.")
+    exit()
+
 from parameterized import parameterized
 from common import get_bits_per_sample, get_encoding 
+
+
 from paddleaudio.backends import sox_io_backend
 
 from common_utils import (

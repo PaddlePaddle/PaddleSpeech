@@ -1,6 +1,12 @@
 import unittest
 import itertools
 
+import platform
+if platform.system() == "Windows":
+    import warnings
+    warnings.warn("sox io not support in Windows, please skip test.")
+    exit()
+
 from parameterized import parameterized
 import numpy as np
 from paddleaudio._internal import module_utils as _mod_utils

@@ -18,7 +18,8 @@ import paddle
 import paddle.nn.functional as F
 import yaml
 from paddleaudio.backends import soundfile_load as load_audio
-from paddleaudio.features import LogMelSpectrogram
+#from paddleaudio.features import LogMelSpectrogram
+from paddle.audio.features import LogMelSpectrogram
 from paddleaudio.utils import logger
 
 from paddlespeech.cls.models import SoundClassifier

@@ -2,6 +2,12 @@ import io
 import os
 import unittest
 
+import platform
+if platform.system() == "Windows":
+    import warnings
+    warnings.warn("sox io not support in Windows, please skip test.")
+    exit()
+
 import numpy as np
 import paddle
 from parameterized import parameterized

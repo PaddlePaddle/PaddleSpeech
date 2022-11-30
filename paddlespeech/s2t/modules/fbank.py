@@ -1,7 +1,7 @@
 import paddle
 from paddle import nn
 
-from paddlespeech.audio.compliance import kaldi
+from paddleaudio.compliance import kaldi
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()

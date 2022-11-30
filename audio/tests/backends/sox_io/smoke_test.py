@@ -2,6 +2,12 @@ import io
 import itertools
 import unittest
 
+import platform
+if platform.system() == "Windows":
+    import warnings
+    warnings.warn("sox io not support in Windows, please skip test.")
+    exit()
+
 from parameterized import parameterized
 from paddleaudio.backends import sox_io_backend
 from common_utils import (

@@ -20,6 +20,7 @@ from paddleaudio.kaldi import fbank as fbank
 from paddleaudio.kaldi import pitch as pitch
 import kaldiio
 from kaldiio import ReadHelper
+import platform
 
 # the groundtruth feats computed in kaldi command below.
 #compute-fbank-feats  --dither=0 scp:$wav_scp ark,t:fbank_feat.ark
@@ -41,6 +42,8 @@ class TestKaldiFbank(unittest.TestCase):
 
     def test_pitch(self):
         pitch_groundtruth = {}
+        if platform.system() != "Linux": 
+            pass
         with ReadHelper('ark:testdata/pitch_feat.ark') as reader:
            for key, feat in reader:
                pitch_groundtruth[key] = feat

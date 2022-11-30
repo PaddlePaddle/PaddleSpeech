@@ -84,7 +84,7 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_INSTALL_PREFIX={extdir}",
             "-DCMAKE_VERBOSE_MAKEFILE=ON",
             f"-DPYTHON_INCLUDE_DIR={distutils.sysconfig.get_python_inc()}",
-            f"-DPYTHON_LIBRARY={distutils.sysconfig.get_config_var('LIBDIR')}",
+            #f"-DPYTHON_LIBRARY={distutils.sysconfig.get_config_var('LIBDIR')}",
             f"-DBUILD_SOX:BOOL={'ON' if _BUILD_SOX else 'OFF'}",
             f"-DBUILD_MAD:BOOL={'ON' if _BUILD_MAD else 'OFF'}",
             # f"-DBUILD_KALDI:BOOL={'ON' if _BUILD_KALDI else 'OFF'}",

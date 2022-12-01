@@ -18,13 +18,13 @@ import numpy as np
 import soundfile as sf
 from timer import timer
 
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_am_sublayer_output
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_predictor
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_streaming_am_output
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_voc_output
 from paddlespeech.t2s.exps.syn_utils import denorm
 from paddlespeech.t2s.exps.syn_utils import get_chunks
 from paddlespeech.t2s.exps.syn_utils import get_frontend
-from paddlespeech.t2s.exps.syn_utils import get_lite_am_sublayer_output
-from paddlespeech.t2s.exps.syn_utils import get_lite_predictor
-from paddlespeech.t2s.exps.syn_utils import get_lite_streaming_am_output
-from paddlespeech.t2s.exps.syn_utils import get_lite_voc_output
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.utils import str2bool

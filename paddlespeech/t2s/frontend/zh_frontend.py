@@ -289,7 +289,7 @@ class Frontend():
                     phones.append(c)
                 if c and c in self.punc:
                     phones.append('sp')
-                if v and v not in self.punc and c not in self.rhy_phns:
+                if v and v not in self.punc and v not in self.rhy_phns:
                     phones.append(v)
             phones_list.append(phones)
         if merge_sentences:
@@ -348,7 +348,7 @@ class Frontend():
                 phones.append(c)
             if c and c in self.punc:
                 phones.append('sp')
-            if v and v not in self.punc and c not in self.rhy_phns:
+            if v and v not in self.punc and v not in self.rhy_phns:
                 phones.append(v)
         phones_list.append(phones)
         if merge_sentences:

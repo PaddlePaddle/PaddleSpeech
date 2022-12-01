@@ -31,7 +31,7 @@ DefinedClassifier = {
 model_version = '1.0'
 
 
-class Rhy_predictor():
+class RhyPredictor():
     def __init__(
             self,
             model_dir: os.PathLike=MODEL_HOME, ):

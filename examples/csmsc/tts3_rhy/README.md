@@ -63,7 +63,7 @@ Pretrained FastSpeech2 model for end-to-end rhythm version:
 
 This FastSpeech2 checkpoint contains files listed below.
 ```text
-rhy_e2e_pretrain
+fastspeech2_rhy_csmsc_ckpt_1.3.0
 ├── default.yaml             # default config used to train fastspeech2
 ├── phone_id_map.txt         # phone vocabulary file when training fastspeech2
 ├── snapshot_iter_153000.pdz # model parameters and optimizer states

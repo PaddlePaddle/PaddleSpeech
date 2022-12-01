@@ -1,4 +1,3 @@
-([简体中文](./README_cn.md)|English)
 # This example mainly follows the FastSpeech2 with CSMSC
 This example contains code used to train a rhythm version of [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
 

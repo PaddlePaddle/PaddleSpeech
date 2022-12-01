@@ -71,11 +71,10 @@ base = [
     "prettytable",
     "zhon",
     "colorlog",
-    "pathos == 0.2.8",
+    "pathos==0.2.8",
     "braceexpand",
     "pyyaml",
     "pybind11",
-    "paddlelite",
     "paddleslim==2.3.4",
 ]
 

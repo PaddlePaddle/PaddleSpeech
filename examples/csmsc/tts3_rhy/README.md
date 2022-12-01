@@ -60,7 +60,7 @@ Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file tha
 
 ## Pretrained Model
 Pretrained FastSpeech2 model for end-to-end rhythm version:
-- [rhy_e2e_pretrain.zip](https://paddlespeech.bj.bcebos.com/Rhy_e2e/rhy_e2e_pretrain.zip)
+- [fastspeech2_rhy_csmsc_ckpt_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_rhy_csmsc_ckpt_1.3.0.zip)
 
 This FastSpeech2 checkpoint contains files listed below.
 ```text

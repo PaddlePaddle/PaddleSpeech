@@ -1666,9 +1666,8 @@ rhy_frontend_models = {
     'rhy_e2e': {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Rhy_e2e/rhy_e2e_pretrain.zip',
-            'md5':
-            'd36566b835977ea05ffbd9c0210c8e3c',
+            'https://paddlespeech.bj.bcebos.com/Rhy_e2e/rhy_frontend.zip',
+            'md5': '6624a77393de5925d5a84400b363d8ef',
         },
     },
 }

@@ -49,8 +49,8 @@ class Rhy_predictor():
         pretrained_token = config['data_params']['pretrained_token']
         self.tokenizer = ErnieTokenizer.from_pretrained(pretrained_token)
         state_dict = paddle.load(
-            os.path.join(uncompress_path, 'snapshot_iter_2600.pdz'))
-        self.model.set_state_dict(state_dict["main_params"])
+            os.path.join(uncompress_path, 'snapshot_iter_2600_main_params.pdz'))
+        self.model.set_state_dict(state_dict)
         self.model.eval()
 
     def _clean_text(self, text):

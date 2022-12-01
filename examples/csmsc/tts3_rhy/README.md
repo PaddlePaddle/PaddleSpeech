@@ -55,7 +55,7 @@ The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of wh
 
 Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, the path of pitch features, the path of energy features, speaker, and the id of each utterance.
 
-# More details can be refered to the example of FastSpeech2 with CSMSC(tts3)
+# For more details, You can refer to [FastSpeech2 with CSMSC](../tts3)
 
 ## Pretrained Model
 Pretrained FastSpeech2 model for end-to-end rhythm version:

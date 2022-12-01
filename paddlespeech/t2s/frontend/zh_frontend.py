@@ -89,6 +89,7 @@ class Frontend():
         self.tone_modifier = ToneSandhi()
         self.text_normalizer = TextNormalizer()
         self.punc = "：，；。？！“”‘’':,;.?!"
+        self.rhy_phns = ['sp1', 'sp2', 'sp3', 'sp4']
         self.phrases_dict = {
             '开户行': [['ka1i'], ['hu4'], ['hang2']],
             '发卡行': [['fa4'], ['ka3'], ['hang2']],
@@ -288,7 +289,7 @@ class Frontend():
                     phones.append(c)
                 if c and c in self.punc:
                     phones.append('sp')
-                if v and v not in self.punc:
+                if v and v not in self.punc and c not in self.rhy_phns:
                     phones.append(v)
             phones_list.append(phones)
         if merge_sentences:
@@ -521,23 +522,7 @@ class Frontend():
             print("----------------------------")
         return [sum(all_phonemes, [])]
 
-    def del_same_sp(self, phonemes):
-        new_phonemes = []
-        for ph_seq in phonemes:
-            new_ph_seq = []
-            de_str = ''
-            for ph in ph_seq:
-                if len(new_ph_seq) == 0:
-                    new_ph_seq.append(ph)
-                else:
-                    if ph == new_ph_seq[-1] and ph.startswith("sp"):
-                        continue
-                    else:
-                        new_ph_seq.append(ph)
-            new_phonemes.append(new_ph_seq)
-        return new_phonemes
-
-    def add_sp_ifno(self, phonemes):
+    def add_sp_if_no(self, phonemes):
         if not phonemes[-1][-1].startswith('sp'):
             phonemes[-1].append('sp4')
         return phonemes
@@ -558,8 +543,7 @@ class Frontend():
             print_info=print_info,
             robot=robot)
         if self.use_rhy:
-            phonemes = self.del_same_sp(phonemes)
-            phonemes = self.add_sp_ifno(phonemes)
+            phonemes = self.add_sp_if_no(phonemes)
         result = {}
         phones = []
         tones = []

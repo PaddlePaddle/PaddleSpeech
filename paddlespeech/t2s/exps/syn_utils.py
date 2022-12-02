@@ -161,10 +161,13 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
 # frontend
 def get_frontend(lang: str='zh',
                  phones_dict: Optional[os.PathLike]=None,
-                 tones_dict: Optional[os.PathLike]=None):
+                 tones_dict: Optional[os.PathLike]=None,
+                 use_rhy=False):
     if lang == 'zh':
         frontend = Frontend(
-            phone_vocab_path=phones_dict, tone_vocab_path=tones_dict)
+            phone_vocab_path=phones_dict,
+            tone_vocab_path=tones_dict,
+            use_rhy=use_rhy)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
     elif lang == 'mix':

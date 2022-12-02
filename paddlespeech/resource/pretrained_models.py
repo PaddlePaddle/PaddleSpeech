@@ -1690,3 +1690,16 @@ g2pw_onnx_models = {
         },
     },
 }
+
+# ---------------------------------
+# ------------- Rhy_frontend ---------------
+# ---------------------------------
+rhy_frontend_models = {
+    'rhy_e2e': {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Rhy_e2e/rhy_frontend.zip',
+            'md5': '6624a77393de5925d5a84400b363d8ef',
+        },
+    },
+}

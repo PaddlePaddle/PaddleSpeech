@@ -28,12 +28,12 @@ from typing import Tuple
 import paddle
 from paddle import jit
 from paddle import nn
-from paddleaudio.utils.tensor_utils import add_sos_eos
-from paddleaudio.utils.tensor_utils import pad_sequence
-from paddleaudio.utils.tensor_utils import reverse_pad_list
-from paddleaudio.utils.tensor_utils import st_reverse_pad_list
-from paddleaudio.utils.tensor_utils import th_accuracy
 
+from paddlespeech.audio.utils.tensor_utils import add_sos_eos
+from paddlespeech.audio.utils.tensor_utils import pad_sequence
+from paddlespeech.audio.utils.tensor_utils import reverse_pad_list
+from paddlespeech.audio.utils.tensor_utils import st_reverse_pad_list
+from paddlespeech.audio.utils.tensor_utils import th_accuracy
 from paddlespeech.s2t.decoders.scorers.ctc import CTCPrefixScorer
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn

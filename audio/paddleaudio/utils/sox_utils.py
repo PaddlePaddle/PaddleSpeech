@@ -1,7 +1,9 @@
-from typing import Dict, List
+from typing import Dict
+from typing import List
 
-from paddleaudio._internal import module_utils as _mod_utils
 from paddleaudio import _paddleaudio
+from paddleaudio._internal import module_utils as _mod_utils
+
 
 @_mod_utils.requires_sox()
 def set_seed(seed: int):

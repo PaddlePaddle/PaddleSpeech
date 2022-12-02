@@ -16,18 +16,18 @@ import os
 
 import paddle
 import yaml
-
 from paddleaudio.utils import logger
 from paddleaudio.utils import Timer
+
 from paddlespeech.cls.models import SoundClassifier
 from paddlespeech.utils.dynamic_import import dynamic_import
-
 
 # yapf: disable
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("--cfg_path", type=str, required=True)
 args = parser.parse_args()
 # yapf: enable
+
 
 def _collate_features(batch):
     # (feat, label)
@@ -36,7 +36,7 @@ def _collate_features(batch):
     labels = []
     lengths = []
     for sample in batch:
-        feats.append(paddle.transpose(sample[0], perm=[1,0]))
+        feats.append(paddle.transpose(sample[0], perm=[1, 0]))
         lengths.append(sample[0].shape[1])
         labels.append(sample[1])
 
@@ -46,8 +46,9 @@ def _collate_features(batch):
             feats[i], [0, max_length - feats[i].shape[0], 0, 0],
             data_format='NLC')
 
-    return paddle.stack(feats), paddle.to_tensor(
-        labels), paddle.to_tensor(lengths)
+    return paddle.stack(feats), paddle.to_tensor(labels), paddle.to_tensor(
+        lengths)
+
 
 if __name__ == "__main__":
     nranks = paddle.distributed.get_world_size()
@@ -107,7 +108,7 @@ if __name__ == "__main__":
         num_corrects = 0
         num_samples = 0
         for batch_idx, batch in enumerate(train_loader):
-            feats, labels, length = batch # feats-->(N, length, n_mels)
+            feats, labels, length = batch  # feats-->(N, length, n_mels)
 
             logits = model(feats)
 

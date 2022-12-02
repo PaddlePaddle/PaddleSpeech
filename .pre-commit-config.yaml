@@ -53,7 +53,7 @@ repos:
         entry: bash .pre-commit-hooks/clang-format.hook -i
         language: system
         files: \.(c|cc|cxx|cpp|cu|h|hpp|hxx|cuh|proto)$
-        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h|\.py)$
+        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src/pybind/sox|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h|\.py)$
     #-   id: copyright_checker
     #    name: copyright_checker
     #    entry: python .pre-commit-hooks/copyright-check.hook

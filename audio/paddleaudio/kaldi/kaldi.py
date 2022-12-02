@@ -11,9 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import paddleaudio
-from paddleaudio._internal import module_utils 
+from paddleaudio._internal import module_utils
 
 __all__ = [
     'fbank',
@@ -81,7 +80,8 @@ def fbank(
     fbank_opts.htk_compat = htk_compat
     fbank_opts.use_log_fbank = use_log_fbank
     fbank_opts.use_power = use_power
-    feat = paddleaudio._paddleaudio.ComputeFbank(frame_opts, mel_opts, fbank_opts, wav)
+    feat = paddleaudio._paddleaudio.ComputeFbank(frame_opts, mel_opts,
+                                                 fbank_opts, wav)
     return feat
 
 

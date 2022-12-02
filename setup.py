@@ -77,6 +77,7 @@ base = [
     "pybind11",
     "paddlelite",
     "paddleslim==2.3.4",
+    "paddleaudio>=1.0.2",
 ]
 
 server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]

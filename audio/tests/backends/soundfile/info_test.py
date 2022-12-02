@@ -6,16 +6,15 @@ from unittest.mock import patch
 
 import paddle
 import soundfile
-from common import parameterize
-from common import skipIfFormatNotSupported
-from paddleaudio.backends import soundfile_backend
-
 from common import get_bits_per_sample
 from common import get_encoding
+from common import parameterize
+from common import skipIfFormatNotSupported
 from common_utils import get_wav_data
 from common_utils import nested_params
 from common_utils import save_wav
 from common_utils import TempDirMixin
+from paddleaudio.backends import soundfile_backend
 
 
 class TestInfo(TempDirMixin, unittest.TestCase):

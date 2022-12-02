@@ -15,9 +15,8 @@
 import librosa
 import numpy as np
 import paddle
-from python_speech_features import logfbank
-
 from paddleaudio.compliance import kaldi
+from python_speech_features import logfbank
 
 
 def stft(x,

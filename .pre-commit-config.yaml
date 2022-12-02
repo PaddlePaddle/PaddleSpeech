@@ -66,7 +66,7 @@ repos:
         description: Static code analysis of C/C++ files
         language: python
         files: \.(h\+\+|h|hh|hxx|hpp|cuh|c|cc|cpp|cu|c\+\+|cxx|tpp|txx)$
-        exclude: (?=speechx/speechx/kaldi|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h|\.py)$ 
+        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src/pybind/sox|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h|\.py)$ 
         entry: cpplint --filter=-build,-whitespace,+whitespace/comma,-whitespace/indent
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.4.0

@@ -19,11 +19,12 @@ numpydoc
 onnxruntime==1.10.0
 opencc
 paddlenlp
-paddlepaddle>=2.2.2
+# use paddlepaddle == 2.3.* according to: https://github.com/PaddlePaddle/Paddle/issues/48243
+paddlepaddle>=2.2.2,<2.4.0
 paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas
-pathos == 0.2.8
+pathos==0.2.8
 pattern_singleton
 Pillow>=9.0.0
 praatio==5.0.0

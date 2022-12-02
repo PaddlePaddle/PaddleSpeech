@@ -5,4 +5,3 @@ audio
    :maxdepth: 4
 
    paddleaudio
-   setup

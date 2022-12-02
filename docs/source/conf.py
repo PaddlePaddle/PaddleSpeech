@@ -26,6 +26,8 @@ import sys
 import recommonmark.parser
 import sphinx_rtd_theme
 sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../audio'))
+
 
 autodoc_mock_imports = ["soundfile", "librosa"]
 

@@ -19,7 +19,7 @@ numpydoc
 onnxruntime==1.10.0
 opencc
 paddlenlp
-paddlepaddle>=2.2.2
+paddlepaddle==2.2.2
 paddlespeech_ctcdecoders
 paddlespeech_feat
 pandas

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cpu_thread_num_entries">
+        <item>1 threads</item>
+        <item>2 threads</item>
+        <item>4 threads</item>
+        <item>8 threads</item>
+    </string-array>
+    <string-array name="cpu_thread_num_values">
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>8</item>
+    </string-array>
+    <string-array name="cpu_power_mode_entries">
+        <item>HIGH(only big cores)</item>
+        <item>LOW(only LITTLE cores)</item>
+        <item>FULL(all cores)</item>
+        <item>NO_BIND(depends on system)</item>
+        <item>RAND_HIGH</item>
+        <item>RAND_LOW</item>
+    </string-array>
+    <string-array name="cpu_power_mode_values">
+        <item>LITE_POWER_HIGH</item>
+        <item>LITE_POWER_LOW</item>
+        <item>LITE_POWER_FULL</item>
+        <item>LITE_POWER_NO_BIND</item>
+        <item>LITE_POWER_RAND_HIGH</item>
+        <item>LITE_POWER_RAND_LOW</item>
+    </string-array>
+    <string-array name="text">
+        <item>Please select a sentence to be synthesized</item>
+        <item>昨日，这名“伤者”与医生全部被警方依法刑事拘留。</item>
+        <item>钱伟长想到上海来办学校是经过深思熟虑的。</item>
+        <item>她见我一进门就骂，吃饭时也骂，骂得我抬不起头。</item>
+        <item>李述德在离开之前，只说了一句“柱驼杀父亲了”。</item>
+        <item>这种车票和保险单捆绑出售属于重复性购买。</item>
+        <item>戴佩妮的男友西米露接唱情歌，让她非常开心。</item>
+        <item>观大势、谋大局、出大策始终是该院的办院方针。</item>
+        <item>他们骑着摩托回家，正好为农忙时的父母帮忙。</item>
+        <item>但是因为还没到退休年龄，只能掰着指头捱日子。</item>
+        <item>这几天雨水不断，人们恨不得待在家里不出门。</item>
+    </string-array>
+</resources>

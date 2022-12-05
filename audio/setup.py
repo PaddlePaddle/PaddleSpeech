@@ -247,7 +247,7 @@ def main():
             "audio process"
             "paddlepaddle",
         ],
-        python_requires='>=3.6',
+        python_requires='>=3.7',
         install_requires=requirements["install"],
         extras_require={
             'develop':

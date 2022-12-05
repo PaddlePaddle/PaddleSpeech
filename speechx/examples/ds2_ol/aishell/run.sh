@@ -32,6 +32,7 @@ exp=$PWD/exp
 aishell_wav_scp=aishell_test.scp
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     if [ ! -d $data/test ]; then
+        # donwload dataset
         pushd $data
         wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_test.zip
         unzip  aishell_test.zip
@@ -43,6 +44,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     fi
 
     if [ ! -f $ckpt_dir/data/mean_std.json ]; then
+        # download model
         mkdir -p $ckpt_dir
         pushd $ckpt_dir
         wget -c https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
@@ -52,6 +54,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
 
     lm=$data/zh_giga.no_cna_cmn.prune01244.klm
     if [ ! -f $lm ]; then
+        # download kenlm bin
         pushd $data
         wget -c https://deepspeech.bj.bcebos.com/zh_lm/zh_giga.no_cna_cmn.prune01244.klm
         popd
@@ -68,7 +71,7 @@ export GLOG_logtostderr=1
 
 cmvn=$data/cmvn.ark
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    # 3. gen linear feat
+    # 3. convert cmvn format and compute linear feat
     cmvn_json2kaldi_main --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 
     ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
@@ -82,14 +85,14 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    #  recognizer
+    #  decode w/o lm
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wolm.log \
     ctc_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
-	--nnet_decoder_chunk=8 \
+	    --nnet_decoder_chunk=8 \
         --dict_file=$vocb_dir/vocab.txt \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result
 
@@ -101,14 +104,14 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    #  decode with lm
+    # decode w/ ngram lm with feature input
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.lm.log \
     ctc_beam_search_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
-	--nnet_decoder_chunk=8 \
+	    --nnet_decoder_chunk=8 \
         --dict_file=$vocb_dir/vocab.txt \
         --lm_path=$lm \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result_lm
@@ -124,6 +127,7 @@ wfst=$data/wfst/
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     mkdir -p $wfst
     if [ ! -f $wfst/aishell_graph.zip ]; then
+        # download TLG graph
         pushd $wfst
         wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_graph.zip
         unzip aishell_graph.zip
@@ -133,7 +137,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-    #  TLG decoder
+    #  decoder w/ TLG graph with feature input
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recog.wfst.log \
     ctc_tlg_decoder_main \
         --feature_rspecifier=scp:$data/split${nj}/JOB/feat.scp \
@@ -142,7 +146,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --word_symbol_table=$wfst/words.txt \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
-	--nnet_decoder_chunk=8 \
+	    --nnet_decoder_chunk=8 \
         --acoustic_scale=1.2 \
         --result_wspecifier=ark,t:$data/split${nj}/JOB/result_tlg
 
@@ -154,7 +158,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
 fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-    #  TLG decoder
+    #  recognize from wav file w/ TLG graph
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer.log \
     recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
@@ -162,7 +166,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         --model_path=$model_dir/avg_1.jit.pdmodel \
         --param_path=$model_dir/avg_1.jit.pdiparams \
         --word_symbol_table=$wfst/words.txt \
-	--nnet_decoder_chunk=8 \
+	    --nnet_decoder_chunk=8 \
         --model_output_names=softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0 \
         --graph_path=$wfst/TLG.fst --max_active=7500 \
         --acoustic_scale=1.2 \

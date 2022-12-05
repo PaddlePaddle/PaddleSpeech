@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/paddlespeech_logo" />
+
+        <LinearLayout
+            android:id="@+id/v_input_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/logo"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="120dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_input_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="5dp"
+                android:lineSpacingExtra="4dp"
+                android:maxLines="6"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:text=""
+                android:textColor="#3C3C3C" />
+
+            <Spinner
+                android:id="@+id/spinner1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:dropDownSelector="#63D81B60"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                android:id="@+id/tv_inference_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spinner1"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="start"
+                android:lineSpacingExtra="4dp"
+                android:maxLines="6"
+                android:textColor="#3C3C3C" />
+
+            <LinearLayout
+                android:id="@+id/btns"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/tv_inference_time"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="30dp">
+
+                <Button
+                    android:id="@+id/btn_play"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/button_drawable"
+                    android:text="Play"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff" />
+
+                <Button
+                    android:id="@+id/btn_pause"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="3dp"
+                    android:background="@drawable/button_drawable"
+                    android:text="Pause"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff" />
+
+                <Button
+                    android:id="@+id/btn_stop"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="3dp"
+                    android:background="@drawable/button_drawable"
+                    android:text="Stop"
+                    android:textAllCaps="false"
+                    android:textColor="#ffffff" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</android.support.constraint.ConstraintLayout>

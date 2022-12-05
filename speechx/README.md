@@ -22,7 +22,7 @@ We develop under:
 1. First to launch docker container.
 
 ```
-docker run --privileged  --net=host --ipc=host -it --rm -v $PWD:/workspace --name=dev registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7 /bin/bash
+docker run --privileged  --net=host --ipc=host -it --rm -v /path/to/paddlespeech:/workspace --name=dev registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7 /bin/bash
 ```
 
 * More `Paddle` docker images you can see [here](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/docker/linux-docker.html).

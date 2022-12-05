@@ -22,6 +22,7 @@ mkdir -p $data
 
 if [ $stage -le -1 ] && [ $stop_stage -ge -1 ]; then
     if [ ! -f $data/speech.ngram.zh.tar.gz ];then
+        # download ngram
         pushd $data
         wget -c http://paddlespeech.bj.bcebos.com/speechx/examples/ngram/zh/speech.ngram.zh.tar.gz
         tar xvzf speech.ngram.zh.tar.gz
@@ -29,6 +30,7 @@ if [ $stage -le -1 ] && [ $stop_stage -ge -1 ]; then
     fi
 
     if [ ! -f $ckpt_dir/data/mean_std.json ]; then
+        # download model
         mkdir -p $ckpt_dir
         pushd $ckpt_dir
         wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr0/WIP1_asr0_deepspeech2_online_wenetspeech_ckpt_1.0.0a.model.tar.gz
@@ -43,6 +45,7 @@ if [ ! -f $unit ]; then
 fi
 
 if ! which ngram-count; then
+    # need srilm install
     pushd $MAIN_ROOT/tools
     make srilm.done
     popd
@@ -71,7 +74,7 @@ lm=data/local/lm
 mkdir -p $lm
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    # Train lm
+    # Train ngram lm
     cp $text $lm/text
     local/aishell_train_lms.sh
     echo "build LM done."
@@ -94,8 +97,8 @@ cmvn=$data/cmvn_fbank.ark
 wfst=$data/lang_test
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-
     if [ ! -d $data/test ]; then
+        # download test dataset
         pushd $data
         wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_test.zip
         unzip  aishell_test.zip
@@ -107,7 +110,8 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     fi
 
     ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
-
+    
+    # convert cmvn format
     cmvn-json2kaldi --json_file=$ckpt_dir/data/mean_std.json --cmvn_write_path=$cmvn
 fi
 
@@ -116,7 +120,7 @@ label_file=aishell_result
 export GLOG_logtostderr=1
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-    #  TLG decoder
+    #  recognize w/ TLG graph
     utils/run.pl JOB=1:$nj $data/split${nj}/JOB/check_tlg.log \
     recognizer_main \
         --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \

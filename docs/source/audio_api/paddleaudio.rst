@@ -17,6 +17,7 @@ Subpackages
    paddleaudio.datasets
    paddleaudio.features
    paddleaudio.functional
-   paddleaudio.io
+   paddleaudio.kaldi
    paddleaudio.metric
    paddleaudio.sox_effects
+   paddleaudio.utils

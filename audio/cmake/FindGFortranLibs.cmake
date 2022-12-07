@@ -89,9 +89,9 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   if(NOT GFORTRAN_LIB_DIR_STR)
     message(STATUS "Found --libdir flag -- not found")
     message(STATUS "Using default gfortran library & include directory paths")
-    set(GFORTRAN_LIBRARIES_DIR
-      "${GFORTRAN_EXEC_PREFIX_DIR}/lib/gcc/${GFORTRAN_ARCH}/${GFORTRAN_VERSION_STRING}")
-    string(CONCAT GFORTRAN_INCLUDE_DIR "${GFORTRAN_LIBRARIES_DIR}" "/include")
+    string(STRIP ${GFORTRAN_PREFIX_DIR} TMPLIBDIR)
+    set(GFORTRAN_LIBRARIES_DIR "${TMPLIBDIR}/lib64")
+    set(GFORTRAN_INCLUDE_DIR "${TMPLIBDIR}/include")
   else()
     message(STATUS "Found --libdir flag -- yes")
     string(REGEX REPLACE "--libdir=([^\t\n ]+)" "\\1"

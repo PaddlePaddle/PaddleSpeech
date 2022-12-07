@@ -234,6 +234,9 @@ def main():
     if platform.system() != 'Windows' and platform.system() != 'Linux':
         lib_package_data = {'paddleaudio': ['lib/libgcc_s.1.1.dylib']}
 
+    if platform.system() == 'Linux':
+        lib_package_data = {'paddleaudio': ['lib/lib*']}
+
     setup_info = dict(
         # Metadata
         name='paddleaudio',

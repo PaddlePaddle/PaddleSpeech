@@ -37,18 +37,18 @@ class TestKaldiFbank(unittest.TestCase):
         fbank_check = fbank_groundtruth['test_wav']
         np.testing.assert_array_almost_equal(fbank_feat, fbank_check, decimal=4)
 
-    def test_pitch(self):
-        pitch_groundtruth = {}
-        if platform.system() != "Linux":
-            pass
-        with ReadHelper('ark:testdata/pitch_feat.ark') as reader:
-            for key, feat in reader:
-                pitch_groundtruth[key] = feat
+    #def test_pitch(self):
+    #    pitch_groundtruth = {}
+    #    if platform.system() != "Linux":
+    #        pass
+    #    with ReadHelper('ark:testdata/pitch_feat.ark') as reader:
+    #        for key, feat in reader:
+    #            pitch_groundtruth[key] = feat
 
-        wav_rate, wav = kaldiio.wavio.read_wav('testdata/test.wav')
-        pitch_feat = pitch(wav)
-        pitch_check = pitch_groundtruth['test_wav']
-        np.testing.assert_array_almost_equal(pitch_feat, pitch_check, decimal=4)
+    #    wav_rate, wav = kaldiio.wavio.read_wav('testdata/test.wav')
+    #    pitch_feat = pitch(wav)
+    #    pitch_check = pitch_groundtruth['test_wav']
+    #    np.testing.assert_array_almost_equal(pitch_feat, pitch_check, decimal=4)
 
 
 if __name__ == '__main__':

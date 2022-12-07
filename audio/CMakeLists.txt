@@ -41,7 +41,7 @@ option(BUILD_PADDLEAUDIO_PYTHON_EXTENSION "Build Python extension" ON)
 # cmake
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake;${PROJECT_SOURCE_DIR}/cmake/external")
 
-if (APPLE)
+if (NOT MSVC)
     find_package(GFortranLibs REQUIRED)
     include(FortranCInterface)
     include(FindGFortranLibs REQUIRED)

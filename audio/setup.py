@@ -15,6 +15,7 @@ import contextlib
 import inspect
 import io
 import os
+import platform
 import subprocess as sp
 import sys
 from pathlib import Path
@@ -229,6 +230,9 @@ def main():
     _rm_version()
 
     _make_version_file(version, sha)
+    lib_package_data = {}
+    if platform.system() != 'Windows' and platform.system() != 'Linux':
+        lib_package_data = {'paddleaudio':['lib/libgcc_s.1.1.dylib']}
 
     setup_info = dict(
         # Metadata
@@ -243,7 +247,7 @@ def main():
             "audio process"
             "paddlepaddle",
         ],
-        python_requires='>=3.6',
+        python_requires='>=3.7',
         install_requires=requirements["install"],
         extras_require={
             'develop':
@@ -260,6 +264,7 @@ def main():
 
         # Package info
         packages=find_packages(include=('paddleaudio*')),
+        package_data=lib_package_data,
         ext_modules=setup_helpers.get_ext_modules(),
         zip_safe=True,
         classifiers=[

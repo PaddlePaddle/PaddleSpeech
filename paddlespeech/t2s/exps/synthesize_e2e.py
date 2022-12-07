@@ -27,6 +27,7 @@ from paddlespeech.t2s.exps.syn_utils import get_sentences
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.exps.syn_utils import run_frontend
 from paddlespeech.t2s.exps.syn_utils import voc_to_static
+from paddlespeech.t2s.utils import str2bool
 
 
 def evaluate(args):
@@ -49,7 +50,8 @@ def evaluate(args):
     frontend = get_frontend(
         lang=args.lang,
         phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+        tones_dict=args.tones_dict,
+        use_rhy=args.use_rhy)
     print("frontend done!")
 
     # acoustic model
@@ -240,6 +242,11 @@ def parse_args():
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
+    parser.add_argument(
+        "--use_rhy",
+        type=str2bool,
+        default=False,
+        help="run rhythm frontend or not")
 
     args = parser.parse_args()
     return args

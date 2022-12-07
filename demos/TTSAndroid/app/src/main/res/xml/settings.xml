@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Model Settings">
+        <ListPreference
+            android:defaultValue="@string/MODEL_PATH_DEFAULT"
+            android:key="@string/CHOOSE_PRE_INSTALLED_MODEL_KEY"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="Choose pre-installed models" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/ENABLE_CUSTOM_SETTINGS_KEY"
+            android:summaryOff="Disable"
+            android:summaryOn="Enable"
+            android:title="Enable custom settings" />
+        <EditTextPreference
+            android:defaultValue="@string/MODEL_PATH_DEFAULT"
+            android:key="@string/MODEL_PATH_KEY"
+            android:title="Model Path" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="CPU Settings">
+        <ListPreference
+            android:defaultValue="@string/CPU_THREAD_NUM_DEFAULT"
+            android:entries="@array/cpu_thread_num_entries"
+            android:entryValues="@array/cpu_thread_num_values"
+            android:key="@string/CPU_THREAD_NUM_KEY"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="CPU Thread Num" />
+        <ListPreference
+            android:defaultValue="@string/CPU_POWER_MODE_DEFAULT"
+            android:entries="@array/cpu_power_mode_entries"
+            android:entryValues="@array/cpu_power_mode_values"
+            android:key="@string/CPU_POWER_MODE_KEY"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="CPU Power Mode" />
+    </PreferenceCategory>
+</PreferenceScreen>

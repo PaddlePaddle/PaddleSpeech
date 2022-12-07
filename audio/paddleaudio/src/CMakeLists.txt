@@ -39,11 +39,6 @@ if(BUILD_SOX)
   list(
     APPEND
     LIBPADDLEAUDIO_SOURCES
-    #sox/io.cpp
-    #sox/utils.cpp
-    #sox/effects.cpp
-    #sox/effects_chain.cpp
-    #sox/types.cpp
     )
   list(
     APPEND
@@ -80,6 +75,7 @@ function (define_library name source include_dirs link_libraries compile_defs)
   if (MSVC)
     set_target_properties(${name} PROPERTIES SUFFIX ".pyd")
   endif(MSVC)
+
   install(
     TARGETS ${name}
     LIBRARY DESTINATION lib
@@ -95,6 +91,10 @@ define_library(
   "${LIBPADDLEAUDIO_LINK_LIBRARIES}"
   "${LIBPADDLEAUDIO_COMPILE_DEFINITIONS}"
 )
+
+if (APPLE)
+  add_custom_command(TARGET libpaddleaudio POST_BUILD COMMAND install_name_tool -change "${GFORTRAN_LIBRARIES_DIR}/libgcc_s.1.1.dylib" "@loader_path/libgcc_s.1.1.dylib" libpaddleaudio.so)
+endif(APPLE)
 
 if (APPLE)
   set(AUDIO_LIBRARY libpaddleaudio CACHE INTERNAL "")
@@ -203,3 +203,7 @@ define_extension(
 #     )
 # endif()
 endif()
+
+if (APPLE)
+  add_custom_command(TARGET _paddleaudio POST_BUILD COMMAND install_name_tool -change "${GFORTRAN_LIBRARIES_DIR}/libgcc_s.1.1.dylib" "@loader_path/lib/libgcc_s.1.1.dylib" _paddleaudio.so)
+endif(APPLE)

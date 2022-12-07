@@ -1,9 +1,9 @@
+import distutils.sysconfig
 import os
 import platform
 import subprocess
 from pathlib import Path
 
-import distutils.sysconfig
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 

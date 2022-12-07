@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import contextlib
+import distutils.command.clean
 import inspect
 import io
 import os
@@ -23,7 +24,6 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-import distutils.command.clean
 from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
@@ -232,7 +232,7 @@ def main():
     _make_version_file(version, sha)
     lib_package_data = {}
     if platform.system() != 'Windows' and platform.system() != 'Linux':
-        lib_package_data = {'paddleaudio':['lib/libgcc_s.1.1.dylib']}
+        lib_package_data = {'paddleaudio': ['lib/libgcc_s.1.1.dylib']}
 
     setup_info = dict(
         # Metadata

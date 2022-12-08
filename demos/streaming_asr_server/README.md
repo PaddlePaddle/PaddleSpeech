@@ -1,5 +1,7 @@
 ([简体中文](./README_cn.md)|English)
 
+> conf/ws_ds2_application.yaml need onnxruntime>=1.11.0
+
 # Streaming ASR Server
 
 ## Introduction

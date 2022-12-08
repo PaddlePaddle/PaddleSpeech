@@ -22,11 +22,11 @@ from fnmatch import fnmatch
 from functools import reduce
 
 import paddle
+from paddleaudio import backends
+from paddleaudio.compliance import kaldi
 
 from . import autodecode
 from . import utils
-from .. import backends
-from ..compliance import kaldi
 from ..transform.cmvn import GlobalCMVN
 from ..transform.spec_augment import freq_mask
 from ..transform.spec_augment import time_mask

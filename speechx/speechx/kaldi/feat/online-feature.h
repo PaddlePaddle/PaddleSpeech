@@ -34,7 +34,7 @@
 #include "feat/feature-mfcc.h"
 #include "feat/feature-plp.h"
 #include "feat/feature-fbank.h"
-#include "itf/online-feature-itf.h"
+#include "feat/online-feature-itf.h"
 
 namespace kaldi {
 /// @addtogroup  onlinefeat OnlineFeatureExtraction

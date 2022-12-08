@@ -12,12 +12,10 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   paddlespeech.audio.backends
-   paddlespeech.audio.compliance
-   paddlespeech.audio.datasets
    paddlespeech.audio.features
    paddlespeech.audio.functional
    paddlespeech.audio.io
+   paddlespeech.audio.kaldi
    paddlespeech.audio.metric
    paddlespeech.audio.sox_effects
    paddlespeech.audio.streamdata

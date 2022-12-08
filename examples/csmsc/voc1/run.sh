@@ -30,3 +30,8 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # synthesize
     CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
 fi
+
+# PTQ_static
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/PTQ_static.sh  ${train_output_path} pwgan_csmsc || exit -1
+fi

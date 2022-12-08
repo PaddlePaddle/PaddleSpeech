@@ -19,7 +19,7 @@ from paddleslim.quant import quant_post_dynamic
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Paddle Slim with acoustic model & vocoder.")
+        description="Paddle Slim Dynamic with acoustic model & vocoder.")
     # acoustic model
     parser.add_argument(
         '--model_name',

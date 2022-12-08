@@ -1,7 +1,7 @@
 from typing import Dict
 from typing import List
 
-from paddleaudio import _paddleaudio
+import paddleaudio
 from paddleaudio._internal import module_utils as _mod_utils
 
 
@@ -15,7 +15,7 @@ def set_seed(seed: int):
     See Also:
         http://sox.sourceforge.net/sox.html
     """
-    _paddleaudio.sox_utils_set_seed(seed)
+    paddleaudio._paddleaudio.sox_utils_set_seed(seed)
 
 
 @_mod_utils.requires_sox()
@@ -33,7 +33,7 @@ def set_verbosity(verbosity: int):
     See Also:
         http://sox.sourceforge.net/sox.html
     """
-    _paddleaudio.sox_utils_set_verbosity(verbosity)
+    paddleaudio._paddleaudio.sox_utils_set_verbosity(verbosity)
 
 
 @_mod_utils.requires_sox()
@@ -46,7 +46,7 @@ def set_buffer_size(buffer_size: int):
     See Also:
         http://sox.sourceforge.net/sox.html
     """
-    _paddleaudio.sox_utils_set_buffer_size(buffer_size)
+    paddleaudio._paddleaudio.sox_utils_set_buffer_size(buffer_size)
 
 
 @_mod_utils.requires_sox()
@@ -60,7 +60,7 @@ def set_use_threads(use_threads: bool):
     See Also:
         http://sox.sourceforge.net/sox.html
     """
-    _paddleaudio.sox_utils_set_use_threads(use_threads)
+    paddleaudio._paddleaudio.sox_utils_set_use_threads(use_threads)
 
 
 @_mod_utils.requires_sox()
@@ -70,7 +70,7 @@ def list_effects() -> Dict[str, str]:
     Returns:
         Dict[str, str]: Mapping from ``effect name`` to ``usage``
     """
-    return dict(_paddleaudio.sox_utils_list_effects())
+    return dict(paddleaudio._paddleaudio.sox_utils_list_effects())
 
 
 @_mod_utils.requires_sox()
@@ -80,7 +80,7 @@ def list_read_formats() -> List[str]:
     Returns:
         List[str]: List of supported audio formats
     """
-    return _paddleaudio.sox_utils_list_read_formats()
+    return paddleaudio._paddleaudio.sox_utils_list_read_formats()
 
 
 @_mod_utils.requires_sox()
@@ -90,7 +90,7 @@ def list_write_formats() -> List[str]:
     Returns:
         List[str]: List of supported audio formats
     """
-    return _paddleaudio.sox_utils_list_write_formats()
+    return paddleaudio._paddleaudio.sox_utils_list_write_formats()
 
 
 @_mod_utils.requires_sox()
@@ -100,4 +100,4 @@ def get_buffer_size() -> int:
     Returns:
         int: size in bytes of buffers used for processing audio.
     """
-    return _paddleaudio.sox_utils_get_buffer_size()
+    return paddleaudio._paddleaudio.sox_utils_get_buffer_size()

@@ -1,9 +1,9 @@
-import distutils.sysconfig
 import os
 import platform
 import subprocess
 from pathlib import Path
 
+import distutils.sysconfig
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 
@@ -40,8 +40,9 @@ _BUILD_KALDI = False if platform.system() == "Windows" else _get_build(
 _PADDLESPEECH_CUDA_ARCH_LIST = os.environ.get("PADDLESPEECH_CUDA_ARCH_LIST",
                                               None)
 
-
 def get_ext_modules():
+    if platform.system() == "Windows":
+        return []
     modules = [
         Extension(name="paddleaudio.lib.libpaddleaudio", sources=[]),
         Extension(name="paddleaudio._paddleaudio", sources=[]),
@@ -87,7 +88,7 @@ class CMakeBuild(build_ext):
             #f"-DPYTHON_LIBRARY={distutils.sysconfig.get_config_var('LIBDIR')}",
             f"-DBUILD_SOX:BOOL={'ON' if _BUILD_SOX else 'OFF'}",
             f"-DBUILD_MAD:BOOL={'ON' if _BUILD_MAD else 'OFF'}",
-            # f"-DBUILD_KALDI:BOOL={'ON' if _BUILD_KALDI else 'OFF'}",
+            f"-DBUILD_KALDI:BOOL={'ON' if _BUILD_KALDI else 'OFF'}",
             # f"-DBUILD_RNNT:BOOL={'ON' if _BUILD_RNNT else 'OFF'}",
             # f"-DBUILD_CTC_DECODER:BOOL={'ON' if _BUILD_CTC_DECODER else 'OFF'}",
             "-DBUILD_PADDLEAUDIO_PYTHON_EXTENSION:BOOL=ON",

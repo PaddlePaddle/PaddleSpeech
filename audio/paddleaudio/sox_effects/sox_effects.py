@@ -4,7 +4,7 @@ from typing import Optional
 from typing import Tuple
 
 import paddle
-from paddleaudio import _paddleaudio as paddleaudio
+import paddleaudio
 from paddleaudio._internal import module_utils as _mod_utils
 from paddleaudio.utils.sox_utils import list_effects
 
@@ -23,7 +23,7 @@ def init_sox_effects():
     Once :func:`shutdown_sox_effects` is called, you can no longer use SoX effects and initializing
     again will result in error.
     """
-    paddleaudio.sox_effects_initialize_sox_effects()
+    paddleaudio._paddleaudio.sox_effects_initialize_sox_effects()
 
 
 @_mod_utils.requires_sox()
@@ -37,7 +37,7 @@ def shutdown_sox_effects():
     Once :py:func:`shutdown_sox_effects` is called, you can no longer use SoX effects and
     initializing again will result in error.
     """
-    paddleaudio.sox_effects_shutdown_sox_effects()
+    paddleaudio._paddleaudio.sox_effects_shutdown_sox_effects()
 
 
 @_mod_utils.requires_sox()
@@ -121,7 +121,7 @@ def apply_effects_tensor(
 
     """
     tensor_np = tensor.numpy()
-    ret = paddleaudio.sox_effects_apply_effects_tensor(tensor_np, sample_rate,
+    ret = paddleaudio._paddleaudio.sox_effects_apply_effects_tensor(tensor_np, sample_rate,
                                                        effects, channels_first)
     if ret is not None:
         return (paddle.to_tensor(ret[0]), ret[1])
@@ -228,13 +228,13 @@ def apply_effects_file(
         >>>     pass
     """
     if hasattr(path, "read"):
-        ret = paddleaudio.apply_effects_fileobj(path, effects, normalize,
+        ret = paddleaudio._paddleaudio.apply_effects_fileobj(path, effects, normalize,
                                                 channels_first, format)
         if ret is None:
             raise RuntimeError("Failed to load audio from {}".format(path))
         return (paddle.to_tensor(ret[0]), ret[1])
     path = os.fspath(path)
-    ret = paddleaudio.sox_effects_apply_effects_file(path, effects, normalize,
+    ret = paddleaudio._paddleaudio.sox_effects_apply_effects_file(path, effects, normalize,
                                                      channels_first, format)
     if ret is not None:
         return (paddle.to_tensor(ret[0]), ret[1])

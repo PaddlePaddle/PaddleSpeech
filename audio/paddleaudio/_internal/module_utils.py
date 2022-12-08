@@ -82,7 +82,7 @@ def requires_kaldi():
             @wraps(func)
             def wrapped(*args, **kwargs):
                 raise RuntimeError(
-                    f"{func.__module__}.{func.__name__} requires kaldi")
+                    f"{func.__module__}.{func.__name__} requires libpaddleaudio build with kaldi")
 
             return wrapped
 
@@ -144,7 +144,7 @@ def requires_sox():
             @wraps(func)
             def wrapped(*args, **kwargs):
                 raise RuntimeError(
-                    f"{func.__module__}.{func.__name__} requires sox")
+                    f"{func.__module__}.{func.__name__} requires libpaddleaudio build with sox")
 
             return wrapped
 

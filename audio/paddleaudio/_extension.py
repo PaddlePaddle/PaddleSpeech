@@ -145,7 +145,12 @@ def _init_extension():
     _load_lib("libpaddleaudio")
     # This import is for initializing the methods registered via PyBind11
     # This has to happen after the base library is loaded
-    from paddleaudio import _paddleaudio  # noqa
+    try:
+        from paddleaudio import _paddleaudio  # noqa
+    except Exception:
+        warnings.warn(
+            "paddleaudio C++ extension is not available. sox_io, sox_effect, kaldi raw feature is not supported!!!")
+        return
 
     # Because this part is executed as part of `import torchaudio`, we ignore the
     # initialization failure.

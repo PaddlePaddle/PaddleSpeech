@@ -138,7 +138,8 @@ def _init_ffmpeg():
 
 def _init_extension():
     if not _mod_utils.is_module_available("paddleaudio._paddleaudio"):
-        warnings.warn("paddleaudio C++ extension is not available.")
+        warnings.warn(
+            "paddleaudio C++ extension is not available. sox_io, sox_effect, kaldi raw feature is not supported!!!")
         return
 
     _load_lib("libpaddleaudio")

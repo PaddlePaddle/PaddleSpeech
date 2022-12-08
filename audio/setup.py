@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import contextlib
-import distutils.command.clean
 import inspect
 import io
 import os
@@ -24,6 +23,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+import distutils.command.clean
 from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup

@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import platform
+#import platform
 import unittest
 
 import kaldiio
 import numpy as np
 from kaldiio import ReadHelper
 from paddleaudio.kaldi import fbank as fbank
-from paddleaudio.kaldi import pitch as pitch
+#from paddleaudio.kaldi import pitch as pitch
 
 # the groundtruth feats computed in kaldi command below.
 #compute-fbank-feats  --dither=0 scp:$wav_scp ark,t:fbank_feat.ark

@@ -122,3 +122,8 @@ fi
 if [ ${stage} -le 14 ] && [ ${stop_stage} -ge 14 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} ./local/lite_predict_streaming.sh ${train_output_path} || exit -1
 fi
+
+# PTQ_static
+if [ ${stage} -le 15 ] && [ ${stop_stage} -ge 15 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/PTQ_static.sh  ${train_output_path} fastspeech2_csmsc || exit -1
+fi

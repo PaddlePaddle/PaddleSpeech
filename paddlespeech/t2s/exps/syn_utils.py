@@ -25,10 +25,13 @@ import onnxruntime as ort
 import paddle
 from paddle import inference
 from paddle import jit
+from paddle.io import DataLoader
 from paddle.static import InputSpec
 from yacs.config import CfgNode
 
+from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
@@ -118,6 +121,7 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     return sentences
 
 
+# am only
 def get_test_dataset(test_metadata: List[Dict[str, Any]],
                      am: str,
                      speaker_dict: Optional[os.PathLike]=None,
@@ -156,6 +160,100 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     test_dataset = DataTable(
         data=test_metadata, fields=fields, converters=converters)
     return test_dataset
+
+
+# am and voc, for PTQ_static
+def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
+                       am: str,
+                       batch_size: int=1,
+                       speaker_dict: Optional[os.PathLike]=None,
+                       voice_cloning: bool=False,
+                       n_shift: int=300,
+                       batch_max_steps: int=16200,
+                       shuffle: bool=True):
+    # model: {model_name}_{dataset}
+    am_name = am[:am.rindex('_')]
+    am_dataset = am[am.rindex('_') + 1:]
+    converters = {}
+    if am_name == 'fastspeech2':
+        fields = ["utt_id", "text"]
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
+            print("multiple speaker fastspeech2!")
+            collate_fn = fastspeech2_multi_spk_batch_fn_static
+            fields += ["spk_id"]
+        elif voice_cloning:
+            print("voice cloning!")
+            collate_fn = fastspeech2_multi_spk_batch_fn_static
+            fields += ["spk_emb"]
+        else:
+            print("single speaker fastspeech2!")
+            collate_fn = fastspeech2_single_spk_batch_fn_static
+    elif am_name == 'speedyspeech':
+        fields = ["utt_id", "phones", "tones"]
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
+            print("multiple speaker speedyspeech!")
+            collate_fn = speedyspeech_multi_spk_batch_fn_static
+            fields += ["spk_id"]
+        else:
+            print("single speaker speedyspeech!")
+            collate_fn = speedyspeech_single_spk_batch_fn_static
+        fields = ["utt_id", "phones", "tones"]
+    elif am_name == 'tacotron2':
+        fields = ["utt_id", "text"]
+        if voice_cloning:
+            print("voice cloning!")
+            collate_fn = tacotron2_multi_spk_batch_fn_static
+            fields += ["spk_emb"]
+        else:
+            print("single speaker tacotron2!")
+            collate_fn = tacotron2_single_spk_batch_fn_static
+    else:
+        print("voc dataloader")
+
+    # am
+    if am_name not in {'pwgan', 'mb_melgan', 'hifigan'}:
+        dev_dataset = DataTable(
+            data=dev_metadata,
+            fields=fields,
+            converters=converters, )
+
+        dev_dataloader = DataLoader(
+            dev_dataset,
+            shuffle=shuffle,
+            drop_last=False,
+            batch_size=batch_size,
+            collate_fn=collate_fn)
+    # vocoder
+    else:
+        # pwgan: batch_max_steps: 25500 aux_context_window: 2
+        # mb_melgan: batch_max_steps: 16200 aux_context_window 0
+        # hifigan: batch_max_steps: 8400 aux_context_window 0
+        aux_context_window = 0
+        if am_name == 'pwgan':
+            aux_context_window = 2
+
+        train_batch_fn = Clip_static(
+            batch_max_steps=batch_max_steps,
+            hop_size=n_shift,
+            aux_context_window=aux_context_window)
+        dev_dataset = DataTable(
+            data=dev_metadata,
+            fields=["wave", "feats"],
+            converters={
+                "wave": np.load,
+                "feats": np.load,
+            }, )
+
+        dev_dataloader = DataLoader(
+            dev_dataset,
+            shuffle=shuffle,
+            drop_last=False,
+            batch_size=batch_size,
+            collate_fn=train_batch_fn)
+
+    return dev_dataloader
 
 
 # frontend

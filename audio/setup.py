@@ -46,7 +46,8 @@ base = [
     "pathos == 0.2.8",
     "pybind11",
     "parameterized",
-    "tqdm"
+    "tqdm",
+    "scikit-learn"
 ]
 
 requirements = {

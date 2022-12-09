@@ -118,10 +118,10 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 （提示： 如果你想使用**困难**方式完成安装，请不要使用最后一条命令）
 ### 安装 PaddlePaddle
-你可以根据系统配置选择 PaddlePaddle 版本，例如系统使用 CUDA 10.2， CuDNN7.6，你可以安装 paddlepaddle-gpu 2.4rc：
+你可以根据系统配置选择 PaddlePaddle 版本，例如系统使用 CUDA 10.2， CuDNN7.6，你可以安装 paddlepaddle-gpu 2.4.1：
 ```bash
-# 注意：2.4rc 只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
-python3 -m pip install paddlepaddle-gpu==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
+# 注意：2.4.1 只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
+python3 -m pip install paddlepaddle-gpu==2.4.1 -i https://mirror.baidu.com/pypi/simple
 ```
 你也可以安装 develop 版本的PaddlePaddle. 例如系统使用 CUDA 10.2， CuDNN7.6 ，你可以安装 paddlepaddle-gpu develop:
 ```bash
@@ -180,10 +180,10 @@ conda activate tools/venv
 conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### 安装 PaddlePaddle
-请确认你系统是否有 GPU，并且使用了正确版本的 paddlepaddle。例如系统使用 CUDA 10.2, CuDNN7.6 ，你可以安装 paddlepaddle-gpu 2.4rc：
+请确认你系统是否有 GPU，并且使用了正确版本的 paddlepaddle。例如系统使用 CUDA 10.2, CuDNN7.6 ，你可以安装 paddlepaddle-gpu 2.4.1：
 ```bash
-# 注意：2.4rc 只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
-python3 -m pip install paddlepaddle-gpu==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
+# 注意：2.4.1 只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
+python3 -m pip install paddlepaddle-gpu==2.4.1 -i https://mirror.baidu.com/pypi/simple
 ```
 你也可以安装 develop 版本的PaddlePaddle. 例如系统使用 CUDA 10.2， CuDNN7.6 ，你可以安装 paddlepaddle-gpu develop:
 ```bash

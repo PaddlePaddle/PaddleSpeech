@@ -88,7 +88,10 @@ def parse_args():
         "--quantizable_op_type",
         type=list,
         nargs='+',
-        default=["conv2d", "depthwise_conv2d", "mul", "matmul", "matmul_v2"],
+        default=[
+            "conv2d_transpose", "conv2d", "depthwise_conv2d", "mul", "matmul",
+            "matmul_v2"
+        ],
         help="The list of op types that will be quantized.")
 
     args = parser.parse_args()

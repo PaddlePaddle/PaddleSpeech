@@ -32,7 +32,6 @@ def parse_args():
             'fastspeech2_aishell3',
             'fastspeech2_ljspeech',
             'fastspeech2_vctk',
-            'tacotron2_csmsc',
             'fastspeech2_mix',
             'pwgan_csmsc',
             'pwgan_aishell3',
@@ -43,7 +42,6 @@ def parse_args():
             'hifigan_aishell3',
             'hifigan_ljspeech',
             'hifigan_vctk',
-            'wavernn_csmsc',
         ],
         help='Choose model type of tts task.')
 
@@ -111,7 +109,6 @@ def quantize(args):
     place = paddle.CUDAPlace(0) if args.ngpu > 0 else paddle.CPUPlace()
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
-    # dev_metadata = dev_metadata[:args.batch_size]
 
     dataloader = get_dev_dataloader(
         dev_metadata=dev_metadata,

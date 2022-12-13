@@ -24,9 +24,9 @@ from typing import Tuple
 import paddle
 from paddle import jit
 from paddle import nn
+
 from paddlespeech.audio.utils.tensor_utils import add_sos_eos
 from paddlespeech.audio.utils.tensor_utils import th_accuracy
-
 from paddlespeech.s2t.frontend.utility import IGNORE_ID
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.modules.cmvn import GlobalCMVN

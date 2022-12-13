@@ -210,7 +210,7 @@
 
 ### 相关依赖
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.4rc
++ paddlepaddle >= 2.4.1
 + python >= 3.7
 + linux(推荐), mac, windows
 
@@ -221,8 +221,8 @@ pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 ```
 你也可以安装指定版本的paddlepaddle，或者安装 develop 版本。
 ```bash
-# 安装2.3.1版本. 注意：2.3.1只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
-pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# 安装2.4.1版本. 注意：2.4.1只是一个示例，请按照对paddlepaddle的最小依赖进行选择。
+pip install paddlepaddle==2.4.1 -i https://mirror.baidu.com/pypi/simple
 # 安装 develop 版本
 pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```

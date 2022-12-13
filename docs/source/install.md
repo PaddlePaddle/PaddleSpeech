@@ -63,8 +63,8 @@ pip install paddlespeech -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 You can also specify the version of paddlepaddle or install the develop version. 
 ```bash
-# install 2.4.0 version. Note, 2.4.0 is just an example, please follow the minimum dependency of paddlepaddle for your selection
-pip install paddlepaddle==2.4.0 -i https://mirror.baidu.com/pypi/simple
+# install 2.4.1 version. Note, 2.4.1 is just an example, please follow the minimum dependency of paddlepaddle for your selection
+pip install paddlepaddle==2.4.1 -i https://mirror.baidu.com/pypi/simple
 # install develop version
 pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```
@@ -124,10 +124,10 @@ conda install -y -c gcc_linux-64=8.4.0 gxx_linux-64=8.4.0
 ```
 (Hip: Do not use the last script if you want to install by **Hard** way):
 ### Install PaddlePaddle
-You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu 2.4:
+You can choose the `PaddlePaddle` version based on your system. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu 2.4.1:
 ```bash
-# Note, 2.4 is just an example, please follow the minimum dependency of paddlepaddle for your selection
-python3 -m pip install paddlepaddle-gpu==2.4.0rc0 -i https://mirror.baidu.com/pypi/simple
+# Note, 2.4.1 is just an example, please follow the minimum dependency of paddlepaddle for your selection
+python3 -m pip install paddlepaddle-gpu==2.4.1 -i https://mirror.baidu.com/pypi/simple
 ```
 You can also install the develop version of paddlepaddle. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu develop:
 ```bash
@@ -188,10 +188,10 @@ conda activate tools/venv
 conda install -y -c conda-forge sox libsndfile swig bzip2 libflac bc
 ```
 ### Install PaddlePaddle
-Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.6 install paddle 2.4:
+Make sure you have GPU and the paddlepaddle version is right. For example, for CUDA 10.2, CuDNN7.6 install paddle 2.4.1:
 ```bash
 # Note, 2.4 is just an example, please follow the minimum dependency of paddlepaddle for your selection
-python3 -m pip install paddlepaddle-gpu==2.4.0 -i https://mirror.baidu.com/pypi/simple
+python3 -m pip install paddlepaddle-gpu==2.4.1 -i https://mirror.baidu.com/pypi/simple
 ```
 You can also install the develop version of paddlepaddle. For example, for CUDA 10.2, CuDNN7.6 install paddlepaddle-gpu develop:
 ```bash

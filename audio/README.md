@@ -29,7 +29,6 @@ MAC：test build whl envrioment：
 * gcc/g++/gfortran 12.2.0
 * cpu Intel Xeon E5 x86_64
 
-
 Windows：
 not support： paddleaudio C++ extension lib (sox io, kaldi native fbank)
 python setup.py bdist_wheel

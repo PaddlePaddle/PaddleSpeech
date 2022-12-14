@@ -3,6 +3,13 @@ set(openfst_PREFIX_DIR ${fc_patch}/openfst)
 set(openfst_SOURCE_DIR ${fc_patch}/openfst-src)
 set(openfst_BINARY_DIR ${fc_patch}/openfst-build)
 
+# openfst Acknowledgments:
+#Cyril Allauzen, Michael Riley, Johan Schalkwyk, Wojciech Skut and Mehryar Mohri, 
+#"OpenFst: A General and Efficient Weighted Finite-State Transducer Library", 
+#Proceedings of the Ninth International Conference on Implementation and 
+#Application of Automata, (CIAA 2007), volume 4783 of Lecture Notes in 
+#Computer Science, pages 11-23. Springer, 2007. http://www.openfst.org.
+
 ExternalProject_Add(openfst
   URL               https://paddleaudio.bj.bcebos.com/build/openfst_1.7.2.zip
   URL_HASH          SHA256=ffc56931025579a8af3515741c0f3b0fc3a854c023421472c07ca0c6389c75e6

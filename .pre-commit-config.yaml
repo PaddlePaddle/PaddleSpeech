@@ -3,12 +3,8 @@ repos:
     rev: v0.16.0
     hooks:
     -   id: yapf
-        name: yapf
-        language: python
-        entry: yapf
-        args: [-i, -vv]
-        types: [python]
-        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src|third_party).*(\.cpp|\.cc|\.h\.hpp|\.py)$
+        files: \.py$
+        exclude: (?=third_party).*(\.py)$
 
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: a11d9314b22d8f8c7556443875b731ef05965464

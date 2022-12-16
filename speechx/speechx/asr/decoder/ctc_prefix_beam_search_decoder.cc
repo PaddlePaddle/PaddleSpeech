@@ -84,7 +84,7 @@ void CTCPrefixBeamSearch::AdvanceDecode(
 
         timer.Reset();
         std::vector<std::vector<kaldi::BaseFloat>> likelihood;
-        likelihood.push_back(frame_prob);
+        likelihood.push_back(std::move(frame_prob));
         AdvanceDecoding(likelihood);
         search_cost += timer.Elapsed();
 

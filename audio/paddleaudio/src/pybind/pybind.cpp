@@ -1,7 +1,9 @@
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 
+#ifdef INCLUDE_KALDI
 #include "paddleaudio/src/pybind/kaldi/kaldi_feature.h"
 #include "paddleaudio/third_party/kaldi/feat/feature-fbank.h"
+#endif
 
 #ifdef INCLUDE_SOX
 #include "paddleaudio/src/pybind/sox/io.h"

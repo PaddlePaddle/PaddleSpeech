@@ -32,7 +32,8 @@ logger = Log(__name__).getlog()
 
 __all__ = [
     "LinearNoSubsampling", "Conv2dSubsampling4", "Conv2dSubsampling6",
-    "Conv2dSubsampling8"
+    "Conv2dSubsampling8", "TimeReductionLayerStream", "TimeReductionLayer1D",
+    "TimeReductionLayer2D", "DepthwiseConv2DSubsampling4"
 ]
 
 

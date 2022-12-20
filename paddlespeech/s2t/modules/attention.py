@@ -26,7 +26,7 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["MultiHeadedAttention", "RelPositionMultiHeadedAttention"]
+__all__ = ["MultiHeadedAttention", "RelPositionMultiHeadedAttention", "RelPositionMultiHeadedAttention2"]
 
 # Relative Positional Encodings
 # https://www.jianshu.com/p/c0608efcc26f

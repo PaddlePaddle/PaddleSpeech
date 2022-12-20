@@ -5,7 +5,7 @@ from paddle import nn
 from paddle.nn import initializer as I
 from typeguard import check_argument_types
 
-__all__ = ['ConvolutionModule']
+__all__ = ['ConvolutionModule2']
 
 from paddlespeech.s2t import masked_fill
 from paddlespeech.s2t.modules.align import Conv1D, BatchNorm1D, LayerNorm

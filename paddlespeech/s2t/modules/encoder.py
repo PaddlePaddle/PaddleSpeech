@@ -43,7 +43,7 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["BaseEncoder", 'TransformerEncoder', "ConformerEncoder"]
+__all__ = ["BaseEncoder", 'TransformerEncoder', "ConformerEncoder", "SqueezeformerEncoder"]
 
 
 class BaseEncoder(nn.Layer):

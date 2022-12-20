@@ -26,7 +26,7 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["TransformerEncoderLayer", "ConformerEncoderLayer"]
+__all__ = ["TransformerEncoderLayer", "ConformerEncoderLayer", "SqueezeformerEncoderLayer"]
 
 
 class TransformerEncoderLayer(nn.Layer):

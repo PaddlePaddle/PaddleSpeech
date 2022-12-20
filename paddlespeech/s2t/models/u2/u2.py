@@ -42,7 +42,8 @@ from paddlespeech.s2t.modules.cmvn import GlobalCMVN
 from paddlespeech.s2t.modules.ctc import CTCDecoderBase
 from paddlespeech.s2t.modules.decoder import BiTransformerDecoder
 from paddlespeech.s2t.modules.decoder import TransformerDecoder
-from paddlespeech.s2t.modules.encoder import ConformerEncoder, SqueezeformerEncoder
+from paddlespeech.s2t.modules.encoder import ConformerEncoder
+from paddlespeech.s2t.modules.encoder import SqueezeformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
 from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 from paddlespeech.s2t.modules.loss import LabelSmoothingLoss

@@ -23,7 +23,7 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["PositionwiseFeedForward"]
+__all__ = ["PositionwiseFeedForward", "PositionwiseFeedForward2"]
 
 
 class PositionwiseFeedForward(nn.Layer):

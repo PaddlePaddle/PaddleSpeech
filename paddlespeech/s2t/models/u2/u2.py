@@ -42,7 +42,7 @@ from paddlespeech.s2t.modules.cmvn import GlobalCMVN
 from paddlespeech.s2t.modules.ctc import CTCDecoderBase
 from paddlespeech.s2t.modules.decoder import BiTransformerDecoder
 from paddlespeech.s2t.modules.decoder import TransformerDecoder
-from paddlespeech.s2t.modules.encoder import ConformerEncoder
+from paddlespeech.s2t.modules.encoder import ConformerEncoder, SqueezeformerEncoder
 from paddlespeech.s2t.modules.encoder import TransformerEncoder
 from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 from paddlespeech.s2t.modules.loss import LabelSmoothingLoss
@@ -904,6 +904,9 @@ class U2Model(U2DecodeModel):
                 input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
         elif encoder_type == 'conformer':
             encoder = ConformerEncoder(
+                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+        elif encoder_type == 'squeezeformer':
+            encoder = SqueezeformerEncoder(
                 input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
         else:
             raise ValueError(f"not support encoder type:{encoder_type}")

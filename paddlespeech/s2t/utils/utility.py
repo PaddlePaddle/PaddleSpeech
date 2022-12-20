@@ -130,11 +130,19 @@ def get_subsample(config):
     Returns:
         int: subsample rate.
     """
-    input_layer = config["encoder_conf"]["input_layer"]
-    assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
+    if config['encoder'] == 'squeezeformer':
+        input_layer = config["encoder_conf"]["time_reduction_layer_type"]
+        assert input_layer in ["conv2d", "conv1d", "stream"]
+    else:
+        input_layer = config["encoder_conf"]["input_layer"]
+        assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
     if input_layer == "conv2d":
         return 4
     elif input_layer == "conv2d6":
         return 6
     elif input_layer == "conv2d8":
+        return 8
+    elif input_layer == "conv1d":
+        return 6
+    elif input_layer == "stream":
         return 8

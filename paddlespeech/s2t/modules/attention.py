@@ -26,7 +26,10 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["MultiHeadedAttention", "RelPositionMultiHeadedAttention", "RelPositionMultiHeadedAttention2"]
+__all__ = [
+    "MultiHeadedAttention", "RelPositionMultiHeadedAttention",
+    "RelPositionMultiHeadedAttention2"
+]
 
 # Relative Positional Encodings
 # https://www.jianshu.com/p/c0608efcc26f
@@ -341,7 +344,13 @@ class RelPositionMultiHeadedAttention2(MultiHeadedAttention):
         dropout_rate (float): Dropout rate.
     """
 
-    def __init__(self, n_head, n_feat, dropout_rate, do_rel_shift=False, adaptive_scale=False, init_weights=False):
+    def __init__(self,
+                 n_head,
+                 n_feat,
+                 dropout_rate,
+                 do_rel_shift=False,
+                 adaptive_scale=False,
+                 init_weights=False):
         """Construct an RelPositionMultiHeadedAttention object."""
         super().__init__(n_head, n_feat, dropout_rate)
         # linear transformation for positional encoding
@@ -349,32 +358,46 @@ class RelPositionMultiHeadedAttention2(MultiHeadedAttention):
         # these two learnable bias are used in matrix c and matrix d
         # as described in https://arxiv.org/abs/1901.02860 Section 3.3
         self.do_rel_shift = do_rel_shift
-        pos_bias_u = self.create_parameter([self.h, self.d_k], default_initializer=I.XavierUniform())
+        pos_bias_u = self.create_parameter(
+            [self.h, self.d_k], default_initializer=I.XavierUniform())
         self.add_parameter('pos_bias_u', pos_bias_u)
-        pos_bias_v = self.create_parameter([self.h, self.d_k], default_initializer=I.XavierUniform())
+        pos_bias_v = self.create_parameter(
+            [self.h, self.d_k], default_initializer=I.XavierUniform())
         self.add_parameter('pos_bias_v', pos_bias_v)
         self.adaptive_scale = adaptive_scale
-        ada_scale = self.create_parameter([1, 1, n_feat], default_initializer=I.Constant(1.0))
+        ada_scale = self.create_parameter(
+            [1, 1, n_feat], default_initializer=I.Constant(1.0))
         self.add_parameter('ada_scale', ada_scale)
-        ada_bias = self.create_parameter([1, 1, n_feat], default_initializer=I.Constant(0.0))
+        ada_bias = self.create_parameter(
+            [1, 1, n_feat], default_initializer=I.Constant(0.0))
         self.add_parameter('ada_bias', ada_bias)
         if init_weights:
             self.init_weights()
 
     def init_weights(self):
-        input_max = (self.h * self.d_k) ** -0.5
-        self.linear_q._param_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_q._bias_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_k._param_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_k._bias_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_v._param_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_v._bias_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_pos._param_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_pos._bias_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_out._param_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
-        self.linear_out._bias_attr = paddle.nn.initializer.Uniform(low=-input_max, high=input_max)
+        input_max = (self.h * self.d_k)**-0.5
+        self.linear_q._param_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_q._bias_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_k._param_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_k._bias_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_v._param_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_v._bias_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_pos._param_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_pos._bias_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_out._param_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
+        self.linear_out._bias_attr = paddle.nn.initializer.Uniform(
+            low=-input_max, high=input_max)
 
-    def rel_shift(self, x, zero_triu: bool = False):
+    def rel_shift(self, x, zero_triu: bool=False):
         """Compute relative positinal encoding.
         Args:
             x (paddle.Tensor): Input tensor (batch, head, time1, time1).
@@ -383,10 +406,12 @@ class RelPositionMultiHeadedAttention2(MultiHeadedAttention):
         Returns:
             paddle.Tensor: Output tensor. (batch, head, time1, time1)
         """
-        zero_pad = paddle.zeros([x.shape[0], x.shape[1], x.shape[2], 1], dtype=x.dtype)
+        zero_pad = paddle.zeros(
+            [x.shape[0], x.shape[1], x.shape[2], 1], dtype=x.dtype)
         x_padded = paddle.concat([zero_pad, x], axis=-1)
 
-        x_padded = x_padded.reshape([x.shape[0], x.shape[1], x.shape[3] + 1, x.shape[2]])
+        x_padded = x_padded.reshape(
+            [x.shape[0], x.shape[1], x.shape[3] + 1, x.shape[2]])
         x = x_padded[:, :, 1:].reshape(paddle.shape(x))  # [B, H, T1, T1]
 
         if zero_triu:
@@ -395,12 +420,14 @@ class RelPositionMultiHeadedAttention2(MultiHeadedAttention):
 
         return x
 
-    def forward(self, query: paddle.Tensor,
-                key: paddle.Tensor, value: paddle.Tensor,
-                mask: paddle.Tensor = paddle.ones((0, 0, 0), dtype=paddle.bool),
-                pos_emb: paddle.Tensor = paddle.empty([0]),
-                cache: paddle.Tensor = paddle.zeros((0, 0, 0, 0))
-                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    def forward(self,
+                query: paddle.Tensor,
+                key: paddle.Tensor,
+                value: paddle.Tensor,
+                mask: paddle.Tensor=paddle.ones((0, 0, 0), dtype=paddle.bool),
+                pos_emb: paddle.Tensor=paddle.empty([0]),
+                cache: paddle.Tensor=paddle.zeros(
+                    (0, 0, 0, 0))) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
         Args:
             query (paddle.Tensor): Query tensor (#batch, time1, size).
@@ -434,7 +461,8 @@ class RelPositionMultiHeadedAttention2(MultiHeadedAttention):
         new_cache = paddle.concat((k, v), axis=-1)
 
         n_batch_pos = pos_emb.shape[0]
-        p = self.linear_pos(pos_emb).reshape([n_batch_pos, -1, self.h, self.d_k])
+        p = self.linear_pos(pos_emb).reshape(
+            [n_batch_pos, -1, self.h, self.d_k])
         p = p.transpose([0, 2, 1, 3])  # (batch, head, time1, d_k)
 
         # (batch, head, time1, d_k)
@@ -460,6 +488,7 @@ class RelPositionMultiHeadedAttention2(MultiHeadedAttention):
         if self.do_rel_shift:
             matrix_bd = self.rel_shift(matrix_bd)
 
-        scores = (matrix_ac + matrix_bd) / math.sqrt(self.d_k)  # (batch, head, time1, time2)
+        scores = (matrix_ac + matrix_bd) / math.sqrt(
+            self.d_k)  # (batch, head, time1, time2)
 
         return self.forward_attention(v, scores, mask), new_cache

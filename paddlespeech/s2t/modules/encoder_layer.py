@@ -26,7 +26,10 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["TransformerEncoderLayer", "ConformerEncoderLayer", "SqueezeformerEncoderLayer"]
+__all__ = [
+    "TransformerEncoderLayer", "ConformerEncoderLayer",
+    "SqueezeformerEncoderLayer"
+]
 
 
 class TransformerEncoderLayer(nn.Layer):
@@ -281,16 +284,15 @@ class ConformerEncoderLayer(nn.Layer):
 class SqueezeformerEncoderLayer(nn.Layer):
     """Encoder layer module."""
 
-    def __init__(
-            self,
-            size: int,
-            self_attn: paddle.nn.Layer,
-            feed_forward1: Optional[nn.Layer] = None,
-            conv_module: Optional[nn.Layer] = None,
-            feed_forward2: Optional[nn.Layer] = None,
-            normalize_before: bool = False,
-            dropout_rate: float = 0.1,
-            concat_after: bool = False):
+    def __init__(self,
+                 size: int,
+                 self_attn: paddle.nn.Layer,
+                 feed_forward1: Optional[nn.Layer]=None,
+                 conv_module: Optional[nn.Layer]=None,
+                 feed_forward2: Optional[nn.Layer]=None,
+                 normalize_before: bool=False,
+                 dropout_rate: float=0.1,
+                 concat_after: bool=False):
         """Construct an EncoderLayer object.
 
         Args:
@@ -332,9 +334,9 @@ class SqueezeformerEncoderLayer(nn.Layer):
             x: paddle.Tensor,
             mask: paddle.Tensor,
             pos_emb: paddle.Tensor,
-            mask_pad: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
-            att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+            mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
+            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:

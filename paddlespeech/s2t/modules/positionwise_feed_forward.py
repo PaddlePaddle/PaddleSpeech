@@ -16,8 +16,8 @@
 """Positionwise feed forward layer definition."""
 import paddle
 from paddle import nn
-
 from paddle.nn import initializer as I
+
 from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.utils.log import Log
 
@@ -33,7 +33,7 @@ class PositionwiseFeedForward(nn.Layer):
                  idim: int,
                  hidden_units: int,
                  dropout_rate: float,
-                 activation: nn.Layer = nn.ReLU()):
+                 activation: nn.Layer=nn.ReLU()):
         """Construct a PositionwiseFeedForward object.
 
         FeedForward are appied on each position of the sequence.
@@ -78,9 +78,9 @@ class PositionwiseFeedForward2(paddle.nn.Layer):
                  idim: int,
                  hidden_units: int,
                  dropout_rate: float,
-                 activation: paddle.nn.Layer = paddle.nn.ReLU(),
-                 adaptive_scale: bool = False,
-                 init_weights: bool = False):
+                 activation: paddle.nn.Layer=paddle.nn.ReLU(),
+                 adaptive_scale: bool=False,
+                 init_weights: bool=False):
         """Construct a PositionwiseFeedForward object."""
         super(PositionwiseFeedForward2, self).__init__()
         self.idim = idim
@@ -90,21 +90,27 @@ class PositionwiseFeedForward2(paddle.nn.Layer):
         self.dropout = paddle.nn.Dropout(dropout_rate)
         self.w_2 = Linear(hidden_units, idim)
         self.adaptive_scale = adaptive_scale
-        ada_scale = self.create_parameter([1, 1, idim], default_initializer=I.XavierUniform())
+        ada_scale = self.create_parameter(
+            [1, 1, idim], default_initializer=I.XavierUniform())
         self.add_parameter('ada_scale', ada_scale)
-        ada_bias = self.create_parameter([1, 1, idim], default_initializer=I.XavierUniform())
+        ada_bias = self.create_parameter(
+            [1, 1, idim], default_initializer=I.XavierUniform())
         self.add_parameter('ada_bias', ada_bias)
 
         if init_weights:
             self.init_weights()
 
     def init_weights(self):
-        ffn1_max = self.idim ** -0.5
-        ffn2_max = self.hidden_units ** -0.5
-        self.w_1._param_attr = paddle.nn.initializer.Uniform(low=-ffn1_max, high=ffn1_max)
-        self.w_1._bias_attr = paddle.nn.initializer.Uniform(low=-ffn1_max, high=ffn1_max)
-        self.w_2._param_attr = paddle.nn.initializer.Uniform(low=-ffn2_max, high=ffn2_max)
-        self.w_2._bias_attr = paddle.nn.initializer.Uniform(low=-ffn2_max, high=ffn2_max)
+        ffn1_max = self.idim**-0.5
+        ffn2_max = self.hidden_units**-0.5
+        self.w_1._param_attr = paddle.nn.initializer.Uniform(
+            low=-ffn1_max, high=ffn1_max)
+        self.w_1._bias_attr = paddle.nn.initializer.Uniform(
+            low=-ffn1_max, high=ffn1_max)
+        self.w_2._param_attr = paddle.nn.initializer.Uniform(
+            low=-ffn2_max, high=ffn2_max)
+        self.w_2._bias_attr = paddle.nn.initializer.Uniform(
+            low=-ffn2_max, high=ffn2_max)
 
     def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
         """Forward function.

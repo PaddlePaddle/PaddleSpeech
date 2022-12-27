@@ -45,7 +45,7 @@ option(USE_PROFILING "enable c++ profling" OFF)
 option(WITH_TESTING "unit test" ON)
 
 option(USING_U2  "compile u2 model." ON)
-option(USING_DS2 "compile with ds2 model." ON)
+option(USING_DS2 "compile with ds2 model." OFF)
 
 option(USING_GPU "u2 compute on GPU." OFF)
 

@@ -30,6 +30,7 @@ endif()
 if (USING_U2)
   set(TEST_BINS 
     u2_recognizer_main
+    u2_recognizer_thread_main
   )
 
   foreach(bin_name IN LISTS TEST_BINS)

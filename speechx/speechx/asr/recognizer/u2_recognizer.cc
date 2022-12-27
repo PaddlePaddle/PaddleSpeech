@@ -27,13 +27,13 @@ using std::vector;
 
 U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     : opts_(resource) {
-    const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
-    feature_pipeline_.reset(new FeaturePipeline(feature_opts));
-
-    std::shared_ptr<NnetBase> nnet(new U2Nnet(resource.model_opts));
-
     BaseFloat am_scale = resource.acoustic_scale;
-    decodable_.reset(new Decodable(nnet, feature_pipeline_, am_scale));
+    const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
+    std::shared_ptr<FeaturePipeline> feature_pipeline(
+        new FeaturePipeline(feature_opts));
+    std::shared_ptr<NnetBase> nnet(new U2Nnet(resource.model_opts));
+    nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline));
+    decodable_.reset(new Decodable(nnet_producer_, am_scale));
 
     CHECK_NE(resource.vocab_path, "");
     decoder_.reset(new CTCPrefixBeamSearch(
@@ -49,6 +49,7 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
 
 void U2Recognizer::Reset() {
     global_frame_offset_ = 0;
+    input_finished_ = false;
     num_frames_ = 0;
     result_.clear();
 
@@ -68,7 +69,7 @@ void U2Recognizer::ResetContinuousDecoding() {
 
 void U2Recognizer::Accept(const VectorBase<BaseFloat>& waves) {
     kaldi::Timer timer;
-    feature_pipeline_->Accept(waves);
+    nnet_producer_->Accept(waves);
     VLOG(1) << "feed waves cost: " << timer.Elapsed() << " sec. " << waves.Dim()
             << " samples.";
 }
@@ -210,7 +211,7 @@ std::string U2Recognizer::GetFinalResult() { return result_[0].sentence; }
 std::string U2Recognizer::GetPartialResult() { return result_[0].sentence; }
 
 void U2Recognizer::SetFinished() {
-    feature_pipeline_->SetFinished();
+    nnet_producer_->SetFinished();
     input_finished_ = true;
 }
 

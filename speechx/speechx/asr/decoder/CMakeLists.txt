@@ -19,7 +19,7 @@ if (USING_U2)
 endif()
 
 add_library(decoder STATIC ${srcs})
-target_link_libraries(decoder PUBLIC kenlm utils fst frontend nnet kaldi-decoder absl::strings)
+target_link_libraries(decoder PUBLIC kenlm utils fst frontend nnet kaldi-decoder)
 
 # test
 if (USING_DS2)

@@ -9,7 +9,7 @@ if(USING_U2)
 endif()
 
 add_library(nnet STATIC ${srcs})
-target_link_libraries(nnet absl::strings)
+target_link_libraries(nnet utils)
 
 if(USING_U2)
   target_compile_options(nnet  PUBLIC ${PADDLE_COMPILE_FLAGS})

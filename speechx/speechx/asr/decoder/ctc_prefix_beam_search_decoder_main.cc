@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/ctc_prefix_beam_search_decoder.h"
-#include "absl/strings/str_split.h"
 #include "base/common.h"
+#include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "frontend/audio/data_cache.h"
 #include "fst/symbol-table.h"
 #include "kaldi/util/table-types.h"

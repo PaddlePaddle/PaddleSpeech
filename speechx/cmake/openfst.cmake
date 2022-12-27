@@ -25,3 +25,5 @@ ExternalProject_Add(openfst
 )
 link_directories(${openfst_PREFIX_DIR}/lib)
 include_directories(${openfst_PREFIX_DIR}/include)
+message(STATUS "OpenFST inc dir: ${openfst_PREFIX_DIR}/include")
+message(STATUS "OpenFST lib dir: ${openfst_PREFIX_DIR}/lib")

@@ -1,19 +1,28 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
-project(paddlespeech VERSION 0.1)
-
 set(CMAKE_PROJECT_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnableCMP0048.cmake")
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(system)
+
+# Ninja Generator will set CMAKE_BUILD_TYPE to Debug
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE
+      "Release"
+      CACHE
+        STRING
+        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel"
+        FORCE)
+endif()
+
+project(paddlespeech VERSION 0.1)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
 # set std-14
 set(CMAKE_CXX_STANDARD 14)
 
-# cmake dir
-set(speechx_cmake_dir ${PROJECT_SOURCE_DIR}/cmake)
-
-# Modules
-list(APPEND CMAKE_MODULE_PATH ${speechx_cmake_dir})
 include(FetchContent)
 include(ExternalProject)
 
@@ -33,6 +42,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall
 ###############################################################################
 option(TEST_DEBUG "option for debug" OFF)
 option(USE_PROFILING "enable c++ profling" OFF)
+option(WITH_TESTING "unit test" ON)
 
 option(USING_U2  "compile u2 model." ON)
 option(USING_DS2 "compile with ds2 model." OFF)
@@ -42,25 +52,9 @@ option(USING_GPU "u2 compute on GPU." OFF)
 ###############################################################################
 # Include third party
 ###############################################################################
-# example for include third party
-# FetchContent_MakeAvailable was not added until CMake 3.14
-# FetchContent_MakeAvailable()
-# include_directories()
-
-# gflags
 include(gflags)
 
-# glog
 include(glog)
-
-# gtest
-include(gtest)
-
-# ABSEIL-CPP
-include(absl)
-
-# libsndfile
-include(libsndfile)
 
 # boost
 # include(boost) # not work
@@ -86,6 +80,11 @@ add_dependencies(openfst gflags glog)
 
 # paddle lib
 include(paddleinference)
+
+# gtest
+if(WITH_TESTING)
+    include(gtest) # download, build, install gtest
+endif()
 
 # python/pybind11/threads
 find_package(Threads REQUIRED)
@@ -165,15 +164,6 @@ message(STATUS PADDLE_LIB_DIRS= ${PADDLE_LIB_DIRS})
 ###############################################################################
 # Add local library
 ###############################################################################
-# system lib 
-#find_package()
-# if dir have CmakeLists.txt 
-#add_subdirectory(speechx)
-# if dir do not have CmakeLists.txt 
-#add_library(lib_name STATIC file.cc)
-#target_link_libraries(lib_name item0 item1)
-#add_dependencies(lib_name depend-target)
-
 set(SPEECHX_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/speechx)
 
 add_subdirectory(speechx)

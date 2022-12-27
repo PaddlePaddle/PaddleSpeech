@@ -1,3 +1,4 @@
+
 include(FetchContent)
 FetchContent_Declare(
   gtest
@@ -7,3 +8,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(gtest)
 
 include_directories(${gtest_BINARY_DIR} ${gtest_SOURCE_DIR}/src)
+
+
+if(WITH_TESTING)
+  enable_testing()
+endif()

@@ -47,7 +47,7 @@ base = [
     "onnxruntime==1.11.0",
     "opencc",
     "pandas",
-    "paddlenlp>=2.4.3, <=2.4.5",
+    "paddlenlp>=2.4.8",
     "paddlespeech_feat",
     "Pillow>=9.0.0",
     "praatio==5.0.0",

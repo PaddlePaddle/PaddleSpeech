@@ -62,11 +62,13 @@ class Decodable : public kaldi::DecodableInterface {
 
     int32 TokenId2NnetId(int32 token_id);
 
+
     // for offline test
     void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
 
   private:
     std::shared_ptr<NnetProducer> nnet_producer_;
+
 
     // the frame is nnet prob frame rather than audio feature frame
     // nnet frame subsample the feature frame
@@ -79,7 +81,6 @@ class Decodable : public kaldi::DecodableInterface {
     int32 current_log_post_subsampled_offset_;
     int32 num_chunk_computed_;
     std::vector<kaldi::BaseFloat> framelikelihood_;
-
     kaldi::BaseFloat acoustic_scale_;
 };
 

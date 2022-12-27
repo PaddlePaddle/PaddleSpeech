@@ -50,6 +50,7 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
 void U2Recognizer::Reset() {
     global_frame_offset_ = 0;
     input_finished_ = false;
+
     num_frames_ = 0;
     result_.clear();
 

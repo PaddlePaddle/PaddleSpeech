@@ -23,3 +23,11 @@ Subpackages
    paddlespeech.text
    paddlespeech.utils
    paddlespeech.vector
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   paddlespeech.version

@@ -55,13 +55,12 @@ class Clip(object):
         Args:
             batch (list): list of tuple of the pair of audio and features. Audio shape (T, ), features shape(T', C).
 
-        Returns: 
+        Returns:
+            Tensor:
+                Target signal batch (B, 1, T).
             Tensor:
                 Auxiliary feature batch (B, C, T'), where
                 T = (T' - 2 * aux_context_window) * hop_size.
-            Tensor:
-                Target signal batch (B, 1, T).
-
         """
         # check length
         batch = [
@@ -106,11 +105,7 @@ class Clip(object):
         if len(x) < c.shape[0] * self.hop_size:
             x = np.pad(x, (0, c.shape[0] * self.hop_size - len(x)), mode="edge")
         elif len(x) > c.shape[0] * self.hop_size:
-            # print(
-            #     f"wave length: ({len(x)}), mel length: ({c.shape[0]}), hop size: ({self.hop_size })"
-            # )
             x = x[:c.shape[0] * self.hop_size]
-
         # check the legnth is valid
         assert len(x) == c.shape[
             0] * self.hop_size, f"wave length: ({len(x)}), mel length: ({c.shape[0]})"
@@ -218,3 +213,47 @@ class WaveRNNClip(Clip):
             y = label_2_float(paddle.cast(y, dtype='float32'), self.bits)
 
         return x, y, mels
+
+
+# for paddleslim
+
+
+class Clip_static(Clip):
+    """Collate functor for training vocoders.
+    """
+
+    def __call__(self, batch):
+        """Convert into batch tensors.
+
+        Args:
+            batch (list): list of tuple of the pair of audio and features. Audio shape (T, ), features shape(T', C).
+
+        Returns: 
+            Dict[str, np.array]:
+                Auxiliary feature batch (B, C, T'), where
+                T = (T' - 2 * aux_context_window) * hop_size.
+        """
+        # check length
+        batch = [
+            self._adjust_length(b['wave'], b['feats']) for b in batch
+            if b['feats'].shape[0] > self.mel_threshold
+        ]
+        xs, cs = [b[0] for b in batch], [b[1] for b in batch]
+
+        # make batch with random cut
+        c_lengths = [c.shape[0] for c in cs]
+        start_frames = np.array([
+            np.random.randint(self.start_offset, cl + self.end_offset)
+            for cl in c_lengths
+        ])
+
+        c_starts = start_frames - self.aux_context_window
+        c_ends = start_frames + self.batch_max_frames + self.aux_context_window
+        c_batch = np.stack(
+            [c[start:end] for c, start, end in zip(cs, c_starts, c_ends)])
+        # infer axis (T',C) is different with train axis (B, C, T')
+        # c_batch = c_batch.transpose([0, 2, 1])  # (B, C, T')
+        # do not need batch axis in infer
+        c_batch = c_batch[0]
+        batch = {"logmel": c_batch}
+        return batch

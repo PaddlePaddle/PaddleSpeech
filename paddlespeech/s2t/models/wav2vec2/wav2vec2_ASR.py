@@ -76,28 +76,66 @@ class Wav2vec2ASR(nn.Layer):
                feats: paddle.Tensor,
                text_feature: Dict[str, int],
                decoding_method: str,
-               beam_size: int):
+               beam_size: int,
+               tokenizer: str=None):
         batch_size = feats.shape[0]
 
         if decoding_method == 'ctc_prefix_beam_search' and batch_size > 1:
-            logger.error(
-                f'decoding mode {decoding_method} must be running with batch_size == 1'
+            raise ValueError(
+                f"decoding mode {decoding_method} must be running with batch_size == 1"
             )
-            logger.error(f"current batch_size is {batch_size}")
-            sys.exit(1)
 
         if decoding_method == 'ctc_greedy_search':
-            hyps = self.ctc_greedy_search(feats)
-            res = [text_feature.defeaturize(hyp) for hyp in hyps]
-            res_tokenids = [hyp for hyp in hyps]
+            if tokenizer is None:
+                hyps = self.ctc_greedy_search(feats)
+                res = [text_feature.defeaturize(hyp) for hyp in hyps]
+                res_tokenids = [hyp for hyp in hyps]
+            else:
+                hyps = self.ctc_greedy_search(feats)
+                res = []
+                res_tokenids = []
+                for sequence in hyps:
+                    # Decode token terms to words
+                    predicted_tokens = text_feature.convert_ids_to_tokens(
+                        sequence)
+                    tmp_res = []
+                    tmp_res_tokenids = []
+                    for c in predicted_tokens:
+                        if c == "[CLS]":
+                            continue
+                        elif c == "[SEP]" or c == "[PAD]":
+                            break
+                        else:
+                            tmp_res.append(c)
+                            tmp_res_tokenids.append(text_feature.vocab[c])
+                    res.append(''.join(tmp_res))
+                    res_tokenids.append(tmp_res_tokenids)
         # ctc_prefix_beam_search and attention_rescoring only return one
         # result in List[int], change it to List[List[int]] for compatible
         # with other batch decoding mode
         elif decoding_method == 'ctc_prefix_beam_search':
             assert feats.shape[0] == 1
-            hyp = self.ctc_prefix_beam_search(feats, beam_size)
-            res = [text_feature.defeaturize(hyp)]
-            res_tokenids = [hyp]
+            if tokenizer is None:
+                hyp = self.ctc_prefix_beam_search(feats, beam_size)
+                res = [text_feature.defeaturize(hyp)]
+                res_tokenids = [hyp]
+            else:
+                hyp = self.ctc_prefix_beam_search(feats, beam_size)
+                res = []
+                res_tokenids = []
+                predicted_tokens = text_feature.convert_ids_to_tokens(hyp)
+                tmp_res = []
+                tmp_res_tokenids = []
+                for c in predicted_tokens:
+                    if c == "[CLS]":
+                        continue
+                    elif c == "[SEP]" or c == "[PAD]":
+                        break
+                    else:
+                        tmp_res.append(c)
+                        tmp_res_tokenids.append(text_feature.vocab[c])
+                res.append(''.join(tmp_res))
+                res_tokenids.append(tmp_res_tokenids)
         else:
             raise ValueError(
                 f"wav2vec2 not support decoding method: {decoding_method}")

@@ -157,6 +157,10 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 🎉 2022.12.02: Add [end-to-end Prosody Prediction pipeline](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3_rhy) (including using prosody labels in Acoustic Model).
+- 🎉 2022.11.30: Add [TTS Android Demo](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/TTSAndroid).
+- 🤗 2022.11.28: PP-TTS and PP-ASR demos are available in [AIStudio](https://aistudio.baidu.com/aistudio/modelsoverview) and [official website
+ of paddlepaddle](https://www.paddlepaddle.org.cn/models).
 - 👑 2022.11.18: Add [Whisper CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/pull/2640), support multi language recognition and translation.
 - 🔥 2022.11.18: Add [Wav2vec2 CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_ssl), Support ASR and Feature Extraction.
 - 🎉 2022.11.17: Add [male voice for TTS](https://github.com/PaddlePaddle/PaddleSpeech/pull/2660).
@@ -179,7 +183,6 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 👏🏻  2022.05.06: `PaddleSpeech Streaming Server` is available for `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp` and `Text-to-Speech`.
 - 👏🏻  2022.05.06: `PaddleSpeech Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`, `Speaker Verification` and `Punctuation Restoration`.
 - 👏🏻  2022.03.28: `PaddleSpeech CLI` is available for `Speaker Verification`.
-- 🤗  2021.12.14: [ASR](https://huggingface.co/spaces/KPatrick/PaddleSpeechASR) and [TTS](https://huggingface.co/spaces/KPatrick/PaddleSpeechTTS) Demos on Hugging Face Spaces are available!
 - 👏🏻  2021.12.10: `PaddleSpeech CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
 
 ### Community
@@ -191,12 +194,12 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.4rc*.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.4.1*.
 
 ### **Dependency Introduction**
 
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.4rc
++ paddlepaddle >= 2.4.1
 + python >= 3.7
 + OS support:  Linux(recommend), Windows, Mac OSX
 
@@ -207,8 +210,8 @@ pip install paddlepaddle -i https://mirror.baidu.com/pypi/simple
 ```
 You can also specify the version of paddlepaddle or install the develop version. 
 ```bash
-# install 2.3.1 version. Note, 2.3.1 is just an example, please follow the minimum dependency of paddlepaddle for your selection
-pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
+# install 2.4.1 version. Note, 2.4.1 is just an example, please follow the minimum dependency of paddlepaddle for your selection
+pip install paddlepaddle==2.4.1 -i https://mirror.baidu.com/pypi/simple
 # install develop version
 pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```

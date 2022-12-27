@@ -14,7 +14,7 @@ Assuming you have some wave files that stored in your own directory. You should 
 Here is an example to build your custom dataset in `custom_dataset.py`:
 
 ```python
-from paddlespeech.audio.datasets.dataset import AudioClassificationDataset
+from paddleaudio.datasets.dataset import AudioClassificationDataset
 
 class CustomDataset(AudioClassificationDataset):
     meta_file = '/PATH/TO/META_FILE.txt'
@@ -48,7 +48,7 @@ class CustomDataset(AudioClassificationDataset):
 Then you can build dataset and data loader from `CustomDataset`:
 ```python
 import paddle
-from paddlespeech.audio.features import LogMelSpectrogram
+from paddleaudio.features import LogMelSpectrogram
 
 from custom_dataset import CustomDataset
 

@@ -22,7 +22,7 @@ from paddlespeech.vector.exps.ge2e.random_cycle import random_cycle
 
 
 class MultiSpeakerMelDataset(Dataset):
-    """A 2 layer directory thatn contains mel spectrograms in *.npy format.
+    """A 2 layer directory that contains mel spectrograms in *.npy format.
     An Example file structure tree is shown below. We prefer to preprocess
     raw datasets and organized them like this.
 

@@ -16,11 +16,10 @@ import os
 
 import numpy as np
 from paddle import inference
+from paddle.audio.datasets import ESC50
+from paddle.audio.features import MelSpectrogram
+from paddleaudio.backends import soundfile_load as load_audio
 from scipy.special import softmax
-
-from paddlespeech.audio.backends import load as load_audio
-from paddlespeech.audio.datasets import ESC50
-from paddlespeech.audio.features import melspectrogram
 
 # yapf: disable
 parser = argparse.ArgumentParser()
@@ -42,7 +41,7 @@ def extract_features(files: str, **kwargs):
     srs = []
     max_length = float('-inf')
     for file in files:
-        waveform, sr = load_audio(file, sr=None)
+        waveform, sr = load_audio(file)
         max_length = max(max_length, len(waveform))
         waveforms.append(waveform)
         srs.append(sr)
@@ -54,7 +53,7 @@ def extract_features(files: str, **kwargs):
             pad_width = max_length - len(waveforms[i])
             waveforms[i] = np.pad(waveforms[i], pad_width=(0, pad_width))
 
-        feat = melspectrogram(waveforms[i], sr, **kwargs).transpose()
+        feat = MelSpectrogram(waveforms[i], sr, **kwargs).transpose()
         feats.append(feat)
 
     return np.stack(feats, axis=0)

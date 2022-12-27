@@ -17,10 +17,10 @@ from pathlib import Path
 import soundfile as sf
 from timer import timer
 
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_am_output
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_predictor
+from paddlespeech.t2s.exps.lite_syn_utils import get_lite_voc_output
 from paddlespeech.t2s.exps.syn_utils import get_frontend
-from paddlespeech.t2s.exps.syn_utils import get_lite_am_output
-from paddlespeech.t2s.exps.syn_utils import get_lite_predictor
-from paddlespeech.t2s.exps.syn_utils import get_lite_voc_output
 from paddlespeech.t2s.exps.syn_utils import get_sentences
 
 

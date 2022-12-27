@@ -44,10 +44,10 @@ base = [
     "loguru",
     "matplotlib",
     "nara_wpe",
-    "onnxruntime==1.10.0",
+    "onnxruntime==1.11.0",
     "opencc",
     "pandas",
-    "paddlenlp",
+    "paddlenlp>=2.4.8",
     "paddlespeech_feat",
     "Pillow>=9.0.0",
     "praatio==5.0.0",
@@ -71,12 +71,12 @@ base = [
     "prettytable",
     "zhon",
     "colorlog",
-    "pathos == 0.2.8",
+    "pathos==0.2.8",
     "braceexpand",
     "pyyaml",
     "pybind11",
-    "paddlelite",
     "paddleslim==2.3.4",
+    "paddleaudio>=1.0.2",
 ]
 
 server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]

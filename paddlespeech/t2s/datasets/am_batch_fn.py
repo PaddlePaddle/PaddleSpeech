@@ -538,3 +538,70 @@ def vits_multi_spk_batch_fn(examples):
         spk_id = paddle.to_tensor(spk_id)
         batch["spk_id"] = spk_id
     return batch
+
+
+# for PaddleSlim
+def fastspeech2_single_spk_batch_fn_static(examples):
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    text = np.array(text)
+    # do not need batch axis in infer
+    text = text[0]
+    batch = {
+        "text": text,
+    }
+    return batch
+
+
+def fastspeech2_multi_spk_batch_fn_static(examples):
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    text = np.array(text)
+    text = text[0]
+    batch = {
+        "text": text,
+    }
+    if "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = np.array(spk_id)
+        spk_id = spk_id[0]
+        batch["spk_id"] = spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
+        ]
+        spk_emb = np.array(spk_emb)
+        spk_emb = spk_id[spk_emb]
+        batch["spk_emb"] = spk_emb
+    return batch
+
+
+def speedyspeech_single_spk_batch_fn_static(examples):
+    phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
+    tones = [np.array(item["tones"], dtype=np.int64) for item in examples]
+    phones = np.array(phones)
+    tones = np.array(tones)
+    phones = phones[0]
+    tones = tones[0]
+    batch = {
+        "phones": phones,
+        "tones": tones,
+    }
+    return batch
+
+
+def speedyspeech_multi_spk_batch_fn_static(examples):
+    phones = [np.array(item["phones"], dtype=np.int64) for item in examples]
+    tones = [np.array(item["tones"], dtype=np.int64) for item in examples]
+    phones = np.array(phones)
+    tones = np.array(tones)
+    phones = phones[0]
+    tones = tones[0]
+    batch = {
+        "phones": phones,
+        "tones": tones,
+    }
+    if "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = np.array(spk_id)
+        spk_id = spk_id[0]
+        batch["spk_id"] = spk_id
+    return batch

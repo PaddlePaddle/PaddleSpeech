@@ -84,21 +84,36 @@ include(openblas)
 include(openfst)
 add_dependencies(openfst gflags glog)
 
-
 # paddle lib
 include(paddleinference)
 
-
-# paddle core.so
+# python/pybind11/threads
 find_package(Threads REQUIRED)
-find_package(PythonLibs REQUIRED)
-find_package(Python3 REQUIRED)
+# https://cmake.org/cmake/help/latest/module/FindPython3.html#module:FindPython3
+find_package(Python3 COMPONENTS Interpreter Development)
 find_package(pybind11 CONFIG)
 
-message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
-message(STATUS "Pybind11_INCLUDES = ${pybind11_INCLUDE_DIRS}, pybind11_LIBRARIES=${pybind11_LIBRARIES}, pybind11_DEFINITIONS=${pybind11_DEFINITIONS}")
+if(Python3_FOUND)
+  message(STATUS "Python3_FOUND = ${Python3_FOUND}")
+  message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
+  message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
+  message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
+  message(STATUS "Python3_LINK_OPTIONS = ${Python3_LINK_OPTIONS}")
+  set(PYTHON_LIBRARIES ${Python3_LIBRARIES} CACHE STRING "python lib" FORCE)
+  set(PYTHON_INCLUDE_DIR ${Python3_INCLUDE_DIRS} CACHE STRING "python inc" FORCE)
+endif()
 
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "PYTHON_INCLUDE_DIR = ${PYTHON_INCLUDE_DIR}")
+
+if(pybind11_FOUND)
+  message(STATUS "pybind11_INCLUDES = ${pybind11_INCLUDE_DIRS}")
+  message(STATUS "pybind11_LIBRARIES=${pybind11_LIBRARIES}")
+  message(STATUS "pybind11_DEFINITIONS=${pybind11_DEFINITIONS}")
+endif()
+
+
+# paddle libpaddle.so
 # paddle include and link option
 # -L/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/libs -L/workspace/DeepSpeech-2.x/speechx/venv/lib/python3.7/site-packages/paddle/fluid -l:libpaddle.so -l:libdnnl.so.2 -l:libiomp5.so
 execute_process(

@@ -16,10 +16,10 @@ import os
 
 import paddle
 import yaml
+from paddle.audio.features import LogMelSpectrogram
+from paddleaudio.utils import logger
+from paddleaudio.utils import Timer
 
-from paddlespeech.audio.features import LogMelSpectrogram
-from paddlespeech.audio.utils import logger
-from paddlespeech.audio.utils import Timer
 from paddlespeech.cls.models import SoundClassifier
 from paddlespeech.utils.dynamic_import import dynamic_import
 

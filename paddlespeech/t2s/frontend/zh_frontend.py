@@ -30,6 +30,7 @@ from pypinyin_dict.phrase_pinyin_data import large_pinyin
 
 from paddlespeech.t2s.frontend.g2pw import G2PWOnnxConverter
 from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
+from paddlespeech.t2s.frontend.rhy_prediction.rhy_predictor import RhyPredictor
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
 from paddlespeech.t2s.ssml.xml_processor import MixTextProcessor
@@ -82,11 +83,13 @@ class Frontend():
     def __init__(self,
                  g2p_model="g2pW",
                  phone_vocab_path=None,
-                 tone_vocab_path=None):
+                 tone_vocab_path=None,
+                 use_rhy=False):
         self.mix_ssml_processor = MixTextProcessor()
         self.tone_modifier = ToneSandhi()
         self.text_normalizer = TextNormalizer()
         self.punc = "：，；。？！“”‘’':,;.?!"
+        self.rhy_phns = ['sp1', 'sp2', 'sp3', 'sp4']
         self.phrases_dict = {
             '开户行': [['ka1i'], ['hu4'], ['hang2']],
             '发卡行': [['fa4'], ['ka3'], ['hang2']],
@@ -105,6 +108,10 @@ class Frontend():
             '嘞': [['lei5']],
             '掺和': [['chan1'], ['huo5']]
         }
+        self.use_rhy = use_rhy
+        if use_rhy:
+            self.rhy_predictor = RhyPredictor()
+            print("Rhythm predictor loaded.")
         # g2p_model can be pypinyin and g2pM and g2pW
         self.g2p_model = g2p_model
         if self.g2p_model == "g2pM":
@@ -195,9 +202,13 @@ class Frontend():
         segments = sentences
         phones_list = []
         for seg in segments:
+            if self.use_rhy:
+                seg = self.rhy_predictor._clean_text(seg)
             phones = []
             # Replace all English words in the sentence
             seg = re.sub('[a-zA-Z]+', '', seg)
+            if self.use_rhy:
+                seg = self.rhy_predictor.get_prediction(seg)
             seg_cut = psg.lcut(seg)
             initials = []
             finals = []
@@ -205,11 +216,18 @@ class Frontend():
             # 为了多音词获得更好的效果，这里采用整句预测
             if self.g2p_model == "g2pW":
                 try:
+                    if self.use_rhy:
+                        seg = self.rhy_predictor._clean_text(seg)
                     pinyins = self.g2pW_model(seg)[0]
                 except Exception:
                     # g2pW采用模型采用繁体输入，如果有cover不了的简体词，采用g2pM预测
                     print("[%s] not in g2pW dict,use g2pM" % seg)
                     pinyins = self.g2pM_model(seg, tone=True, char_split=False)
+                if self.use_rhy:
+                    rhy_text = self.rhy_predictor.get_prediction(seg)
+                    final_py = self.rhy_predictor.pinyin_align(pinyins,
+                                                               rhy_text)
+                    pinyins = final_py
                 pre_word_length = 0
                 for word, pos in seg_cut:
                     sub_initials = []
@@ -271,7 +289,7 @@ class Frontend():
                     phones.append(c)
                 if c and c in self.punc:
                     phones.append('sp')
-                if v and v not in self.punc:
+                if v and v not in self.punc and v not in self.rhy_phns:
                     phones.append(v)
             phones_list.append(phones)
         if merge_sentences:
@@ -330,7 +348,7 @@ class Frontend():
                 phones.append(c)
             if c and c in self.punc:
                 phones.append('sp')
-            if v and v not in self.punc:
+            if v and v not in self.punc and v not in self.rhy_phns:
                 phones.append(v)
         phones_list.append(phones)
         if merge_sentences:
@@ -504,6 +522,11 @@ class Frontend():
             print("----------------------------")
         return [sum(all_phonemes, [])]
 
+    def add_sp_if_no(self, phonemes):
+        if not phonemes[-1][-1].startswith('sp'):
+            phonemes[-1].append('sp4')
+        return phonemes
+
     def get_input_ids(self,
                       sentence: str,
                       merge_sentences: bool=True,
@@ -519,6 +542,8 @@ class Frontend():
             merge_sentences=merge_sentences,
             print_info=print_info,
             robot=robot)
+        if self.use_rhy:
+            phonemes = self.add_sp_if_no(phonemes)
         result = {}
         phones = []
         tones = []

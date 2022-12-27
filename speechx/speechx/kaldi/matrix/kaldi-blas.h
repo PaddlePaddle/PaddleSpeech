@@ -96,6 +96,12 @@
 #elif defined(HAVE_OPENBLAS)
   // getting cblas.h and lapacke.h from <openblas-install-dir>/.
   // putting in "" not <> to search -I before system libraries.
+  #if defined(_MSC_VER)
+    #include <complex.h>
+    #define LAPACK_COMPLEX_CUSTOM
+    #define lapack_complex_float _Fcomplex
+    #define lapack_complex_double _Dcomplex
+  #endif
   #include "cblas.h"
   #include "lapacke.h"
   #undef I

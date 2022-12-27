@@ -130,11 +130,11 @@ class U2Recognizer {
         return !result_.empty() && !result_[0].sentence.empty();
     }
 
-
     int FrameShiftInMs() const {
-        // one decoder frame length in ms
-        return decodable_->Nnet()->SubsamplingRate() *
-               feature_pipeline_->FrameShift();
+        // one decoder frame length in ms, todo
+        return 1;
+        //    return decodable_->Nnet()->SubsamplingRate() *
+        //          feature_pipeline_->FrameShift();
     }
 
 
@@ -149,7 +149,7 @@ class U2Recognizer {
 
     // std::shared_ptr<U2RecognizerResource> resource_;
     // U2RecognizerResource resource_;
-    std::shared_ptr<FeaturePipeline> feature_pipeline_;
+    std::shared_ptr<NnetProducer> nnet_producer_;
     std::shared_ptr<Decodable> decodable_;
     std::unique_ptr<CTCPrefixBeamSearch> decoder_;
 

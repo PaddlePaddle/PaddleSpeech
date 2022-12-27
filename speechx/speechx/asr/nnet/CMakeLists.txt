@@ -1,4 +1,4 @@
-set(srcs decodable.cc)
+set(srcs decodable.cc nnet_producer.cc)
 
 if(USING_DS2)
   list(APPEND srcs ds2_nnet.cc)
@@ -27,13 +27,13 @@ if(USING_DS2)
 endif()
 
 # test bin
-if(USING_U2)
-  set(bin_name u2_nnet_main)
-  add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
-  target_include_directories(${bin_name} PRIVATE ${SPEECHX_ROOT} ${SPEECHX_ROOT}/kaldi)
-  target_link_libraries(${bin_name} utils kaldi-util kaldi-matrix gflags glog nnet)
+#if(USING_U2)
+#  set(bin_name u2_nnet_main)
+#  add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
+#  target_include_directories(${bin_name} PRIVATE ${SPEECHX_ROOT} ${SPEECHX_ROOT}/kaldi)
+#  target_link_libraries(${bin_name} utils kaldi-util kaldi-matrix gflags glog nnet)
 
-  target_compile_options(${bin_name}  PRIVATE ${PADDLE_COMPILE_FLAGS})
-  target_include_directories(${bin_name}  PRIVATE ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
-  target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})
-endif()
+#  target_compile_options(${bin_name}  PRIVATE ${PADDLE_COMPILE_FLAGS})
+#  target_include_directories(${bin_name}  PRIVATE ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
+#  target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})
+#endif()

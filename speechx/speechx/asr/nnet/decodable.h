@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "base/common.h"
-#include "frontend/audio/frontend_itf.h"
 #include "kaldi/decoder/decodable-itf.h"
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "nnet/nnet_itf.h"
+#include "nnet/nnet_producer.h"
 
 namespace ppspeech {
 
@@ -24,8 +24,7 @@ struct DecodableOpts;
 
 class Decodable : public kaldi::DecodableInterface {
   public:
-    explicit Decodable(const std::shared_ptr<NnetBase>& nnet,
-                       const std::shared_ptr<FrontendInterface>& frontend,
+    explicit Decodable(const std::shared_ptr<NnetProducer>& nnet_producer,
                        kaldi::BaseFloat acoustic_scale = 1.0);
 
     // void Init(DecodableOpts config);
@@ -57,23 +56,17 @@ class Decodable : public kaldi::DecodableInterface {
 
     void Reset();
 
-    bool IsInputFinished() const { return frontend_->IsFinished(); }
+    bool IsInputFinished() const { return nnet_producer_->IsFinished(); }
 
     bool EnsureFrameHaveComputed(int32 frame);
 
     int32 TokenId2NnetId(int32 token_id);
 
-    std::shared_ptr<NnetBase> Nnet() { return nnet_; }
-
     // for offline test
     void Acceptlikelihood(const kaldi::Matrix<kaldi::BaseFloat>& likelihood);
 
   private:
-    std::shared_ptr<FrontendInterface> frontend_;
-    std::shared_ptr<NnetBase> nnet_;
-
-    // nnet outputs' cache
-    kaldi::Matrix<kaldi::BaseFloat> nnet_out_cache_;
+    std::shared_ptr<NnetProducer> nnet_producer_;
 
     // the frame is nnet prob frame rather than audio feature frame
     // nnet frame subsample the feature frame
@@ -85,6 +78,7 @@ class Decodable : public kaldi::DecodableInterface {
     // so use subsampled_frame
     int32 current_log_post_subsampled_offset_;
     int32 num_chunk_computed_;
+    std::vector<kaldi::BaseFloat> framelikelihood_;
 
     kaldi::BaseFloat acoustic_scale_;
 };

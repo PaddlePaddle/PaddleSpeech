@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "absl/strings/str_split.h"
 #include "base/common.h"
-#include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "frontend/audio/data_cache.h"
 #include "fst/symbol-table.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
+#include "nnet/nnet_producer.h"
 #include "nnet/u2_nnet.h"
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
@@ -40,7 +41,7 @@ using kaldi::BaseFloat;
 using kaldi::Matrix;
 using std::vector;
 
-// test ds2 online decoder by feeding speech feature
+// test u2 online decoder by feeding speech feature
 int main(int argc, char* argv[]) {
     gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -70,8 +71,10 @@ int main(int argc, char* argv[]) {
     // decodeable
     std::shared_ptr<ppspeech::DataCache> raw_data =
         std::make_shared<ppspeech::DataCache>();
+    std::shared_ptr<ppspeech::NnetProducer> nnet_producer =
+        std::make_shared<ppspeech::NnetProducer>(nnet, raw_data);
     std::shared_ptr<ppspeech::Decodable> decodable =
-        std::make_shared<ppspeech::Decodable>(nnet, raw_data);
+        std::make_shared<ppspeech::Decodable>(nnet_producer);
 
     // decoder
     ppspeech::CTCBeamSearchOptions opts;
@@ -115,9 +118,9 @@ int main(int argc, char* argv[]) {
                     ori_feature_len - chunk_idx * chunk_stride, chunk_size);
             }
             if (this_chunk_size < receptive_field_length) {
-                LOG(WARNING)
-                    << "utt: " << utt << " skip last " << this_chunk_size
-                    << " frames, expect is " << receptive_field_length;
+                LOG(WARNING) << "utt: " << utt << " skip last "
+                             << this_chunk_size << " frames, expect is "
+                             << receptive_field_length;
                 break;
             }
 

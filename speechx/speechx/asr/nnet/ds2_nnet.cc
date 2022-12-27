@@ -14,7 +14,7 @@
 
 #include "nnet/ds2_nnet.h"
 
-#include "absl/strings/str_split.h"
+#include "utils/strings.h"
 
 namespace ppspeech {
 
@@ -26,16 +26,16 @@ using std::vector;
 
 void PaddleNnet::InitCacheEncouts(const ModelOptions& opts) {
     std::vector<std::string> cache_names;
-    cache_names = absl::StrSplit(opts.cache_names, ",");
+    cache_names = StrSplit(opts.cache_names, ",");
     std::vector<std::string> cache_shapes;
-    cache_shapes = absl::StrSplit(opts.cache_shape, ",");
+    cache_shapes = StrSplit(opts.cache_shape, ",");
     assert(cache_shapes.size() == cache_names.size());
 
     cache_encouts_.clear();
     cache_names_idx_.clear();
     for (size_t i = 0; i < cache_shapes.size(); i++) {
         std::vector<std::string> tmp_shape;
-        tmp_shape = absl::StrSplit(cache_shapes[i], "-");
+        tmp_shape = StrSplit(cache_shapes[i], "-");
         std::vector<int> cur_shape;
         std::transform(tmp_shape.begin(),
                        tmp_shape.end(),
@@ -74,8 +74,8 @@ PaddleNnet::PaddleNnet(const ModelOptions& opts) : opts_(opts) {
     LOG(INFO) << "start to check the predictor input and output names";
     LOG(INFO) << "input names: " << opts.input_names;
     LOG(INFO) << "output names: " << opts.output_names;
-    vector<string> input_names_vec = absl::StrSplit(opts.input_names, ",");
-    vector<string> output_names_vec = absl::StrSplit(opts.output_names, ",");
+    std::vector<std::string> input_names_vec = StrSplit(opts.input_names, ",");
+    std::vector<std::string> output_names_vec = StrSplit(opts.output_names, ",");
 
     paddle_infer::Predictor* predictor = GetPredictor();
 

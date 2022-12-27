@@ -17,7 +17,6 @@
 
 #include "decoder/ctc_prefix_beam_search_decoder.h"
 
-#include "absl/strings/str_join.h"
 #include "base/common.h"
 #include "decoder/ctc_beam_search_opt.h"
 #include "decoder/ctc_prefix_beam_search_score.h"

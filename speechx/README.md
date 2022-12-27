@@ -113,3 +113,11 @@ apt-get install gfortran-8
 4. `Undefined reference to '_gfortran_concat_string'`
 
 using gcc 8.2, gfortran 8.2.
+
+5. `./boost/python/detail/wrap_python.hpp:57:11: fatal error: pyconfig.h: No such file or directory`
+
+```
+apt-get install python3-dev
+```
+
+for more info please see [here](https://github.com/okfn/piati/issues/65).

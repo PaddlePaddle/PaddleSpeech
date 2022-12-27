@@ -15,13 +15,14 @@
 // limitations under the License.
 
 #include "utils/math.h"
+#include "base/basic_types.h"
 
 #include <algorithm>
 #include <cmath>
 #include <queue>
 #include <utility>
-
-#include "base/common.h"
+#include <string>
+#include <vector>
 
 
 namespace ppspeech {

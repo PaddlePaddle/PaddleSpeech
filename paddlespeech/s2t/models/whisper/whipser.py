@@ -16,7 +16,6 @@ from typing import Union
 
 import numpy as np
 import paddle
-import paddle.fluid as fluid
 import paddle.nn.functional as F
 import soundfile
 import tqdm
@@ -231,8 +230,8 @@ class TextDecoder(nn.Layer):
         ])
         self.ln = LayerNorm(n_state)
 
-        mask = fluid.layers.fill_constant(
-            shape=[n_ctx, n_state], value=-np.inf, dtype='float32')
+        mask = paddle.full(
+            shape=[n_ctx, n_state], fill_value=-np.inf, dtype='float32')
         mask = paddle.triu(mask, diagonal=1)
         self.register_buffer("mask", mask, persistable=False)
 

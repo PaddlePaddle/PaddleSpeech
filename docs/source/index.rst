@@ -70,6 +70,7 @@ Contents
    :maxdepth: 2
    :caption: API Reference
 
+   paddleaudio <audio_api/paddleaudio>
    paddlespeech.audio <api/paddlespeech.audio>
    paddlespeech.cli <api/paddlespeech.cli>
    paddlespeech.cls <api/paddlespeech.cls>

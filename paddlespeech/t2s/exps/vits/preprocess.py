@@ -166,7 +166,7 @@ def process_sentences(config,
                     if record:
                         results.append(record)
 
-    results.sort(key=itemgetter("utt_id"))
+    results.sort(key=itemgetter("feats_lengths"))
     with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
         for item in results:
             writer.write(item)

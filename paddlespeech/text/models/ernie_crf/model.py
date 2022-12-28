@@ -27,7 +27,7 @@ class ErnieCrf(nn.Layer):
                  **kwargs):
         super().__init__()
         self.ernie = ErnieForTokenClassification.from_pretrained(
-            pretrained_token, num_classes=num_classes, **kwargs)
+            pretrained_token, num_labels=num_classes, **kwargs)
         self.num_classes = num_classes
         self.crf = LinearChainCrf(
             self.num_classes, crf_lr=crf_lr, with_start_stop_tag=False)

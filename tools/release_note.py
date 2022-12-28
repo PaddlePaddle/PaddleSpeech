@@ -168,15 +168,15 @@ if __name__ == '__main__':
     labels = []
     thanks_to = []
     for issue in issues:
-
+        label = None
         for label in issue['labels']:
             labels.append(label['name'])
-
-        thanks_to.append('@%s' % (issue['user']['login']))
-        final_data.append(' * **[%s]** - %s #%d by **@%s**\n' %
-                          (label['name'], issue['title'], issue['number'],
-                           issue['user']['login']))
-
+            if label:
+                thanks_to.append('@%s' % (issue['user']['login']))
+                final_data.append(' * **[%s]** - %s #%d by **@%s**\n' %
+                                (label['name'], issue['title'], issue['number'],
+                                issue['user']['login']))
+     
     dic = collections.defaultdict(set)
     for l_release in list(set(labels)):
 

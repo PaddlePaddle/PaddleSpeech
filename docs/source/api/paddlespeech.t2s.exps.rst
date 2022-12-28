@@ -34,6 +34,7 @@ Submodules
    paddlespeech.t2s.exps.ort_predict
    paddlespeech.t2s.exps.ort_predict_e2e
    paddlespeech.t2s.exps.ort_predict_streaming
+   paddlespeech.t2s.exps.stream_play_tts
    paddlespeech.t2s.exps.syn_utils
    paddlespeech.t2s.exps.synthesize
    paddlespeech.t2s.exps.synthesize_e2e

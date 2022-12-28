@@ -19,5 +19,7 @@ from .download import load_state_dict_from_url
 from .error import ParameterError
 from .log import Logger
 from .log import logger
+from .numeric import depth_convert
+from .numeric import pcm16to32
 from .time import seconds_to_hms
 from .time import Timer

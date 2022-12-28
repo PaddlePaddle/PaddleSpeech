@@ -76,3 +76,16 @@ fi
 if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} ./local/lite_predict.sh ${train_output_path} || exit -1
 fi
+
+# PTQ_dynamic
+if [ ${stage} -le 9 ] && [ ${stop_stage} -ge 9 ]; then
+    ./local/PTQ_dynamic.sh  ${train_output_path} fastspeech2_csmsc 8
+    # ./local/PTQ_dynamic.sh  ${train_output_path} pwgan_csmsc 8
+    # ./local/PTQ_dynamic.sh  ${train_output_path} mb_melgan_csmsc 8
+    # ./local/PTQ_dynamic.sh  ${train_output_path} hifigan_csmsc 8
+fi
+
+# PTQ_static
+if [ ${stage} -le 10 ] && [ ${stop_stage} -ge 10 ]; then
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/PTQ_static.sh  ${train_output_path} fastspeech2_csmsc || exit -1
+fi

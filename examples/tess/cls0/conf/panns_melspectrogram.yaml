@@ -1,0 +1,32 @@
+data:
+  dataset: 'paddle.audio.datasets:TESS'
+  num_classes: 7
+  train:
+    mode: 'train'
+    split: 1
+    feat_type: 'melspectrogram'
+  dev:
+    mode: 'dev'
+    split: 1
+    feat_type: 'melspectrogram'
+
+model:
+  backbone: 'paddlespeech.cls.models:cnn14'
+
+feature:
+  n_fft: 1024
+  hop_length: 320
+  window: 'hann'
+  win_length: 1024
+  f_min: 50.0
+  f_max: 14000.0
+  n_mels: 64
+
+training:
+  epochs: 10
+  learning_rate: 0.0005
+  num_workers: 2
+  batch_size: 128
+  checkpoint_dir: './checkpoint_melspectrogram'
+  save_freq: 1
+  log_freq: 1

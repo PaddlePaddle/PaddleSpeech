@@ -25,10 +25,13 @@ import onnxruntime as ort
 import paddle
 from paddle import inference
 from paddle import jit
+from paddle.io import DataLoader
 from paddle.static import InputSpec
 from yacs.config import CfgNode
 
+from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
@@ -118,6 +121,7 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     return sentences
 
 
+# am only
 def get_test_dataset(test_metadata: List[Dict[str, Any]],
                      am: str,
                      speaker_dict: Optional[os.PathLike]=None,
@@ -156,6 +160,100 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     test_dataset = DataTable(
         data=test_metadata, fields=fields, converters=converters)
     return test_dataset
+
+
+# am and voc, for PTQ_static
+def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
+                       am: str,
+                       batch_size: int=1,
+                       speaker_dict: Optional[os.PathLike]=None,
+                       voice_cloning: bool=False,
+                       n_shift: int=300,
+                       batch_max_steps: int=16200,
+                       shuffle: bool=True):
+    # model: {model_name}_{dataset}
+    am_name = am[:am.rindex('_')]
+    am_dataset = am[am.rindex('_') + 1:]
+    converters = {}
+    if am_name == 'fastspeech2':
+        fields = ["utt_id", "text"]
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
+            print("multiple speaker fastspeech2!")
+            collate_fn = fastspeech2_multi_spk_batch_fn_static
+            fields += ["spk_id"]
+        elif voice_cloning:
+            print("voice cloning!")
+            collate_fn = fastspeech2_multi_spk_batch_fn_static
+            fields += ["spk_emb"]
+        else:
+            print("single speaker fastspeech2!")
+            collate_fn = fastspeech2_single_spk_batch_fn_static
+    elif am_name == 'speedyspeech':
+        fields = ["utt_id", "phones", "tones"]
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
+            print("multiple speaker speedyspeech!")
+            collate_fn = speedyspeech_multi_spk_batch_fn_static
+            fields += ["spk_id"]
+        else:
+            print("single speaker speedyspeech!")
+            collate_fn = speedyspeech_single_spk_batch_fn_static
+        fields = ["utt_id", "phones", "tones"]
+    elif am_name == 'tacotron2':
+        fields = ["utt_id", "text"]
+        if voice_cloning:
+            print("voice cloning!")
+            collate_fn = tacotron2_multi_spk_batch_fn_static
+            fields += ["spk_emb"]
+        else:
+            print("single speaker tacotron2!")
+            collate_fn = tacotron2_single_spk_batch_fn_static
+    else:
+        print("voc dataloader")
+
+    # am
+    if am_name not in {'pwgan', 'mb_melgan', 'hifigan'}:
+        dev_dataset = DataTable(
+            data=dev_metadata,
+            fields=fields,
+            converters=converters, )
+
+        dev_dataloader = DataLoader(
+            dev_dataset,
+            shuffle=shuffle,
+            drop_last=False,
+            batch_size=batch_size,
+            collate_fn=collate_fn)
+    # vocoder
+    else:
+        # pwgan: batch_max_steps: 25500 aux_context_window: 2
+        # mb_melgan: batch_max_steps: 16200 aux_context_window 0
+        # hifigan: batch_max_steps: 8400 aux_context_window 0
+        aux_context_window = 0
+        if am_name == 'pwgan':
+            aux_context_window = 2
+
+        train_batch_fn = Clip_static(
+            batch_max_steps=batch_max_steps,
+            hop_size=n_shift,
+            aux_context_window=aux_context_window)
+        dev_dataset = DataTable(
+            data=dev_metadata,
+            fields=["wave", "feats"],
+            converters={
+                "wave": np.load,
+                "feats": np.load,
+            }, )
+
+        dev_dataloader = DataLoader(
+            dev_dataset,
+            shuffle=shuffle,
+            drop_last=False,
+            batch_size=batch_size,
+            collate_fn=train_batch_fn)
+
+    return dev_dataloader
 
 
 # frontend
@@ -366,18 +464,97 @@ def voc_to_static(voc_inference,
 
 
 # inference
-def get_predictor(model_dir: Optional[os.PathLike]=None,
-                  model_file: Optional[os.PathLike]=None,
-                  params_file: Optional[os.PathLike]=None,
-                  device: str='cpu'):
+def get_predictor(
+        model_dir: Optional[os.PathLike]=None,
+        model_file: Optional[os.PathLike]=None,
+        params_file: Optional[os.PathLike]=None,
+        device: str='cpu',
+        # for gpu
+        use_trt: bool=False,
+        # for trt
+        use_dynamic_shape: bool=True,
+        min_subgraph_size: int=5,
+        # for cpu
+        cpu_threads: int=1,
+        use_mkldnn: bool=False,
+        # for trt or mkldnn
+        precision: int="fp32"):
+    """
+    Args:
+        model_dir (os.PathLike): root path of model.pdmodel and model.pdiparams.
+        model_file (os.PathLike): name of model_file.
+        params_file (os.PathLike): name of params_file.
+        device (str): Choose the device you want to run, it can be: cpu/gpu, default is cpu.
+        use_trt (bool): whether to use TensorRT or not in GPU.
+        use_dynamic_shape (bool): use dynamic shape or not in TensorRT.
+        use_mkldnn (bool): whether to use MKLDNN or not in CPU.
+        cpu_threads (int): num of thread when use CPU.
+        precision (str): mode of running (fp32/fp16/bf16/int8).  
+    """
+    rerun_flag = False
+    if device != "gpu" and use_trt:
+        raise ValueError(
+            "Predict by TensorRT mode: {}, expect device=='gpu', but device == {}".
+            format(precision, device))
 
     config = inference.Config(
         str(Path(model_dir) / model_file), str(Path(model_dir) / params_file))
+    config.enable_memory_optim()
+    config.switch_ir_optim(True)
     if device == "gpu":
         config.enable_use_gpu(100, 0)
-    elif device == "cpu":
+    else:
         config.disable_gpu()
-    config.enable_memory_optim()
+        config.set_cpu_math_library_num_threads(cpu_threads)
+        if use_mkldnn:
+            # fp32
+            config.enable_mkldnn()
+            if precision == "int8":
+                config.enable_mkldnn_int8({
+                    "conv2d_transpose", "conv2d", "depthwise_conv2d", "pool2d",
+                    "transpose2", "elementwise_mul"
+                })
+                # config.enable_mkldnn_int8()
+            elif precision in {"fp16", "bf16"}:
+                config.enable_mkldnn_bfloat16()
+            print("MKLDNN with {}".format(precision))
+    if use_trt:
+        if precision == "bf16":
+            print("paddle trt does not support bf16, switching to fp16.")
+            precision = "fp16"
+        precision_map = {
+            "int8": inference.Config.Precision.Int8,
+            "fp32": inference.Config.Precision.Float32,
+            "fp16": inference.Config.Precision.Half,
+        }
+        assert precision in precision_map.keys()
+        pdtxt_name = model_file.split(".")[0] + "_" + precision + ".txt"
+        if use_dynamic_shape:
+            dynamic_shape_file = os.path.join(model_dir, pdtxt_name)
+            if os.path.exists(dynamic_shape_file):
+                config.enable_tuned_tensorrt_dynamic_shape(dynamic_shape_file,
+                                                           True)
+                # for fastspeech2
+                config.exp_disable_tensorrt_ops(["reshape2"])
+                print("trt set dynamic shape done!")
+            else:
+                # In order to avoid memory overflow when collecting dynamic shapes, it is changed to use CPU.
+                config.disable_gpu()
+                config.set_cpu_math_library_num_threads(10)
+                config.collect_shape_range_info(dynamic_shape_file)
+                print("Start collect dynamic shape...")
+                rerun_flag = True
+
+        if not rerun_flag:
+            print("Tensor RT with {}".format(precision))
+            config.enable_tensorrt_engine(
+                workspace_size=1 << 30,
+                max_batch_size=1,
+                min_subgraph_size=min_subgraph_size,
+                precision_mode=precision_map[precision],
+                use_static=True,
+                use_calib_mode=False, )
+
     predictor = inference.create_predictor(config)
     return predictor
 

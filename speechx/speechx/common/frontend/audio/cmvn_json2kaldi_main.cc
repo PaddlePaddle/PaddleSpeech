@@ -20,14 +20,11 @@
 #include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/kaldi-io.h"
 #include "utils/file_utils.h"
-// #include "boost/json.hpp"
-#include <boost/json/src.hpp>
+#include "utils/picojson.h"
 
 DEFINE_string(json_file, "", "cmvn json file");
 DEFINE_string(cmvn_write_path, "./cmvn.ark", "write cmvn");
 DEFINE_bool(binary, true, "write cmvn in binary (true) or text(false)");
-
-using namespace boost::json;  // from <boost/json.hpp>
 
 int main(int argc, char* argv[]) {
     gflags::SetUsageMessage("Usage:");
@@ -40,36 +37,49 @@ int main(int argc, char* argv[]) {
 
     auto ifs = std::ifstream(FLAGS_json_file);
     std::string json_str = ppspeech::ReadFile2String(FLAGS_json_file);
-    auto value = boost::json::parse(json_str);
-    if (!value.is_object()) {
+    picojson::value value;
+    std::string err;
+    const char* json_end = picojson::parse(
+        value, json_str.c_str(), json_str.c_str() + json_str.size(), &err);
+    if (!value.is<picojson::object>()) {
         LOG(ERROR) << "Input json file format error.";
     }
 
-    for (auto obj : value.as_object()) {
-        if (obj.key() == "mean_stat") {
-            VLOG(2) << "mean_stat:" << obj.value();
+    const picojson::value::object& obj = value.get<picojson::object>();
+    for (picojson::value::object::const_iterator elem = obj.begin();
+         elem != obj.end();
+         ++elem) {
+        if (elem->first == "mean_stat") {
+            VLOG(2) << "mean_stat:" << elem->second;
+            // const picojson::value tmp =
+            // elem->second.get(0);//<picojson::array>();
+            double tmp =
+                elem->second.get(0).get<double>();  //<picojson::array>();
+            VLOG(2) << "tmp: " << tmp;
         }
-        if (obj.key() == "var_stat") {
-            VLOG(2) << "var_stat: " << obj.value();
+        if (elem->first == "var_stat") {
+            VLOG(2) << "var_stat: " << elem->second;
         }
-        if (obj.key() == "frame_num") {
-            VLOG(2) << "frame_num: " << obj.value();
+        if (elem->first == "frame_num") {
+            VLOG(2) << "frame_num: " << elem->second;
         }
     }
 
-    boost::json::array mean_stat = value.at("mean_stat").as_array();
+    const picojson::value::array& mean_stat =
+        value.get("mean_stat").get<picojson::array>();
     std::vector<kaldi::BaseFloat> mean_stat_vec;
     for (auto it = mean_stat.begin(); it != mean_stat.end(); it++) {
-        mean_stat_vec.push_back(it->as_double());
+        mean_stat_vec.push_back((*it).get<double>());
     }
 
-    boost::json::array var_stat = value.at("var_stat").as_array();
+    const picojson::value::array& var_stat =
+        value.get("var_stat").get<picojson::array>();
     std::vector<kaldi::BaseFloat> var_stat_vec;
     for (auto it = var_stat.begin(); it != var_stat.end(); it++) {
-        var_stat_vec.push_back(it->as_double());
+        var_stat_vec.push_back((*it).get<double>());
     }
 
-    kaldi::int32 frame_num = uint64_t(value.at("frame_num").as_int64());
+    kaldi::int32 frame_num = value.get("frame_num").get<int64_t>();
     LOG(INFO) << "nframe: " << frame_num;
 
     size_t mean_size = mean_stat_vec.size();

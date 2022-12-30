@@ -1,9 +1,0 @@
-ThreadPool/
-build/
-dist/
-kenlm/
-openfst-1.6.3/
-openfst-1.6.3.tar.gz
-swig_decoders.egg-info/
-decoders_wrap.cxx
-swig_decoders.py

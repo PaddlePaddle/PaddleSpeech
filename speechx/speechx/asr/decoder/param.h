@@ -15,8 +15,7 @@
 #pragma once
 
 #include "base/common.h"
-#include "decoder/ctc_beam_search_decoder.h"
-#include "decoder/ctc_tlg_decoder.h"
+//#include "decoder/ctc_tlg_decoder.h"
 
 // feature
 DEFINE_bool(use_fbank, false, "False for fbank; or linear feature");

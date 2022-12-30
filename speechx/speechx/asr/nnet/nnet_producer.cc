@@ -65,7 +65,6 @@ bool NnetProducer::Compute() {
     size_t nframes = logprobs.Dim() / vocab_dim;
     VLOG(2) << "Forward out " << nframes << " decoder frames.";
     std::vector<BaseFloat> logprob(vocab_dim);
-    // remove later.
     for (size_t idx = 0; idx < nframes; ++idx) {
         for (size_t prob_idx = 0; prob_idx < vocab_dim; ++prob_idx) {
             logprob[prob_idx] = logprobs(idx * vocab_dim + prob_idx);

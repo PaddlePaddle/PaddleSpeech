@@ -19,9 +19,6 @@
 namespace ppspeech {
 
 using kaldi::BaseFloat;
-using kaldi::SubVector;
-using kaldi::Vector;
-using kaldi::VectorBase;
 using std::unique_ptr;
 using std::vector;
 
@@ -67,10 +64,10 @@ void U2Recognizer::ResetContinuousDecoding() {
 }
 
 
-void U2Recognizer::Accept(const VectorBase<BaseFloat>& waves) {
+void U2Recognizer::Accept(const vector<BaseFloat>& waves) {
     kaldi::Timer timer;
     nnet_producer_->Accept(waves);
-    VLOG(1) << "feed waves cost: " << timer.Elapsed() << " sec. " << waves.Dim()
+    VLOG(1) << "feed waves cost: " << timer.Elapsed() << " sec. " << waves.size()
             << " samples.";
 }
 

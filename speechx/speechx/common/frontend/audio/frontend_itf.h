@@ -22,13 +22,13 @@ namespace ppspeech {
 class FrontendInterface {
   public:
     // Feed inputs: features(2D saved in 1D) or waveforms(1D).
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) = 0;
+    virtual void Accept(const std::vector<float>& inputs) = 0;
 
     // Fetch processed data: features or waveforms.
     // For features(2D saved in 1D), the Matrix is squashed into Vector,
     //    the length of output = feature_row * feature_dim.
     // For waveforms(1D), samples saved in vector.
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* outputs) = 0;
+    virtual bool Read(std::vector<float>* outputs) = 0;
 
     // Dim is the feature dim. For waveforms(1D), Dim is zero; else is specific,
     // e.g 80 for fbank.

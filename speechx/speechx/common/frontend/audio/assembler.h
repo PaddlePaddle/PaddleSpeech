@@ -36,10 +36,10 @@ class Assembler : public FrontendInterface {
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
-    void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) override;
+    void Accept(const std::vector<kaldi::BaseFloat>& inputs) override;
 
     // feats size = num_frames * feat_dim
-    bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) override;
+    bool Read(std::vector<kaldi::BaseFloat>* feats) override;
 
     // feat dim
     size_t Dim() const override { return dim_; }
@@ -51,7 +51,7 @@ class Assembler : public FrontendInterface {
     void Reset() override;
 
   private:
-    bool Compute(kaldi::Vector<kaldi::BaseFloat>* feats);
+    bool Compute(std::vector<kaldi::BaseFloat>* feats);
 
     bool fill_zero_{false};
 
@@ -60,7 +60,7 @@ class Assembler : public FrontendInterface {
     int32 frame_chunk_stride_;  // stride
     int32 cache_size_;          // window - stride
     int32 receptive_filed_length_;
-    std::queue<kaldi::Vector<kaldi::BaseFloat>> feature_cache_;
+    std::queue<std::vector<kaldi::BaseFloat>> feature_cache_;
     std::unique_ptr<FrontendInterface> base_extractor_;
 
     int32 nframes_;  // num frame computed

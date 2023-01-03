@@ -15,10 +15,10 @@
 
 #pragma once
 
-
 #include "base/common.h"
 #include "frontend/audio/frontend_itf.h"
 
+using std::vector;
 
 namespace ppspeech {
 
@@ -30,16 +30,16 @@ class DataCache : public FrontendInterface {
     DataCache() : finished_{false}, dim_{0} {}
 
     // accept waves/feats
-    void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) override {
-        data_ = inputs;
+    void Accept(const std::vector<kaldi::BaseFloat>& inputs) override {
+        data_ = std::move(inputs);
     }
 
-    bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) override {
-        if (data_.Dim() == 0) {
+    bool Read(vector<kaldi::BaseFloat>* feats) override {
+        if (data_.size() == 0) {
             return false;
         }
-        (*feats) = data_;
-        data_.Resize(0);
+        (*feats) = std::move(data_);
+        data_.resize(0);
         return true;
     }
 
@@ -53,7 +53,7 @@ class DataCache : public FrontendInterface {
     }
 
   private:
-    kaldi::Vector<kaldi::BaseFloat> data_;
+    std::vector<kaldi::BaseFloat> data_;
     bool finished_;
     int32 dim_;
 

@@ -32,10 +32,10 @@ class FeatureCache : public FrontendInterface {
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    virtual void Accept(const std::vector<kaldi::BaseFloat>& inputs);
 
     // feats size = num_frames * feat_dim
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
+    virtual bool Read(std::vector<kaldi::BaseFloat>* feats);
 
     // feat dim
     virtual size_t Dim() const { return dim_; }
@@ -54,7 +54,7 @@ class FeatureCache : public FrontendInterface {
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
 
     void Reset() override {
-        std::queue<kaldi::Vector<BaseFloat>> empty;
+        std::queue<std::vector<BaseFloat>> empty;
         std::swap(cache_, empty);
         nframe_ = 0;
         base_extractor_->Reset();
@@ -71,8 +71,8 @@ class FeatureCache : public FrontendInterface {
     std::unique_ptr<FrontendInterface> base_extractor_;
 
     kaldi::int32 timeout_;  // ms
-    kaldi::Vector<kaldi::BaseFloat> remained_feature_;
-    std::queue<kaldi::Vector<BaseFloat>> cache_;  // feature cache
+    std::vector<kaldi::BaseFloat> remained_feature_;
+    std::queue<std::vector<BaseFloat>> cache_;  // feature cache
     std::mutex mutex_;
     std::condition_variable ready_feed_condition_;
     std::condition_variable ready_read_condition_;

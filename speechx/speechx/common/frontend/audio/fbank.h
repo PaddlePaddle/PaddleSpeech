@@ -16,35 +16,10 @@
 
 #include "base/common.h"
 #include "frontend/audio/feature_common.h"
-#include "frontend/audio/frontend_itf.h"
-#include "kaldi/feat/feature-fbank.h"
-#include "kaldi/feat/feature-mfcc.h"
-#include "kaldi/matrix/kaldi-vector.h"
+#include "frontend/audio/feature-fbank.h"
 
 namespace ppspeech {
 
-class FbankComputer {
-  public:
-    typedef kaldi::FbankOptions Options;
-    explicit FbankComputer(const Options& opts);
-
-    kaldi::FrameExtractionOptions& GetFrameOptions() {
-        return opts_.frame_opts;
-    }
-
-    bool Compute(kaldi::Vector<kaldi::BaseFloat>* window,
-                 kaldi::Vector<kaldi::BaseFloat>* feat);
-    int32 Dim() const;
-
-    bool NeedRawLogEnergy();
-
-  private:
-    Options opts_;
-
-    kaldi::FbankComputer computer_;
-    DISALLOW_COPY_AND_ASSIGN(FbankComputer);
-};
-
-typedef StreamingFeatureTpl<FbankComputer> Fbank;
+typedef StreamingFeatureTpl<knf::FbankComputer> Fbank;
 
 }  // namespace ppspeech

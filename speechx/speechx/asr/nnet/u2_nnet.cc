@@ -165,23 +165,16 @@ void U2Nnet::FeedEncoderOuts(const paddle::Tensor& encoder_out) {
 }
 
 
-void U2Nnet::FeedForward(const kaldi::Vector<BaseFloat>& features,
+void U2Nnet::FeedForward(const std::vector<BaseFloat>& features,
                          const int32& feature_dim,
                          NnetOut* out) {
     kaldi::Timer timer;
-    std::vector<kaldi::BaseFloat> chunk_feats(features.Data(),
-                                              features.Data() + features.Dim());
 
     std::vector<kaldi::BaseFloat> ctc_probs;
     ForwardEncoderChunkImpl(
-        chunk_feats, feature_dim, &ctc_probs, &out->vocab_dim);
-
-    out->logprobs.Resize(ctc_probs.size(), kaldi::kSetZero);
-    std::memcpy(out->logprobs.Data(),
-                ctc_probs.data(),
-                ctc_probs.size() * sizeof(kaldi::BaseFloat));
+        features, feature_dim, &out->logprobs, &out->vocab_dim);
     VLOG(1) << "FeedForward cost: " << timer.Elapsed() << " sec. "
-            << chunk_feats.size() / feature_dim << " frames.";
+            << features.size() / feature_dim << " frames.";
 }
 
 
@@ -638,7 +631,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
 
 
 void U2Nnet::EncoderOuts(
-    std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const {
+    std::vector<std::vector<kaldi::BaseFloat>>* encoder_out) const {
     // list of (B=1,T,D)
     int size = encoder_outs_.size();
     VLOG(3) << "encoder_outs_ size: " << size;
@@ -657,8 +650,8 @@ void U2Nnet::EncoderOuts(
         const float* this_tensor_ptr = item.data<float>();
         for (int j = 0; j < T; j++) {
             const float* cur = this_tensor_ptr + j * D;
-            kaldi::Vector<kaldi::BaseFloat> out(D);
-            std::memcpy(out.Data(), cur, D * sizeof(kaldi::BaseFloat));
+            std::vector<kaldi::BaseFloat> out(D);
+            std::memcpy(out.data(), cur, D * sizeof(kaldi::BaseFloat));
             encoder_out->emplace_back(out);
         }
     }

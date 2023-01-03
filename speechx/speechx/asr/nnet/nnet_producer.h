@@ -27,7 +27,7 @@ class NnetProducer {
                           std::shared_ptr<FrontendInterface> frontend = NULL);
 
     // Feed feats or waves
-    void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs);
+    void Accept(const std::vector<kaldi::BaseFloat>& inputs);
 
     void Acceptlikelihood(const kaldi::Matrix<BaseFloat>& likelihood);
 

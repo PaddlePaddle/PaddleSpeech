@@ -131,12 +131,14 @@ int main(int argc, char* argv[]) {
             }
 
             // read feat
-            kaldi::Vector<BaseFloat> features;
+            kaldi::Vector<BaseFloat> features(feature_cache.Dim());
             bool flag = true;
             do {
                 std::vector<BaseFloat> tmp;
                 flag = feature_cache.Read(&tmp);
-                std::memcpy(features.Data(), tmp.data(), tmp.size()*sizeof(BaseFloat));
+                std::memcpy(features.Data(),
+                            tmp.data(),
+                            tmp.size() * sizeof(BaseFloat));
                 if (flag && features.Dim() != 0) {
                     feats.push_back(features);
                     feature_rows += features.Dim() / feature_cache.Dim();

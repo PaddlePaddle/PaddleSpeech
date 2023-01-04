@@ -19,7 +19,7 @@ utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer.log \
 u2_recognizer_main \
     --use_fbank=true \
     --num_bins=80 \
-    --cmvn_file=$exp/cmvn.ark \
+    --cmvn_file=$model_dir/mean_std.json \
     --model_path=$model_dir/export.jit \
     --vocab_path=$model_dir/unit.txt \
     --nnet_decoder_chunk=16 \

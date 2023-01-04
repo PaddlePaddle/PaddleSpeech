@@ -22,7 +22,6 @@ if [ ! -d ${SPEECHX_BUILD} ]; then
     popd
 fi
 
-
 ckpt_dir=$data/model
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
@@ -72,7 +71,7 @@ fi
 
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-    # process cmvn and compute fbank feat
+    # process compute fbank feat
     ./local/feat.sh
 fi
 

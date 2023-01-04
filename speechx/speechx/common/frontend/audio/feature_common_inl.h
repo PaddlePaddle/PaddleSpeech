@@ -38,9 +38,12 @@ bool StreamingFeatureTpl<F>::Read(std::vector<kaldi::BaseFloat>* feats) {
     int32 wav_len = wav.size();
     int32 left_len = remained_wav_.size();
     std::vector<kaldi::BaseFloat> waves(left_len + wav_len);
-    std::memcpy(waves.data(), remained_wav_.data(), left_len*sizeof(kaldi::BaseFloat));
-    std::memcpy(waves.data() + left_len, 
-               wav.data(), wav_len*sizeof(kaldi::BaseFloat));
+    std::memcpy(waves.data(),
+                remained_wav_.data(),
+                left_len * sizeof(kaldi::BaseFloat));
+    std::memcpy(waves.data() + left_len,
+                wav.data(),
+                wav_len * sizeof(kaldi::BaseFloat));
 
     // compute speech feature
     Compute(waves, feats);
@@ -52,18 +55,16 @@ bool StreamingFeatureTpl<F>::Read(std::vector<kaldi::BaseFloat>* feats) {
     int32 left_samples = waves.size() - frame_shift * num_frames;
     remained_wav_.resize(left_samples);
     std::memcpy(remained_wav_.data(),
-                waves.data() + frame_shift*num_frames, 
-                left_samples*sizeof(BaseFloat));
+                waves.data() + frame_shift * num_frames,
+                left_samples * sizeof(BaseFloat));
     return true;
 }
 
 // Compute feat
 template <class F>
-bool StreamingFeatureTpl<F>::Compute(
-    const std::vector<kaldi::BaseFloat>& waves,
-    std::vector<kaldi::BaseFloat>* feats) {
-    const knf::FrameExtractionOptions& frame_opts =
-        computer_.GetFrameOptions();
+bool StreamingFeatureTpl<F>::Compute(const std::vector<kaldi::BaseFloat>& waves,
+                                     std::vector<kaldi::BaseFloat>* feats) {
+    const knf::FrameExtractionOptions& frame_opts = computer_.GetFrameOptions();
     int32 num_samples = waves.size();
     int32 frame_length = frame_opts.WindowSize();
     int32 sample_rate = frame_opts.samp_freq;
@@ -77,19 +78,21 @@ bool StreamingFeatureTpl<F>::Compute(
     std::vector<kaldi::BaseFloat> window;
     bool need_raw_log_energy = computer_.NeedRawLogEnergy();
     for (int32 frame = 0; frame < num_frames; frame++) {
+        std::fill(window.begin(), window.end(), 0);
         kaldi::BaseFloat raw_log_energy = 0.0;
         kaldi::BaseFloat vtln_warp = 1.0;
         knf::ExtractWindow(0,
-                             waves,
-                             frame,
-                             frame_opts,
-                             window_function_,
-                             &window,
-                             need_raw_log_energy ? &raw_log_energy : NULL);
+                           waves,
+                           frame,
+                           frame_opts,
+                           window_function_,
+                           &window,
+                           need_raw_log_energy ? &raw_log_energy : NULL);
 
         std::vector<kaldi::BaseFloat> this_feature(computer_.Dim());
-        computer_.Compute(raw_log_energy, vtln_warp, &window, this_feature.data());
-        std::memcpy(feats->data() + frame * Dim(), 
+        computer_.Compute(
+            raw_log_energy, vtln_warp, &window, this_feature.data());
+        std::memcpy(feats->data() + frame * Dim(),
                     this_feature.data(),
                     sizeof(BaseFloat) * Dim());
     }

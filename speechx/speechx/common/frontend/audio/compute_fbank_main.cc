@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ppspeech::FrontendInterface> data_source(
         new ppspeech::AudioCache(3600 * 1600, false));
 
-    kaldi::FbankOptions opt;
+    knf::FbankOptions opt;
     opt.frame_opts.frame_length_ms = 25;
     opt.frame_opts.frame_shift_ms = 10;
     opt.mel_opts.num_bins = FLAGS_num_bins;
@@ -117,9 +117,9 @@ int main(int argc, char* argv[]) {
                 std::min(chunk_sample_size, tot_samples - sample_offset);
 
             // get chunk wav
-            kaldi::Vector<kaldi::BaseFloat> wav_chunk(cur_chunk_size);
+            std::vector<kaldi::BaseFloat> wav_chunk(cur_chunk_size);
             for (int i = 0; i < cur_chunk_size; ++i) {
-                wav_chunk(i) = waveform(sample_offset + i);
+                wav_chunk[i] = waveform(sample_offset + i);
             }
 
             // compute feat
@@ -131,10 +131,14 @@ int main(int argc, char* argv[]) {
             }
 
             // read feat
-            kaldi::Vector<BaseFloat> features;
+            kaldi::Vector<BaseFloat> features(feature_cache.Dim());
             bool flag = true;
             do {
-                flag = feature_cache.Read(&features);
+                std::vector<BaseFloat> tmp;
+                flag = feature_cache.Read(&tmp);
+                std::memcpy(features.Data(),
+                            tmp.data(),
+                            tmp.size() * sizeof(BaseFloat));
                 if (flag && features.Dim() != 0) {
                     feats.push_back(features);
                     feature_rows += features.Dim() / feature_cache.Dim();

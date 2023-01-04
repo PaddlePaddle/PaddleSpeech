@@ -17,9 +17,6 @@
 namespace ppspeech {
 
 using kaldi::BaseFloat;
-using kaldi::SubVector;
-using kaldi::Vector;
-using kaldi::VectorBase;
 using std::unique_ptr;
 using std::vector;
 
@@ -31,7 +28,7 @@ FeatureCache::FeatureCache(FeatureCacheOptions opts,
     dim_ = base_extractor_->Dim();
 }
 
-void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+void FeatureCache::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
     // read inputs
     base_extractor_->Accept(inputs);
 
@@ -43,7 +40,7 @@ void FeatureCache::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
 }
 
 // pop feature chunk
-bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
+bool FeatureCache::Read(std::vector<kaldi::BaseFloat>* feats) {
     kaldi::Timer timer;
 
     std::unique_lock<std::mutex> lock(mutex_);
@@ -59,8 +56,7 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
     if (cache_.empty()) return false;
 
     // read from cache
-    feats->Resize(cache_.front().Dim());
-    feats->CopyFromVec(cache_.front());
+    *feats = cache_.front();
     cache_.pop();
     ready_feed_condition_.notify_one();
     VLOG(1) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
@@ -70,21 +66,20 @@ bool FeatureCache::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 // read all data from base_feature_extractor_ into cache_
 bool FeatureCache::Compute() {
     // compute and feed
-    Vector<BaseFloat> feature;
+    vector<BaseFloat> feature;
     bool result = base_extractor_->Read(&feature);
-    if (result == false || feature.Dim() == 0) return false;
+    if (result == false || feature.size() == 0) return false;
 
     kaldi::Timer timer;
 
-    int32 num_chunk = feature.Dim() / dim_;
+    int32 num_chunk = feature.size() / dim_;
     nframe_ += num_chunk;
     VLOG(3) << "nframe computed: " << nframe_;
 
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
         int32 start = chunk_idx * dim_;
-        Vector<BaseFloat> feature_chunk(dim_);
-        SubVector<BaseFloat> tmp(feature.Data() + start, dim_);
-        feature_chunk.CopyFromVec(tmp);
+        vector<BaseFloat> feature_chunk(feature.data() + start, 
+                                        feature.data() + start + dim_);
 
         std::unique_lock<std::mutex> lock(mutex_);
         while (cache_.size() >= max_size_) {

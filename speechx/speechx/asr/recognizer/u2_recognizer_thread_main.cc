@@ -81,9 +81,9 @@ int main(int argc, char* argv[]) {
             int cur_chunk_size =
                 std::min(chunk_sample_size, tot_samples - sample_offset);
 
-            kaldi::Vector<kaldi::BaseFloat> wav_chunk(cur_chunk_size);
+            std::vector<kaldi::BaseFloat> wav_chunk(cur_chunk_size);
             for (int i = 0; i < cur_chunk_size; ++i) {
-                wav_chunk(i) = waveform(sample_offset + i);
+                wav_chunk[i] = waveform(sample_offset + i);
             }
             // wav_chunk = waveform.Range(sample_offset + i, cur_chunk_size);
 

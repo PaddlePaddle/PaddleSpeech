@@ -22,11 +22,9 @@
 #include "frontend/audio/fbank.h"
 #include "frontend/audio/feature_cache.h"
 #include "frontend/audio/frontend_itf.h"
-#include "frontend/audio/linear_spectrogram.h"
 #include "frontend/audio/normalizer.h"
 
 // feature
-DECLARE_bool(use_fbank);
 DECLARE_bool(fill_zero);
 DECLARE_int32(num_bins);
 DECLARE_string(cmvn_file);
@@ -40,10 +38,7 @@ namespace ppspeech {
 
 struct FeaturePipelineOptions {
     std::string cmvn_file{};
-    bool to_float32{false};  // true, only for linear feature
-    bool use_fbank{true};
-    LinearSpectrogramOptions linear_spectrogram_opts{};
-    kaldi::FbankOptions fbank_opts{};
+    knf::FbankOptions fbank_opts{};
     FeatureCacheOptions feature_cache_opts{};
     AssemblerOptions assembler_opts{};
 
@@ -53,30 +48,17 @@ struct FeaturePipelineOptions {
         LOG(INFO) << "cmvn file: " << opts.cmvn_file;
 
         // frame options
-        kaldi::FrameExtractionOptions frame_opts;
+        knf::FrameExtractionOptions frame_opts;
         frame_opts.dither = 0.0;
         LOG(INFO) << "dither: " << frame_opts.dither;
         frame_opts.frame_shift_ms = 10;
         LOG(INFO) << "frame shift ms: " << frame_opts.frame_shift_ms;
-        opts.use_fbank = FLAGS_use_fbank;
-        LOG(INFO) << "feature type: " << (opts.use_fbank ? "fbank" : "linear");
-        if (opts.use_fbank) {
-            opts.to_float32 = false;
-            frame_opts.window_type = "povey";
-            frame_opts.frame_length_ms = 25;
-            opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
-            LOG(INFO) << "num bins: " << opts.fbank_opts.mel_opts.num_bins;
+        frame_opts.window_type = "povey";
+        frame_opts.frame_length_ms = 25;
+        opts.fbank_opts.mel_opts.num_bins = FLAGS_num_bins;
+        LOG(INFO) << "num bins: " << opts.fbank_opts.mel_opts.num_bins;
 
-            opts.fbank_opts.frame_opts = frame_opts;
-        } else {
-            opts.to_float32 = true;
-            frame_opts.remove_dc_offset = false;
-            frame_opts.frame_length_ms = 20;
-            frame_opts.window_type = "hanning";
-            frame_opts.preemph_coeff = 0.0;
-
-            opts.linear_spectrogram_opts.frame_opts = frame_opts;
-        }
+        opts.fbank_opts.frame_opts = frame_opts;
         LOG(INFO) << "frame length ms: " << frame_opts.frame_length_ms;
 
         // assembler opts
@@ -100,10 +82,10 @@ struct FeaturePipelineOptions {
 class FeaturePipeline : public FrontendInterface {
   public:
     explicit FeaturePipeline(const FeaturePipelineOptions& opts);
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves) {
+    virtual void Accept(const std::vector<kaldi::BaseFloat>& waves) {
         base_extractor_->Accept(waves);
     }
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
+    virtual bool Read(std::vector<kaldi::BaseFloat>* feats) {
         return base_extractor_->Read(feats);
     }
     virtual size_t Dim() const { return base_extractor_->Dim(); }

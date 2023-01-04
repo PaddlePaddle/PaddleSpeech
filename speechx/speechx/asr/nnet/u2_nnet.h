@@ -76,7 +76,7 @@ class U2Nnet : public U2NnetBase {
     explicit U2Nnet(const ModelOptions& opts);
     U2Nnet(const U2Nnet& other);
 
-    void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
+    void FeedForward(const std::vector<kaldi::BaseFloat>& features,
                      const int32& feature_dim,
                      NnetOut* out) override;
 
@@ -111,7 +111,7 @@ class U2Nnet : public U2NnetBase {
     void FeedEncoderOuts(const paddle::Tensor& encoder_out);
 
     void EncoderOuts(
-        std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const;
+        std::vector<std::vector<kaldi::BaseFloat>>* encoder_out) const;
 
   private:
     ModelOptions opts_;

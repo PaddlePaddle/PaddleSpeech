@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "base/common.h"
 #include "decoder/ctc_prefix_beam_search_decoder.h"
+#include "base/common.h"
 #include "frontend/audio/data_cache.h"
 #include "fst/symbol-table.h"
 #include "kaldi/util/table-types.h"
@@ -124,15 +124,14 @@ int main(int argc, char* argv[]) {
             }
 
 
-            kaldi::Vector<kaldi::BaseFloat> feature_chunk(this_chunk_size *
-                                                          feat_dim);
+            std::vector<kaldi::BaseFloat> feature_chunk(this_chunk_size *
+                                                        feat_dim);
             int32 start = chunk_idx * chunk_stride;
             for (int row_id = 0; row_id < this_chunk_size; ++row_id) {
                 kaldi::SubVector<kaldi::BaseFloat> feat_row(feature, start);
-                kaldi::SubVector<kaldi::BaseFloat> feature_chunk_row(
-                    feature_chunk.Data() + row_id * feat_dim, feat_dim);
-
-                feature_chunk_row.CopyFromVec(feat_row);
+                std::memcpy(feature_chunk.data() + row_id * feat_dim,
+                            feat_row.Data(),
+                            feat_dim * sizeof(kaldi::BaseFloat));
                 ++start;
             }
 

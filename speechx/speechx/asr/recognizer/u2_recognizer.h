@@ -115,7 +115,7 @@ class U2Recognizer {
     void Reset();
     void ResetContinuousDecoding();
 
-    void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves);
+    void Accept(const std::vector<kaldi::BaseFloat>& waves);
     void Decode();
     void Rescoring();
 

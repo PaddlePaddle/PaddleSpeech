@@ -17,13 +17,14 @@
 namespace ppspeech {
 
 using kaldi::Vector;
+using std::vector;
 using kaldi::BaseFloat;
 
 NnetProducer::NnetProducer(std::shared_ptr<NnetBase> nnet,
                            std::shared_ptr<FrontendInterface> frontend)
     : nnet_(nnet), frontend_(frontend) {}
 
-void NnetProducer::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+void NnetProducer::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
     frontend_->Accept(inputs);
     bool result = false;
     do {
@@ -49,26 +50,24 @@ bool NnetProducer::Read(std::vector<kaldi::BaseFloat>* nnet_prob) {
 }
 
 bool NnetProducer::Compute() {
-    Vector<BaseFloat> features;
+    vector<BaseFloat> features;
     if (frontend_ == NULL || frontend_->Read(&features) == false) {
         // no feat or frontend_ not init.
         VLOG(3) << "no feat avalible";
         return false;
     }
     CHECK_GE(frontend_->Dim(), 0);
-    VLOG(2) << "Forward in " << features.Dim() / frontend_->Dim() << " feats.";
+    VLOG(2) << "Forward in " << features.size() / frontend_->Dim() << " feats.";
 
     NnetOut out;
     nnet_->FeedForward(features, frontend_->Dim(), &out);
     int32& vocab_dim = out.vocab_dim;
-    Vector<BaseFloat>& logprobs = out.logprobs;
-    size_t nframes = logprobs.Dim() / vocab_dim;
+    size_t nframes = out.logprobs.size() / vocab_dim;
     VLOG(2) << "Forward out " << nframes << " decoder frames.";
-    std::vector<BaseFloat> logprob(vocab_dim);
     for (size_t idx = 0; idx < nframes; ++idx) {
-        for (size_t prob_idx = 0; prob_idx < vocab_dim; ++prob_idx) {
-            logprob[prob_idx] = logprobs(idx * vocab_dim + prob_idx);
-        }
+        std::vector<BaseFloat> logprob(
+            out.logprobs.data() + idx * vocab_dim,
+            out.logprobs.data() + (idx + 1) * vocab_dim);
         cache_.push_back(logprob);
     }
     return true;

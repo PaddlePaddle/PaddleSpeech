@@ -71,7 +71,7 @@ struct ModelOptions {
 
 struct NnetOut {
     // nnet out. maybe logprob or prob. Almost time this is logprob.
-    kaldi::Vector<kaldi::BaseFloat> logprobs;
+    std::vector<kaldi::BaseFloat> logprobs;
     int32 vocab_dim;
 
     // nnet state. Only using in Attention model.
@@ -89,7 +89,7 @@ class NnetInterface {
     // nnet do not cache feats, feats cached by frontend.
     // nnet cache model state, i.e. encoder_outs, att_cache, cnn_cache,
     // frame_offset.
-    virtual void FeedForward(const kaldi::Vector<kaldi::BaseFloat>& features,
+    virtual void FeedForward(const std::vector<kaldi::BaseFloat>& features,
                              const int32& feature_dim,
                              NnetOut* out) = 0;
 
@@ -105,7 +105,7 @@ class NnetInterface {
 
     // using to get encoder outs. e.g. seq2seq with Attention model.
     virtual void EncoderOuts(
-        std::vector<kaldi::Vector<kaldi::BaseFloat>>* encoder_out) const = 0;
+        std::vector<std::vector<kaldi::BaseFloat>>* encoder_out) const = 0;
 };
 
 

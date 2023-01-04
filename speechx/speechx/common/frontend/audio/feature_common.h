@@ -15,7 +15,7 @@
 #pragma once
 
 #include "frontend_itf.h"
-#include "kaldi/feat/feature-window.h"
+#include "frontend/audio/feature-window.h"
 
 namespace ppspeech {
 
@@ -25,8 +25,8 @@ class StreamingFeatureTpl : public FrontendInterface {
     typedef typename F::Options Options;
     StreamingFeatureTpl(const Options& opts,
                         std::unique_ptr<FrontendInterface> base_extractor);
-    virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves);
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* feats);
+    virtual void Accept(const std::vector<kaldi::BaseFloat>& waves);
+    virtual bool Read(std::vector<kaldi::BaseFloat>* feats);
 
     // the dim_ is the dim of single frame feature
     virtual size_t Dim() const { return computer_.Dim(); }
@@ -37,16 +37,16 @@ class StreamingFeatureTpl : public FrontendInterface {
 
     virtual void Reset() {
         base_extractor_->Reset();
-        remained_wav_.Resize(0);
+        remained_wav_.resize(0);
     }
 
   private:
-    bool Compute(const kaldi::Vector<kaldi::BaseFloat>& waves,
-                 kaldi::Vector<kaldi::BaseFloat>* feats);
+    bool Compute(const std::vector<kaldi::BaseFloat>& waves,
+                 std::vector<kaldi::BaseFloat>* feats);
     Options opts_;
     std::unique_ptr<FrontendInterface> base_extractor_;
-    kaldi::FeatureWindowFunction window_function_;
-    kaldi::Vector<kaldi::BaseFloat> remained_wav_;
+    knf::FeatureWindowFunction window_function_;
+    std::vector<kaldi::BaseFloat> remained_wav_;
     F computer_;
 };
 

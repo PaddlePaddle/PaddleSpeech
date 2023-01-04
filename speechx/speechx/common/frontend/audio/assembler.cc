@@ -17,8 +17,8 @@
 namespace ppspeech {
 
 using kaldi::BaseFloat;
-using kaldi::Vector;
-using kaldi::VectorBase;
+using std::vector;
+using std::vector;
 using std::unique_ptr;
 
 Assembler::Assembler(AssemblerOptions opts,
@@ -33,13 +33,13 @@ Assembler::Assembler(AssemblerOptions opts,
     dim_ = base_extractor_->Dim();
 }
 
-void Assembler::Accept(const kaldi::VectorBase<kaldi::BaseFloat>& inputs) {
+void Assembler::Accept(const std::vector<BaseFloat>& inputs) {
     // read inputs
     base_extractor_->Accept(inputs);
 }
 
 // pop feature chunk
-bool Assembler::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
+bool Assembler::Read(std::vector<BaseFloat>* feats) {
     kaldi::Timer timer;
     bool result = Compute(feats);
     VLOG(1) << "Assembler::Read cost: " << timer.Elapsed() << " sec.";
@@ -47,14 +47,14 @@ bool Assembler::Read(kaldi::Vector<kaldi::BaseFloat>* feats) {
 }
 
 // read frame by frame from base_feature_extractor_ into cache_
-bool Assembler::Compute(Vector<BaseFloat>* feats) {
+bool Assembler::Compute(vector<BaseFloat>* feats) {
     // compute and feed frame by frame
     while (feature_cache_.size() < frame_chunk_size_) {
-        Vector<BaseFloat> feature;
+        vector<BaseFloat> feature;
         bool result = base_extractor_->Read(&feature);
-        if (result == false || feature.Dim() == 0) {
+        if (result == false || feature.size() == 0) {
             VLOG(3) << "result: " << result
-                    << " feature dim: " << feature.Dim();
+                    << " feature dim: " << feature.size();
             if (IsFinished() == false) {
                 VLOG(3) << "finished reading feature. cache size: "
                         << feature_cache_.size();
@@ -65,7 +65,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
             }
         }
 
-        CHECK(feature.Dim() == dim_);
+        CHECK(feature.size() == dim_);
         feature_cache_.push(feature);
 
         nframes_ += 1;
@@ -73,14 +73,14 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
     }
 
     if (feature_cache_.size() < receptive_filed_length_) {
-        VLOG(3) << "feature_cache less than receptive_filed_lenght. "
+        VLOG(3) << "feature_cache less than receptive_filed_length. "
                 << feature_cache_.size() << ": " << receptive_filed_length_;
         return false;
     }
 
     if (fill_zero_) {
         while (feature_cache_.size() < frame_chunk_size_) {
-            Vector<BaseFloat> feature(dim_, kaldi::kSetZero);
+            vector<BaseFloat> feature(dim_, kaldi::kSetZero);
             nframes_ += 1;
             feature_cache_.push(feature);
         }
@@ -88,16 +88,17 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
 
     int32 this_chunk_size =
         std::min(static_cast<int32>(feature_cache_.size()), frame_chunk_size_);
-    feats->Resize(dim_ * this_chunk_size);
+    feats->resize(dim_ * this_chunk_size);
     VLOG(3) << "read " << this_chunk_size << " feat.";
 
     int32 counter = 0;
     while (counter < this_chunk_size) {
-        Vector<BaseFloat>& val = feature_cache_.front();
-        CHECK(val.Dim() == dim_) << val.Dim();
+        vector<BaseFloat>& val = feature_cache_.front();
+        CHECK(val.size() == dim_) << val.size();
 
         int32 start = counter * dim_;
-        feats->Range(start, dim_).CopyFromVec(val);
+        std::memcpy(feats->data() + start,
+                    val.data(), val.size() * sizeof(BaseFloat));
 
         if (this_chunk_size - counter <= cache_size_) {
             feature_cache_.push(val);
@@ -115,7 +116,7 @@ bool Assembler::Compute(Vector<BaseFloat>* feats) {
 
 
 void Assembler::Reset() {
-    std::queue<kaldi::Vector<kaldi::BaseFloat>> empty;
+    std::queue<std::vector<BaseFloat>> empty;
     std::swap(feature_cache_, empty);
     nframes_ = 0;
     base_extractor_->Reset();

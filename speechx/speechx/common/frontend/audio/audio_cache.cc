@@ -19,8 +19,7 @@
 namespace ppspeech {
 
 using kaldi::BaseFloat;
-using kaldi::Vector;
-using kaldi::VectorBase;
+using std::vector;
 
 AudioCache::AudioCache(int buffer_size, bool to_float32)
     : finished_(false),
@@ -37,25 +36,25 @@ BaseFloat AudioCache::Convert2PCM32(BaseFloat val) {
     return val * (1. / std::pow(2.0, 15));
 }
 
-void AudioCache::Accept(const VectorBase<BaseFloat>& waves) {
+void AudioCache::Accept(const vector<BaseFloat>& waves) {
     kaldi::Timer timer;
     std::unique_lock<std::mutex> lock(mutex_);
-    while (size_ + waves.Dim() > ring_buffer_.size()) {
+    while (size_ + waves.size() > ring_buffer_.size()) {
         ready_feed_condition_.wait(lock);
     }
-    for (size_t idx = 0; idx < waves.Dim(); ++idx) {
+    for (size_t idx = 0; idx < waves.size(); ++idx) {
         int32 buffer_idx = (idx + offset_ + size_) % ring_buffer_.size();
-        ring_buffer_[buffer_idx] = waves(idx);
-        if (to_float32_) ring_buffer_[buffer_idx] = Convert2PCM32(waves(idx));
+        ring_buffer_[buffer_idx] = waves[idx];
+        if (to_float32_) ring_buffer_[buffer_idx] = Convert2PCM32(waves[idx]);
     }
-    size_ += waves.Dim();
+    size_ += waves.size();
     VLOG(1) << "AudioCache::Accept cost: " << timer.Elapsed() << " sec. "
-            << waves.Dim() << " samples.";
+            << waves.size() << " samples.";
 }
 
-bool AudioCache::Read(Vector<BaseFloat>* waves) {
+bool AudioCache::Read(vector<BaseFloat>* waves) {
     kaldi::Timer timer;
-    size_t chunk_size = waves->Dim();
+    size_t chunk_size = waves->size();
     std::unique_lock<std::mutex> lock(mutex_);
     while (chunk_size > size_) {
         // when audio is empty and no more data feed
@@ -78,12 +77,12 @@ bool AudioCache::Read(Vector<BaseFloat>* waves) {
     // read last chunk data
     if (chunk_size > size_) {
         chunk_size = size_;
-        waves->Resize(chunk_size);
+        waves->resize(chunk_size);
     }
 
     for (size_t idx = 0; idx < chunk_size; ++idx) {
         int buff_idx = (offset_ + idx) % ring_buffer_.size();
-        waves->Data()[idx] = ring_buffer_[buff_idx];
+        waves->at(idx) = ring_buffer_[buff_idx];
     }
     size_ -= chunk_size;
     offset_ = (offset_ + chunk_size) % ring_buffer_.size();

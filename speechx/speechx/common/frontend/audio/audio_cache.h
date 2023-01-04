@@ -26,9 +26,9 @@ class AudioCache : public FrontendInterface {
     explicit AudioCache(int buffer_size = 1000 * kint16max,
                         bool to_float32 = false);
 
-    virtual void Accept(const kaldi::VectorBase<BaseFloat>& waves);
+    virtual void Accept(const std::vector<BaseFloat>& waves);
 
-    virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
+    virtual bool Read(std::vector<kaldi::BaseFloat>* waves);
 
     // the audio dim is 1, one sample, which is useless,
     // so we return size_(cache samples) instead.

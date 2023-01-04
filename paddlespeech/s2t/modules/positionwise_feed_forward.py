@@ -55,12 +55,13 @@ class PositionwiseFeedForward(nn.Layer):
         self.dropout = nn.Dropout(dropout_rate)
         self.w_2 = Linear(hidden_units, idim)
         self.adaptive_scale = adaptive_scale
-        ada_scale = self.create_parameter(
-            [1, 1, idim], default_initializer=I.XavierUniform())
-        self.add_parameter('ada_scale', ada_scale)
-        ada_bias = self.create_parameter(
-            [1, 1, idim], default_initializer=I.XavierUniform())
-        self.add_parameter('ada_bias', ada_bias)
+        if self.adaptive_scale:
+            ada_scale = self.create_parameter(
+                [1, 1, idim], default_initializer=I.XavierUniform())
+            self.add_parameter('ada_scale', ada_scale)
+            ada_bias = self.create_parameter(
+                [1, 1, idim], default_initializer=I.XavierUniform())
+            self.add_parameter('ada_bias', ada_bias)
 
         if init_weights:
             self.init_weights()
@@ -84,4 +85,6 @@ class PositionwiseFeedForward(nn.Layer):
         Returns:
             output tensor, (B, Lmax, D)
         """
+        if self.adaptive_scale:
+            xs = self.ada_scale * xs + self.ada_bias
         return self.w_2(self.dropout(self.activation(self.w_1(xs))))

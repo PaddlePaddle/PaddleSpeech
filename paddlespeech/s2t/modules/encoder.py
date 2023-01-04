@@ -30,7 +30,6 @@ from paddlespeech.s2t.modules.attention import MultiHeadedAttention
 from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention
 from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention2
 from paddlespeech.s2t.modules.conformer_convolution import ConvolutionModule
-from paddlespeech.s2t.modules.convolution import ConvolutionModule2
 from paddlespeech.s2t.modules.embedding import NoPositionalEncoding
 from paddlespeech.s2t.modules.embedding import PositionalEncoding
 from paddlespeech.s2t.modules.embedding import RelPositionalEncoding
@@ -40,7 +39,6 @@ from paddlespeech.s2t.modules.encoder_layer import TransformerEncoderLayer
 from paddlespeech.s2t.modules.mask import add_optional_chunk_mask
 from paddlespeech.s2t.modules.mask import make_non_pad_mask
 from paddlespeech.s2t.modules.positionwise_feed_forward import PositionwiseFeedForward
-from paddlespeech.s2t.modules.positionwise_feed_forward import PositionwiseFeedForward2
 from paddlespeech.s2t.modules.subsampling import Conv2dSubsampling4
 from paddlespeech.s2t.modules.subsampling import Conv2dSubsampling6
 from paddlespeech.s2t.modules.subsampling import Conv2dSubsampling8
@@ -591,19 +589,19 @@ class SqueezeformerEncoder(nn.Layer):
             encoder_selfattn_layer_args = (attention_heads, output_size,
                                            attention_dropout_rate)
         else:
-            encoder_selfattn_layer = RelPositionMultiHeadedAttention2
+            encoder_selfattn_layer = RelPositionMultiHeadedAttention
             encoder_selfattn_layer_args = (attention_heads, encoder_dim,
                                            attention_dropout_rate, do_rel_shift,
                                            adaptive_scale, init_weights)
 
         # feed-forward module definition
-        positionwise_layer = PositionwiseFeedForward2
+        positionwise_layer = PositionwiseFeedForward
         positionwise_layer_args = (
             encoder_dim, encoder_dim * feed_forward_expansion_factor,
             feed_forward_dropout_rate, activation, adaptive_scale, init_weights)
 
         # convolution module definition
-        convolution_layer = ConvolutionModule2
+        convolution_layer = ConvolutionModule
         convolution_layer_args = (encoder_dim, cnn_module_kernel, activation,
                                   cnn_norm_type, causal, True, adaptive_scale,
                                   init_weights)
@@ -676,7 +674,7 @@ class SqueezeformerEncoder(nn.Layer):
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
         xs, pos_emb, masks = self.embed(xs, masks)
-        mask_pad = ~masks
+        mask_pad = masks
         chunk_masks = add_optional_chunk_mask(
             xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
             decoding_chunk_size, self.static_chunk_size,

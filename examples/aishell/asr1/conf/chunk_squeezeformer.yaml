@@ -4,7 +4,7 @@
 cmvn_file: 
 cmvn_file_type: "json"
 # encoder related
-encoder: conformer
+encoder: squeezeformer
 encoder_conf:
     encoder_dim: 256    # dimension of attention
     output_size: 256    # dimension of output
@@ -21,7 +21,8 @@ encoder_conf:
     normalize_before: false
     activation_type: 'swish'
     pos_enc_layer_type: 'rel_pos'
-    time_reduction_layer_type: 'conv2d'
+    do_rel_shift: false
+    time_reduction_layer_type: 'stream'
     causal: true
     use_dynamic_chunk: true
     use_dynamic_left_chunk: false

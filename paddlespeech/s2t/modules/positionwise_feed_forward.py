@@ -23,7 +23,7 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["PositionwiseFeedForward", "PositionwiseFeedForward2"]
+__all__ = ["PositionwiseFeedForward"]
 
 
 class PositionwiseFeedForward(nn.Layer):
@@ -33,7 +33,9 @@ class PositionwiseFeedForward(nn.Layer):
                  idim: int,
                  hidden_units: int,
                  dropout_rate: float,
-                 activation: nn.Layer=nn.ReLU()):
+                 activation: nn.Layer=nn.ReLU(),
+                 adaptive_scale: bool=False,
+                 init_weights: bool=False):
         """Construct a PositionwiseFeedForward object.
 
         FeedForward are appied on each position of the sequence.
@@ -46,48 +48,11 @@ class PositionwiseFeedForward(nn.Layer):
             activation (paddle.nn.Layer): Activation function
         """
         super().__init__()
-        self.w_1 = Linear(idim, hidden_units)
-        self.activation = activation
-        self.dropout = nn.Dropout(dropout_rate)
-        self.w_2 = Linear(hidden_units, idim)
-
-    def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
-        """Forward function.
-        Args:
-            xs: input tensor (B, Lmax, D)
-        Returns:
-            output tensor, (B, Lmax, D)
-        """
-        return self.w_2(self.dropout(self.activation(self.w_1(xs))))
-
-
-class PositionwiseFeedForward2(paddle.nn.Layer):
-    """Positionwise feed forward layer.
-
-    FeedForward are appied on each position of the sequence.
-    The output dim is same with the input dim.
-
-    Args:
-        idim (int): Input dimenstion.
-        hidden_units (int): The number of hidden units.
-        dropout_rate (float): Dropout rate.
-        activation (paddle.nn.Layer): Activation function
-    """
-
-    def __init__(self,
-                 idim: int,
-                 hidden_units: int,
-                 dropout_rate: float,
-                 activation: paddle.nn.Layer=paddle.nn.ReLU(),
-                 adaptive_scale: bool=False,
-                 init_weights: bool=False):
-        """Construct a PositionwiseFeedForward object."""
-        super(PositionwiseFeedForward2, self).__init__()
         self.idim = idim
         self.hidden_units = hidden_units
         self.w_1 = Linear(idim, hidden_units)
         self.activation = activation
-        self.dropout = paddle.nn.Dropout(dropout_rate)
+        self.dropout = nn.Dropout(dropout_rate)
         self.w_2 = Linear(hidden_units, idim)
         self.adaptive_scale = adaptive_scale
         ada_scale = self.create_parameter(
@@ -114,12 +79,9 @@ class PositionwiseFeedForward2(paddle.nn.Layer):
 
     def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
         """Forward function.
-
         Args:
-            xs: input tensor (B, L, D)
+            xs: input tensor (B, Lmax, D)
         Returns:
-            output tensor, (B, L, D)
+            output tensor, (B, Lmax, D)
         """
-        if self.adaptive_scale:
-            xs = self.ada_scale * xs + self.ada_bias
         return self.w_2(self.dropout(self.activation(self.w_1(xs))))

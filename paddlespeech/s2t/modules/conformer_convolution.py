@@ -66,7 +66,6 @@ class ConvolutionModule(nn.Layer):
                 [1, 1, channels], default_initializer=I.Constant(0.0))
             self.add_parameter('ada_bias', ada_bias)
 
-
         self.pointwise_conv1 = Conv1D(
             channels,
             2 * channels,

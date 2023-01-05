@@ -43,7 +43,8 @@ py::array_t<float> KaldiFeatureWrapper::ComputeFbank(
         *res_ptr = feats[idx];
         res_ptr++;
     }
-    std::vector<int> shape{feats.size() / Dim(), Dim()};
+    std::vector<int> shape{static_cast<int>(feats.size() / Dim()), 
+                           static_cast<int>(Dim())};
     return result.reshape(shape);
 }
 

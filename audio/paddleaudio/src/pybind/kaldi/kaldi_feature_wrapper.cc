@@ -30,7 +30,6 @@ bool KaldiFeatureWrapper::InitFbank(knf::FbankOptions opts) {
 py::array_t<float> KaldiFeatureWrapper::ComputeFbank(
     const py::array_t<float> wav) {
     py::buffer_info info = wav.request();
-    //::kaldi::SubVector<::kaldi::BaseFloat> input_wav((float*)info.ptr, info.size);
     std::vector<float> input_wav((float*)info.ptr, (float*)info.ptr + info.size);
 
     std::vector<float> feats;
@@ -39,10 +38,7 @@ py::array_t<float> KaldiFeatureWrapper::ComputeFbank(
     auto result = py::array_t<float>(feats.size());
     py::buffer_info xs = result.request();
     float* res_ptr = (float*)xs.ptr;
-    for (int idx = 0; idx < feats.size(); ++idx) {
-        *res_ptr = feats[idx];
-        res_ptr++;
-    }
+    std::memcpy(res_ptr, feats.data(), sizeof(float)*feats.size());
     std::vector<int> shape{static_cast<int>(feats.size() / Dim()), 
                            static_cast<int>(Dim())};
     return result.reshape(shape);

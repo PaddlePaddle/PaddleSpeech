@@ -38,8 +38,16 @@ VERSION = '1.1.0'
 COMMITID = 'none'
 
 base = [
-    "kaldiio", "librosa==0.8.1", "scipy>=1.0.0", "soundfile~=0.10", "colorlog",
-    "pathos == 0.2.8", "pybind11", "parameterized", "tqdm", "scikit-learn"
+    "kaldiio",
+    "librosa==0.8.1",
+    "scipy>=1.0.0",
+    "soundfile~=0.10",
+    "colorlog",
+    "pathos == 0.2.8",
+    "pybind11",
+    "parameterized",
+    "tqdm",
+    "scikit-learn"
 ]
 
 requirements = {

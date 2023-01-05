@@ -140,7 +140,7 @@ class ToneSandhi():
             finals[1] = finals[1][:-1] + "5"
         # when "一" is ordinal word, it should be yi1
         elif word.startswith("第一"):
-            finals[1] = finals[1][:-1] + "1"
+            finals[0] = finals[0][:-1] + "1"
         else:
             for i, char in enumerate(word):
                 if char == "一" and i + 1 < len(word):

@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .kaldi import fbank
-from .kaldi import pitch
+#from .kaldi import pitch

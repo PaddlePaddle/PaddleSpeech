@@ -41,23 +41,17 @@ option(BUILD_PADDLEAUDIO_PYTHON_EXTENSION "Build Python extension" ON)
 # cmake
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake;${PROJECT_SOURCE_DIR}/cmake/external")
 
-if (NOT MSVC)
-    find_package(GFortranLibs REQUIRED)
-    include(FortranCInterface)
-    include(FindGFortranLibs REQUIRED)
-endif()
-
 # fc_patch dir
 set(FETCHCONTENT_QUIET off)
 get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 set(THIRD_PARTY_PATH ${fc_patch})
 
-include(openblas)
-
 set(PYBIND11_PYTHON_VERSION ${PY_VERSION})
 include(cmake/pybind.cmake)
 include_directories(${PYTHON_INCLUDE_DIR})
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/paddleaudio/third_party/)
 
 # packages
 find_package(Python3 COMPONENTS Interpreter Development)

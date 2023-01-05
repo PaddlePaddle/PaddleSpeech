@@ -19,7 +19,7 @@
 #include <string>
 
 #include "paddleaudio/src/pybind/kaldi/kaldi_feature_wrapper.h"
-#include "feat/pitch-functions.h"
+//#include "feat/pitch-functions.h"
 
 namespace py = pybind11;
 
@@ -42,13 +42,13 @@ struct FbankOptions{
 };
 
 bool InitFbank(
-    ::kaldi::FrameExtractionOptions frame_opts,
-    ::kaldi::MelBanksOptions mel_opts,
+    knf::FrameExtractionOptions frame_opts,
+    knf::MelBanksOptions mel_opts,
     FbankOptions fbank_opts);
 
 py::array_t<float> ComputeFbank(
-    ::kaldi::FrameExtractionOptions frame_opts,
-    ::kaldi::MelBanksOptions mel_opts,
+    knf::FrameExtractionOptions frame_opts,
+    knf::MelBanksOptions mel_opts,
     FbankOptions fbank_opts,
     const py::array_t<float>& wav);
 
@@ -56,9 +56,9 @@ py::array_t<float> ComputeFbankStreaming(const py::array_t<float>& wav);
 
 void ResetFbank();
 
-py::array_t<float> ComputeKaldiPitch(
-    const ::kaldi::PitchExtractionOptions& opts,
-    const py::array_t<float>& wav);
+//py::array_t<float> ComputeKaldiPitch(
+    //const ::kaldi::PitchExtractionOptions& opts,
+    //const py::array_t<float>& wav);
 
 }  // namespace kaldi
 }  // namespace paddleaudio

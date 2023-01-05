@@ -11,5 +11,6 @@ endif()
 # kaldi
 ################################################################################
 if (BUILD_KALDI)
-  add_subdirectory(kaldi)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+  add_subdirectory(kaldi-native-fbank/csrc)
 endif()

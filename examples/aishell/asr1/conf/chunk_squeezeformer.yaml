@@ -12,7 +12,7 @@ encoder_conf:
     num_blocks: 12      # the number of encoder blocks
     reduce_idx: 5
     recover_idx: 11
-    feed_forward_expansion_factor: 4
+    feed_forward_expansion_factor: 8
     input_dropout_rate: 0.1
     feed_forward_dropout_rate: 0.1
     attention_dropout_rate: 0.1

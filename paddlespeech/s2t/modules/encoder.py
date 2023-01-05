@@ -28,7 +28,6 @@ from paddlespeech.s2t.modules.align import LayerNorm
 from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.attention import MultiHeadedAttention
 from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention
-from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention2
 from paddlespeech.s2t.modules.conformer_convolution import ConvolutionModule
 from paddlespeech.s2t.modules.embedding import NoPositionalEncoding
 from paddlespeech.s2t.modules.embedding import PositionalEncoding
@@ -44,9 +43,9 @@ from paddlespeech.s2t.modules.subsampling import Conv2dSubsampling6
 from paddlespeech.s2t.modules.subsampling import Conv2dSubsampling8
 from paddlespeech.s2t.modules.subsampling import DepthwiseConv2DSubsampling4
 from paddlespeech.s2t.modules.subsampling import LinearNoSubsampling
-from paddlespeech.s2t.modules.subsampling import TimeReductionLayer1D
-from paddlespeech.s2t.modules.subsampling import TimeReductionLayer2D
-from paddlespeech.s2t.modules.subsampling import TimeReductionLayerStream
+from paddlespeech.s2t.modules.time_reduction import TimeReductionLayer1D
+from paddlespeech.s2t.modules.time_reduction import TimeReductionLayer2D
+from paddlespeech.s2t.modules.time_reduction import TimeReductionLayerStream
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()

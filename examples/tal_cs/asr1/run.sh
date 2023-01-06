@@ -4,7 +4,7 @@ set -e
 
 gpus=0,1,2,3
 stage=0
-stop_stage=4
+stop_stage=50
 conf_path=conf/conformer.yaml
 ips=  #xxx.xxx.xxx.xxx,xxx.xxx.xxx.xxx
 decode_conf_path=conf/tuning/decode.yaml

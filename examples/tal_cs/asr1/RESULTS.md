@@ -1,4 +1,5 @@
 # TALCS
+2023.1.6, commit id: fa724285f3b799b97b4348ad3b1084afc0764f9b
 
 ## Conformer
 train: Epoch 100, 3 V100-32G, best avg: 10

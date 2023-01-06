@@ -51,14 +51,14 @@ base = [
 ]
 
 requirements = {
-    "install":
-    base,
+    "install": base,
     "develop": [
         "sox",
         "soxbindings",
         "pre-commit",
     ],
 }
+
 
 def check_call(cmd: str, shell=False, executable=None):
     try:
@@ -92,6 +92,7 @@ def check_output(cmd: Union[str, List[str], Tuple[str]], shell=False):
             file=sys.stderr)
     return out_bytes.strip().decode('utf8')
 
+
 def _run_cmd(cmd):
     try:
         return subprocess.check_output(
@@ -99,6 +100,7 @@ def _run_cmd(cmd):
             stderr=subprocess.DEVNULL).decode("ascii").strip()
     except Exception:
         return None
+
 
 @contextlib.contextmanager
 def pushd(new_dir):
@@ -109,21 +111,25 @@ def pushd(new_dir):
     os.chdir(old_dir)
     print(old_dir)
 
+
 def read(*names, **kwargs):
     with io.open(
             os.path.join(os.path.dirname(__file__), *names),
             encoding=kwargs.get("encoding", "utf8")) as fp:
         return fp.read()
 
+
 def _remove(files: str):
     for f in files:
         f.unlink()
+
 
 ################################# Install ##################################
 
 
 def _post_install(install_lib_dir):
     pass
+
 
 class DevelopCommand(develop):
     def run(self):
@@ -142,7 +148,7 @@ class TestCommand(test):
         # Run nose ensuring that argv simulates running nosetests directly
         import nose
         nose.run_exit(argv=['nosetests', '-w', 'tests'])
-    
+
     def run_benchmark(self):
         for benchmark_item in glob.glob('tests/benchmark/*py'):
             os.system(f'pytest {benchmark_item}')
@@ -187,6 +193,7 @@ def _make_version_file(version, sha):
     version_path = ROOT_DIR / "paddleaudio" / "__init__.py"
     with open(version_path, "a") as f:
         f.write(f"__version__ = '{version}'\n")
+
 
 def _rm_version():
     file_ = ROOT_DIR / "paddleaudio" / "__init__.py"
@@ -235,8 +242,8 @@ def main():
     if platform.system() != 'Windows' and platform.system() != 'Linux':
         lib_package_data = {'paddleaudio': ['lib/libgcc_s.1.1.dylib']}
 
-    if platform.system() == 'Linux':
-        lib_package_data = {'paddleaudio': ['lib/lib*']}
+    #if platform.system() == 'Linux':
+    #    lib_package_data = {'paddleaudio': ['lib/lib*']}
 
     setup_info = dict(
         # Metadata
@@ -254,8 +261,7 @@ def main():
         python_requires='>=3.7',
         install_requires=requirements["install"],
         extras_require={
-            'develop':
-            requirements["develop"],
+            'develop': requirements["develop"],
             #'test': ["nose", "torchaudio==0.10.2", "pytest-benchmark", "librosa=0.8.1", "parameterized", "paddlepaddle"],
         },
         cmdclass={
@@ -284,11 +290,11 @@ def main():
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
-        ],
-    )
+        ], )
 
     setup(**setup_info)
     _rm_version()
+
 
 if __name__ == '__main__':
     main()

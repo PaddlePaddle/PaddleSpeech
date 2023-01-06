@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "paddleaudio/src/pybind/kaldi/kaldi_feature.h"
-#include "feat/pitch-functions.h"
+//#include "feat/pitch-functions.h"
 
 namespace paddleaudio {
 namespace kaldi {
 
 bool InitFbank(
-    ::kaldi::FrameExtractionOptions frame_opts,
-    ::kaldi::MelBanksOptions mel_opts,
+    knf::FrameExtractionOptions frame_opts,
+    knf::MelBanksOptions mel_opts,
     FbankOptions fbank_opts) {
-    ::kaldi::FbankOptions opts;
+    knf::FbankOptions opts;
     opts.frame_opts = frame_opts;
     opts.mel_opts = mel_opts;
     opts.use_energy = fbank_opts.use_energy;
@@ -41,8 +41,8 @@ py::array_t<float> ComputeFbankStreaming(const py::array_t<float>& wav) {
 }
 
 py::array_t<float> ComputeFbank(
-    ::kaldi::FrameExtractionOptions frame_opts,
-    ::kaldi::MelBanksOptions mel_opts,
+    knf::FrameExtractionOptions frame_opts,
+    knf::MelBanksOptions mel_opts,
     FbankOptions fbank_opts,
     const py::array_t<float>& wav) {
     InitFbank(frame_opts, mel_opts, fbank_opts);
@@ -55,21 +55,21 @@ void ResetFbank() {
     paddleaudio::kaldi::KaldiFeatureWrapper::GetInstance()->ResetFbank();
 }
 
-py::array_t<float> ComputeKaldiPitch(
-  const ::kaldi::PitchExtractionOptions& opts,
-  const py::array_t<float>& wav) {
-    py::buffer_info info = wav.request();
-    ::kaldi::SubVector<::kaldi::BaseFloat> input_wav((float*)info.ptr, info.size);
+//py::array_t<float> ComputeKaldiPitch(
+  //const ::kaldi::PitchExtractionOptions& opts,
+  //const py::array_t<float>& wav) {
+    //py::buffer_info info = wav.request();
+    //::kaldi::SubVector<::kaldi::BaseFloat> input_wav((float*)info.ptr, info.size);
    
-    ::kaldi::Matrix<::kaldi::BaseFloat> features;
-    ::kaldi::ComputeKaldiPitch(opts, input_wav, &features);
-    auto result = py::array_t<float>({features.NumRows(), features.NumCols()});
-    for (int row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
-        std::memcpy(result.mutable_data(row_idx), features.Row(row_idx).Data(),
-                    sizeof(float)*features.NumCols());
-    }
-   return result;
-}
+    //::kaldi::Matrix<::kaldi::BaseFloat> features;
+    //::kaldi::ComputeKaldiPitch(opts, input_wav, &features);
+    //auto result = py::array_t<float>({features.NumRows(), features.NumCols()});
+    //for (int row_idx = 0; row_idx < features.NumRows(); ++row_idx) {
+        //std::memcpy(result.mutable_data(row_idx), features.Row(row_idx).Data(),
+                    //sizeof(float)*features.NumCols());
+    //}
+   //return result;
+//}
 
 }  // namespace kaldi
 }  // namespace paddleaudio

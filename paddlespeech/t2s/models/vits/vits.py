@@ -13,6 +13,7 @@
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
 """VITS module"""
+import math
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -27,7 +28,12 @@ from paddlespeech.t2s.models.hifigan import HiFiGANMultiScaleMultiPeriodDiscrimi
 from paddlespeech.t2s.models.hifigan import HiFiGANPeriodDiscriminator
 from paddlespeech.t2s.models.hifigan import HiFiGANScaleDiscriminator
 from paddlespeech.t2s.models.vits.generator import VITSGenerator
-from paddlespeech.t2s.modules.nets_utils import initialize
+from paddlespeech.utils.initialize import _calculate_fan_in_and_fan_out
+from paddlespeech.utils.initialize import kaiming_normal_
+from paddlespeech.utils.initialize import normal_
+from paddlespeech.utils.initialize import ones_
+from paddlespeech.utils.initialize import uniform_
+from paddlespeech.utils.initialize import zeros_
 
 AVAILABLE_GENERATERS = {
     "vits_generator": VITSGenerator,
@@ -180,7 +186,7 @@ class VITS(nn.Layer):
         super().__init__()
 
         # initialize parameters
-        initialize(self, init_type)
+        # initialize(self, init_type)
 
         # define modules
         generator_class = AVAILABLE_GENERATERS[generator_type]
@@ -196,7 +202,7 @@ class VITS(nn.Layer):
         self.discriminator = discriminator_class(
             **discriminator_params, )
 
-        nn.initializer.set_global_initializer(None)
+        # nn.initializer.set_global_initializer(None)
 
         # cache
         self.cache_generator_outputs = cache_generator_outputs
@@ -213,6 +219,8 @@ class VITS(nn.Layer):
 
         self.reuse_cache_gen = True
         self.reuse_cache_dis = True
+
+        self.reset_parameters()
 
     def forward(
             self,
@@ -243,7 +251,7 @@ class VITS(nn.Layer):
             forward_generator (bool):
                     Whether to forward generator.
         Returns:
-        
+    
         """
         if forward_generator:
             return self._forward_generator(
@@ -497,3 +505,40 @@ class VITS(nn.Layer):
             lids, )
 
         return dict(wav=paddle.reshape(wav, [-1]))
+
+    def reset_parameters(self):
+        def _reset_parameters(module):
+            if isinstance(module, nn.Conv1D) or isinstance(module,
+                                                           nn.Conv1DTranspose):
+                kaiming_normal_(module.weight, mode="fan_out")
+                if module.bias is not None:
+                    fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+                    bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+                    uniform_(module.bias, -bound, bound)
+            if isinstance(module, nn.Conv2D) or isinstance(module,
+                                                           nn.Conv2DTranspose):
+                kaiming_normal_(module.weight, mode="fan_out")
+                if module.bias is not None:
+                    fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+                    bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+                    uniform_(module.bias, -bound, bound)
+            if isinstance(module,
+                          (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm)):
+                ones_(module.weight)
+                zeros_(module.bias)
+            if isinstance(module, nn.Linear):
+                kaiming_normal_(module.weight, a=math.sqrt(5))
+                if module.bias is not None:
+                    fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+                    bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+                    uniform_(module.bias, -bound, bound)
+            if isinstance(module, nn.Embedding):
+                normal_(module.weight)
+                if module._padding_idx is not None:
+                    with paddle.no_grad():
+                        module.weight[module._padding_idx] = 0
+            if isinstance(module, nn.LayerNorm):
+                ones_(module.weight)
+                zeros_(module.bias)
+
+        self.apply(_reset_parameters)

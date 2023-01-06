@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,33 +59,31 @@ def create_manifest(data_dir, manifest_path):
     wav_dir = os.path.join(data_dir, 'wav')
     text_filepath = os.path.join(data_dir, 'label.txt')
     for subfolder, _, filelist in sorted(os.walk(wav_dir)):
-        text_filelist = text_filepath
-        if len(text_filelist) > 0:
-            for line in io.open(text_filepath, encoding="utf8"):
-                segments = line.strip().split()
-                nchars = len(segments[1:])
-                text = ' '.join(segments[1:]).lower()
+        for line in io.open(text_filepath, encoding="utf8"):
+            segments = line.strip().split()
+            nchars = len(segments[1:])
+            text = ' '.join(segments[1:]).lower()
 
-                audio_filepath = os.path.abspath(
-                    os.path.join(subfolder, segments[0] + '.wav'))
-                audio_data, samplerate = soundfile.read(audio_filepath)
-                duration = float(len(audio_data)) / samplerate
+            audio_filepath = os.path.abspath(
+                os.path.join(subfolder, segments[0] + '.wav'))
+            audio_data, samplerate = soundfile.read(audio_filepath)
+            duration = float(len(audio_data)) / samplerate
 
-                utt = os.path.splitext(os.path.basename(audio_filepath))[0]
-                utt2spk = '-'.join(utt.split('-')[:2])
+            utt = os.path.splitext(os.path.basename(audio_filepath))[0]
+            utt2spk = '-'.join(utt.split('-')[:2])
 
-                json_lines.append(
-                    json.dumps({
-                        'utt': utt,
-                        'utt2spk': utt2spk,
-                        'feat': audio_filepath,
-                        'feat_shape': (duration, ),  # second
-                        'text': text,
-                    }))
+            json_lines.append(
+                json.dumps({
+                    'utt': utt,
+                    'utt2spk': utt2spk,
+                    'feat': audio_filepath,
+                    'feat_shape': (duration, ),  # second
+                    'text': text,
+                }))
 
-                total_sec += duration
-                total_char += nchars
-                total_num += 1
+            total_sec += duration
+            total_char += nchars
+            total_num += 1
 
     with codecs.open(manifest_path, 'w', 'utf-8') as out_file:
         for line in json_lines:

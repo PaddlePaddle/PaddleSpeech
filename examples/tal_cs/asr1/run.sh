@@ -2,9 +2,9 @@
 source path.sh || exit 1;
 set -e
 
-gpus=1,2,3
+gpus=0,1,2,3
 stage=0
-stop_stage=100
+stop_stage=4
 conf_path=conf/conformer.yaml
 ips=  #xxx.xxx.xxx.xxx,xxx.xxx.xxx.xxx
 decode_conf_path=conf/tuning/decode.yaml
@@ -42,4 +42,10 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # test a single .wav file
     CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+fi
+
+# Not supported at now!!!
+if [ ${stage} -le 51 ] && [ ${stop_stage} -ge 51 ]; then
+     # export ckpt avg_n
+     CUDA_VISIBLE_DEVICES=0 ./local/export.sh ${conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} exp/${ckpt}/checkpoints/${avg_ckpt}.jit
 fi

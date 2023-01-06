@@ -8,8 +8,8 @@ nbpe=11297
 bpemode=bpe
 bpeprefix="${dict_dir}/bpe_${bpemode}_${nbpe}"
 
-stride_ms=10
-window_ms=25
+stride_ms=20
+window_ms=30
 sample_rate=16000
 feat_dim=80
 

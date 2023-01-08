@@ -22,7 +22,7 @@ KaldiFeatureWrapper* KaldiFeatureWrapper::GetInstance() {
     return &instance;
 }
 
-bool KaldiFeatureWrapper::InitFbank(::kaldi::FbankOptions opts) {
+bool KaldiFeatureWrapper::InitFbank(knf::FbankOptions opts) {
     fbank_.reset(new Fbank(opts));
     return true;
 }
@@ -30,21 +30,18 @@ bool KaldiFeatureWrapper::InitFbank(::kaldi::FbankOptions opts) {
 py::array_t<float> KaldiFeatureWrapper::ComputeFbank(
     const py::array_t<float> wav) {
     py::buffer_info info = wav.request();
-    ::kaldi::SubVector<::kaldi::BaseFloat> input_wav((float*)info.ptr, info.size);
+    std::vector<float> input_wav((float*)info.ptr, (float*)info.ptr + info.size);
 
-    ::kaldi::Vector<::kaldi::BaseFloat> feats;
+    std::vector<float> feats;
     bool flag = fbank_->ComputeFeature(input_wav, &feats);
-    if (flag == false || feats.Dim() == 0) return py::array_t<float>();
-    auto result = py::array_t<float>(feats.Dim());
+    if (flag == false || feats.size() == 0) return py::array_t<float>();
+    auto result = py::array_t<float>(feats.size());
     py::buffer_info xs = result.request();
-    std::cout << std::endl;
     float* res_ptr = (float*)xs.ptr;
-    for (int idx = 0; idx < feats.Dim(); ++idx) {
-        *res_ptr = feats(idx);
-        res_ptr++;
-    }
-
-    return result.reshape({feats.Dim() / Dim(), Dim()});
+    std::memcpy(res_ptr, feats.data(), sizeof(float)*feats.size());
+    std::vector<int> shape{static_cast<int>(feats.size() / Dim()), 
+                           static_cast<int>(Dim())};
+    return result.reshape(shape);
 }
 
 }  // namesapce kaldi

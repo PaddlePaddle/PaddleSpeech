@@ -52,7 +52,7 @@ if(BUILD_KALDI)
   list(
     APPEND
     LIBPADDLEAUDIO_LINK_LIBRARIES
-    libkaldi
+    kaldi-native-fbank-core
   )
   list(
     APPEND
@@ -91,14 +91,6 @@ define_library(
   "${LIBPADDLEAUDIO_LINK_LIBRARIES}"
   "${LIBPADDLEAUDIO_COMPILE_DEFINITIONS}"
 )
-
-if (APPLE)
-  add_custom_command(TARGET libpaddleaudio POST_BUILD COMMAND install_name_tool -change "${GFORTRAN_LIBRARIES_DIR}/libgcc_s.1.1.dylib" "@loader_path/libgcc_s.1.1.dylib" libpaddleaudio.so)
-endif(APPLE)
-
-if (UNIX AND NOT APPLE)
-  set_target_properties(libpaddleaudio PROPERTIES INSTALL_RPATH "$ORIGIN")
-endif()
 
 if (APPLE)
   set(AUDIO_LIBRARY libpaddleaudio CACHE INTERNAL "")
@@ -206,12 +198,4 @@ define_extension(
 #     "${LIBPADDLEAUDIO_DECODER_DEFINITIONS}"
 #     )
 # endif()
-endif()
-
-if (APPLE)
-  add_custom_command(TARGET _paddleaudio POST_BUILD COMMAND install_name_tool -change "${GFORTRAN_LIBRARIES_DIR}/libgcc_s.1.1.dylib" "@loader_path/lib/libgcc_s.1.1.dylib" _paddleaudio.so)
-endif(APPLE)
-
-if (UNIX AND NOT APPLE)
-  set_target_properties(_paddleaudio PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
 endif()

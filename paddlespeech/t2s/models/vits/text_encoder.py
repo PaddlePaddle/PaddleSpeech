@@ -106,8 +106,8 @@ class TextEncoder(nn.Layer):
         # define modules
         self.emb = nn.Embedding(vocabs, attention_dim)
 
-        dist = paddle.distribution.Normal(loc=0.0, scale=attention_dim**-0.5)
-        w = dist.sample(self.emb.weight.shape)
+        # dist = paddle.distribution.Normal(loc=0.0, scale=attention_dim**-0.5)
+        # w = dist.sample(self.emb.weight.shape)
         self.emb.weight.set_value(w)
 
         self.encoder = Encoder(
@@ -169,7 +169,7 @@ class TextEncoder(nn.Layer):
         return x, m, logs, x_mask
 
     def reset_parameters(self):
-        normal_(self.emb.weight)
+        normal_(self.emb.weight, mean=0.0, std=self.attention_dim**-0.5)
         if self.emb._padding_idx is not None:
             with paddle.no_grad():
                 self.emb.weight[self.emb._padding_idx] = 0

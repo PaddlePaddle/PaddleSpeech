@@ -131,6 +131,8 @@ class TextEncoder(nn.Layer):
             cnn_module_kernel=conformer_kernel_size, )
         self.proj = nn.Conv1D(attention_dim, attention_dim * 2, 1)
 
+        self.reset_parameters()
+        
     def forward(
             self,
             x: paddle.Tensor,

@@ -24,6 +24,7 @@ from paddle import nn
 
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.transformer.encoder import ConformerEncoder as Encoder
+from paddlespeech.utils.initialize import normal_
 
 
 class TextEncoder(nn.Layer):
@@ -166,3 +167,9 @@ class TextEncoder(nn.Layer):
         m, logs = paddle.split(stats, 2, axis=1)
 
         return x, m, logs, x_mask
+
+    def reset_parameters(self):
+        normal_(self.emb.weight)
+        if self.emb._padding_idx is not None:
+            with paddle.no_grad():
+                self.emb.weight[self.emb._padding_idx] = 0

@@ -108,7 +108,7 @@ class TextEncoder(nn.Layer):
 
         # dist = paddle.distribution.Normal(loc=0.0, scale=attention_dim**-0.5)
         # w = dist.sample(self.emb.weight.shape)
-        self.emb.weight.set_value(w)
+        # self.emb.weight.set_value(w)
 
         self.encoder = Encoder(
             idim=-1,

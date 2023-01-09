@@ -514,7 +514,7 @@ class VITS(nn.Layer):
                 or isinstance(module, nn.Conv1DTranspose)
                 or isinstance(module, nn.Conv2D) 
                 or isinstance(module, nn.Conv2DTranspose):
-                kaiming_uniform_(module.weight, a=math.sqrt(5), mode="fan_out")
+                kaiming_uniform_(module.weight, a=math.sqrt(5))
                 if module.bias is not None:
                     fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
                     if fan_in != 0:

@@ -14,6 +14,7 @@
 import argparse
 from typing import List
 
+import numpy
 from prettytable import PrettyTable
 
 from ..resource import CommonTaskResource
@@ -78,7 +79,7 @@ class VersionCommand:
 
 
 model_name_format = {
-    'asr': 'Model-Language-Sample Rate',
+    'asr': 'Model-Size-Code Switch-Multilingual-Language-Sample Rate',
     'cls': 'Model-Sample Rate',
     'st': 'Model-Source language-Target language',
     'text': 'Model-Task-Language',
@@ -111,7 +112,15 @@ class StatsCommand:
         fields = model_name_format[self.task].split("-")
         table = PrettyTable(fields)
         for key in pretrained_models:
-            table.add_row(key.split("-"))
+            line = key.split("-")
+            if self.task == "asr" and len(line) < len(fields):
+                for i in range(len(line), len(fields)):
+                    line.append("-")
+                tmp = numpy.array(line)
+                idx = [0, 5, 3, 4, 1, 2]
+                line = tmp[idx]
+            table.add_row(line)
+
         print(table)
 
     def execute(self, argv: List[str]) -> bool:

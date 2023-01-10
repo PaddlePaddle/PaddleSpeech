@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav

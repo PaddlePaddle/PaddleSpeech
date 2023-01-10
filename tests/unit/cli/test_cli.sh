@@ -14,7 +14,7 @@ paddlespeech ssl --task asr --lang en --input ./en.wav
 paddlespeech ssl --task vector --lang en --input ./en.wav
 
 # Speech_recognition
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
@@ -26,6 +26,7 @@ paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav
 paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
+paddlespeech asr --model conformer_talcs --lang zh_en --codeswitch True --input ./ch_zh_mix.wav
 
 # Support editing num_decoding_left_chunks
 paddlespeech asr --model conformer_online_wenetspeech --num_decoding_left_chunks 3 --input ./zh.wav

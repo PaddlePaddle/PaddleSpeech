@@ -62,7 +62,7 @@ class ASRExecutor(BaseExecutor):
             '--lang',
             type=str,
             default='zh',
-            help='Choose model language. [zh, en, zh_en], zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k], zh_en:[conformer_talcs-zh_en-16k-codeswitch]'
+            help='Choose model language. [zh, en, zh_en], zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k], zh_en:[conformer_talcs-codeswitch_zh_en-16k]'
         )
         self.parser.add_argument(
             '--codeswitch',
@@ -151,7 +151,9 @@ class ASRExecutor(BaseExecutor):
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
             if lang == "zh_en" and codeswitch is True:
-                tag = model_type + '-' + lang + '-' + sample_rate_str + '-' + 'codeswitch'
+                tag = model_type + '-' + 'codeswitch_' + lang + '-' + sample_rate_str
+            elif lang == "zh_en" or codeswitch is True:
+                raise Exception("codeswitch is true only in zh_en model")
             else:
                 tag = model_type + '-' + lang + '-' + sample_rate_str
             self.task_resource.set_task_model(tag, version=None)

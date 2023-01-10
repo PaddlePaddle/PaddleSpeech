@@ -116,6 +116,12 @@ class StatsCommand:
             if self.task == "asr" and len(line) < len(fields):
                 for i in range(len(line), len(fields)):
                     line.append("-")
+                if "codeswitch" in key:
+                    line[3], line[1] = line[1].split("_")[0], line[1].split(
+                        "_")[1:]
+                elif "multilingual" in key:
+                    line[4], line[1] = line[1].split("_")[0], line[1].split(
+                        "_")[1:]
                 tmp = numpy.array(line)
                 idx = [0, 5, 3, 4, 1, 2]
                 line = tmp[idx]

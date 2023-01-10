@@ -17,7 +17,7 @@ The input of this demo should be a WAV file(`.wav`), and the sample rate must be
 
 Here are sample files for this demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 
 ### 3. Usage
@@ -27,6 +27,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   paddlespeech asr --input ./zh.wav -v
   # English
   paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav -v
+  # Code-Switch
+  paddlespeech asr --model conformer_talcs --lang zh_en --codeswitch True --input ./ch_zh_mix.wav -v 
   # Chinese ASR + Punctuation Restoration
   paddlespeech asr --input ./zh.wav -v | paddlespeech text --task punc -v
   ```
@@ -40,6 +42,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   - `input`(required): Audio file to recognize.
   - `model`: Model type of asr task. Default: `conformer_wenetspeech`.
   - `lang`: Model language. Default: `zh`.
+  - `codeswitch`: Code Swith Model. Default: `False`
   - `sample_rate`: Sample rate of the model. Default: `16000`.
   - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.
   - `ckpt_path`: Model checkpoint. Use pretrained model when it is None. Default: `None`.
@@ -83,14 +86,15 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 
 Here is a list of pretrained models released by PaddleSpeech that can be used by command and python API:
 
-| Model | Language | Sample Rate
-| :--- | :---: | :---: |
-| conformer_wenetspeech | zh | 16k
-| conformer_online_multicn | zh | 16k
-| conformer_aishell | zh | 16k
-| conformer_online_aishell | zh | 16k
-| transformer_librispeech | en | 16k
-| deepspeech2online_wenetspeech | zh | 16k
-| deepspeech2offline_aishell| zh| 16k
-| deepspeech2online_aishell | zh | 16k
-| deepspeech2offline_librispeech | en | 16k
+| Model | Code Switch | Language | Sample Rate
+| :--- | :---: | :---: | :---: |
+| conformer_wenetspeech | False | zh | 16k
+| conformer_online_multicn | False | zh | 16k
+| conformer_aishell | False | zh | 16k
+| conformer_online_aishell | False | zh | 16k
+| transformer_librispeech | False | en | 16k
+| deepspeech2online_wenetspeech | False | zh | 16k
+| deepspeech2offline_aishell | False | zh| 16k
+| deepspeech2online_aishell | False | zh | 16k
+| deepspeech2offline_librispeech | False | en | 16k
+| conformer_talcs | True | zh_en | 16k

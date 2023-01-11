@@ -85,7 +85,7 @@ bool ParseMatrixRangeSpecifier(const std::string &range,
   return status;
 }
 
-bool ExtractObjectRange(const GeneralMatrix &input, const std::string &range,
+/*bool ExtractObjectRange(const GeneralMatrix &input, const std::string &range,
                         GeneralMatrix *output) {
   // We just inspect input's type and forward to the correct implementation
   // if available. For kSparseMatrix, we do just fairly inefficient conversion
@@ -135,6 +135,7 @@ template bool ExtractObjectRange(const CompressedMatrix &, const std::string &,
 template bool ExtractObjectRange(const CompressedMatrix &, const std::string &,
                                  Matrix<double> *);
 
+*/
 template<class Real>
 bool ExtractObjectRange(const Matrix<Real> &input, const std::string &range,
                         Matrix<Real> *output) {

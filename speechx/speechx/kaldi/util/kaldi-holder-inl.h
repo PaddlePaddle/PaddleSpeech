@@ -754,53 +754,53 @@ class TokenVectorHolder {
 };
 
 
-class HtkMatrixHolder {
- public:
-  typedef std::pair<Matrix<BaseFloat>, HtkHeader> T;
+//class HtkMatrixHolder {
+ //public:
+  //typedef std::pair<Matrix<BaseFloat>, HtkHeader> T;
 
-  HtkMatrixHolder() {}
+  //HtkMatrixHolder() {}
 
-  static bool Write(std::ostream &os, bool binary, const T &t) {
-    if (!binary)
-      KALDI_ERR << "Non-binary HTK-format write not supported.";
-    bool ans = WriteHtk(os, t.first, t.second);
-    if (!ans)
-      KALDI_WARN << "Error detected writing HTK-format matrix.";
-    return ans;
-  }
+  //static bool Write(std::ostream &os, bool binary, const T &t) {
+    //if (!binary)
+      //KALDI_ERR << "Non-binary HTK-format write not supported.";
+    //bool ans = WriteHtk(os, t.first, t.second);
+    //if (!ans)
+      //KALDI_WARN << "Error detected writing HTK-format matrix.";
+    //return ans;
+  //}
 
-  void Clear() { t_.first.Resize(0, 0); }
+  //void Clear() { t_.first.Resize(0, 0); }
 
-  // Reads into the holder.
-  bool Read(std::istream &is) {
-    bool ans = ReadHtk(is, &t_.first, &t_.second);
-    if (!ans) {
-      KALDI_WARN << "Error detected reading HTK-format matrix.";
-      return false;
-    }
-    return ans;
-  }
+  //// Reads into the holder.
+  //bool Read(std::istream &is) {
+    //bool ans = ReadHtk(is, &t_.first, &t_.second);
+    //if (!ans) {
+      //KALDI_WARN << "Error detected reading HTK-format matrix.";
+      //return false;
+    //}
+    //return ans;
+  //}
 
-  // HTK-format matrices only read in binary.
-  static bool IsReadInBinary() { return true; }
+  //// HTK-format matrices only read in binary.
+  //static bool IsReadInBinary() { return true; }
 
-  T &Value() { return t_; }
+  //T &Value() { return t_; }
 
-  void Swap(HtkMatrixHolder *other) {
-    t_.first.Swap(&(other->t_.first));
-    std::swap(t_.second, other->t_.second);
-  }
+  //void Swap(HtkMatrixHolder *other) {
+    //t_.first.Swap(&(other->t_.first));
+    //std::swap(t_.second, other->t_.second);
+  //}
 
-  bool ExtractRange(const HtkMatrixHolder &other,
-                    const std::string &range) {
-    KALDI_ERR << "ExtractRange is not defined for this type of holder.";
-    return false;
-  }
-  // Default destructor.
- private:
-  KALDI_DISALLOW_COPY_AND_ASSIGN(HtkMatrixHolder);
-  T t_;
-};
+  //bool ExtractRange(const HtkMatrixHolder &other,
+                    //const std::string &range) {
+    //KALDI_ERR << "ExtractRange is not defined for this type of holder.";
+    //return false;
+  //}
+  //// Default destructor.
+ //private:
+  //KALDI_DISALLOW_COPY_AND_ASSIGN(HtkMatrixHolder);
+  //T t_;
+//};
 
 // SphinxMatrixHolder can be used to read and write feature files in
 // CMU Sphinx format. 13-dimensional big-endian features are assumed.
@@ -813,104 +813,104 @@ class HtkMatrixHolder {
 // be no problem, because the usage help of Sphinx' "wave2feat" for example
 // says that Sphinx features are always big endian.
 // Note: the kFeatDim defaults to 13, see forward declaration in kaldi-holder.h
-template<int kFeatDim> class SphinxMatrixHolder {
- public:
-  typedef Matrix<BaseFloat> T;
+//template<int kFeatDim> class SphinxMatrixHolder {
+ //public:
+  //typedef Matrix<BaseFloat> T;
 
-  SphinxMatrixHolder() {}
+  //SphinxMatrixHolder() {}
 
-  void Clear() { feats_.Resize(0, 0); }
+  //void Clear() { feats_.Resize(0, 0); }
 
-  // Writes Sphinx-format features
-  static bool Write(std::ostream &os, bool binary, const T &m) {
-    if (!binary) {
-      KALDI_WARN << "SphinxMatrixHolder can't write Sphinx features in text ";
-      return false;
-    }
+  //// Writes Sphinx-format features
+  //static bool Write(std::ostream &os, bool binary, const T &m) {
+    //if (!binary) {
+      //KALDI_WARN << "SphinxMatrixHolder can't write Sphinx features in text ";
+      //return false;
+    //}
 
-    int32 size = m.NumRows() * m.NumCols();
-    if (MachineIsLittleEndian())
-      KALDI_SWAP4(size);
-    // write the header
-    os.write(reinterpret_cast<char*> (&size), sizeof(size));
+    //int32 size = m.NumRows() * m.NumCols();
+    //if (MachineIsLittleEndian())
+      //KALDI_SWAP4(size);
+    //// write the header
+    //os.write(reinterpret_cast<char*> (&size), sizeof(size));
 
-    for (MatrixIndexT i = 0; i < m.NumRows(); i++) {
-      std::vector<float32> tmp(m.NumCols());
-      for (MatrixIndexT j = 0; j < m.NumCols(); j++) {
-        tmp[j] = static_cast<float32>(m(i, j));
-        if (MachineIsLittleEndian())
-          KALDI_SWAP4(tmp[j]);
-      }
-      os.write(reinterpret_cast<char*>(&(tmp[0])),
-               tmp.size() * 4);
-    }
-    return true;
-  }
+    //for (MatrixIndexT i = 0; i < m.NumRows(); i++) {
+      //std::vector<float32> tmp(m.NumCols());
+      //for (MatrixIndexT j = 0; j < m.NumCols(); j++) {
+        //tmp[j] = static_cast<float32>(m(i, j));
+        //if (MachineIsLittleEndian())
+          //KALDI_SWAP4(tmp[j]);
+      //}
+      //os.write(reinterpret_cast<char*>(&(tmp[0])),
+               //tmp.size() * 4);
+    //}
+    //return true;
+  //}
 
-  // Reads the features into a Kaldi Matrix
-  bool Read(std::istream &is) {
-    int32 nmfcc;
+  //// Reads the features into a Kaldi Matrix
+  //bool Read(std::istream &is) {
+    //int32 nmfcc;
 
-    is.read(reinterpret_cast<char*> (&nmfcc), sizeof(nmfcc));
-    if (MachineIsLittleEndian())
-      KALDI_SWAP4(nmfcc);
-    KALDI_VLOG(2) << "#feats: " << nmfcc;
-    int32 nfvec = nmfcc / kFeatDim;
-    if ((nmfcc % kFeatDim) != 0) {
-      KALDI_WARN << "Sphinx feature count is inconsistent with vector length ";
-      return false;
-    }
+    //is.read(reinterpret_cast<char*> (&nmfcc), sizeof(nmfcc));
+    //if (MachineIsLittleEndian())
+      //KALDI_SWAP4(nmfcc);
+    //KALDI_VLOG(2) << "#feats: " << nmfcc;
+    //int32 nfvec = nmfcc / kFeatDim;
+    //if ((nmfcc % kFeatDim) != 0) {
+      //KALDI_WARN << "Sphinx feature count is inconsistent with vector length ";
+      //return false;
+    //}
 
-    feats_.Resize(nfvec, kFeatDim);
-    for (MatrixIndexT i = 0; i < feats_.NumRows(); i++) {
-      if (sizeof(BaseFloat) == sizeof(float32)) {
-        is.read(reinterpret_cast<char*> (feats_.RowData(i)),
-                kFeatDim * sizeof(float32));
-        if (!is.good()) {
-          KALDI_WARN << "Unexpected error/EOF while reading Sphinx features ";
-          return false;
-        }
-        if (MachineIsLittleEndian()) {
-          for (MatrixIndexT j = 0; j < kFeatDim; j++)
-            KALDI_SWAP4(feats_(i, j));
-        }
-      } else {  // KALDI_DOUBLEPRECISION=1
-        float32 tmp[kFeatDim];
-        is.read(reinterpret_cast<char*> (tmp), sizeof(tmp));
-        if (!is.good()) {
-          KALDI_WARN << "Unexpected error/EOF while reading Sphinx features ";
-          return false;
-        }
-        for (MatrixIndexT j = 0; j < kFeatDim; j++) {
-          if (MachineIsLittleEndian())
-            KALDI_SWAP4(tmp[j]);
-          feats_(i, j) = static_cast<BaseFloat>(tmp[j]);
-        }
-      }
-    }
+    //feats_.Resize(nfvec, kFeatDim);
+    //for (MatrixIndexT i = 0; i < feats_.NumRows(); i++) {
+      //if (sizeof(BaseFloat) == sizeof(float32)) {
+        //is.read(reinterpret_cast<char*> (feats_.RowData(i)),
+                //kFeatDim * sizeof(float32));
+        //if (!is.good()) {
+          //KALDI_WARN << "Unexpected error/EOF while reading Sphinx features ";
+          //return false;
+        //}
+        //if (MachineIsLittleEndian()) {
+          //for (MatrixIndexT j = 0; j < kFeatDim; j++)
+            //KALDI_SWAP4(feats_(i, j));
+        //}
+      //} else {  // KALDI_DOUBLEPRECISION=1
+        //float32 tmp[kFeatDim];
+        //is.read(reinterpret_cast<char*> (tmp), sizeof(tmp));
+        //if (!is.good()) {
+          //KALDI_WARN << "Unexpected error/EOF while reading Sphinx features ";
+          //return false;
+        //}
+        //for (MatrixIndexT j = 0; j < kFeatDim; j++) {
+          //if (MachineIsLittleEndian())
+            //KALDI_SWAP4(tmp[j]);
+          //feats_(i, j) = static_cast<BaseFloat>(tmp[j]);
+        //}
+      //}
+    //}
 
-    return true;
-  }
+    //return true;
+  //}
 
-  // Only read in binary
-  static bool IsReadInBinary() { return true; }
+  //// Only read in binary
+  //static bool IsReadInBinary() { return true; }
 
-  T &Value() { return feats_; }
+  //T &Value() { return feats_; }
 
-  void Swap(SphinxMatrixHolder *other) {
-    feats_.Swap(&(other->feats_));
-  }
+  //void Swap(SphinxMatrixHolder *other) {
+    //feats_.Swap(&(other->feats_));
+  //}
 
-  bool ExtractRange(const SphinxMatrixHolder &other,
-                    const std::string &range) {
-    KALDI_ERR << "ExtractRange is not defined for this type of holder.";
-    return false;
-  }
+  //bool ExtractRange(const SphinxMatrixHolder &other,
+                    //const std::string &range) {
+    //KALDI_ERR << "ExtractRange is not defined for this type of holder.";
+    //return false;
+  //}
 
- private:
-  KALDI_DISALLOW_COPY_AND_ASSIGN(SphinxMatrixHolder);
-  T feats_;
-};
+ //private:
+  //KALDI_DISALLOW_COPY_AND_ASSIGN(SphinxMatrixHolder);
+  //T feats_;
+//};
 
 
 /// @} end "addtogroup holders"

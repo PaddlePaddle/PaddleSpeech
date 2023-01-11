@@ -18,7 +18,7 @@
 #include "decoder/ctc_beam_search_opt.h"
 #include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "decoder/decoder_itf.h"
-#include "frontend/audio/feature_pipeline.h"
+#include "frontend/feature_pipeline.h"
 #include "fst/fstlib.h"
 #include "fst/symbol-table.h"
 #include "nnet/decodable.h"

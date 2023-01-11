@@ -16,7 +16,7 @@
 
 #include "base/common.h"
 #include "base/safe_queue.h"
-#include "frontend/audio/frontend_itf.h"
+#include "frontend/frontend_itf.h"
 #include "nnet/nnet_itf.h"
 
 namespace ppspeech {

@@ -23,7 +23,8 @@
 #include "base/kaldi-common.h"
 #include "util/kaldi-table.h"
 #include "util/kaldi-holder.h"
-#include "matrix/matrix-lib.h"
+#include "matrix/kaldi-matrix.h"
+#include "matrix/kaldi-vector.h"
 
 namespace kaldi {
 
@@ -51,8 +52,8 @@ typedef RandomAccessTableReader<KaldiObjectHolder<Matrix<double> > >
 typedef RandomAccessTableReaderMapped<KaldiObjectHolder<Matrix<double> > >
                                       RandomAccessDoubleMatrixReaderMapped;
 
-typedef TableWriter<KaldiObjectHolder<CompressedMatrix> >
-                                      CompressedMatrixWriter;
+//typedef TableWriter<KaldiObjectHolder<CompressedMatrix> >
+                                      //CompressedMatrixWriter;
 
 typedef TableWriter<KaldiObjectHolder<Vector<BaseFloat> > >
                                       BaseFloatVectorWriter;
@@ -70,39 +71,39 @@ typedef SequentialTableReader<KaldiObjectHolder<Vector<double> > >
 typedef RandomAccessTableReader<KaldiObjectHolder<Vector<double> > >
                                 RandomAccessDoubleVectorReader;
 
-typedef TableWriter<KaldiObjectHolder<CuMatrix<BaseFloat> > >
-                                      BaseFloatCuMatrixWriter;
-typedef SequentialTableReader<KaldiObjectHolder<CuMatrix<BaseFloat> > >
-                              SequentialBaseFloatCuMatrixReader;
-typedef RandomAccessTableReader<KaldiObjectHolder<CuMatrix<BaseFloat> > >
-                                RandomAccessBaseFloatCuMatrixReader;
-typedef RandomAccessTableReaderMapped<KaldiObjectHolder<CuMatrix<BaseFloat> > >
-                                      RandomAccessBaseFloatCuMatrixReaderMapped;
+//typedef TableWriter<KaldiObjectHolder<CuMatrix<BaseFloat> > >
+                                      //BaseFloatCuMatrixWriter;
+//typedef SequentialTableReader<KaldiObjectHolder<CuMatrix<BaseFloat> > >
+                              //SequentialBaseFloatCuMatrixReader;
+//typedef RandomAccessTableReader<KaldiObjectHolder<CuMatrix<BaseFloat> > >
+                                //RandomAccessBaseFloatCuMatrixReader;
+//typedef RandomAccessTableReaderMapped<KaldiObjectHolder<CuMatrix<BaseFloat> > >
+                                      //RandomAccessBaseFloatCuMatrixReaderMapped;
 
-typedef TableWriter<KaldiObjectHolder<CuMatrix<double> > >
-                                      DoubleCuMatrixWriter;
-typedef SequentialTableReader<KaldiObjectHolder<CuMatrix<double> > >
-                              SequentialDoubleCuMatrixReader;
-typedef RandomAccessTableReader<KaldiObjectHolder<CuMatrix<double> > >
-                                RandomAccessDoubleCuMatrixReader;
-typedef RandomAccessTableReaderMapped<KaldiObjectHolder<CuMatrix<double> > >
-                                      RandomAccessDoubleCuMatrixReaderMapped;
+//typedef TableWriter<KaldiObjectHolder<CuMatrix<double> > >
+                                      //DoubleCuMatrixWriter;
+//typedef SequentialTableReader<KaldiObjectHolder<CuMatrix<double> > >
+                              //SequentialDoubleCuMatrixReader;
+//typedef RandomAccessTableReader<KaldiObjectHolder<CuMatrix<double> > >
+                                //RandomAccessDoubleCuMatrixReader;
+//typedef RandomAccessTableReaderMapped<KaldiObjectHolder<CuMatrix<double> > >
+                                      //RandomAccessDoubleCuMatrixReaderMapped;
 
-typedef TableWriter<KaldiObjectHolder<CuVector<BaseFloat> > >
-                    BaseFloatCuVectorWriter;
-typedef SequentialTableReader<KaldiObjectHolder<CuVector<BaseFloat> > >
-                              SequentialBaseFloatCuVectorReader;
-typedef RandomAccessTableReader<KaldiObjectHolder<CuVector<BaseFloat> > >
-                                RandomAccessBaseFloatCuVectorReader;
-typedef RandomAccessTableReaderMapped<KaldiObjectHolder<CuVector<BaseFloat> > >
-                                      RandomAccessBaseFloatCuVectorReaderMapped;
+//typedef TableWriter<KaldiObjectHolder<CuVector<BaseFloat> > >
+                    //BaseFloatCuVectorWriter;
+//typedef SequentialTableReader<KaldiObjectHolder<CuVector<BaseFloat> > >
+                              //SequentialBaseFloatCuVectorReader;
+//typedef RandomAccessTableReader<KaldiObjectHolder<CuVector<BaseFloat> > >
+                                //RandomAccessBaseFloatCuVectorReader;
+//typedef RandomAccessTableReaderMapped<KaldiObjectHolder<CuVector<BaseFloat> > >
+                                      //RandomAccessBaseFloatCuVectorReaderMapped;
 
-typedef TableWriter<KaldiObjectHolder<CuVector<double> > >
-                    DoubleCuVectorWriter;
-typedef SequentialTableReader<KaldiObjectHolder<CuVector<double> > >
-                              SequentialDoubleCuVectorReader;
-typedef RandomAccessTableReader<KaldiObjectHolder<CuVector<double> > >
-                                RandomAccessDoubleCuVectorReader;
+//typedef TableWriter<KaldiObjectHolder<CuVector<double> > >
+                    //DoubleCuVectorWriter;
+//typedef SequentialTableReader<KaldiObjectHolder<CuVector<double> > >
+                              //SequentialDoubleCuVectorReader;
+//typedef RandomAccessTableReader<KaldiObjectHolder<CuVector<double> > >
+                                //RandomAccessDoubleCuVectorReader;
 
 
 typedef TableWriter<BasicHolder<int32> >  Int32Writer;
@@ -150,8 +151,6 @@ typedef TableWriter<BasicHolder<bool> >  BoolWriter;
 typedef SequentialTableReader<BasicHolder<bool> >  SequentialBoolReader;
 typedef RandomAccessTableReader<BasicHolder<bool> >  RandomAccessBoolReader;
 
-
-
 /// TokenWriter is a writer specialized for std::string where the strings
 /// are nonempty and whitespace-free.   T == std::string
 typedef TableWriter<TokenHolder> TokenWriter;
@@ -169,14 +168,14 @@ typedef RandomAccessTableReader<TokenVectorHolder>
                                 RandomAccessTokenVectorReader;
 
 
-typedef TableWriter<KaldiObjectHolder<GeneralMatrix> >
-                                      GeneralMatrixWriter;
-typedef SequentialTableReader<KaldiObjectHolder<GeneralMatrix> >
-                              SequentialGeneralMatrixReader;
-typedef RandomAccessTableReader<KaldiObjectHolder<GeneralMatrix> >
-                                RandomAccessGeneralMatrixReader;
-typedef RandomAccessTableReaderMapped<KaldiObjectHolder<GeneralMatrix> >
-                                      RandomAccessGeneralMatrixReaderMapped;
+//typedef TableWriter<KaldiObjectHolder<GeneralMatrix> >
+//                                      GeneralMatrixWriter;
+//typedef SequentialTableReader<KaldiObjectHolder<GeneralMatrix> >
+ //                             SequentialGeneralMatrixReader;
+//typedef RandomAccessTableReader<KaldiObjectHolder<GeneralMatrix> >
+ //                               RandomAccessGeneralMatrixReader;
+//typedef RandomAccessTableReaderMapped<KaldiObjectHolder<GeneralMatrix> >
+ //                                     RandomAccessGeneralMatrixReaderMapped;
 
 
 

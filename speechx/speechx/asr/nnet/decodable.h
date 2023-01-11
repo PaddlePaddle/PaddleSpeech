@@ -14,7 +14,7 @@
 
 #include "base/common.h"
 #include "kaldi/decoder/decodable-itf.h"
-#include "kaldi/matrix/kaldi-matrix.h"
+#include "matrix/kaldi-matrix.h"
 #include "nnet/nnet_itf.h"
 #include "nnet/nnet_producer.h"
 

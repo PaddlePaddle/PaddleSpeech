@@ -27,7 +27,6 @@
 #include "util/kaldi-io.h"
 #include "util/text-utils.h"
 #include "matrix/kaldi-vector.h"
-#include "matrix/sparse-matrix.h"
 
 namespace kaldi {
 
@@ -214,10 +213,10 @@ class TokenVectorHolder;
 
 /// A class for reading/writing HTK-format matrices.
 /// T == std::pair<Matrix<BaseFloat>, HtkHeader>
-class HtkMatrixHolder;
+//class HtkMatrixHolder;
 
 /// A class for reading/writing Sphinx format matrices.
-template<int kFeatDim = 13> class SphinxMatrixHolder;
+//template<int kFeatDim = 13> class SphinxMatrixHolder;
 
 /// This templated function exists so that we can write .scp files with
 /// 'object ranges' specified: the canonical example is a [first:last] range
@@ -249,15 +248,15 @@ bool ExtractObjectRange(const Vector<Real> &input, const std::string &range,
                         Vector<Real> *output);
 
 /// GeneralMatrix is always of type BaseFloat
-bool ExtractObjectRange(const GeneralMatrix &input, const std::string &range,
-                        GeneralMatrix *output);
+//bool ExtractObjectRange(const GeneralMatrix &input, const std::string &range,
+ //                       GeneralMatrix *output);
 
 /// CompressedMatrix is always of the type BaseFloat but it is more
 /// efficient to provide template as it uses CompressedMatrix's own
 /// conversion to Matrix<Real>
-template <class Real>
-bool ExtractObjectRange(const CompressedMatrix &input, const std::string &range,
-                        Matrix<Real> *output);
+//template <class Real>
+//bool ExtractObjectRange(const CompressedMatrix &input, const std::string &range,
+ //                       Matrix<Real> *output);
 
 // In SequentialTableReaderScriptImpl and RandomAccessTableReaderScriptImpl, for
 // cases where the scp contained 'range specifiers' (things in square brackets

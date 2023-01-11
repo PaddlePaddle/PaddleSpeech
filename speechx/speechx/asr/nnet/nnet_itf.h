@@ -15,7 +15,6 @@
 
 #include "base/basic_types.h"
 #include "kaldi/base/kaldi-types.h"
-#include "kaldi/matrix/kaldi-matrix.h"
 #include "kaldi/util/options-itf.h"
 
 DECLARE_int32(subsampling_rate);

@@ -106,10 +106,6 @@ class TextEncoder(nn.Layer):
         # define modules
         self.emb = nn.Embedding(vocabs, attention_dim)
 
-        # dist = paddle.distribution.Normal(loc=0.0, scale=attention_dim**-0.5)
-        # w = dist.sample(self.emb.weight.shape)
-        # self.emb.weight.set_value(w)
-
         self.encoder = Encoder(
             idim=-1,
             input_layer=None,
@@ -132,7 +128,7 @@ class TextEncoder(nn.Layer):
         self.proj = nn.Conv1D(attention_dim, attention_dim * 2, 1)
 
         self.reset_parameters()
-        
+
     def forward(
             self,
             x: paddle.Tensor,

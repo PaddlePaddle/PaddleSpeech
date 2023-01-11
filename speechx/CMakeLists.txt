@@ -53,9 +53,6 @@ include(gflags)
 
 include(glog)
 
-#openblas
-#include(openblas)
-
 # openfst
 include(openfst)
 add_dependencies(openfst gflags glog)

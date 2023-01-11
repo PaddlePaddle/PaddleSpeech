@@ -54,7 +54,7 @@ include(gflags)
 include(glog)
 
 #openblas
-include(openblas)
+#include(openblas)
 
 # openfst
 include(openfst)

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "nnet/nnet_producer.h"
+#include "matrix/kaldi-matrix.h"
 
 namespace ppspeech {
 
-using kaldi::Vector;
 using std::vector;
 using kaldi::BaseFloat;
 

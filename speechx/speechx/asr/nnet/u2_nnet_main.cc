@@ -15,8 +15,8 @@
 
 #include "base/common.h"
 #include "decoder/param.h"
-#include "frontend/audio/assembler.h"
-#include "frontend/audio/data_cache.h"
+#include "frontend/assembler.h"
+#include "frontend/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/u2_nnet.h"

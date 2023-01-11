@@ -14,7 +14,7 @@
 
 #include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "base/common.h"
-#include "frontend/audio/data_cache.h"
+#include "frontend/data_cache.h"
 #include "fst/symbol-table.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"

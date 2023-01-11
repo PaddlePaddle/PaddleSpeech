@@ -5,8 +5,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}
 
 add_subdirectory(base)
 add_subdirectory(util)
-add_subdirectory(feat)
-add_subdirectory(matrix)
 add_subdirectory(lat)
 add_subdirectory(fstext)
 add_subdirectory(decoder)

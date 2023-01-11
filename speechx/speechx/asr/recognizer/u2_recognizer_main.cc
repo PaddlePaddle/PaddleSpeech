@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "decoder/param.h"
-#include "kaldi/feat/wave-reader.h"
+#include "frontend/wave-reader.h"
 #include "kaldi/util/table-types.h"
 #include "recognizer/u2_recognizer.h"
 

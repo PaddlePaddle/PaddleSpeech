@@ -204,7 +204,6 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
                  n_head,
                  n_feat,
                  dropout_rate,
-                 do_rel_shift=False,
                  adaptive_scale=False,
                  init_weights=False):
         """Construct an RelPositionMultiHeadedAttention object.
@@ -229,7 +228,6 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         pos_bias_v = self.create_parameter(
             (self.h, self.d_k), default_initializer=I.XavierUniform())
         self.add_parameter('pos_bias_v', pos_bias_v)
-        self.do_rel_shift = do_rel_shift
         self.adaptive_scale = adaptive_scale
         if self.adaptive_scale:
             ada_scale = self.create_parameter(
@@ -369,8 +367,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         matrix_bd = paddle.matmul(q_with_bias_v, p, transpose_y=True)
         # Remove rel_shift since it is useless in speech recognition,
         # and it requires special attention for streaming.
-        if self.do_rel_shift:
-            matrix_bd = self.rel_shift(matrix_bd)
+        # matrix_bd = self.rel_shift(matrix_bd)
 
         scores = (matrix_ac + matrix_bd) / math.sqrt(
             self.d_k)  # (batch, head, time1, time2)

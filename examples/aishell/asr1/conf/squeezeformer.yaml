@@ -21,7 +21,7 @@ encoder_conf:
     normalize_before: false
     activation_type: 'swish'
     pos_enc_layer_type: 'rel_pos'
-    time_reduction_layer_type: 'conv2d'
+    time_reduction_layer_type: 'conv1d'
 
 # decoder related
 decoder: transformer

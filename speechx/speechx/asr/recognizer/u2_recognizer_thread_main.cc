@@ -14,7 +14,7 @@
 
 #include "recognizer/u2_recognizer.h"
 #include "decoder/param.h"
-#include "kaldi/feat/wave-reader.h"
+#include "frontend/wave-reader.h"
 #include "kaldi/util/table-types.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");

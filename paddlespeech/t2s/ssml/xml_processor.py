@@ -73,7 +73,29 @@ class MixTextProcessor():
         else:
             ctlist.append([mixstr, []])
         return ctlist
+    
+    @classmethod
+    def get_dom_split(self, mixstr):
+        ''' 文本分解，顺序加了列表中，返回文本和say-as标签（供mix进一步处理）
+        '''
+        ctlist = []
+        patn = re.compile(r'(.*\s*?)(<speak>.*?</speak>)(.*\s*)$', re.M | re.S)
+        mat = re.match(patn, mixstr)
+        if mat:
+            pre_xml = mat.group(1)
+            in_xml = mat.group(2)
+            after_xml = mat.group(3)
 
+            ctlist.append(pre_xml)
+            dom = DomXml(in_xml)
+            tags = dom.get_text_and_sayas_tags()
+            ctlist.extend(tags)
+            
+            ctlist.append(after_xml)
+            return ctlist
+        else:
+            ctlist.append(mixstr)
+        return ctlist
 
 class DomXml():
     def __init__(self, xmlstr):
@@ -156,3 +178,16 @@ class DomXml():
             if x.hasAttribute('pinyin'):  # pinyin
                 print(x.tagName, 'pinyin',
                       x.getAttribute('pinyin'), x.firstChild.data)
+
+    def get_text_and_sayas_tags(self):
+        '''返回 xml 内容的列表，包括所有文本内容和<say-as> tag'''
+        res = []
+
+        for x1 in self.rnode:
+            if x1.nodeType == Node.TEXT_NODE:
+                res.append(x1.value)
+            else:
+                for x2 in x1.childNodes:
+                    res.append(x2.toxml())
+        print(res)
+        return res

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import re
 from typing import Dict
 from typing import List
 
@@ -18,6 +19,7 @@ import paddle
 
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
+from paddlespeech.t2s.ssml.xml_processor import MixTextProcessor
 
 
 class MixFrontend():
@@ -107,7 +109,40 @@ class MixFrontend():
                       add_sp: bool=True,
                       to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
 
-        segments = self.get_segment(sentence)
+        ''' 1. 添加SSML支持，先列出 文字 和 <say-as>标签内容，
+                然后添加到tmpSegments数组里
+        '''
+        d_inputs = MixTextProcessor.get_dom_split(sentence)
+        tmpSegments = []
+        for instr in d_inputs:
+            ''' 暂时只支持 say-as '''
+            if instr.lower().startswith("<say-as"):
+                tmpSegments.append((instr, "zh"))
+            else:
+                tmpSegments.extend(self.get_segment(instr))
+
+        ''' 2. 把zh的merge到一起，避免合成结果中间停顿
+        '''
+        segments = []
+        currentSeg = ["", ""]
+        for seg in tmpSegments:
+            if seg[1] == "en" or seg[1] == "other":
+                if currentSeg[0] == '':
+                    segments.append(seg)
+                else:
+                    currentSeg[0] = "<speak>" + currentSeg[0] + "</speak>"
+                    segments.append(tuple(currentSeg))
+                    segments.append(seg)
+                    currentSeg = ["", ""]
+            else:
+                if currentSeg[0] == '':
+                    currentSeg[0] = seg[0]
+                    currentSeg[1] = seg[1]
+                else:
+                    currentSeg[0] = currentSeg[0] + seg[0]
+        if currentSeg[0] != '':
+            currentSeg[0] = "<speak>" + currentSeg[0] + "</speak>"
+            segments.append(tuple(currentSeg))
 
         phones_list = []
         result = {}
@@ -120,11 +155,21 @@ class MixFrontend():
                     input_ids = self.en_frontend.get_input_ids(
                         content, merge_sentences=False, to_tensor=to_tensor)
                 else:
-                    input_ids = self.zh_frontend.get_input_ids(
-                        content,
-                        merge_sentences=False,
-                        get_tone_ids=get_tone_ids,
-                        to_tensor=to_tensor)
+                    ''' 3. 把带speak tag的中文和普通文字分开处理
+                    '''
+                    if content.strip() != "" and \
+                        re.match(r".*?<speak>.*?</speak>.*", content, re.DOTALL):
+                        input_ids = self.zh_frontend.get_input_ids_ssml(
+                            content,
+                            merge_sentences=False,
+                            get_tone_ids=get_tone_ids,
+                            to_tensor=to_tensor)
+                    else:
+                        input_ids = self.zh_frontend.get_input_ids(
+                            content,
+                            merge_sentences=False,
+                            get_tone_ids=get_tone_ids,
+                            to_tensor=to_tensor)
                 if add_sp:
                     input_ids["phone_ids"][-1] = paddle.concat(
                         [input_ids["phone_ids"][-1], self.sp_id_tensor])

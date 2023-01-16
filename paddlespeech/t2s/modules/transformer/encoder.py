@@ -390,12 +390,18 @@ class TransformerEncoder(BaseEncoder):
             padding_idx=padding_idx,
             encoder_type="transformer")
 
-    def forward(self, xs, masks):
+    def forward(self, xs, masks, note_emb=None, note_dur_emb=None, is_slur_emb=None, scale=16):
         """Encoder input sequence.
 
         Args:
             xs(Tensor): 
                 Input tensor (#batch, time, idim).
+            note_emb(Tensor): 
+                Input tensor (#batch, time, attention_dim).
+            note_dur_emb(Tensor): 
+                Input tensor (#batch, time, attention_dim).
+            is_slur_emb(Tensor): 
+                Input tensor (#batch, time, attention_dim).
             masks(Tensor): 
                 Mask tensor (#batch, 1, time).
 
@@ -406,6 +412,8 @@ class TransformerEncoder(BaseEncoder):
                 Mask tensor (#batch, 1, time).
         """
         xs = self.embed(xs)
+        if note_emb is not None:
+            xs = scale * xs + note_emb + note_dur_emb + is_slur_emb
         xs, masks = self.encoders(xs, masks)
         if self.normalize_before:
             xs = self.after_norm(xs)

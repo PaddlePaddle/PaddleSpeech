@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import librosa
+import numpy as np
 
 
 # speaker|utt_id|phn dur phn dur ...
@@ -37,6 +39,58 @@ def get_phn_dur(file_name):
         dur = phn_dur[1::2]
         assert len(phn) == len(dur)
         sentence[utt] = (phn, [int(i) for i in dur], speaker)
+    f.close()
+    return sentence, speaker_set
+
+def note2midi(notes):
+    midis = []
+    for note in notes:
+        if note == 'rest':
+            midi = 0
+        else:
+            midi = librosa.note_to_midi(note.split("/")[0])
+        midis.append(midi)
+
+    return midis
+
+def time2frame(times, sample_rate: int=24000, n_shift: int=128,):
+    end = 0.0
+    ends = []
+    for t in times:
+        end += t
+        ends.append(end)
+    frame_pos = librosa.time_to_frames(ends, sr=sample_rate, hop_length=n_shift)
+    durations = np.diff(frame_pos, prepend=0)
+    return durations
+
+def get_sentences_svs(file_name, dataset: str='opencpop', sample_rate: int=24000, n_shift: int=128,):
+    '''
+    read label file
+    Args:
+        file_name (str or Path): path of gen_duration_from_textgrid.py's result
+        dataset (str): dataset name
+    Returns: 
+        Dict: sentence: {'utt': ([char], [int])}
+    '''
+    f = open(file_name, 'r')
+    sentence = {}
+    speaker_set = set()
+    if dataset == 'opencpop':
+        speaker_set.add("opencpop")
+        for line in f:
+            line_list = line.strip().split('|')
+            utt = line_list[0]
+            text = line_list[1]
+            ph = line_list[2].split()
+            midi = note2midi(line_list[3].split())
+            midi_dur = line_list[4].split()
+            ph_dur = time2frame([float(t) for t in line_list[5].split()])
+            is_slur = line_list[6].split()
+            assert len(ph) == len(midi) == len(midi_dur) == len(is_slur)
+            sentence[utt] = (ph, [int(i) for i in ph_dur], [int(i) for i in midi], [float(i) for i in midi_dur], [int(i) for i in is_slur], text, "opencpop")
+    else:
+        print("dataset should in {opencpop} now!")
+
     f.close()
     return sentence, speaker_set
 
@@ -88,6 +142,9 @@ def get_input_token(sentence, output_path, dataset="baker"):
     phn_token = ["<pad>", "<unk>"] + phn_token
     if dataset in {"baker", "aishell3"}:
         phn_token += ["，", "。", "？", "！"]
+    # svs dataset
+    elif dataset in {"opencpop"}:
+        pass
     else:
         phn_token += [",", ".", "?", "!"]
     phn_token += ["<eos>"]

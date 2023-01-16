@@ -16,6 +16,7 @@ import librosa
 import numpy as np
 import pyworld
 from scipy.interpolate import interp1d
+from typing import List
 
 
 class LogMelFBank():
@@ -166,6 +167,8 @@ class Pitch():
         f0 = self._calculate_f0(wav, use_continuous_f0, use_log_f0)
         if use_token_averaged_f0 and duration is not None:
             f0 = self._average_by_duration(f0, duration)
+        else:
+            f0 = np.expand_dims(np.array(f0), 0).T
         return f0
 
 
@@ -224,6 +227,8 @@ class Energy():
         energy = self._calculate_energy(wav)
         if use_token_averaged_energy and duration is not None:
             energy = self._average_by_duration(energy, duration)
+        else:
+            energy = np.expand_dims(np.array(energy), 0).T
         return energy
 
 

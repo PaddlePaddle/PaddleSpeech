@@ -157,8 +157,8 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
-- 🔥 2022.01.10: Add [code-switch asr CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_recognition).
-- 👑 2022.01.06: Add [code-switch asr tal_cs recipe](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/tal_cs/asr1/).
+- 🔥 2023.01.10: Add [code-switch asr CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_recognition).
+- 👑 2023.01.06: Add [code-switch asr tal_cs recipe](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/tal_cs/asr1/).
 - 🎉 2022.12.02: Add [end-to-end Prosody Prediction pipeline](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3_rhy) (including using prosody labels in Acoustic Model).
 - 🎉 2022.11.30: Add [TTS Android Demo](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/TTSAndroid).
 - 🤗 2022.11.28: PP-TTS and PP-ASR demos are available in [AIStudio](https://aistudio.baidu.com/aistudio/modelsoverview) and [official website

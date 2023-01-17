@@ -110,7 +110,7 @@ def train_sp(args, config):
     train_sampler = ErnieSATSampler(
         train_dataset,
         batch_size=config.batch_size,
-        shuffle=True,
+        shuffle=False,
         drop_last=True)
     dev_sampler = ErnieSATSampler(
         dev_dataset,

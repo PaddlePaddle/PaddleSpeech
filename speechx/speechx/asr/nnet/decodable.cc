@@ -33,7 +33,6 @@ void Decodable::Acceptlikelihood(const Matrix<BaseFloat>& likelihood) {
     nnet_producer_->Acceptlikelihood(likelihood);
 }
 
-
 // return the size of frame have computed.
 int32 Decodable::NumFramesReady() const { return frames_ready_; }
 

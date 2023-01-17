@@ -31,34 +31,35 @@ FeatureCache::FeatureCache(FeatureCacheOptions opts,
 void FeatureCache::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
     // read inputs
     base_extractor_->Accept(inputs);
-
-    // feed current data
-    bool result = false;
-    do {
-        result = Compute();
-    } while (result);
 }
 
 // pop feature chunk
 bool FeatureCache::Read(std::vector<kaldi::BaseFloat>* feats) {
     kaldi::Timer timer;
-
     std::unique_lock<std::mutex> lock(mutex_);
-    while (cache_.empty() && base_extractor_->IsFinished() == false) {
-        // todo refactor: wait
-        // ready_read_condition_.wait(lock);
-        int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);  // ms
-        if (elapsed > timeout_) {
-            return false;
-        }
-        usleep(100);  // sleep 0.1 ms
+// feed current data
+    if (cache_.empty()) {
+        bool result = false;
+        do {
+            result = Compute();
+        } while (result);
     }
+
+    //while (cache_.empty() && base_extractor_->IsFinished() == false) {
+        //// todo refactor: wait
+        //// ready_read_condition_.wait(lock);
+        //int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);  // ms
+        //if (elapsed > timeout_) {
+            //return false;
+        //}
+        //usleep(100);  // sleep 0.1 ms
+    //}
     if (cache_.empty()) return false;
 
     // read from cache
     *feats = cache_.front();
     cache_.pop();
-    ready_feed_condition_.notify_one();
+    //ready_feed_condition_.notify_one();
     VLOG(1) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
     return true;
 }
@@ -73,7 +74,6 @@ bool FeatureCache::Compute() {
     kaldi::Timer timer;
 
     int32 num_chunk = feature.size() / dim_;
-    nframe_ += num_chunk;
     VLOG(3) << "nframe computed: " << nframe_;
 
     for (int chunk_idx = 0; chunk_idx < num_chunk; ++chunk_idx) {
@@ -81,15 +81,16 @@ bool FeatureCache::Compute() {
         vector<BaseFloat> feature_chunk(feature.data() + start, 
                                         feature.data() + start + dim_);
 
-        std::unique_lock<std::mutex> lock(mutex_);
-        while (cache_.size() >= max_size_) {
+       // std::unique_lock<std::mutex> lock(mutex_);
+        //while (cache_.size() >= max_size_) {
             // cache full, wait
-            ready_feed_condition_.wait(lock);
-        }
+         //   ready_feed_condition_.wait(lock);
+        //}
 
         // feed cache
         cache_.push(feature_chunk);
-        ready_read_condition_.notify_one();
+        ++nframe_;
+        //ready_read_condition_.notify_one();
     }
 
     VLOG(1) << "FeatureCache::Compute cost: " << timer.Elapsed() << " sec. "

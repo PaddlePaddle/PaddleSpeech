@@ -22,14 +22,14 @@ DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
-void decode_func(std::shared_ptr<ppspeech::U2Recognizer> recognizer) {
+/*void decode_func(std::shared_ptr<ppspeech::U2Recognizer> recognizer) {
     while (!recognizer->IsFinished()) {
         recognizer->Decode();
-        usleep(100);
     }
     recognizer->Decode();
     recognizer->Rescoring();
-}
+    LOG(INFO) << "decode thread exit!!!";
+}*/
 
 int main(int argc, char* argv[]) {
     gflags::SetUsageMessage("Usage:");
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         new ppspeech::U2Recognizer(resource));
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
-        std::thread recognizer_thread(decode_func, recognizer_ptr);
+        recognizer_ptr->InitDecoder();
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
         LOG(INFO) << "utt: " << utt;
@@ -89,17 +89,15 @@ int main(int argc, char* argv[]) {
 
             recognizer_ptr->Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
-                recognizer_ptr->SetFinished();
+                recognizer_ptr->SetInputFinished();
             }
 
             // no overlap
             sample_offset += cur_chunk_size;
         }
         CHECK(sample_offset == tot_samples);
-
-        recognizer_thread.join();
+        recognizer_ptr->WaitDecodeFinished();
         std::string result = recognizer_ptr->GetFinalResult();
-        recognizer_ptr->Reset();
         if (result.empty()) {
             // the TokenWriter can not write empty string.
             ++num_err;
@@ -107,6 +105,7 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
+        tot_decode_time += local_timer.Elapsed(); 
         LOG(INFO) << utt << " " << result;
         LOG(INFO) << " RTF: " << local_timer.Elapsed() / dur << " dur: " << dur
                   << " cost: " << local_timer.Elapsed();
@@ -115,6 +114,7 @@ int main(int argc, char* argv[]) {
 
         ++num_done;
     }
+    recognizer_ptr->WaitFinished();
 
     LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
     LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";

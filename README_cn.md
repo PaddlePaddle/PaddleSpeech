@@ -164,8 +164,8 @@
 
   
 ### 近期更新
-- 🔥 2022.01.10: 新增 [中英混合 ASR CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_recognition).
-- 👑 2022.01.06: 新增 [ASR中英混合 tal_cs 训练推理流程](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/tal_cs/asr1/).
+- 🔥 2023.01.10: 新增 [中英混合 ASR CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_recognition).
+- 👑 2023.01.06: 新增 [ASR中英混合 tal_cs 训练推理流程](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/tal_cs/asr1/).
 - 🎉 2022.12.02: 新增 [端到端韵律预测全流程](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3_rhy) (包含在声学模型中使用韵律标签)。
 - 🎉 2022.11.30: 新增 [TTS Android 部署示例](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/TTSAndroid)。
 - 🤗 2022.11.28: PP-TTS and PP-ASR 示例可在 [AIStudio](https://aistudio.baidu.com/aistudio/modelsoverview) 和[飞桨官网](https://www.paddlepaddle.org.cn/models)体验！

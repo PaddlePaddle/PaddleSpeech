@@ -202,7 +202,7 @@
 微信扫描二维码关注公众号，点击“马上报名”填写问卷加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/212860467-9e943cc3-8be8-49a4-97fd-7c94aad8e979.jpg"  width = "200"  />
 </div>
 
 <a name="安装"></a>

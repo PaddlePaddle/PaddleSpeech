@@ -60,8 +60,10 @@ int main(int argc, char* argv[]) {
     feature_opts.assembler_opts.fill_zero = false;
 
     std::shared_ptr<ppspeech::U2Nnet> nnet(new ppspeech::U2Nnet(model_opts));
-    std::shared_ptr<ppspeech::FeaturePipeline> raw_data(new ppspeech::FeaturePipeline(feature_opts));
-    std::shared_ptr<ppspeech::NnetProducer> nnet_producer(new ppspeech::NnetProducer(nnet, raw_data));
+    std::shared_ptr<ppspeech::FeaturePipeline> feature_pipeline(
+        new ppspeech::FeaturePipeline(feature_opts));
+    std::shared_ptr<ppspeech::NnetProducer> nnet_producer(
+        new ppspeech::NnetProducer(nnet, feature_pipeline));
     kaldi::Timer timer;
     float tot_wav_duration = 0;
 

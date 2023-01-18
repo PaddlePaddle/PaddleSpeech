@@ -90,7 +90,6 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk[i] = waveform(sample_offset + i);
             }
-            // wav_chunk = waveform.Range(sample_offset + i, cur_chunk_size);
 
             nnet_producer->Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
@@ -102,24 +101,27 @@ int main(int argc, char* argv[]) {
         }
         CHECK(sample_offset == tot_samples);
 
-        std::vector<kaldi::Vector<kaldi::BaseFloat>> prob_vec;
+        std::vector<std::vector<kaldi::BaseFloat>> prob_vec;
         while(1) {
             std::vector<kaldi::BaseFloat> logprobs;
-            //nnet_producer->ReadandCompute(&logprobs);
             bool isok = nnet_producer->Read(&logprobs);
-            //bool isok = nnet_producer->IsFinished();
-            int vocab_dim = logprobs.size();
             if (nnet_producer->IsFinished()) break;
-            //for (int row_idx = 0; row_idx < logprobs.Dim() / vocab_dim;
-                    //row_idx++) {
-                //kaldi::Vector<kaldi::BaseFloat> vec_tmp(vocab_dim);
-                //std::memcpy(vec_tmp.Data(),
-                            //logprobs.Data() + row_idx * vocab_dim,
-                            //sizeof(kaldi::BaseFloat) * vocab_dim);
-                //prob_vec.push_back(vec_tmp);
-            //}
+            if (isok == false) continue;
+            prob_vec.push_back(logprobs);
         }
-
+        {
+            // writer nnet output
+            kaldi::MatrixIndexT nrow = prob_vec.size();
+            kaldi::MatrixIndexT ncol = prob_vec[0].size();
+            LOG(INFO) << "nnet out shape: " << nrow << ", " << ncol;
+            kaldi::Matrix<kaldi::BaseFloat> nnet_out(nrow, ncol);
+            for (int32 row_idx = 0; row_idx < nrow; ++row_idx) {
+                for (int32 col_idx = 0; col_idx < ncol; ++col_idx) {
+                    nnet_out(row_idx, col_idx) = prob_vec[row_idx][col_idx];
+                }
+            }
+            nnet_out_writer.Write(utt, nnet_out);
+        }
         nnet_producer->Reset();
     }
 

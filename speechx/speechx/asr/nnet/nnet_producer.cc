@@ -55,7 +55,6 @@ void NnetProducer::RunNnetEvaluationInteral() {
             result = Compute();
         } while (result);
         if (frontend_->IsFinished() == true) {
-            //Compute();
            if (cache_.empty()) finished_ = true;
         }
     }
@@ -96,7 +95,6 @@ bool NnetProducer::Compute() {
     }
     CHECK_GE(frontend_->Dim(), 0);
     VLOG(1) << "Forward in " << features.size() / frontend_->Dim() << " feats.";
-    VLOG(1) << features[0] << " .  .  . " << features[features.size()-1];
 
     NnetOut out;
     nnet_->FeedForward(features, frontend_->Dim(), &out);

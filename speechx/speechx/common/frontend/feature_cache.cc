@@ -43,13 +43,13 @@ bool FeatureCache::Read(std::vector<kaldi::BaseFloat>* feats) {
             result = Compute();
         } while (result);
     }
+
     if (cache_.empty()) return false;
 
     // read from cache
     *feats = cache_.front();
     cache_.pop();
-    //ready_feed_condition_.notify_one();
-    VLOG(2) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
+    VLOG(1) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
     return true;
 }
 

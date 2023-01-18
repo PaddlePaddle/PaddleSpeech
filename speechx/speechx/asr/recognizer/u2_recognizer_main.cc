@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
     ppspeech::U2Recognizer recognizer(resource);
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
+        recognizer.InitDecoder();
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
         LOG(INFO) << "utt: " << utt;
@@ -79,7 +80,7 @@ int main(int argc, char* argv[]) {
 
             recognizer.Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
-                recognizer.SetFinished();
+                recognizer.SetInputFinished();
             }
             recognizer.Decode();
             if (recognizer.DecodedSomething()) {
@@ -100,7 +101,6 @@ int main(int argc, char* argv[]) {
 
         std::string result = recognizer.GetFinalResult();
 
-        recognizer.Reset();
 
         if (result.empty()) {
             // the TokenWriter can not write empty string.

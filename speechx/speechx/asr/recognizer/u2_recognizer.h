@@ -112,19 +112,21 @@ struct U2RecognizerResource {
 class U2Recognizer {
   public:
     explicit U2Recognizer(const U2RecognizerResource& resouce);
-    void Reset();
+    ~U2Recognizer();
+    void InitDecoder();
     void ResetContinuousDecoding();
 
     void Accept(const std::vector<kaldi::BaseFloat>& waves);
     void Decode();
     void Rescoring();
 
-
     std::string GetFinalResult();
     std::string GetPartialResult();
 
-    void SetFinished();
+    void SetInputFinished();
     bool IsFinished() { return input_finished_; }
+    void WaitDecodeFinished();
+    void WaitFinished();
 
     bool DecodedSomething() const {
         return !result_.empty() && !result_[0].sentence.empty();
@@ -137,18 +139,17 @@ class U2Recognizer {
         //          feature_pipeline_->FrameShift();
     }
 
-
     const std::vector<DecodeResult>& Result() const { return result_; }
+    void AttentionRescoring();
 
   private:
-    void AttentionRescoring();
+    static void RunDecoderSearch(U2Recognizer *me);
+    void RunDecoderSearchInternal();
     void UpdateResult(bool finish = false);
 
   private:
     U2RecognizerResource opts_;
 
-    // std::shared_ptr<U2RecognizerResource> resource_;
-    // U2RecognizerResource resource_;
     std::shared_ptr<NnetProducer> nnet_producer_;
     std::shared_ptr<Decodable> decodable_;
     std::unique_ptr<CTCPrefixBeamSearch> decoder_;
@@ -167,6 +168,7 @@ class U2Recognizer {
     const int time_stamp_gap_ = 100;
 
     bool input_finished_;
+    std::thread thread_;
 };
 
 }  // namespace ppspeech

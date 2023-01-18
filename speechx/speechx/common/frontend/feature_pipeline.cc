@@ -33,7 +33,7 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts)
         new ppspeech::CMVN(opts.cmvn_file, std::move(base_feature)));
 
     unique_ptr<FrontendInterface> cache(
-        new ppspeech::FeatureCache(opts.feature_cache_opts, std::move(cmvn)));
+        new ppspeech::FeatureCache(kint16max, std::move(cmvn)));
 
     base_extractor_.reset(
         new ppspeech::Assembler(opts.assembler_opts, std::move(cache)));

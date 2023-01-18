@@ -8,14 +8,21 @@ target_link_libraries(nnet utils)
 target_compile_options(nnet  PUBLIC ${PADDLE_COMPILE_FLAGS})
 target_include_directories(nnet  PUBLIC ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
 
-# test bin
-#if(USING_U2)
-#  set(bin_name u2_nnet_main)
-#  add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
-#  target_include_directories(${bin_name} PRIVATE ${SPEECHX_ROOT} ${SPEECHX_ROOT}/kaldi)
-#  target_link_libraries(${bin_name} utils kaldi-util kaldi-matrix gflags glog nnet)
+# test bin  
+#set(bin_name u2_nnet_main)
+#add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
+#target_include_directories(${bin_name} PRIVATE ${SPEECHX_ROOT} ${SPEECHX_ROOT}/kaldi)
+#target_link_libraries(${bin_name} utils kaldi-util kaldi-matrix gflags glog nnet)
 
-#  target_compile_options(${bin_name}  PRIVATE ${PADDLE_COMPILE_FLAGS})
-#  target_include_directories(${bin_name}  PRIVATE ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
-#  target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})
-#endif()
+#target_compile_options(${bin_name}  PRIVATE ${PADDLE_COMPILE_FLAGS})
+#target_include_directories(${bin_name}  PRIVATE ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
+#target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})
+
+set(bin_name u2_nnet_thread_main)
+add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
+target_include_directories(${bin_name} PRIVATE ${SPEECHX_ROOT} ${SPEECHX_ROOT}/kaldi)
+target_link_libraries(${bin_name} utils kaldi-util kaldi-matrix gflags glog nnet frontend)
+
+target_compile_options(${bin_name}  PRIVATE ${PADDLE_COMPILE_FLAGS})
+target_include_directories(${bin_name}  PRIVATE ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
+target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})

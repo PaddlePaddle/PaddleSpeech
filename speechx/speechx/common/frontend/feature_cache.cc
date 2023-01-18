@@ -20,10 +20,9 @@ using kaldi::BaseFloat;
 using std::unique_ptr;
 using std::vector;
 
-FeatureCache::FeatureCache(FeatureCacheOptions opts,
+FeatureCache::FeatureCache(size_t max_size,
                            unique_ptr<FrontendInterface> base_extractor) {
-    max_size_ = opts.max_size;
-    timeout_ = opts.timeout;  // ms
+    max_size_ = max_size;
     base_extractor_ = std::move(base_extractor);
     dim_ = base_extractor_->Dim();
 }
@@ -37,30 +36,20 @@ void FeatureCache::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
 bool FeatureCache::Read(std::vector<kaldi::BaseFloat>* feats) {
     kaldi::Timer timer;
     std::unique_lock<std::mutex> lock(mutex_);
-// feed current data
+    // feed current data
     if (cache_.empty()) {
         bool result = false;
         do {
             result = Compute();
         } while (result);
     }
-
-    //while (cache_.empty() && base_extractor_->IsFinished() == false) {
-        //// todo refactor: wait
-        //// ready_read_condition_.wait(lock);
-        //int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);  // ms
-        //if (elapsed > timeout_) {
-            //return false;
-        //}
-        //usleep(100);  // sleep 0.1 ms
-    //}
     if (cache_.empty()) return false;
 
     // read from cache
     *feats = cache_.front();
     cache_.pop();
     //ready_feed_condition_.notify_one();
-    VLOG(1) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
+    VLOG(2) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
     return true;
 }
 
@@ -80,17 +69,9 @@ bool FeatureCache::Compute() {
         int32 start = chunk_idx * dim_;
         vector<BaseFloat> feature_chunk(feature.data() + start, 
                                         feature.data() + start + dim_);
-
-       // std::unique_lock<std::mutex> lock(mutex_);
-        //while (cache_.size() >= max_size_) {
-            // cache full, wait
-         //   ready_feed_condition_.wait(lock);
-        //}
-
         // feed cache
         cache_.push(feature_chunk);
         ++nframe_;
-        //ready_read_condition_.notify_one();
     }
 
     VLOG(1) << "FeatureCache::Compute cost: " << timer.Elapsed() << " sec. "

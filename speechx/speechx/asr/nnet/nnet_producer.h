@@ -36,6 +36,7 @@ class NnetProducer {
     bool ReadandCompute(std::vector<kaldi::BaseFloat>* nnet_prob);
     static void RunNnetEvaluation(NnetProducer *me);
     void RunNnetEvaluationInteral();
+    void UnLock();
 
     void Wait() {
         abort_ = true;
@@ -49,7 +50,6 @@ class NnetProducer {
         LOG(INFO) << "set finished";
         frontend_->SetFinished();
         condition_variable_.notify_one();
-        LOG(INFO) << "compute last feats done.";
     }
 
     // the compute thread exit
@@ -60,13 +60,11 @@ class NnetProducer {
     }
 
     void Reset() {
-        //if (thread_.joinable()) thread_.join();
         frontend_->Reset();
         nnet_->Reset();
         VLOG(3) << "feature cache reset: cache size: " << cache_.size();
         cache_.clear();
         finished_ = false;
-        //thread_ = std::thread(RunNnetEvaluation, this);
     }
 
     void AttentionRescoring(const std::vector<std::vector<int>>& hyps,
@@ -80,7 +78,9 @@ class NnetProducer {
     std::shared_ptr<NnetBase> nnet_;
     SafeQueue<std::vector<kaldi::BaseFloat>> cache_;
     std::mutex mutex_;
+    std::mutex read_mutex_;
     std::condition_variable condition_variable_;
+    std::condition_variable condition_read_ready_;
     std::thread thread_;
     bool finished_;
     bool abort_;

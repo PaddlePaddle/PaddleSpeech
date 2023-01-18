@@ -33,6 +33,14 @@ void NnetProducer::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
     condition_variable_.notify_one();
 }
 
+void NnetProducer::UnLock() {
+    std::unique_lock<std::mutex> lock(read_mutex_);
+    while (frontend_->IsFinished() == false && cache_.empty()) {
+        condition_read_ready_.wait(lock); 
+    }
+    return;
+}
+
 void NnetProducer::RunNnetEvaluation(NnetProducer *me) {
     me->RunNnetEvaluationInteral();
 }
@@ -47,7 +55,7 @@ void NnetProducer::RunNnetEvaluationInteral() {
             result = Compute();
         } while (result);
         if (frontend_->IsFinished() == true) {
-            Compute();
+            //Compute();
            if (cache_.empty()) finished_ = true;
         }
     }
@@ -61,8 +69,8 @@ void NnetProducer::Acceptlikelihood(
     for (size_t idx = 0; idx < likelihood.NumRows(); ++idx) {
         for (size_t col = 0; col < likelihood.NumCols(); ++col) {
             prob[col] = likelihood(idx, col);
-            cache_.push_back(prob);
         }
+        cache_.push_back(prob);
     }
 }
 
@@ -100,6 +108,7 @@ bool NnetProducer::Compute() {
             out.logprobs.data() + idx * vocab_dim,
             out.logprobs.data() + (idx + 1) * vocab_dim);
         cache_.push_back(logprob);
+        condition_read_ready_.notify_one();
     }
     return true;
 }

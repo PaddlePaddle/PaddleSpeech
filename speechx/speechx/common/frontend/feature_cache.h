@@ -19,16 +19,10 @@
 
 namespace ppspeech {
 
-struct FeatureCacheOptions {
-    int32 max_size;
-    int32 timeout;  // ms
-    FeatureCacheOptions() : max_size(kint16max), timeout(1) {}
-};
-
 class FeatureCache : public FrontendInterface {
   public:
     explicit FeatureCache(
-        FeatureCacheOptions opts,
+        size_t max_size = kint16max,
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
@@ -64,11 +58,8 @@ class FeatureCache : public FrontendInterface {
 
     int32 dim_;
     size_t max_size_;           // cache capacity
-    int32 frame_chunk_size_;    // window
-    int32 frame_chunk_stride_;  // stride
     std::unique_ptr<FrontendInterface> base_extractor_;
 
-    kaldi::int32 timeout_;  // ms
     std::queue<std::vector<BaseFloat>> cache_;  // feature cache
     std::mutex mutex_;
 

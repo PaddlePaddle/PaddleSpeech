@@ -22,15 +22,6 @@ DEFINE_string(result_wspecifier, "", "test result wspecifier");
 DEFINE_double(streaming_chunk, 0.36, "streaming feature chunk size");
 DEFINE_int32(sample_rate, 16000, "sample rate");
 
-/*void decode_func(std::shared_ptr<ppspeech::U2Recognizer> recognizer) {
-    while (!recognizer->IsFinished()) {
-        recognizer->Decode();
-    }
-    recognizer->Decode();
-    recognizer->Rescoring();
-    LOG(INFO) << "decode thread exit!!!";
-}*/
-
 int main(int argc, char* argv[]) {
     gflags::SetUsageMessage("Usage:");
     gflags::ParseCommandLineFlags(&argc, &argv, false);
@@ -40,6 +31,7 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
     double tot_wav_duration = 0.0;
+    double tot_attention_rescore_time = 0.0;
     double tot_decode_time = 0.0;
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
@@ -74,7 +66,6 @@ int main(int argc, char* argv[]) {
         LOG(INFO) << "wav len (sample): " << tot_samples;
 
         int sample_offset = 0;
-        kaldi::Timer timer;
         kaldi::Timer local_timer;
 
         while (sample_offset < tot_samples) {
@@ -85,7 +76,6 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk[i] = waveform(sample_offset + i);
             }
-            // wav_chunk = waveform.Range(sample_offset + i, cur_chunk_size);
 
             recognizer_ptr->Accept(wav_chunk);
             if (cur_chunk_size < chunk_sample_size) {
@@ -97,6 +87,11 @@ int main(int argc, char* argv[]) {
         }
         CHECK(sample_offset == tot_samples);
         recognizer_ptr->WaitDecodeFinished();
+
+        kaldi::Timer timer;
+        recognizer_ptr->AttentionRescoring();
+        tot_attention_rescore_time += timer.Elapsed();
+
         std::string result = recognizer_ptr->GetFinalResult();
         if (result.empty()) {
             // the TokenWriter can not write empty string.
@@ -119,5 +114,6 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
     LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";
     LOG(INFO) << "total decode cost:" << tot_decode_time << " sec";
+    LOG(INFO) << "total rescore cost:" << tot_attention_rescore_time << " sec";
     LOG(INFO) << "RTF is: " << tot_decode_time / tot_wav_duration;
 }

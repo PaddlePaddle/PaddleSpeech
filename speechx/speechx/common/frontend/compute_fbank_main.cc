@@ -73,8 +73,7 @@ int main(int argc, char* argv[]) {
         new ppspeech::CMVN(FLAGS_cmvn_file, std::move(fbank)));
 
     // the feature cache output feature chunk by chunk.
-    ppspeech::FeatureCacheOptions feat_cache_opts;
-    ppspeech::FeatureCache feature_cache(feat_cache_opts, std::move(cmvn));
+    ppspeech::FeatureCache feature_cache(kint16max, std::move(cmvn));
     LOG(INFO) << "fbank: " << true;
     LOG(INFO) << "feat dim: " << feature_cache.Dim();
 

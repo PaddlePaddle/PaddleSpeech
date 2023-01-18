@@ -140,18 +140,16 @@ class U2Recognizer {
     }
 
     const std::vector<DecodeResult>& Result() const { return result_; }
+    void AttentionRescoring();
 
   private:
     static void RunDecoderSearch(U2Recognizer *me);
     void RunDecoderSearchInternal();
-    void AttentionRescoring();
     void UpdateResult(bool finish = false);
 
   private:
     U2RecognizerResource opts_;
 
-    // std::shared_ptr<U2RecognizerResource> resource_;
-    // U2RecognizerResource resource_;
     std::shared_ptr<NnetProducer> nnet_producer_;
     std::shared_ptr<Decodable> decodable_;
     std::unique_ptr<CTCPrefixBeamSearch> decoder_;

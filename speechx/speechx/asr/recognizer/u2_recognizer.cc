@@ -85,11 +85,12 @@ void U2Recognizer::RunDecoderSearch(U2Recognizer* me) {
 }
 
 void U2Recognizer::RunDecoderSearchInternal() {
-    while(!nnet_producer_->IsFinished()) {
-       Decode();
+    LOG(INFO) << "DecoderSearchInteral begin";
+    while (!nnet_producer_->IsFinished()) {
+        nnet_producer_->UnLock();
+        decoder_->AdvanceDecode(decodable_);
     }
     Decode();
-    Rescoring();
     LOG(INFO) << "DecoderSearchInteral exit";
 }
 

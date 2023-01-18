@@ -39,7 +39,6 @@ namespace ppspeech {
 struct FeaturePipelineOptions {
     std::string cmvn_file{};
     knf::FbankOptions fbank_opts{};
-    FeatureCacheOptions feature_cache_opts{};
     AssemblerOptions assembler_opts{};
 
     static FeaturePipelineOptions InitFromFlags() {

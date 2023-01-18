@@ -63,8 +63,9 @@ void CTCPrefixBeamSearch::Reset() {
     times_.emplace_back(empty);
 }
 
-void CTCPrefixBeamSearch::InitDecoder() { Reset(); }
-
+void CTCPrefixBeamSearch::InitDecoder() { 
+    Reset(); 
+}
 
 void CTCPrefixBeamSearch::AdvanceDecode(
     const std::shared_ptr<kaldi::DecodableInterface>& decodable) {
@@ -77,7 +78,7 @@ void CTCPrefixBeamSearch::AdvanceDecode(
         bool flag = decodable->FrameLikelihood(num_frame_decoded_, &frame_prob);
         feat_nnet_cost += timer.Elapsed();
         if (flag == false) {
-            VLOG(3) << "decoder advance decode exit." << frame_prob.size();
+            VLOG(2) << "decoder advance decode exit." << frame_prob.size();
             break;
         }
 
@@ -87,7 +88,7 @@ void CTCPrefixBeamSearch::AdvanceDecode(
         AdvanceDecoding(likelihood);
         search_cost += timer.Elapsed();
 
-        VLOG(2) << "num_frame_decoded_: " << num_frame_decoded_;
+        VLOG(1) << "num_frame_decoded_: " << num_frame_decoded_;
     }
     VLOG(1) << "AdvanceDecode feat + forward  cost: " << feat_nnet_cost
             << " sec.";

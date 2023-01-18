@@ -39,12 +39,28 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     unit_table_ = decoder_->VocabTable();
     symbol_table_ = unit_table_;
 
+    global_frame_offset_ = 0;
     input_finished_ = false;
+    num_frames_ = 0;
+    result_.clear();
 
-    Reset();
 }
 
-void U2Recognizer::Reset() {
+U2Recognizer::~U2Recognizer() {
+   SetInputFinished();    
+   WaitDecodeFinished();
+}
+
+void U2Recognizer::WaitDecodeFinished() {
+    if (thread_.joinable()) thread_.join();
+}
+
+void U2Recognizer::WaitFinished() {
+    if (thread_.joinable()) thread_.join();
+    nnet_producer_->Wait();
+}
+
+void U2Recognizer::InitDecoder() {
     global_frame_offset_ = 0;
     input_finished_ = false;
     num_frames_ = 0;
@@ -52,6 +68,7 @@ void U2Recognizer::Reset() {
 
     decodable_->Reset();
     decoder_->Reset();
+    thread_ = std::thread(RunDecoderSearch, this);
 }
 
 void U2Recognizer::ResetContinuousDecoding() {
@@ -63,6 +80,19 @@ void U2Recognizer::ResetContinuousDecoding() {
     decoder_->Reset();
 }
 
+void U2Recognizer::RunDecoderSearch(U2Recognizer* me) {
+    me->RunDecoderSearchInternal();
+}
+
+void U2Recognizer::RunDecoderSearchInternal() {
+    LOG(INFO) << "DecoderSearchInteral begin";
+    while (!nnet_producer_->IsFinished()) {
+        nnet_producer_->UnLock();
+        decoder_->AdvanceDecode(decodable_);
+    }
+    Decode();
+    LOG(INFO) << "DecoderSearchInteral exit";
+}
 
 void U2Recognizer::Accept(const vector<BaseFloat>& waves) {
     kaldi::Timer timer;
@@ -70,7 +100,6 @@ void U2Recognizer::Accept(const vector<BaseFloat>& waves) {
     VLOG(1) << "feed waves cost: " << timer.Elapsed() << " sec. " << waves.size()
             << " samples.";
 }
-
 
 void U2Recognizer::Decode() {
     decoder_->AdvanceDecode(decodable_);
@@ -207,8 +236,8 @@ std::string U2Recognizer::GetFinalResult() { return result_[0].sentence; }
 
 std::string U2Recognizer::GetPartialResult() { return result_[0].sentence; }
 
-void U2Recognizer::SetFinished() {
-    nnet_producer_->SetFinished();
+void U2Recognizer::SetInputFinished() {
+    nnet_producer_->SetInputFinished();
     input_finished_ = true;
 }
 

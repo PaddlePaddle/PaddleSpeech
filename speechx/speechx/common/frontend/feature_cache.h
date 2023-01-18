@@ -19,16 +19,10 @@
 
 namespace ppspeech {
 
-struct FeatureCacheOptions {
-    int32 max_size;
-    int32 timeout;  // ms
-    FeatureCacheOptions() : max_size(kint16max), timeout(1) {}
-};
-
 class FeatureCache : public FrontendInterface {
   public:
     explicit FeatureCache(
-        FeatureCacheOptions opts,
+        size_t max_size = kint16max,
         std::unique_ptr<FrontendInterface> base_extractor = NULL);
 
     // Feed feats or waves
@@ -41,13 +35,11 @@ class FeatureCache : public FrontendInterface {
     virtual size_t Dim() const { return dim_; }
 
     virtual void SetFinished() {
+        std::unique_lock<std::mutex> lock(mutex_);
         LOG(INFO) << "set finished";
-        // std::unique_lock<std::mutex> lock(mutex_);
-        base_extractor_->SetFinished();
-
         // read the last chunk data
         Compute();
-        // ready_feed_condition_.notify_one();
+        base_extractor_->SetFinished();
         LOG(INFO) << "compute last feats done.";
     }
 
@@ -66,16 +58,10 @@ class FeatureCache : public FrontendInterface {
 
     int32 dim_;
     size_t max_size_;           // cache capacity
-    int32 frame_chunk_size_;    // window
-    int32 frame_chunk_stride_;  // stride
     std::unique_ptr<FrontendInterface> base_extractor_;
 
-    kaldi::int32 timeout_;  // ms
-    std::vector<kaldi::BaseFloat> remained_feature_;
     std::queue<std::vector<BaseFloat>> cache_;  // feature cache
     std::mutex mutex_;
-    std::condition_variable ready_feed_condition_;
-    std::condition_variable ready_read_condition_;
 
     int32 nframe_;  // num of feature computed
     DISALLOW_COPY_AND_ASSIGN(FeatureCache);

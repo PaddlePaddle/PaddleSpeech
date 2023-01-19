@@ -13,5 +13,5 @@
 # limitations under the License.
 from .starganv2_vc import *
 from .starganv2_vc_updater import *
-from .ASR.model import *
-from .JDC.model import *
+from .AuxiliaryASR.model import *
+from .JDCNet.model import *

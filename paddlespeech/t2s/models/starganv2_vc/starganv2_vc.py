@@ -19,16 +19,17 @@ This work is licensed under the Creative Commons Attribution-NonCommercial
 http://creativecommons.org/licenses/by-nc/4.0/ or send a letter to
 Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 """
-import copy
+# import copy
 import math
 
 import paddle
 import paddle.nn.functional as F
-from munch import Munch
 from paddle import nn
 
 from paddlespeech.utils.initialize import _calculate_gain
 from paddlespeech.utils.initialize import xavier_uniform_
+
+# from munch import Munch
 
 
 class DownSample(nn.Layer):
@@ -531,6 +532,7 @@ class Discriminator2D(nn.Layer):
         return out
 
 
+'''
 def build_model(args, F0_model: nn.Layer, ASR_model: nn.Layer):
     generator = Generator(
         dim_in=args.dim_in,
@@ -611,3 +613,4 @@ class StarGANv2VC(nn.Layer):
             num_domains=num_domains,
             max_conv_dim=max_conv_dim,
             repeat_num=n_repeat)
+'''

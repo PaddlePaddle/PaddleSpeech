@@ -71,12 +71,9 @@ base = [
     "yacs~=0.1.8",
     "prettytable",
     "zhon",
-    "colorlog",
-    "pathos==0.2.8",
     "braceexpand",
     "pyyaml",
-    "pybind11",
-    "paddleslim==2.3.4",
+    "paddleslim>=2.3.4",
     "paddleaudio>=1.0.2",
 ]
 

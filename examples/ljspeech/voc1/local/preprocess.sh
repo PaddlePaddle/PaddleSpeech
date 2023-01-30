@@ -42,14 +42,18 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     python3 ${BIN_DIR}/../normalize.py \
         --metadata=dump/train/raw/metadata.jsonl \
         --dumpdir=dump/train/norm \
-        --stats=dump/train/feats_stats.npy
+        --stats=dump/train/feats_stats.npy \
+        --skip-wav-copy
+
     python3 ${BIN_DIR}/../normalize.py \
         --metadata=dump/dev/raw/metadata.jsonl \
         --dumpdir=dump/dev/norm \
-        --stats=dump/train/feats_stats.npy
+        --stats=dump/train/feats_stats.npy \
+        --skip-wav-copy
     
     python3 ${BIN_DIR}/../normalize.py \
         --metadata=dump/test/raw/metadata.jsonl \
         --dumpdir=dump/test/norm \
-        --stats=dump/train/feats_stats.npy
+        --stats=dump/train/feats_stats.npy \
+        --skip-wav-copy
 fi

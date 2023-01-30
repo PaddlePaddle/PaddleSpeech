@@ -43,7 +43,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             if g.type == core.VarDesc.VarType.SELECTED_ROWS:
                 merge_grad = layers.merge_selected_rows(g)
                 merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
-            square = layers.square(merge_grad)
+            square = paddle.square(merge_grad)
             sum_square = layers.reduce_sum(square)
             sum_square_list.append(sum_square)
 
@@ -66,7 +66,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
         clip_var = layers.elementwise_div(
             x=max_global_norm,
-            y=layers.elementwise_max(x=global_norm_var, y=max_global_norm))
+            y=paddle.maximum(x=global_norm_var, y=max_global_norm))
         for i, (p, g) in enumerate(params_grads):
             if g is None:
                 continue

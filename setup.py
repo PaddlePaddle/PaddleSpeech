@@ -53,7 +53,6 @@ base = [
     "paddlespeech_feat",
     "Pillow>=9.0.0",
     "praatio==5.0.0",
-    "protobuf>=3.1.0, <=3.20.2",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",

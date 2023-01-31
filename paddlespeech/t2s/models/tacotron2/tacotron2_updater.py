@@ -113,16 +113,18 @@ class Tacotron2Updater(StandardUpdater):
         loss.backward()
         optimizer.step()
 
+        if self.use_guided_attn_loss:
+            report("eval/attn_loss", float(attn_loss))
+            losses_dict["attn_loss"] = float(attn_loss)
+        
         report("train/l1_loss", float(l1_loss))
         report("train/mse_loss", float(mse_loss))
         report("train/bce_loss", float(bce_loss))
-        report("train/attn_loss", float(attn_loss))
         report("train/loss", float(loss))
 
         losses_dict["l1_loss"] = float(l1_loss)
         losses_dict["mse_loss"] = float(mse_loss)
         losses_dict["bce_loss"] = float(bce_loss)
-        losses_dict["attn_loss"] = float(attn_loss)
         losses_dict["loss"] = float(loss)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())

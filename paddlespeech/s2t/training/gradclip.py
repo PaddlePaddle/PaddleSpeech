@@ -44,7 +44,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
                 merge_grad = layers.merge_selected_rows(g)
                 merge_grad = layers.get_tensor_from_selected_rows(merge_grad)
             square = paddle.square(merge_grad)
-            sum_square = layers.reduce_sum(square)
+            sum_square = paddle.sum(square)
             sum_square_list.append(sum_square)
 
             # debug log, not dump all since slow down train process
@@ -57,14 +57,15 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             return params_grads
 
         global_norm_var = layers.concat(sum_square_list)
-        global_norm_var = layers.reduce_sum(global_norm_var)
-        global_norm_var = layers.sqrt(global_norm_var)
+        global_norm_var = paddle.sum(global_norm_var)
+        global_norm_var = paddle.sqrt(global_norm_var)
+
         # debug log
         logger.debug(f"Grad Global Norm: {float(global_norm_var)}!!!!")
 
         max_global_norm = layers.fill_constant(
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
-        clip_var = layers.elementwise_div(
+        clip_var = paddle.divide(
             x=max_global_norm,
             y=paddle.maximum(x=global_norm_var, y=max_global_norm))
         for i, (p, g) in enumerate(params_grads):
@@ -73,7 +74,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
             if getattr(p, 'need_clip', True) is False:
                 params_and_grads.append((p, g))
                 continue
-            new_grad = layers.elementwise_mul(x=g, y=clip_var)
+            new_grad = paddle.multiply(x=g, y=clip_var)
             params_and_grads.append((p, new_grad))
 
             # debug log, not dump all since slow down train process

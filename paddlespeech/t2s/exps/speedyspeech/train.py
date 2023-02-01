@@ -137,7 +137,7 @@ def train_sp(args, config):
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
-    with open(args.tones_dict, 'r', encoding='utf-8') as f:
+    with open(args.tones_dict, 'rt', encoding='utf-8') as f:
         tone_id = [line.strip().split() for line in f.readlines()]
     tone_size = len(tone_id)
     print("tone_size:", tone_size)

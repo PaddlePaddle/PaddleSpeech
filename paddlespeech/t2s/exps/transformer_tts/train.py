@@ -114,7 +114,7 @@ def train_sp(args, config):
         num_workers=config.num_workers)
     print("dataloaders done!")
 
-    with open(args.phones_dict, 'r', encoding='utf-8') as f:
+    with open(args.phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)

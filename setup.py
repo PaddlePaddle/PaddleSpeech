@@ -53,7 +53,6 @@ base = [
     "paddlespeech_feat",
     "Pillow>=9.0.0",
     "praatio==5.0.0",
-    "protobuf>=3.1.0, <=3.20.0",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",
@@ -72,12 +71,9 @@ base = [
     "yacs~=0.1.8",
     "prettytable",
     "zhon",
-    "colorlog",
-    "pathos==0.2.8",
     "braceexpand",
     "pyyaml",
-    "pybind11",
-    "paddleslim==2.3.4",
+    "paddleslim>=2.3.4",
     "paddleaudio>=1.0.2",
 ]
 

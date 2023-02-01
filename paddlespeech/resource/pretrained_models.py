@@ -30,6 +30,7 @@ __all__ = [
 ]
 
 # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
+# Add code-switch and multilingual tag, "{model_name}[_{dataset}]-[codeswitch/multilingual][_{lang}][-...]".
 # e.g. "conformer_wenetspeech-zh-16k" and "panns_cnn6-32k".
 # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
 # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
@@ -320,6 +321,18 @@ asr_dynamic_pretrained_models = {
             'https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm',
             'lm_md5':
             '099a601759d467cd0a8523ff939819c5'
+        },
+    },
+    "conformer_talcs-codeswitch_zh_en-16k": {
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/tal_cs/asr1/asr1_conformer_talcs_ckpt_1.4.0.model.tar.gz',
+            'md5':
+            '01962c5d0a70878fe41cacd4f61e14d1',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/conformer/checkpoints/avg_10'
         },
     },
 }

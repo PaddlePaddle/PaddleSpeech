@@ -111,8 +111,8 @@ struct U2RecognizerResource {
 
 class U2Recognizer {
   public:
-    explict U2Recognizer(const U2RecognizerResource& resouce);
-    explict U2Recognizer(const U2RecognizerResource& resource,
+    explicit U2Recognizer(const U2RecognizerResource& resouce);
+    explicit U2Recognizer(const U2RecognizerResource& resource,
                          std::shared_ptr<NnetBase> nnet);
     ~U2Recognizer();
     void InitDecoder();

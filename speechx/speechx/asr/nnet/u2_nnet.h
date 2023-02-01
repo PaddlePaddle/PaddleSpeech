@@ -42,7 +42,7 @@ class U2NnetBase : public NnetBase {
         num_left_chunks_ = num_left_chunks;
     }
 
-    virtual std::shared_ptr<NnetBase> Copy() const = 0;
+    virtual std::shared_ptr<NnetBase> Clone() const = 0;
 
   protected:
     virtual void ForwardEncoderChunkImpl(
@@ -91,7 +91,7 @@ class U2Nnet : public U2NnetBase {
 
     std::shared_ptr<paddle::jit::Layer> model() const { return model_; }
 
-    std::shared_ptr<NnetBase> Copy() const override;
+    std::shared_ptr<NnetBase> Clone() const override;
 
     void ForwardEncoderChunkImpl(
         const std::vector<kaldi::BaseFloat>& chunk_feats,

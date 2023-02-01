@@ -118,27 +118,38 @@ U2Nnet::U2Nnet(const ModelOptions& opts) : opts_(opts) {
 // shallow copy
 U2Nnet::U2Nnet(const U2Nnet& other) {
     // copy meta
-    right_context_ = other.right_context_;
-    subsampling_rate_ = other.subsampling_rate_;
-    sos_ = other.sos_;
-    eos_ = other.eos_;
-    is_bidecoder_ = other.is_bidecoder_;
     chunk_size_ = other.chunk_size_;
     num_left_chunks_ = other.num_left_chunks_;
-
-    forward_encoder_chunk_ = other.forward_encoder_chunk_;
-    forward_attention_decoder_ = other.forward_attention_decoder_;
-    ctc_activation_ = other.ctc_activation_;
-
     offset_ = other.offset_;
 
     // copy model ptr
-    model_ = other.model_;
+    model_ = other.model_->Clone();
+    ctc_activation_ = model_->Function("ctc_activation");
+    subsampling_rate_ = model_->Attribute<int>("subsampling_rate");
+    right_context_ = model_->Attribute<int>("right_context");
+    sos_ = model_->Attribute<int>("sos_symbol");
+    eos_ = model_->Attribute<int>("eos_symbol");
+    is_bidecoder_ = model_->Attribute<int>("is_bidirectional_decoder");
+
+    forward_encoder_chunk_ = model_->Function("forward_encoder_chunk");
+    forward_attention_decoder_ = model_->Function("forward_attention_decoder");
+    ctc_activation_ = model_->Function("ctc_activation");
+    CHECK(forward_encoder_chunk_.IsValid());
+    CHECK(forward_attention_decoder_.IsValid());
+    CHECK(ctc_activation_.IsValid());
+
+    LOG(INFO) << "Paddle Model Info: ";
+    LOG(INFO) << "\tsubsampling_rate " << subsampling_rate_;
+    LOG(INFO) << "\tright context " << right_context_;
+    LOG(INFO) << "\tsos " << sos_;
+    LOG(INFO) << "\teos " << eos_;
+    LOG(INFO) << "\tis bidecoder " << is_bidecoder_ << std::endl;
+
 
     // ignore inner states
 }
 
-std::shared_ptr<NnetBase> U2Nnet::Copy() const {
+std::shared_ptr<NnetBase> U2Nnet::Clone() const {
     auto asr_model = std::make_shared<U2Nnet>(*this);
     // reset inner state for new decoding
     asr_model->Reset();

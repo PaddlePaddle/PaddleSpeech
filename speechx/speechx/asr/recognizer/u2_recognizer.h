@@ -112,6 +112,8 @@ struct U2RecognizerResource {
 class U2Recognizer {
   public:
     explicit U2Recognizer(const U2RecognizerResource& resouce);
+    explicit U2Recognizer(const U2RecognizerResource& resource,
+                         std::shared_ptr<NnetBase> nnet);
     ~U2Recognizer();
     void InitDecoder();
     void ResetContinuousDecoding();
@@ -143,7 +145,7 @@ class U2Recognizer {
     void AttentionRescoring();
 
   private:
-    static void RunDecoderSearch(U2Recognizer *me);
+    static void RunDecoderSearch(U2Recognizer* me);
     void RunDecoderSearchInternal();
     void UpdateResult(bool finish = false);
 

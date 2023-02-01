@@ -42,6 +42,8 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <future>
+#include <functional>
 
 #include "base/basic_types.h"
 #include "base/flags.h"

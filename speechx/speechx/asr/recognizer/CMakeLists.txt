@@ -10,6 +10,7 @@ target_link_libraries(recognizer PUBLIC decoder)
 set(TEST_BINS 
   u2_recognizer_main
   u2_recognizer_thread_main
+  u2_recognizer_batch_main
 )
 
 foreach(bin_name IN LISTS TEST_BINS)

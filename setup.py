@@ -300,7 +300,7 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(include=('paddlespeech*')),
+    packages=find_packages(include=['paddlespeech*'], exclude=['utils', 'third_party']),
     zip_safe=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -273,7 +273,7 @@ def main():
         },
 
         # Package info
-        packages=find_packages(include=('paddleaudio*')),
+        packages=find_packages(include=['paddleaudio*']),
         package_data=lib_package_data,
         ext_modules=setup_helpers.get_ext_modules(),
         zip_safe=True,

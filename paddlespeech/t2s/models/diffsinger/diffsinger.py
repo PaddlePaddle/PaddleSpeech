@@ -25,8 +25,11 @@ import paddle.nn.functional as F
 from paddle import nn
 from typeguard import check_argument_types
 
+from paddlespeech.t2s.models.fastspeech2 import FastSpeech2
 from paddlespeech.t2s.modules.adversarial_loss.gradient_reversal import GradientReversalLayer
 from paddlespeech.t2s.modules.adversarial_loss.speaker_classifier import SpeakerClassifier
+from paddlespeech.t2s.modules.diffusion import GaussianDiffusion
+from paddlespeech.t2s.modules.diffusion import WaveNetDenoiser
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.nets_utils import make_pad_mask
@@ -41,22 +44,13 @@ from paddlespeech.t2s.modules.transformer.encoder import ConformerEncoder
 from paddlespeech.t2s.modules.transformer.encoder import TransformerEncoder
 
 
-class DiffSinger(nn.Layer):
-    """DiffSinger module.
-    
-    This is a module of DiffSinger described in `DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism`._ 
-    .. _`DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism`:
-        https://arxiv.org/pdf/2105.02446.pdf
-
-    Args:
-    
-    Returns:
-
+class FastSpeech2MIDI(FastSpeech2):
+    """The Fastspeech2 module of DiffSinger.
     """
 
     def __init__(
             self,
-            # network structure related
+            # fastspeech2 network structure related
             idim: int,
             odim: int,
             adim: int=384,
@@ -133,12 +127,8 @@ class DiffSinger(nn.Layer):
             tone_embed_integration_type: str="add",
             # note emb
             note_num: int=300,
-            # note_embed_dim: int=384,
-            note_embed_integration_type: str="add",
             # is_slur emb
             is_slur_num: int=2,
-            # is_slur_embed_dim: int=384,
-            is_slur_embed_integration_type: str="add",
             # training related
             init_type: str="xavier_uniform",
             init_enc_alpha: float=1.0,
@@ -146,7 +136,7 @@ class DiffSinger(nn.Layer):
             # speaker classifier
             enable_speaker_classifier: bool=False,
             hidden_sc_dim: int=256, ):
-        """Initialize DiffSinger module.
+        """Initialize FastSpeech2 module for svs.
         Args:
             idim (int): 
                 Dimension of the inputs.
@@ -252,7 +242,7 @@ class DiffSinger(nn.Layer):
                 Kernel size of energy embedding.
             energy_embed_dropout_rate (float): 
                 Dropout rate for energy embedding.
-            stop_gradient_from_energy_predictor（bool): 
+            stop_gradient_from_energy_predictor (bool): 
                 Whether to stop gradient from energy predictor to encoder.
             spk_num (Optional[int]): 
                 Number of speakers. If not None, assume that the spk_embed_dim is not None,
@@ -271,7 +261,7 @@ class DiffSinger(nn.Layer):
                 How to integrate tone embedding.
             init_type (str): 
                 How to initialize transformer parameters.
-            init_enc_alpha （float): 
+            init_enc_alpha (float): 
                 Initial value of alpha in scaled pos encoding of the encoder.
             init_dec_alpha (float): 
                 Initial value of alpha in scaled pos encoding of the decoder.
@@ -279,10 +269,16 @@ class DiffSinger(nn.Layer):
                 Whether to use speaker classifier module
             hidden_sc_dim (int):
                 The hidden layer dim of speaker classifier
+            note_num (Optional[int]): 
+                Number of note. If not None, assume that the
+                note_ids will be provided as the input and use note_embedding_table.
+            is_slur_num (Optional[int]): 
+                Number of note. If not None, assume that the
+                is_slur_ids will be provided as the input
     
         """
         assert check_argument_types()
-        super().__init__()
+        super().__init__(idim, odim)
 
         # store hyperparameters
         self.odim = odim
@@ -306,12 +302,9 @@ class DiffSinger(nn.Layer):
 
         self.note_embed_dim = adim
         if self.note_embed_dim is not None:
-            self.note_embed_integration_type = note_embed_integration_type
             self.note_dur_layer = nn.Linear(1, self.note_embed_dim)
 
         self.is_slur_embed_dim = adim
-        if self.is_slur_embed_dim is not None:
-            self.is_slur_embed_integration_type = is_slur_embed_integration_type
 
         # use idx 0 as padding idx
         self.padding_idx = 0
@@ -627,6 +620,7 @@ class DiffSinger(nn.Layer):
                  ps: paddle.Tensor=None,
                  es: paddle.Tensor=None,
                  is_inference: bool=False,
+                 is_train_diffusion: bool=False,
                  return_after_enc=False,
                  alpha: float=1.0,
                  spk_emb=None,
@@ -639,7 +633,12 @@ class DiffSinger(nn.Layer):
         is_slur_emb = self.is_slur_embedding_table(is_slur)
 
         # (B, Tmax, adim)
-        hs, _ = self.encoder(xs, x_masks, note_emb, note_dur_emb, is_slur_emb,)
+        hs, _ = self.encoder(
+            xs,
+            x_masks,
+            note_emb,
+            note_dur_emb,
+            is_slur_emb, )
 
         if self.spk_num and self.enable_speaker_classifier and not is_inference:
             hs_for_spk_cls = self.grad_reverse(hs)
@@ -668,12 +667,24 @@ class DiffSinger(nn.Layer):
         else:
             pitch_masks = None
 
-        if is_inference:
+        # inference for decoder input for duffusion
+        if is_train_diffusion:
+            hs = self.length_regulator(hs, ds, is_inference=False)
+            p_outs = self.pitch_predictor(hs.detach(), pitch_masks)
+            e_outs = self.energy_predictor(hs.detach(), pitch_masks)
+            p_embs = self.pitch_embed(p_outs.transpose((0, 2, 1))).transpose(
+                (0, 2, 1))
+            e_embs = self.energy_embed(e_outs.transpose((0, 2, 1))).transpose(
+                (0, 2, 1))
+            hs = hs + e_embs + p_embs
+
+        elif is_inference:
             # (B, Tmax)
             if ds is not None:
                 d_outs = ds
             else:
                 d_outs = self.duration_predictor.inference(hs, d_masks)
+
             # (B, Lmax, adim)
             hs = self.length_regulator(hs, d_outs, alpha, is_inference=True)
 
@@ -699,6 +710,7 @@ class DiffSinger(nn.Layer):
                 (0, 2, 1))
             hs = hs + e_embs + p_embs
 
+        # training
         else:
             d_outs = self.duration_predictor(hs, d_masks)
             # (B, Lmax, adim)
@@ -716,7 +728,6 @@ class DiffSinger(nn.Layer):
             e_embs = self.energy_embed(es.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
             hs = hs + e_embs + p_embs
-
 
         # forward decoder
         if olens is not None and not is_inference:
@@ -750,7 +761,7 @@ class DiffSinger(nn.Layer):
         else:
             after_outs = before_outs + self.postnet(
                 before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
-   
+
         return before_outs, after_outs, d_outs, p_outs, e_outs, spk_logits
 
     def encoder_infer(
@@ -764,6 +775,7 @@ class DiffSinger(nn.Layer):
             spk_id=None,
             tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
         note = paddle.cast(note, 'int64')
@@ -785,7 +797,7 @@ class DiffSinger(nn.Layer):
 
         # (1, L, odim)
         # use *_ to avoid bug in dygraph to static graph    
-        hs, *_ = self._forward(
+        hs, _ = self._forward(
             xs,
             note,
             note_dur,
@@ -798,6 +810,55 @@ class DiffSinger(nn.Layer):
             spk_id=spk_id,
             tone_id=tone_id)
         return hs
+
+    # for diffusion
+    def encoder_infer_batch(
+            self,
+            text: paddle.Tensor,
+            note: paddle.Tensor,
+            note_dur: paddle.Tensor,
+            is_slur: paddle.Tensor,
+            text_lengths: paddle.Tensor,
+            speech_lengths: paddle.Tensor,
+            ds: paddle.Tensor=None,
+            ps: paddle.Tensor=None,
+            es: paddle.Tensor=None,
+            alpha: float=1.0,
+            spk_emb=None,
+            spk_id=None,
+            tone_id=None, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+
+        # input of embedding must be int64
+        xs = paddle.cast(text, 'int64')
+        note = paddle.cast(note, 'int64')
+        note_dur = paddle.cast(note_dur, 'float32')
+        is_slur = paddle.cast(is_slur, 'int64')
+
+        if spk_emb is not None:
+            spk_emb = spk_emb.unsqueeze(0)
+
+        if tone_id is not None:
+            tone_id = tone_id.unsqueeze(0)
+
+        # (1, L, odim)
+        # use *_ to avoid bug in dygraph to static graph    
+        hs, h_masks = self._forward(
+            xs,
+            note,
+            note_dur,
+            is_slur,
+            ilens=text_lengths,
+            olens=speech_lengths,
+            ds=ds,
+            ps=ps,
+            es=es,
+            return_after_enc=True,
+            is_train_diffusion=True,
+            alpha=alpha,
+            spk_emb=spk_emb,
+            spk_id=spk_id,
+            tone_id=tone_id)
+        return hs, h_masks
 
     def inference(
             self,
@@ -896,112 +957,8 @@ class DiffSinger(nn.Layer):
 
         return outs[0], d_outs[0], p_outs[0], e_outs[0]
 
-    def _integrate_with_spk_embed(self, hs, spk_emb):
-        """Integrate speaker embedding with hidden states.
 
-        Args:
-            hs(Tensor): 
-                Batch of hidden state sequences (B, Tmax, adim).
-            spk_emb(Tensor): 
-                Batch of speaker embeddings (B, spk_embed_dim).
-
-        Returns:
-
-        
-        """
-        if self.spk_embed_integration_type == "add":
-            # apply projection and then add to hidden states
-            spk_emb = self.spk_projection(F.normalize(spk_emb))
-            hs = hs + spk_emb.unsqueeze(1)
-        elif self.spk_embed_integration_type == "concat":
-            # concat hidden states with spk embeds and then apply projection
-            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
-                shape=[-1, paddle.shape(hs)[1], -1])
-            hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
-        else:
-            raise NotImplementedError("support only add or concat.")
-
-        return hs
-
-    def _integrate_with_tone_embed(self, hs, tone_embs):
-        """Integrate speaker embedding with hidden states.
-
-        Args:
-            hs(Tensor): 
-                Batch of hidden state sequences (B, Tmax, adim).
-            tone_embs(Tensor): 
-                Batch of speaker embeddings (B, Tmax, tone_embed_dim).
-
-        Returns:
-
-        """
-        if self.tone_embed_integration_type == "add":
-            # apply projection and then add to hidden states
-            tone_embs = self.tone_projection(F.normalize(tone_embs))
-            hs = hs + tone_embs
-
-        elif self.tone_embed_integration_type == "concat":
-            # concat hidden states with tone embeds and then apply projection
-            tone_embs = F.normalize(tone_embs).expand(
-                shape=[-1, hs.shape[1], -1])
-            hs = self.tone_projection(paddle.concat([hs, tone_embs], axis=-1))
-        else:
-            raise NotImplementedError("support only add or concat.")
-        return hs
-
-    def _source_mask(self, ilens: paddle.Tensor) -> paddle.Tensor:
-        """Make masks for self-attention.
-
-        Args:
-            ilens(Tensor): 
-                Batch of lengths (B,).
-
-        Returns:
-            Tensor: 
-                Mask tensor for self-attention. dtype=paddle.bool
-
-        Examples:
-            >>> ilens = [5, 3]
-            >>> self._source_mask(ilens)
-            tensor([[[1, 1, 1, 1, 1],
-                        [1, 1, 1, 0, 0]]]) bool
-        """
-        x_masks = make_non_pad_mask(ilens)
-        return x_masks.unsqueeze(-2)
-
-    def _reset_parameters(self, init_enc_alpha: float, init_dec_alpha: float):
-
-        # initialize alpha in scaled positional encoding
-        if self.encoder_type == "transformer" and self.use_scaled_pos_enc:
-            init_enc_alpha = paddle.to_tensor(init_enc_alpha)
-            self.encoder.embed[-1].alpha = paddle.create_parameter(
-                shape=init_enc_alpha.shape,
-                dtype=str(init_enc_alpha.numpy().dtype),
-                default_initializer=paddle.nn.initializer.Assign(
-                    init_enc_alpha))
-        if self.decoder_type == "transformer" and self.use_scaled_pos_enc:
-            init_dec_alpha = paddle.to_tensor(init_dec_alpha)
-            self.decoder.embed[-1].alpha = paddle.create_parameter(
-                shape=init_dec_alpha.shape,
-                dtype=str(init_dec_alpha.numpy().dtype),
-                default_initializer=paddle.nn.initializer.Assign(
-                    init_dec_alpha))
-
-
-class DiffSingerInference(nn.Layer):
-    def __init__(self, normalizer, model):
-        super().__init__()
-        self.normalizer = normalizer
-        self.acoustic_model = model
-
-    def forward(self, text, note, note_dur, is_slur, spk_id=None, spk_emb=None):
-        normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, note=note, note_dur=note_dur, is_slur=is_slur, spk_id=spk_id, spk_emb=spk_emb)
-        logmel = self.normalizer.inverse(normalized_mel)
-        return logmel
-
-
-class DiffSingerLoss(nn.Layer):
+class FastSpeech2MIDILoss(nn.Layer):
     """Loss function module for DiffSinger."""
 
     def __init__(self, use_masking: bool=True,
@@ -1152,3 +1109,178 @@ class DiffSingerLoss(nn.Layer):
                 pitch_masks.broadcast_to(energy_loss.shape)).sum()
 
         return l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss
+
+
+class DiffusionLoss(nn.Layer):
+    """Loss function module for DiffSinger."""
+
+    def __init__(self, use_masking: bool=True,
+                 use_weighted_masking: bool=False):
+        """Initialize feed-forward Transformer loss module.
+        Args:
+            use_masking (bool): 
+                Whether to apply masking for padded part in loss calculation.
+            use_weighted_masking (bool): 
+                Whether to weighted masking in loss calculation.
+        """
+        assert check_argument_types()
+        super().__init__()
+
+        assert (use_masking != use_weighted_masking) or not use_masking
+        self.use_masking = use_masking
+        self.use_weighted_masking = use_weighted_masking
+
+        # define criterions
+        reduction = "none" if self.use_weighted_masking else "mean"
+        self.l1_criterion = nn.L1Loss(reduction=reduction)
+
+    def forward(
+            self,
+            ref_mels: paddle.Tensor,
+            out_mels: paddle.Tensor,
+            mel_masks: paddle.Tensor, ) -> paddle.Tensor:
+        """Calculate forward propagation.
+
+        Args:
+            ref_mels(Tensor):  
+                Batch of real mel (B, Lmax, odim).
+            out_mels(Tensor): 
+                Batch of outputs mel (B, Lmax, odim).
+            mel_masks(Tensor): 
+                Batch of mask of real mel (B, Lmax, 1).
+        Returns:
+        
+        """
+        # apply mask to remove padded part
+        if self.use_masking:
+            out_mels = out_mels.masked_select(
+                mel_masks.broadcast_to(out_mels.shape))
+            ref_mels = ref_mels.masked_select(
+                mel_masks.broadcast_to(ref_mels.shape))
+
+        # calculate loss
+        l1_loss = self.l1_criterion(out_mels, ref_mels)
+
+        # make weighted mask and apply it
+        if self.use_weighted_masking:
+            mel_masks = mel_masks.unsqueeze(-1)
+            out_weights = mel_masks.cast(dtype=paddle.float32) / mel_masks.cast(
+                dtype=paddle.float32).sum(
+                    axis=1, keepdim=True)
+            out_weights /= ref_mels.shape[0] * ref_mels.shape[2]
+
+            # apply weight
+            l1_loss = l1_loss.multiply(out_weights)
+            l1_loss = l1_loss.masked_select(
+                mel_masks.broadcast_to(l1_loss.shape)).sum()
+
+        return l1_loss
+
+
+class DiffSinger(nn.Layer):
+    """DiffSinger module.
+    
+    This is a module of DiffSinger described in `DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism`._ 
+    .. _`DiffSinger: Singing Voice Synthesis via Shallow Diffusion Mechanism`:
+        https://arxiv.org/pdf/2105.02446.pdf
+
+    Args:
+    
+    Returns:
+
+    """
+
+    def __init__(
+            self,
+            fs2_config,
+            denoiser_config,
+            diffusion_config, ):
+
+        assert check_argument_types()
+        super().__init__()
+        self.fs2 = FastSpeech2MIDI(**fs2_config)
+        denoiser = WaveNetDenoiser(**denoiser_config)
+        self.diffusion = GaussianDiffusion(denoiser, **diffusion_config)
+
+    def forward(
+            self,
+            text: paddle.Tensor,
+            note: paddle.Tensor,
+            note_dur: paddle.Tensor,
+            is_slur: paddle.Tensor,
+            text_lengths: paddle.Tensor,
+            speech: paddle.Tensor,
+            speech_lengths: paddle.Tensor,
+            durations: paddle.Tensor,
+            pitch: paddle.Tensor,
+            energy: paddle.Tensor,
+            tone_id: paddle.Tensor=None,
+            spk_emb: paddle.Tensor=None,
+            spk_id: paddle.Tensor=None,
+            train_fs2: bool=True,
+    ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
+
+        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.fs2(
+            text=text,
+            note=note,
+            note_dur=note_dur,
+            is_slur=is_slur,
+            text_lengths=text_lengths,
+            speech=speech,
+            speech_lengths=speech_lengths,
+            durations=durations,
+            pitch=pitch,
+            energy=energy,
+            spk_id=spk_id,
+            spk_emb=spk_emb)
+        cond_fs2, mel_masks = self.fs2.encoder_infer_batch(
+            text=text,
+            note=note,
+            note_dur=note_dur,
+            is_slur=is_slur,
+            text_lengths=text_lengths,
+            speech_lengths=speech_lengths,
+            ds=durations,
+            ps=pitch,
+            es=energy)
+        cond_fs2 = cond_fs2.transpose((0, 2, 1))
+        mel = self.diffusion(speech.transpose((0, 2, 1)), cond_fs2.detach())
+
+        if train_fs2:
+            return before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits
+        else:
+            return mel[0], mel_masks
+
+    def inference(
+            self,
+            text: paddle.Tensor,
+            note: paddle.Tensor,
+            note_dur: paddle.Tensor,
+            is_slur: paddle.Tensor,
+            get_mel_fs2: bool=False, ):
+        mel_fs2, _, _, _ = self.fs2.inference(text, note, note_dur, is_slur)
+        if get_mel_fs2:
+            return mel_fs2
+        mel_fs2 = mel_fs2.unsqueeze(0).transpose((0, 2, 1))
+        cond_fs2 = self.fs2.encoder_infer(text, note, note_dur, is_slur)
+        cond_fs2 = cond_fs2.transpose((0, 2, 1))
+        mel, _ = self.diffusion(mel_fs2, cond_fs2)
+        mel = mel.transpose((0, 2, 1))
+        return mel[0]
+
+
+class DiffSingerInference(nn.Layer):
+    def __init__(self, normalizer, model):
+        super().__init__()
+        self.normalizer = normalizer
+        self.acoustic_model = model
+
+    def forward(self, text, note, note_dur, is_slur, get_mel_fs2: bool=False):
+        normalized_mel = self.acoustic_model.inference(
+            text,
+            note=note,
+            note_dur=note_dur,
+            is_slur=is_slur,
+            get_mel_fs2=get_mel_fs2)
+        logmel = self.normalizer.inverse(normalized_mel)
+        return logmel

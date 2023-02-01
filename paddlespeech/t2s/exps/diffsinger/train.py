@@ -23,8 +23,11 @@ import paddle
 import yaml
 from paddle import DataParallel
 from paddle import distributed as dist
+from paddle import nn
 from paddle.io import DataLoader
 from paddle.io import DistributedBatchSampler
+from paddle.optimizer import AdamW
+from paddle.optimizer.lr import StepDecay
 from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.am_batch_fn import diffsinger_multi_spk_batch_fn
@@ -33,13 +36,14 @@ from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.models.diffsinger import DiffSinger
 from paddlespeech.t2s.models.diffsinger import DiffSingerEvaluator
 from paddlespeech.t2s.models.diffsinger import DiffSingerUpdater
+from paddlespeech.t2s.models.diffsinger import DiffusionLoss
+from paddlespeech.t2s.models.diffsinger import FastSpeech2MIDILoss
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
 from paddlespeech.t2s.utils import str2bool
-
 
 def train_sp(args, config):
     # decides device type and whether to run in parallel
@@ -59,8 +63,9 @@ def train_sp(args, config):
         f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
     )
     fields = [
-        "text", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy",
-        "note", "note_dur", "is_slur"]
+        "text", "text_lengths", "speech", "speech_lengths", "durations",
+        "pitch", "energy", "note", "note_dur", "is_slur"
+    ]
     converters = {"speech": np.load, "pitch": np.load, "energy": np.load}
     spk_num = None
     if args.speaker_dict is not None:
@@ -99,7 +104,6 @@ def train_sp(args, config):
         converters=converters, )
 
     # collate function and dataloader
-
     train_sampler = DistributedBatchSampler(
         train_dataset,
         batch_size=config.batch_size,
@@ -129,13 +133,32 @@ def train_sp(args, config):
     print("vocab_size:", vocab_size)
 
     odim = config.n_mels
+    config["fs2_model"]["idim"] = vocab_size
+    config["fs2_model"]["odim"] = odim
+    config["fs2_model"]["spk_num"] = spk_num
+
     model = DiffSinger(
-        idim=vocab_size, odim=odim, spk_num=spk_num, **config["model"])
+        fs2_config=config["fs2_model"],
+        denoiser_config=config["denoiser_model"],
+        diffusion_config=config["diffusion"])
     if world_size > 1:
         model = DataParallel(model)
-    print("model done!")
+    print("models done!")
 
-    optimizer = build_optimizers(model, **config["optimizer"])
+    criterion_fs2 = FastSpeech2MIDILoss(**config["fs2_updater"])
+    criterion_ds = DiffusionLoss(**config["ds_updater"])
+    print("criterions done!")
+
+    optimizer_fs2 = build_optimizers(model._layers.fs2,
+                                     **config["fs2_optimizer"])
+    lr_schedule_ds = StepDecay(**config["ds_scheduler_params"])
+    gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
+    optimizer_ds = AdamW(
+        learning_rate=lr_schedule_ds,
+        grad_clip=gradient_clip_ds,
+        parameters=model._layers.diffusion.parameters(),
+        **config["ds_optimizer_params"])
+    # optimizer_ds = build_optimizers(ds, **config["ds_optimizer"])
     print("optimizer done!")
 
     output_dir = Path(args.output_dir)
@@ -145,33 +168,42 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
-    if "enable_speaker_classifier" in config.model:
-        enable_spk_cls = config.model.enable_speaker_classifier
-    else:
-        enable_spk_cls = False
-
     updater = DiffSingerUpdater(
         model=model,
-        optimizer=optimizer,
+        optimizers={
+            "fs2": optimizer_fs2,
+            "ds": optimizer_ds,
+        },
+        criterions={
+            "fs2": criterion_fs2,
+            "ds": criterion_ds,
+        },
         dataloader=train_dataloader,
-        output_dir=output_dir,
-        enable_spk_cls=enable_spk_cls,
-        **config["updater"], )
-
-    trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
+        ds_train_start_steps=config.ds_train_start_steps,
+        output_dir=output_dir)
 
     evaluator = DiffSingerEvaluator(
-        model,
-        dev_dataloader,
-        output_dir=output_dir,
-        enable_spk_cls=enable_spk_cls,
-        **config["updater"], )
+        model=model,
+        criterions={
+            "fs2": criterion_fs2,
+            "ds": criterion_ds,
+        },
+        dataloader=dev_dataloader,
+        output_dir=output_dir)
+    trainer = Trainer(
+        updater,
+        stop_trigger=(config.train_max_steps, "iteration"),
+        out=output_dir, )
 
     if dist.get_rank() == 0:
-        trainer.extend(evaluator, trigger=(1, "epoch"))
-        trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
+        trainer.extend(
+            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+        trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
     trainer.extend(
-        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+        Snapshot(max_size=config.num_snapshots),
+        trigger=(config.save_interval_steps, 'iteration'))
+
+    print("Trainer Done!")
     trainer.run()
 
 

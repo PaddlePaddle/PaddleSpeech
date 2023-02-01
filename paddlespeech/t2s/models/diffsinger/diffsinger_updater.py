@@ -13,17 +13,19 @@
 # limitations under the License.
 import logging
 from pathlib import Path
+from typing import Dict
 
+import paddle
 from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 
-from paddlespeech.t2s.models.diffsinger import DiffSingerLoss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+from paddlespeech.t2s.training.updaters.standard_updater import UpdaterState
 
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
@@ -36,27 +38,36 @@ class DiffSingerUpdater(StandardUpdater):
     def __init__(
             self,
             model: Layer,
-            optimizer: Optimizer,
+            optimizers: Dict[str, Optimizer],
+            criterions: Dict[str, Layer],
             dataloader: DataLoader,
-            init_state=None,
-            use_masking: bool=False,
-            spk_loss_scale: float=0.02,
-            use_weighted_masking: bool=False,
-            output_dir: Path=None,
-            enable_spk_cls: bool=False, ):
-        super().__init__(model, optimizer, dataloader, init_state=None)
+            fs2_train_start_steps: int=0,
+            ds_train_start_steps: int=160000,
+            output_dir: Path=None, ):
 
-        self.criterion = DiffSingerLoss(
-            use_masking=use_masking,
-            use_weighted_masking=use_weighted_masking, )
+        super().__init__(model, optimizers, dataloader, init_state=None)
+
+        self.optimizers = optimizers
+        self.optimizer_fs2: Optimizer = optimizers['fs2']
+        self.optimizer_ds: Optimizer = optimizers['ds']
+
+        self.criterions = criterions
+        self.criterion_fs2 = criterions['fs2']
+        self.criterion_ds = criterions['ds']
+
+        self.dataloader = dataloader
+
+        self.fs2_train_start_steps = fs2_train_start_steps
+        self.ds_train_start_steps = ds_train_start_steps
+
+        self.state = UpdaterState(iteration=0, epoch=0)
+        self.train_iterator = iter(self.dataloader)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
         logger.addHandler(self.filehandler)
         self.logger = logger
         self.msg = ""
-        self.spk_loss_scale = spk_loss_scale
-        self.enable_spk_cls = enable_spk_cls
 
     def update_core(self, batch):
         self.msg = "Rank: {}, ".format(dist.get_rank())
@@ -68,24 +79,8 @@ class DiffSingerUpdater(StandardUpdater):
         if spk_emb is not None:
             spk_id = None
 
-        if type(
-                self.model
-        ) == DataParallel and self.model._layers.spk_num and self.model._layers.enable_speaker_classifier:
-            with self.model.no_sync():
-                before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
-                    text=batch["text"],
-                    note=batch["note"],
-                    note_dur=batch["note_dur"],
-                    is_slur=batch["is_slur"],
-                    text_lengths=batch["text_lengths"],
-                    speech=batch["speech"],
-                    speech_lengths=batch["speech_lengths"],
-                    durations=batch["durations"],
-                    pitch=batch["pitch"],
-                    energy=batch["energy"],
-                    spk_id=spk_id,
-                    spk_emb=spk_emb)
-        else:
+        # fastspeech2
+        if self.state.iteration > self.fs2_train_start_steps and self.state.iteration < self.ds_train_start_steps:
             before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
                 text=batch["text"],
                 note=batch["note"],
@@ -98,74 +93,109 @@ class DiffSingerUpdater(StandardUpdater):
                 pitch=batch["pitch"],
                 energy=batch["energy"],
                 spk_id=spk_id,
-                spk_emb=spk_emb)
+                spk_emb=spk_emb,
+                train_fs2=True, )
 
-        l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion(
-            after_outs=after_outs,
-            before_outs=before_outs,
-            d_outs=d_outs,
-            p_outs=p_outs,
-            e_outs=e_outs,
-            ys=ys,
-            ds=batch["durations"],
-            ps=batch["pitch"],
-            es=batch["energy"],
-            ilens=batch["text_lengths"],
-            olens=olens,
-            spk_logits=spk_logits,
-            spk_ids=spk_id, )
+            l1_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
+                after_outs=after_outs,
+                before_outs=before_outs,
+                d_outs=d_outs,
+                p_outs=p_outs,
+                e_outs=e_outs,
+                ys=ys,
+                ds=batch["durations"],
+                ps=batch["pitch"],
+                es=batch["energy"],
+                ilens=batch["text_lengths"],
+                olens=olens,
+                spk_logits=spk_logits,
+                spk_ids=spk_id, )
 
-        scaled_speaker_loss = self.spk_loss_scale * speaker_loss
-        loss = l1_loss + duration_loss + pitch_loss + energy_loss + scaled_speaker_loss
+            loss_fs2 = l1_loss_fs2 + duration_loss + pitch_loss + energy_loss
 
-        optimizer = self.optimizer
-        optimizer.clear_grad()
-        loss.backward()
-        optimizer.step()
+            self.optimizer_fs2.clear_grad()
+            loss_fs2.backward()
+            self.optimizer_fs2.step()
 
-        report("train/loss", float(loss))
-        report("train/l1_loss", float(l1_loss))
-        report("train/duration_loss", float(duration_loss))
-        report("train/pitch_loss", float(pitch_loss))
-        report("train/energy_loss", float(energy_loss))
-        if self.enable_spk_cls:
-            report("train/speaker_loss", float(speaker_loss))
-            report("train/scaled_speaker_loss", float(scaled_speaker_loss))
+            report("train/loss_fs2", float(loss_fs2))
+            report("train/l1_loss_fs2", float(l1_loss_fs2))
+            report("train/duration_loss", float(duration_loss))
+            report("train/pitch_loss", float(pitch_loss))
+            report("train/energy_loss", float(energy_loss))
 
-        losses_dict["l1_loss"] = float(l1_loss)
-        losses_dict["duration_loss"] = float(duration_loss)
-        losses_dict["pitch_loss"] = float(pitch_loss)
-        losses_dict["energy_loss"] = float(energy_loss)
-        losses_dict["energy_loss"] = float(energy_loss)
-        if self.enable_spk_cls:
-            losses_dict["speaker_loss"] = float(speaker_loss)
-            losses_dict["scaled_speaker_loss"] = float(scaled_speaker_loss)
-        losses_dict["loss"] = float(loss)
-        self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                              for k, v in losses_dict.items())
+            losses_dict["l1_loss_fs2"] = float(l1_loss_fs2)
+            losses_dict["duration_loss"] = float(duration_loss)
+            losses_dict["pitch_loss"] = float(pitch_loss)
+            losses_dict["energy_loss"] = float(energy_loss)
+            losses_dict["energy_loss"] = float(energy_loss)
+
+            losses_dict["loss_fs2"] = float(loss_fs2)
+            self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
+                                  for k, v in losses_dict.items())
+
+        if self.state.iteration > self.ds_train_start_steps:
+            for param in self.model._layers.fs2.parameters():
+                param.trainable = False
+
+            mel, mel_masks = self.model(
+                text=batch["text"],
+                note=batch["note"],
+                note_dur=batch["note_dur"],
+                is_slur=batch["is_slur"],
+                text_lengths=batch["text_lengths"],
+                speech=batch["speech"],
+                speech_lengths=batch["speech_lengths"],
+                durations=batch["durations"],
+                pitch=batch["pitch"],
+                energy=batch["energy"],
+                spk_id=spk_id,
+                spk_emb=spk_emb,
+                train_fs2=False, )
+
+            mel = mel.transpose((0, 2, 1))
+            mel_masks = mel_masks.transpose((0, 2, 1))
+            l1_loss_ds = self.criterion_ds(
+                ref_mels=batch["speech"],
+                out_mels=mel,
+                mel_masks=mel_masks, )
+
+            loss_ds = l1_loss_ds
+
+            self.optimizer_ds.clear_grad()
+            loss_ds.backward()
+            self.optimizer_ds.step()
+
+            report("train/loss_ds", float(loss_ds))
+            report("train/l1_loss_ds", float(l1_loss_ds))
+            losses_dict["l1_loss_ds"] = float(l1_loss_ds)
+            losses_dict["loss_ds"] = float(loss_ds)
+            self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
+                                  for k, v in losses_dict.items())
+
+        self.logger.info(self.msg)
 
 
 class DiffSingerEvaluator(StandardEvaluator):
-    def __init__(self,
-                 model: Layer,
-                 dataloader: DataLoader,
-                 use_masking: bool=False,
-                 use_weighted_masking: bool=False,
-                 spk_loss_scale: float=0.02,
-                 output_dir: Path=None,
-                 enable_spk_cls: bool=False):
+    def __init__(
+            self,
+            model: Layer,
+            criterions: Dict[str, Layer],
+            dataloader: DataLoader,
+            output_dir: Path=None, ):
         super().__init__(model, dataloader)
+        self.model = model
+
+        self.criterions = criterions
+        self.criterion_fs2 = criterions['fs2']
+        self.criterion_ds = criterions['ds']
+
+        self.dataloader = dataloader
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
         logger.addHandler(self.filehandler)
         self.logger = logger
         self.msg = ""
-        self.spk_loss_scale = spk_loss_scale
-        self.enable_spk_cls = enable_spk_cls
-
-        self.criterion = DiffSingerLoss(
-            use_masking=use_masking, use_weighted_masking=use_weighted_masking)
 
     def evaluate_core(self, batch):
         self.msg = "Evaluate: "
@@ -176,73 +206,35 @@ class DiffSingerEvaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        if type(
-                self.model
-        ) == DataParallel and self.model._layers.spk_num and self.model._layers.enable_speaker_classifier:
-            with self.model.no_sync():
-                before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
-                    text=batch["text"],
-                    note=batch["note"],
-                    note_dur=batch["note_dur"],
-                    is_slur=batch["is_slur"],
-                    text_lengths=batch["text_lengths"],
-                    speech=batch["speech"],
-                    speech_lengths=batch["speech_lengths"],
-                    durations=batch["durations"],
-                    pitch=batch["pitch"],
-                    energy=batch["energy"],
-                    spk_id=spk_id,
-                    spk_emb=spk_emb)
-        else:
-            before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
-                text=batch["text"],
-                note=batch["note"],
-                note_dur=batch["note_dur"],
-                is_slur=batch["is_slur"],
-                text_lengths=batch["text_lengths"],
-                speech=batch["speech"],
-                speech_lengths=batch["speech_lengths"],
-                durations=batch["durations"],
-                pitch=batch["pitch"],
-                energy=batch["energy"],
-                spk_id=spk_id,
-                spk_emb=spk_emb)
+        mel, mel_masks = self.model(
+            text=batch["text"],
+            note=batch["note"],
+            note_dur=batch["note_dur"],
+            is_slur=batch["is_slur"],
+            text_lengths=batch["text_lengths"],
+            speech=batch["speech"],
+            speech_lengths=batch["speech_lengths"],
+            durations=batch["durations"],
+            pitch=batch["pitch"],
+            energy=batch["energy"],
+            spk_id=spk_id,
+            spk_emb=spk_emb,
+            train_fs2=False, )
 
-        l1_loss, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion(
-            after_outs=after_outs,
-            before_outs=before_outs,
-            d_outs=d_outs,
-            p_outs=p_outs,
-            e_outs=e_outs,
-            ys=ys,
-            ds=batch["durations"],
-            ps=batch["pitch"],
-            es=batch["energy"],
-            ilens=batch["text_lengths"],
-            olens=olens,
-            spk_logits=spk_logits,
-            spk_ids=spk_id, )
+        mel = mel.transpose((0, 2, 1))
+        mel_masks = mel_masks.transpose((0, 2, 1))
+        l1_loss_ds = self.criterion_ds(
+            ref_mels=batch["speech"],
+            out_mels=mel,
+            mel_masks=mel_masks, )
 
-        scaled_speaker_loss = self.spk_loss_scale * speaker_loss
-        loss = l1_loss + duration_loss + pitch_loss + energy_loss + scaled_speaker_loss
+        loss_ds = l1_loss_ds
 
-        report("eval/loss", float(loss))
-        report("eval/l1_loss", float(l1_loss))
-        report("eval/duration_loss", float(duration_loss))
-        report("eval/pitch_loss", float(pitch_loss))
-        report("eval/energy_loss", float(energy_loss))
-        if self.enable_spk_cls:
-            report("train/speaker_loss", float(speaker_loss))
-            report("train/scaled_speaker_loss", float(scaled_speaker_loss))
-
-        losses_dict["l1_loss"] = float(l1_loss)
-        losses_dict["duration_loss"] = float(duration_loss)
-        losses_dict["pitch_loss"] = float(pitch_loss)
-        losses_dict["energy_loss"] = float(energy_loss)
-        if self.enable_spk_cls:
-            losses_dict["speaker_loss"] = float(speaker_loss)
-            losses_dict["scaled_speaker_loss"] = float(scaled_speaker_loss)
-        losses_dict["loss"] = float(loss)
+        report("train/loss_ds", float(loss_ds))
+        report("train/l1_loss_ds", float(l1_loss_ds))
+        losses_dict["l1_loss_ds"] = float(l1_loss_ds)
+        losses_dict["loss_ds"] = float(loss_ds)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
+
         self.logger.info(self.msg)

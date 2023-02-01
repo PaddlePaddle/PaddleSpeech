@@ -112,8 +112,14 @@ def evaluate(args):
                     note = paddle.to_tensor(datum["note"])
                     note_dur = paddle.to_tensor(datum["note_dur"])
                     is_slur = paddle.to_tensor(datum["is_slur"])
-                    mel = am_inference(phone_ids, note=note, note_dur=note_dur, is_slur=is_slur)
-                # vocoder
+                    get_mel_fs2 = False
+                    # mel: [T, mel_bin]
+                    mel = am_inference(
+                        phone_ids,
+                        note=note,
+                        note_dur=note_dur,
+                        is_slur=is_slur,
+                        get_mel_fs2=get_mel_fs2)
                 wav = voc_inference(mel)
 
             wav = wav.numpy()
@@ -140,10 +146,16 @@ def parse_args():
         type=str,
         default='fastspeech2_csmsc',
         choices=[
-            'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
-            'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc',
-            'tacotron2_ljspeech', 'tacotron2_aishell3', 'fastspeech2_mix',
-            "diffsinger_opencpop"
+            'speedyspeech_csmsc',
+            'fastspeech2_csmsc',
+            'fastspeech2_ljspeech',
+            'fastspeech2_aishell3',
+            'fastspeech2_vctk',
+            'tacotron2_csmsc',
+            'tacotron2_ljspeech',
+            'tacotron2_aishell3',
+            'fastspeech2_mix',
+            "diffsinger_opencpop",
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -176,10 +188,19 @@ def parse_args():
         type=str,
         default='pwgan_csmsc',
         choices=[
-            'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
-            'mb_melgan_csmsc', 'wavernn_csmsc', 'hifigan_csmsc',
-            'hifigan_ljspeech', 'hifigan_aishell3', 'hifigan_vctk',
-            'style_melgan_csmsc', "pwgan_opencpop",
+            'pwgan_csmsc',
+            'pwgan_ljspeech',
+            'pwgan_aishell3',
+            'pwgan_vctk',
+            'mb_melgan_csmsc',
+            'wavernn_csmsc',
+            'hifigan_csmsc',
+            'hifigan_ljspeech',
+            'hifigan_aishell3',
+            'hifigan_vctk',
+            'style_melgan_csmsc',
+            "pwgan_opencpop",
+            "hifigan_opencpop",
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(

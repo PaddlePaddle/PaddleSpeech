@@ -23,6 +23,7 @@ from typing import Optional
 import numpy as np
 import onnxruntime as ort
 import paddle
+import yaml
 from paddle import inference
 from paddle import jit
 from paddle.io import DataLoader
@@ -59,6 +60,7 @@ model_alias = {
     "paddlespeech.t2s.models.diffsinger:DiffSinger",
     "diffsinger_inference":
     "paddlespeech.t2s.models.diffsinger:DiffSingerInference",
+
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -146,6 +148,8 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
         else:
             print("single speaker fastspeech2!")
     elif am_name == 'diffsinger':
+        fields = ["utt_id", "text", "note", "note_dur", "is_slur"]
+    elif am_name == 'fastspeech2midi':
         fields = ["utt_id", "text", "note", "note_dur", "is_slur"]
     elif am_name == 'speedyspeech':
         fields = ["utt_id", "phones", "tones"]
@@ -353,9 +357,14 @@ def get_am_inference(am: str='fastspeech2_csmsc',
     if am_name == 'fastspeech2':
         am = am_class(
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
-    if am_name == 'diffsinger':
+    elif am_name == 'diffsinger':
+        am_config["fs2_model"]["idim"] = vocab_size
+        am_config["fs2_model"]["odim"] = am_config.n_mels
+        am_config["fs2_model"]["spk_num"] = spk_num
         am = am_class(
-            idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
+            fs2_config=am_config["fs2_model"],
+            denoiser_config=am_config["denoiser_model"],
+            diffusion_config=am_config["diffusion"])
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size,
@@ -366,8 +375,6 @@ def get_am_inference(am: str='fastspeech2_csmsc',
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     elif am_name == 'erniesat':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
-    else:
-        print("wrong am, please input right am!!!")
 
     am.set_state_dict(paddle.load(am_ckpt)["main_params"])
     am.eval()

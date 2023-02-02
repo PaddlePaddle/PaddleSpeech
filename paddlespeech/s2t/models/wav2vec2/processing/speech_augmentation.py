@@ -1,5 +1,4 @@
-# Authors
-# * Peter Plantinga 2020
+# Copyright (c) 2023 speechbrain Authors. All Rights Reserved.
 # Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from speechbrain(https://github.com/speechbrain/speechbrain/blob/develop/speechbrain/processing/speech_augmentation.py)
+"""Classes for mutating speech data for data augmentation.
+This module provides classes that produce realistic distortions of speech
+data for the purpose of training speech processing models. The list of
+distortions includes adding noise, adding reverberation, changing speed,
+and more. All the classes are of type `torch.nn.Module`. This gives the
+possibility to have end-to-end differentiability and
+backpropagate the gradient through them. In addition, all operations
+are expected to be performed on the GPU (where available) for efficiency.
+
+Authors
+ * Peter Plantinga 2020
+"""
 import math
 
 import paddle
@@ -64,7 +75,6 @@ class SpeedPerturb(nn.Layer):
 
         # Initialize index of perturbation
         self.samp_index = 0
-
         # Initialize resamplers
         self.resamplers = []
         for speed in self.speeds:
@@ -73,6 +83,7 @@ class SpeedPerturb(nn.Layer):
                 "new_freq": self.orig_freq * speed // 100,
             }
             self.resamplers.append(Resample(**config))
+        paddle.seed(2)
 
     def forward(self, waveform):
         """
@@ -89,7 +100,6 @@ class SpeedPerturb(nn.Layer):
 
         # Don't perturb (return early) 1-`perturb_prob` portion of the batches
         if paddle.rand([1]) > self.perturb_prob:
-
             return waveform.clone()
         # Perform a random perturbation
         self.samp_index = paddle.randint(len(self.speeds), shape=(1, ))[0]
@@ -455,11 +465,9 @@ class DropFreq(nn.Layer):
             low=self.drop_count_low,
             high=self.drop_count_high + 1,
             shape=(1, ), )
+        ##对齐固定drop_count
+        # drop_count = paddle.to_tensor([2])
 
-        # Pick a frequency to drop
-        drop_range = self.drop_freq_high - self.drop_freq_low
-        drop_frequency = (
-            paddle.rand(drop_count) * drop_range + self.drop_freq_low)
         # Filter parameters
         filter_length = 101
         pad = filter_length // 2
@@ -467,13 +475,21 @@ class DropFreq(nn.Layer):
         # Start with delta function
         drop_filter = paddle.zeros([1, filter_length, 1])
         drop_filter[0, pad, 0] = 1
-        # Subtract each frequency
-        for frequency in drop_frequency:
-            notch_kernel = notch_filter(
-                frequency,
-                filter_length,
-                self.drop_width, )
-            drop_filter = convolve1d(drop_filter, notch_kernel, pad)
+
+        if drop_count.shape == 0:
+            # Pick a frequency to drop
+            drop_range = self.drop_freq_high - self.drop_freq_low
+            drop_frequency = (
+                paddle.rand(drop_count) * drop_range + self.drop_freq_low)
+            #对齐固定drop_frequency
+            # drop_frequency = torch.tensor([0.8102, 0.7742])
+            # Subtract each frequency
+            for frequency in drop_frequency:
+                notch_kernel = notch_filter(
+                    frequency,
+                    filter_length,
+                    self.drop_width, )
+                drop_filter = convolve1d(drop_filter, notch_kernel, pad)
 
         # Apply filter
         dropped_waveform = convolve1d(dropped_waveform, drop_filter, pad)

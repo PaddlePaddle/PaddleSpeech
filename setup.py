@@ -37,7 +37,6 @@ base = [
     "g2pM",
     "h5py",
     "inflect",
-    "jieba",
     "jsonlines",
     "librosa==0.8.1",
     "loguru",
@@ -58,11 +57,9 @@ base = [
     "pyworld>=0.2.12",
     "resampy",
     "sacrebleu",
-    "sentencepiece~=0.1.96",
     "textgrid",
     "timer",
     "typeguard",
-    "visualdl",
     "webrtcvad",
     "yacs~=0.1.8",
     "prettytable",
@@ -73,7 +70,7 @@ base = [
     "paddleaudio>=1.1.0",
 ]
 
-server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
+server = ["pattern_singleton", "websockets"]
 
 requirements = {
     "install":

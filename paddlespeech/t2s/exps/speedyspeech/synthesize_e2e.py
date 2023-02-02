@@ -39,18 +39,18 @@ def evaluate(args, speedyspeech_config, pwg_config):
 
     # construct dataset for evaluation
     sentences = []
-    with open(args.text, 'rt') as f:
+    with open(args.text, 'rt', encoding='utf-8') as f:
         for line in f:
             items = line.strip().split()
             utt_id = items[0]
             sentence = "".join(items[1:])
             sentences.append((utt_id, sentence))
 
-    with open(args.phones_dict, "r") as f:
+    with open(args.phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
-    with open(args.tones_dict, "r") as f:
+    with open(args.tones_dict, 'rt', encoding='utf-8') as f:
         tone_id = [line.strip().split() for line in f.readlines()]
     tone_size = len(tone_id)
     print("tone_size:", tone_size)

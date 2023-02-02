@@ -70,7 +70,7 @@ base = [
     "braceexpand",
     "pyyaml",
     "paddleslim>=2.3.4",
-    "paddleaudio>=1.0.2",
+    "paddleaudio>=1.1.0",
 ]
 
 server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]

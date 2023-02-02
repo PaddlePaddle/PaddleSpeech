@@ -43,7 +43,7 @@ base = [
     "scipy>=1.0.0",
     "soundfile~=0.10",
     "colorlog",
-    "pathos==0.2.8",
+    "pathos",
     "pybind11",
     "parameterized",
     "tqdm",

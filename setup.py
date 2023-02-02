@@ -49,7 +49,6 @@ base = [
     "paddlenlp>=2.4.8",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",
-    "Pillow>=9.0.0",
     "praatio>=5.0.0",
     "pypinyin<=0.44.0",
     "pypinyin-dict",

@@ -37,13 +37,16 @@ from paddlespeech.t2s.models.diffsinger import DiffSinger
 from paddlespeech.t2s.models.diffsinger import DiffSingerEvaluator
 from paddlespeech.t2s.models.diffsinger import DiffSingerUpdater
 from paddlespeech.t2s.models.diffsinger import DiffusionLoss
-from paddlespeech.t2s.models.diffsinger import FastSpeech2MIDILoss
+from paddlespeech.t2s.models.diffsinger.fastspeech2midi import FastSpeech2MIDILoss
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
 from paddlespeech.t2s.utils import str2bool
+
+# from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Loss
+
 
 def train_sp(args, config):
     # decides device type and whether to run in parallel
@@ -75,11 +78,6 @@ def train_sp(args, config):
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
         fields += ["spk_id"]
-    elif args.voice_cloning:
-        print("Training voice cloning!")
-        collate_fn = diffsinger_multi_spk_batch_fn
-        fields += ["spk_emb"]
-        converters["spk_emb"] = np.load
     else:
         collate_fn = diffsinger_single_spk_batch_fn
         print("single speaker diffsinger!")
@@ -133,30 +131,28 @@ def train_sp(args, config):
     print("vocab_size:", vocab_size)
 
     odim = config.n_mels
-    config["fs2_model"]["idim"] = vocab_size
-    config["fs2_model"]["odim"] = odim
-    config["fs2_model"]["spk_num"] = spk_num
-
-    model = DiffSinger(
-        fs2_config=config["fs2_model"],
-        denoiser_config=config["denoiser_model"],
-        diffusion_config=config["diffusion"])
+    config["model"]["fastspeech2_params"]["spk_num"] = spk_num
+    model = DiffSinger(idim=vocab_size, odim=odim, **config["model"])
+    model_fs2 = model.fs2
+    model_ds = model.diffusion
     if world_size > 1:
         model = DataParallel(model)
+        model_fs2 = model._layers.fs2
+        model_ds = model._layers.diffusion
     print("models done!")
 
+    # criterion_fs2 = FastSpeech2Loss(**config["fs2_updater"])
     criterion_fs2 = FastSpeech2MIDILoss(**config["fs2_updater"])
     criterion_ds = DiffusionLoss(**config["ds_updater"])
     print("criterions done!")
 
-    optimizer_fs2 = build_optimizers(model._layers.fs2,
-                                     **config["fs2_optimizer"])
+    optimizer_fs2 = build_optimizers(model_fs2, **config["fs2_optimizer"])
     lr_schedule_ds = StepDecay(**config["ds_scheduler_params"])
     gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
     optimizer_ds = AdamW(
         learning_rate=lr_schedule_ds,
         grad_clip=gradient_clip_ds,
-        parameters=model._layers.diffusion.parameters(),
+        parameters=model_ds.parameters(),
         **config["ds_optimizer_params"])
     # optimizer_ds = build_optimizers(ds, **config["ds_optimizer"])
     print("optimizer done!")
@@ -189,7 +185,8 @@ def train_sp(args, config):
             "ds": criterion_ds,
         },
         dataloader=dev_dataloader,
-        output_dir=output_dir)
+        output_dir=output_dir,)
+
     trainer = Trainer(
         updater,
         stop_trigger=(config.train_max_steps, "iteration"),
@@ -223,12 +220,6 @@ def main():
         type=str,
         default=None,
         help="speaker id map file for multiple speaker model.")
-
-    parser.add_argument(
-        "--voice-cloning",
-        type=str2bool,
-        default=False,
-        help="whether training voice cloning model.")
 
     args = parser.parse_args()
 

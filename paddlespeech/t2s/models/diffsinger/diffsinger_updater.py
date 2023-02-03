@@ -44,8 +44,9 @@ class DiffSingerUpdater(StandardUpdater):
             fs2_train_start_steps: int=0,
             ds_train_start_steps: int=160000,
             output_dir: Path=None, ):
-
         super().__init__(model, optimizers, dataloader, init_state=None)
+        self.model = model._layers if isinstance(model,
+                                                 paddle.DataParallel) else model
 
         self.optimizers = optimizers
         self.optimizer_fs2: Optimizer = optimizers['fs2']
@@ -79,7 +80,7 @@ class DiffSingerUpdater(StandardUpdater):
         if spk_emb is not None:
             spk_id = None
 
-        # fastspeech2
+        # only train fastspeech2 module firstly
         if self.state.iteration > self.fs2_train_start_steps and self.state.iteration < self.ds_train_start_steps:
             before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
                 text=batch["text"],
@@ -133,8 +134,9 @@ class DiffSingerUpdater(StandardUpdater):
             self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                                   for k, v in losses_dict.items())
 
+        # Then only train diffusion module, freeze fastspeech2 parameters.
         if self.state.iteration > self.ds_train_start_steps:
-            for param in self.model._layers.fs2.parameters():
+            for param in self.model.fs2.parameters():
                 param.trainable = False
 
             mel, mel_masks = self.model(
@@ -183,12 +185,12 @@ class DiffSingerEvaluator(StandardEvaluator):
             dataloader: DataLoader,
             output_dir: Path=None, ):
         super().__init__(model, dataloader)
-        self.model = model
+        self.model = model._layers if isinstance(model,
+                                                 paddle.DataParallel) else model
 
         self.criterions = criterions
         self.criterion_fs2 = criterions['fs2']
         self.criterion_ds = criterions['ds']
-
         self.dataloader = dataloader
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
@@ -206,6 +208,7 @@ class DiffSingerEvaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
+        # Here show diffsinger eval     
         mel, mel_masks = self.model(
             text=batch["text"],
             note=batch["note"],
@@ -227,14 +230,13 @@ class DiffSingerEvaluator(StandardEvaluator):
             ref_mels=batch["speech"],
             out_mels=mel,
             mel_masks=mel_masks, )
-
         loss_ds = l1_loss_ds
 
-        report("train/loss_ds", float(loss_ds))
-        report("train/l1_loss_ds", float(l1_loss_ds))
+        report("eval/loss_ds", float(loss_ds))
+        report("eval/l1_loss_ds", float(l1_loss_ds))
         losses_dict["l1_loss_ds"] = float(l1_loss_ds)
         losses_dict["loss_ds"] = float(loss_ds)
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                              for k, v in losses_dict.items())
+                                for k, v in losses_dict.items())
 
         self.logger.info(self.msg)

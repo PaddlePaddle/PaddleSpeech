@@ -23,7 +23,6 @@ from typing import Optional
 import numpy as np
 import onnxruntime as ort
 import paddle
-import yaml
 from paddle import inference
 from paddle import jit
 from paddle.io import DataLoader
@@ -358,13 +357,8 @@ def get_am_inference(am: str='fastspeech2_csmsc',
         am = am_class(
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
     elif am_name == 'diffsinger':
-        am_config["fs2_model"]["idim"] = vocab_size
-        am_config["fs2_model"]["odim"] = am_config.n_mels
-        am_config["fs2_model"]["spk_num"] = spk_num
-        am = am_class(
-            fs2_config=am_config["fs2_model"],
-            denoiser_config=am_config["denoiser_model"],
-            diffusion_config=am_config["diffusion"])
+        am_config["model"]["fastspeech2_params"]["spk_num"] = spk_num
+        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size,

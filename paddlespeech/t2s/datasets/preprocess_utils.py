@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+from typing import List
+
 import librosa
 import numpy as np
 
@@ -42,7 +44,16 @@ def get_phn_dur(file_name):
     f.close()
     return sentence, speaker_set
 
-def note2midi(notes):
+
+def note2midi(notes: List[str]) -> List[str]:
+    """Covert note string to note id, for example: ["C1"] -> [24]
+
+    Args:
+        notes (List[str]): the list of note string
+
+    Returns:
+        List[str]: the list of note id
+    """
     midis = []
     for note in notes:
         if note == 'rest':
@@ -53,7 +64,21 @@ def note2midi(notes):
 
     return midis
 
-def time2frame(times, sample_rate: int=24000, n_shift: int=128,):
+
+def time2frame(
+        times: List[float],
+        sample_rate: int=24000,
+        n_shift: int=128, ) -> List[int]:
+    """Convert the phoneme duration of time(s) into frames
+
+    Args:
+        times (List[float]): phoneme duration of time(s)
+        sample_rate (int, optional): sample rate. Defaults to 24000.
+        n_shift (int, optional): frame shift. Defaults to 128.
+
+    Returns:
+        List[int]: phoneme duration of frame
+    """
     end = 0.0
     ends = []
     for t in times:
@@ -63,14 +88,20 @@ def time2frame(times, sample_rate: int=24000, n_shift: int=128,):
     durations = np.diff(frame_pos, prepend=0)
     return durations
 
-def get_sentences_svs(file_name, dataset: str='opencpop', sample_rate: int=24000, n_shift: int=128,):
+
+def get_sentences_svs(
+        file_name,
+        dataset: str='opencpop',
+        sample_rate: int=24000,
+        n_shift: int=128, ):
     '''
     read label file
     Args:
         file_name (str or Path): path of gen_duration_from_textgrid.py's result
         dataset (str): dataset name
     Returns: 
-        Dict: sentence: {'utt': ([char], [int])}
+        Dict: the information of sentence, include [phone id (int)], [the frame of phone (int)], [note id (int)], [note duration (float)], [is slur (int)], text(str), speaker name (str)
+        tunple: speaker name
     '''
     f = open(file_name, 'r')
     sentence = {}
@@ -87,7 +118,10 @@ def get_sentences_svs(file_name, dataset: str='opencpop', sample_rate: int=24000
             ph_dur = time2frame([float(t) for t in line_list[5].split()])
             is_slur = line_list[6].split()
             assert len(ph) == len(midi) == len(midi_dur) == len(is_slur)
-            sentence[utt] = (ph, [int(i) for i in ph_dur], [int(i) for i in midi], [float(i) for i in midi_dur], [int(i) for i in is_slur], text, "opencpop")
+            sentence[utt] = (ph, [int(i) for i in ph_dur],
+                             [int(i) for i in midi],
+                             [float(i) for i in midi_dur],
+                             [int(i) for i in is_slur], text, "opencpop")
     else:
         print("dataset should in {opencpop} now!")
 

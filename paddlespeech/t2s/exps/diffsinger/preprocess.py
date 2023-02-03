@@ -37,21 +37,28 @@ from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 from paddlespeech.t2s.utils import str2bool
 
-ALL_SHENGMU = ['zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j',
-              'q', 'x', 'r', 'z', 'c', 's', 'y', 'w']
-ALL_YUNMU = ['a', 'ai', 'an', 'ang', 'ao', 'e', 'ei', 'en', 'eng', 'er', 'i', 'ia', 'ian',
-             'iang', 'iao', 'ie', 'in', 'ing', 'iong', 'iu', 'ng', 'o', 'ong', 'ou',
-             'u', 'ua', 'uai', 'uan', 'uang', 'ui', 'un', 'uo', 'v', 'van', 've', 'vn']
+ALL_INITIALS = [
+    'zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h',
+    'j', 'q', 'x', 'r', 'z', 'c', 's', 'y', 'w'
+]
+ALL_FINALS = [
+    'a', 'ai', 'an', 'ang', 'ao', 'e', 'ei', 'en', 'eng', 'er', 'i', 'ia',
+    'ian', 'iang', 'iao', 'ie', 'in', 'ing', 'iong', 'iu', 'ng', 'o', 'ong',
+    'ou', 'u', 'ua', 'uai', 'uan', 'uang', 'ui', 'un', 'uo', 'v', 'van', 've',
+    'vn'
+]
 
-def process_sentence(config: Dict[str, Any],
-                     fp: Path,
-                     sentences: Dict,
-                     output_dir: Path,
-                     mel_extractor=None,
-                     pitch_extractor=None,
-                     energy_extractor=None,
-                     cut_sil: bool=True,
-                     spk_emb_dir: Path=None,):
+
+def process_sentence(
+        config: Dict[str, Any],
+        fp: Path,
+        sentences: Dict,
+        output_dir: Path,
+        mel_extractor=None,
+        pitch_extractor=None,
+        energy_extractor=None,
+        cut_sil: bool=True,
+        spk_emb_dir: Path=None, ):
     utt_id = fp.stem
     record = None
     if utt_id in sentences:
@@ -71,7 +78,7 @@ def process_sentence(config: Dict[str, Any],
         note_dur = sentences[utt_id][3]
         is_slur = sentences[utt_id][4]
         speaker = sentences[utt_id][-1]
-        
+
         # extract mel feats
         logmel = mel_extractor.get_log_mel_fbank(wav)
         # change duration according to mel_length
@@ -82,9 +89,13 @@ def process_sentence(config: Dict[str, Any],
         phones = sentences[utt_id][0]
         durations = sentences[utt_id][1]
         num_frames = logmel.shape[0]
-        word_boundary = [1 if x in ALL_YUNMU + ['AP', 'SP'] else 0 for x in phones]
+        word_boundary = [
+            1 if x in ALL_FINALS + ['AP', 'SP'] else 0 for x in phones
+        ]
         # print(sum(durations), num_frames)
-        assert sum(durations) == num_frames, "the sum of durations doesn't equal to the num of mel frames. "
+        assert sum(
+            durations
+        ) == num_frames, "the sum of durations doesn't equal to the num of mel frames. "
         speech_dir = output_dir / "data_speech"
         speech_dir.mkdir(parents=True, exist_ok=True)
         speech_path = speech_dir / (utt_id + "_speech.npy")
@@ -128,17 +139,18 @@ def process_sentence(config: Dict[str, Any],
     return record
 
 
-def process_sentences(config,
-                      fps: List[Path],
-                      sentences: Dict,
-                      output_dir: Path,
-                      mel_extractor=None,
-                      pitch_extractor=None,
-                      energy_extractor=None,
-                      nprocs: int=1,
-                      cut_sil: bool=True,
-                      spk_emb_dir: Path=None,
-                      write_metadata_method: str='w',):
+def process_sentences(
+        config,
+        fps: List[Path],
+        sentences: Dict,
+        output_dir: Path,
+        mel_extractor=None,
+        pitch_extractor=None,
+        energy_extractor=None,
+        nprocs: int=1,
+        cut_sil: bool=True,
+        spk_emb_dir: Path=None,
+        write_metadata_method: str='w', ):
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
@@ -151,7 +163,7 @@ def process_sentences(config,
                 pitch_extractor=pitch_extractor,
                 energy_extractor=energy_extractor,
                 cut_sil=cut_sil,
-                spk_emb_dir=spk_emb_dir,)
+                spk_emb_dir=spk_emb_dir, )
             if record:
                 results.append(record)
     else:
@@ -159,10 +171,17 @@ def process_sentences(config,
             futures = []
             with tqdm.tqdm(total=len(fps)) as progress:
                 for fp in fps:
-                    future = pool.submit(process_sentence, config, fp,
-                                         sentences, output_dir, mel_extractor,
-                                         pitch_extractor, energy_extractor,
-                                         cut_sil, spk_emb_dir,)
+                    future = pool.submit(
+                        process_sentence,
+                        config,
+                        fp,
+                        sentences,
+                        output_dir,
+                        mel_extractor,
+                        pitch_extractor,
+                        energy_extractor,
+                        cut_sil,
+                        spk_emb_dir, )
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
 
@@ -202,7 +221,7 @@ def main():
 
     parser.add_argument(
         "--label-file", default=None, type=str, help="path to label file.")
-    
+
     parser.add_argument("--config", type=str, help="diffsinger config file.")
 
     parser.add_argument(
@@ -235,7 +254,6 @@ def main():
     dumpdir.mkdir(parents=True, exist_ok=True)
     label_file = Path(args.label_file).expanduser()
 
-    
     if args.spk_emb_dir:
         spk_emb_dir = Path(args.spk_emb_dir).expanduser().resolve()
     else:
@@ -243,11 +261,15 @@ def main():
 
     assert rootdir.is_dir()
     assert label_file.is_file()
-    
+
     with open(args.config, 'rt') as f:
         config = CfgNode(yaml.safe_load(f))
 
-    sentences, speaker_set = get_sentences_svs(label_file, dataset=args.dataset, sample_rate=config.fs, n_shift=config.n_shift,)
+    sentences, speaker_set = get_sentences_svs(
+        label_file,
+        dataset=args.dataset,
+        sample_rate=config.fs,
+        n_shift=config.n_shift, )
 
     # merge_silence(sentences)
     phone_id_map_path = dumpdir / "phone_id_map.txt"

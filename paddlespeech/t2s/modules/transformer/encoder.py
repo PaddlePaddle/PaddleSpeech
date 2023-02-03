@@ -15,6 +15,7 @@
 from typing import List
 from typing import Union
 
+import paddle
 from paddle import nn
 
 from paddlespeech.t2s.modules.activation import get_activation
@@ -390,20 +391,26 @@ class TransformerEncoder(BaseEncoder):
             padding_idx=padding_idx,
             encoder_type="transformer")
 
-    def forward(self, xs, masks, note_emb=None, note_dur_emb=None, is_slur_emb=None, scale=16):
+    def forward(self,
+                xs: paddle.Tensor,
+                masks: paddle.Tensor,
+                note_emb: paddle.Tensor=None,
+                note_dur_emb: paddle.Tensor=None,
+                is_slur_emb: paddle.Tensor=None,
+                scale: int=16):
         """Encoder input sequence.
 
         Args:
             xs(Tensor): 
                 Input tensor (#batch, time, idim).
+            masks(Tensor): 
+                Mask tensor (#batch, 1, time).
             note_emb(Tensor): 
                 Input tensor (#batch, time, attention_dim).
             note_dur_emb(Tensor): 
                 Input tensor (#batch, time, attention_dim).
             is_slur_emb(Tensor): 
                 Input tensor (#batch, time, attention_dim).
-            masks(Tensor): 
-                Mask tensor (#batch, 1, time).
 
         Returns:
             Tensor: 

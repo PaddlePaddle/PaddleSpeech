@@ -37,9 +37,7 @@ base = [
     "g2pM",
     "h5py",
     "inflect",
-    "jieba",
     "jsonlines",
-    "kaldiio",
     "librosa==0.8.1",
     "loguru",
     "matplotlib",
@@ -51,22 +49,16 @@ base = [
     "paddlenlp>=2.4.8",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",
-    "Pillow>=9.0.0",
-    "praatio==5.0.0",
+    "praatio>=5.0.0",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",
-    "pyworld==0.2.12",
-    "resampy==0.2.2",
+    "pyworld>=0.2.12",
+    "resampy",
     "sacrebleu",
-    "scipy",
-    "sentencepiece~=0.1.96",
-    "soundfile~=0.10",
     "textgrid",
     "timer",
-    "tqdm",
     "typeguard",
-    "visualdl",
     "webrtcvad",
     "yacs~=0.1.8",
     "prettytable",
@@ -74,10 +66,10 @@ base = [
     "braceexpand",
     "pyyaml",
     "paddleslim>=2.3.4",
-    "paddleaudio>=1.0.2",
+    "paddleaudio>=1.1.0",
 ]
 
-server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
+server = ["pattern_singleton", "websockets"]
 
 requirements = {
     "install":

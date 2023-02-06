@@ -35,9 +35,10 @@ def piecewise_rational_quadratic_transform(
         inverse=False,
         tails=None,
         tail_bound=1.0,
-        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
-        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
-        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
+        # for dygraph-to-static
+        min_bin_width=1e-3,
+        min_bin_height=1e-3,
+        min_derivative=1e-3, ):
     if tails is None:
         spline_fn = rational_quadratic_spline
         spline_kwargs = {}
@@ -74,9 +75,10 @@ def unconstrained_rational_quadratic_spline(
         inverse=False,
         tails="linear",
         tail_bound=1.0,
-        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
-        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
-        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
+        # for dygraph-to-static
+        min_bin_width=1e-3,
+        min_bin_height=1e-3,
+        min_derivative=1e-3, ):
     inside_interval_mask = (inputs >= -tail_bound) & (inputs <= tail_bound)
     outside_interval_mask = ~inside_interval_mask
 
@@ -89,8 +91,12 @@ def unconstrained_rational_quadratic_spline(
         constant = np.log(np.exp(1 - min_derivative) - 1)
         unnormalized_derivatives[..., 0] = constant
         unnormalized_derivatives[..., -1] = constant
-
-        outputs[outside_interval_mask] = inputs[outside_interval_mask]
+        # import pdb
+        # pdb.set_trace()
+        # print("inputs:",inputs)
+        # print("outside_interval_mask:",outside_interval_mask)
+        a = inputs[outside_interval_mask]
+        outputs[outside_interval_mask] = a
         logabsdet[outside_interval_mask] = 0
     else:
         raise RuntimeError("{} tails are not implemented.".format(tails))
@@ -130,9 +136,10 @@ def rational_quadratic_spline(
         right=1.0,
         bottom=0.0,
         top=1.0,
-        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
-        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
-        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
+        # for dygraph-to-static
+        min_bin_width=1e-3,
+        min_bin_height=1e-3,
+        min_derivative=1e-3, ):
     if paddle.min(inputs) < left or paddle.max(inputs) > right:
         raise ValueError("Input to a transform is not within its domain")
 

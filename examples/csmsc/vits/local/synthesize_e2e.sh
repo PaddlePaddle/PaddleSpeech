@@ -18,5 +18,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --phones_dict=dump/phone_id_map.txt \
         --output_dir=${train_output_path}/test_e2e \
         --text=${BIN_DIR}/../sentences.txt \
-        --add-blank=${add_blank}
+        --add-blank=${add_blank} #\
+        # --inference_dir=${train_output_path}/inference
 fi

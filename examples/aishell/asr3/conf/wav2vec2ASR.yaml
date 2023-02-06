@@ -147,14 +147,12 @@ wav2vec2_optim_conf:
   lr: 0.0001
   weight_decay: 0.0
 
-
-
-model_scheduler: newbobscheduler    
+model_scheduler: newbobscheduler
 model_scheduler_conf:
   improvement_threshold: 0.0025
   annealing_factor: 0.8
   patient: 0
-wav2vec2_scheduler: newbobscheduler    
+wav2vec2_scheduler: newbobscheduler
 wav2vec2_scheduler_conf:
   improvement_threshold: 0.0025
   annealing_factor: 0.9

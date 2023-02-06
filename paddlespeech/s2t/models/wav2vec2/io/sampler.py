@@ -112,8 +112,6 @@ class ReproducibleWeightedRandomSampler(WeightedRandomSampler):
         to use a value which has a good mix of 0 and 1 bits.
     epoch : int
         The epoch to start at.
-
-
     """
 
     def __init__(

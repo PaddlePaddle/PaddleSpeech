@@ -83,7 +83,6 @@ class SpeedPerturb(nn.Layer):
                 "new_freq": self.orig_freq * speed // 100,
             }
             self.resamplers.append(Resample(**config))
-        paddle.seed(2)
 
     def forward(self, waveform):
         """
@@ -465,8 +464,6 @@ class DropFreq(nn.Layer):
             low=self.drop_count_low,
             high=self.drop_count_high + 1,
             shape=(1, ), )
-        ##对齐固定drop_count
-        # drop_count = paddle.to_tensor([2])
 
         # Filter parameters
         filter_length = 101
@@ -481,8 +478,6 @@ class DropFreq(nn.Layer):
             drop_range = self.drop_freq_high - self.drop_freq_low
             drop_frequency = (
                 paddle.rand(drop_count) * drop_range + self.drop_freq_low)
-            #对齐固定drop_frequency
-            # drop_frequency = torch.tensor([0.8102, 0.7742])
             # Subtract each frequency
             for frequency in drop_frequency:
                 notch_kernel = notch_filter(
@@ -752,8 +747,7 @@ class SpecAugment(paddle.nn.Layer):
         # compute center and corresponding window
         c = paddle.randint(window, time - window, (1, ))[0]
         w = paddle.randint(c - window, c + window, (1, ))[0] + 1
-        # c = 5
-        # w = 10
+
         left = paddle.nn.functional.interpolate(
             x[:, :, :c],
             (w, x.shape[3]),

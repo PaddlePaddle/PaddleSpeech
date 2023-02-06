@@ -88,7 +88,7 @@ class Wav2vec2ASR(nn.Layer):
 
         if decoding_method == 'ctc_prefix_beam_search' and batch_size > 1:
             logger.error(
-                f'decoding mode {decoding_method} must be running with batch_size == 1'
+                f"decoding mode {decoding_method} must be running with batch_size == 1"
             )
             logger.error(f"current batch_size is {batch_size}")
 
@@ -311,4 +311,4 @@ class Wav2vec2Base(nn.Layer):
 
     def forward(self, wav):
         out = self.wav2vec2(wav)
-        return
+        return out

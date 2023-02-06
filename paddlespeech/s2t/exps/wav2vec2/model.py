@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@ import math
 import os
 import re
 import time
-from collections import defaultdict
 from collections import OrderedDict
 from contextlib import nullcontext
 
 import jsonlines
 import numpy as np
 import paddle
-import tqdm
 import transformers
 from hyperpyyaml import load_hyperpyyaml
 from paddle import distributed as dist
@@ -142,7 +140,6 @@ class Wav2Vec2ASRTrainer(Trainer):
         self.avg_train_loss = 0.0
         self.flag = False
         self.use_sb = True
-        self.epoch = 1
 
     def update_average(self, batch_index, loss):
         """Update running average of the loss.

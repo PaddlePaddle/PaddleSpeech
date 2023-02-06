@@ -110,29 +110,6 @@ class GeneratorDynamicItem(DynamicItem):
     The main benefit is to be able to define the pipeline in a clear function,
     even if parts of the pipeline depend on others for their initialization.
 
-    Example
-    -------
-    >>> lab2ind = {}
-    >>> def text_pipeline(text):
-    ...     text = text.lower().strip()
-    ...     text = "".join(c for c in text if c.isalpha() or c == " ")
-    ...     words = text.split()
-    ...     yield words
-    ...     encoded = [lab2ind[word] for word in words]
-    ...     yield encoded
-    >>> item = GeneratorDynamicItem(
-    ...         func=text_pipeline,
-    ...         takes=["text"],
-    ...         provides=["words", "words_encoded"])
-    >>> # First create the integer-encoding:
-    >>> ind = 1
-    >>> for token in item("Is this it? - This is it."):
-    ...     if token not in lab2ind:
-    ...         lab2ind[token] = ind
-    ...         ind += 1
-    >>> # Now the integers can be encoded!
-    >>> item()
-    [1, 2, 3, 2, 1, 3]
     """
 
     def __init__(self, *args, **kwargs):

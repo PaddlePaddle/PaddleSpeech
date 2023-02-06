@@ -11,7 +11,7 @@ conf_path=conf/wav2vec2ASR.yaml
 ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=1
-resume=20         # xx e.g. 30
+resume=         # xx e.g. 30
 export FLAGS_cudnn_deterministic=1
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
@@ -38,11 +38,11 @@ fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     # greedy search decoder
-    CUDA_VISIBLE_DEVICES=4 ./local/test.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} || exit -1
 
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # test a single .wav file
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
+    CUDA_VISIBLE_DEVICES=0 ./local/test_wav.sh ${conf_path} ${decode_conf_path} exp/${ckpt}/checkpoints/${avg_ckpt} ${audio_file} || exit -1
 fi

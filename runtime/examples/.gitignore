@@ -1,0 +1,3 @@
+*.ark
+*.scp
+paddle_asr_model/

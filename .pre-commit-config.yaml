@@ -8,7 +8,7 @@ repos:
         entry: yapf
         args: [-i, -vv]
         types: [python]
-        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src|third_party).*(\.cpp|\.cc|\.h\.hpp|\.py)$
+        exclude: (?=runtime/engine/kaldi|audio/paddleaudio/src|third_party).*(\.cpp|\.cc|\.h\.hpp|\.py)$
 
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: a11d9314b22d8f8c7556443875b731ef05965464
@@ -35,7 +35,7 @@ repos:
         -  --ignore=E501,E228,E226,E261,E266,E128,E402,W503
         -  --builtins=G,request
         -  --jobs=1
-        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src|third_party).*(\.cpp|\.cc|\.h\.hpp|\.py)$
+        exclude: (?=runtime/engine/kaldi|audio/paddleaudio/src|third_party).*(\.cpp|\.cc|\.h\.hpp|\.py)$
 
 -   repo : https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.0.1
@@ -57,16 +57,16 @@ repos:
         entry: bash .pre-commit-hooks/clang-format.hook -i
         language: system
         files: \.(h\+\+|h|hh|hxx|hpp|cuh|c|cc|cpp|cu|c\+\+|cxx|tpp|txx)$
-        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders|speechx/speechx/common/utils).*(\.cpp|\.cc|\.h|\.hpp|\.py)$ 
+        exclude: (?=runtime/engine/kaldi|audio/paddleaudio/src|runtime/patch|runtime/tools/fstbin|runtime/tools/lmbin|third_party/ctc_decoders|runtime/engine/common/utils).*(\.cpp|\.cc|\.h|\.hpp|\.py)$ 
     -   id: cpplint
         name: cpplint
         description: Static code analysis of C/C++ files
         language: python
         files: \.(h\+\+|h|hh|hxx|hpp|cuh|c|cc|cpp|cu|c\+\+|cxx|tpp|txx)$
-        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders|speechx/speechx/common/utils).*(\.cpp|\.cc|\.h|\.hpp|\.py)$ 
+        exclude: (?=runtime/engine/kaldi|runtime/engine/common/matrix|audio/paddleaudio/src|runtime/patch|runtime/tools/fstbin|runtime/tools/lmbin|third_party/ctc_decoders|runtime/engine/common/utils).*(\.cpp|\.cc|\.h|\.hpp|\.py)$ 
         entry: cpplint --filter=-build,-whitespace,+whitespace/comma,-whitespace/indent
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v2.4.0
     hooks:
       - id: reorder-python-imports
-        exclude: (?=speechx/speechx/kaldi|audio/paddleaudio/src|speechx/patch|speechx/tools/fstbin|speechx/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h\.hpp|\.py)$
+        exclude: (?=runtime/engine/kaldi|audio/paddleaudio/src|runtime/patch|runtime/tools/fstbin|runtime/tools/lmbin|third_party/ctc_decoders).*(\.cpp|\.cc|\.h\.hpp|\.py)$

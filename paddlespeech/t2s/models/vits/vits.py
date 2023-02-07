@@ -13,6 +13,7 @@
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
 """VITS module"""
+import math
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -27,7 +28,12 @@ from paddlespeech.t2s.models.hifigan import HiFiGANMultiScaleMultiPeriodDiscrimi
 from paddlespeech.t2s.models.hifigan import HiFiGANPeriodDiscriminator
 from paddlespeech.t2s.models.hifigan import HiFiGANScaleDiscriminator
 from paddlespeech.t2s.models.vits.generator import VITSGenerator
-from paddlespeech.t2s.modules.nets_utils import initialize
+from paddlespeech.utils.initialize import _calculate_fan_in_and_fan_out
+from paddlespeech.utils.initialize import kaiming_uniform_
+from paddlespeech.utils.initialize import normal_
+from paddlespeech.utils.initialize import ones_
+from paddlespeech.utils.initialize import uniform_
+from paddlespeech.utils.initialize import zeros_
 
 AVAILABLE_GENERATERS = {
     "vits_generator": VITSGenerator,
@@ -152,8 +158,7 @@ class VITS(nn.Layer):
                     "use_spectral_norm": False,
                 },
             },
-            cache_generator_outputs: bool=True,
-            init_type: str="xavier_uniform", ):
+            cache_generator_outputs: bool=True, ):
         """Initialize VITS module.
         Args:
             idim (int):
@@ -179,9 +184,6 @@ class VITS(nn.Layer):
         assert check_argument_types()
         super().__init__()
 
-        # initialize parameters
-        initialize(self, init_type)
-
         # define modules
         generator_class = AVAILABLE_GENERATERS[generator_type]
         if generator_type == "vits_generator":
@@ -195,8 +197,6 @@ class VITS(nn.Layer):
         discriminator_class = AVAILABLE_DISCRIMINATORS[discriminator_type]
         self.discriminator = discriminator_class(
             **discriminator_params, )
-
-        nn.initializer.set_global_initializer(None)
 
         # cache
         self.cache_generator_outputs = cache_generator_outputs
@@ -213,6 +213,10 @@ class VITS(nn.Layer):
 
         self.reuse_cache_gen = True
         self.reuse_cache_dis = True
+
+        self.reset_parameters()
+        self.generator.decoder.reset_parameters()
+        self.generator.text_encoder.reset_parameters()
 
     def forward(
             self,
@@ -243,7 +247,7 @@ class VITS(nn.Layer):
             forward_generator (bool):
                     Whether to forward generator.
         Returns:
-        
+
         """
         if forward_generator:
             return self._forward_generator(
@@ -290,7 +294,7 @@ class VITS(nn.Layer):
             lids (Optional[Tensor]):
                 Language index tensor (B,) or (B, 1).
         Returns:
-            
+
         """
         # setup
         feats = feats.transpose([0, 2, 1])
@@ -497,3 +501,34 @@ class VITS(nn.Layer):
             lids, )
 
         return dict(wav=paddle.reshape(wav, [-1]))
+
+    def reset_parameters(self):
+        def _reset_parameters(module):
+            if isinstance(module,
+                        (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D, nn.Conv2DTranspose)):
+                kaiming_uniform_(module.weight, a=math.sqrt(5))
+                if module.bias is not None:
+                    fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+                    if fan_in != 0:
+                        bound = 1 / math.sqrt(fan_in)
+                        uniform_(module.bias, -bound, bound)
+
+            if isinstance(module,
+                          (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
+                ones_(module.weight)
+                zeros_(module.bias)
+
+            if isinstance(module, nn.Linear):
+                kaiming_uniform_(module.weight, a=math.sqrt(5))
+                if module.bias is not None:
+                    fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+                    bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+                    uniform_(module.bias, -bound, bound)
+
+            if isinstance(module, nn.Embedding):
+                normal_(module.weight)
+                if module._padding_idx is not None:
+                    with paddle.no_grad():
+                        module.weight[module._padding_idx] = 0
+
+        self.apply(_reset_parameters)

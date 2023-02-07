@@ -67,8 +67,11 @@ def deprecated(direction: str, version: Optional[str]=None):
 
 
 def is_kaldi_available():
-    return is_module_available("paddleaudio._paddleaudio")
-
+    try:
+        from paddleaudio import _paddleaudio  
+        return True
+    except Exception:
+        return False
 
 def requires_kaldi():
     if is_kaldi_available():
@@ -128,9 +131,11 @@ def requires_soundfile():
 
 
 def is_sox_available():
-    if platform.system() == "Windows":  # not support sox in windows
+    try:
+        from paddleaudio import _paddleaudio  
+        return True
+    except Exception:
         return False
-    return is_module_available("paddleaudio._paddleaudio")
 
 
 def requires_sox():

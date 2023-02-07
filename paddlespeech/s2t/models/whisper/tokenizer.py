@@ -155,6 +155,10 @@ class Tokenizer:
                 if ids < len(self.tokenizer):
                     ids_list.append(ids)
             token_ids = ids_list
+        elif len(token_ids) == 1:
+            token_ids = token_ids[0]
+        else:
+            raise ValueError(f"token_ids {token_ids} load error.")
 
         return self.tokenizer.decode(token_ids, **kwargs)
 

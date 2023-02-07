@@ -25,9 +25,7 @@
 # Authors:  Yingzhi WANG 2022
 # ############################################################################
 
-seed: 2
-__set_seed: !apply:torch.manual_seed [!ref <seed>]
-output_folder: !ref data/<seed>
+output_folder: !ref data
 cer_file: !ref <output_folder>/cer.txt
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
@@ -39,7 +37,7 @@ skip_prep: False
 ckpt_interval_minutes: 15 # save checkpoint every N min
 train_data: !ref <output_folder>/train.csv
 valid_data: !ref <output_folder>/dev.csv
-test_data: !ref <output_folder>/dev_for_test.csv
+test_data: !ref <output_folder>/test.csv
 
 wav2vec2_hub: TencentGameMate/chinese-wav2vec2-large
 

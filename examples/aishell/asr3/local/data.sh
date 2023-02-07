@@ -1,7 +1,7 @@
 #!/bin/bash
 
 stage=-1
-stop_stage=100
+stop_stage=-1
 dict_dir=data/lang_char
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;
@@ -16,6 +16,12 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     python3 ${TARGET_DIR}/aishell/aishell.py \
     --manifest_prefix="data/manifest" \
     --target_dir="${TARGET_DIR}/aishell"
+
+    #generate csv file for speechbrain dataloader
+    python3 local/aishell_prepare.py \
+    --data_folder="${TARGET_DIR}/aishell" \
+    --save_folder="data/"
+
 
     if [ $? -ne 0 ]; then
         echo "Prepare Aishell failed. Terminated."

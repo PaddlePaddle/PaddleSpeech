@@ -1,4 +1,3 @@
-
 // Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,7 @@
 #pragma once
 
 #include "base/common.h"
+#include "fst/symbol-table.h"
 #include "kaldi/decoder/decodable-itf.h"
 
 namespace ppspeech {
@@ -40,6 +40,14 @@ class DecoderInterface {
     virtual std::string GetFinalBestPath() = 0;
 
     virtual std::string GetPartialResult() = 0;
+
+    virtual const std::shared_ptr<fst::SymbolTable> WordSymbolTable() const = 0;
+    virtual void FinalizeSearch() = 0;
+
+    virtual const std::vector<std::vector<int>>& Inputs() const = 0;
+    virtual const std::vector<std::vector<int>>& Outputs() const = 0;
+    virtual const std::vector<float>& Likelihood() const = 0;
+    virtual const std::vector<std::vector<int>>& Times() const = 0;
 
   protected:
     // virtual void AdvanceDecoding(kaldi::DecodableInterface* decodable) = 0;

@@ -57,8 +57,8 @@ DEFINE_string(model_cache_shapes, "5-1-1024,5-1-1024", "model cache shapes");
 // decoder
 DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
 
-DEFINE_string(graph_path, "TLG", "decoder graph");
-DEFINE_string(word_symbol_table, "words.txt", "word symbol table");
+DEFINE_string(graph_path, "", "decoder graph");
+DEFINE_string(word_symbol_table, "", "word symbol table");
 DEFINE_int32(max_active, 7500, "max active");
 DEFINE_double(beam, 15.0, "decoder beam");
 DEFINE_double(lattice_beam, 7.5, "decoder beam");

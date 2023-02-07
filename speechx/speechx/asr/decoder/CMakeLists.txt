@@ -1,6 +1,7 @@
 set(srcs)
 list(APPEND srcs
   ctc_prefix_beam_search_decoder.cc
+  ctc_tlg_decoder.cc
 )
 
 add_library(decoder STATIC ${srcs})
@@ -9,6 +10,7 @@ target_link_libraries(decoder PUBLIC utils fst frontend nnet kaldi-decoder)
 # test
 set(TEST_BINS 
   ctc_prefix_beam_search_decoder_main
+  ctc_tlg_decoder_main
 )
 
 foreach(bin_name IN LISTS TEST_BINS)

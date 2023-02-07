@@ -147,14 +147,14 @@ optional arguments:
 
 The pretrained model can be downloaded here:
 
-- [vits_csmsc_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/vits/vits_csmsc_ckpt_1.1.0.zip) (add_blank=true)
+- [vits_csmsc_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/vits/vits_csmsc_ckpt_1.4.0.zip) (add_blank=true)
 
 VITS checkpoint contains files listed below.
 ```text
-vits_csmsc_ckpt_1.1.0
-├── default.yaml              # default config used to train vitx
-├── phone_id_map.txt          # phone vocabulary file when training vits
-└── snapshot_iter_333000.pdz  # model parameters and optimizer states
+vits_csmsc_ckpt_1.4.0
+├── default.yaml                    # default config used to train vitx
+├── phone_id_map.txt                # phone vocabulary file when training vits
+└── snapshot_iter_150000.pdz  # model parameters and optimizer states
 ```
 
 ps: This ckpt is not good enough, a better result is training
@@ -168,9 +168,9 @@ add_blank=true
 FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/synthesize_e2e.py \
-    --config=vits_csmsc_ckpt_1.1.0/default.yaml \
-    --ckpt=vits_csmsc_ckpt_1.1.0/snapshot_iter_333000.pdz \
-    --phones_dict=vits_csmsc_ckpt_1.1.0/phone_id_map.txt \
+    --config=vits_csmsc_ckpt_1.4.0/default.yaml \
+    --ckpt=vits_csmsc_ckpt_1.4.0/snapshot_iter_150000.pdz \
+    --phones_dict=vits_csmsc_ckpt_1.4.0/phone_id_map.txt \
     --output_dir=exp/default/test_e2e \
     --text=${BIN_DIR}/../sentences.txt \
     --add-blank=${add_blank} 

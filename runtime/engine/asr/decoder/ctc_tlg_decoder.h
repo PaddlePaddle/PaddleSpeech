@@ -86,7 +86,11 @@ class TLGDecoder : public DecoderBase {
         return hypotheses_;
     }
     const std::vector<std::vector<int>>& Outputs() const override {
+<<<<<<< HEAD:runtime/engine/asr/decoder/ctc_tlg_decoder.h
         return olabels_;
+=======
+        return olabels;
+>>>>>>> 21183d48b63009e49729da6e6864ad666c09ae4b:speechx/speechx/asr/decoder/ctc_tlg_decoder.h
     }  // outputs_; }
     const std::vector<float>& Likelihood() const override {
         return likelihood_;
@@ -112,9 +116,14 @@ class TLGDecoder : public DecoderBase {
   private:
     void AdvanceDecoding(kaldi::DecodableInterface* decodable);
 
+<<<<<<< HEAD:runtime/engine/asr/decoder/ctc_tlg_decoder.h
     int num_frame_decoded_;
     std::vector<std::vector<int>> hypotheses_;
     std::vector<std::vector<int>> olabels_;
+=======
+    std::vector<std::vector<int>> hypotheses_;
+    std::vector<std::vector<int>> olabels;
+>>>>>>> 21183d48b63009e49729da6e6864ad666c09ae4b:speechx/speechx/asr/decoder/ctc_tlg_decoder.h
     std::vector<float> likelihood_;
     std::vector<std::vector<int>> times_;
 

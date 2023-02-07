@@ -45,7 +45,7 @@ class CTCPrefixBeamSearch : public DecoderBase {
 
     void FinalizeSearch();
 
-    const std::shared_ptr<fst::SymbolTable> VocabTable() const {
+    const std::shared_ptr<fst::SymbolTable> WordSymbolTable() const override {
         return unit_table_;
     }
 
@@ -56,7 +56,6 @@ class CTCPrefixBeamSearch : public DecoderBase {
         return viterbi_likelihood_;
     }
     const std::vector<std::vector<int>>& Times() const { return times_; }
-
 
   protected:
     std::string GetBestPath() override;

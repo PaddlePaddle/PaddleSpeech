@@ -19,9 +19,8 @@
 #include "kaldi/decoder/lattice-faster-online-decoder.h"
 #include "util/parse-options.h"
 
-
-DECLARE_string(graph_path);
 DECLARE_string(word_symbol_table);
+DECLARE_string(graph_path);
 DECLARE_int32(max_active);
 DECLARE_double(beam);
 DECLARE_double(lattice_beam);
@@ -33,6 +32,9 @@ struct TLGDecoderOptions {
     // todo remove later, add into decode resource
     std::string word_symbol_table;
     std::string fst_path;
+    int nbest;
+
+    TLGDecoderOptions() : word_symbol_table(""), fst_path(""), nbest(10) {}
 
     static TLGDecoderOptions InitFromFlags() {
         TLGDecoderOptions decoder_opts;
@@ -44,6 +46,7 @@ struct TLGDecoderOptions {
         decoder_opts.opts.max_active = FLAGS_max_active;
         decoder_opts.opts.beam = FLAGS_beam;
         decoder_opts.opts.lattice_beam = FLAGS_lattice_beam;
+        // decoder_opts.nbest = FLAGS_lattice_nbest;
         LOG(INFO) << "LatticeFasterDecoder max active: "
                   << decoder_opts.opts.max_active;
         LOG(INFO) << "LatticeFasterDecoder beam: " << decoder_opts.opts.beam;
@@ -59,19 +62,37 @@ class TLGDecoder : public DecoderBase {
     explicit TLGDecoder(TLGDecoderOptions opts);
     ~TLGDecoder() = default;
 
-    void InitDecoder();
-    void Reset();
+    void InitDecoder() override;
+    void Reset() override;
 
     void AdvanceDecode(
-        const std::shared_ptr<kaldi::DecodableInterface>& decodable);
+        const std::shared_ptr<kaldi::DecodableInterface>& decodable) override;
 
     void Decode();
 
     std::string GetFinalBestPath() override;
     std::string GetPartialResult() override;
 
+    const std::shared_ptr<fst::SymbolTable> WordSymbolTable() const override {
+        return word_symbol_table_;
+    }
+
     int DecodeLikelihoods(const std::vector<std::vector<BaseFloat>>& probs,
                           const std::vector<std::string>& nbest_words);
+
+    void FinalizeSearch() override;
+    const std::vector<std::vector<int>>& Inputs() const override {
+        return hypotheses_;
+    }
+    const std::vector<std::vector<int>>& Outputs() const override {
+        return olabels;
+    }  // outputs_; }
+    const std::vector<float>& Likelihood() const override {
+        return likelihood_;
+    }
+    const std::vector<std::vector<int>>& Times() const override {
+        return times_;
+    }
 
   protected:
     std::string GetBestPath() override {
@@ -90,9 +111,15 @@ class TLGDecoder : public DecoderBase {
   private:
     void AdvanceDecoding(kaldi::DecodableInterface* decodable);
 
+    std::vector<std::vector<int>> hypotheses_;
+    std::vector<std::vector<int>> olabels;
+    std::vector<float> likelihood_;
+    std::vector<std::vector<int>> times_;
+
     std::shared_ptr<kaldi::LatticeFasterOnlineDecoder> decoder_;
     std::shared_ptr<fst::Fst<fst::StdArc>> fst_;
     std::shared_ptr<fst::SymbolTable> word_symbol_table_;
+    TLGDecoderOptions opts_;
 };
 
 

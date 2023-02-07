@@ -23,25 +23,25 @@ using kaldi::BaseFloat;
 NnetProducer::NnetProducer(std::shared_ptr<NnetBase> nnet,
                            std::shared_ptr<FrontendInterface> frontend)
     : nnet_(nnet), frontend_(frontend) {
-        abort_ = false;
-        Reset();
-        thread_ = std::thread(RunNnetEvaluation, this);
-    }
+    abort_ = false;
+    Reset();
+    if (nnet_ != nullptr) thread_ = std::thread(RunNnetEvaluation, this);
+}
 
 void NnetProducer::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
     frontend_->Accept(inputs);
     condition_variable_.notify_one();
 }
 
-void NnetProducer::UnLock() {
+void NnetProducer::WaitProduce() {
     std::unique_lock<std::mutex> lock(read_mutex_);
     while (frontend_->IsFinished() == false && cache_.empty()) {
-        condition_read_ready_.wait(lock); 
+        condition_read_ready_.wait(lock);
     }
     return;
 }
 
-void NnetProducer::RunNnetEvaluation(NnetProducer *me) {
+void NnetProducer::RunNnetEvaluation(NnetProducer* me) {
     me->RunNnetEvaluationInteral();
 }
 
@@ -55,7 +55,7 @@ void NnetProducer::RunNnetEvaluationInteral() {
             result = Compute();
         } while (result);
         if (frontend_->IsFinished() == true) {
-           if (cache_.empty()) finished_ = true;
+            if (cache_.empty()) finished_ = true;
         }
     }
     LOG(INFO) << "NnetEvaluationInteral exit";

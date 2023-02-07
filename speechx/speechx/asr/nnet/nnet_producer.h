@@ -34,9 +34,9 @@ class NnetProducer {
     // nnet
     bool Read(std::vector<kaldi::BaseFloat>* nnet_prob);
     bool ReadandCompute(std::vector<kaldi::BaseFloat>* nnet_prob);
-    static void RunNnetEvaluation(NnetProducer *me);
+    static void RunNnetEvaluation(NnetProducer* me);
     void RunNnetEvaluationInteral();
-    void UnLock();
+    void WaitProduce();
 
     void Wait() {
         abort_ = true;
@@ -56,12 +56,12 @@ class NnetProducer {
     bool IsFinished() const { return finished_; }
 
     ~NnetProducer() {
-      if (thread_.joinable()) thread_.join();
+        if (thread_.joinable()) thread_.join();
     }
 
     void Reset() {
-        frontend_->Reset();
-        nnet_->Reset();
+        if (frontend_ != NULL) frontend_->Reset();
+        if (nnet_ != NULL) nnet_->Reset();
         VLOG(3) << "feature cache reset: cache size: " << cache_.size();
         cache_.clear();
         finished_ = false;

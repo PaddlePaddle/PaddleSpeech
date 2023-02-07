@@ -17,6 +17,7 @@
 #include "decoder/common.h"
 #include "decoder/ctc_beam_search_opt.h"
 #include "decoder/ctc_prefix_beam_search_decoder.h"
+#include "decoder/ctc_tlg_decoder.h"
 #include "decoder/decoder_itf.h"
 #include "frontend/feature_pipeline.h"
 #include "fst/fstlib.h"
@@ -33,6 +34,8 @@ DECLARE_int32(blank);
 
 DECLARE_double(acoustic_scale);
 DECLARE_string(vocab_path);
+DECLARE_string(word_symbol_table);
+// DECLARE_string(fst_path);
 
 namespace ppspeech {
 
@@ -59,6 +62,7 @@ struct DecodeOptions {
 
     // CtcEndpointConfig ctc_endpoint_opts;
     CTCBeamSearchOptions ctc_prefix_search_opts{};
+    TLGDecoderOptions tlg_decoder_opts{};
 
     static DecodeOptions InitFromFlags() {
         DecodeOptions decoder_opts;
@@ -70,6 +74,13 @@ struct DecodeOptions {
         decoder_opts.ctc_prefix_search_opts.blank = FLAGS_blank;
         decoder_opts.ctc_prefix_search_opts.first_beam_size = FLAGS_nbest;
         decoder_opts.ctc_prefix_search_opts.second_beam_size = FLAGS_nbest;
+        // decoder_opts.tlg_decoder_opts.fst_path = "";//FLAGS_fst_path;
+        // decoder_opts.tlg_decoder_opts.word_symbol_table =
+        // FLAGS_word_symbol_table;
+        // decoder_opts.tlg_decoder_opts.nbest = FLAGS_nbest;
+        decoder_opts.tlg_decoder_opts =
+            ppspeech::TLGDecoderOptions::InitFromFlags();
+
         LOG(INFO) << "chunk_size: " << decoder_opts.chunk_size;
         LOG(INFO) << "num_left_chunks: " << decoder_opts.num_left_chunks;
         LOG(INFO) << "ctc_weight: " << decoder_opts.ctc_weight;
@@ -113,7 +124,7 @@ class U2Recognizer {
   public:
     explicit U2Recognizer(const U2RecognizerResource& resouce);
     explicit U2Recognizer(const U2RecognizerResource& resource,
-                         std::shared_ptr<NnetBase> nnet);
+                          std::shared_ptr<NnetBase> nnet);
     ~U2Recognizer();
     void InitDecoder();
     void ResetContinuousDecoding();
@@ -154,10 +165,9 @@ class U2Recognizer {
 
     std::shared_ptr<NnetProducer> nnet_producer_;
     std::shared_ptr<Decodable> decodable_;
-    std::unique_ptr<CTCPrefixBeamSearch> decoder_;
+    std::unique_ptr<DecoderBase> decoder_;
 
     // e2e unit symbol table
-    std::shared_ptr<fst::SymbolTable> unit_table_ = nullptr;
     std::shared_ptr<fst::SymbolTable> symbol_table_ = nullptr;
 
     std::vector<DecodeResult> result_;

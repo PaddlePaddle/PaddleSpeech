@@ -27,8 +27,6 @@ class Decodable : public kaldi::DecodableInterface {
     explicit Decodable(const std::shared_ptr<NnetProducer>& nnet_producer,
                        kaldi::BaseFloat acoustic_scale = 1.0);
 
-    // void Init(DecodableOpts config);
-
     // nnet logprob output, used by wfst
     virtual kaldi::BaseFloat LogLikelihood(int32 frame, int32 index);
 

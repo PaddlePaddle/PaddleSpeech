@@ -35,10 +35,10 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     CHECK_NE(resource.vocab_path, "");
     if (resource.decoder_opts.tlg_decoder_opts.fst_path.empty()) {
         LOG(INFO) << resource.decoder_opts.tlg_decoder_opts.fst_path;
-        decoder_.reset(new CTCPrefixBeamSearch(
-            resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts));
+        decoder_ = std::make_unique<CTCPrefixBeamSearch>(
+            resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts);
     } else {
-        decoder_.reset(new TLGDecoder(resource.decoder_opts.tlg_decoder_opts));
+        decoder_ = std::make_unique<TLGDecoder>(resource.decoder_opts.tlg_decoder_opts);
     }
 
     symbol_table_ = decoder_->WordSymbolTable();

@@ -9,7 +9,7 @@ If you want to get rhythm tags with duration through MFA tool, you may add flag 
 Note that only CSMSC dataset is supported so far, and we replace `#` with `sp` in rhythm tags for MFA.
 
 # MFA for Cantonese language
-First, go download these datasets [Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence](https://paddlespeech.bj.bcebos.com/datasets/Cantonese/Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence.zip) and [Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle](https://paddlespeech.bj.bcebos.com/datasets/Cantonese/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle.zip) under `~/dataset/`.
+First, go download these datasets [Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence](https://paddlespeech.bj.bcebos.com/datasets/Cantonese/Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence.zip) and [Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle](https://paddlespeech.bj.bcebos.com/datasets/Cantonese/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle.zip) under `~/datasets/`.
 Then,
 ```bash
 ./run_canton.sh

@@ -1,0 +1,3 @@
+tools/valgrind*
+*log
+fc_patch/*

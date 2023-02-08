@@ -1,5 +1,5 @@
 # MIT License, Copyright (c) 2022 OpenAI.
-# Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper)
 import os
@@ -195,6 +195,7 @@ class AudioEncoder(nn.Layer):
         x : paddle.Tensor, shape = (batch_size, n_mels, n_ctx)
             the mel spectrogram of the audio
         """
+        print (x.shape)
         x = F.gelu(self.conv1(x))
         x = F.gelu(self.conv2(x))
         x = paddle.transpose(x, (0, 2, 1))

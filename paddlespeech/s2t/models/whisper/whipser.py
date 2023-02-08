@@ -195,7 +195,6 @@ class AudioEncoder(nn.Layer):
         x : paddle.Tensor, shape = (batch_size, n_mels, n_ctx)
             the mel spectrogram of the audio
         """
-        print (x.shape)
         x = F.gelu(self.conv1(x))
         x = F.gelu(self.conv2(x))
         x = paddle.transpose(x, (0, 2, 1))

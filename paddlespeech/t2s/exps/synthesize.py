@@ -120,7 +120,11 @@ def evaluate(args):
                         note_dur=note_dur,
                         is_slur=is_slur,
                         get_mel_fs2=get_mel_fs2)
+                    # import numpy as np
+                    # mel = np.load("/home/liangyunming/others_code/DiffSinger_lym/diffsinger_mel.npy")
+                    # mel = paddle.to_tensor(mel)
                 wav = voc_inference(mel)
+                
 
             wav = wav.numpy()
             N += wav.size
@@ -131,8 +135,10 @@ def evaluate(args):
             f"{utt_id}, mel: {mel.shape}, wave: {wav.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
         sf.write(
+            # str(output_dir / ("xiaojiuwo_diffsinger" + ".wav")), wav, samplerate=am_config.fs)
             str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
         print(f"{utt_id} done!")
+        # break
     print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
 

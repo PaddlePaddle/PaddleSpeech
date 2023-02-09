@@ -43,9 +43,6 @@ from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.optimizer import build_optimizers
 from paddlespeech.t2s.training.seeding import seed_everything
 from paddlespeech.t2s.training.trainer import Trainer
-from paddlespeech.t2s.utils import str2bool
-
-# from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Loss
 
 
 def train_sp(args, config):

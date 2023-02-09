@@ -101,7 +101,7 @@ def get_sentences_svs(
         dataset (str): dataset name
     Returns: 
         Dict: the information of sentence, include [phone id (int)], [the frame of phone (int)], [note id (int)], [note duration (float)], [is slur (int)], text(str), speaker name (str)
-        tunple: speaker name
+        tuple: speaker name
     '''
     f = open(file_name, 'r')
     sentence = {}
@@ -115,7 +115,7 @@ def get_sentences_svs(
             ph = line_list[2].split()
             midi = note2midi(line_list[3].split())
             midi_dur = line_list[4].split()
-            ph_dur = time2frame([float(t) for t in line_list[5].split()])
+            ph_dur = time2frame([float(t) for t in line_list[5].split()], sample_rate=sample_rate, n_shift=n_shift)
             is_slur = line_list[6].split()
             assert len(ph) == len(midi) == len(midi_dur) == len(is_slur)
             sentence[utt] = (ph, [int(i) for i in ph_dur],

@@ -48,12 +48,12 @@ class DiffSinger(nn.Layer):
             note_num: int=300,
             is_slur_num: int=2,
             fastspeech2_params: Dict[str, Any]={
-                "adim": 384,
-                "aheads": 4,
-                "elayers": 6,
-                "eunits": 1536,
-                "dlayers": 6,
-                "dunits": 1536,
+                "adim": 256,
+                "aheads": 2,
+                "elayers": 4,
+                "eunits": 1024,
+                "dlayers": 4,
+                "dunits": 1024,
                 "postnet_layers": 5,
                 "postnet_chans": 512,
                 "postnet_filts": 5,
@@ -74,6 +74,7 @@ class DiffSinger(nn.Layer):
                 "transformer_dec_dropout_rate": 0.1,
                 "transformer_dec_positional_dropout_rate": 0.1,
                 "transformer_dec_attn_dropout_rate": 0.1,
+                "transformer_activation_type": "gelu",
                 # duration predictor
                 "duration_predictor_layers": 2,
                 "duration_predictor_chans": 384,
@@ -149,7 +150,7 @@ class DiffSinger(nn.Layer):
         self.fs2 = FastSpeech2MIDI(
             idim=idim,
             odim=odim,
-            fastspeech2_config=fastspeech2_params,
+            fastspeech2_params=fastspeech2_params,
             note_num=note_num,
             is_slur_num=is_slur_num)
         denoiser = WaveNetDenoiser(**denoiser_params)
@@ -260,7 +261,7 @@ class DiffSinger(nn.Layer):
                 Whether to get mel from fastspeech2 module.
 
         Returns:
-            _type_: _description_
+            
         """
         mel_fs2, _, _, _ = self.fs2.inference(text, note, note_dur, is_slur)
         if get_mel_fs2:
@@ -268,7 +269,9 @@ class DiffSinger(nn.Layer):
         mel_fs2 = mel_fs2.unsqueeze(0).transpose((0, 2, 1))
         cond_fs2 = self.fs2.encoder_infer(text, note, note_dur, is_slur)
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
-        mel, _ = self.diffusion(mel_fs2, cond_fs2)
+        # mel, _ = self.diffusion(mel_fs2, cond_fs2)
+        noise = paddle.randn(mel_fs2.shape)
+        mel = self.diffusion.inference(noise=noise, cond=cond_fs2, ref_x=mel_fs2, num_inference_steps=100)
         mel = mel.transpose((0, 2, 1))
         return mel[0]
 
@@ -280,13 +283,32 @@ class DiffSingerInference(nn.Layer):
         self.acoustic_model = model
 
     def forward(self, text, note, note_dur, is_slur, get_mel_fs2: bool=False):
+        """Calculate forward propagation.
+
+        Args:
+            text(Tensor(int64)): 
+                Batch of padded token (phone) ids (B, Tmax).
+            note(Tensor(int64)): 
+                Batch of padded note (element in music score) ids (B, Tmax).
+            note_dur(Tensor(float32)): 
+                Batch of padded note durations in seconds (element in music score) (B, Tmax).
+            is_slur(Tensor(int64)): 
+                Batch of padded slur (element in music score) ids (B, Tmax).
+            get_mel_fs2 (bool, optional): . Defaults to False.
+                Whether to get mel from fastspeech2 module.
+
+        Returns:
+            logmel(Tensor(float32)): denorm logmel, [T, mel_bin]
+        """
         normalized_mel = self.acoustic_model.inference(
             text,
             note=note,
             note_dur=note_dur,
             is_slur=is_slur,
             get_mel_fs2=get_mel_fs2)
-        logmel = self.normalizer.inverse(normalized_mel)
+        print(normalized_mel)
+        # logmel = self.normalizer.inverse(normalized_mel)
+        logmel = normalized_mel
         return logmel
 
 

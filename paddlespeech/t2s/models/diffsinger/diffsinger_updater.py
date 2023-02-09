@@ -41,7 +41,6 @@ class DiffSingerUpdater(StandardUpdater):
             optimizers: Dict[str, Optimizer],
             criterions: Dict[str, Layer],
             dataloader: DataLoader,
-            fs2_train_start_steps: int=0,
             ds_train_start_steps: int=160000,
             output_dir: Path=None, ):
         super().__init__(model, optimizers, dataloader, init_state=None)
@@ -58,7 +57,6 @@ class DiffSingerUpdater(StandardUpdater):
 
         self.dataloader = dataloader
 
-        self.fs2_train_start_steps = fs2_train_start_steps
         self.ds_train_start_steps = ds_train_start_steps
 
         self.state = UpdaterState(iteration=0, epoch=0)
@@ -81,7 +79,8 @@ class DiffSingerUpdater(StandardUpdater):
             spk_id = None
 
         # only train fastspeech2 module firstly
-        if self.state.iteration > self.fs2_train_start_steps and self.state.iteration < self.ds_train_start_steps:
+        if self.state.iteration <= self.ds_train_start_steps:
+            # print(batch)
             before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
                 text=batch["text"],
                 note=batch["note"],
@@ -97,7 +96,7 @@ class DiffSingerUpdater(StandardUpdater):
                 spk_emb=spk_emb,
                 train_fs2=True, )
 
-            l1_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
+            l1_loss_fs2, ssim_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
                 after_outs=after_outs,
                 before_outs=before_outs,
                 d_outs=d_outs,
@@ -111,8 +110,8 @@ class DiffSingerUpdater(StandardUpdater):
                 olens=olens,
                 spk_logits=spk_logits,
                 spk_ids=spk_id, )
-
-            loss_fs2 = l1_loss_fs2 + duration_loss + pitch_loss + energy_loss
+            
+            loss_fs2 = l1_loss_fs2 + ssim_loss_fs2 + duration_loss + pitch_loss + energy_loss 
 
             self.optimizer_fs2.clear_grad()
             loss_fs2.backward()
@@ -120,11 +119,13 @@ class DiffSingerUpdater(StandardUpdater):
 
             report("train/loss_fs2", float(loss_fs2))
             report("train/l1_loss_fs2", float(l1_loss_fs2))
+            report("train/ssim_loss_fs2", float(ssim_loss_fs2))
             report("train/duration_loss", float(duration_loss))
             report("train/pitch_loss", float(pitch_loss))
             report("train/energy_loss", float(energy_loss))
 
             losses_dict["l1_loss_fs2"] = float(l1_loss_fs2)
+            losses_dict["ssim_loss_fs2"] = float(ssim_loss_fs2)
             losses_dict["duration_loss"] = float(duration_loss)
             losses_dict["pitch_loss"] = float(pitch_loss)
             losses_dict["energy_loss"] = float(energy_loss)

@@ -3,9 +3,10 @@
 set -e
 source path.sh
 
-gpus=0
-stage=0
-stop_stage=100
+gpus=4,5,6,7
+#gpus=0
+stage=1
+stop_stage=1
 
 conf_path=conf/default.yaml
 train_output_path=exp/default

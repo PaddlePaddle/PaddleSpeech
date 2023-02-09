@@ -34,7 +34,6 @@ from paddlespeech.t2s.datasets.preprocess_utils import compare_duration_and_mel_
 from paddlespeech.t2s.datasets.preprocess_utils import get_input_token
 from paddlespeech.t2s.datasets.preprocess_utils import get_sentences_svs
 from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
-from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 from paddlespeech.t2s.utils import str2bool
 
 ALL_INITIALS = [
@@ -106,6 +105,7 @@ def process_sentence(
         pitch_dir = output_dir / "data_pitch"
         pitch_dir.mkdir(parents=True, exist_ok=True)
         pitch_path = pitch_dir / (utt_id + "_pitch.npy")
+        # print(pitch, pitch.shape)
         np.save(pitch_path, pitch)
         energy = energy_extractor.get_energy(wav)
         assert energy.shape[0] == num_frames
@@ -271,7 +271,6 @@ def main():
         sample_rate=config.fs,
         n_shift=config.n_shift, )
 
-    # merge_silence(sentences)
     phone_id_map_path = dumpdir / "phone_id_map.txt"
     speaker_id_map_path = dumpdir / "speaker_id_map.txt"
     get_input_token(sentences, phone_id_map_path, args.dataset)

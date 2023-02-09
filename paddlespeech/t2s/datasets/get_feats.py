@@ -105,7 +105,6 @@ class Pitch():
         if (f0 == 0).all():
             print("All frames seems to be unvoiced.")
             return f0
-
         # padding start and end of f0 sequence
         start_f0 = f0[f0 != 0][0]
         end_f0 = f0[f0 != 0][-1]

@@ -360,6 +360,8 @@ class GaussianDiffusion(nn.Layer):
                   num_inference_steps: Optional[int]=1000,
                   strength: Optional[float]=None,
                   scheduler_type: Optional[str]="ddpm",
+                  clip_noise: Optional[bool]=True,
+                  clip_noise_range: Optional[Tuple[float, float]]=(-1, 1),
                   callback: Optional[Callable[[int, int, int, paddle.Tensor],
                                               None]]=None,
                   callback_steps: Optional[int]=1):
@@ -380,6 +382,10 @@ class GaussianDiffusion(nn.Layer):
             scheduler_type (str, optional):
                 Noise scheduler for generate noises. 
                 Choose a great scheduler can skip many denoising step, by default 'ddpm'.
+            clip_noise (bool, optional):
+                Whether to clip each denoised output, by default True.
+            clip_noise_range (tuple, optional):
+                denoised output min and max value range after clip, by default (-1, 1).
             callback (Callable[[int,int,int,Tensor], None], optional):
                 Callback function during denoising steps.
 
@@ -440,6 +446,9 @@ class GaussianDiffusion(nn.Layer):
 
         # denoising loop
         denoised_output = noisy_input
+        if clip_noise:
+            n_min, n_max = clip_noise_range
+            denoised_output = paddle.clip(denoised_output, n_min, n_max)
         num_warmup_steps = len(
             timesteps) - num_inference_steps * scheduler.order
         for i, t in enumerate(timesteps):
@@ -451,6 +460,8 @@ class GaussianDiffusion(nn.Layer):
             # compute the previous noisy sample x_t -> x_t-1
             denoised_output = scheduler.step(noise_pred, t,
                                              denoised_output).prev_sample
+            if clip_noise:
+                denoised_output = paddle.clip(denoised_output, n_min, n_max)
 
             # call the callback, if provided
             if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and

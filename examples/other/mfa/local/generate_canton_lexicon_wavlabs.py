@@ -1,3 +1,4 @@
+import argparse
 import os
 import re
 import shutil
@@ -34,7 +35,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_lexicon", type=str, help="Path to save lexicon.")
     parser.add_argument(
-        "--output_wavlabs", type=str, help="Path to save lexicon.")
+        "--output_wavlabs",
+        type=str,
+        help="Path of wavs and labs for MFA training.")
     parser.add_argument(
         "--inputs",
         type=str,

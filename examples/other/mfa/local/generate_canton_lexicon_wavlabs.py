@@ -39,11 +39,7 @@ if __name__ == "__main__":
         type=str,
         help="Path of wavs and labs for MFA training.")
     parser.add_argument(
-        "--inputs",
-        type=str,
-        dest="list",
-        nargs="+",
-        help="Path to the cantonese datasets.")
+        "--inputs", type=str, nargs="+", help="Path to the cantonese datasets.")
     args = parser.parse_args()
 
     os.mkdir(args.output_wavlabs)
@@ -51,8 +47,10 @@ if __name__ == "__main__":
     utterance_info = []
     all_canton = []
     for input_ in args.inputs:
-        input_ = os.path.join(input_, "UTTERANCEINFO.txt")
-        with open(input_, 'r') as f:
+        utt = "UTTRANSINFO.txt" if "Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence" in input_ else "UTTERANCEINFO.txt"
+        input_utttxt = os.path.join(input_, utt)
+
+        with open(input_utttxt, 'r') as f:
             utterance_info = f.readlines()[1:]
 
         for utterance_line in utterance_info:

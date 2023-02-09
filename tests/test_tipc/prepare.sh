@@ -73,6 +73,9 @@ if [[ ${MODE} = "benchmark_train" ]];then
         mkdir -p BZNSYP
         unrar x BZNSYP.rar BZNSYP
         wget -nc https://paddlespeech.bj.bcebos.com/Parakeet/benchmark/durations.txt
+        # 避免网络问题导致的 nltk_data 无法下载使程序 hang 住
+        wget -nc https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz
+        tar -xzf nltk_data.tar.gz -C ${HOME}
         # 数据预处理
         python ../paddlespeech/t2s/exps/gan_vocoder/preprocess.py --rootdir=BZNSYP/ --dumpdir=dump --num-cpu=20 --cut-sil=True --dur-file=durations.txt --config=../examples/csmsc/voc1/conf/default.yaml
         python ../utils/compute_statistics.py --metadata=dump/train/raw/metadata.jsonl --field-name="feats"

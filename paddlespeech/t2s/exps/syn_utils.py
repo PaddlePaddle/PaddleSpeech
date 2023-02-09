@@ -106,7 +106,7 @@ def get_chunks(data, block_size: int, pad_size: int):
 def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     # construct dataset for evaluation
     sentences = []
-    with open(text_file, 'rt') as f:
+    with open(text_file, 'rt', encoding='utf-8') as f:
         for line in f:
             if line.strip() != "":
                 items = re.split(r"\s+", line.strip(), 1)
@@ -325,17 +325,17 @@ def get_am_inference(am: str='fastspeech2_csmsc',
                      tones_dict: Optional[os.PathLike]=None,
                      speaker_dict: Optional[os.PathLike]=None,
                      return_am: bool=False):
-    with open(phones_dict, "r") as f:
+    with open(phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     tone_size = None
     if tones_dict is not None:
-        with open(tones_dict, "r") as f:
+        with open(tones_dict, 'rt', encoding='utf-8') as f:
             tone_id = [line.strip().split() for line in f.readlines()]
         tone_size = len(tone_id)
     spk_num = None
     if speaker_dict is not None:
-        with open(speaker_dict, 'rt') as f:
+        with open(speaker_dict, 'rt', encoding='utf-8') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
     odim = am_config.n_mels

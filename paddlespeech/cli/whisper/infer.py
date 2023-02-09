@@ -152,8 +152,7 @@ class WhisperExecutor(BaseExecutor):
         Init model and other resources from a specific path.
         """
         logger.debug("start to init the model")
-        # default max_len: unit:second
-        self.max_len = 50
+
         if hasattr(self, 'model'):
             logger.debug('Model had been initialized.')
             return
@@ -339,12 +338,6 @@ class WhisperExecutor(BaseExecutor):
         try:
             audio, audio_sample_rate = soundfile.read(
                 audio_file, dtype="int16", always_2d=True)
-            audio_duration = audio.shape[0] / audio_sample_rate
-            if audio_duration > self.max_len:
-                logger.error(
-                    f"Please input audio file less then {self.max_len} seconds.\n"
-                )
-                return False
         except Exception as e:
             logger.exception(e)
             logger.error(

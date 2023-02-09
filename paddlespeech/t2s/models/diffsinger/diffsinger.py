@@ -236,8 +236,9 @@ class DiffSinger(nn.Layer):
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
 
         # get the output(final mel) from diffusion module
-        mel = self.diffusion(speech.transpose((0, 2, 1)), cond_fs2.detach())
-        return mel[0], mel_masks
+        mel, mel_ref = self.diffusion(
+            speech.transpose((0, 2, 1)), cond_fs2.detach())
+        return mel, mel_ref, mel_masks
 
     def inference(
             self,
@@ -271,7 +272,8 @@ class DiffSinger(nn.Layer):
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
         # mel, _ = self.diffusion(mel_fs2, cond_fs2)
         noise = paddle.randn(mel_fs2.shape)
-        mel = self.diffusion.inference(noise=noise, cond=cond_fs2, ref_x=mel_fs2, num_inference_steps=100)
+        mel = self.diffusion.inference(
+            noise=noise, cond=cond_fs2, ref_x=mel_fs2, num_inference_steps=100)
         mel = mel.transpose((0, 2, 1))
         return mel[0]
 

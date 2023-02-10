@@ -210,7 +210,7 @@ class DiffSingerEvaluator(StandardEvaluator):
             spk_id = None
 
         # Here show diffsinger eval     
-        mel, mel_masks = self.model(
+        mel, mel_ref, mel_masks = self.model(
             text=batch["text"],
             note=batch["note"],
             note_dur=batch["note_dur"],
@@ -226,9 +226,10 @@ class DiffSingerEvaluator(StandardEvaluator):
             train_fs2=False, )
 
         mel = mel.transpose((0, 2, 1))
+        mel_ref = mel_ref.transpose((0, 2, 1))
         mel_masks = mel_masks.transpose((0, 2, 1))
         l1_loss_ds = self.criterion_ds(
-            ref_mels=batch["speech"],
+            ref_mels=mel_ref,
             out_mels=mel,
             mel_masks=mel_masks, )
         loss_ds = l1_loss_ds

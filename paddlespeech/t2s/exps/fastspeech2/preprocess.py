@@ -54,8 +54,15 @@ def process_sentence(config: Dict[str, Any],
     record = None
     if utt_id in sentences:
         # reading, resampling may occur
-        wav, _ = librosa.load(str(fp), sr=config.fs)
-        if len(wav.shape) != 1:
+        wav, _ = librosa.load(
+            str(fp), sr=config.fs,
+            mono=False) if "canton" in str(fp) else librosa.load(
+                str(fp), sr=config.fs)
+        if len(wav.shape) == 2 and "canton" in str(fp):
+            # Remind that Cantonese datasets should be placed in ~/datasets/canton_all. Otherwise, it may cause problem.
+            wav = wav[0]
+            wav = np.ascontiguousarray(wav)
+        elif len(wav.shape) != 1:
             return record
         max_value = np.abs(wav).max()
         if max_value > 1.0:
@@ -282,7 +289,20 @@ def main():
                 test_wav_files += wav_files[-sub_num_dev:]
             else:
                 train_wav_files += wav_files
-
+    elif args.dataset == "canton":
+        sub_num_dev = 5
+        wav_dir = rootdir / "WAV"
+        train_wav_files = []
+        dev_wav_files = []
+        test_wav_files = []
+        for speaker in os.listdir(wav_dir):
+            wav_files = sorted(list((wav_dir / speaker).rglob("*.wav")))
+            if len(wav_files) > 100:
+                train_wav_files += wav_files[:-sub_num_dev * 2]
+                dev_wav_files += wav_files[-sub_num_dev * 2:-sub_num_dev]
+                test_wav_files += wav_files[-sub_num_dev:]
+            else:
+                train_wav_files += wav_files
     elif args.dataset == "ljspeech":
         wav_files = sorted(list((rootdir / "wavs").rglob("*.wav")))
         # split data into 3 sections

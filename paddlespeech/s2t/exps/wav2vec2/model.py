@@ -29,10 +29,10 @@ from paddle import distributed as dist
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
-from paddlespeech.s2t.models.wav2vec2.io import data_pipeline
-from paddlespeech.s2t.models.wav2vec2.io import dataio
-from paddlespeech.s2t.models.wav2vec2.io import dataset
-from paddlespeech.s2t.models.wav2vec2.io.dataloader import make_dataloader
+from paddlespeech.s2t.io.speechbrain import data_pipeline
+from paddlespeech.s2t.io.speechbrain import dataio
+from paddlespeech.s2t.io.speechbrain import dataset
+from paddlespeech.s2t.io.speechbrain.dataloader import make_dataloader
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
 from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
@@ -138,8 +138,8 @@ class Wav2Vec2ASRTrainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
         self.avg_train_loss = 0.0
-        self.flag = False
-        self.use_sb = True
+        self.loss_isfinite = True  # while flag is 'False', loss in Nan or inf, and can not be avg
+        self.use_sb = True  # whether use speech brain dataloader
 
     def update_average(self, batch_index, loss):
         """Update running average of the loss.
@@ -154,7 +154,7 @@ class Wav2Vec2ASRTrainer(Trainer):
             self.avg_train_loss -= self.avg_train_loss / (batch_index + 1)
             self.avg_train_loss += loss / (batch_index + 1)
         else:
-            self.flag = True
+            self.loss_isfinite = False
             logger.info('loss:{} in Nan or inf, error'.format(loss))
 
     def before_train(self):
@@ -185,6 +185,13 @@ class Wav2Vec2ASRTrainer(Trainer):
             utt, wav, wavs_lens, target, target_lens = batch
             wavs_lens_rate = wavs_lens / wav.shape[1]
             wav = wav[:, :, 0]
+
+        # self.model.eval()  ## 用来测试，设置为eval
+        # wav = paddle.to_tensor(np.load('/ssd1/zhaoxi/workspace/speechbrain/recipes/AISHELL-1/ASR/CTC/wav.npy'))
+        # wavs_lens_rate = paddle.to_tensor(np.load('/ssd1/zhaoxi/workspace/speechbrain/recipes/AISHELL-1/ASR/CTC/wav_lens.npy'))
+        # target = paddle.to_tensor(np.load('/ssd1/zhaoxi/workspace/speechbrain/recipes/AISHELL-1/ASR/CTC/tokens.npy'))
+        # target_lens = paddle.to_tensor(np.load('/ssd1/zhaoxi/workspace/speechbrain/recipes/AISHELL-1/ASR/CTC/tokens_lens.npy'))
+        # target_lens = (target_lens * target.shape[1]).round().astype(paddle.int64)
 
         if hasattr(train_conf, 'audio_augment'):
             wav = self.speech_augmentation(wav, wavs_lens_rate)
@@ -259,21 +266,23 @@ class Wav2Vec2ASRTrainer(Trainer):
                 f"Valid Total Examples: {len(self.valid_loader.dataset)}")
         valid_losses = {}
         step = 0
-        self.avg_train_loss = 0.0
+        total_loss = 0.0
+        num_seen_utts = 1  # use update_average and no need for num_seen_utts here
         for i, batch in enumerate(self.valid_loader):
             if self.use_sb:
                 wav, wavs_lens_rate = batch['sig']
                 target, target_lens_rate = batch['tokens']
                 target_lens = (target_lens_rate *
                                target.shape[1]).round().astype(paddle.int64)
-
             else:
                 utt, wav, wavs_lens, target, target_lens = batch
                 wavs_lens_rate = wavs_lens / wav.shape[1]
                 wav = wav[:, :, 0]
 
             loss = self.model(wav, wavs_lens_rate, target, target_lens)
-            self.update_average(step, loss)
+            # use update_average
+            total_loss -= total_loss / (step + 1)
+            total_loss += loss / (step + 1)
 
             if math.isfinite(float(loss)):
                 step += 1
@@ -282,7 +291,7 @@ class Wav2Vec2ASRTrainer(Trainer):
                 logger.info('loss:{} in Nan or inf, error'.format(float(loss)))
 
             if (i + 1) % self.config.log_interval == 0:
-                valid_losses['val_history_loss'] = float(self.avg_train_loss)
+                valid_losses['val_history_loss'] = float(total_loss)
 
                 # logging
                 msg = f"Valid: Rank: {dist.get_rank()}, "
@@ -295,9 +304,9 @@ class Wav2Vec2ASRTrainer(Trainer):
                                  for k, v in valid_losses.items())
                 logger.info(msg)
 
-        logger.info('Rank {} Val info val_loss {}'.format(dist.get_rank(),
-                                                          self.avg_train_loss))
-        return self.avg_train_loss
+        logger.info(
+            'Rank {} Val info val_loss {}'.format(dist.get_rank(), total_loss))
+        return total_loss, num_seen_utts
 
     @mp_tools.rank_zero_only
     def save(self, tag=None, infos: dict=None):
@@ -345,7 +354,7 @@ class Wav2Vec2ASRTrainer(Trainer):
             logger.info("Saved scheduler state to {}".format(scheduler_path))
         info_path = re.sub('.pdparams$', '.json', params_path)
         infos = {} if infos is None else infos
-        with open(info_path, 'w') as fout:
+        with open(info_path, 'w', encoding='utf8') as fout:
             data = json.dumps(infos)
             fout.write(data)
 
@@ -362,7 +371,7 @@ class Wav2Vec2ASRTrainer(Trainer):
             # lr will resotre from optimizer ckpt
             resume_json_path = os.path.join(self.checkpoint_dir,
                                             self.args.resume + '.json')
-            with open(resume_json_path, 'r') as f:
+            with open(resume_json_path, 'r', encoding='utf8') as f:
                 resume_json = json.load(f)
             self.iteration = 0
             self.epoch = resume_json["epoch"]
@@ -454,9 +463,16 @@ class Wav2Vec2ASRTrainer(Trainer):
                     logger.error(e)
                     raise e
             with Timer("Eval Time Cost: {}"):
-                avg_train_loss = self.avg_train_loss
-                avg_valid_loss = self.valid()
-                cv_loss = float(avg_valid_loss)
+                total_loss, num_seen_utts = self.valid()
+                if dist.get_world_size() > 1:
+                    num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    dist.all_reduce(num_seen_utts)
+                    total_loss = paddle.to_tensor(total_loss)
+                    dist.all_reduce(total_loss)
+                    cv_loss = total_loss / num_seen_utts
+                    cv_loss = float(cv_loss)
+                else:
+                    cv_loss = float(total_loss)
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
             if self.visualizer:
@@ -586,7 +602,7 @@ class Wav2Vec2ASRTrainer(Trainer):
         self.use_sb = config.use_sb_pipeline
         if self.use_sb:
             hparams_file = config.sb_pipeline_conf
-            with open(hparams_file) as fin:
+            with open(hparams_file, 'r', encoding='utf8') as fin:
                 hparams = load_hyperpyyaml(fin, None)
 
             (train_data, valid_data, test_data, tokenizer, train_bsampler,
@@ -858,7 +874,8 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
         vocab_list = self.vocab_list
         decode_batch_size = decode_cfg.decode_batch_size
 
-        with jsonlines.open(self.args.result_file, 'w') as fout:
+        with jsonlines.open(
+                self.args.result_file, 'w', encoding='utf8') as fout:
             for i, batch in enumerate(self.test_loader):
                 if self.use_sb:
                     metrics = self.sb_compute_metrics(**batch, fout=fout)
@@ -885,7 +902,7 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
 
         err_meta_path = os.path.splitext(self.args.result_file)[0] + '.err'
         err_type_str = "{}".format(error_rate_type)
-        with open(err_meta_path, 'w') as f:
+        with open(err_meta_path, 'w', encoding='utf8') as f:
             data = json.dumps({
                 "epoch":
                 self.epoch,

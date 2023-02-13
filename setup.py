@@ -75,6 +75,8 @@ base = [
     "pyyaml",
     "paddleslim>=2.3.4",
     "paddleaudio>=1.0.2",
+    "hyperpyyaml",
+    "transformers",
 ]
 
 server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
@@ -300,7 +302,8 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(include=['paddlespeech*'], exclude=['utils', 'third_party']),
+    packages=find_packages(
+        include=['paddlespeech*'], exclude=['utils', 'third_party']),
     zip_safe=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

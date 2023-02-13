@@ -35,9 +35,9 @@ data_folder: data/aishell # e,g./path/to/aishell
 
 skip_prep: False
 ckpt_interval_minutes: 15 # save checkpoint every N min
-train_data: !ref <output_folder>/train.csv
-valid_data: !ref <output_folder>/dev.csv
-test_data: !ref <output_folder>/test.csv
+train_data: !ref <output_folder>/small/train.csv
+valid_data: !ref <output_folder>/small/dev.csv
+test_data: !ref <output_folder>/small/test.csv
 
 wav2vec2_hub: TencentGameMate/chinese-wav2vec2-large
 
@@ -52,8 +52,8 @@ sample_rate: 16000
 # With data_parallel batch_size is split into N jobs
 # With DDP batch_size is multiplied by N jobs
 # Must be 8 per GPU to fit 32GB of VRAM
-batch_size: 1
-test_batch_size: 1
+batch_size: 5
+test_batch_size: 1 # need set to 1 when decoding
 
 dynamic_batching: False
 dynamic_batch_sampler:

@@ -32,8 +32,7 @@ spec_augment:
   freq_mask_width: 30
   time_mask_width: 40
 wav2vec2_params_path: exp/wav2vec2/chinese-wav2vec2-large.pdparams
-use_sb_pipeline: True  # whether use speechbrain pipeline. Default is True.
-sb_pipeline_conf: conf/train_with_wav2vec.yaml
+
 
 ############################################
 #               Wav2Vec2.0                 #
@@ -111,7 +110,7 @@ unit_type: 'char'
 mean_std_filepath: 
 preprocess_config: conf/preprocess.yaml
 sortagrad: -1 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
-batch_size: 1  # Different batch_size may cause large differences in results
+batch_size: 5  # Different batch_size may cause large differences in results
 maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
 maxlen_out: 1500000  # if output length > maxlen-out batchsize is automatically reduced
 minibatches: 0 # for debug
@@ -126,7 +125,12 @@ num_encs: 1
 dist_sampler: True
 shortest_first: True
 return_lens_rate: True
-  
+
+###########################################
+#        use speechbrain dataloader       #
+###########################################
+use_sb_pipeline: True  # whether use speechbrain pipeline. Default is True.
+sb_pipeline_conf: conf/train_with_wav2vec.yaml
 
 ###########################################
 #                 Training                #

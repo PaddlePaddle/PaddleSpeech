@@ -1,11 +1,8 @@
 # FastSpeech2 with Cantonese language
-This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2006.04558) model with [Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/) and [Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-in-the-vehicle/).
 
-
-fastspeech2 model here.
 ## Dataset
 ### Download and Extract
-If you don't have the Cantonese datasets mentioned above, please download [Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/) and [Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-in-the-vehicle/) under `~/datasets/`.
+If you don't have the Cantonese datasets mentioned above, please download and unzip  [Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/) and [Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-in-the-vehicle/) under `~/datasets/`.
 
 To obtain better performance, please combine these two datasets together as follows:
 
@@ -16,6 +13,7 @@ cp -r ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle/WAV/* ~/d
 ```
 
 After that, it should be look like:
+`
 ~/datasets/canton_all_
 │   └── WAV
 │       └──G0001
@@ -23,10 +21,10 @@ After that, it should be look like:
 │       ...
 │       └──G0071
 │       └──G0072
-
+`
  
 ### Get MFA Result and Extract
-We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
+We use [MFA1.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for canton_fastspeech2.
 You can train your MFA model reference to [canton_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 We here provide the MFA results of these two datasets. [canton_mfa_results](https://paddlespeech.bj.bcebos.com/MFA/Canton/canton_alignment.zip)
 

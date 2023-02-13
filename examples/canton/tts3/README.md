@@ -13,8 +13,8 @@ cp -r ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle/WAV/* ~/d
 ```
 
 After that, it should be look like:
-`
-```~/datasets/canton_all_
+```
+~/datasets/canton_all_
 │   └── WAV
 │       └──G0001
 │       └──G0002
@@ -22,7 +22,6 @@ After that, it should be look like:
 │       └──G0071
 │       └──G0072
 ```
-`
 
 
 ### Get MFA Result and Extract

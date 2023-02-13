@@ -59,11 +59,14 @@ if __name__ == "__main__":
             # check the characters and drop the short text.
             if not check(text) and len(text) > 2:
                 source_path = os.path.join(input_, 'WAV', spk, wav_name)
-                target_path = os.path.join(args.output_wavlabs, wav_name)
+                out_spk_path = os.path.join(args.output_wavlabs, spk)
+                os.makedirs(out_spk_path, exist_ok=True)
+                target_path = os.path.join(out_spk_path, wav_name)
+
                 shutil.copy(source_path, target_path)
 
                 lab_name = wav_name.split('.')[0] + '.lab'
-                lab_target_path = os.path.join(args.output_wavlabs, lab_name)
+                lab_target_path = os.path.join(out_spk_path, lab_name)
                 canton_list = ToJyutping.get_jyutping_text(text)
                 with open(lab_target_path, 'w') as f:
                     f.write(canton_list)

@@ -28,6 +28,7 @@ After that, it should be look like:
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
 You can train your MFA model reference to [canton_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+We here provide the MFA results of these two datasets. [canton_mfa_results](https://paddlespeech.bj.bcebos.com/MFA/Canton/canton_alignment.zip)
 
 ## Get Started
 Assume the path to the Cantonese MFA result of the two datsets mentioned above is `./canton_alignment`.

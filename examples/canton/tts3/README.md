@@ -14,15 +14,17 @@ cp -r ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle/WAV/* ~/d
 
 After that, it should be look like:
 `
-~/datasets/canton_all_
+```~/datasets/canton_all_
 │   └── WAV
 │       └──G0001
 │       └──G0002
 │       ...
 │       └──G0071
 │       └──G0072
+```
 `
- 
+
+
 ### Get MFA Result and Extract
 We use [MFA1.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for canton_fastspeech2.
 You can train your MFA model reference to [canton_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.

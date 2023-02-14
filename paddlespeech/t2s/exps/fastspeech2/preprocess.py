@@ -109,6 +109,8 @@ def process_sentence(config: Dict[str, Any],
         np.save(mel_path, logmel)
         # extract pitch and energy
         f0 = pitch_extractor.get_pitch(wav, duration=np.array(durations))
+        if (f0 == 0).all():
+            return None
         assert f0.shape[0] == len(durations)
         f0_dir = output_dir / "data_pitch"
         f0_dir.mkdir(parents=True, exist_ok=True)

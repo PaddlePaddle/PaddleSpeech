@@ -102,7 +102,7 @@ class Pitch():
 
     def _convert_to_continuous_f0(self, f0: np.ndarray) -> np.ndarray:
         if (f0 == 0).all():
-            print("All frames seems to be unvoiced.")
+            print("All frames seems to be unvoiced, this utt will be removed.")
             return f0
 
         # padding start and end of f0 sequence

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-stage=1
+stage=0
 stop_stage=100
 
 config_path=$1

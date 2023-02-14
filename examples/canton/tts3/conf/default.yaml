@@ -16,6 +16,9 @@ fmax: 7600         # Maximum frequency of Mel basis.
 n_mels: 80         # The number of mel basis.
 
 # Only used for the model using pitch features (e.g. FastSpeech2)
+# The canton datasets we use are different from others like Databaker or LJSpeech, 
+# we set it to 110 to avoid too many zero-pitch problem. 
+# Reference: https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder/issues/38
 f0min: 110          # Minimum f0 for pitch extraction.
 f0max: 400         # Maximum f0 for pitch extraction.
 

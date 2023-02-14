@@ -14,7 +14,7 @@ cp -r ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle/WAV/* ~/d
 
 After that, it should be look like:
 ```
-~/datasets/canton_all_
+~/datasets/canton_all
 │   └── WAV
 │       └──G0001
 │       └──G0002
@@ -72,7 +72,7 @@ The dataset is split into 3 parts, namely `train`, `dev`, and` test`, each of wh
 
 Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file that contains phones, text_lengths, speech_lengths, durations, the path of speech features, the path of pitch features, a path of energy features, speaker, and id of each utterance.
 
-### Training details can refer to the script of examples/aishell3/tts3.
+### Training details can refer to the script of [examples/aishell3/tts3](../../aishell3/tts3).
 
 ## Pretrained Model(Waiting========)
 Pretrained FastSpeech2 model with no silence in the edge of audios:

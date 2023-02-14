@@ -58,6 +58,7 @@ base = [
     "sacrebleu",
     "textgrid",
     "timer",
+    "ToJyutping",
     "typeguard",
     "webrtcvad",
     "yacs~=0.1.8",
@@ -294,7 +295,8 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(include=['paddlespeech*'], exclude=['utils', 'third_party']),
+    packages=find_packages(
+        include=['paddlespeech*'], exclude=['utils', 'third_party']),
     zip_safe=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

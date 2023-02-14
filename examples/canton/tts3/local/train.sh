@@ -1,1 +1,1 @@
-../../../csmsc/tts3/local/train.sh
+../../../aishell3/tts3/local/train.sh

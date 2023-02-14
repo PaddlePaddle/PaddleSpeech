@@ -32,7 +32,6 @@ pyworld>=0.2.12
 recommonmark>=0.5.0
 resampy
 sacrebleu
-shutil
 sphinx
 sphinx-autobuild
 sphinx-markdown-tables

@@ -992,7 +992,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 - 非常感谢 [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) 对 PaddleSpeech 的 ASR 进行 C++ 推理实现。
 - 非常感谢 [heyudage](https://github.com/heyudage)/[VoiceTyping](https://github.com/heyudage/VoiceTyping) 基于 PaddleSpeech 的 ASR 流式服务实现的实时语音输入法工具。
 - 非常感谢 [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) 对PaddleSpeech在Windows下的安装提供了无需Visua Studio，基于python3.9的预编译依赖安装包。
-- 非常感谢 [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) 利用FastAPI  实现PaddleSpeech语音转文字，文件上传、分割、转换进度显示、后台更新任务并以csv格式输出。
+- 非常感谢 [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) 利用 FastAPI 实现 PaddleSpeech 语音转文字，文件上传、分割、转换进度显示、后台更新任务并以 csv 格式输出。
 
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

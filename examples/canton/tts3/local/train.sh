@@ -1,0 +1,1 @@
+../../../aishell3/tts3/local/train.sh

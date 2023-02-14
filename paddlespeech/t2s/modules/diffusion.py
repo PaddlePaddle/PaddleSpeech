@@ -372,11 +372,9 @@ class GaussianDiffusion(nn.Layer):
                 The noises which is added to the input.
 
         """
-        # print("xxxxxxxxxxxxxxxx1: ", x, x.shape)
         x = x.transpose((0, 2, 1))
         x = self.norm_spec(x)
         x = x.transpose((0, 2, 1))
-        print("xxxxxxxxxxxxxxxx2: ", x, x.shape)
         noise_scheduler = self.noise_scheduler
 
         # Sample noise that we'll add to the mel-spectrograms
@@ -411,7 +409,7 @@ class GaussianDiffusion(nn.Layer):
                   num_inference_steps: Optional[int]=1000,
                   strength: Optional[float]=None,
                   scheduler_type: Optional[str]="ddpm",
-                  clip_noise: Optional[bool]=False,
+                  clip_noise: Optional[bool]=True,
                   clip_noise_range: Optional[Tuple[float, float]]=(-1, 1),
                   callback: Optional[Callable[[int, int, int, paddle.Tensor],
                                               None]]=None,

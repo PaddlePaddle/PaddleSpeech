@@ -112,8 +112,6 @@ class OptimizerFactory():
         module_class = dynamic_import_optimizer(name.lower())
         args.update({"grad_clip": grad_clip, "weight_decay": weight_decay})
         opt = instance_class(module_class, args)
-        #print all param
-        #logger.info(f"args_len: {len(args['parameters'])}")
         if "__repr__" in vars(opt):
             logger.info(f"{opt}")
         else:

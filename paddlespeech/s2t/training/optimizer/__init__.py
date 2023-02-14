@@ -19,7 +19,6 @@ from typing import Text
 import paddle
 from paddle.optimizer import Optimizer
 from paddle.regularizer import L2Decay
-
 from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.dynamic_import import instance_class
@@ -113,6 +112,8 @@ class OptimizerFactory():
         module_class = dynamic_import_optimizer(name.lower())
         args.update({"grad_clip": grad_clip, "weight_decay": weight_decay})
         opt = instance_class(module_class, args)
+        #print all param
+        #logger.info(f"args_len: {len(args['parameters'])}")
         if "__repr__" in vars(opt):
             logger.info(f"{opt}")
         else:

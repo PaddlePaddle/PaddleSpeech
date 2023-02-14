@@ -270,10 +270,10 @@ class DiffSinger(nn.Layer):
         mel_fs2 = mel_fs2.unsqueeze(0).transpose((0, 2, 1))
         cond_fs2 = self.fs2.encoder_infer(text, note, note_dur, is_slur)
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
-        # mel, _ = self.diffusion(mel_fs2, cond_fs2)
-        noise = paddle.randn(mel_fs2.shape)
-        mel = self.diffusion.inference(
-            noise=noise, cond=cond_fs2, ref_x=mel_fs2, num_inference_steps=100)
+        mel, _ = self.diffusion(mel_fs2, cond_fs2)
+        # noise = paddle.randn(mel_fs2.shape)
+        # mel = self.diffusion.inference(
+        #     noise=noise, cond=cond_fs2, ref_x=mel_fs2, num_inference_steps=100)
         mel = mel.transpose((0, 2, 1))
         return mel[0]
 

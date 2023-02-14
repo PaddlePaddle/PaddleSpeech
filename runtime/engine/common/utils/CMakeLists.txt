@@ -3,6 +3,7 @@ add_library(utils
   file_utils.cc
   math.cc
   strings.cc
+  audio_process.cc
 )
 
 

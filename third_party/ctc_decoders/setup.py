@@ -129,7 +129,7 @@ decoders_module = [
 
 setup(
     name='paddlespeech_ctcdecoders',
-    version='0.2.0',
+    version='0.2.2',
     description="CTC decoders in paddlespeech",
     author="PaddlePaddle Speech and Language Team",
     author_email="paddlesl@baidu.com",

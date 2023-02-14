@@ -58,6 +58,7 @@ base = [
     "sacrebleu",
     "textgrid",
     "timer",
+    "ToJyutping",
     "typeguard",
     "webrtcvad",
     "yacs~=0.1.8",
@@ -67,7 +68,8 @@ base = [
     "pyyaml",
     "paddleslim>=2.3.4",
     "paddleaudio>=1.1.0",
-    "ToJyutping",
+    "hyperpyyaml",
+    "transformers",
 ]
 
 server = ["pattern_singleton", "websockets"]

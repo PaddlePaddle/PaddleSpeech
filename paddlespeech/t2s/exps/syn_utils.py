@@ -33,6 +33,7 @@ from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
 from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.canton_frontend import CantonFrontend
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
@@ -117,6 +118,8 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
                     sentence = " ".join(items[1:])
                 elif lang == 'mix':
                     sentence = " ".join(items[1:])
+                elif lang == 'canton':
+                    sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
     return sentences
 
@@ -132,8 +135,8 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             fields += ["spk_id"]
         elif voice_cloning:
@@ -177,8 +180,8 @@ def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
     converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             collate_fn = fastspeech2_multi_spk_batch_fn_static
             fields += ["spk_id"]
@@ -266,6 +269,8 @@ def get_frontend(lang: str='zh',
             phone_vocab_path=phones_dict,
             tone_vocab_path=tones_dict,
             use_rhy=use_rhy)
+    if lang == 'canton':
+        frontend = CantonFrontend(phone_vocab_path=phones_dict)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
     elif lang == 'mix':
@@ -302,6 +307,10 @@ def run_frontend(frontend: object,
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]
             outs.update({'tone_ids': tone_ids})
+    if lang == 'canton':
+        input_ids = frontend.get_input_ids(
+            text, merge_sentences=merge_sentences, to_tensor=to_tensor)
+        phone_ids = input_ids["phone_ids"]
     elif lang == 'en':
         input_ids = frontend.get_input_ids(
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
@@ -311,7 +320,7 @@ def run_frontend(frontend: object,
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
     else:
-        print("lang should in {'zh', 'en', 'mix'}!")
+        print("lang should in {'zh', 'en', 'mix', 'canton'}!")
     outs.update({'phone_ids': phone_ids})
     return outs
 
@@ -411,8 +420,8 @@ def am_to_static(am_inference,
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     if am_name == 'fastspeech2':
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -424,8 +433,8 @@ def am_to_static(am_inference,
                 am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
     elif am_name == 'speedyspeech':
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -575,7 +584,7 @@ def get_am_output(
     get_tone_ids = False
     if am_name == 'speedyspeech':
         get_tone_ids = True
-    if am_dataset in {"aishell3", "vctk", "mix"} and speaker_dict:
+    if am_dataset in {"aishell3", "vctk", "mix", "canton"} and speaker_dict:
         get_spk_id = True
         spk_id = np.array([spk_id])
 

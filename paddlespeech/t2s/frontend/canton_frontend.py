@@ -27,7 +27,7 @@ INITIALS = [
 INITIALS += ['sp', 'spl', 'spn', 'sil']
 
 
-def get_lines(cantons):
+def get_lines(cantons: List[str]):
     phones = []
     for canton in cantons:
         for consonant in INITIALS:

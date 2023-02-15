@@ -112,13 +112,11 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
             if line.strip() != "":
                 items = re.split(r"\s+", line.strip(), 1)
                 utt_id = items[0]
-                if lang == 'zh':
+                if lang == 'zh' or lang == 'canton':
                     sentence = "".join(items[1:])
                 elif lang == 'en':
                     sentence = " ".join(items[1:])
                 elif lang == 'mix':
-                    sentence = " ".join(items[1:])
-                elif lang == 'canton':
                     sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
     return sentences
@@ -269,7 +267,7 @@ def get_frontend(lang: str='zh',
             phone_vocab_path=phones_dict,
             tone_vocab_path=tones_dict,
             use_rhy=use_rhy)
-    if lang == 'canton':
+    elif lang == 'canton':
         frontend = CantonFrontend(phone_vocab_path=phones_dict)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
@@ -307,7 +305,7 @@ def run_frontend(frontend: object,
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]
             outs.update({'tone_ids': tone_ids})
-    if lang == 'canton':
+    elif lang == 'canton':
         input_ids = frontend.get_input_ids(
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]

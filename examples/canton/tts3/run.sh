@@ -9,6 +9,7 @@ stop_stage=100
 
 conf_path=conf/default.yaml
 train_output_path=exp/default
+
 ckpt_name=snapshot_iter_280000.pdz
 
 # with the following command, you can choose the stage range you want to run

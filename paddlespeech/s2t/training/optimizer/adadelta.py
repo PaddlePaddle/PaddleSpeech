@@ -11,18 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from collections import defaultdict
-
 import paddle
-from paddle import _C_ops
-from paddle import _legacy_C_ops
-from paddle.fluid import core
-from paddle.fluid import framework
-from paddle.fluid.dygraph import base as imperative_base
-from paddle.fluid.dygraph import no_grad
-from paddle.fluid.framework import name_scope
-from paddle.fluid.framework import Variable
-from paddle.framework import in_dygraph_mode
 from paddle.optimizer import Optimizer
 
 __all__ = []
@@ -62,9 +51,9 @@ class SimpleAdadelta(Optimizer):
             If a parameter has set regularizer using :ref:`api_fluid_ParamAttr` already, \
             the regularization setting here in optimizer will be ignored for this parameter. \
             Otherwise, the regularization setting here in optimizer will take effect. \
-            Default None, meaning there is no regularization. 
+            Default None, meaning there is no regularization.
         foreach (bool, optional): whether foreach implementation of optimizer is used. The default value is None.
-        maximize (bool, optional): maximize the params based on the objective, instead of minimizing. 
+        maximize (bool, optional): maximize the params based on the objective, instead of minimizing.
             The default value is False.
         name (str, optional): The default value is None. Normally there is no need for user
                 to set this property. For more information, please refer to
@@ -72,7 +61,7 @@ class SimpleAdadelta(Optimizer):
 
     Examples:
         .. code-block:: python
-	
+
             import paddle
             from paddlespeech.s2t.training.optimizer.adadelta import SimpleAdadelta
 
@@ -120,8 +109,7 @@ class SimpleAdadelta(Optimizer):
         self.square_avgs = []
         self.acc_deltas = []
 
-    @imperative_base.no_grad
-    @framework.dygraph_only
+    @paddle.no_grad()
     def step(self):
         """Performs a single optimization step.
 
@@ -173,19 +161,16 @@ class SimpleAdadelta(Optimizer):
             maximize=self._maximize)
 
 
-def adadelta(
-        params_grads,
-        square_avgs,
-        acc_deltas,
-        # kwonly args with defaults are not supported by functions compiled with torchscript issue #70627
-        # setting this as kwarg for now as functional API is compiled by torch/distributed/optim
-        foreach=None,
-        *,
-        learning_rate: float,
-        rho: float,
-        epsilon: float,
-        weight_decay: float,
-        maximize: bool):
+def adadelta(params_grads,
+             square_avgs,
+             acc_deltas,
+             foreach=None,
+             *,
+             learning_rate: float,
+             rho: float,
+             epsilon: float,
+             weight_decay: float,
+             maximize: bool):
 
     if foreach is None:
         # if foreach is None, set False

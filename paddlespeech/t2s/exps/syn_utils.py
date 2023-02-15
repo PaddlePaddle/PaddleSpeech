@@ -112,7 +112,7 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
             if line.strip() != "":
                 items = re.split(r"\s+", line.strip(), 1)
                 utt_id = items[0]
-                if lang == 'zh' or lang == 'canton':
+                if if lang in {'zh', 'canton'}:
                     sentence = "".join(items[1:])
                 elif lang == 'en':
                     sentence = " ".join(items[1:])

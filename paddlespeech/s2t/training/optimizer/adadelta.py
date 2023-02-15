@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import paddle
+from paddle.fluid import framework
 from paddle.optimizer import Optimizer
 
 __all__ = []
@@ -110,6 +111,7 @@ class SimpleAdadelta(Optimizer):
         self.acc_deltas = []
 
     @paddle.no_grad()
+    @framework.dygraph_only
     def step(self):
         """Performs a single optimization step.
 

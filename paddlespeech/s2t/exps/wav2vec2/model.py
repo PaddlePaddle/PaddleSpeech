@@ -23,9 +23,9 @@ from contextlib import nullcontext
 import jsonlines
 import numpy as np
 import paddle
-import transformers
 from hyperpyyaml import load_hyperpyyaml
 from paddle import distributed as dist
+from paddlenlp.transformers import AutoTokenizer
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
@@ -530,8 +530,7 @@ class Wav2Vec2ASRTrainer(Trainer):
         datasets = [train_data, valid_data, test_data]
 
         # Defining tokenizer and loading it
-        tokenizer = transformers.BertTokenizer.from_pretrained(
-            'bert-base-chinese')
+        tokenizer = AutoTokenizer.from_pretrained('bert-base-chinese')
         self.tokenizer = tokenizer
         # 2. Define audio pipeline:
         @data_pipeline.takes("wav")
@@ -867,8 +866,7 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
         vocab_list = self.vocab_list
         decode_batch_size = decode_cfg.decode_batch_size
 
-        with jsonlines.open(
-                self.args.result_file, 'w', encoding='utf8') as fout:
+        with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
                 if self.use_sb:
                     metrics = self.sb_compute_metrics(**batch, fout=fout)

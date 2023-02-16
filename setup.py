@@ -69,7 +69,6 @@ base = [
     "paddleslim>=2.3.4",
     "paddleaudio>=1.1.0",
     "hyperpyyaml",
-    "transformers",
 ]
 
 server = ["pattern_singleton", "websockets"]

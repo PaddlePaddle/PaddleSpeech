@@ -99,7 +99,7 @@ FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=fastspeech2_aishell3 \
   --am_config=fastspeech2_canton_ckpt_1.4.0/default.yaml \
-  --am_ckpt=fastspeech2_canton_ckpt_1.4.0/snapshot_iter_96400.pdz \
+  --am_ckpt=fastspeech2_canton_ckpt_1.4.0/snapshot_iter_140000.pdz \
   --am_stat=fastspeech2_canton_ckpt_1.4.0/speech_stats.npy \
   --voc=pwgan_aishell3 \
   --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \

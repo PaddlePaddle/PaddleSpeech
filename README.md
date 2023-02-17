@@ -171,7 +171,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
-- 🎉 2023.02.16: Add [Cantonese TTS](./examples/canton/tts3)
+- 🎉 2023.02.16: Add [Cantonese TTS](./examples/canton/tts3).
 - 🔥 2023.01.10: Add [code-switch asr CLI and Demos](./demos/speech_recognition).
 - 👑 2023.01.06: Add [code-switch asr tal_cs recipe](./examples/tal_cs/asr1/).
 - 🎉 2022.12.02: Add [end-to-end Prosody Prediction pipeline](./examples/csmsc/tts3_rhy) (including using prosody labels in Acoustic Model).

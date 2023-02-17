@@ -90,6 +90,12 @@ fastspeech2_canton_ckpt_1.4.0
 ├── speaker_id_map.txt      # speaker id map file when training a multi-speaker fastspeech2
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
 ```
+We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
+Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+```bash
+unzip pwg_aishell3_ckpt_0.5.zip
+```
+
 You can use the following scripts to synthesize for `${BIN_DIR}/../sentences_canton.txt` using pretrained fastspeech2 and parallel wavegan models.
 ```bash
 source path.sh

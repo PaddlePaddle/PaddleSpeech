@@ -122,6 +122,20 @@
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
+    <tr>
+      <td>大家好，我是 parrot 虚拟老师，我们来读一首诗，我与春风皆过客，I and the spring breeze are passing by，你携秋水揽星河，you take the autumn water to take the galaxy。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/labixiaoxin.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td>宜家唔系事必要你讲，但系你所讲嘅说话将会变成呈堂证供。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/chengtangzhenggong.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
   </tbody>
 </table>
 

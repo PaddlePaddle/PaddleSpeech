@@ -139,7 +139,7 @@ out=':'.join([libs_dir, fluid_dir]); print(out); \
     OUTPUT_VARIABLE PADDLE_LIB_DIRS)
 message(STATUS PADDLE_LIB_DIRS= ${PADDLE_LIB_DIRS})
 
-
+add_compile_options(-fPIC)
 ###############################################################################
 # Add local library
 ###############################################################################

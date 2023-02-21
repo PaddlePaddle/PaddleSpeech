@@ -33,6 +33,7 @@ from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
 from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.canton_frontend import CantonFrontend
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
@@ -106,12 +107,12 @@ def get_chunks(data, block_size: int, pad_size: int):
 def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     # construct dataset for evaluation
     sentences = []
-    with open(text_file, 'rt') as f:
+    with open(text_file, 'rt', encoding='utf-8') as f:
         for line in f:
             if line.strip() != "":
                 items = re.split(r"\s+", line.strip(), 1)
                 utt_id = items[0]
-                if lang == 'zh':
+                if lang in {'zh', 'canton'}:
                     sentence = "".join(items[1:])
                 elif lang == 'en':
                     sentence = " ".join(items[1:])
@@ -132,8 +133,8 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             fields += ["spk_id"]
         elif voice_cloning:
@@ -177,8 +178,8 @@ def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
     converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             collate_fn = fastspeech2_multi_spk_batch_fn_static
             fields += ["spk_id"]
@@ -266,6 +267,8 @@ def get_frontend(lang: str='zh',
             phone_vocab_path=phones_dict,
             tone_vocab_path=tones_dict,
             use_rhy=use_rhy)
+    elif lang == 'canton':
+        frontend = CantonFrontend(phone_vocab_path=phones_dict)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
     elif lang == 'mix':
@@ -302,6 +305,10 @@ def run_frontend(frontend: object,
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]
             outs.update({'tone_ids': tone_ids})
+    elif lang == 'canton':
+        input_ids = frontend.get_input_ids(
+            text, merge_sentences=merge_sentences, to_tensor=to_tensor)
+        phone_ids = input_ids["phone_ids"]
     elif lang == 'en':
         input_ids = frontend.get_input_ids(
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
@@ -311,7 +318,7 @@ def run_frontend(frontend: object,
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
     else:
-        print("lang should in {'zh', 'en', 'mix'}!")
+        print("lang should in {'zh', 'en', 'mix', 'canton'}!")
     outs.update({'phone_ids': phone_ids})
     return outs
 
@@ -325,17 +332,17 @@ def get_am_inference(am: str='fastspeech2_csmsc',
                      tones_dict: Optional[os.PathLike]=None,
                      speaker_dict: Optional[os.PathLike]=None,
                      return_am: bool=False):
-    with open(phones_dict, "r") as f:
+    with open(phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     tone_size = None
     if tones_dict is not None:
-        with open(tones_dict, "r") as f:
+        with open(tones_dict, 'rt', encoding='utf-8') as f:
             tone_id = [line.strip().split() for line in f.readlines()]
         tone_size = len(tone_id)
     spk_num = None
     if speaker_dict is not None:
-        with open(speaker_dict, 'rt') as f:
+        with open(speaker_dict, 'rt', encoding='utf-8') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
     odim = am_config.n_mels
@@ -411,8 +418,8 @@ def am_to_static(am_inference,
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     if am_name == 'fastspeech2':
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -424,8 +431,8 @@ def am_to_static(am_inference,
                 am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
     elif am_name == 'speedyspeech':
-        if am_dataset in {"aishell3", "vctk",
-                          "mix"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk", "mix",
+                          "canton"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -575,7 +582,7 @@ def get_am_output(
     get_tone_ids = False
     if am_name == 'speedyspeech':
         get_tone_ids = True
-    if am_dataset in {"aishell3", "vctk", "mix"} and speaker_dict:
+    if am_dataset in {"aishell3", "vctk", "mix", "canton"} and speaker_dict:
         get_spk_id = True
         spk_id = np.array([spk_id])
 

@@ -122,6 +122,20 @@
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
+    <tr>
+      <td>大家好，我是 parrot 虚拟老师，我们来读一首诗，我与春风皆过客，I and the spring breeze are passing by，你携秋水揽星河，you take the autumn water to take the galaxy。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/labixiaoxin.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td>宜家唔系事必要你讲，但系你所讲嘅说话将会变成呈堂证供。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/chengtangzhenggong.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -161,20 +175,19 @@
   - 🔬 主流模型及数据集: 本工具包实现了参与整条语音任务流水线的各个模块，并且采用了主流数据集如 LibriSpeech、LJSpeech、AIShell、CSMSC，详情请见 [模型列表](#model-list)。
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
-
-  
 ### 近期更新
-- 🔥 2022.01.10: 新增 [中英混合 ASR CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_recognition).
-- 👑 2022.01.06: 新增 [ASR中英混合 tal_cs 训练推理流程](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/tal_cs/asr1/).
-- 🎉 2022.12.02: 新增 [端到端韵律预测全流程](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3_rhy) (包含在声学模型中使用韵律标签)。
-- 🎉 2022.11.30: 新增 [TTS Android 部署示例](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/TTSAndroid)。
+- 🎉 2023.02.16: 新增[粤语语音合成](./examples/canton/tts3)。
+- 🔥 2023.01.10: 新增[中英混合 ASR CLI 和 Demos](./demos/speech_recognition)。
+- 👑 2023.01.06: 新增 [ASR 中英混合 tal_cs 训练推理流程](./examples/tal_cs/asr1/)。
+- 🎉 2022.12.02: 新增[端到端韵律预测全流程](./examples/csmsc/tts3_rhy) (包含在声学模型中使用韵律标签)。
+- 🎉 2022.11.30: 新增 [TTS Android 部署示例](./demos/TTSAndroid)。
 - 🤗 2022.11.28: PP-TTS and PP-ASR 示例可在 [AIStudio](https://aistudio.baidu.com/aistudio/modelsoverview) 和[飞桨官网](https://www.paddlepaddle.org.cn/models)体验！
 - 👑 2022.11.18: 新增 [Whisper CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/pull/2640), 支持多种语言的识别与翻译。
-- 🔥 2022.11.18: 新增 [Wav2vec2 CLI 和 Demos](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_ssl), 支持 ASR 和 特征提取.
+- 🔥 2022.11.18: 新增 [Wav2vec2 CLI 和 Demos](./demos/speech_ssl), 支持 ASR 和特征提取。
 - 🎉 2022.11.17: TTS 新增[高质量男性音色](https://github.com/PaddlePaddle/PaddleSpeech/pull/2660)。
-- 🔥 2022.11.07: 新增 [U2/U2++ 高性能流式 ASR C++ 部署](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/speechx/examples/u2pp_ol/wenetspeech)。
+- 🔥 2022.11.07: 新增 [U2/U2++ 高性能流式 ASR C++ 部署](./speechx/examples/u2pp_ol/wenetspeech)。
 - 👑 2022.11.01: [中英文混合 TTS](./examples/zh_en_tts/tts3) 新增 [Adversarial Loss](https://arxiv.org/pdf/1907.04448.pdf) 模块。
-- 🔥 2022.10.26: TTS 新增[韵律预测](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy)功能。
+- 🔥 2022.10.26: TTS 新增[韵律预测](./develop/examples/other/rhy)功能。
 - 🎉 2022.10.21: TTS 中文文本前端新增 [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) 功能。
 - 👑 2022.10.11: 新增 [Wav2vec2ASR-en](./examples/librispeech/asr3), 在 LibriSpeech 上针对 ASR 任务对 wav2vec2.0 的 finetuning。
 - 🔥 2022.09.26: 新增 Voice Cloning, TTS finetune 和 [ERNIE-SAT](https://arxiv.org/abs/2211.03545) 到 [PaddleSpeech 网页应用](./demos/speech_web)。
@@ -202,7 +215,7 @@
 微信扫描二维码关注公众号，点击“马上报名”填写问卷加入官方交流群，获得更高效的问题答疑，与各行各业开发者充分交流，期待您的加入。
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/212860467-9e943cc3-8be8-49a4-97fd-7c94aad8e979.jpg"  width = "200"  />
 </div>
 
 <a name="安装"></a>
@@ -988,10 +1001,11 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 - 非常感谢 [awmmmm](https://github.com/awmmmm) 提供 fastspeech2 aishell3 conformer 预训练模型。
 - 非常感谢 [phecda-xu](https://github.com/phecda-xu)/[PaddleDubbing](https://github.com/phecda-xu/PaddleDubbing) 基于 PaddleSpeech 的 TTS 模型搭建带 GUI 操作界面的配音工具。
 - 非常感谢 [jerryuhoo](https://github.com/jerryuhoo)/[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk) 基于 PaddleSpeech 的 TTS GUI 界面和基于 ASR 制作数据集的相关代码。
-
 - 非常感谢 [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) 基于 PaddleSpeech 的 ASR 与 TTS 设计的可听、说对话机器人。
 - 非常感谢 [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) 对 PaddleSpeech 的 ASR 进行 C++ 推理实现。
 - 非常感谢 [heyudage](https://github.com/heyudage)/[VoiceTyping](https://github.com/heyudage/VoiceTyping) 基于 PaddleSpeech 的 ASR 流式服务实现的实时语音输入法工具。
+- 非常感谢 [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) 对PaddleSpeech在Windows下的安装提供了无需Visua Studio，基于python3.9的预编译依赖安装包。
+- 非常感谢 [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) 利用 FastAPI 实现 PaddleSpeech 语音转文字，文件上传、分割、转换进度显示、后台更新任务并以 csv 格式输出。
 
 此外，PaddleSpeech 依赖于许多开源存储库。有关更多信息，请参阅 [references](./docs/source/reference.md)。
 

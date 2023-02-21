@@ -19,7 +19,6 @@ from typing import Text
 import paddle
 from paddle.optimizer import Optimizer
 from paddle.regularizer import L2Decay
-
 from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.dynamic_import import instance_class

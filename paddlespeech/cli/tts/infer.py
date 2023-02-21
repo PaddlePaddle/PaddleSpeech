@@ -292,19 +292,19 @@ class TTSExecutor(BaseExecutor):
         with open(self.voc_config) as f:
             self.voc_config = CfgNode(yaml.safe_load(f))
 
-        with open(self.phones_dict, "r") as f:
+        with open(self.phones_dict, 'rt', encoding='utf-8') as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
 
         tone_size = None
         if self.tones_dict:
-            with open(self.tones_dict, "r") as f:
+            with open(self.tones_dict, 'rt', encoding='utf-8') as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             tone_size = len(tone_id)
 
         spk_num = None
         if self.speaker_dict:
-            with open(self.speaker_dict, 'rt') as f:
+            with open(self.speaker_dict, 'rt', encoding='utf-8') as f:
                 spk_id = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id)
 

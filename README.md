@@ -97,23 +97,37 @@
   </thead>
   <tbody>
    <tr>
-      <td >Life was like a box of chocolates, you never know what you're gonna get.</td>
+      <td>Life was like a box of chocolates, you never know what you're gonna get.</td>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
-      <td >早上好，今天是2020/10/29，最低温度是-3°C。</td>
+      <td>早上好，今天是2020/10/29，最低温度是-3°C。</td>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
-      <td >季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
+      <td>季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
       <td align = "center">
       <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td>大家好，我是 parrot 虚拟老师，我们来读一首诗，我与春风皆过客，I and the spring breeze are passing by，你携秋水揽星河，you take the autumn water to take the galaxy。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/labixiaoxin.wav" rel="nofollow">
+            <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
+      </td>
+    </tr>
+    <tr>
+      <td>宜家唔系事必要你讲，但系你所讲嘅说话将会变成呈堂证供。</td>
+      <td align = "center">
+      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/chengtangzhenggong.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -157,18 +171,19 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
-- 🔥 2022.01.10: Add [code-switch asr CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/speech_recognition).
-- 👑 2022.01.06: Add [code-switch asr tal_cs recipe](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/tal_cs/asr1/).
-- 🎉 2022.12.02: Add [end-to-end Prosody Prediction pipeline](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3_rhy) (including using prosody labels in Acoustic Model).
-- 🎉 2022.11.30: Add [TTS Android Demo](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/TTSAndroid).
+- 🎉 2023.02.16: Add [Cantonese TTS](./examples/canton/tts3).
+- 🔥 2023.01.10: Add [code-switch asr CLI and Demos](./demos/speech_recognition).
+- 👑 2023.01.06: Add [code-switch asr tal_cs recipe](./examples/tal_cs/asr1/).
+- 🎉 2022.12.02: Add [end-to-end Prosody Prediction pipeline](./examples/csmsc/tts3_rhy) (including using prosody labels in Acoustic Model).
+- 🎉 2022.11.30: Add [TTS Android Demo](./demos/TTSAndroid).
 - 🤗 2022.11.28: PP-TTS and PP-ASR demos are available in [AIStudio](https://aistudio.baidu.com/aistudio/modelsoverview) and [official website
  of paddlepaddle](https://www.paddlepaddle.org.cn/models).
 - 👑 2022.11.18: Add [Whisper CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/pull/2640), support multi language recognition and translation.
-- 🔥 2022.11.18: Add [Wav2vec2 CLI and Demos](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/demos/speech_ssl), Support ASR and Feature Extraction.
+- 🔥 2022.11.18: Add [Wav2vec2 CLI and Demos](./demos/speech_ssl), Support ASR and Feature Extraction.
 - 🎉 2022.11.17: Add [male voice for TTS](https://github.com/PaddlePaddle/PaddleSpeech/pull/2660).
-- 🔥 2022.11.07: Add [U2/U2++ C++ High Performance Streaming ASR Deployment](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/speechx/examples/u2pp_ol/wenetspeech).
+- 🔥 2022.11.07: Add [U2/U2++ C++ High Performance Streaming ASR Deployment](./speechx/examples/u2pp_ol/wenetspeech).
 - 👑 2022.11.01: Add [Adversarial Loss](https://arxiv.org/pdf/1907.04448.pdf) for [Chinese English mixed TTS](./examples/zh_en_tts/tts3).
-- 🔥 2022.10.26: Add [Prosody Prediction](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/rhy) for TTS.
+- 🔥 2022.10.26: Add [Prosody Prediction](./examples/other/rhy) for TTS.
 - 🎉 2022.10.21: Add [SSML](https://github.com/PaddlePaddle/PaddleSpeech/discussions/2538) for TTS Chinese Text Frontend.
 - 👑 2022.10.11: Add [Wav2vec2ASR-en](./examples/librispeech/asr3), wav2vec2.0 fine-tuning for ASR on LibriSpeech.
 - 🔥 2022.09.26: Add Voice Cloning, TTS finetune, and [ERNIE-SAT](https://arxiv.org/abs/2211.03545) in [PaddleSpeech Web Demo](./demos/speech_web).
@@ -191,7 +206,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - Scan the QR code below with your Wechat, you can access to official technical exchange group and get the bonus ( more than 20GB learning materials, such as papers, codes and videos ) and the live link of the lessons. Look forward to your participation.
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/30135920/196351517-19dece6b-d6ea-448e-a341-d6bfe5712ec1.jpg"  width = "200"  />
+<img src="https://user-images.githubusercontent.com/30135920/212860467-9e943cc3-8be8-49a4-97fd-7c94aad8e979.jpg"  width = "200"  />
 </div>
 
 ## Installation
@@ -987,8 +1002,9 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) for developing a rasa chatbot,which is able to speak and listen thanks to PaddleSpeech.
 - Many thanks to [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) for the C++ inference implementation of PaddleSpeech ASR.
 - Many thanks to [heyudage](https://github.com/heyudage)/[VoiceTyping](https://github.com/heyudage/VoiceTyping) for the real-time voice typing tool implementation of PaddleSpeech ASR streaming services.
-
+- Many thanks to [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) for the python3.9 prebuilt wheel for PaddleSpeech installation in Windows without Viusal Studio.
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
+- Many thanks to [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) for converting audio to text based on FastAPI and PaddleSpeech.
 
 <a name="License"></a>
 ## License

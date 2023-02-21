@@ -64,7 +64,7 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
         logger.debug(f"Grad Global Norm: {float(global_norm_var)}!!!!")
 
         max_global_norm = paddle.full(
-            shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
+            shape=[1], dtype=global_norm_var.dtype, fill_value=self.clip_norm)
         clip_var = paddle.divide(
             x=max_global_norm,
             y=paddle.maximum(x=global_norm_var, y=max_global_norm))

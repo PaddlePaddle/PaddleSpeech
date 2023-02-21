@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from collections import defaultdict
-from turtle import Turtle
 from typing import Dict
 from typing import List
 from typing import Tuple

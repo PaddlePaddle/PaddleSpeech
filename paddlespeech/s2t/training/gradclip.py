@@ -56,14 +56,14 @@ class ClipGradByGlobalNormWithLog(paddle.nn.ClipGradByGlobalNorm):
         if len(sum_square_list) == 0:
             return params_grads
 
-        global_norm_var = layers.concat(sum_square_list)
+        global_norm_var = paddle.concat(sum_square_list)
         global_norm_var = paddle.sum(global_norm_var)
         global_norm_var = paddle.sqrt(global_norm_var)
 
         # debug log
         logger.debug(f"Grad Global Norm: {float(global_norm_var)}!!!!")
 
-        max_global_norm = layers.fill_constant(
+        max_global_norm = paddle.full(
             shape=[1], dtype=global_norm_var.dtype, value=self.clip_norm)
         clip_var = paddle.divide(
             x=max_global_norm,

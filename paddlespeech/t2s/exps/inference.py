@@ -42,6 +42,9 @@ def parse_args():
             'fastspeech2_vctk',
             'tacotron2_csmsc',
             'fastspeech2_mix',
+            'fastspeech2_male-zh',
+            'fastspeech2_male-en',
+            'fastspeech2_male-mix',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -71,6 +74,8 @@ def parse_args():
             'hifigan_ljspeech',
             'hifigan_vctk',
             'wavernn_csmsc',
+            'pwgan_male',
+            'hifigan_male',
         ],
         help='Choose vocoder type of tts task.')
     # other

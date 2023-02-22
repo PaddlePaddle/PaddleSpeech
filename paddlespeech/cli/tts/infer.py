@@ -522,11 +522,10 @@ class TTSExecutor(BaseExecutor):
             text=text,
             merge_sentences=merge_sentences,
             get_tone_ids=get_tone_ids,
-            lang=lang, )
+            lang=lang,
+            to_tensor=False, )
         self.frontend_time = time.time() - frontend_st
         phone_ids = frontend_dict['phone_ids']
-        # onnx need numpy data as input 
-        phone_ids = [phone_id.numpy() for phone_id in phone_ids]
         self.am_time = 0
         self.voc_time = 0
         flags = 0

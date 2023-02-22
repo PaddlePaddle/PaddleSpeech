@@ -80,26 +80,19 @@ def main():
 
     # restore scaler
     speech_scaler = StandardScaler()
-    # speech_scaler.mean_ = np.load(args.speech_stats)[0]
-    # speech_scaler.scale_ = np.load(args.speech_stats)[1]
-    speech_scaler.mean_ = np.zeros(np.load(args.speech_stats)[0].shape, dtype="float32")
-    speech_scaler.scale_ = np.ones(np.load(args.speech_stats)[1].shape, dtype="float32")
+    speech_scaler.mean_ = np.load(args.speech_stats)[0]
+    speech_scaler.scale_ = np.load(args.speech_stats)[1]
     speech_scaler.n_features_in_ = speech_scaler.mean_.shape[0]
 
     pitch_scaler = StandardScaler()
-    # pitch_scaler.mean_ = np.load(args.pitch_stats)[0]
-    # pitch_scaler.scale_ = np.load(args.pitch_stats)[1]
-    pitch_scaler.mean_ = np.zeros(np.load(args.pitch_stats)[0].shape, dtype="float32")
-    pitch_scaler.scale_ = np.ones(np.load(args.pitch_stats)[1].shape, dtype="float32")
+    pitch_scaler.mean_ = np.load(args.pitch_stats)[0]
+    pitch_scaler.scale_ = np.load(args.pitch_stats)[1]
     pitch_scaler.n_features_in_ = pitch_scaler.mean_.shape[0]
 
     energy_scaler = StandardScaler()
-    # energy_scaler.mean_ = np.load(args.energy_stats)[0]
-    # energy_scaler.scale_ = np.load(args.energy_stats)[1]
-    energy_scaler.mean_ = np.zeros(np.load(args.energy_stats)[0].shape, dtype="float32")
-    energy_scaler.scale_ = np.ones(np.load(args.energy_stats)[1].shape, dtype="float32")
+    energy_scaler.mean_ = np.load(args.energy_stats)[0]
+    energy_scaler.scale_ = np.load(args.energy_stats)[1]
     energy_scaler.n_features_in_ = energy_scaler.mean_.shape[0]
-
 
     vocab_phones = {}
     with open(args.phones_dict, 'rt') as f:

@@ -88,10 +88,7 @@ def process_sentence(
         phones = sentences[utt_id][0]
         durations = sentences[utt_id][1]
         num_frames = logmel.shape[0]
-        word_boundary = [
-            1 if x in ALL_FINALS + ['AP', 'SP'] else 0 for x in phones
-        ]
-        # print(sum(durations), num_frames)
+
         assert sum(
             durations
         ) == num_frames, "the sum of durations doesn't equal to the num of mel frames. "
@@ -105,7 +102,6 @@ def process_sentence(
         pitch_dir = output_dir / "data_pitch"
         pitch_dir.mkdir(parents=True, exist_ok=True)
         pitch_path = pitch_dir / (utt_id + "_pitch.npy")
-        # print(pitch, pitch.shape)
         np.save(pitch_path, pitch)
         energy = energy_extractor.get_energy(wav)
         assert energy.shape[0] == num_frames

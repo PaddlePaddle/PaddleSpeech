@@ -34,17 +34,18 @@ logger.setLevel(logging.INFO)
 
 
 class DiffSingerUpdater(StandardUpdater):
-    def __init__(
-            self,
-            model: Layer,
-            optimizers: Dict[str, Optimizer],
-            criterions: Dict[str, Layer],
-            dataloader: DataLoader,
-            ds_train_start_steps: int=160000,
-            output_dir: Path=None, ):
+    def __init__(self,
+                 model: Layer,
+                 optimizers: Dict[str, Optimizer],
+                 criterions: Dict[str, Layer],
+                 dataloader: DataLoader,
+                 ds_train_start_steps: int=160000,
+                 output_dir: Path=None,
+                 only_train_diffusion: bool=True):
         super().__init__(model, optimizers, dataloader, init_state=None)
         self.model = model._layers if isinstance(model,
                                                  paddle.DataParallel) else model
+        self.only_train_diffusion = only_train_diffusion
 
         self.optimizers = optimizers
         self.optimizer_fs2: Optimizer = optimizers['fs2']
@@ -78,8 +79,7 @@ class DiffSingerUpdater(StandardUpdater):
             spk_id = None
 
         # only train fastspeech2 module firstly
-        if self.state.iteration <= self.ds_train_start_steps:
-            # print(batch)
+        if self.state.iteration < self.ds_train_start_steps:
             before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
                 text=batch["text"],
                 note=batch["note"],
@@ -93,7 +93,7 @@ class DiffSingerUpdater(StandardUpdater):
                 energy=batch["energy"],
                 spk_id=spk_id,
                 spk_emb=spk_emb,
-                train_fs2=True, )
+                only_train_fs2=True, )
 
             l1_loss_fs2, ssim_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
                 after_outs=after_outs,
@@ -110,7 +110,7 @@ class DiffSingerUpdater(StandardUpdater):
                 spk_logits=spk_logits,
                 spk_ids=spk_id, )
 
-            loss_fs2 = l1_loss_fs2 + ssim_loss_fs2 + duration_loss + pitch_loss + energy_loss
+            loss_fs2 = l1_loss_fs2 + ssim_loss_fs2 + duration_loss + pitch_loss + energy_loss + speaker_loss
 
             self.optimizer_fs2.clear_grad()
             loss_fs2.backward()
@@ -128,7 +128,10 @@ class DiffSingerUpdater(StandardUpdater):
             losses_dict["duration_loss"] = float(duration_loss)
             losses_dict["pitch_loss"] = float(pitch_loss)
             losses_dict["energy_loss"] = float(energy_loss)
-            losses_dict["energy_loss"] = float(energy_loss)
+
+            if speaker_loss != 0.:
+                report("train/speaker_loss", float(speaker_loss))
+                losses_dict["speaker_loss"] = float(speaker_loss)
 
             losses_dict["loss_fs2"] = float(loss_fs2)
             self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
@@ -136,10 +139,11 @@ class DiffSingerUpdater(StandardUpdater):
 
         # Then only train diffusion module, freeze fastspeech2 parameters.
         if self.state.iteration > self.ds_train_start_steps:
-            for param in self.model.fs2.parameters():
-                param.trainable = False
+            if self.only_train_diffusion:
+                for param in self.model.fs2.parameters():
+                    param.trainable = False
 
-            mel, mel_ref, mel_masks = self.model(
+            noise_pred, noise_target, mel_masks = self.model(
                 text=batch["text"],
                 note=batch["note"],
                 note_dur=batch["note_dur"],
@@ -152,14 +156,14 @@ class DiffSingerUpdater(StandardUpdater):
                 energy=batch["energy"],
                 spk_id=spk_id,
                 spk_emb=spk_emb,
-                train_fs2=False, )
+                only_train_fs2=False, )
 
-            mel = mel.transpose((0, 2, 1))
-            mel_ref = mel_ref.transpose((0, 2, 1))
+            noise_pred = noise_pred.transpose((0, 2, 1))
+            noise_target = noise_target.transpose((0, 2, 1))
             mel_masks = mel_masks.transpose((0, 2, 1))
             l1_loss_ds = self.criterion_ds(
-                ref_mels=mel_ref,
-                out_mels=mel,
+                noise_pred=noise_pred,
+                noise_target=noise_target,
                 mel_masks=mel_masks, )
 
             loss_ds = l1_loss_ds
@@ -210,7 +214,7 @@ class DiffSingerEvaluator(StandardEvaluator):
             spk_id = None
 
         # Here show diffsinger eval     
-        mel, mel_ref, mel_masks = self.model(
+        noise_pred, noise_target, mel_masks = self.model(
             text=batch["text"],
             note=batch["note"],
             note_dur=batch["note_dur"],
@@ -223,14 +227,14 @@ class DiffSingerEvaluator(StandardEvaluator):
             energy=batch["energy"],
             spk_id=spk_id,
             spk_emb=spk_emb,
-            train_fs2=False, )
+            only_train_fs2=False, )
 
-        mel = mel.transpose((0, 2, 1))
-        mel_ref = mel_ref.transpose((0, 2, 1))
+        noise_pred = noise_pred.transpose((0, 2, 1))
+        noise_target = noise_target.transpose((0, 2, 1))
         mel_masks = mel_masks.transpose((0, 2, 1))
         l1_loss_ds = self.criterion_ds(
-            ref_mels=mel_ref,
-            out_mels=mel,
+            noise_pred=noise_pred,
+            noise_target=noise_target,
             mel_masks=mel_masks, )
         loss_ds = l1_loss_ds
 

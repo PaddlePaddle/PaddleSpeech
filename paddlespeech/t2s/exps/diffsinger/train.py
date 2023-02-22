@@ -138,20 +138,17 @@ def train_sp(args, config):
         model_ds = model._layers.diffusion
     print("models done!")
 
-    # criterion_fs2 = FastSpeech2Loss(**config["fs2_updater"])
     criterion_fs2 = FastSpeech2MIDILoss(**config["fs2_updater"])
     criterion_ds = DiffusionLoss(**config["ds_updater"])
     print("criterions done!")
 
     optimizer_fs2 = build_optimizers(model_fs2, **config["fs2_optimizer"])
-    lr_schedule_ds = StepDecay(**config["ds_scheduler_params"])
     gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
     optimizer_ds = AdamW(
-        learning_rate=lr_schedule_ds,
+        learning_rate=config["ds_scheduler_params"]["learning_rate"],
         grad_clip=gradient_clip_ds,
         parameters=model_ds.parameters(),
         **config["ds_optimizer_params"])
-    # optimizer_ds = build_optimizers(ds, **config["ds_optimizer"])
     print("optimizer done!")
 
     output_dir = Path(args.output_dir)
@@ -182,7 +179,7 @@ def train_sp(args, config):
             "ds": criterion_ds,
         },
         dataloader=dev_dataloader,
-        output_dir=output_dir,)
+        output_dir=output_dir, )
 
     trainer = Trainer(
         updater,

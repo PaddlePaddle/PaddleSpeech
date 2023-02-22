@@ -4,7 +4,6 @@ set -e
 source path.sh
 
 gpus=4,5,6,7
-#gpus=0
 stage=1
 stop_stage=1
 

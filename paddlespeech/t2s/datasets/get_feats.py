@@ -126,7 +126,7 @@ class Pitch():
                       input: np.ndarray,
                       use_continuous_f0: bool=True,
                       use_log_f0: bool=True) -> np.ndarray:
-        input = input.astype(np.float)
+        input = input.astype(float)
         frame_period = 1000 * self.hop_length / self.sr
         f0, timeaxis = pyworld.dio(
             input,

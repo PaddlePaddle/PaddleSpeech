@@ -54,10 +54,6 @@ class DiffSinger(nn.Layer):
                 "eunits": 1024,
                 "dlayers": 4,
                 "dunits": 1024,
-                "postnet_layers": 5,
-                "postnet_chans": 512,
-                "postnet_filts": 5,
-                "postnet_dropout_rate": 0.5,
                 "positionwise_layer_type": "conv1d",
                 "positionwise_conv_kernel_size": 1,
                 "use_scaled_pos_enc": True,
@@ -80,15 +76,8 @@ class DiffSinger(nn.Layer):
                 "duration_predictor_chans": 384,
                 "duration_predictor_kernel_size": 3,
                 "duration_predictor_dropout_rate": 0.1,
-                # energy predictor
-                "energy_predictor_layers": 2,
-                "energy_predictor_chans": 384,
-                "energy_predictor_kernel_size": 3,
-                "energy_predictor_dropout": 0.5,
-                "energy_embed_kernel_size": 9,
-                "energy_embed_dropout": 0.5,
-                "stop_gradient_from_energy_predictor": False,
                 # pitch predictor
+                "use_pitch_embed": True,
                 "pitch_predictor_layers": 2,
                 "pitch_predictor_chans": 384,
                 "pitch_predictor_kernel_size": 3,
@@ -96,6 +85,20 @@ class DiffSinger(nn.Layer):
                 "pitch_embed_kernel_size": 9,
                 "pitch_embed_dropout": 0.5,
                 "stop_gradient_from_pitch_predictor": False,
+                # energy predictor
+                "use_energy_embed": False,
+                "energy_predictor_layers": 2,
+                "energy_predictor_chans": 384,
+                "energy_predictor_kernel_size": 3,
+                "energy_predictor_dropout": 0.5,
+                "energy_embed_kernel_size": 9,
+                "energy_embed_dropout": 0.5,
+                "stop_gradient_from_energy_predictor": False,
+                # postnet
+                "postnet_layers": 5,
+                "postnet_chans": 512,
+                "postnet_filts": 5,
+                "postnet_dropout_rate": 0.5,
                 # spk emb
                 "spk_num": None,
                 "spk_embed_dim": None,
@@ -170,7 +173,7 @@ class DiffSinger(nn.Layer):
             energy: paddle.Tensor,
             spk_emb: paddle.Tensor=None,
             spk_id: paddle.Tensor=None,
-            train_fs2: bool=True,
+            only_train_fs2: bool=True,
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -199,7 +202,7 @@ class DiffSinger(nn.Layer):
                 Batch of speaker embeddings (B, spk_embed_dim).
             spk_id(Tnesor[int64], optional(int64)): 
                 Batch of speaker ids (B,)
-            train_fs2(bool):
+            only_train_fs2(bool):
                 Whether to train only the fastspeech2 module
 
         Returns:
@@ -219,7 +222,7 @@ class DiffSinger(nn.Layer):
             energy=energy,
             spk_id=spk_id,
             spk_emb=spk_emb)
-        if train_fs2:
+        if only_train_fs2:
             return before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits
 
         # get the encoder output from fastspeech2 as the condition of denoiser module
@@ -236,9 +239,9 @@ class DiffSinger(nn.Layer):
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
 
         # get the output(final mel) from diffusion module
-        mel, mel_ref = self.diffusion(
-            speech.transpose((0, 2, 1)), cond_fs2.detach())
-        return mel, mel_ref, mel_masks
+        noise_pred, noise_target = self.diffusion(
+            speech.transpose((0, 2, 1)), cond_fs2)
+        return noise_pred, noise_target, mel_masks
 
     def inference(
             self,
@@ -270,10 +273,13 @@ class DiffSinger(nn.Layer):
         mel_fs2 = mel_fs2.unsqueeze(0).transpose((0, 2, 1))
         cond_fs2 = self.fs2.encoder_infer(text, note, note_dur, is_slur)
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
-        # mel, _ = self.diffusion(mel_fs2, cond_fs2)
         noise = paddle.randn(mel_fs2.shape)
         mel = self.diffusion.inference(
-            noise=noise, cond=cond_fs2, ref_x=mel_fs2, num_inference_steps=100)
+            noise=noise,
+            cond=cond_fs2,
+            ref_x=mel_fs2,
+            scheduler_type="ddpm",
+            num_inference_steps=25)
         mel = mel.transpose((0, 2, 1))
         return mel[0]
 
@@ -308,9 +314,7 @@ class DiffSingerInference(nn.Layer):
             note_dur=note_dur,
             is_slur=is_slur,
             get_mel_fs2=get_mel_fs2)
-        print(normalized_mel)
-        # logmel = self.normalizer.inverse(normalized_mel)
-        logmel = normalized_mel
+        logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 
 
@@ -339,16 +343,16 @@ class DiffusionLoss(nn.Layer):
 
     def forward(
             self,
-            ref_mels: paddle.Tensor,
-            out_mels: paddle.Tensor,
+            noise_pred: paddle.Tensor,
+            noise_target: paddle.Tensor,
             mel_masks: paddle.Tensor, ) -> paddle.Tensor:
         """Calculate forward propagation.
 
         Args:
-            ref_mels(Tensor):  
-                Batch of real mel (B, Lmax, odim).
-            out_mels(Tensor): 
-                Batch of outputs mel (B, Lmax, odim).
+            noise_pred(Tensor): 
+                Batch of outputs predict noise (B, Lmax, odim).
+            noise_target(Tensor):  
+                Batch of target noise (B, Lmax, odim).
             mel_masks(Tensor): 
                 Batch of mask of real mel (B, Lmax, 1).
         Returns:
@@ -356,13 +360,13 @@ class DiffusionLoss(nn.Layer):
         """
         # apply mask to remove padded part
         if self.use_masking:
-            out_mels = out_mels.masked_select(
-                mel_masks.broadcast_to(out_mels.shape))
-            ref_mels = ref_mels.masked_select(
-                mel_masks.broadcast_to(ref_mels.shape))
+            noise_pred = noise_pred.masked_select(
+                mel_masks.broadcast_to(noise_pred.shape))
+            noise_target = noise_target.masked_select(
+                mel_masks.broadcast_to(noise_target.shape))
 
         # calculate loss
-        l1_loss = self.l1_criterion(out_mels, ref_mels)
+        l1_loss = self.l1_criterion(noise_pred, noise_target)
 
         # make weighted mask and apply it
         if self.use_weighted_masking:
@@ -370,7 +374,7 @@ class DiffusionLoss(nn.Layer):
             out_weights = mel_masks.cast(dtype=paddle.float32) / mel_masks.cast(
                 dtype=paddle.float32).sum(
                     axis=1, keepdim=True)
-            out_weights /= ref_mels.shape[0] * ref_mels.shape[2]
+            out_weights /= noise_target.shape[0] * noise_target.shape[2]
 
             # apply weight
             l1_loss = l1_loss.multiply(out_weights)

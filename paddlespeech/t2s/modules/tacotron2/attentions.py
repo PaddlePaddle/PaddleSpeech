@@ -124,7 +124,7 @@ class AttLoc(nn.Layer):
             dec_z,
             att_prev,
             scaling=2.0,
-            last_attended_idx=None,
+            last_attended_idx=-1,
             backward_window=1,
             forward_window=3, ):
         """Calculate AttLoc forward propagation.

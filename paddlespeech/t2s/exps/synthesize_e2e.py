@@ -165,10 +165,19 @@ def parse_args():
         type=str,
         default='fastspeech2_csmsc',
         choices=[
-            'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
-            'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc', 'tacotron2_ljspeech', 'fastspeech2_mix',
-            'fastspeech2_canton'
+            'speedyspeech_csmsc',
+            'speedyspeech_aishell3',
+            'fastspeech2_csmsc',
+            'fastspeech2_ljspeech',
+            'fastspeech2_aishell3',
+            'fastspeech2_vctk',
+            'tacotron2_csmsc',
+            'tacotron2_ljspeech',
+            'fastspeech2_mix',
+            'fastspeech2_canton',
+            'fastspeech2_male-zh',
+            'fastspeech2_male-en',
+            'fastspeech2_male-mix',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -212,6 +221,8 @@ def parse_args():
             'hifigan_aishell3',
             'hifigan_vctk',
             'wavernn_csmsc',
+            'pwgan_male',
+            'hifigan_male',
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(

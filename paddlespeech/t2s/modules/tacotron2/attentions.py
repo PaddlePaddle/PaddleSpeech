@@ -194,7 +194,7 @@ class AttLoc(nn.Layer):
 
         e = masked_fill(e, self.mask, -float("inf"))
         # apply monotonic attention constraint (mainly for TTS)
-        if last_attended_idx is not None:
+        if last_attended_idx != -1:
             e = _apply_attention_constraint(e, last_attended_idx,
                                             backward_window, forward_window)
 

@@ -64,7 +64,6 @@ def evaluate(args):
     vits = VITS(idim=vocab_size, odim=odim, **config["model"])
     vits.set_state_dict(paddle.load(args.ckpt)["main_params"])
     vits.eval()
-    VITSInference
 
     vits_inference = VITSInference(vits)
     # whether dygraph to static
@@ -108,7 +107,8 @@ def evaluate(args):
                     spk_id = None
                     if spk_num is not None:
                         spk_id = paddle.to_tensor(args.spk_id)
-                    wav = vits_inference(text=part_phone_ids, sids=spk_id)
+                    # wav = vits_inference(text=part_phone_ids, sids=spk_id)
+                    wav = vits_inference(part_phone_ids)
                     if flags == 0:
                         wav_all = wav
                         flags = 1

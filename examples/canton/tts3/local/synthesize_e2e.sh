@@ -25,7 +25,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
-        --spk_id=0 \
+        --spk_id=10 \
         --inference_dir=${train_output_path}/inference
 fi
 
@@ -48,6 +48,6 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
-        --spk_id=0 \
+        --spk_id=10 \
         --inference_dir=${train_output_path}/inference
     fi

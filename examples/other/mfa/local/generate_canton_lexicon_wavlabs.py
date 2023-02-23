@@ -15,16 +15,18 @@ def check(str):
         return False
 
 
-consonants = [
-    'p', 'b', 't', 'd', 'ts', 'dz', 'k', 'g', 'kw', 'gw', 'f', 'h', 'l', 'm',
-    'ng', 'n', 's', 'y', 'w', 'c', 'z', 'j'
+INITIALS = [
+    'aa', 'aai', 'aak', 'aap', 'aat', 'aau', 'ai', 'au', 'ap', 'at', 'ak', 'a',
+    'p', 'b', 'e', 'ts', 't', 'dz', 'd', 'kw', 'k', 'gw', 'g', 'f', 'h', 'l',
+    'm', 'ng', 'n', 's', 'y', 'w', 'c', 'z', 'j', 'ong', 'on', 'ou', 'oi', 'ok',
+    'o', 'uk', 'ung'
 ]
 
 
 def get_lines(canton):
-    for consonant in consonants:
-        if canton.startswith(consonant):
-            c, v = canton[:len(consonant)], canton[len(consonant):]
+    for init in INITIALS:
+        if canton.startswith(init):
+            c, v = canton[:len(init)], canton[len(init):]
             return canton + ' ' + c + ' ' + v
     return canton + ' ' + canton
 

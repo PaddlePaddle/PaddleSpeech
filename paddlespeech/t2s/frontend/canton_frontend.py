@@ -21,8 +21,10 @@ import ToJyutping
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
 
 INITIALS = [
-    'p', 'b', 't', 'd', 'ts', 'dz', 'k', 'g', 'kw', 'gw', 'f', 'h', 'l', 'm',
-    'ng', 'n', 's', 'y', 'w', 'c', 'z', 'j'
+    'aa', 'aai', 'aak', 'aap', 'aat', 'aau', 'ai', 'au', 'ap', 'at', 'ak', 'a',
+    'p', 'b', 'e', 'ts', 't', 'dz', 'd', 'kw', 'k', 'gw', 'g', 'f', 'h', 'l',
+    'm', 'ng', 'n', 's', 'y', 'w', 'c', 'z', 'j', 'ong', 'on', 'ou', 'oi', 'ok',
+    'o', 'uk', 'ung'
 ]
 INITIALS += ['sp', 'spl', 'spn', 'sil']
 

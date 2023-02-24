@@ -116,6 +116,6 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --output_dir=exp/default/test_e2e \
   --phones_dict=fastspeech2_canton_ckpt_1.4.0/phone_id_map.txt \
   --speaker_dict=fastspeech2_canton_ckpt_1.4.0/speaker_id_map.txt \
-  --spk_id=0 \
+  --spk_id=10 \
   --inference_dir=exp/default/inference
 ```

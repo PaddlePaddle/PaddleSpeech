@@ -21,8 +21,10 @@ import ToJyutping
 from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
 
 INITIALS = [
-    'p', 'b', 't', 'd', 'ts', 'dz', 'k', 'g', 'kw', 'gw', 'f', 'h', 'l', 'm',
-    'ng', 'n', 's', 'y', 'w', 'c', 'z', 'j'
+    'aa', 'aai', 'aak', 'aap', 'aat', 'aau', 'ai', 'au', 'ap', 'at', 'ak', 'a',
+    'p', 'b', 'e', 'ts', 't', 'dz', 'd', 'kw', 'k', 'gw', 'g', 'f', 'h', 'l',
+    'm', 'ng', 'n', 's', 'y', 'w', 'c', 'z', 'j', 'ong', 'on', 'ou', 'oi', 'ok',
+    'o', 'uk', 'ung'
 ]
 INITIALS += ['sp', 'spl', 'spn', 'sil']
 
@@ -32,8 +34,13 @@ def get_lines(cantons: List[str]):
     for canton in cantons:
         for consonant in INITIALS:
             if canton.startswith(consonant):
-                c, v = canton[:len(consonant)], canton[len(consonant):]
-                phones = phones + [c, v]
+                if canton.startswith("nga"):
+                    c, v = canton[:len(consonant)], canton[len(consonant):]
+                    phones = phones + [canton[2:]]
+                else:
+                    c, v = canton[:len(consonant)], canton[len(consonant):]
+                    phones = phones + [c, v]
+                break
     return phones
 
 

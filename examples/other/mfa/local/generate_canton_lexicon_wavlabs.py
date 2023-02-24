@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
                 canton_list = canton_list.split(' ')
                 all_canton.extend(canton_list)
-    all_canton = set(all_canton)
+    all_canton = sorted(list(set(all_canton)))
 
     with open(args.output_lexicon, 'w') as f:
         for canton in all_canton:

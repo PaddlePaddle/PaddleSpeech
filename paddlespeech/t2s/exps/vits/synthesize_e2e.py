@@ -71,11 +71,6 @@ def evaluate(args):
     vits_inference = VITSInference(vits)
     # whether dygraph to static
     if args.inference_dir:
-        # acoustic model
-        # vits = jit.to_static(
-        #         vits, input_spec=[InputSpec([-1], dtype=paddle.int64)])
-        # jit.save(vits, os.path.join(inference_dir, args.am))
-        # vits = jit.load(os.path.join(inference_dir, args.am))
         vits_inference = am_to_static(
             am_inference=vits_inference,
             am=args.am,
@@ -108,8 +103,8 @@ def evaluate(args):
                 for i in range(len(phone_ids)):
                     part_phone_ids = phone_ids[i]
                     spk_id = None
-                    if am_dataset in {"aishell3", "vctk"
-                                      } and spk_num is not None:
+                    if am_dataset in {"aishell3",
+                                      "vctk"} and spk_num is not None:
                         spk_id = paddle.to_tensor(args.spk_id)
                         wav = vits_inference(part_phone_ids, spk_id)
                     else:

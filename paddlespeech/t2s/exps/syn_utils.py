@@ -452,9 +452,19 @@ def am_to_static(am_inference,
     elif am_name == 'tacotron2':
         am_inference = jit.to_static(
             am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
-
-    paddle.jit.save(am_inference, os.path.join(inference_dir, am))
-    am_inference = paddle.jit.load(os.path.join(inference_dir, am))
+    elif am_name == 'vits':
+        if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
+            am_inference = jit.to_static(
+                am_inference,
+                input_spec=[
+                    InputSpec([-1], dtype=paddle.int64),
+                    InputSpec([1], dtype=paddle.int64),
+                ])
+        else:
+            am_inference = jit.to_static(
+                am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+    jit.save(am_inference, os.path.join(inference_dir, am))
+    am_inference = jit.load(os.path.join(inference_dir, am))
     return am_inference
 
 
@@ -465,8 +475,8 @@ def voc_to_static(voc_inference,
         voc_inference, input_spec=[
             InputSpec([-1, 80], dtype=paddle.float32),
         ])
-    paddle.jit.save(voc_inference, os.path.join(inference_dir, voc))
-    voc_inference = paddle.jit.load(os.path.join(inference_dir, voc))
+    jit.save(voc_inference, os.path.join(inference_dir, voc))
+    voc_inference = jit.load(os.path.join(inference_dir, voc))
     return voc_inference
 
 

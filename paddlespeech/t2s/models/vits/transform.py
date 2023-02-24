@@ -35,9 +35,10 @@ def piecewise_rational_quadratic_transform(
         inverse=False,
         tails=None,
         tail_bound=1.0,
-        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
-        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
-        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
+        # for dygraph-to-static
+        min_bin_width=1e-3,
+        min_bin_height=1e-3,
+        min_derivative=1e-3, ):
     if tails is None:
         spline_fn = rational_quadratic_spline
         spline_kwargs = {}
@@ -74,14 +75,17 @@ def unconstrained_rational_quadratic_spline(
         inverse=False,
         tails="linear",
         tail_bound=1.0,
-        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
-        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
-        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
+        # for dygraph-to-static
+        min_bin_width=1e-3,
+        min_bin_height=1e-3,
+        min_derivative=1e-3, ):
     inside_interval_mask = (inputs >= -tail_bound) & (inputs <= tail_bound)
     outside_interval_mask = ~inside_interval_mask
-
-    outputs = paddle.zeros(paddle.shape(inputs))
-    logabsdet = paddle.zeros(paddle.shape(inputs))
+    # for dygraph to static
+    # 这里用 paddle.shape(x) 然后调用 zeros 会得到一个全 -1 shape 的 var
+    # 如果用 x.shape 的话可以保留确定的维度
+    outputs = paddle.zeros(inputs.shape)
+    logabsdet = paddle.zeros(inputs.shape)
     if tails == "linear":
         unnormalized_derivatives = F.pad(
             unnormalized_derivatives,
@@ -89,8 +93,9 @@ def unconstrained_rational_quadratic_spline(
         constant = np.log(np.exp(1 - min_derivative) - 1)
         unnormalized_derivatives[..., 0] = constant
         unnormalized_derivatives[..., -1] = constant
-
-        outputs[outside_interval_mask] = inputs[outside_interval_mask]
+        # for dygraph to static
+        tmp = inputs[outside_interval_mask]
+        outputs[outside_interval_mask] = tmp
         logabsdet[outside_interval_mask] = 0
     else:
         raise RuntimeError("{} tails are not implemented.".format(tails))
@@ -130,18 +135,20 @@ def rational_quadratic_spline(
         right=1.0,
         bottom=0.0,
         top=1.0,
-        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
-        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
-        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
-    if paddle.min(inputs) < left or paddle.max(inputs) > right:
-        raise ValueError("Input to a transform is not within its domain")
+        # for dygraph-to-static
+        min_bin_width=1e-3,
+        min_bin_height=1e-3,
+        min_derivative=1e-3, ):
+    # for dygraph to static
+    # if paddle.min(inputs) < left or paddle.max(inputs) > right:
+    #     raise ValueError("Input to a transform is not within its domain")
 
     num_bins = unnormalized_widths.shape[-1]
-
-    if min_bin_width * num_bins > 1.0:
-        raise ValueError("Minimal bin width too large for the number of bins")
-    if min_bin_height * num_bins > 1.0:
-        raise ValueError("Minimal bin height too large for the number of bins")
+    # for dygraph to static
+    # if min_bin_width * num_bins > 1.0:
+    #     raise ValueError("Minimal bin width too large for the number of bins")
+    # if min_bin_height * num_bins > 1.0:
+    #     raise ValueError("Minimal bin height too large for the number of bins")
 
     widths = F.softmax(unnormalized_widths, axis=-1)
     widths = min_bin_width + (1 - min_bin_width * num_bins) * widths

@@ -34,8 +34,13 @@ def get_lines(cantons: List[str]):
     for canton in cantons:
         for consonant in INITIALS:
             if canton.startswith(consonant):
-                c, v = canton[:len(consonant)], canton[len(consonant):]
-                phones = phones + [c, v]
+                if canton.startswith("nga"):
+                    c, v = canton[:len(consonant)], canton[len(consonant):]
+                    phones = phones + [canton[2:]]
+                else:
+                    c, v = canton[:len(consonant)], canton[len(consonant):]
+                    phones = phones + [c, v]
+                break
     return phones
 
 

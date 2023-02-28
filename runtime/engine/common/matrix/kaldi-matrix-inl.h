@@ -25,40 +25,41 @@
 namespace kaldi {
 
 /// Empty constructor
-template<typename Real>
-Matrix<Real>::Matrix(): MatrixBase<Real>(NULL, 0, 0, 0) { }
+template <typename Real>
+Matrix<Real>::Matrix() : MatrixBase<Real>(NULL, 0, 0, 0) {}
 
 /*
 template<>
 template<>
-void MatrixBase<float>::AddVecVec(const float alpha, const VectorBase<float> &ra, const VectorBase<float> &rb);
+void MatrixBase<float>::AddVecVec(const float alpha, const VectorBase<float>
+&ra, const VectorBase<float> &rb);
 
 template<>
 template<>
-void MatrixBase<double>::AddVecVec(const double alpha, const VectorBase<double> &ra, const VectorBase<double> &rb);
+void MatrixBase<double>::AddVecVec(const double alpha, const VectorBase<double>
+&ra, const VectorBase<double> &rb);
 */
 
-template<typename Real>
-inline std::ostream & operator << (std::ostream & os, const MatrixBase<Real> & M) {
-  M.Write(os, false);
-  return os;
+template <typename Real>
+inline std::ostream& operator<<(std::ostream& os, const MatrixBase<Real>& M) {
+    M.Write(os, false);
+    return os;
 }
 
-template<typename Real>
-inline std::istream & operator >> (std::istream & is, Matrix<Real> & M) {
-  M.Read(is, false);
-  return is;
+template <typename Real>
+inline std::istream& operator>>(std::istream& is, Matrix<Real>& M) {
+    M.Read(is, false);
+    return is;
 }
 
 
-template<typename Real>
-inline std::istream & operator >> (std::istream & is, MatrixBase<Real> & M) {
-  M.Read(is, false);
-  return is;
+template <typename Real>
+inline std::istream& operator>>(std::istream& is, MatrixBase<Real>& M) {
+    M.Read(is, false);
+    return is;
 }
 
-}// namespace kaldi
+}  // namespace kaldi
 
 
 #endif  // KALDI_MATRIX_KALDI_MATRIX_INL_H_
-

@@ -8,11 +8,11 @@ windows_x86")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(FASTDEPLOY_DIR ${CMAKE_SOURCE_DIR}/fc_patch/fastdeploy)
-if(NOT EXISTS ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.2.tgz)
+if(NOT EXISTS ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.4.tgz)
     exec_program("mkdir -p ${FASTDEPLOY_DIR} &&
-    wget https://bj.bcebos.com/fastdeploy/release/cpp/fastdeploy-linux-x64-1.0.2.tgz -P ${FASTDEPLOY_DIR} &&
-    tar xzvf ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.2.tgz -C ${FASTDEPLOY_DIR} &&
-    mv ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.2 ${FASTDEPLOY_DIR}/linux-x64")
+    wget https://bj.bcebos.com/fastdeploy/release/cpp/fastdeploy-linux-x64-1.0.4.tgz -P ${FASTDEPLOY_DIR} &&
+    tar xzvf ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.4.tgz -C ${FASTDEPLOY_DIR} &&
+    mv ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.4 ${FASTDEPLOY_DIR}/linux-x64")
 endif()
 
 if(NOT EXISTS ${FASTDEPLOY_DIR}/fastdeploy-android-1.0.0-shared.tgz)
@@ -36,4 +36,9 @@ elseif (ARCH STREQUAL "android_armv7")
 endif()
 
 include(${FASTDEPLOY_INSTALL_DIR}/FastDeploy.cmake)
+
+# fix compiler flags conflict, since fastdeploy using c++11 for project
+set(CMAKE_CXX_STANDARD 14)
+
 include_directories(${FASTDEPLOY_INCS})
+message(STATUS "FASTDEPLOY_INCS=${FASTDEPLOY_INCS}")

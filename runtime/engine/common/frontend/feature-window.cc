@@ -7,6 +7,7 @@
 #include "frontend/feature-window.h"
 
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #ifndef M_2PI

@@ -14,4 +14,4 @@
 
 #pragma once
 
-#include "fst/log.h"
+#include "@PPS_FLAGS_LIB@"

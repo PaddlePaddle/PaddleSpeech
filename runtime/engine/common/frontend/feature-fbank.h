@@ -21,6 +21,7 @@
 #ifndef KALDI_NATIVE_FBANK_CSRC_FEATURE_FBANK_H_
 #define KALDI_NATIVE_FBANK_CSRC_FEATURE_FBANK_H_
 
+#include <limits>
 #include <map>
 
 #include "frontend/feature-window.h"

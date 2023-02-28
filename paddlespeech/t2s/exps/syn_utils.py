@@ -284,7 +284,8 @@ def run_frontend(frontend: object,
                  merge_sentences: bool=False,
                  get_tone_ids: bool=False,
                  lang: str='zh',
-                 to_tensor: bool=True):
+                 to_tensor: bool=True,
+                 add_blank: bool=False):
     outs = dict()
     if lang == 'zh':
         input_ids = {}
@@ -300,7 +301,8 @@ def run_frontend(frontend: object,
                 text,
                 merge_sentences=merge_sentences,
                 get_tone_ids=get_tone_ids,
-                to_tensor=to_tensor)
+                to_tensor=to_tensor,
+                add_blank=add_blank)
         phone_ids = input_ids["phone_ids"]
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]
@@ -576,15 +578,15 @@ def get_predictor(
     return predictor
 
 
-def get_am_output(
-        input: str,
-        am_predictor: paddle.nn.Layer,
-        am: str,
-        frontend: object,
-        lang: str='zh',
-        merge_sentences: bool=True,
-        speaker_dict: Optional[os.PathLike]=None,
-        spk_id: int=0, ):
+def get_am_output(input: str,
+                  am_predictor: paddle.nn.Layer,
+                  am: str,
+                  frontend: object,
+                  lang: str='zh',
+                  merge_sentences: bool=True,
+                  speaker_dict: Optional[os.PathLike]=None,
+                  spk_id: int=0,
+                  add_blank: bool=False):
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     am_input_names = am_predictor.get_input_names()
@@ -601,7 +603,8 @@ def get_am_output(
         text=input,
         merge_sentences=merge_sentences,
         get_tone_ids=get_tone_ids,
-        lang=lang)
+        lang=lang,
+        add_blank=add_blank, )
 
     if get_tone_ids:
         tone_ids = frontend_dict['tone_ids']

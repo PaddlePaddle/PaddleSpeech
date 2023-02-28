@@ -39,11 +39,3 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path} ${add_blank}|| exit -1
 fi
-
-# must run after stage 3 (which stage generated static models)
-if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
-    # NOTE by yuantian 2022.11.21: please compile develop version of Paddle-Lite to export and run TTS models,
-    #                   cause TTS models are supported by https://github.com/PaddlePaddle/Paddle-Lite/pull/9587 
-    #                   and https://github.com/PaddlePaddle/Paddle-Lite/pull/9706
-    ./local/export2lite.sh ${train_output_path} inference pdlite vits_csmsc x86
-fi

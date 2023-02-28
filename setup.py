@@ -49,7 +49,7 @@ base = [
     "paddlenlp>=2.4.8",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",
-    "praatio>=5.0.0",
+    "praatio>=5.0.0, <=5.1.1",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",

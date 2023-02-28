@@ -33,7 +33,7 @@ CMVN::CMVN(std::string cmvn_file, unique_ptr<FrontendInterface> base_extractor)
     dim_ = mean_stats_.size() - 1;
 }
 
-void CMVN::ReadCMVNFromJson(string cmvn_file) {
+void CMVN::ReadCMVNFromJson(std::string cmvn_file) {
     std::string json_str = ppspeech::ReadFile2String(cmvn_file);
     picojson::value value;
     std::string err;

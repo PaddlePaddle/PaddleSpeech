@@ -27,52 +27,58 @@
 
 namespace kaldi {
 // this enums equal to CblasTrans and CblasNoTrans constants from CBLAS library
-// we are writing them as literals because we don't want to include here matrix/kaldi-blas.h,
-// which puts many symbols into global scope (like "real") via the header f2c.h 
+// we are writing them as literals because we don't want to include here
+// matrix/kaldi-blas.h,
+// which puts many symbols into global scope (like "real") via the header f2c.h
 typedef enum {
-  kTrans    = 112, // = CblasTrans
-  kNoTrans  = 111  // = CblasNoTrans
+    kTrans = 112,   // = CblasTrans
+    kNoTrans = 111  // = CblasNoTrans
 } MatrixTransposeType;
 
-typedef enum {
-  kSetZero,
-  kUndefined,
-  kCopyData
-} MatrixResizeType;
+typedef enum { kSetZero, kUndefined, kCopyData } MatrixResizeType;
 
 
 typedef enum {
-  kDefaultStride,
-  kStrideEqualNumCols,
+    kDefaultStride,
+    kStrideEqualNumCols,
 } MatrixStrideType;
 
 typedef enum {
-  kTakeLower,
-  kTakeUpper,
-  kTakeMean,
-  kTakeMeanAndCheck
+    kTakeLower,
+    kTakeUpper,
+    kTakeMean,
+    kTakeMeanAndCheck
 } SpCopyType;
 
-template<typename Real> class VectorBase;
-template<typename Real> class Vector;
-template<typename Real> class SubVector;
-template<typename Real> class MatrixBase;
-template<typename Real> class SubMatrix;
-template<typename Real> class Matrix;
+template <typename Real>
+class VectorBase;
+template <typename Real>
+class Vector;
+template <typename Real>
+class SubVector;
+template <typename Real>
+class MatrixBase;
+template <typename Real>
+class SubMatrix;
+template <typename Real>
+class Matrix;
 
 
 /// This class provides a way for switching between double and float types.
-template<typename T> class OtherReal { };  // useful in reading+writing routines
-                                           // to switch double and float.
+template <typename T>
+class OtherReal {};  // useful in reading+writing routines
+                     // to switch double and float.
 /// A specialized class for switching from float to double.
-template<> class OtherReal<float> {
- public:
-  typedef double Real;
+template <>
+class OtherReal<float> {
+  public:
+    typedef double Real;
 };
 /// A specialized class for switching from double to float.
-template<> class OtherReal<double> {
- public:
-  typedef float Real;
+template <>
+class OtherReal<double> {
+  public:
+    typedef float Real;
 };
 
 
@@ -81,12 +87,10 @@ typedef int32 SignedMatrixIndexT;
 typedef uint32 UnsignedMatrixIndexT;
 
 // If you want to use size_t for the index type, do as follows instead:
-//typedef size_t MatrixIndexT;
-//typedef ssize_t SignedMatrixIndexT;
-//typedef size_t UnsignedMatrixIndexT;
-
+// typedef size_t MatrixIndexT;
+// typedef ssize_t SignedMatrixIndexT;
+// typedef size_t UnsignedMatrixIndexT;
 }
-
 
 
 #endif  // KALDI_MATRIX_MATRIX_COMMON_H_

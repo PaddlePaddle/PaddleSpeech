@@ -14,4 +14,4 @@
 
 #pragma once
 
-#include "fst/flags.h"
+#include "@PPS_GLOB_LIB@"

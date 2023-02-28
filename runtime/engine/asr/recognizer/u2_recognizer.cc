@@ -38,7 +38,8 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
         decoder_ = std::make_unique<CTCPrefixBeamSearch>(
             resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts);
     } else {
-        decoder_ = std::make_unique<TLGDecoder>(resource.decoder_opts.tlg_decoder_opts);
+        decoder_ = std::make_unique<TLGDecoder>(
+            resource.decoder_opts.tlg_decoder_opts);
     }
 
     symbol_table_ = decoder_->WordSymbolTable();

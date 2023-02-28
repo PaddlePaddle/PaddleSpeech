@@ -32,10 +32,12 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
+    "braceexpand",
     "editdistance",
     "g2p_en",
     "g2pM",
     "h5py",
+    "hyperpyyaml",
     "inflect",
     "jsonlines",
     "librosa==0.8.1",
@@ -46,14 +48,18 @@ base = [
     "opencc",
     "opencc-python-reimplemented",
     "pandas",
+    "paddleaudio>=1.1.0",
     "paddlenlp>=2.4.8",
+    "paddleslim>=2.3.4",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",
     "praatio>=5.0.0, <=5.1.1",
+    "prettytable",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",
     "pyworld>=0.2.12",
+    "pyyaml",
     "resampy",
     "sacrebleu",
     "textgrid",
@@ -62,13 +68,7 @@ base = [
     "typeguard",
     "webrtcvad",
     "yacs~=0.1.8",
-    "prettytable",
     "zhon",
-    "braceexpand",
-    "pyyaml",
-    "paddleslim>=2.3.4",
-    "paddleaudio>=1.1.0",
-    "hyperpyyaml",
 ]
 
 server = ["pattern_singleton", "websockets"]

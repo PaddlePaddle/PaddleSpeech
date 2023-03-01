@@ -61,6 +61,7 @@ paddlespeech tts --am tacotron2_csmsc --voc wavernn_csmsc --input "你好，欢�
 paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
 paddlespeech tts --am fastspeech2_male --voc pwgan_male --lang zh --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am fastspeech2_male --voc pwgan_male --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
+paddlespeech tts --am fastspeech2_canton --voc pwgan_aishell3 --input "各个国家有各个国家嘅国歌" --lang canton --spk_id 10
 
 # mix tts
 # The `am` must be `fastspeech2_mix`!

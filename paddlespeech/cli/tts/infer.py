@@ -82,6 +82,7 @@ class TTSExecutor(BaseExecutor):
                 'tacotron2_csmsc',
                 'tacotron2_ljspeech',
                 'fastspeech2_male',
+                'fastspeech2_canton',
             ],
             help='Choose acoustic model type of tts task.')
         self.parser.add_argument(
@@ -273,7 +274,7 @@ class TTSExecutor(BaseExecutor):
             use_pretrained_voc = False
         voc_lang = lang
         # When speaker is 174 (csmsc), use csmsc's vocoder is better than aishell3's
-        if lang == 'mix':
+        if lang == 'mix' or lang == 'canton':
             voc_dataset = voc[voc.rindex('_') + 1:]
             if voc_dataset in {"ljspeech", "vctk"}:
                 voc_lang = 'en'
@@ -487,7 +488,7 @@ class TTSExecutor(BaseExecutor):
             # fastspeech2
             else:
                 # multi speaker
-                if am_dataset in {'aishell3', 'vctk', 'mix'}:
+                if am_dataset in {'aishell3', 'vctk', 'mix', 'canton'}:
                     mel = self.am_inference(
                         part_phone_ids, spk_id=paddle.to_tensor(spk_id))
                 else:

@@ -889,6 +889,24 @@ tts_dynamic_pretrained_models = {
             'phone_id_map.txt',
         },
     },
+    "fastspeech2_canton-canton": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_ckpt_1.4.0.zip',
+            'md5':
+            '504560c082deba82120927627c900374',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_140000.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+        },
+    },
     "fastspeech2_ljspeech-en": {
         '1.0': {
             'url':

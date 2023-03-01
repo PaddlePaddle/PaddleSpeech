@@ -66,9 +66,9 @@
         paddlespeech tts --am fastspeech2_male --voc hifigan_male --lang mix --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --output male_mix_fs2_hifigan.wav
         ```
     - 粤语
-     ```bash
-     paddlespeech tts --am fastspeech2_canton --voc pwgan_aishell3 --input "各个国家有各个国家嘅国歌" --lang canton --spk_id 10
-     ```
+        ```bash
+        paddlespeech tts --am fastspeech2_canton --voc pwgan_aishell3 --input "各个国家有各个国家嘅国歌" --lang canton --spk_id 10
+        ```
     - 使用 ONNXRuntime 推理：
         ```bash
         paddlespeech tts --input "你好，欢迎使用百度飞桨深度学习框架！" --output default.wav --use_onnx True

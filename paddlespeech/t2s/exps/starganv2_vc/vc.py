@@ -53,7 +53,6 @@ def get_mel_extractor():
         norm=None,
         htk=True,
         power=2.0)
-
     return mel_extractor
 
 
@@ -77,8 +76,7 @@ def compute_style(speaker_dicts, mel_extractor, style_encoder, mapping_network):
             audio, index = librosa.effects.trim(wave, top_db=30)
             if sr != 24000:
                 wave = librosa.resample(wave, sr, 24000)
-            mel_tensor = preprocess(wave, mel_extractor)
-
+            mel_tensor = preprocess(wave=wave, mel_extractor=mel_extractor)
             with paddle.no_grad():
                 label = paddle.to_tensor([speaker], dtype=paddle.int64)
                 ref = style_encoder(mel_tensor.unsqueeze(1), label)
@@ -165,7 +163,7 @@ def voice_conversion(args, uncompress_path):
         mapping_network=mapping_network)
 
     wave, sr = librosa.load(args.source_path, sr=24000)
-    source = preprocess(wave, mel_extractor)
+    source = preprocess(wave=wave, mel_extractor=mel_extractor)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     orig_wav_name = str(output_dir / 'orig_voc.wav')
@@ -199,7 +197,7 @@ def voice_conversion(args, uncompress_path):
                 recon = None
             else:
                 wave, sr = librosa.load(speaker_dicts[key][0], sr=24000)
-                mel = preprocess(wave, mel_extractor)
+                mel = preprocess(wave=wave, mel_extractor=mel_extractor)
                 c = mel.transpose([0, 2, 1]).squeeze()
                 recon = vocoder.inference(c)
                 recon = recon.reshape([-1]).numpy()

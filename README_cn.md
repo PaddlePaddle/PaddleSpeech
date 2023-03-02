@@ -1019,3 +1019,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
 ## License
 
 PaddleSpeech 在 [Apache-2.0 许可](./LICENSE) 下提供。
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/PaddlePaddle/PaddleSpeech.svg)](https://starchart.cc/PaddlePaddle/PaddleSpeech)

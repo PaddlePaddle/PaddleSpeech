@@ -22,14 +22,15 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
+from paddlespeech.cli.utils import download_and_decompress
+from paddlespeech.resource.pretrained_models import StarGANv2VC_source
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
 from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
 from paddlespeech.t2s.models.starganv2_vc import Generator
 from paddlespeech.t2s.models.starganv2_vc import JDCNet
 from paddlespeech.t2s.models.starganv2_vc import MappingNetwork
 from paddlespeech.t2s.models.starganv2_vc import StyleEncoder
-
-uncompress_path = '/home/yuantian01/PaddleSpeech_stargan/PaddleSpeech/stargan_models/'
+from paddlespeech.utils.env import MODEL_HOME
 
 
 def get_mel_extractor():
@@ -86,7 +87,7 @@ def compute_style(speaker_dicts, mel_extractor, style_encoder, mapping_network):
     return reference_embeddings
 
 
-def get_models():
+def get_models(uncompress_path):
     model_dict = {}
     jdc_model_dir = os.path.join(uncompress_path, 'jdcnet.pdz')
     voc_model_dir = os.path.join(uncompress_path, 'Vocoder/')
@@ -153,13 +154,13 @@ def get_models():
     return model_dict
 
 
-def voice_conversion(args):
+def voice_conversion(source_path, output_dir, uncompress_path):
     speakers = [
         225, 228, 229, 230, 231, 233, 236, 239, 240, 244, 226, 227, 232, 243,
         254, 256, 258, 259, 270, 273
     ]
     demo_dir = os.path.join(uncompress_path, 'Demo/VCTK-corpus/')
-    model_dict = get_models()
+    model_dict = get_models(uncompress_path)
     style_encoder = model_dict['style_encoder']
     mapping_network = model_dict['mapping_network']
     generator = model_dict['generator']
@@ -174,14 +175,16 @@ def voice_conversion(args):
         speaker_dicts['p' + str(s)] = (
             demo_dir + 'p' + str(k) + '/p' + str(k) + '_023.wav',
             speakers.index(s))
-    print("speaker_dicts:", speaker_dicts)
     mel_extractor = get_mel_extractor()
-    reference_embeddings = compute_style(speaker_dicts, mel_extractor,
-                                         style_encoder, mapping_network)
+    reference_embeddings = compute_style(
+        speaker_dicts=speaker_dicts,
+        mel_extractor=mel_extractor,
+        style_encoder=style_encoder,
+        mapping_network=mapping_network)
 
-    wave, sr = librosa.load(args.source_path, sr=24000)
+    wave, sr = librosa.load(source_path, sr=24000)
     source = preprocess(wave, mel_extractor)
-    output_dir = Path(args.output_dir)
+    output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     orig_wav_name = str(output_dir / 'orig_voc.wav')
     print('原始语音 (使用声码器解码): %s' % orig_wav_name)
@@ -255,7 +258,13 @@ def main():
         paddle.set_device("gpu")
     else:
         print("ngpu should >= 0 !")
-    voice_conversion(args)
+    model_version = '1.0'
+    uncompress_path = download_and_decompress(StarGANv2VC_source[model_version],
+                                              MODEL_HOME)
+    voice_conversion(
+        source_path=args.source_path,
+        output_dir=args.output_dir,
+        uncompress_path=uncompress_path)
 
 
 if __name__ == "__main__":

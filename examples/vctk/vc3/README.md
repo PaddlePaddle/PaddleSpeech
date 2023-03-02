@@ -1,0 +1,1 @@
+You can download test source audios from [test_wav.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/starganv2vc/test_wav.zip).

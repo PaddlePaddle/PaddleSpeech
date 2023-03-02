@@ -2003,7 +2003,7 @@ g2pw_onnx_models = {
 }
 
 # ---------------------------------
-# ------------- Rhy_frontend ---------------
+# ---------- Rhy_frontend ---------
 # ---------------------------------
 rhy_frontend_models = {
     'rhy_e2e': {
@@ -2014,3 +2014,16 @@ rhy_frontend_models = {
         },
     },
 }
+
+# ---------------------------------
+# ---------- StarGANv2VC ----------
+# ---------------------------------
+
+StarGANv2VC_source = {
+    '1.0' :{
+        'url': 'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/starganv2vc/StarGANv2VC_source.zip',
+        'md5': '195e169419163f5648030ba84c71f866',
+
+    }
+}
+

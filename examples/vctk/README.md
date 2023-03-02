@@ -10,3 +10,4 @@
 * voc2 - MelGAN
 * voc3 - MultiBand MelGAN
 * ernie_sat - ERNIE-SAT
+* vc3 - StarGANv2-VC

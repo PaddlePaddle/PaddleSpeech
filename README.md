@@ -1017,3 +1017,7 @@ Besides, PaddleSpeech depends on a lot of open source repositories. See [referen
 ## License
 
 PaddleSpeech is provided under the [Apache-2.0 License](./LICENSE).
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/PaddlePaddle/PaddleSpeech.svg)](https://starchart.cc/PaddlePaddle/PaddleSpeech)

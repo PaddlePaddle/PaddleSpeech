@@ -1,7 +1,8 @@
 #!/bin/bash
 
-config_path=$1
-train_output_path=$2
-ckpt_name=$3
+source_path=$1
+output_dir=$2
 
-python3 ${BIN_DIR}/vc.py
+python3 ${BIN_DIR}/vc.py \
+    --source_path=${source_path}\
+    --output_dir=${output_dir}

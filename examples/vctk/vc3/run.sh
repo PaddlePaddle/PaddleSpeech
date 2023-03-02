@@ -10,6 +10,8 @@ stop_stage=100
 conf_path=conf/default.yaml
 train_output_path=exp/default
 ckpt_name=snapshot_iter_331.pdz
+source_path=test_wav/goat_01.wav
+output_dir=vc_output
 
 # with the following command, you can choose the stage range you want to run
 # such as `./run.sh --stage 0 --stop-stage 0`
@@ -28,6 +30,6 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # synthesize, vocoder is pwgan by default
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_conversion.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_conversion.sh ${source_path} ${output_dir}|| exit -1
 fi
 

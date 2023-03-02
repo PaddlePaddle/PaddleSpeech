@@ -11,10 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
+import os
 import time
+from pathlib import Path
 
 import librosa
-import numpy as np
 import paddle
 import soundfile as sf
 import yaml
@@ -27,50 +29,45 @@ from paddlespeech.t2s.models.starganv2_vc import JDCNet
 from paddlespeech.t2s.models.starganv2_vc import MappingNetwork
 from paddlespeech.t2s.models.starganv2_vc import StyleEncoder
 
-jdc_modeldir = '/home/yuantian01/PaddleSpeech_stargan/PaddleSpeech/stargan_models/jdcnet.pdz'
-# 是 stargan 重新训练的
-voc_modeldir = '/home/yuantian01/PaddleSpeech_stargan/PaddleSpeech/stargan_models/Vocoder/'
-starganv2vc_modeldir = '/home/yuantian01/PaddleSpeech_stargan/PaddleSpeech/stargan_models/starganv2vc.pdz'
-
-sr = 16000
-n_fft = 2048
-win_length = 1200
-hop_length = 300
-n_mels = 80
-fmin = 0
-fmax = sr // 2
-
-mel_extractor = LogMelFBank(
-    sr=sr,
-    n_fft=n_fft,
-    hop_length=hop_length,
-    win_length=win_length,
-    n_mels=n_mels,
-    fmin=fmin,
-    fmax=fmax,
-    norm=None,
-    htk=True,
-    power=2.0)
-
-speakers = [
-    225, 228, 229, 230, 231, 233, 236, 239, 240, 244, 226, 227, 232, 243, 254,
-    256, 258, 259, 270, 273
-]
-
-mean, std = -4, 4
+uncompress_path = '/home/yuantian01/PaddleSpeech_stargan/PaddleSpeech/stargan_models/'
 
 
-def preprocess(wave):
+def get_mel_extractor():
+    sr = 16000
+    n_fft = 2048
+    win_length = 1200
+    hop_length = 300
+    n_mels = 80
+    fmin = 0
+    fmax = sr // 2
+
+    mel_extractor = LogMelFBank(
+        sr=sr,
+        n_fft=n_fft,
+        hop_length=hop_length,
+        win_length=win_length,
+        n_mels=n_mels,
+        fmin=fmin,
+        fmax=fmax,
+        norm=None,
+        htk=True,
+        power=2.0)
+
+    return mel_extractor
+
+
+def preprocess(wave, mel_extractor):
     logmel = mel_extractor.get_log_mel_fbank(wave, base='e')
     # [1, 80, 1011]
+    mean, std = -4, 4
     mel_tensor = (paddle.to_tensor(logmel.T).unsqueeze(0) - mean) / std
     return mel_tensor
 
 
-def compute_style(speaker_dicts):
+def compute_style(speaker_dicts, mel_extractor, style_encoder, mapping_network):
     reference_embeddings = {}
     for key, (path, speaker) in speaker_dicts.items():
-        if path == "":
+        if path == '':
             label = paddle.to_tensor([speaker], dtype=paddle.int64)
             latent_dim = mapping_network.shared[0].weight.shape[0]
             ref = mapping_network(paddle.randn([1, latent_dim]), label)
@@ -79,7 +76,7 @@ def compute_style(speaker_dicts):
             audio, index = librosa.effects.trim(wave, top_db=30)
             if sr != 24000:
                 wave = librosa.resample(wave, sr, 24000)
-            mel_tensor = preprocess(wave)
+            mel_tensor = preprocess(wave, mel_extractor)
 
             with paddle.no_grad():
                 label = paddle.to_tensor([speaker], dtype=paddle.int64)
@@ -89,133 +86,177 @@ def compute_style(speaker_dicts):
     return reference_embeddings
 
 
-F0_model = JDCNet(num_class=1, seq_len=192)
-i = 0
+def get_models():
+    model_dict = {}
+    jdc_model_dir = os.path.join(uncompress_path, 'jdcnet.pdz')
+    voc_model_dir = os.path.join(uncompress_path, 'Vocoder/')
+    starganv2vc_model_dir = os.path.join(uncompress_path, 'starganv2vc.pdz')
 
-F0_model.set_state_dict(paddle.load(jdc_modeldir)['main_params'])
-F0_model.eval()
+    F0_model = JDCNet(num_class=1, seq_len=192)
+    F0_model.set_state_dict(paddle.load(jdc_model_dir)['main_params'])
+    F0_model.eval()
 
-with open(voc_modeldir + 'config.yml') as f:
-    voc_config = CfgNode(yaml.safe_load(f))
-voc_config["generator_params"].pop("upsample_net")
-voc_config["generator_params"]["upsample_scales"] = voc_config[
-    "generator_params"].pop("upsample_params")["upsample_scales"]
-vocoder = PWGGenerator(**voc_config["generator_params"])
-vocoder.remove_weight_norm()
-vocoder.eval()
-vocoder.set_state_dict(paddle.load(voc_modeldir + 'checkpoint-400000steps.pd'))
+    voc_config_path = os.path.join(voc_model_dir, 'config.yml')
+    with open(voc_config_path) as f:
+        voc_config = CfgNode(yaml.safe_load(f))
+    voc_config["generator_params"].pop("upsample_net")
+    voc_config["generator_params"]["upsample_scales"] = voc_config[
+        "generator_params"].pop("upsample_params")["upsample_scales"]
+    vocoder = PWGGenerator(**voc_config["generator_params"])
+    vocoder.remove_weight_norm()
+    vocoder.eval()
+    voc_model_path = os.path.join(voc_model_dir, 'checkpoint-400000steps.pd')
+    vocoder.set_state_dict(paddle.load(voc_model_path))
 
-dim_in = 64
-style_dim = 64
-latent_dim = 16
-num_domains = 20
-max_conv_dim = 512
-n_repeat = 4
-w_hpf = 0
-F0_channel = 256
+    dim_in = 64
+    style_dim = 64
+    latent_dim = 16
+    num_domains = 20
+    max_conv_dim = 512
+    n_repeat = 4
+    w_hpf = 0
+    F0_channel = 256
 
-generator = Generator(
-    dim_in=dim_in,
-    style_dim=style_dim,
-    max_conv_dim=max_conv_dim,
-    w_hpf=w_hpf,
-    F0_channel=F0_channel)
-mapping_network = MappingNetwork(
-    latent_dim=latent_dim,
-    style_dim=style_dim,
-    num_domains=num_domains,
-    hidden_dim=max_conv_dim)
-style_encoder = StyleEncoder(
-    dim_in=dim_in,
-    style_dim=style_dim,
-    num_domains=num_domains,
-    max_conv_dim=max_conv_dim)
+    generator = Generator(
+        dim_in=dim_in,
+        style_dim=style_dim,
+        max_conv_dim=max_conv_dim,
+        w_hpf=w_hpf,
+        F0_channel=F0_channel)
 
-starganv2vc_model_param = paddle.load(starganv2vc_modeldir)
-generator.set_state_dict(starganv2vc_model_param['generator_params'])
-mapping_network.set_state_dict(
-    starganv2vc_model_param['mapping_network_params'])
-style_encoder.set_state_dict(starganv2vc_model_param['style_encoder_params'])
-generator.eval()
-mapping_network.eval()
-style_encoder.eval()
+    mapping_network = MappingNetwork(
+        latent_dim=latent_dim,
+        style_dim=style_dim,
+        num_domains=num_domains,
+        hidden_dim=max_conv_dim)
 
-# 计算Demo文件夹下的说话人的风格
-speaker_dicts = {}
-selected_speakers = [273, 259, 258, 243, 254, 244, 236, 233, 230, 228]
-for s in selected_speakers:
-    k = s
-    speaker_dicts['p' + str(s)] = (
-        'Demo/VCTK-corpus/p' + str(k) + '/p' + str(k) + '_023.wav',
-        speakers.index(s))
-print("speaker_dicts:", speaker_dicts)
-reference_embeddings = compute_style(speaker_dicts)
-# print("reference_embeddings:", reference_embeddings)
+    style_encoder = StyleEncoder(
+        dim_in=dim_in,
+        style_dim=style_dim,
+        num_domains=num_domains,
+        max_conv_dim=max_conv_dim)
 
-# ============================================================================
+    starganv2vc_model_param = paddle.load(starganv2vc_model_dir)
+    generator.set_state_dict(starganv2vc_model_param['generator_params'])
+    mapping_network.set_state_dict(
+        starganv2vc_model_param['mapping_network_params'])
+    style_encoder.set_state_dict(
+        starganv2vc_model_param['style_encoder_params'])
+    generator.eval()
+    mapping_network.eval()
+    style_encoder.eval()
+    model_dict['F0_model'] = F0_model
+    model_dict['vocoder'] = vocoder
+    model_dict['generator'] = generator
+    model_dict['mapping_network'] = mapping_network
+    model_dict['style_encoder'] = style_encoder
+    return model_dict
 
-# 这里改成你上传的干净低噪声的wav格式语音文件
-wav_path = 'goat_01.wav'
 
-audio, source_sr = librosa.load(wav_path, sr=24000)
-audio = audio / np.max(np.abs(audio))
-audio.dtype = np.float32
+def voice_conversion(args):
+    speakers = [
+        225, 228, 229, 230, 231, 233, 236, 239, 240, 244, 226, 227, 232, 243,
+        254, 256, 258, 259, 270, 273
+    ]
+    demo_dir = os.path.join(uncompress_path, 'Demo/VCTK-corpus/')
+    model_dict = get_models()
+    style_encoder = model_dict['style_encoder']
+    mapping_network = model_dict['mapping_network']
+    generator = model_dict['generator']
+    vocoder = model_dict['vocoder']
+    F0_model = model_dict['F0_model']
 
-start = time.time()
-source = preprocess(audio)
-keys = []
-converted_samples = {}
-reconstructed_samples = {}
-converted_mels = {}
+    # 计算 Demo 文件夹下的说话人的风格
+    speaker_dicts = {}
+    selected_speakers = [273, 259, 258, 243, 254, 244, 236, 233, 230, 228]
+    for s in selected_speakers:
+        k = s
+        speaker_dicts['p' + str(s)] = (
+            demo_dir + 'p' + str(k) + '/p' + str(k) + '_023.wav',
+            speakers.index(s))
+    print("speaker_dicts:", speaker_dicts)
+    mel_extractor = get_mel_extractor()
+    reference_embeddings = compute_style(speaker_dicts, mel_extractor,
+                                         style_encoder, mapping_network)
 
-for key, (ref, _) in reference_embeddings.items():
+    wave, sr = librosa.load(args.source_path, sr=24000)
+    source = preprocess(wave, mel_extractor)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    orig_wav_name = str(output_dir / 'orig_voc.wav')
+    print('原始语音 (使用声码器解码): %s' % orig_wav_name)
+    c = source.transpose([0, 2, 1]).squeeze()
     with paddle.no_grad():
-        # F0_model 输入的特征是否可以不带 norm，或者 norm 是否一定要和 stargan 原作保持一致？
-        # !! 需要，ASR 和 F0_model 用的是一样的数据预处理方式
-        # 如果不想要重新训练 ASR 和 F0_model, 则我们的数据预处理需要和 stargan 原作保持一致
-        # 但是 vocoder 就无法复用
-        # 是否因为 asr 的输入是 16k 的，所以 torchaudio 的参数也是 16k 的？
-        f0_feat = F0_model.get_feature_GAN(source.unsqueeze(1))
-        # 输出是带 norm 的 mel, 所以可以直接用 vocoder.inference
-        out = generator(source.unsqueeze(1), ref, F0=f0_feat)
+        recon = vocoder.inference(c)
+        recon = recon.reshape([-1]).numpy()
+    sf.write(orig_wav_name, recon, samplerate=24000)
 
-        c = out.transpose([0, 1, 3, 2]).squeeze()
-        y_out = vocoder.inference(c)
-        y_out = y_out.reshape([-1])
+    keys = []
+    converted_samples = {}
+    reconstructed_samples = {}
+    converted_mels = {}
+    start = time.time()
 
-        if key not in speaker_dicts or speaker_dicts[key][0] == "":
-            recon = None
-        else:
-            wave, sr = librosa.load(speaker_dicts[key][0], sr=24000)
-            mel = preprocess(wave)
-            c = mel.transpose([0, 2, 1]).squeeze()
-            recon = vocoder.inference(c)
-            recon = recon.reshape([-1]).numpy()
+    for key, (ref, _) in reference_embeddings.items():
+        with paddle.no_grad():
+            # F0_model 输入的特征是否可以不带 norm，或者 norm 是否一定要和 stargan 原作保持一致？
+            # !! 需要，ASR 和 F0_model 用的是一样的数据预处理方式
+            # 如果不想要重新训练 ASR 和 F0_model, 则我们的数据预处理需要和 stargan 原作保持一致
+            # 但是 vocoder 就无法复用
+            # 是否因为 asr 的输入是 16k 的，所以 torchaudio 的参数也是 16k 的？
+            f0_feat = F0_model.get_feature_GAN(source.unsqueeze(1))
+            # 输出是带 norm 的 mel, 所以可以直接用 vocoder.inference
+            out = generator(source.unsqueeze(1), ref, F0=f0_feat)
+            c = out.transpose([0, 1, 3, 2]).squeeze()
+            y_out = vocoder.inference(c)
+            y_out = y_out.reshape([-1])
+            if key not in speaker_dicts or speaker_dicts[key][0] == "":
+                recon = None
+            else:
+                wave, sr = librosa.load(speaker_dicts[key][0], sr=24000)
+                mel = preprocess(wave, mel_extractor)
+                c = mel.transpose([0, 2, 1]).squeeze()
+                recon = vocoder.inference(c)
+                recon = recon.reshape([-1]).numpy()
 
-    converted_samples[key] = y_out.numpy()
-    reconstructed_samples[key] = recon
-    converted_mels[key] = out
-    keys.append(key)
+        converted_samples[key] = y_out.numpy()
+        reconstructed_samples[key] = recon
+        converted_mels[key] = out
+        keys.append(key)
+    end = time.time()
+    print('总共花费时间: %.3f sec' % (end - start))
+    for key, wave in converted_samples.items():
+        wav_name = str(output_dir / ('vc_result_' + key + '.wav'))
+        print('语音转换结果: %s' % wav_name)
+        sf.write(wav_name, wave, samplerate=24000)
+        ref_wav_name = str(output_dir / ('ref_voc_' + key + '.wav'))
+        print('参考的说话人 (使用声码器解码): %s' % ref_wav_name)
+        if reconstructed_samples[key] is not None:
+            sf.write(ref_wav_name, reconstructed_samples[key], samplerate=24000)
 
-end = time.time()
 
-print('总共花费时间: %.3f sec' % (end - start))
+def parse_args():
+    # parse args and config  
+    parser = argparse.ArgumentParser(
+        description="StarGANv2-VC Voice Conversion.")
+    parser.add_argument("--source_path", type=str, help="source audio's path.")
+    parser.add_argument("--output_dir", type=str, help="output dir.")
+    parser.add_argument(
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    args = parser.parse_args()
+    return args
 
-print('原始语音 (使用声码器解码):')
-wave, sr = librosa.load(wav_path, sr=24000)
-mel = preprocess(wave)
-c = mel.transpose([0, 2, 1]).squeeze()
-with paddle.no_grad():
-    recon = vocoder.inference(c)
-    recon = recon.reshape([-1]).numpy()
-# display(ipd.Audio(recon, rate=24000))
-sf.write('orig_voc.wav', recon, samplerate=24000)
 
-for key, wave in converted_samples.items():
-    wav_name = 'vc_result_' + key + '.wav'
-    print('语音转换结果: %s' % wav_name)
-    sf.write(wav_name, wave, samplerate=24000)
-    ref_wav_name = 'ref_voc_' + key + '.wav'
-    print('参考的说话人 (使用声码器解码): %s' % ref_wav_name)
-    if reconstructed_samples[key] is not None:
-        sf.write(ref_wav_name, reconstructed_samples[key], samplerate=24000)
+def main():
+    args = parse_args()
+    if args.ngpu == 0:
+        paddle.set_device("cpu")
+    elif args.ngpu > 0:
+        paddle.set_device("gpu")
+    else:
+        print("ngpu should >= 0 !")
+    voice_conversion(args)
+
+
+if __name__ == "__main__":
+    main()

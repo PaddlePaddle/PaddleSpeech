@@ -31,6 +31,6 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # synthesize, vocoder is pwgan by default
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_conversion.sh ${source_path} ${output_dir}|| exit -1
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_conversion.sh ${conf_path} ${source_path} ${output_dir}|| exit -1
 fi
 

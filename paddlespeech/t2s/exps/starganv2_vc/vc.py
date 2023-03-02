@@ -87,7 +87,7 @@ def compute_style(speaker_dicts, mel_extractor, style_encoder, mapping_network):
     return reference_embeddings
 
 
-def get_models(uncompress_path):
+def get_models(args, uncompress_path):
     model_dict = {}
     jdc_model_dir = os.path.join(uncompress_path, 'jdcnet.pdz')
     voc_model_dir = os.path.join(uncompress_path, 'Vocoder/')
@@ -109,43 +109,25 @@ def get_models(uncompress_path):
     voc_model_path = os.path.join(voc_model_dir, 'checkpoint-400000steps.pd')
     vocoder.set_state_dict(paddle.load(voc_model_path))
 
-    dim_in = 64
-    style_dim = 64
-    latent_dim = 16
-    num_domains = 20
-    max_conv_dim = 512
-    n_repeat = 4
-    w_hpf = 0
-    F0_channel = 256
+    with open(args.config_path) as f:
+        config = CfgNode(yaml.safe_load(f))
 
-    generator = Generator(
-        dim_in=dim_in,
-        style_dim=style_dim,
-        max_conv_dim=max_conv_dim,
-        w_hpf=w_hpf,
-        F0_channel=F0_channel)
-
-    mapping_network = MappingNetwork(
-        latent_dim=latent_dim,
-        style_dim=style_dim,
-        num_domains=num_domains,
-        hidden_dim=max_conv_dim)
-
-    style_encoder = StyleEncoder(
-        dim_in=dim_in,
-        style_dim=style_dim,
-        num_domains=num_domains,
-        max_conv_dim=max_conv_dim)
+    generator = Generator(**config['generator_params'])
+    mapping_network = MappingNetwork(**config['mapping_network_params'])
+    style_encoder = StyleEncoder(**config['style_encoder_params'])
 
     starganv2vc_model_param = paddle.load(starganv2vc_model_dir)
+
     generator.set_state_dict(starganv2vc_model_param['generator_params'])
     mapping_network.set_state_dict(
         starganv2vc_model_param['mapping_network_params'])
     style_encoder.set_state_dict(
         starganv2vc_model_param['style_encoder_params'])
+
     generator.eval()
     mapping_network.eval()
     style_encoder.eval()
+
     model_dict['F0_model'] = F0_model
     model_dict['vocoder'] = vocoder
     model_dict['generator'] = generator
@@ -154,13 +136,13 @@ def get_models(uncompress_path):
     return model_dict
 
 
-def voice_conversion(source_path, output_dir, uncompress_path):
+def voice_conversion(args, uncompress_path):
     speakers = [
         225, 228, 229, 230, 231, 233, 236, 239, 240, 244, 226, 227, 232, 243,
         254, 256, 258, 259, 270, 273
     ]
     demo_dir = os.path.join(uncompress_path, 'Demo/VCTK-corpus/')
-    model_dict = get_models(uncompress_path)
+    model_dict = get_models(args, uncompress_path=uncompress_path)
     style_encoder = model_dict['style_encoder']
     mapping_network = model_dict['mapping_network']
     generator = model_dict['generator']
@@ -182,9 +164,9 @@ def voice_conversion(source_path, output_dir, uncompress_path):
         style_encoder=style_encoder,
         mapping_network=mapping_network)
 
-    wave, sr = librosa.load(source_path, sr=24000)
+    wave, sr = librosa.load(args.source_path, sr=24000)
     source = preprocess(wave, mel_extractor)
-    output_dir = Path(output_dir)
+    output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     orig_wav_name = str(output_dir / 'orig_voc.wav')
     print('原始语音 (使用声码器解码): %s' % orig_wav_name)
@@ -245,6 +227,11 @@ def parse_args():
     parser.add_argument("--source_path", type=str, help="source audio's path.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
     parser.add_argument(
+        '--config_path',
+        type=str,
+        default=None,
+        help='Config of StarGANv2-VC model.')
+    parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     args = parser.parse_args()
     return args
@@ -261,10 +248,7 @@ def main():
     model_version = '1.0'
     uncompress_path = download_and_decompress(StarGANv2VC_source[model_version],
                                               MODEL_HOME)
-    voice_conversion(
-        source_path=args.source_path,
-        output_dir=args.output_dir,
-        uncompress_path=uncompress_path)
+    voice_conversion(args, uncompress_path=uncompress_path)
 
 
 if __name__ == "__main__":

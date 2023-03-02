@@ -8,7 +8,7 @@
     num_domains: 20      # num of speakers in StarGANv2
     latent_dim: 16
     style_dim: 64        # same as style_dim in generator_params
-    max_conv_dim: 512    # same as max_conv_dim in generator_params
+    hidden_dim: 512      # same as max_conv_dim in generator_params
   style_encoder_params:
     dim_in: 64           # same as dim_in in generator_params
     style_dim: 64        # same as style_dim in generator_params

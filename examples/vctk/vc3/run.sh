@@ -18,11 +18,12 @@ output_dir=vc_output
 # this can not be mixed use with `$1`, `$2` ...
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 
+# not ready now
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
     ./local/preprocess.sh ${conf_path} || exit -1
 fi
-
+# not ready now
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # train model, all `ckpt` under `train_output_path/checkpoints/` dir
     CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path} || exit -1

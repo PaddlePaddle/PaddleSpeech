@@ -705,9 +705,9 @@ class FastSpeech2(nn.Layer):
     def encoder_infer(
             self,
             text: paddle.Tensor,
+            spk_id=None,
             alpha: float=1.0,
             spk_emb=None,
-            spk_id=None,
             tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         # input of embedding must be int64

@@ -16,6 +16,7 @@
 
 #include "base/flags.h"
 #include "base/log.h"
+#include "base/log_impl.h"
 #include "frontend/audio_cache.h"
 #include "frontend/data_cache.h"
 #include "frontend/fbank.h"

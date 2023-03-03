@@ -1,10 +1,20 @@
+
+
 if(WITH_ASR)
   add_compile_options(-DWITH_ASR)
   set(PPS_FLAGS_LIB "fst/flags.h")
-  set(PPS_GLOB_LIB "fst/log.h")
 else()
   set(PPS_FLAGS_LIB "gflags/gflags.h")
-  set(PPS_GLOB_LIB "glog/logging.h")
+endif()
+
+if(ANDROID)
+  set(PPS_GLOB_LIB "base/log_impl.h")
+else() #UNIX
+  if(WITH_ASR)
+    set(PPS_GLOB_LIB "fst/log.h")
+  else()
+    set(PPS_GLOB_LIB "glog/logging.h")
+  endif()
 endif()
 
 configure_file(
@@ -18,3 +28,15 @@ configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/log.h @ONLY
   )
 message(STATUS "Generated ${CMAKE_CURRENT_SOURCE_DIR}/log.h")
+
+
+if(ANDROID)
+set(csrc
+  log_impl.cc
+  glog_utils.cc
+)
+else() # UNIX
+  set(csrc)
+endif()
+
+add_library(base ${csrc})

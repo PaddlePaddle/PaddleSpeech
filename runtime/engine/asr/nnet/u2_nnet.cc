@@ -18,11 +18,11 @@
 
 #include "nnet/u2_nnet.h"
 
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
 #include "paddle/fluid/platform/profiler.h"
 using paddle::platform::RecordEvent;
 using paddle::platform::TracerEventType;
-#endif  // end USE_PROFILING
+#endif  // end WITH_PROFILING
 
 namespace ppspeech {
 
@@ -30,7 +30,7 @@ namespace ppspeech {
 void U2Nnet::LoadModel(const std::string& model_path_w_prefix) {
     paddle::jit::utils::InitKernelSignatureMap();
 
-#ifdef USE_GPU
+#ifdef WITH_GPU
     dev_ = phi::GPUPlace();
 #else
     dev_ = phi::CPUPlace();
@@ -62,12 +62,12 @@ void U2Nnet::LoadModel(const std::string& model_path_w_prefix) {
 }
 
 void U2Nnet::Warmup() {
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
     RecordEvent event("warmup", TracerEventType::UserDefined, 1);
 #endif
 
     {
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
         RecordEvent event(
             "warmup-encoder-ctc", TracerEventType::UserDefined, 1);
 #endif
@@ -91,7 +91,7 @@ void U2Nnet::Warmup() {
     }
 
     {
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
         RecordEvent event("warmup-decoder", TracerEventType::UserDefined, 1);
 #endif
         auto hyps =
@@ -194,7 +194,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     const int32& feat_dim,
     std::vector<kaldi::BaseFloat>* out_prob,
     int32* vocab_dim) {
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
     RecordEvent event(
         "ForwardEncoderChunkImpl", TracerEventType::UserDefined, 1);
 #endif
@@ -222,7 +222,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     VLOG(3) << "feats shape: " << feats.shape()[0] << ", " << feats.shape()[1]
             << ", " << feats.shape()[2];
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("feat", std::ios_base::app | std::ios_base::out);
         path << offset_;
@@ -241,7 +241,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
 #endif
 
 // Endocer chunk forward
-#ifdef USE_GPU
+#ifdef WITH_GPU
     feats = feats.copy_to(paddle::GPUPlace(), /*blocking*/ false);
     att_cache_ = att_cache_.copy_to(paddle::GPUPlace()), /*blocking*/ false;
     cnn_cache_ = cnn_cache_.copy_to(Paddle::GPUPlace(), /*blocking*/ false);
@@ -258,7 +258,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     std::vector<paddle::Tensor> outputs = forward_encoder_chunk_(inputs);
     CHECK_EQ(outputs.size(), 3);
 
-#ifdef USE_GPU
+#ifdef WITH_GPU
     paddle::Tensor chunk_out = outputs[0].copy_to(paddle::CPUPlace());
     att_cache_ = outputs[1].copy_to(paddle::CPUPlace());
     cnn_cache_ = outputs[2].copy_to(paddle::CPUPlace());
@@ -268,7 +268,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     cnn_cache_ = outputs[2];
 #endif
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_logits",
                                std::ios_base::app | std::ios_base::out);
@@ -298,7 +298,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     encoder_outs_.push_back(chunk_out);
     VLOG(2) << "encoder_outs_ size: " << encoder_outs_.size();
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_logits_list",
                                std::ios_base::app | std::ios_base::out);
@@ -317,7 +317,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     }
 #endif  // end TEST_DEBUG
 
-#ifdef USE_GPU
+#ifdef WITH_GPU
 
 #error "Not implementation."
 
@@ -331,7 +331,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     CHECK_EQ(outputs.size(), 1);
     paddle::Tensor ctc_log_probs = outputs[0];
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_logprob",
                                std::ios_base::app | std::ios_base::out);
@@ -353,7 +353,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     }
 #endif  // end TEST_DEBUG
 
-#endif  // end USE_GPU
+#endif  // end WITH_GPU
 
     // Copy to output, (B=1,T,D)
     std::vector<int64_t> ctc_log_probs_shape = ctc_log_probs.shape();
@@ -370,7 +370,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     std::memcpy(
         out_prob->data(), ctc_log_probs_ptr, T * D * sizeof(kaldi::BaseFloat));
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_logits_list_ctc",
                                std::ios_base::app | std::ios_base::out);
@@ -419,7 +419,7 @@ float U2Nnet::ComputePathScore(const paddle::Tensor& prob,
 void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
                                 float reverse_weight,
                                 std::vector<float>* rescoring_score) {
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
     RecordEvent event("AttentionRescoring", TracerEventType::UserDefined, 1);
 #endif
     CHECK(rescoring_score != nullptr);
@@ -461,7 +461,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
         }
     }
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_logits_concat",
                                std::ios_base::app | std::ios_base::out);
@@ -485,7 +485,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     paddle::Tensor encoder_out = paddle::concat(encoder_outs_, 1);
     VLOG(2) << "encoder_outs_ size: " << encoder_outs_.size();
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_out0",
                                std::ios_base::app | std::ios_base::out);
@@ -504,7 +504,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 #endif  // end TEST_DEBUG
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("encoder_out",
                                std::ios_base::app | std::ios_base::out);
@@ -535,7 +535,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     CHECK_EQ(probs_shape[0], num_hyps);
     CHECK_EQ(probs_shape[1], max_hyps_len);
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("decoder_logprob",
                                std::ios_base::app | std::ios_base::out);
@@ -553,7 +553,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 #endif  // end TEST_DEBUG
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("hyps_lens",
                                std::ios_base::app | std::ios_base::out);
@@ -569,7 +569,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 #endif  // end TEST_DEBUG
 
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::stringstream path("hyps_tensor",
                                std::ios_base::app | std::ios_base::out);

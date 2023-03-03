@@ -22,7 +22,7 @@
 #include "decoder/ctc_prefix_beam_search_score.h"
 #include "utils/math.h"
 
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
 #include "paddle/fluid/platform/profiler.h"
 using paddle::platform::RecordEvent;
 using paddle::platform::TracerEventType;
@@ -103,7 +103,7 @@ static bool PrefixScoreCompare(
 
 void CTCPrefixBeamSearch::AdvanceDecoding(
     const std::vector<std::vector<kaldi::BaseFloat>>& logp) {
-#ifdef USE_PROFILING
+#ifdef WITH_PROFILING
     RecordEvent event("CtcPrefixBeamSearch::AdvanceDecoding",
                       TracerEventType::UserDefined,
                       1);

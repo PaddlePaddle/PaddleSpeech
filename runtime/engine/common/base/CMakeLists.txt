@@ -31,12 +31,12 @@ message(STATUS "Generated ${CMAKE_CURRENT_SOURCE_DIR}/log.h")
 
 
 if(ANDROID)
-set(csrc
-  log_impl.cc
-  glog_utils.cc
-)
+  set(csrc
+    log_impl.cc
+    glog_utils.cc
+  )
+  add_library(base ${csrc})
 else() # UNIX
   set(csrc)
+  add_library(base INTERFACE)
 endif()
-
-add_library(base ${csrc})

@@ -63,9 +63,7 @@ option(WITH_TESTING "unit test" ON)
 ###############################################################################
 include(gflags)
 
-
 include(glog)
-add_dependencies(glog gflags)
 
 # gtest
 if(WITH_TESTING)

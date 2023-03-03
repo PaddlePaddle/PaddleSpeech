@@ -24,7 +24,7 @@
 #endif
 
 namespace ppspeech {
-    
+
 // kSpaceSymbol in UTF-8 is: ▁
 const char kSpaceSymbo[] = "\xe2\x96\x81";
 

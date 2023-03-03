@@ -3,7 +3,7 @@
 #include "base/common.h"
 
 namespace google {
-    void InitGoogleLogging(const char* name);
+void InitGoogleLogging(const char* name);
 
-    void InstallFailureSignalHandler();
-} // namespace google
+void InstallFailureSignalHandler();
+}  // namespace google

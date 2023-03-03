@@ -13,27 +13,30 @@
 // limitations under the License.
 
 // modified from https://github.com/Dounm/dlog
-// modified form https://android.googlesource.com/platform/art/+/806defa/src/logging.h
+// modified form
+// https://android.googlesource.com/platform/art/+/806defa/src/logging.h
 
 #pragma once
 
 #include <fstream>
-#include <thread>
-#include <mutex>
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <mutex>
+#include <sstream>
+#include <string>
+#include <thread>
 
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "base/common.h"
 #include "base/macros.h"
+#ifndef WITH_GLOG
 #include "base/glog_utils.h"
+#endif
 
 DECLARE_int32(logtostderr);
 
-namespace ppspeech{
+namespace ppspeech {
 
 namespace log {
 
@@ -47,57 +50,60 @@ enum Severity {
 };
 
 class LogMessage {
-    public:
-        static void get_curr_proc_info(std::string* pid, std::string* proc_name);
+  public:
+    static void get_curr_proc_info(std::string* pid, std::string* proc_name);
 
-        LogMessage(const char* file, int line, Severity level, bool verbose, bool out_to_file = false);
+    LogMessage(const char* file,
+               int line,
+               Severity level,
+               bool verbose,
+               bool out_to_file = false);
 
-        ~LogMessage();
+    ~LogMessage();
 
-        std::ostream& stream() { return *stream_; }
+    std::ostream& stream() { return *stream_; }
 
-    private:
-        void init(const char* file, int line);
+  private:
+    void init(const char* file, int line);
 
-    private:
-        std::shared_ptr<std::ostream> stream_;
-        Severity level_;
-        bool verbose_;
-        bool out_to_file_;
+  private:
+    std::shared_ptr<std::ostream> stream_;
+    Severity level_;
+    bool verbose_;
+    bool out_to_file_;
 
-        static std::mutex lock_; // stream write lock
-        static std::string s_debug_logfile_;
-        static std::string s_info_logfile_;
-        static std::string s_warning_logfile_;
-        static std::string s_error_logfile_;
-        static std::string s_fatal_logfile_;
+    static std::mutex lock_;  // stream write lock
+    static std::string s_debug_logfile_;
+    static std::string s_info_logfile_;
+    static std::string s_warning_logfile_;
+    static std::string s_error_logfile_;
+    static std::string s_fatal_logfile_;
 
-        DISALLOW_COPY_AND_ASSIGN(LogMessage);
+    DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 
-} //namespace log
+}  // namespace log
 
-} //namespace ppspeech
-
+}  // namespace ppspeech
 
 
 #ifndef NDEBUG
-    #define DLOG_DEBUG ppspeech::log::LogMessage \
-        (__FILE__, __LINE__, ppspeech::log::DEBUG, false)
+#define DLOG_DEBUG \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::DEBUG, false)
 #else
-    #define DLOG_DEBUG ppspeech::log::LogMessage \
-        (__FILE__, __LINE__, ppspeech::log::DEBUG, true)
+#define DLOG_DEBUG \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::DEBUG, true)
 #endif
 
-#define DLOG_INFO ppspeech::log::LogMessage \
-    (__FILE__, __LINE__, ppspeech::log::INFO, true)
-#define DLOG_WARNING ppspeech::log::LogMessage \
-    (__FILE__, __LINE__, ppspeech::log::WARNING, true)
-#define DLOG_ERROR ppspeech::log::LogMessage \
-    (__FILE__, __LINE__, ppspeech::log::ERROR, true)
-#define DLOG_FATAL ppspeech::log::LogMessage \
-    (__FILE__, __LINE__, ppspeech::log::FATAL, true)
+#define DLOG_INFO \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::INFO, true)
+#define DLOG_WARNING \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::WARNING, true)
+#define DLOG_ERROR \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::ERROR, true)
+#define DLOG_FATAL \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::FATAL, true)
 
 #define DLOG_0 DLOG_DEBUG
 #define DLOG_1 DLOG_INFO
@@ -110,8 +116,11 @@ class LogMessage {
 #define VLOG(verboselevel) LOG(verboselevel)
 
 
-#define CHECK(exp) ppspeech::log::LogMessage \
-    (__FILE__, __LINE__, ppspeech::log::FATAL, !(exp)).stream() << "Check Failed: " #exp
+#define CHECK(exp)                                        \
+    ppspeech::log::LogMessage(                            \
+        __FILE__, __LINE__, ppspeech::log::FATAL, !(exp)) \
+            .stream()                                     \
+        << "Check Failed: " #exp
 
 #define CHECK_EQ(x, y) CHECK((x) == (y))
 #define CHECK_NE(x, y) CHECK((x) != (y))
@@ -129,27 +138,19 @@ class LogMessage {
 #define DCHECK_GT(x, y) CHECK_GT(x, y)
 #else  // NDEBUG
 #define DCHECK(condition) \
-  while (false) \
-    CHECK(condition)
+    while (false) CHECK(condition)
 #define DCHECK_EQ(val1, val2) \
-  while (false) \
-    CHECK_EQ(val1, val2)
+    while (false) CHECK_EQ(val1, val2)
 #define DCHECK_NE(val1, val2) \
-  while (false) \
-    CHECK_NE(val1, val2)
+    while (false) CHECK_NE(val1, val2)
 #define DCHECK_LE(val1, val2) \
-  while (false) \
-    CHECK_LE(val1, val2)
+    while (false) CHECK_LE(val1, val2)
 #define DCHECK_LT(val1, val2) \
-  while (false) \
-    CHECK_LT(val1, val2)
+    while (false) CHECK_LT(val1, val2)
 #define DCHECK_GE(val1, val2) \
-  while (false) \
-    CHECK_GE(val1, val2)
+    while (false) CHECK_GE(val1, val2)
 #define DCHECK_GT(val1, val2) \
-  while (false) \
-    CHECK_GT(val1, val2)
+    while (false) CHECK_GT(val1, val2)
 #define DCHECK_STREQ(str1, str2) \
-  while (false) \
-    CHECK_STREQ(str1, str2)
+    while (false) CHECK_STREQ(str1, str2)
 #endif

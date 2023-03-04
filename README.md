@@ -1012,6 +1012,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) for the python3.9 prebuilt wheel for PaddleSpeech installation in Windows without Viusal Studio.
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 - Many thanks to [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) for converting audio to text based on FastAPI and PaddleSpeech.
+- Many thanks to [MistEO](https://github.com/MistEO)/[Pallas-Bot](https://github.com/MistEO/Pallas-Bot) for QQ bot based on PaddleSpeech TTS.
 
 <a name="License"></a>
 ## License

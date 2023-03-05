@@ -584,7 +584,7 @@ template void VectorBase<double>::CopyColFromMat(const MatrixBase<double> &mat,
 // Real *data = data_;
 
 //// implement the function according to a dimension cutoff for computation
-///efficiency
+/// efficiency
 // if (num_rows <= 64) {
 // cblas_Xscal(dim, beta, data, 1);
 // const Real *m_data = M.Data();
@@ -605,7 +605,7 @@ template void VectorBase<double>::CopyColFromMat(const MatrixBase<double> &mat,
 // MatrixIndexT num_cols = M.NumCols();
 
 //// implement the function according to a dimension cutoff for computation
-///efficiency
+/// efficiency
 // if (num_cols <= 64) {
 // for (MatrixIndexT i = 0; i < dim_; i++) {
 // double sum = 0.0;
@@ -1224,7 +1224,7 @@ void Vector<Real>::Swap(Vector<Real> *other) {
 // for (MatrixIndexT i = 0; i < dim; i++, Mdata += M_row_stride, Ndata +=
 // N_col_stride, data++) {
 //*data = beta * *data + alpha * cblas_Xdot(M_col_dim, Mdata, M_col_stride,
-//Ndata, N_row_stride);
+// Ndata, N_row_stride);
 //}
 //}
 

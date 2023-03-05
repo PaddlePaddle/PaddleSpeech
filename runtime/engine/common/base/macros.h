@@ -17,13 +17,13 @@
 #include <limits>
 #include <string>
 
-namespace ppspeech {
-
 #ifndef DISALLOW_COPY_AND_ASSIGN
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(const TypeName&) = delete;    \
     void operator=(const TypeName&) = delete
 #endif
+
+namespace ppspeech {
 
 // kSpaceSymbol in UTF-8 is: ▁
 const char kSpaceSymbo[] = "\xe2\x96\x81";

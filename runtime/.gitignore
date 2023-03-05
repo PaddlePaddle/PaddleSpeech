@@ -4,3 +4,4 @@ engine/common/base/log.h
 tools/valgrind*
 *log
 fc_patch/*
+test

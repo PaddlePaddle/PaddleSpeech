@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "cls/nnet/panns_nnet.h"
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
 #include "kaldi/base/timer.h"
 #endif
 
@@ -86,7 +86,7 @@ int ClsNnet::Forward(const char* wav_path,
                      int topk,
                      char* result,
                      int result_max_len) {
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
     kaldi::Timer timer;
     timer.Reset();
 #endif
@@ -105,7 +105,7 @@ int ClsNnet::Forward(const char* wav_path,
                    conf_.wav_normal_,
                    conf_.wav_normal_type_,
                    conf_.wav_norm_mul_factor_);
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::ofstream fp("cls.wavform", std::ios::out);
         for (int i = 0; i < wavform.size(); ++i) {
@@ -114,11 +114,11 @@ int ClsNnet::Forward(const char* wav_path,
         fp << "\n";
     }
 #endif
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
     printf("wav read consume: %fs\n", timer.Elapsed());
 #endif
 
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
     timer.Reset();
 #endif
 
@@ -138,7 +138,7 @@ int ClsNnet::Forward(const char* wav_path,
             feats[i * feat_dim + j] = PowerTodb(feats[i * feat_dim + j]);
         }
     }
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::ofstream fp("cls.feat", std::ios::out);
         for (int i = 0; i < num_frames; ++i) {
@@ -149,20 +149,20 @@ int ClsNnet::Forward(const char* wav_path,
         }
     }
 #endif
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
     printf("extract fbank consume: %fs\n", timer.Elapsed());
 #endif
 
     // infer
     std::vector<float> model_out;
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
     timer.Reset();
 #endif
     ModelForward(feats.data(), num_frames, feat_dim, &model_out);
-#ifdef PRINT_TIME
+#ifdef WITH_PROFILING
     printf("fast deploy infer consume: %fs\n", timer.Elapsed());
 #endif
-#ifdef TEST_DEBUG
+#ifndef NDEBUG
     {
         std::ofstream fp("cls.logits", std::ios::out);
         for (int i = 0; i < model_out.size(); ++i) {

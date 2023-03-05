@@ -16,11 +16,14 @@ if(NOT CMAKE_BUILD_TYPE)
         FORCE)
 endif()
 
+
 project(paddlespeech VERSION 0.1)
 
-set(CMAKE_VERBOSE_MAKEFILE on)
-
-
+# if(ANDROID)
+#     # when cross compile with ndk under linux,
+#     # UNIX and ANROID are all True
+#     set(UNIX)
+# endif()
 
 include(FetchContent)
 include(ExternalProject)
@@ -30,12 +33,12 @@ set(FETCHCONTENT_QUIET off)
 get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
-set(CMAKE_CXX_FLAGS)
-set(CMAKE_CXX_FLAGS_DEBUG)
-set(CMAKE_CXX_FLAGS_RELEASE)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(PPS_CXX_STANDARD 14)
 
 # set std-14
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD ${PPS_CXX_STANDARD})
+add_compile_options(-fPIC)
 
 # compiler option
 # Keep the same with openfst, -fPIC or -fpic
@@ -43,8 +46,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g 
 SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
 
-
-add_compile_options(-fPIC)
 ###############################################################################
 # Option Configurations
 ###############################################################################
@@ -52,11 +53,10 @@ option(WITH_ASR "build asr" ON)
 option(WITH_CLS "build cls" ON)
 option(WITH_VAD "build vad" ON)
 
-option(TEST_DEBUG "option for debug" OFF)
-option(USE_PROFILING "enable c++ profling" OFF)
-option(WITH_TESTING "unit test" ON)
+option(WITH_GPU "NNet using GPU." OFF)
 
-option(USING_GPU "u2 compute on GPU." OFF)
+option(WITH_PROFILING "enable c++ profling" OFF)
+option(WITH_TESTING "unit test" ON)
 
 ###############################################################################
 # Include Third Party
@@ -69,7 +69,6 @@ include(glog)
 if(WITH_TESTING)
     include(gtest) # download, build, install gtest
 endif()
-
 
 # fastdeploy
 include(fastdeploy)
@@ -161,15 +160,11 @@ if(WITH_ASR)
     message(STATUS PADDLE_LIB_DIRS= ${PADDLE_LIB_DIRS})
 endif()
 
+include(summary)
 
 ###############################################################################
 # Add local library
 ###############################################################################
 set(ENGINE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/engine)
-
-message(STATUS "CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
-message(STATUS "CMAKE_CXX_FLAGS_DEBUG=${CMAKE_CXX_FLAGS_DEBUG}")
-message(STATUS "CMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}")
-
 
 add_subdirectory(engine)

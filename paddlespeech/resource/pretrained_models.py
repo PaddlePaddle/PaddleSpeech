@@ -1459,7 +1459,7 @@ tts_static_pretrained_models = {
             24000,
         },
     },
-    "fastspeech2_canton": {
+    "fastspeech2_canton-canton": {
         '1.0': {
             'url':
             'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip',
@@ -1640,7 +1640,6 @@ tts_static_pretrained_models[
     "fastspeech2_mix-zh"] = tts_static_pretrained_models[
         "fastspeech2_mix-en"] = tts_static_pretrained_models[
             "fastspeech2_mix-mix"]
-tts_static_pretrained_models["fastspeech2_canton-canton"] = tts_static_pretrained_models["fastspeech2_canton"]
 tts_static_pretrained_models["pwgan_male-en"] = tts_static_pretrained_models[
     "pwgan_male-mix"] = tts_static_pretrained_models["pwgan_male-zh"]
 tts_static_pretrained_models["hifigan_male-en"] = tts_static_pretrained_models[
@@ -1818,7 +1817,7 @@ tts_onnx_pretrained_models = {
             24000,
         },
     },
-    "fastspeech2_canton_onnx": {
+    "fastspeech2_canton_onnx-canton": {
         '1.0': {
             'url':
             'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip',
@@ -1975,7 +1974,6 @@ tts_onnx_pretrained_models[
     "fastspeech2_mix_onnx-zh"] = tts_onnx_pretrained_models[
         "fastspeech2_mix_onnx-en"] = tts_onnx_pretrained_models[
             "fastspeech2_mix_onnx-mix"]
-tts_onnx_pretrained_models["fastspeech2_canton_onnx-canton"] = tts_onnx_pretrained_models["fastspeech2_canton_onnx"]
 tts_onnx_pretrained_models["pwgan_male_onnx-en"] = tts_onnx_pretrained_models[
     "pwgan_male_onnx-mix"] = tts_onnx_pretrained_models["pwgan_male_onnx-zh"]
 tts_onnx_pretrained_models["hifigan_male_onnx-en"] = tts_onnx_pretrained_models[

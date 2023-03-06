@@ -409,7 +409,7 @@ class TTSExecutor(BaseExecutor):
         else:
             use_pretrained_voc = False
         voc_lang = lang
-        if lang == 'mix':
+        if lang == 'mix' or lang == 'canton':
             voc_dataset = voc[voc.rindex('_') + 1:]
             if voc_dataset in {"ljspeech", "vctk"}:
                 voc_lang = 'en'

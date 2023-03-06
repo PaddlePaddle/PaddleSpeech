@@ -183,7 +183,7 @@ Here is a list of pretrained models released by PaddleSpeech that can be used by
   |       fastspeech2_male       |    zh    |
   |       fastspeech2_male       |    en    |
   |       fastspeech2_male       |   mix    |
-  |       fastspeech2_canton     | Cantonese |
+  |       fastspeech2_canton     |  canton  |
 
 - Vocoder
   | Model | Language |

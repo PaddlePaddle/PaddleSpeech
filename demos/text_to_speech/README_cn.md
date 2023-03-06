@@ -183,7 +183,7 @@
   |       fastspeech2_male       |    zh    |
   |       fastspeech2_male       |    en    |
   |       fastspeech2_male       |   mix    |
-  |       fastspeech2_canton     | Cantonese |
+  |       fastspeech2_canton     |  canton  |
 
 - 声码器
   | 模型 | 语言 |

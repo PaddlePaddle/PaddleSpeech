@@ -1464,7 +1464,7 @@ tts_static_pretrained_models = {
             'url':
             'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip',
             'md5':
-            'd320a99b2f90e3b206271f9a0128671c',
+            '5da80931666503b9b6aed25e894d2ade',
             'model':
             'fastspeech2_canton.pdmodel',
             'params':
@@ -1822,7 +1822,7 @@ tts_onnx_pretrained_models = {
             'url':
             'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip',
             'md5':
-            'fea22a06ece005345a7148ba679b024c',
+            '1c8d51ceb2f9bdd168e23be575c2ccf8',
             'ckpt':
             'fastspeech2_canton.onnx',
             'phones_dict':

@@ -5,8 +5,7 @@
 使用与安卓Demo版本相同的[Paddle-Lite](https://github.com/PaddlePaddle/Paddle-Lite)推理库（[Paddle-Lite:68b66fd35](https://github.com/SwimmingTiger/Paddle-Lite/releases/tag/68b66fd35)），
 该库兼容 Ubuntu 16.04 到 20.04，如果你的发行版与其不兼容，可以自行从源代码编译。
 
-该Demo自带的模型与[Paddle-Lite 2.12](https://github.com/PaddlePaddle/Paddle-Lite/releases/tag/v2.12)不兼容，运行会崩溃，需要使用更新的版本。
-不过如果换成用 Paddle-Lite 2.12 opt 工具优化的模型，应该可以兼容。
+注意 [Paddle-Lite 2.12](https://github.com/PaddlePaddle/Paddle-Lite/releases/tag/v2.12) 与TTS不兼容，无法导出或运行TTS模型，需要使用更新的版本（比如`develop`分支中的代码）。
 
 ### 配置
 

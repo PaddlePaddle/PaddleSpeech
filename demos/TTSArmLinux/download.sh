@@ -37,12 +37,12 @@ download() {
 }
 
 download 'inference_lite_lib.armlinux.armv8.gcc.with_extra.with_cv.tar.gz' \
-    'https://github.com/SwimmingTiger/Paddle-Lite/releases/download/68b66fd35/inference_lite_lib.armlinux.armv8.gcc.with_extra.with_cv.tar.gz' \
+    'https://paddlespeech.bj.bcebos.com/demos/TTSArmLinux/inference_lite_lib.armlinux.armv8.gcc.with_extra.with_cv.tar.gz' \
     '39e0c6604f97c70f5d13c573d7e709b9' \
     "$basedir/libs"
 
 download 'inference_lite_lib.armlinux.armv7hf.gcc.with_extra.with_cv.tar.gz' \
-    'https://github.com/SwimmingTiger/Paddle-Lite/releases/download/68b66fd35/inference_lite_lib.armlinux.armv7hf.gcc.with_extra.with_cv.tar.gz' \
+    'https://paddlespeech.bj.bcebos.com/demos/TTSArmLinux/inference_lite_lib.armlinux.armv7hf.gcc.with_extra.with_cv.tar.gz' \
     'f5ceb509f0b610dafb8379889c5f36f8' \
     "$basedir/libs"
 

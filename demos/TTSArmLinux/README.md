@@ -2,8 +2,8 @@
 
 修改自[demos/TTSAndroid](../TTSAndroid)，模型也来自该安卓Demo。
 
-使用与安卓Demo版本相同的[Paddle-Lite](https://github.com/PaddlePaddle/Paddle-Lite)推理库（[Paddle-Lite:68b66fd35](https://github.com/SwimmingTiger/Paddle-Lite/releases/tag/68b66fd35)），
-该库兼容 Ubuntu 16.04 到 20.04，如果你的发行版与其不兼容，可以自行从源代码编译。
+使用与安卓Demo版本相同的Paddle-Lite推理库：[Paddle-Lite:68b66fd35](https://github.com/PaddlePaddle/Paddle-Lite/tree/68b66fd35)
+预编译的二进制兼容 Ubuntu 16.04 到 20.04，如果你的发行版与其不兼容，可以自行从源代码编译。
 
 注意 [Paddle-Lite 2.12](https://github.com/PaddlePaddle/Paddle-Lite/releases/tag/v2.12) 与TTS不兼容，无法导出或运行TTS模型，需要使用更新的版本（比如`develop`分支中的代码）。
 

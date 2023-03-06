@@ -6,7 +6,7 @@
 
 using namespace paddle::lite_api;
 
-std::vector<std::vector<float>> sentencesToChoose = {
+std::vector<std::vector<int64_t>> sentencesToChoose = {
     // 009901 昨日，这名“伤者”与医生全部被警方依法刑事拘留。
     {261, 231, 175, 116, 179, 262, 44, 154, 126, 177, 19, 262, 42, 241, 72, 177, 56, 174, 245, 37, 186, 37, 49, 151, 127, 69, 19, 179, 72, 69, 4, 260, 126, 177, 116, 151, 239, 153, 141},
     // 009902 钱伟长想到上海来办学校是经过深思熟虑的。
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "predictor init failed" << std::endl;
         return -1;
     }
-    
+
     if (!predictor.RunModel(sentencesToChoose[sentencesIndex])) {
         std::cerr << "predictor run model failed" << std::endl;
         return -1;

@@ -67,7 +67,7 @@ public:
         VOC_predictor_ = nullptr;
     }
 
-    bool RunModel(const std::vector<float> &phones) {
+    bool RunModel(const std::vector<int64_t> &phones) {
         if (!IsLoaded()) {
             return false;
         }
@@ -88,7 +88,7 @@ public:
         return true;
     }
 
-    std::unique_ptr<const Tensor> GetAMOutput(const std::vector<float> &phones) {
+    std::unique_ptr<const Tensor> GetAMOutput(const std::vector<int64_t> &phones) {
         auto phones_handle = AM_predictor_->GetInput(0);
         phones_handle->Resize({static_cast<int64_t>(phones.size())});
         phones_handle->CopyFromCpu(phones.data());

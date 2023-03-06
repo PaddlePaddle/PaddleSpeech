@@ -16,6 +16,7 @@ ExternalProject_Add(openfst
   PREFIX            ${openfst_PREFIX_DIR} 
   SOURCE_DIR        ${openfst_SOURCE_DIR}
   BINARY_DIR        ${openfst_BINARY_DIR}
+  BUILD_ALWAYS      0
   CONFIGURE_COMMAND ${openfst_SOURCE_DIR}/configure --prefix=${openfst_PREFIX_DIR}
                       "CPPFLAGS=-I${gflags_BINARY_DIR}/include -I${glog_SOURCE_DIR}/src -I${glog_BINARY_DIR}"
                       "LDFLAGS=-L${gflags_BINARY_DIR} -L${glog_BINARY_DIR}"

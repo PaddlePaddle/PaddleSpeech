@@ -42,6 +42,9 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall
 ###############################################################################
 # Option Configurations
 ###############################################################################
+# https://github.com/google/brotli/pull/655
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 option(WITH_ASR "build asr" ON)
 option(WITH_CLS "build cls" ON)
 option(WITH_VAD "build vad" ON)

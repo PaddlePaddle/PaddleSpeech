@@ -1,4 +1,5 @@
 // Copyright (c) 2023 Chen Qianhe Authors. All Rights Reserved.
+// Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "vad.h"
+#include "vad/nnet/vad.h"
 #include <cstring>
 #include <iomanip>
 
@@ -25,6 +26,8 @@
     ::fastdeploy::FDLogger(false, "[DEBUG]") \
         << __REL_FILE__ << "(" << __LINE__ << ")::" << __FUNCTION__ << "\t"
 #endif
+
+namespace ppspeech {
 
 Vad::Vad(const std::string& model_file,
          const fastdeploy::RuntimeOption&
@@ -48,18 +51,29 @@ Vad::Vad(const std::string& model_file,
 }
 
 void Vad::Init() {
-    std::call_once(init_, [&]() { initialized = Initialize(); });
+    std::lock_guard<std::mutex> lock(init_lock_);
+    Initialize();
 }
 
 std::string Vad::ModelName() const { return "VAD"; }
 
-void Vad::SetConfig(int sr,
-                    int frame_ms,
-                    float threshold,
-                    int min_silence_duration_ms,
-                    int speech_pad_left_ms,
-                    int speech_pad_right_ms) {
-    if (initialized) {
+void Vad::SetConfig(const VadNnetConf conf){
+    SetConfig(
+        conf.sr, 
+        conf.frame_ms, 
+        conf.threshold, 
+        conf.min_silence_duration_ms, 
+        conf.speech_pad_left_ms, 
+        conf.speech_pad_right_ms);
+}
+
+void Vad::SetConfig(const int& sr,
+                    const int& frame_ms,
+                    const float& threshold,
+                    const int& min_silence_duration_ms,
+                    const int& speech_pad_left_ms,
+                    const int& speech_pad_right_ms) {
+    if (initialized_) {
         fastdeploy::FDERROR << "SetConfig must be called before init"
                             << std::endl;
         throw std::runtime_error("SetConfig must be called before init");
@@ -114,12 +128,18 @@ bool Vad::Initialize() {
 
     Reset();
 
+    
+
     // InitRuntime
     if (!InitRuntime()) {
         fastdeploy::FDERROR << "Failed to initialize fastdeploy backend."
                             << std::endl;
         return false;
     }
+
+    initialized_=true;
+
+
     fastdeploy::FDINFO << "init done.";
     return true;
 }
@@ -304,3 +324,5 @@ std::ostream& operator<<(std::ostream& os, const Vad::State& s) {
     }
     return os;
 }
+
+} // namepsace ppspeech

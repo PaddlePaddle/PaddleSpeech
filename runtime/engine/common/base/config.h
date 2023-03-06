@@ -10,7 +10,10 @@ using namespace std;
 
 #pragma once
 
+#ifdef _MSC_VER
 #pragma region ParseIniFile
+#endif
+
 /*
 * \brief Generic configuration Class
 *
@@ -335,4 +338,6 @@ void Config::ReadFile(string filename, string delimiter, string comment) {
     in >> (*this);
 }
 
+#ifdef _MSC_VER
 #pragma endregion ParseIniFIle
+#endif

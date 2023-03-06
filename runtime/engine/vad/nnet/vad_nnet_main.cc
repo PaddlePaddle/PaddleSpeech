@@ -1,11 +1,25 @@
+// Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "vad.h"
+
+#include "vad/nnet/vad.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
-        std::cout << "Usage: infer_onnx_silero_vad path/to/model path/to/audio "
+        std::cout << "Usage: vad_nnet_main path/to/model path/to/audio "
                      "run_option, "
-                     "e.g ./infer_onnx_silero_vad silero_vad.onnx sample.wav"
+                     "e.g ./vad_nnet_main silero_vad.onnx sample.wav"
                   << std::endl;
         return -1;
     }
@@ -14,7 +28,7 @@ int main(int argc, char* argv[]) {
     std::string audio_file = argv[2];
 
     int sr = 16000;
-    Vad vad(model_file);
+    ppspeech::Vad vad(model_file);
     // custom config, but must be set before init
     vad.SetConfig(sr, 32, 0.45f, 200, 0, 0);
     vad.Init();
@@ -39,7 +53,7 @@ int main(int argc, char* argv[]) {
         auto current_chunk_size = end - start;
 
         std::vector<float> r{&inputWav[0] + start, &inputWav[0] + end};
-        assert(r.size() == current_chunk_size);
+        assert(r.size() == static_cast<size_t>(current_chunk_size));
 
         if (!vad.ForwardChunk(r)) {
             std::cerr << "Failed to inference while using model:"
@@ -47,7 +61,7 @@ int main(int argc, char* argv[]) {
             return false;
         }
 
-        Vad::State s = vad.Postprocess();
+        ppspeech::Vad::State s = vad.Postprocess();
         std::cout << s << " ";
     }
     std::cout << std::endl;

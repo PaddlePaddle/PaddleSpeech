@@ -1459,6 +1459,24 @@ tts_static_pretrained_models = {
             24000,
         },
     },
+    "fastspeech2_canton-canton": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip',
+            'md5':
+            '5da80931666503b9b6aed25e894d2ade',
+            'model':
+            'fastspeech2_canton.pdmodel',
+            'params':
+            'fastspeech2_canton.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
     # pwgan
     "pwgan_csmsc-zh": {
         '1.0': {
@@ -1626,6 +1644,8 @@ tts_static_pretrained_models["pwgan_male-en"] = tts_static_pretrained_models[
     "pwgan_male-mix"] = tts_static_pretrained_models["pwgan_male-zh"]
 tts_static_pretrained_models["hifigan_male-en"] = tts_static_pretrained_models[
     "hifigan_male-mix"] = tts_static_pretrained_models["hifigan_male-zh"]
+tts_static_pretrained_models["pwgan_aishell3-canton"] = tts_static_pretrained_models[
+    "pwgan_aishell3-zh"]
 
 tts_onnx_pretrained_models = {
     # speedyspeech
@@ -1797,6 +1817,22 @@ tts_onnx_pretrained_models = {
             24000,
         },
     },
+    "fastspeech2_canton_onnx-canton": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip',
+            'md5':
+            '1c8d51ceb2f9bdd168e23be575c2ccf8',
+            'ckpt':
+            'fastspeech2_canton.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
     # pwgan
     "pwgan_csmsc_onnx-zh": {
         '1.0': {
@@ -1943,6 +1979,8 @@ tts_onnx_pretrained_models["pwgan_male_onnx-en"] = tts_onnx_pretrained_models[
 tts_onnx_pretrained_models["hifigan_male_onnx-en"] = tts_onnx_pretrained_models[
     "hifigan_male_onnx-mix"] = tts_onnx_pretrained_models[
         "hifigan_male_onnx-zh"]
+tts_onnx_pretrained_models["pwgan_aishell3_onnx-canton"] = tts_onnx_pretrained_models[
+    "pwgan_aishell3_onnx-zh"]
 
 # ---------------------------------
 # ------------ Vector -------------

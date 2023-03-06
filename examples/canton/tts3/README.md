@@ -78,6 +78,12 @@ Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file tha
 Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_canton_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_ckpt_1.4.0.zip)
 
+The static model can be downloaded here:
+- [fastspeech2_canton_static_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip)
+
+The ONNX model can be downloaded here:  
+- [fastspeech2_canton_onnx_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip)
+
 FastSpeech2 checkpoint contains files listed below.
 
 ```text

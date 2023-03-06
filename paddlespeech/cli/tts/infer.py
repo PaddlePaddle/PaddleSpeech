@@ -46,6 +46,7 @@ ONNX_SUPPORT_SET = {
     'fastspeech2_vctk',
     'fastspeech2_male',
     'fastspeech2_mix',
+    'fastspeech2_canton',
     'pwgan_csmsc',
     'pwgan_ljspeech',
     'pwgan_aishell3',
@@ -408,7 +409,7 @@ class TTSExecutor(BaseExecutor):
         else:
             use_pretrained_voc = False
         voc_lang = lang
-        if lang == 'mix':
+        if lang == 'mix' or lang == 'canton':
             voc_dataset = voc[voc.rindex('_') + 1:]
             if voc_dataset in {"ljspeech", "vctk"}:
                 voc_lang = 'en'
@@ -535,7 +536,7 @@ class TTSExecutor(BaseExecutor):
             part_phone_ids = phone_ids[i]
             if am_name == 'fastspeech2':
                 am_input_feed.update({'text': part_phone_ids})
-                if am_dataset in {"aishell3", "vctk", "mix"}:
+                if am_dataset in {"aishell3", "vctk", "mix", "canton"}:
                     # NOTE: 'spk_id' should be List[int] rather than int here!!
                     am_input_feed.update({'spk_id': [spk_id]})
             elif am_name == 'speedyspeech':

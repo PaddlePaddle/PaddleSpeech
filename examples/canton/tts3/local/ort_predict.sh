@@ -47,15 +47,3 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --device=cpu \
         --cpu_threads=2
 fi
-
-# synthesize from metadata, take hifigan as an example
-if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    python3 ${BIN_DIR}/../ort_predict.py \
-        --inference_dir=${train_output_path}/inference_onnx \
-        --am=fastspeech2_canton \
-        --voc=hifigan_csmsc \
-        --test_metadata=dump/test/norm/metadata.jsonl \
-        --output_dir=${train_output_path}/onnx_infer_out \
-        --device=cpu \
-        --cpu_threads=2
-fi

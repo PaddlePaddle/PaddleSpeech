@@ -60,7 +60,8 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    std::cout << "Inference time: " << predictor.GetInferenceTime() << "ms, WAV size: " << predictor.GetWav().size() << std::endl;
+    std::cout << "Inference time: " << predictor.GetInferenceTime() << " ms, "
+              << "WAV size (without header): " << predictor.GetWavSize() << " bytes" << std::endl;
 
     if (!predictor.WriteWavToFile(outputWavPath)) {
         std::cerr << "write wav file failed" << std::endl;

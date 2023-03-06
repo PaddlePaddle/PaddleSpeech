@@ -18,7 +18,7 @@ endif()
 if(ANDROID)
   add_library(extern_gtest INTERFACE)
 else() # UNIX
-  add_dependencies(gtest gflags gflog)
+  add_dependencies(gtest gflags extern_glog)
   add_library(extern_gtest ALIAS gtest)
 endif()
 

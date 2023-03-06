@@ -37,7 +37,9 @@ cd PaddleSpeech/demos/TTSArmLinux
 ./build.sh
 ```
 
-如果编译或链接失败，请尝试手动编译Paddle Lite库，具体步骤在最下面。
+预编译的二进制兼容 Ubuntu 16.04 到 20.04。
+
+如果编译或链接失败，说明发行版与预编译库不兼容，请尝试手动编译Paddle Lite库，具体步骤在最下面。
 
 ### 运行
 

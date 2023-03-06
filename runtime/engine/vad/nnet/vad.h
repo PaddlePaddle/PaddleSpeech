@@ -17,9 +17,9 @@
 #include <iostream>
 #include <mutex>
 #include <vector>
-#include "vad/frontend/wav.h"
 #include "fastdeploy/fastdeploy_model.h"
 #include "fastdeploy/runtime.h"
+#include "vad/frontend/wav.h"
 
 namespace ppspeech {
 
@@ -36,8 +36,8 @@ struct VadNnetConf {
     std::string model_file_path;
     std::string param_file_path;
     std::string dict_file_path;
-    int num_cpu_thread;  // 1 thred
-    std::string backend; // ort,lite, etc.
+    int num_cpu_thread;   // 1 thred
+    std::string backend;  // ort,lite, etc.
 };
 
 class Vad : public fastdeploy::FastDeployModel {
@@ -54,11 +54,11 @@ class Vad : public fastdeploy::FastDeployModel {
     void Reset();
 
     void SetConfig(const int& sr,
-                    const int& frame_ms,
-                    const float& threshold,
-                    const int& min_silence_duration_ms,
-                    const int& speech_pad_left_ms,
-                    const int& speech_pad_right_ms);
+                   const int& frame_ms,
+                   const float& threshold,
+                   const int& min_silence_duration_ms,
+                   const int& speech_pad_left_ms,
+                   const int& speech_pad_right_ms);
     void SetConfig(const VadNnetConf conf);
 
     bool ForwardChunk(std::vector<float>& chunk);
@@ -147,4 +147,4 @@ class Vad : public fastdeploy::FastDeployModel {
     const std::vector<int64_t> hc_node_dims_ = {2, 1, 64};
 };
 
-} // namepsace ppspeech
+}  // namepsace ppspeech

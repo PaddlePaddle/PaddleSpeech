@@ -14,9 +14,9 @@
 
 
 #include "vad/interface/vad_interface.h"
-#include "vad/frontend/wav.h"
-#include <vector>
 #include <iostream>
+#include <vector>
+#include "vad/frontend/wav.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
         inputWav[i] = wav_reader.data()[i] / 32768;
     }
 
-    int window_size_samples  = PPSVadChunkSizeSamples(handle);
+    int window_size_samples = PPSVadChunkSizeSamples(handle);
     for (int64_t j = 0; j < num_samples; j += window_size_samples) {
         auto start = j;
         auto end = start + window_size_samples >= num_samples

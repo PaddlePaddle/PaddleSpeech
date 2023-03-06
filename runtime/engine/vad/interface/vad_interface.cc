@@ -14,8 +14,8 @@
 
 
 #include "vad/interface/vad_interface.h"
-#include "common/base/log.h"
 #include "common/base/config.h"
+#include "common/base/log.h"
 #include "vad/nnet/vad.h"
 
 
@@ -25,7 +25,8 @@ PPSHandle_t PPSVadCreateInstance(const char* conf_path) {
     nnet_conf.sr = conf.Read("sr", 16000);
     nnet_conf.frame_ms = conf.Read("frame_ms", 32);
     nnet_conf.threshold = conf.Read("threshold", 0.45f);
-    nnet_conf.min_silence_duration_ms = conf.Read("min_silence_duration_ms", 200);
+    nnet_conf.min_silence_duration_ms =
+        conf.Read("min_silence_duration_ms", 200);
     nnet_conf.speech_pad_left_ms = conf.Read("speech_pad_left_ms", 0);
     nnet_conf.speech_pad_right_ms = conf.Read("speech_pad_right_ms", 0);
 
@@ -63,8 +64,8 @@ int PPSVadChunkSizeSamples(PPSHandle_t instance) {
 }
 
 PPSVadState_t PPSVadFeedForward(PPSHandle_t instance,
-                    float* chunk,
-                    int num_element) {
+                                float* chunk,
+                                int num_element) {
     ppspeech::Vad* model = static_cast<ppspeech::Vad*>(instance);
     if (model == nullptr) {
         LOG(ERROR) << "instance is null";
@@ -72,12 +73,12 @@ PPSVadState_t PPSVadFeedForward(PPSHandle_t instance,
     }
 
     std::vector<float> chunk_in(chunk, chunk + num_element);
-    if (!model->ForwardChunk(chunk_in)){
+    if (!model->ForwardChunk(chunk_in)) {
         LOG(ERROR) << "forward chunk failed";
         return PPS_ILLEGAL;
     }
     ppspeech::Vad::State s = model->Postprocess();
-    PPSVadState_t ret = (PPSVadState_t)s; 
+    PPSVadState_t ret = (PPSVadState_t)s;
     return ret;
 }
 

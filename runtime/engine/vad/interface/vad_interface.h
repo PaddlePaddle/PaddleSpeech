@@ -21,11 +21,11 @@ extern "C" {
 typedef void* PPSHandle_t;
 
 typedef enum {
-    PPS_ILLEGAL = 0, // error
-    PPS_SIL,  // silence
-    PPS_START,  // start speech
-    PPS_SPEECH, // in speech
-    PPS_END, // end speech
+    PPS_ILLEGAL = 0,  // error
+    PPS_SIL,          // silence
+    PPS_START,        // start speech
+    PPS_SPEECH,       // in speech
+    PPS_END,          // end speech
 } PPSVadState_t;
 
 PPSHandle_t PPSVadCreateInstance(const char* conf_path);
@@ -36,8 +36,10 @@ int PPSVadReset(PPSHandle_t instance);
 
 int PPSVadChunkSizeSamples(PPSHandle_t instance);
 
-PPSVadState_t PPSVadFeedForward(PPSHandle_t instance, float* chunk,int num_element);
+PPSVadState_t PPSVadFeedForward(PPSHandle_t instance,
+                                float* chunk,
+                                int num_element);
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif  // __cplusplus

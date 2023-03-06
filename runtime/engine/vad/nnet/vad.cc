@@ -57,14 +57,13 @@ void Vad::Init() {
 
 std::string Vad::ModelName() const { return "VAD"; }
 
-void Vad::SetConfig(const VadNnetConf conf){
-    SetConfig(
-        conf.sr, 
-        conf.frame_ms, 
-        conf.threshold, 
-        conf.min_silence_duration_ms, 
-        conf.speech_pad_left_ms, 
-        conf.speech_pad_right_ms);
+void Vad::SetConfig(const VadNnetConf conf) {
+    SetConfig(conf.sr,
+              conf.frame_ms,
+              conf.threshold,
+              conf.min_silence_duration_ms,
+              conf.speech_pad_left_ms,
+              conf.speech_pad_right_ms);
 }
 
 void Vad::SetConfig(const int& sr,
@@ -128,7 +127,6 @@ bool Vad::Initialize() {
 
     Reset();
 
-    
 
     // InitRuntime
     if (!InitRuntime()) {
@@ -137,7 +135,7 @@ bool Vad::Initialize() {
         return false;
     }
 
-    initialized_=true;
+    initialized_ = true;
 
 
     fastdeploy::FDINFO << "init done.";
@@ -325,4 +323,4 @@ std::ostream& operator<<(std::ostream& os, const Vad::State& s) {
     return os;
 }
 
-} // namepsace ppspeech
+}  // namepsace ppspeech

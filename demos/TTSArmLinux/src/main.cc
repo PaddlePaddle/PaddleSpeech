@@ -50,19 +50,19 @@ int main(int argc, char *argv[]) {
     }
 
     Predictor predictor;
-    if (!predictor.init(AMModelPath, VOCModelPath, 1, "LITE_POWER_HIGH")) {
+    if (!predictor.Init(AMModelPath, VOCModelPath, 1, "LITE_POWER_HIGH")) {
         std::cerr << "predictor init failed" << std::endl;
         return -1;
     }
     
-    if (!predictor.runModel(sentencesToChoose[sentencesIndex])) {
+    if (!predictor.RunModel(sentencesToChoose[sentencesIndex])) {
         std::cerr << "predictor run model failed" << std::endl;
         return -1;
     }
 
-    std::cout << "Inference time: " << predictor.getInferenceTime() << "ms, WAV size: " << predictor.getWav().size() << std::endl;
+    std::cout << "Inference time: " << predictor.GetInferenceTime() << "ms, WAV size: " << predictor.GetWav().size() << std::endl;
 
-    if (!predictor.writeWavToFile(outputWavPath)) {
+    if (!predictor.WriteWavToFile(outputWavPath)) {
         std::cerr << "write wav file failed" << std::endl;
         return -1;
     }

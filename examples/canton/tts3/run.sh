@@ -50,10 +50,10 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     if [[ -z "$version" || ${version} != '1.0.0' ]]; then
         pip install paddle2onnx==1.0.0
     fi
-    ../../../csmsc/tts3/local/paddle2onnx.sh ${train_output_path} inference inference_onnx fastspeech2_canton
+    ../../csmsc/tts3/local/paddle2onnx.sh ${train_output_path} inference inference_onnx fastspeech2_canton
     # considering the balance between speed and quality, we recommend that you use hifigan as vocoder
     # ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_csmsc
-    ../../../csmsc/tts3/local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_aishell3 
+    ../../csmsc/tts3/local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_aishell3 
     # ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx mb_melgan_csmsc
     # ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx hifigan_csmsc
     

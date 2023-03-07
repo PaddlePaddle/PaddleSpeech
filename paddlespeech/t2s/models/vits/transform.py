@@ -89,8 +89,8 @@ def unconstrained_rational_quadratic_spline(
     logabsdet = paddle.zeros(inputs.shape)
     if tails == "linear":
         # 注意 padding 的参数顺序
-        mypad_1 = nn.Pad2D(padding=[1, 1, 0, 0], mode='constant')
-        unnormalized_derivatives = mypad_1(unnormalized_derivatives)
+        pad2d = nn.Pad2D(padding=[1, 1, 0, 0], mode='constant')
+        unnormalized_derivatives = pad2d(unnormalized_derivatives)
         constant = np.log(np.exp(1 - min_derivative) - 1)
         unnormalized_derivatives[..., 0] = constant
         unnormalized_derivatives[..., -1] = constant
@@ -143,7 +143,7 @@ def rational_quadratic_spline(
     # for dygraph to static
     # if paddle.min(inputs) < left or paddle.max(inputs) > right:
     #     raise ValueError("Input to a transform is not within its domain")
-    mypad_2 = nn.Pad1D(
+    pad1d = nn.Pad1D(
         padding=[1, 0],
         mode='constant',
         data_format='NCL', )
@@ -159,7 +159,7 @@ def rational_quadratic_spline(
     widths = min_bin_width + (1 - min_bin_width * num_bins) * widths
     cumwidths = paddle.cumsum(widths, axis=-1)
 
-    cumwidths = mypad_2(cumwidths.unsqueeze(0)).squeeze()
+    cumwidths = pad1d(cumwidths.unsqueeze(0)).squeeze()
     cumwidths = (right - left) * cumwidths + left
     cumwidths[..., 0] = left
     cumwidths[..., -1] = right
@@ -170,7 +170,7 @@ def rational_quadratic_spline(
     heights = F.softmax(unnormalized_heights, axis=-1)
     heights = min_bin_height + (1 - min_bin_height * num_bins) * heights
     cumheights = paddle.cumsum(heights, axis=-1)
-    cumheights = mypad_2(cumheights.unsqueeze(0)).squeeze()
+    cumheights = pad1d(cumheights.unsqueeze(0)).squeeze()
     cumheights = (top - bottom) * cumheights + bottom
     cumheights[..., 0] = bottom
     cumheights[..., -1] = top

@@ -1,4 +1,4 @@
-# PaddleSpeech TTS 文本到语音 ARM Linux Demo
+# TTS ARM Linux Demo
 
 修改自 [demos/TTSAndroid](../TTSAndroid)，模型也来自该安卓 Demo。
 

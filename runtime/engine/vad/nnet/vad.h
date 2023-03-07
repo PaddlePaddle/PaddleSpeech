@@ -49,6 +49,8 @@ class Vad : public fastdeploy::FastDeployModel {
         const fastdeploy::RuntimeOption& custom_option =
             fastdeploy::RuntimeOption());
 
+    virtual ~Vad() {}
+
     void Init();
 
     void Reset();

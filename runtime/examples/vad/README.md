@@ -1,121 +1,166 @@
-English | [简体中文](README_CN.md)
+# Silero VAD - pre-trained enterprise-grade Voice Activity Detector
 
-# Silero VAD Deployment Example
+This directory provides VAD models on CPU/GPU.
 
-This directory provides examples that `infer_onnx_silero_vad` fast finishes the deployment of VAD models on CPU/GPU.
+![](https://user-images.githubusercontent.com/36505480/198026365-8da383e0-5398-4a12-b7f8-22c2c0059512.png)
 
-Before deployment, two steps require confirmation.
+## Linux
 
-- 1. Software and hardware should meet the requirements. Please refer to [FastDeploy Environment Requirements](../../../../docs/en/build_and_install/download_prebuilt_libraries.md).  
-- 2. Download the precompiled deployment library and samples code according to your development environment. Refer to [FastDeploy Precompiled Library](../../../../docs/en/build_and_install/download_prebuilt_libraries.md).
+### Build Runtime
+```bash
+# cd /path/to/paddlespeech/runtime
+cmake -B build -DBUILD_SHARED_LIBS=OFF -DWITH_ASR=OFF -DWITH_CLS=OFF -DWITH_VAD=ON
+cmake --build build
+```
 
-Taking VAD inference on Linux as an example, the compilation test can be completed by executing the following command in this directory.
+Since VAD using FastDeploy runtime, if you have another FastDeploy Library, you can using this command to build:
 
 ```bash
-mkdir build
-cd build
-# Download the FastDeploy precompiled library. Users can choose your appropriate version in the `FastDeploy Precompiled Library` mentioned above
-wget https://bj.bcebos.com/fastdeploy/release/cpp/fastdeploy-linux-x64-x.x.x.tgz
-tar xvf fastdeploy-linux-x64-x.x.x.tgz
-cmake .. -DFASTDEPLOY_INSTALL_DIR=${PWD}/fastdeploy-linux-x64-x.x.x
-make -j
-
-# Download the VAD model file and test audio. After decompression, place the model and test audio in the infer_onnx_silero_vad.cc peer directory
-wget https://bj.bcebos.com/paddlehub/fastdeploy/silero_vad.tgz
-wget https://bj.bcebos.com/paddlehub/fastdeploy/silero_vad_sample.wav
-
-# inference
-./infer_onnx_silero_vad ../silero_vad.onnx ../silero_vad_sample.wav
+# cd /path/to/paddlespeech/runtime
+cmake -B build -DBUILD_SHARED_LIBS=OFF -DWITH_ASR=OFF -DWITH_CLS=OFF -DWITH_VAD=ON -DFASTDEPLOY_INSTALL_DIR=/workspace/zhanghui/paddle/FastDeploy/build/Linux/x86_64/install
+cmake --build build
 ```
 
-- The above command works for Linux or MacOS. Refer to:
-  - [How to use FastDeploy C++ SDK in Windows](../../../../docs/en/faq/use_sdk_on_windows.md)  for SDK use-pattern in Windows
+`DFASTDEPLOY_INSTALL_DIR` is the directory of FastDeploy Library.
 
-## VAD C++ Interface
+### Run Demo
 
-### Vad Class
+After building success, we can do this to run demo under this example dir:
+
+```bash 
+bash run.sh
+```
+
+### Result
+
+```bash
+/workspace/zhanghui/PaddleSpeech/runtime/engine/vad/nnet/vad.cc(92)::SetConfig  sr=16000 threshold=0.45 frame_ms=32 min_silence_duration_ms=200 speech_pad_left_ms=0 speech_pad_right_ms=0[INFO] fastdeploy/runtime/runtime.cc(293)::CreateOrtBackend     Runtime initialized with Backend::ORT in Device::CPU./workspace/zhanghui/PaddleSpeech/runtime/engine/vad/nnet/vad.cc(141)::Initialize        init done.
+[SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [STA] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [END] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [STA] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SIL] [SIL] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [END] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [STA] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [END] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [STA] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SIL] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SPE] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [END] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] [SIL] speak start: 0.32 s, end: 2.496 s | speak start: 3.296 s, end: 4.672 s | speak start: 5.408 s, end: 7.936 s | speak start: 8.192 s, end: 10.72 s   
+vad_nnet_main done!
+
+sr = 16000
+frame_ms = 32
+threshold = 0.45
+min_silence_duration_ms = 200
+speech_pad_left_ms = 200
+speech_pad_right_ms = 0
+model_path = ./data/silero_vad/silero_vad.onnx
+param_path = (default)
+num_cpu_thread = 1(default)
+/workspace/zhanghui/PaddleSpeech/runtime/engine/vad/nnet/vad.cc(92)::SetConfig  sr=16000 threshold=0.45 frame_ms=32 min_silence_duration_ms=200 speech_pad_left_ms=200 speech_pad_right_ms=0
+[INFO] fastdeploy/runtime/runtime.cc(293)::CreateOrtBackend     Runtime initialized with Backend::ORT in Device::CPU.
+/workspace/zhanghui/PaddleSpeech/runtime/engine/vad/nnet/vad.cc(141)::Initialize        init done.
+1 1 1 1 1 1 1 1 1 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 1 1 1 1 1 1 1 4 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 1 1 3 3 3 3 3 3 3 3 3 3 3 3 3 3 1 1 1 1 1 1 1 4 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 1 1 1 1 1 1 1 4 1 1 1 1 1 1 1 1 2 3 3 3 3 3 3 3 3 3 3 3 3 1 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 1 1 1 1 1 1 1 4 1 1 1 1 1 1 1 1 1 vad_interface_main done!
+```
+
+The environment as below:
+
+```text
+Architecture:        x86_64
+CPU op-mode(s):      32-bit, 64-bit
+Byte Order:          Little Endian
+CPU(s):              80
+On-line CPU(s) list: 0-79
+Thread(s) per core:  2
+Core(s) per socket:  20
+Socket(s):           2
+NUMA node(s):        2
+Vendor ID:           GenuineIntel
+CPU family:          6Model:               85Model name:          Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz
+Stepping:            7
+CPU MHz:             2599.998
+BogoMIPS:            5199.99
+Hypervisor vendor:   KVM
+Virtualization type: full
+L1d cache:           32KL1i cache:           32KL2 cache:            1024K
+L3 cache:            33792K
+NUMA node0 CPU(s):   0-39
+NUMA node1 CPU(s):   40-79
+Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon rep_good nopl xtopology nonstop_tsc eagerfpu pni pclmulqdq monitor ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd ibrs ibpb ibrs_enhanced fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 arat umip pku ospke avx512_vnni spec_ctrl arch_capabilities
+```
+
+## Android
+
+When to using on Android, please setup your `NDK` enverment before, then do as below:
+
+```bash
+# cd /path/to/paddlespeech/runtime
+bash build_android.sh
+```
+
+## VAD Interface
+
+For vad interface please see [](../../engine/vad/interface/).
+
+### Create Handdle
 
 ```c++
-Vad::Vad(const std::string& model_file,
-    const fastdeploy::RuntimeOption& custom_option = fastdeploy::RuntimeOption())
+PPSHandle_t PPSVadCreateInstance(const char* conf_path);
 ```
 
-**Parameter**
-
-> * **model_file**(str): Model file path
-> * **runtime_option**(RuntimeOption): Backend inference configuration. None by default. (use the default configuration)
-
-### setAudioCofig function
-
-**Must be called before the `init` function**
+### Destroy Handdle
 
 ```c++
-void Vad::setAudioCofig(int sr, int frame_ms, float threshold, int min_silence_duration_ms, int speech_pad_ms);
+int PPSVadDestroyInstance(PPSHandle_t instance);
 ```
 
-**Parameter**
-
-> * **sr**(int): sampling rate
-> * **frame_ms**(int): The length of each detection frame, and it is used to calculate the detection window size
-> * **threshold**(float): Result probability judgment threshold
-> * **min_silence_duration_ms**(int): The threshold used to calculate whether it is silence
-> * **speech_pad_ms**(int): Used to calculate the end time of the speech
-
-### init function
-
-Used to initialize audio-related parameters.
+### Reset Vad State
 
 ```c++
-void Vad::init();
+int PPSVadReset(PPSHandle_t instance);
 ```
 
-### loadAudio function
+Reset Vad state before processing next `wav`.
 
-Load audio.
+### Get Chunk Size
 
 ```c++
-void Vad::loadAudio(const std::string& wavPath)
+int PPSVadChunkSizeSamples(PPSHandle_t instance);
 ```
 
-**Parameter**
+This API will return chunk size in `sample` unit.
+When do forward, we need feed `chunk size` samples, except last chunk.
 
-> * **wavPath**(str): Audio file path
-
-### Predict function
-
-Used to start model reasoning.
+### Vad Forward
 
 ```c++
-bool Vad::Predict();
+PPSVadState_t PPSVadFeedForward(PPSHandle_t instance,
+                                float* chunk,
+                                int num_element);
 ```
 
-### getResult function
-
-**Used to obtain reasoning results**
-
+Vad has below states:
 ```c++
-std::vector<std::map<std::string, float>> Vad::getResult(
-            float removeThreshold = 1.6, float expandHeadThreshold = 0.32, float expandTailThreshold = 0,
-            float mergeThreshold = 0.3);
+typedef enum {
+    PPS_VAD_ILLEGAL = 0,  // error
+    PPS_VAD_SIL,          // silence
+    PPS_VAD_START,        // start speech
+    PPS_VAD_SPEECH,       // in speech
+    PPS_VAD_END,          // end speech
+    PPS_VAD_NUMSTATES,    // number of states
+} PPSVadState_t;
 ```
 
-**Parameter**
+If `PPSVadFeedForward` occur an error will return `PPS_VAD_ILLEGAL` state.
 
-> * **removeThreshold**(float): Discard result fragment threshold; If some recognition results are too short, they will be discarded according to this threshold
-> * **expandHeadThreshold**(float): Offset at the beginning of the segment; The recognized start time may be too close to the voice part, so move forward the start time accordingly
-> * **expandTailThreshold**(float): Offset at the end of the segment; The recognized end time may be too close to the voice part, so the end time is moved back accordingly
-> * **mergeThreshold**(float): Some result segments are very close and can be combined into one, and the vocal segments can be combined accordingly
 
-**The output result format is**`std::vector<std::map<std::string, float>>`
+## FastDeploy Runtime
 
-> Output a list, each element is a speech fragment
->
-> Each clip can use 'start' to get the start time and 'end' to get the end time
+For FastDeploy software and hardware requements, and pre-released library please to see [FastDeploy](https://github.com/PaddlePaddle/FastDeploy):
 
-### Tips
+- 1. [FastDeploy Environment Requirements](https://github.com/PaddlePaddle/FastDeploy/docs/en/build_and_install/download_prebuilt_libraries.md).
+- 2. [FastDeploy Precompiled Library](https://github.com/PaddlePaddle/FastDeploy/docs/en/build_and_install/download_prebuilt_libraries.md).
 
-1. `The setAudioCofig`function must be called before the `init` function
-2. The sampling rate of the input audio file must be consistent with that set in the code
 
-- [Model Description](../)
-- [How to switch the model inference backend engine](../../../../docs/en/faq/how_to_change_backend.md)
+## Download Pre-trained ONNX Model
+
+For developers' testing, model exported by VAD are provided below. Developers can download them directly.
+
+| 模型                                                         | 大小  | 备注                                                         |
+| :----------------------------------------------------------- | :---- | :----------------------------------------------------------- |
+| [silero-vad](https://bj.bcebos.com/paddlehub/fastdeploy/silero_vad.tgz) | 1.8MB | This model file is sourced from [snakers4/silero-vad](https://github.com/snakers4/silero-vad)，MIT License |
+
+
+## Reference
+* https://github.com/snakers4/silero-vad
+* https://github.com/PaddlePaddle/FastDeploy/blob/develop/examples/audio/silero-vad/README.md

@@ -15,7 +15,6 @@
 
 #include "vad/interface/vad_interface.h"
 #include "common/base/config.h"
-#include "common/base/log.h"
 #include "vad/nnet/vad.h"
 
 
@@ -68,14 +67,14 @@ PPSVadState_t PPSVadFeedForward(PPSHandle_t instance,
                                 int num_element) {
     ppspeech::Vad* model = static_cast<ppspeech::Vad*>(instance);
     if (model == nullptr) {
-        LOG(ERROR) << "instance is null";
-        return PPS_ILLEGAL;
+        printf("instance is null\n");
+        return PPS_VAD_ILLEGAL;
     }
 
     std::vector<float> chunk_in(chunk, chunk + num_element);
     if (!model->ForwardChunk(chunk_in)) {
-        LOG(ERROR) << "forward chunk failed";
-        return PPS_ILLEGAL;
+        printf("forward chunk failed\n");
+        return PPS_VAD_ILLEGAL;
     }
     ppspeech::Vad::State s = model->Postprocess();
     PPSVadState_t ret = (PPSVadState_t)s;

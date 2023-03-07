@@ -21,11 +21,12 @@ extern "C" {
 typedef void* PPSHandle_t;
 
 typedef enum {
-    PPS_ILLEGAL = 0,  // error
-    PPS_SIL,          // silence
-    PPS_START,        // start speech
-    PPS_SPEECH,       // in speech
-    PPS_END,          // end speech
+    PPS_VAD_ILLEGAL = 0,  // error
+    PPS_VAD_SIL,          // silence
+    PPS_VAD_START,        // start speech
+    PPS_VAD_SPEECH,       // in speech
+    PPS_VAD_END,          // end speech
+    PPS_VAD_NUMSTATES,    // number of states
 } PPSVadState_t;
 
 PPSHandle_t PPSVadCreateInstance(const char* conf_path);

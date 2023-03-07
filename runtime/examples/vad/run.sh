@@ -15,8 +15,8 @@ exp=exp
 mkdir -p $exp $data
 
 # 1. compile
-if [ ! -d ${SPEECHX_BUILD} ]; then
-    pushd ${SPEECHX_ROOT} 
+if [ ! -d ${ENGINE_BUILD} ]; then
+    pushd ${ENGINE_ROOT} 
     bash build.sh
 
     # build for android armv8/armv7
@@ -24,8 +24,6 @@ if [ ! -d ${SPEECHX_BUILD} ]; then
     popd
 fi
 
-ckpt_dir=$data/silero_vad
-wav=$data/silero_vad_sample.wav
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     ./local/download.sh

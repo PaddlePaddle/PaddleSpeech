@@ -41,14 +41,13 @@ endif()
 include(${FASTDEPLOY_INSTALL_DIR}/FastDeploy.cmake)
 
 # fix compiler flags conflict, since fastdeploy using c++11 for project
+# this line must after `include(${FASTDEPLOY_INSTALL_DIR}/FastDeploy.cmake)`
 set(CMAKE_CXX_STANDARD ${PPS_CXX_STANDARD})
 
 include_directories(${FASTDEPLOY_INCS})
 
 # install fastdeploy and dependents lib
 # install_fastdeploy_libraries(${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
-
-
 # No dynamic libs need to install while using
 # FastDeploy static lib.
 if(ANDROID AND WITH_ANDROID_STATIC_LIB)

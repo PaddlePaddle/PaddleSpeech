@@ -21,6 +21,7 @@ from typing import Optional
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
+import numpy as np
 
 from paddlespeech.t2s.modules.activation import get_activation
 from paddlespeech.t2s.modules.nets_utils import initialize
@@ -47,7 +48,12 @@ class HiFiGANGenerator(nn.Layer):
             nonlinear_activation: str="leakyrelu",
             nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.1},
             use_weight_norm: bool=True,
-            init_type: str="xavier_uniform", ):
+            init_type: str="xavier_uniform",
+            istft: bool = False,
+            post_n_fft: int=16,
+            gen_istft_hop_size: int=12,
+            gen_istft_n_fft: int=16,
+            ):
         """Initialize HiFiGANGenerator module.
         Args:
             in_channels (int): 
@@ -135,6 +141,13 @@ class HiFiGANGenerator(nn.Layer):
                 1,
                 padding=(kernel_size - 1) // 2, ),
             nn.Tanh(), )
+        self.istft = istft
+        if self.istft:
+            self.post_n_fft = post_n_fft
+            self.gen_istft_hop_size = gen_istft_hop_size
+            self.gen_istft_n_fft = gen_istft_n_fft
+            self.reflection_pad = nn.Pad1D(padding=[1,0], mode='reflect')
+            self.conv_post = nn.Conv1D(channels// (2**(i + 1)), self.post_n_fft + 2, 7, 1, padding=3)
 
         if global_channels > 0:
             self.global_conv = nn.Conv1D(global_channels, channels, 1)
@@ -167,7 +180,24 @@ class HiFiGANGenerator(nn.Layer):
             for j in range(self.num_blocks):
                 cs += self.blocks[i * self.num_blocks + j](c)
             c = cs / self.num_blocks
-        c = self.output_conv(c)
+        
+        if self.istft:
+            c = F.leaky_relu(c)
+            c = self.reflection_pad(c)
+            c = self.conv_post(c)
+            """
+            Input of Exp operator, an N-D Tensor, with data type float32, float64 or float16.
+            https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/exp_en.html
+            Use Euler's formula to implement spec*paddle.exp(1j*phase)
+            """
+            spec = paddle.exp(c[:,:self.post_n_fft // 2 + 1, :])
+            phase = paddle.sin(c[:, self.post_n_fft // 2 + 1:, :])
+
+            c = paddle.complex(spec*(paddle.cos(phase)), spec*(paddle.sin(phase)))
+            c = paddle.signal.istft(c , self.gen_istft_n_fft, hop_length=self.gen_istft_hop_size, win_length=self.gen_istft_n_fft)
+            c = c.unsqueeze(1)
+        else:
+            c = self.output_conv(c)
 
         return c
 

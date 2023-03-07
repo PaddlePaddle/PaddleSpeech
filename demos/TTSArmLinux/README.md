@@ -1,4 +1,4 @@
-# TTS ARM Linux Demo
+# TTS ARM Linux C++ Demo
 
 修改自 [demos/TTSAndroid](../TTSAndroid)，模型也来自该安卓 Demo。
 

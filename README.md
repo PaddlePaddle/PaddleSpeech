@@ -178,6 +178,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 🎉 2023.03.07: Add [TTS ARM Linux C++ Demo](./demos/TTSArmLinux).
 - 🎉 2023.02.16: Add [Cantonese TTS](./examples/canton/tts3).
 - 🔥 2023.01.10: Add [code-switch asr CLI and Demos](./demos/speech_recognition).
 - 👑 2023.01.06: Add [code-switch asr tal_cs recipe](./examples/tal_cs/asr1/).
@@ -204,10 +205,10 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 🎉 2022.06.22: All TTS models support ONNX format.
 - 🍀 2022.06.17: Add [PaddleSpeech Web Demo](./demos/speech_web).
 - 👑 2022.05.13: Release [PP-ASR](./docs/source/asr/PPASR.md)、[PP-TTS](./docs/source/tts/PPTTS.md)、[PP-VPR](docs/source/vpr/PPVPR.md).
-- 👏🏻  2022.05.06: `PaddleSpeech Streaming Server` is available for `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp` and `Text-to-Speech`.
-- 👏🏻  2022.05.06: `PaddleSpeech Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`, `Speaker Verification` and `Punctuation Restoration`.
-- 👏🏻  2022.03.28: `PaddleSpeech CLI` is available for `Speaker Verification`.
-- 👏🏻  2021.12.10: `PaddleSpeech CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
+- 👏🏻 2022.05.06: `PaddleSpeech Streaming Server` is available for `Streaming ASR` with `Punctuation Restoration` and `Token Timestamp` and `Text-to-Speech`.
+- 👏🏻 2022.05.06: `PaddleSpeech Server` is available for `Audio Classification`, `Automatic Speech Recognition` and `Text-to-Speech`, `Speaker Verification` and `Punctuation Restoration`.
+- 👏🏻 2022.03.28: `PaddleSpeech CLI` is available for `Speaker Verification`.
+- 👏🏻 2021.12.10: `PaddleSpeech CLI` is available for `Audio Classification`, `Automatic Speech Recognition`, `Speech Translation (English to Chinese)` and `Text-to-Speech`.
 
 ### Community
 - Scan the QR code below with your Wechat, you can access to official technical exchange group and get the bonus ( more than 20GB learning materials, such as papers, codes and videos ) and the live link of the lessons. Look forward to your participation.

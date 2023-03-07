@@ -9,6 +9,8 @@
 
 using namespace paddle::lite_api;
 
+typedef int16_t WavDataType;
+
 class Predictor {
 public:
     bool Init(const std::string &AMModelPath, const std::string &VOCModelPath, int cpuThreadNum, const std::string &cpuPowerMode) {
@@ -104,8 +106,6 @@ public:
         }
         std::cout << std::endl;
 
-        // 获取输出Tensor的数据
-        auto am_output_data = am_output_handle->mutable_data<float>();
         return am_output_handle;
     }
 
@@ -133,9 +133,29 @@ public:
         for (auto dim : voc_output_handle->shape()) {
             output_size *= dim;
         }
-        wav_.resize(output_size);
         auto output_data = voc_output_handle->mutable_data<float>();
-        std::copy_n(output_data, output_size, wav_.data());
+
+        SaveFloatWav(output_data, output_size);
+    }
+
+    inline float Abs(float number) {
+        return (number < 0) ? -number : number;
+    }
+
+    void SaveFloatWav(float *floatWav, int64_t size) {
+        wav_.resize(size);
+        float maxSample = 0.01;
+        // 寻找最大采样值
+        for (int64_t i=0; i<size; i++) {
+            float sample = Abs(floatWav[i]);
+            if (sample > maxSample) {
+                maxSample = sample;
+            }
+        }
+        // 把采样值缩放到 int_16 范围
+        for (int64_t i=0; i<size; i++) {
+            wav_[i] = floatWav[i] * 32767.0f / maxSample;
+        }
     }
 
     bool IsLoaded() {
@@ -146,12 +166,12 @@ public:
         return inference_time_;
     }
 
-    const std::vector<float> & GetWav() {
+    const std::vector<WavDataType> & GetWav() {
         return wav_;
     }
 
     int GetWavSize() {
-        return wav_.size() * sizeof(float);
+        return wav_.size() * sizeof(WavDataType);
     }
 
     void ReleaseWav() {
@@ -167,7 +187,7 @@ public:
         // FMT 头
         char fmt[4] = {'f', 'm', 't', ' '};
         uint32_t fmt_size = 16;
-        uint16_t audio_format = 3;
+        uint16_t audio_format = 1; // 1为整数编码，3为浮点编码
         uint16_t num_channels = 1;
 
         // 如果播放速度和音调异常，请修改采样率
@@ -175,8 +195,8 @@ public:
         uint32_t sample_rate = 24000;
 
         uint32_t byte_rate = 64000;
-        uint16_t block_align = 4;
-        uint16_t bits_per_sample = 32;
+        uint16_t block_align = 2;
+        uint16_t bits_per_sample = sizeof(WavDataType) * 8;
 
         // DATA 头
         char data[4] = {'d', 'a', 't', 'a'};
@@ -208,5 +228,5 @@ private:
     float inference_time_ = 0;
     std::shared_ptr<PaddlePredictor> AM_predictor_ = nullptr;
     std::shared_ptr<PaddlePredictor> VOC_predictor_ = nullptr;
-    std::vector<float> wav_;
+    std::vector<WavDataType> wav_;
 };

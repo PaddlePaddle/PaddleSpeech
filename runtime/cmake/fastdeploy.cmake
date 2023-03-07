@@ -23,22 +23,27 @@ if(ANDROID)
     if(NOT DEFINED FASTDEPLOY_INSTALL_DIR)
         set(FASTDEPLOY_INSTALL_DIR ${FASTDEPLOY_DIR}/android-armv7v8)
     endif()
+
     add_definitions("-DUSE_PADDLE_LITE_BAKEND")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -mfloat-abi=softfp -mfpu=vfpv3 -mfpu=neon -fPIC -pie -fPIE")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O3 -mfloat-abi=softfp -mfpu=vfpv3 -mfpu=neon -fPIC -pie -fPIE")
 elseif(UNIX)
-    set(FASTDEPLOY_INSTALL_DIR ${FASTDEPLOY_DIR}/linux-x64)
+    if(NOT DEFINED FASTDEPLOY_INSTALL_DIR)
+        set(FASTDEPLOY_INSTALL_DIR ${FASTDEPLOY_DIR}/linux-x64)
+    endif()
+
     add_definitions("-DUSE_PADDLE_INFERENCE_BACKEND")
     # add_definitions("-DUSE_ORT_BACKEND")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -msse -msse2")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -msse -msse2 -mavx -O3")
 endif()
 
-message(STATUS "FASTDEPLOY_INSTALL_DIR=${FASTDEPLOY_INSTALL_DIR} ${UNIX}")
 include(${FASTDEPLOY_INSTALL_DIR}/FastDeploy.cmake)
 
 # fix compiler flags conflict, since fastdeploy using c++11 for project
 set(CMAKE_CXX_STANDARD ${PPS_CXX_STANDARD})
 
 include_directories(${FASTDEPLOY_INCS})
-message(STATUS "FASTDEPLOY_INCS=${FASTDEPLOY_INCS}")
+
+# install fastdeploy and dependents lib
+install_fastdeploy_libraries(${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})

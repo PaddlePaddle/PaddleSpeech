@@ -15,7 +15,7 @@ add_library(frontend STATIC
   assembler.cc
   wave-reader.cc
 )
-target_link_libraries(frontend PUBLIC kaldi-native-fbank-core utils)
+target_link_libraries(frontend PUBLIC kaldi-native-fbank-core utils base)
 
 set(BINS 
   compute_fbank_main

@@ -143,9 +143,17 @@ def train_sp(args, config):
     print("criterions done!")
 
     optimizer_fs2 = build_optimizers(model_fs2, **config["fs2_optimizer"])
+    # gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
+    # optimizer_ds = AdamW(
+    #     learning_rate=config["ds_scheduler_params"]["learning_rate"],
+    #     grad_clip=gradient_clip_ds,
+    #     parameters=model_ds.parameters(),
+    #     **config["ds_optimizer_params"])
+
+    lr_schedule_ds = StepDecay(**config["ds_scheduler_params"])
     gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
     optimizer_ds = AdamW(
-        learning_rate=config["ds_scheduler_params"]["learning_rate"],
+        learning_rate=lr_schedule_ds,
         grad_clip=gradient_clip_ds,
         parameters=model_ds.parameters(),
         **config["ds_optimizer_params"])

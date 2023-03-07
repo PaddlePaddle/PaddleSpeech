@@ -23,6 +23,7 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.utils import str2bool
 
 
 def main():
@@ -58,6 +59,11 @@ def main():
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(
         "--speaker-dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument(
+        "--norm-feats",
+        type=str2bool,
+        default=False,
+        help="whether to norm features")
 
     args = parser.parse_args()
 
@@ -80,18 +86,36 @@ def main():
 
     # restore scaler
     speech_scaler = StandardScaler()
-    speech_scaler.mean_ = np.load(args.speech_stats)[0]
-    speech_scaler.scale_ = np.load(args.speech_stats)[1]
+    if args.norm_feats:
+        speech_scaler.mean_ = np.load(args.speech_stats)[0]
+        speech_scaler.scale_ = np.load(args.speech_stats)[1]
+    else:
+        speech_scaler.mean_ = np.zeros(
+            np.load(args.speech_stats)[0].shape, dtype="float32")
+        speech_scaler.scale_ = np.ones(
+            np.load(args.speech_stats)[1].shape, dtype="float32")
     speech_scaler.n_features_in_ = speech_scaler.mean_.shape[0]
 
     pitch_scaler = StandardScaler()
-    pitch_scaler.mean_ = np.load(args.pitch_stats)[0]
-    pitch_scaler.scale_ = np.load(args.pitch_stats)[1]
+    if args.norm_feats:
+        pitch_scaler.mean_ = np.load(args.pitch_stats)[0]
+        pitch_scaler.scale_ = np.load(args.pitch_stats)[1]
+    else:
+        pitch_scaler.mean_ = np.zeros(
+            np.load(args.pitch_stats)[0].shape, dtype="float32")
+        pitch_scaler.scale_ = np.ones(
+            np.load(args.pitch_stats)[1].shape, dtype="float32")
     pitch_scaler.n_features_in_ = pitch_scaler.mean_.shape[0]
 
     energy_scaler = StandardScaler()
-    energy_scaler.mean_ = np.load(args.energy_stats)[0]
-    energy_scaler.scale_ = np.load(args.energy_stats)[1]
+    if args.norm_feats:
+        energy_scaler.mean_ = np.load(args.energy_stats)[0]
+        energy_scaler.scale_ = np.load(args.energy_stats)[1]
+    else:
+        energy_scaler.mean_ = np.zeros(
+            np.load(args.energy_stats)[0].shape, dtype="float32")
+        energy_scaler.scale_ = np.ones(
+            np.load(args.energy_stats)[1].shape, dtype="float32")
     energy_scaler.n_features_in_ = energy_scaler.mean_.shape[0]
 
     vocab_phones = {}
@@ -111,7 +135,6 @@ def main():
 
     for item in tqdm(dataset):
         utt_id = item['utt_id']
-        print(utt_id)
         speech = item['speech']
         pitch = item['pitch']
         energy = item['energy']

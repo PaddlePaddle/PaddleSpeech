@@ -23,8 +23,8 @@ f0max: 750         # Maximum f0 for pitch extraction.
 ###########################################################
 #                       DATA SETTING                      #
 ###########################################################
-batch_size: 24     # batch size
-num_workers: 4     # number of gpu
+batch_size: 48     # batch size
+num_workers: 1     # number of gpu
 
 
 ###########################################################
@@ -98,13 +98,14 @@ model:
         use_weight_norm: False                        # Whether to use weight norm in all convolutions
         init_type: "kaiming_normal"                   # Type of initialize weights of a neural network module
 
-    # diffusion module
+
     diffusion_params:
         num_train_timesteps: 100                      # The number of timesteps between the noise and the real during training
         beta_start: 0.0001                            # beta start parameter for the scheduler
         beta_end: 0.06                                # beta end parameter for the scheduler
         beta_schedule: "linear"                       # beta schedule parameter for the scheduler
-        num_max_timesteps: 60                         # The max timestep transition from real to noise
+        num_max_timesteps: 100                         # The max timestep transition from real to noise
+
 
 
 ###########################################################
@@ -134,18 +135,18 @@ ds_optimizer_params:
 ds_scheduler_params:
     learning_rate: 0.001              
     gamma: 0.5                          
-    step_size: 10000  
+    step_size: 50000  
 ds_grad_norm: 1
 
 
 ###########################################################
 #                    INTERVAL SETTING                     #
 ###########################################################
-ds_train_start_steps: 100000              # Number of steps to start to train diffusion module.
-train_max_steps: 200000                   # Number of training steps.
-save_interval_steps: 500                 # Interval steps to save checkpoint.
-eval_interval_steps: 100                 # Interval steps to evaluate the network.
-num_snapshots: 10                        # Number of saved models
+ds_train_start_steps: 160000              # Number of steps to start to train diffusion module.
+train_max_steps: 320000                   # Number of training steps.
+save_interval_steps: 2000                 # Interval steps to save checkpoint.
+eval_interval_steps: 2000                 # Interval steps to evaluate the network.
+num_snapshots: 5                        # Number of saved models
 
 
 ###########################################################

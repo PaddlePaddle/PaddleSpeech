@@ -17,6 +17,7 @@ from typing import Callable
 from typing import Optional
 from typing import Tuple
 
+import numpy as np
 import paddle
 import ppdiffusers
 from paddle import nn
@@ -25,170 +26,6 @@ from ppdiffusers.schedulers import DDPMScheduler
 
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.residual_block import WaveNetResidualBlock
-
-
-class WaveNetDenoiser(nn.Layer):
-    """A Mel-Spectrogram Denoiser modified from WaveNet
-
-    Args:
-        in_channels (int, optional): 
-            Number of channels of the input mel-spectrogram, by default 80
-        out_channels (int, optional): 
-            Number of channels of the output mel-spectrogram, by default 80
-        kernel_size (int, optional): 
-            Kernel size of the residual blocks inside, by default 3
-        layers (int, optional): 
-            Number of residual blocks inside, by default 20
-        stacks (int, optional):
-            The number of groups to split the residual blocks into, by default 5
-            Within each group, the dilation of the residual block grows exponentially.
-        residual_channels (int, optional): 
-            Residual channel of the residual blocks, by default 256
-        gate_channels (int, optional): 
-            Gate channel of the residual blocks, by default 512
-        skip_channels (int, optional): 
-            Skip channel of the residual blocks, by default 256
-        aux_channels (int, optional): 
-            Auxiliary channel of the residual blocks, by default 256
-        dropout (float, optional): 
-            Dropout of the residual blocks, by default 0.
-        bias (bool, optional): 
-            Whether to use bias in residual blocks, by default True
-        use_weight_norm (bool, optional): 
-            Whether to use weight norm in all convolutions, by default False
-    """
-
-    def __init__(
-            self,
-            in_channels: int=80,
-            out_channels: int=80,
-            kernel_size: int=3,
-            layers: int=20,
-            stacks: int=5,
-            residual_channels: int=256,
-            gate_channels: int=512,
-            skip_channels: int=256,
-            aux_channels: int=256,
-            dropout: float=0.,
-            bias: bool=True,
-            use_weight_norm: bool=False,
-            init_type: str="kaiming_normal", ):
-        super().__init__()
-
-        # initialize parameters
-        initialize(self, init_type)
-
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.aux_channels = aux_channels
-        self.layers = layers
-        self.stacks = stacks
-        self.kernel_size = kernel_size
-
-        assert layers % stacks == 0
-        layers_per_stack = layers // stacks
-
-        self.first_t_emb = nn.Sequential(
-            Timesteps(
-                residual_channels,
-                flip_sin_to_cos=False,
-                downscale_freq_shift=1),
-            nn.Linear(residual_channels, residual_channels * 4),
-            nn.Mish(), nn.Linear(residual_channels * 4, residual_channels))
-        self.t_emb_layers = nn.LayerList([
-            nn.Linear(residual_channels, residual_channels)
-            for _ in range(layers)
-        ])
-
-        self.first_conv = nn.Conv1D(
-            in_channels, residual_channels, 1, bias_attr=True)
-        self.first_act = nn.ReLU()
-
-        self.conv_layers = nn.LayerList()
-        for layer in range(layers):
-            dilation = 2**(layer % layers_per_stack)
-            conv = WaveNetResidualBlock(
-                kernel_size=kernel_size,
-                residual_channels=residual_channels,
-                gate_channels=gate_channels,
-                skip_channels=skip_channels,
-                aux_channels=aux_channels,
-                dilation=dilation,
-                dropout=dropout,
-                bias=bias)
-            self.conv_layers.append(conv)
-
-        final_conv = nn.Conv1D(skip_channels, out_channels, 1, bias_attr=True)
-        nn.initializer.Constant(0.0)(final_conv.weight)
-        self.last_conv_layers = nn.Sequential(nn.ReLU(),
-                                              nn.Conv1D(
-                                                  skip_channels,
-                                                  skip_channels,
-                                                  1,
-                                                  bias_attr=True),
-                                              nn.ReLU(), final_conv)
-
-        if use_weight_norm:
-            self.apply_weight_norm()
-
-    def forward(self, x, t, c):
-        """Denoise mel-spectrogram.
-
-        Args:
-            x(Tensor): 
-                Shape (N, C_in, T), The input mel-spectrogram.
-            t(Tensor): 
-                Shape (N), The timestep input.
-            c(Tensor): 
-                Shape (N, C_aux, T'). The auxiliary input (e.g. fastspeech2 encoder output). 
-
-        Returns:
-            Tensor: Shape (N, C_out, T), the denoised mel-spectrogram.
-        """
-        assert c.shape[-1] == x.shape[-1]
-
-        if t.shape[0] != x.shape[0]:
-            t = t.tile([x.shape[0]])
-        t_emb = self.first_t_emb(t)
-        t_embs = [
-            t_emb_layer(t_emb)[..., None] for t_emb_layer in self.t_emb_layers
-        ]
-
-        x = self.first_conv(x)
-        x = self.first_act(x)
-        skips = 0
-        for f, t in zip(self.conv_layers, t_embs):
-            x = x + t
-            x, s = f(x, c)
-            skips += s
-        skips *= math.sqrt(1.0 / len(self.conv_layers))
-
-        x = self.last_conv_layers(skips)
-        return x
-
-    def apply_weight_norm(self):
-        """Recursively apply weight normalization to all the Convolution layers
-        in the sublayers.
-        """
-
-        def _apply_weight_norm(layer):
-            if isinstance(layer, (nn.Conv1D, nn.Conv2D)):
-                nn.utils.weight_norm(layer)
-
-        self.apply(_apply_weight_norm)
-
-    def remove_weight_norm(self):
-        """Recursively remove weight normalization from all the Convolution 
-        layers in the sublayers.
-        """
-
-        def _remove_weight_norm(layer):
-            try:
-                nn.utils.remove_weight_norm(layer)
-            except ValueError:
-                pass
-
-        self.apply(_remove_weight_norm)
 
 
 class GaussianDiffusion(nn.Layer):
@@ -294,13 +131,17 @@ class GaussianDiffusion(nn.Layer):
 
     """
 
-    def __init__(self,
-                 denoiser: nn.Layer,
-                 num_train_timesteps: Optional[int]=1000,
-                 beta_start: Optional[float]=0.0001,
-                 beta_end: Optional[float]=0.02,
-                 beta_schedule: Optional[str]="squaredcos_cap_v2",
-                 num_max_timesteps: Optional[int]=None):
+    def __init__(
+            self,
+            denoiser: nn.Layer,
+            num_train_timesteps: Optional[int]=1000,
+            beta_start: Optional[float]=0.0001,
+            beta_end: Optional[float]=0.02,
+            beta_schedule: Optional[str]="squaredcos_cap_v2",
+            num_max_timesteps: Optional[int]=None,
+            stretch: bool=True,
+            min_values: paddle.Tensor=None,
+            max_values: paddle.Tensor=None, ):
         super().__init__()
 
         self.num_train_timesteps = num_train_timesteps
@@ -315,6 +156,22 @@ class GaussianDiffusion(nn.Layer):
             beta_end=beta_end,
             beta_schedule=beta_schedule)
         self.num_max_timesteps = num_max_timesteps
+        self.stretch = stretch
+        self.min_values = min_values
+        self.max_values = max_values
+
+    def norm_spec(self, x):
+        """
+        Linearly map x to [-1, 1]
+        Args:
+            x: [B, T, N]
+        """
+        return (x - self.min_values) / (self.max_values - self.min_values
+                                        ) * 2 - 1
+
+    def denorm_spec(self, x):
+        return (x + 1) / 2 * (self.max_values - self.min_values
+                              ) + self.min_values
 
     def forward(self, x: paddle.Tensor, cond: Optional[paddle.Tensor]=None
                 ) -> Tuple[paddle.Tensor, paddle.Tensor]:
@@ -333,6 +190,12 @@ class GaussianDiffusion(nn.Layer):
                 The noises which is added to the input.
 
         """
+        if self.stretch:
+            assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."
+            x = x.transpose((0, 2, 1))
+            x = self.norm_spec(x)
+            x = x.transpose((0, 2, 1))
+
         noise_scheduler = self.noise_scheduler
 
         # Sample noise that we'll add to the mel-spectrograms
@@ -369,9 +232,9 @@ class GaussianDiffusion(nn.Layer):
 
         Args:
             noise (Tensor): 
-                The input tensor as a starting point for denoising.
+                The input tensor as a starting point for denoising. 
             cond (Tensor, optional):
-                Conditional input for compute noises.
+                Conditional input for compute noises. (N, C_aux, T)
             ref_x (Tensor, optional):
                 The real output for the denoising process to refer.
             num_inference_steps (int, optional):
@@ -382,6 +245,7 @@ class GaussianDiffusion(nn.Layer):
             scheduler_type (str, optional):
                 Noise scheduler for generate noises. 
                 Choose a great scheduler can skip many denoising step, by default 'ddpm'.
+                only support 'ddpm' now !
             clip_noise (bool, optional):
                 Whether to clip each denoised output, by default True.
             clip_noise_range (tuple, optional):
@@ -425,48 +289,30 @@ class GaussianDiffusion(nn.Layer):
         # set timesteps
         scheduler.set_timesteps(num_inference_steps)
 
-        # prepare first noise variables
         noisy_input = noise
-        timesteps = scheduler.timesteps
-        if ref_x is not None:
-            init_timestep = None
-            if strength is None or strength < 0. or strength > 1.:
-                strength = None
-                if self.num_max_timesteps is not None:
-                    strength = self.num_max_timesteps / self.num_train_timesteps
-            if strength is not None:
-                # get the original timestep using init_timestep
-                init_timestep = min(
-                    int(num_inference_steps * strength), num_inference_steps)
-                t_start = max(num_inference_steps - init_timestep, 0)
-                timesteps = scheduler.timesteps[t_start:]
-                num_inference_steps = num_inference_steps - t_start
-                noisy_input = scheduler.add_noise(
-                    ref_x, noise, timesteps[:1].tile([noise.shape[0]]))
+        if self.stretch and ref_x is not None:
+            assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."
+            ref_x = ref_x.transpose((0, 2, 1))
+            ref_x = self.norm_spec(ref_x)
+            ref_x = ref_x.transpose((0, 2, 1))
 
-        # denoising loop
+            # for ddpm
+            timesteps = paddle.to_tensor(
+                np.flipud(np.arange(num_inference_steps)))
+            noisy_input = scheduler.add_noise(ref_x, noise, timesteps[0])
+
         denoised_output = noisy_input
-        if clip_noise:
-            n_min, n_max = clip_noise_range
-            denoised_output = paddle.clip(denoised_output, n_min, n_max)
-        num_warmup_steps = len(
-            timesteps) - num_inference_steps * scheduler.order
         for i, t in enumerate(timesteps):
             denoised_output = scheduler.scale_model_input(denoised_output, t)
-
-            # predict the noise residual
             noise_pred = self.denoiser(denoised_output, t, cond)
-
             # compute the previous noisy sample x_t -> x_t-1
             denoised_output = scheduler.step(noise_pred, t,
                                              denoised_output).prev_sample
-            if clip_noise:
-                denoised_output = paddle.clip(denoised_output, n_min, n_max)
 
-            # call the callback, if provided
-            if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and
-                                           (i + 1) % scheduler.order == 0):
-                if callback is not None and i % callback_steps == 0:
-                    callback(i, t, len(timesteps), denoised_output)
+        if self.stretch:
+            assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."
+            denoised_output = denoised_output.transpose((0, 2, 1))
+            denoised_output = self.denorm_spec(denoised_output)
+            denoised_output = denoised_output.transpose((0, 2, 1))
 
         return denoised_output

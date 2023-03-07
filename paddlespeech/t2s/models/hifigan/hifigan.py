@@ -85,6 +85,14 @@ class HiFiGANGenerator(nn.Layer):
             use_weight_norm (bool): 
                 Whether to use weight norm.
                 If set to true, it will be applied to all of the conv layers.
+            istft (bool):
+                If set to true, it will be a iSTFTNet based on hifigan.
+            post_n_fft (int):
+                Emulate nfft in stft
+            gen_istft_hop_size (int):
+                Hop_length in istft
+            gen_istft_n_fft (int):
+                N_fft in istft, equal to post_n_fft
         """
         super().__init__()
 

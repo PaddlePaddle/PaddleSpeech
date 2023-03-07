@@ -211,8 +211,8 @@ public:
 
         // 写入头信息
         WavHeader header;
-        header.size = sizeof(header) - 8;
         header.data_size = GetWavSize();
+        header.size = sizeof(header) - 8 + header.data_size;
         header.byte_rate = header.sample_rate * header.num_channels * header.bits_per_sample / 8;
         header.block_align = header.num_channels * header.bits_per_sample / 8;
         fout.write(reinterpret_cast<const char*>(&header), sizeof(header));

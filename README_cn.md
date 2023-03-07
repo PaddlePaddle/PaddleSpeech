@@ -183,6 +183,7 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 ### 近期更新
+- 🎉 2023.03.07: 新增 [TTS ARM Linux C++ 部署示例](./demos/TTSArmLinux)。
 - 🎉 2023.02.16: 新增[粤语语音合成](./examples/canton/tts3)。
 - 🔥 2023.01.10: 新增[中英混合 ASR CLI 和 Demos](./demos/speech_recognition)。
 - 👑 2023.01.06: 新增 [ASR 中英混合 tal_cs 训练推理流程](./examples/tal_cs/asr1/)。

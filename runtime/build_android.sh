@@ -15,7 +15,7 @@ TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
 BUILD_ROOT=build/Android
 BUILD_DIR=${BUILD_ROOT}/${ANDROID_ABI}-api-21
 #FASDEPLOY_INSTALL_DIR="${BUILD_DIR}/install"
-#mkdir build && mkdir ${BUILD_ROOT} && mkdir ${BUILD_DIR}
+
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
 

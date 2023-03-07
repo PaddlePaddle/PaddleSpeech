@@ -1,41 +1,45 @@
-set(ARCH "mserver_x86_64" CACHE STRING "Target Architecture:
-android_arm, android_armv7, android_armv8, android_x86, android_x86_64,
-mserver_x86_64, ubuntu_x86_64, ios_armv7, ios_armv7s, ios_armv8, ios_x86_64, ios_x86,
-windows_x86")
+include(FetchContent)
 
-set(FASTDEPLOY_DIR ${CMAKE_SOURCE_DIR}/fc_patch/fastdeploy)
-if(NOT EXISTS ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.4.tgz)
-    exec_program("mkdir -p ${FASTDEPLOY_DIR} &&
-    wget -c https://bj.bcebos.com/fastdeploy/release/cpp/fastdeploy-linux-x64-1.0.4.tgz -P ${FASTDEPLOY_DIR} &&
-    tar xzvf ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.4.tgz -C ${FASTDEPLOY_DIR} &&
-    mv ${FASTDEPLOY_DIR}/fastdeploy-linux-x64-1.0.4 ${FASTDEPLOY_DIR}/linux-x64")
-endif()
+set(EXTERNAL_PROJECT_LOG_ARGS
+    LOG_DOWNLOAD 1 # Wrap download in script to log output
+    LOG_UPDATE 1 # Wrap update in script to log output
+    LOG_PATCH 1
+    LOG_CONFIGURE 1# Wrap configure in script to log output
+    LOG_BUILD 1 # Wrap build in script to log output
+    LOG_INSTALL 1
+    LOG_TEST 1 # Wrap test in script to log output
+    LOG_MERGED_STDOUTERR 1
+    LOG_OUTPUT_ON_FAILURE 1
+)
 
-if(NOT EXISTS ${FASTDEPLOY_DIR}/fastdeploy-android-1.0.4-shared.tgz)
-    exec_program("mkdir -p ${FASTDEPLOY_DIR} &&
-    wget -c https://bj.bcebos.com/fastdeploy/release/android/fastdeploy-android-1.0.4-shared.tgz -P ${FASTDEPLOY_DIR} &&
-    tar xzvf ${FASTDEPLOY_DIR}/fastdeploy-android-1.0.4-shared.tgz -C ${FASTDEPLOY_DIR} &&
-    mv ${FASTDEPLOY_DIR}/fastdeploy-android-1.0.4-shared ${FASTDEPLOY_DIR}/android-armv7v8")
-endif()
+if(NOT FASTDEPLOY_INSTALL_DIR)
+    if(ANDROID)
+        FetchContent_Declare(
+            fastdeploy
+            URL      https://bj.bcebos.com/fastdeploy/release/android/fastdeploy-android-1.0.4-shared.tgz
+            URL_HASH MD5=2a15301158e9eb157a4f11283689e7ba
+            ${EXTERNAL_PROJECT_LOG_ARGS}
+        )
+        add_definitions("-DUSE_PADDLE_LITE_BAKEND")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -mfloat-abi=softfp -mfpu=vfpv3 -mfpu=neon -fPIC -pie -fPIE")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O3 -mfloat-abi=softfp -mfpu=vfpv3 -mfpu=neon -fPIC -pie -fPIE")
+    else() # Linux
+        FetchContent_Declare(
+            fastdeploy
+            URL      https://bj.bcebos.com/fastdeploy/release/cpp/fastdeploy-linux-x64-1.0.4.tgz 
+            URL_HASH MD5=125df3bfce603521960cc5c8b47faab0
+            ${EXTERNAL_PROJECT_LOG_ARGS}
+        )
 
-
-if(ANDROID)
-    if(NOT DEFINED FASTDEPLOY_INSTALL_DIR)
-        set(FASTDEPLOY_INSTALL_DIR ${FASTDEPLOY_DIR}/android-armv7v8)
+        add_definitions("-DUSE_PADDLE_INFERENCE_BACKEND")
+        # add_definitions("-DUSE_ORT_BACKEND")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -msse -msse2")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -msse -msse2 -mavx -O3")
     endif()
 
-    add_definitions("-DUSE_PADDLE_LITE_BAKEND")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -mfloat-abi=softfp -mfpu=vfpv3 -mfpu=neon -fPIC -pie -fPIE")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O3 -mfloat-abi=softfp -mfpu=vfpv3 -mfpu=neon -fPIC -pie -fPIE")
-elseif(UNIX)
-    if(NOT DEFINED FASTDEPLOY_INSTALL_DIR)
-        set(FASTDEPLOY_INSTALL_DIR ${FASTDEPLOY_DIR}/linux-x64)
-    endif()
+    FetchContent_MakeAvailable(fastdeploy)
 
-    add_definitions("-DUSE_PADDLE_INFERENCE_BACKEND")
-    # add_definitions("-DUSE_ORT_BACKEND")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -msse -msse2")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -msse -msse2 -mavx -O3")
+    set(FASTDEPLOY_INSTALL_DIR ${fc_patch}/fastdeploy-src)
 endif()
 
 include(${FASTDEPLOY_INSTALL_DIR}/FastDeploy.cmake)
@@ -77,8 +81,12 @@ if(ENABLE_VISION)
     if(ANDROID)
         file(GLOB_RECURSE ALL_OPENCV_DYN_LIBS ${OpenCV_NATIVE_DIR}/libs/${DYN_LIB_SUFFIX})
     else()
-        file(GLOB_RECURSE ALL_OPENCV_DYN_LIBS ${OpenCV_DIR}/${DYN_LIB_SUFFIX})
+        file(GLOB_RECURSE ALL_OPENCV_DYN_LIBS ${OpenCV_DIR}/../../${DYN_LIB_SUFFIX})
     endif()
+   
+    message(STATUS "ALL_DEPS_DYN_LIBS=${ALL_DEPS_DYN_LIBS}")
+    message(STATUS "OpenCV_DIR=${OpenCV_DIR}")
+    message(STATUS "ALL_OPENCV_DYN_LIBS=${ALL_OPENCV_DYN_LIBS}")
     list(REMOVE_ITEM ALL_DEPS_DYN_LIBS ${ALL_OPENCV_DYN_LIBS})
 
     if(WIN32)

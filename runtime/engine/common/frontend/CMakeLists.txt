@@ -6,6 +6,7 @@ add_library(kaldi-native-fbank-core
   mel-computations.cc
   rfft.cc
 )
+target_link_libraries(kaldi-native-fbank-core PUBLIC utils base)
 
 add_library(frontend STATIC
   cmvn.cc

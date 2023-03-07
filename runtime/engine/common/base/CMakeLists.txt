@@ -36,6 +36,7 @@ if(ANDROID)
     glog_utils.cc
   )
   add_library(base ${csrc})
+  target_link_libraries(base gflags)
 else() # UNIX
   set(csrc)
   add_library(base INTERFACE)

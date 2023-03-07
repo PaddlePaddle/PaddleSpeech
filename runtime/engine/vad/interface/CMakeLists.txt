@@ -3,7 +3,7 @@ set(srcs
 )
 
 add_library(vad_interface ${srcs})
-target_link_libraries(vad_interface INTERFACE ${FASTDEPLOY_LIBS} vad extern_glog)
+target_link_libraries(vad_interface PUBLIC ${FASTDEPLOY_LIBS} vad extern_glog)
 
 
 set(bin_name vad_interface_main)

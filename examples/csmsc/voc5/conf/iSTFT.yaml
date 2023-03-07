@@ -26,7 +26,7 @@ fmax: 7600               # Maximum frequency in mel basis calculation. (Hz)
 generator_params:
     istft: True                           # use iSTFTNet
     post_n_fft: 48                        # stft fft_num
-    gen_istft_hop_size: 12                # istft hop_length 原始为4
+    gen_istft_hop_size: 12                # istft hop_length
     gen_istft_n_fft: 48                   # istft n_fft
     in_channels: 80                       # Number of input channels.
     out_channels: 1                       # Number of output channels.

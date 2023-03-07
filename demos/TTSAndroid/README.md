@@ -157,8 +157,11 @@ Android 示例基于 Java API 开发，调用 Paddle Lite `Java API` 包括以�
 
 ### 更新输入
 
-**本 Demo 不包含文本前端模块**，通过下拉框选择预先设置好的文本，在代码中映射成对应的 phone_id，**如需文本前端模块请自行处理**，`phone_id_map.txt`
-请参考 [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)。
+**本 Demo 不包含文本前端模块**，通过下拉框选择预先设置好的文本，在代码中映射成对应的 phone_id，**如需文本前端模块请自行处理**，可参考：
+- C++ 中文前端 [lym0302/paddlespeech_tts_cpp](https://github.com/lym0302/paddlespeech_tts_cpp)
+- C++ 英文 g2p [yazone/g2pE_mobile](https://github.com/yazone/g2pE_mobile)
+
+`phone_id_map.txt` 请参考 [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)。
 
 ## 通过 setting 界面更新语音合成的相关参数
 

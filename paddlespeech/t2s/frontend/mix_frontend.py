@@ -15,6 +15,7 @@ import re
 from typing import Dict
 from typing import List
 
+import numpy as np
 import paddle
 
 from paddlespeech.t2s.frontend import English
@@ -32,6 +33,7 @@ class MixFrontend():
             phone_vocab_path=phone_vocab_path, tone_vocab_path=tone_vocab_path)
         self.en_frontend = English(phone_vocab_path=phone_vocab_path)
         self.sp_id = self.zh_frontend.vocab_phones["sp"]
+        self.sp_id_numpy = np.array([self.sp_id])
         self.sp_id_tensor = paddle.to_tensor([self.sp_id])
 
     def is_chinese(self, char):
@@ -108,7 +110,6 @@ class MixFrontend():
                       get_tone_ids: bool=False,
                       add_sp: bool=True,
                       to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
-
         ''' 1. 添加SSML支持，先列出 文字 和 <say-as>标签内容，
                 然后添加到tmpSegments数组里
         '''
@@ -120,7 +121,6 @@ class MixFrontend():
                 tmpSegments.append((instr, "zh"))
             else:
                 tmpSegments.extend(self.get_segment(instr))
-
         ''' 2. 把zh的merge到一起，避免合成结果中间停顿
         '''
         segments = []
@@ -171,8 +171,12 @@ class MixFrontend():
                             get_tone_ids=get_tone_ids,
                             to_tensor=to_tensor)
                 if add_sp:
-                    input_ids["phone_ids"][-1] = paddle.concat(
-                        [input_ids["phone_ids"][-1], self.sp_id_tensor])
+                    if to_tensor:
+                        input_ids["phone_ids"][-1] = paddle.concat(
+                            [input_ids["phone_ids"][-1], self.sp_id_tensor])
+                    else:
+                        input_ids["phone_ids"][-1] = np.concatenate(
+                            (input_ids["phone_ids"][-1], self.sp_id_numpy))
 
                 for phones in input_ids["phone_ids"]:
                     phones_list.append(phones)
@@ -181,7 +185,8 @@ class MixFrontend():
             merge_list = paddle.concat(phones_list)
             # rm the last 'sp' to avoid the noise at the end
             # cause in the training data, no 'sp' in the end
-            if merge_list[-1] == self.sp_id_tensor:
+            if (to_tensor and merge_list[-1] == self.sp_id_tensor) or (
+                    not to_tensor and merge_list[-1] == self.sp_id_numpy):
                 merge_list = merge_list[:-1]
             phones_list = []
             phones_list.append(merge_list)

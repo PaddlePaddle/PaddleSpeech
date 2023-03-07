@@ -308,6 +308,8 @@ class GaussianDiffusion(nn.Layer):
             # compute the previous noisy sample x_t -> x_t-1
             denoised_output = scheduler.step(noise_pred, t,
                                              denoised_output).prev_sample
+            if clip_noise:
+                denoised_output = paddle.clip(denoised_output, n_min, n_max)
 
         if self.stretch:
             assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."

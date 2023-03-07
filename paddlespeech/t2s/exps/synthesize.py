@@ -126,9 +126,6 @@ def evaluate(args):
                         note_dur=note_dur,
                         is_slur=is_slur,
                         get_mel_fs2=False)
-                    # import numpy as np
-                    # mel = np.load("/home/liangyunming/others_code/DiffSinger_lym/diffsinger_mel.npy")
-                    # mel = paddle.to_tensor(mel)
                 wav1 = voc_inference(mel1)
                 wav2 = voc_inference(mel2)
 
@@ -143,7 +140,6 @@ def evaluate(args):
             f"{utt_id}, mel: {mel1.shape}, wave: {wav1.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
         sf.write(
-            # str(output_dir / ("xiaojiuwo_diffsinger" + ".wav")), wav, samplerate=am_config.fs)
             str(output_dir / (utt_id + "_fs2.wav")),
             wav1,
             samplerate=am_config.fs)
@@ -176,7 +172,8 @@ def parse_args():
             'tacotron2_ljspeech',
             'tacotron2_aishell3',
             'fastspeech2_mix',
-            "diffsinger_opencpop",
+            'fastspeech2_canton',
+            'diffsinger_opencpop',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(

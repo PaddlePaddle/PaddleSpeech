@@ -119,7 +119,7 @@ def evaluate(args):
                     # acoustic model
                     if am_name == 'fastspeech2':
                         # multi speaker
-                        if am_dataset in {"aishell3", "vctk", "mix"}:
+                        if am_dataset in {"aishell3", "vctk", "mix", "canton"}:
                             spk_id = paddle.to_tensor(args.spk_id)
                             mel = am_inference(part_phone_ids, spk_id)
                         else:
@@ -165,9 +165,19 @@ def parse_args():
         type=str,
         default='fastspeech2_csmsc',
         choices=[
-            'speedyspeech_csmsc', 'speedyspeech_aishell3', 'fastspeech2_csmsc',
-            'fastspeech2_ljspeech', 'fastspeech2_aishell3', 'fastspeech2_vctk',
-            'tacotron2_csmsc', 'tacotron2_ljspeech', 'fastspeech2_mix'
+            'speedyspeech_csmsc',
+            'speedyspeech_aishell3',
+            'fastspeech2_csmsc',
+            'fastspeech2_ljspeech',
+            'fastspeech2_aishell3',
+            'fastspeech2_vctk',
+            'tacotron2_csmsc',
+            'tacotron2_ljspeech',
+            'fastspeech2_mix',
+            'fastspeech2_canton',
+            'fastspeech2_male-zh',
+            'fastspeech2_male-en',
+            'fastspeech2_male-mix',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -211,6 +221,8 @@ def parse_args():
             'hifigan_aishell3',
             'hifigan_vctk',
             'wavernn_csmsc',
+            'pwgan_male',
+            'hifigan_male',
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(

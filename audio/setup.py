@@ -40,14 +40,9 @@ COMMITID = 'none'
 base = [
     "kaldiio",
     "librosa==0.8.1",
-    "scipy>=1.0.0",
-    "soundfile~=0.10",
-    "colorlog",
-    "pathos == 0.2.8",
+    "pathos",
     "pybind11",
     "parameterized",
-    "tqdm",
-    "scikit-learn"
 ]
 
 requirements = {
@@ -273,7 +268,7 @@ def main():
         },
 
         # Package info
-        packages=find_packages(include=('paddleaudio*')),
+        packages=find_packages(include=['paddleaudio*']),
         package_data=lib_package_data,
         ext_modules=setup_helpers.get_ext_modules(),
         zip_safe=True,

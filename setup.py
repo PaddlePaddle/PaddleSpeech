@@ -32,14 +32,14 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 base = [
+    "braceexpand",
     "editdistance",
     "g2p_en",
     "g2pM",
     "h5py",
+    "hyperpyyaml",
     "inflect",
-    "jieba",
     "jsonlines",
-    "kaldiio",
     "librosa==0.8.1",
     "loguru",
     "matplotlib",
@@ -48,40 +48,30 @@ base = [
     "opencc",
     "opencc-python-reimplemented",
     "pandas",
+    "paddleaudio>=1.1.0",
     "paddlenlp>=2.4.8",
+    "paddleslim>=2.3.4",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",
-    "Pillow>=9.0.0",
-    "praatio==5.0.0",
-    "protobuf>=3.1.0, <=3.20.0",
+    "praatio>=5.0.0, <=5.1.1",
+    "prettytable",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",
-    "pyworld==0.2.12",
-    "resampy==0.2.2",
+    "pyworld>=0.2.12",
+    "pyyaml",
+    "resampy",
     "sacrebleu",
-    "scipy",
-    "sentencepiece~=0.1.96",
-    "soundfile~=0.10",
     "textgrid",
     "timer",
-    "tqdm",
+    "ToJyutping",
     "typeguard",
-    "visualdl",
     "webrtcvad",
     "yacs~=0.1.8",
-    "prettytable",
     "zhon",
-    "colorlog",
-    "pathos==0.2.8",
-    "braceexpand",
-    "pyyaml",
-    "pybind11",
-    "paddleslim==2.3.4",
-    "paddleaudio>=1.0.2",
 ]
 
-server = ["fastapi", "uvicorn", "pattern_singleton", "websockets"]
+server = ["pattern_singleton", "websockets"]
 
 requirements = {
     "install":
@@ -304,7 +294,8 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(include=('paddlespeech*')),
+    packages=find_packages(
+        include=['paddlespeech*'], exclude=['utils', 'third_party']),
     zip_safe=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

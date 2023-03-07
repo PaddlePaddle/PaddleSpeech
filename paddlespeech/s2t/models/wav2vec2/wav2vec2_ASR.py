@@ -1,4 +1,4 @@
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,18 +57,24 @@ class Wav2vec2ASR(nn.Layer):
     def forward(self, wav, wavs_lens_rate, target, target_lens):
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape)
+
         # Extract wav2vec output
         out = self.wav2vec2(wav)[0]
         # We normalize the output if required
         if self.output_norm:
             out = F.layer_norm(out, out.shape)
-        if self.train and hasattr(self.config, 'spec_augment'):
+
+        if self.training and hasattr(self.config, 'spec_augment'):
             feats = self.spec_augment(out)
         else:
             feats = out
+
         x = self.enc(feats)
+
         x_lens = (wavs_lens_rate * x.shape[1]).round().astype(paddle.int64)
+
         ctc_loss = self.ctc(x, x_lens, target, target_lens)
+
         return ctc_loss
 
     @paddle.no_grad()
@@ -77,50 +83,60 @@ class Wav2vec2ASR(nn.Layer):
                text_feature: Dict[str, int],
                decoding_method: str,
                beam_size: int,
-               tokenizer: str=None):
+               tokenizer: str=None,
+               sb_pipeline=False):
         batch_size = feats.shape[0]
 
         if decoding_method == 'ctc_prefix_beam_search' and batch_size > 1:
-            raise ValueError(
+            logger.error(
                 f"decoding mode {decoding_method} must be running with batch_size == 1"
             )
+            logger.error(f"current batch_size is {batch_size}")
 
         if decoding_method == 'ctc_greedy_search':
-            if tokenizer is None:
+            if tokenizer is None and sb_pipeline is False:
                 hyps = self.ctc_greedy_search(feats)
                 res = [text_feature.defeaturize(hyp) for hyp in hyps]
                 res_tokenids = [hyp for hyp in hyps]
             else:
-                hyps = self.ctc_greedy_search(feats)
+                if sb_pipeline is True:
+                    hyps = self.ctc_greedy_search(feats.unsqueeze(-1))
+                else:
+                    hyps = self.ctc_greedy_search(feats)
                 res = []
                 res_tokenids = []
                 for sequence in hyps:
-                    # Decode token terms to words
+                    # Decode token terms to words 
                     predicted_tokens = text_feature.convert_ids_to_tokens(
                         sequence)
-                    tmp_res = []
-                    tmp_res_tokenids = []
-                    for c in predicted_tokens:
-                        if c == "[CLS]":
-                            continue
-                        elif c == "[SEP]" or c == "[PAD]":
-                            break
-                        else:
-                            tmp_res.append(c)
-                            tmp_res_tokenids.append(text_feature.vocab[c])
-                    res.append(''.join(tmp_res))
-                    res_tokenids.append(tmp_res_tokenids)
+                tmp_res = []
+                tmp_res_tokenids = []
+                for c in predicted_tokens:
+                    if c == "[CLS]":
+                        continue
+                    elif c == "[SEP]" or c == "[PAD]":
+                        break
+                    else:
+                        tmp_res.append(c)
+                        tmp_res_tokenids.append(text_feature.vocab[c])
+                res.append(''.join(tmp_res))
+                res_tokenids.append(tmp_res_tokenids)
+
         # ctc_prefix_beam_search and attention_rescoring only return one
         # result in List[int], change it to List[List[int]] for compatible
         # with other batch decoding mode
         elif decoding_method == 'ctc_prefix_beam_search':
             assert feats.shape[0] == 1
-            if tokenizer is None:
+            if tokenizer is None and sb_pipeline is False:
                 hyp = self.ctc_prefix_beam_search(feats, beam_size)
                 res = [text_feature.defeaturize(hyp)]
                 res_tokenids = [hyp]
             else:
-                hyp = self.ctc_prefix_beam_search(feats, beam_size)
+                if sb_pipeline is True:
+                    hyp = self.ctc_prefix_beam_search(
+                        feats.unsqueeze(-1), beam_size)
+                else:
+                    hyp = self.ctc_prefix_beam_search(feats, beam_size)
                 res = []
                 res_tokenids = []
                 predicted_tokens = text_feature.convert_ids_to_tokens(hyp)
@@ -290,13 +306,10 @@ class Wav2vec2Base(nn.Layer):
     @classmethod
     def from_config(cls, configs: dict):
         """init model.
-
         Args:
             configs (dict): config dict.
-
         Raises:
             ValueError: raise when using not support encoder type.
-
         Returns:
             nn.Layer: Wav2Vec2Base
         """

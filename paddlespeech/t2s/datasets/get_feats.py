@@ -18,6 +18,11 @@ import pyworld
 from scipy.interpolate import interp1d
 from typing import List
 
+from typing import Optional
+from typing import Union
+from typing_extensions import Literal
+
+
 
 class LogMelFBank():
     def __init__(self,
@@ -28,7 +33,10 @@ class LogMelFBank():
                  window: str="hann",
                  n_mels: int=80,
                  fmin: int=80,
-                 fmax: int=7600):
+                 fmax: int=7600,
+                 norm: Optional[Union[Literal["slaney"], float]]="slaney",
+                 htk: bool=False,
+                 power: float=1.0):
         self.sr = sr
         # stft
         self.n_fft = n_fft
@@ -37,11 +45,14 @@ class LogMelFBank():
         self.window = window
         self.center = True
         self.pad_mode = "reflect"
+        self.norm = norm
+        self.htk = htk
 
         # mel
         self.n_mels = n_mels
         self.fmin = 0 if fmin is None else fmin
         self.fmax = sr / 2 if fmax is None else fmax
+        self.power = power
 
         self.mel_filter = self._create_mel_filter()
 
@@ -51,7 +62,9 @@ class LogMelFBank():
             n_fft=self.n_fft,
             n_mels=self.n_mels,
             fmin=self.fmin,
-            fmax=self.fmax)
+            fmax=self.fmax,
+            norm=self.norm,
+            htk=self.htk)
         return mel_filter
 
     def _stft(self, wav: np.ndarray):
@@ -67,7 +80,7 @@ class LogMelFBank():
 
     def _spectrogram(self, wav: np.ndarray):
         D = self._stft(wav)
-        return np.abs(D)
+        return np.abs(D) ** self.power
 
     def _mel_spectrogram(self, wav: np.ndarray):
         S = self._spectrogram(wav)
@@ -103,7 +116,7 @@ class Pitch():
 
     def _convert_to_continuous_f0(self, f0: np.ndarray) -> np.ndarray:
         if (f0 == 0).all():
-            print("All frames seems to be unvoiced.")
+            print("All frames seems to be unvoiced, this utt will be removed.")
             return f0
         # padding start and end of f0 sequence
         start_f0 = f0[f0 != 0][0]

@@ -78,7 +78,7 @@ def train_sp(args, config):
     if args.speaker_dict is not None:
         print("multiple speaker vits!")
         collate_fn = vits_multi_spk_batch_fn
-        with open(args.speaker_dict, 'rt') as f:
+        with open(args.speaker_dict, 'rt', encoding='utf-8') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
         fields += ["spk_id"]
@@ -110,7 +110,7 @@ def train_sp(args, config):
     train_sampler = ErnieSATSampler(
         train_dataset,
         batch_size=config.batch_size,
-        shuffle=True,
+        shuffle=False,
         drop_last=True)
     dev_sampler = ErnieSATSampler(
         dev_dataset,
@@ -132,7 +132,7 @@ def train_sp(args, config):
         num_workers=config.num_workers)
     print("dataloaders done!")
 
-    with open(args.phones_dict, "r") as f:
+    with open(args.phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)

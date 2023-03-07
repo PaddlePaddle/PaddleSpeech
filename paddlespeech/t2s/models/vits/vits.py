@@ -532,3 +532,14 @@ class VITS(nn.Layer):
                         module.weight[module._padding_idx] = 0
 
         self.apply(_reset_parameters)
+
+class VITSInference(nn.Layer):
+    def __init__(self, model):
+        super().__init__()
+        self.acoustic_model = model
+
+    def forward(self, text, sids=None):
+        out = self.acoustic_model.inference(
+            text, sids=sids)
+        wav = out['wav']
+        return wav

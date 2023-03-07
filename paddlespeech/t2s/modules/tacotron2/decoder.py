@@ -556,13 +556,15 @@ class Decoder(nn.Layer):
         if use_att_constraint:
             last_attended_idx = 0
         else:
-            last_attended_idx = None
+            last_attended_idx = -1
 
         # loop for an output sequence
         idx = 0
         outs, att_ws, probs = [], [], []
         prob = paddle.zeros([1])
-        while True:
+        while paddle.to_tensor(True):
+            z_list = z_list
+            c_list = c_list
             # updated index
             idx += self.reduction_factor
 

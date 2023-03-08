@@ -40,6 +40,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path} ${add_blank}|| exit -1
 fi
 
+# # not ready yet for operator missing in Paddle2ONNX
 # # paddle2onnx, please make sure the static models are in ${train_output_path}/inference first
 # # we have only tested the following models so far
 # if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
@@ -56,6 +57,7 @@ fi
 #     ./local/ort_predict.sh ${train_output_path}
 # fi
 
+# # not ready yet for operator missing in Paddle-Lite
 # # must run after stage 3 (which stage generated static models)
 # if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
 #     # NOTE by yuantian 2022.11.21: please compile develop version of Paddle-Lite to export and run TTS models,

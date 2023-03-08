@@ -9,6 +9,13 @@
 
 using namespace paddle::lite_api;
 
+// WAV采样率
+// 如果播放速度和音调异常，请修改采样率
+// 常见采样率：16000, 24000, 32000, 44100, 48000, 96000
+#define WAV_SAMPLE_RATE 24000
+
+// WAV数据类型
+// 定义在此处以便在 int16_t 和 float 之间切换
 typedef int16_t WavDataType;
 
 class Predictor {
@@ -174,6 +181,16 @@ public:
         return wav_.size() * sizeof(WavDataType);
     }
 
+    // 获取WAV持续时间（单位：毫秒）
+    float GetWavDuration() {
+        return static_cast<float>(GetWavSize()) / sizeof(WavDataType) / static_cast<float>(WAV_SAMPLE_RATE) * 1000;
+    }
+
+    // 获取RTF（合成时间 / 音频时长）
+    float GetRTF() {
+        return GetInferenceTime() / GetWavDuration();
+    }
+
     void ReleaseWav() {
         wav_.clear();
     }
@@ -190,9 +207,10 @@ public:
         uint16_t audio_format = 1; // 1为整数编码，3为浮点编码
         uint16_t num_channels = 1;
 
+        // WAV采样率
         // 如果播放速度和音调异常，请修改采样率
         // 常见采样率：16000, 24000, 32000, 44100, 48000, 96000
-        uint32_t sample_rate = 24000;
+        uint32_t sample_rate = WAV_SAMPLE_RATE;
 
         uint32_t byte_rate = 64000;
         uint16_t block_align = 2;

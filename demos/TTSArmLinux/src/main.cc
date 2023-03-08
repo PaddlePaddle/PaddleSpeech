@@ -61,7 +61,9 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Inference time: " << predictor.GetInferenceTime() << " ms, "
-              << "WAV size (without header): " << predictor.GetWavSize() << " bytes" << std::endl;
+              << "WAV size (without header): " << predictor.GetWavSize() << " bytes, "
+              << "WAV duration: " << predictor.GetWavDuration() << " ms, "
+              << "RTF: " << predictor.GetRTF() << std::endl;
 
     if (!predictor.WriteWavToFile(outputWavPath)) {
         std::cerr << "write wav file failed" << std::endl;

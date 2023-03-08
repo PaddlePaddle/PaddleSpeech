@@ -49,8 +49,24 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    Predictor predictor;
-    if (!predictor.Init(AMModelPath, VOCModelPath, 1, "LITE_POWER_HIGH")) {
+    // 模板参数：WAV数据类型
+    // 可在 int16_t 和 float 之间切换，
+    // 用于生成 16-bit PCM 或 32-bit IEEE float 格式的 WAV
+    Predictor<int16_t> predictor;
+    //Predictor<float> predictor;
+
+    // WAV采样率（必须与模型输出匹配）
+    // 如果播放速度和音调异常，请修改采样率
+    // 常见采样率：16000, 24000, 32000, 44100, 48000, 96000
+    const uint32_t wavSampleRate = 24000;
+
+    // CPU线程数
+    const int cpuThreadNum = 1;
+
+    // CPU电源模式
+    const PowerMode cpuPowerMode = PowerMode::LITE_POWER_HIGH;
+
+    if (!predictor.Init(AMModelPath, VOCModelPath, cpuPowerMode, cpuThreadNum, wavSampleRate)) {
         std::cerr << "predictor init failed" << std::endl;
         return -1;
     }

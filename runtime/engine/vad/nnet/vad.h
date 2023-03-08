@@ -17,6 +17,7 @@
 #include <iostream>
 #include <mutex>
 #include <vector>
+
 #include "fastdeploy/fastdeploy_model.h"
 #include "fastdeploy/runtime.h"
 #include "vad/frontend/wav.h"
@@ -149,4 +150,4 @@ class Vad : public fastdeploy::FastDeployModel {
     const std::vector<int64_t> hc_node_dims_ = {2, 1, 64};
 };
 
-}  // namepsace ppspeech
+}  // namespace ppspeech

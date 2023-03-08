@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "recognizer/u2_recognizer.h"
 #include "common/base/thread_pool.h"
 #include "common/utils/file_utils.h"
 #include "common/utils/strings.h"
@@ -20,6 +19,7 @@
 #include "frontend/wave-reader.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/u2_nnet.h"
+#include "recognizer/u2_recognizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");

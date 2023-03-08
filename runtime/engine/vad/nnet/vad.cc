@@ -13,14 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "vad/nnet/vad.h"
+
 #include <cstring>
 #include <iomanip>
 
 
 #ifdef NDEBUG
-#define LOG_DEBUG                                                              \
-    ::fastdeploy::FDLogger(true, "[DEBUG]") << __REL_FILE__ << "(" << __LINE__ \
-                                            << ")::" << __FUNCTION__ << "\t"
+#define LOG_DEBUG                           \
+    ::fastdeploy::FDLogger(true, "[DEBUG]") \
+        << __REL_FILE__ << "(" << __LINE__ << ")::" << __FUNCTION__ << "\t"
 #else
 #define LOG_DEBUG                            \
     ::fastdeploy::FDLogger(false, "[DEBUG]") \
@@ -323,4 +324,4 @@ std::ostream& operator<<(std::ostream& os, const Vad::State& s) {
     return os;
 }
 
-}  // namepsace ppspeech
+}  // namespace ppspeech

@@ -14,6 +14,7 @@
 
 
 #include "vad/interface/vad_interface.h"
+
 #include "common/base/config.h"
 #include "vad/nnet/vad.h"
 

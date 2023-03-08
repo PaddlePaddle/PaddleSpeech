@@ -24,8 +24,10 @@
 // limitations under the License.
 
 #include "matrix/kaldi-vector.h"
+
 #include <algorithm>
 #include <string>
+
 #include "matrix/kaldi-matrix.h"
 
 namespace kaldi {

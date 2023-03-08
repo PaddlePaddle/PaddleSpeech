@@ -13,7 +13,6 @@
 // limitations under the License.
 
 
-#include "nnet/u2_nnet.h"
 #include "base/common.h"
 #include "decoder/param.h"
 #include "frontend/feature_pipeline.h"
@@ -21,6 +20,7 @@
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
 #include "nnet/nnet_producer.h"
+#include "nnet/u2_nnet.h"
 
 DEFINE_string(wav_rspecifier, "", "test wav rspecifier");
 DEFINE_string(nnet_prob_wspecifier, "", "nnet porb wspecifier");

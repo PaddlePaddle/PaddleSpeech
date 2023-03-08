@@ -17,11 +17,12 @@
  */
 
 #include "frontend/rfft.h"
-#include "base/log.h"
 
 #include <cmath>
 #include <memory>
 #include <vector>
+
+#include "base/log.h"
 
 // see fftsg.c
 #ifdef __cplusplus

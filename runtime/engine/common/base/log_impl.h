@@ -18,15 +18,15 @@
 
 #pragma once
 
+#include <stdlib.h>
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <thread>
-
-#include <stdlib.h>
-#include <unistd.h>
 
 #include "base/common.h"
 #include "base/macros.h"

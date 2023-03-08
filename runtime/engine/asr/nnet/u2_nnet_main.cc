@@ -13,13 +13,13 @@
 // limitations under the License.
 
 
-#include "nnet/u2_nnet.h"
 #include "base/common.h"
 #include "decoder/param.h"
 #include "frontend/assembler.h"
 #include "frontend/data_cache.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/decodable.h"
+#include "nnet/u2_nnet.h"
 
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
@@ -93,9 +93,9 @@ int main(int argc, char* argv[]) {
                     ori_feature_len - chunk_idx * chunk_stride, chunk_size);
             }
             if (this_chunk_size < receptive_field_length) {
-                LOG(WARNING) << "utt: " << utt << " skip last "
-                             << this_chunk_size << " frames, expect is "
-                             << receptive_field_length;
+                LOG(WARNING)
+                    << "utt: " << utt << " skip last " << this_chunk_size
+                    << " frames, expect is " << receptive_field_length;
                 break;
             }
 

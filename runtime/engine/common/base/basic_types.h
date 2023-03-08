@@ -28,7 +28,7 @@ typedef int int32;    // NOLINT
 #if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
 typedef long int64;  // NOLINT
 #else
-typedef long long int64;  // NOLINT
+typedef long long int64;            // NOLINT
 #endif
 
 typedef unsigned char uint8;    // NOLINT

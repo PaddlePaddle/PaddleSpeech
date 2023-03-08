@@ -15,9 +15,9 @@ using namespace std;
 #endif
 
 /*
-* \brief Generic configuration Class
-*
-*/
+ * \brief Generic configuration Class
+ *
+ */
 class Config {
     // Data
   protected:
@@ -35,7 +35,7 @@ class Config {
            std::string comment = "#");
     Config();
     template <class T>
-    T Read(const std::string& in_key) const;  //!<Search for key and read value
+    T Read(const std::string& in_key) const;  //!< Search for key and read value
     //! or optional default value, call
     //! as read<T>
     template <class T>

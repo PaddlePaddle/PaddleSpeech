@@ -18,6 +18,11 @@ endif()
 
 project(paddlespeech VERSION 0.1)
 
+set(PPS_VERSION_MAJOR 1)
+set(PPS_VERSION_MINOR 0)
+set(PPS_VERSION_PATCH 0)
+set(PPS_VERSION "${PPS_VERSION_MAJOR}.${PPS_VERSION_MINOR}.${PPS_VERSION_PATCH}")
+
 include(FetchContent)
 include(ExternalProject)
 
@@ -163,6 +168,22 @@ include(summary)
 ###############################################################################
 # Add local library
 ###############################################################################
-set(ENGINE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/engine)
+set(ENGINE_ROOT ${CMAKE_SOURCE_DIR}/engine)
 
 add_subdirectory(engine)
+
+
+###############################################################################
+# CPack library
+###############################################################################
+# build a CPack driven installer package
+include (InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_NAME "paddlespeech_library")
+set(CPACK_PACKAGE_VENDOR "paddlespeech")
+set(CPACK_PACKAGE_VERSION_MAJOR 1)
+set(CPACK_PACKAGE_VERSION_MINOR 0)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_PACKAGE_DESCRIPTION "paddlespeech library")
+set(CPACK_PACKAGE_CONTACT "paddlespeech@baidu.com")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include (CPack)

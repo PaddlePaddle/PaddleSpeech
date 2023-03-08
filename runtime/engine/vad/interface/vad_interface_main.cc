@@ -13,10 +13,11 @@
 // limitations under the License.
 
 
-#include "vad/interface/vad_interface.h"
 #include <iostream>
 #include <vector>
+
 #include "vad/frontend/wav.h"
+#include "vad/interface/vad_interface.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {

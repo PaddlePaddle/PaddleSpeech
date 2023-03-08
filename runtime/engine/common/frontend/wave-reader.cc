@@ -19,6 +19,8 @@
 // See the Apache 2 License for the specific language governing permissions and
 // limitations under the License.
 
+#include "frontend/wave-reader.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <limits>
@@ -27,7 +29,6 @@
 
 #include "base/kaldi-error.h"
 #include "base/kaldi-utils.h"
-#include "frontend/wave-reader.h"
 
 namespace kaldi {
 
@@ -243,10 +244,9 @@ void WaveInfo::Read(std::istream &is) {
                       << ", data chunk size: " << data_chunk_size
                       << ". Assume 'stream mode' (reading data to EOF).";
 
-    if (!is_stream_mode &&
-        std::abs(static_cast<int64>(riff_chunk_read) +
-                 static_cast<int64>(data_chunk_size) -
-                 static_cast<int64>(riff_chunk_size)) > 1) {
+    if (!is_stream_mode && std::abs(static_cast<int64>(riff_chunk_read) +
+                                    static_cast<int64>(data_chunk_size) -
+                                    static_cast<int64>(riff_chunk_size)) > 1) {
         // We allow the size to be off by one without warning, because there is
         // a
         // weirdness in the format of RIFF files that means that the input may

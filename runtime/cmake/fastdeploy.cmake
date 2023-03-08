@@ -91,13 +91,13 @@ if(ENABLE_VISION)
 
     if(WIN32)
         file(GLOB OPENCV_DYN_LIBS ${OpenCV_DIR}/x64/vc15/bin/${DYN_LIB_SUFFIX})
-        install(FILES ${OPENCV_DYN_LIBS} DESTINATION lib})
+        install(FILES ${OPENCV_DYN_LIBS} DESTINATION lib)
     elseif(ANDROID AND (NOT WITH_ANDROID_OPENCV_STATIC))
         file(GLOB OPENCV_DYN_LIBS ${OpenCV_NATIVE_DIR}/libs/${ANDROID_ABI}/${DYN_LIB_SUFFIX})
-        install(FILES ${OPENCV_DYN_LIBS} DESTINATION lib})
+        install(FILES ${OPENCV_DYN_LIBS} DESTINATION lib)
     else() # linux/mac
         file(GLOB OPENCV_DYN_LIBS ${OpenCV_DIR}/lib/${DYN_LIB_SUFFIX})
-        install(FILES ${OPENCV_DYN_LIBS} DESTINATION lib})
+        install(FILES ${OPENCV_DYN_LIBS} DESTINATION lib)
     endif()
 
     # FlyCV

@@ -15,6 +15,7 @@
 function(pps_summary)
   message(STATUS "")
   message(STATUS "*************PaddleSpeech Building Summary**********")
+  message(STATUS "  PPS_VERSION               : ${PPS_VERSION}")
   message(STATUS "  CMake version             : ${CMAKE_VERSION}")
   message(STATUS "  CMake command             : ${CMAKE_COMMAND}")
   message(STATUS "  UNIX                      : ${UNIX}")

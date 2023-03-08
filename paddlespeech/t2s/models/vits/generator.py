@@ -279,6 +279,10 @@ class VITSGenerator(nn.Layer):
         from paddlespeech.t2s.models.vits.monotonic_align import maximum_path
 
         self.maximum_path = maximum_path
+        self.pad1d = nn.Pad1D(
+            padding=[1, 0],
+            mode='constant',
+            data_format='NLC', )
 
     def forward(
             self,
@@ -685,5 +689,6 @@ class VITSGenerator(nn.Layer):
         '''
 
         path = paddle.cast(path, dtype='float32')
-        path = path - F.pad(path, [0, 0, 1, 0, 0, 0])[:, :-1]
+        pad_tmp = self.pad1d(path)[:, :-1]
+        path = path - pad_tmp
         return path.unsqueeze(1).transpose([0, 1, 3, 2]) * mask

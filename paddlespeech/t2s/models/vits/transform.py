@@ -18,6 +18,7 @@ This code is based on https://github.com/bayesiains/nflows.
 """
 import numpy as np
 import paddle
+from paddle import nn
 from paddle.nn import functional as F
 
 from paddlespeech.t2s.modules.nets_utils import paddle_gather
@@ -87,9 +88,9 @@ def unconstrained_rational_quadratic_spline(
     outputs = paddle.zeros(inputs.shape)
     logabsdet = paddle.zeros(inputs.shape)
     if tails == "linear":
-        unnormalized_derivatives = F.pad(
-            unnormalized_derivatives,
-            pad=[0] * (len(unnormalized_derivatives.shape) - 1) * 2 + [1, 1])
+        # 注意 padding 的参数顺序
+        pad2d = nn.Pad2D(padding=[1, 1, 0, 0], mode='constant')
+        unnormalized_derivatives = pad2d(unnormalized_derivatives)
         constant = np.log(np.exp(1 - min_derivative) - 1)
         unnormalized_derivatives[..., 0] = constant
         unnormalized_derivatives[..., -1] = constant
@@ -142,6 +143,10 @@ def rational_quadratic_spline(
     # for dygraph to static
     # if paddle.min(inputs) < left or paddle.max(inputs) > right:
     #     raise ValueError("Input to a transform is not within its domain")
+    pad1d = nn.Pad1D(
+        padding=[1, 0],
+        mode='constant',
+        data_format='NCL', )
 
     num_bins = unnormalized_widths.shape[-1]
     # for dygraph to static
@@ -153,11 +158,8 @@ def rational_quadratic_spline(
     widths = F.softmax(unnormalized_widths, axis=-1)
     widths = min_bin_width + (1 - min_bin_width * num_bins) * widths
     cumwidths = paddle.cumsum(widths, axis=-1)
-    cumwidths = F.pad(
-        cumwidths,
-        pad=[0] * (len(cumwidths.shape) - 1) * 2 + [1, 0],
-        mode="constant",
-        value=0.0)
+
+    cumwidths = pad1d(cumwidths.unsqueeze(0)).squeeze()
     cumwidths = (right - left) * cumwidths + left
     cumwidths[..., 0] = left
     cumwidths[..., -1] = right
@@ -168,11 +170,7 @@ def rational_quadratic_spline(
     heights = F.softmax(unnormalized_heights, axis=-1)
     heights = min_bin_height + (1 - min_bin_height * num_bins) * heights
     cumheights = paddle.cumsum(heights, axis=-1)
-    cumheights = F.pad(
-        cumheights,
-        pad=[0] * (len(cumheights.shape) - 1) * 2 + [1, 0],
-        mode="constant",
-        value=0.0)
+    cumheights = pad1d(cumheights.unsqueeze(0)).squeeze()
     cumheights = (top - bottom) * cumheights + bottom
     cumheights[..., 0] = bottom
     cumheights[..., -1] = top

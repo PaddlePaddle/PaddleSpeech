@@ -348,7 +348,7 @@ class DiffSingerInference(nn.Layer):
             note_dur=note_dur,
             is_slur=is_slur,
             get_mel_fs2=get_mel_fs2)
-        logmel = self.normalizer.inverse(normalized_mel)
+        logmel = normalized_mel
         return logmel
 
 

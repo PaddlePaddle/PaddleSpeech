@@ -223,7 +223,7 @@ class GaussianDiffusion(nn.Layer):
                   num_inference_steps: Optional[int]=1000,
                   strength: Optional[float]=None,
                   scheduler_type: Optional[str]="ddpm",
-                  clip_noise: Optional[bool]=True,
+                  clip_noise: Optional[bool]=False,
                   clip_noise_range: Optional[Tuple[float, float]]=(-1, 1),
                   callback: Optional[Callable[[int, int, int, paddle.Tensor],
                                               None]]=None,
@@ -302,6 +302,9 @@ class GaussianDiffusion(nn.Layer):
             noisy_input = scheduler.add_noise(ref_x, noise, timesteps[0])
 
         denoised_output = noisy_input
+        if clip_noise:
+            n_min, n_max = clip_noise_range
+            denoised_output = paddle.clip(denoised_output, n_min, n_max)
         for i, t in enumerate(timesteps):
             denoised_output = scheduler.scale_model_input(denoised_output, t)
             noise_pred = self.denoiser(denoised_output, t, cond)

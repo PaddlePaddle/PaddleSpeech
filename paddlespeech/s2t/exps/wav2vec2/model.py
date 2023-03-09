@@ -591,7 +591,7 @@ class Wav2Vec2ASRTrainer(Trainer):
     def setup_dataloader(self):
         config = self.config.clone()
         self.use_streamdata = config.get("use_stream_data", False)
-        self.use_sb = config.use_sb_pipeline
+        self.use_sb = config.get("use_sb_pipeline", False)
         if self.use_sb:
             hparams_file = config.sb_pipeline_conf
             with open(hparams_file, 'r', encoding='utf8') as fin:

@@ -4,6 +4,8 @@ project(paddlespeech_tts_cpp)
 
 ########## Global Options ##########
 
+option(WITH_FRONT_DEMO "Build front demo" ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(ABSL_PROPAGATE_CXX_STD ON)
@@ -27,6 +29,7 @@ include_directories(
 
 find_package(Threads REQUIRED)
 
+
 ########## paddlespeech_tts_front ##########
 
 include_directories(src)
@@ -49,8 +52,12 @@ target_link_libraries(
 
 ########## tts_front_demo ##########
 
-file(GLOB FRONT_DEMO_SOURCES front_demo/*.cpp)
-add_executable(tts_front_demo ${FRONT_DEMO_SOURCES})
+if (WITH_FRONT_DEMO)
 
-target_include_directories(tts_front_demo PRIVATE ./front_demo)
-target_link_libraries(tts_front_demo PRIVATE paddlespeech_tts_front)
+    file(GLOB FRONT_DEMO_SOURCES front_demo/*.cpp)
+    add_executable(tts_front_demo ${FRONT_DEMO_SOURCES})
+
+    target_include_directories(tts_front_demo PRIVATE ./front_demo)
+    target_link_libraries(tts_front_demo PRIVATE paddlespeech_tts_front)
+
+endif (WITH_FRONT_DEMO)

@@ -12,3 +12,4 @@ PADDLE_LITE_DIR="${LIBS_DIR}/inference_lite_lib.armlinux.${ARM_ABI}.gcc.with_ext
 
 ACOUSTIC_MODEL_PATH="${MODELS_DIR}/cpu/fastspeech2_csmsc_arm.nb"
 VOCODER_PATH="${MODELS_DIR}/cpu/mb_melgan_csmsc_arm.nb"
+FRONT_CONF="${PWD}/front.conf"

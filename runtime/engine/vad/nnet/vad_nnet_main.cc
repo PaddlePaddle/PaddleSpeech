@@ -13,6 +13,7 @@
 // limitations under the License.
 
 
+#include "common/base/common.h"
 #include "vad/nnet/vad.h"
 
 int main(int argc, char* argv[]) {
@@ -30,7 +31,7 @@ int main(int argc, char* argv[]) {
     int sr = 16000;
     ppspeech::Vad vad(model_file);
     // custom config, but must be set before init
-    vad.SetConfig(sr, 32, 0.45f, 200, 0, 0);
+    vad.SetConfig(sr, 32, 0.5f, 0.15, 200, 0, 0);
     vad.Init();
 
     std::vector<float> inputWav;  // [0, 1]
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]) {
         inputWav[i] = wav_reader.data()[i] / 32768;
     }
 
+    ppspeech::Timer timer;
     int window_size_samples = vad.WindowSizeSamples();
     for (int64_t j = 0; j < num_samples; j += window_size_samples) {
         auto start = j;
@@ -65,6 +67,9 @@ int main(int argc, char* argv[]) {
         std::cout << s << " ";
     }
     std::cout << std::endl;
+
+    std::cout << "RTF=" << timer.Elapsed() / double(num_samples / sr)
+              << std::endl;
 
     std::vector<std::map<std::string, float>> result = vad.GetResult();
     for (auto& res : result) {

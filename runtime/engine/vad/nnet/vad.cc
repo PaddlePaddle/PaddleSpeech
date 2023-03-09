@@ -62,6 +62,7 @@ void Vad::SetConfig(const VadNnetConf conf) {
     SetConfig(conf.sr,
               conf.frame_ms,
               conf.threshold,
+              conf.beam,
               conf.min_silence_duration_ms,
               conf.speech_pad_left_ms,
               conf.speech_pad_right_ms);
@@ -70,6 +71,7 @@ void Vad::SetConfig(const VadNnetConf conf) {
 void Vad::SetConfig(const int& sr,
                     const int& frame_ms,
                     const float& threshold,
+                    const float& beam,
                     const int& min_silence_duration_ms,
                     const int& speech_pad_left_ms,
                     const int& speech_pad_right_ms) {
@@ -81,6 +83,7 @@ void Vad::SetConfig(const int& sr,
     sample_rate_ = sr;
     sr_per_ms_ = sr / 1000;
     threshold_ = threshold;
+    beam_ = beam;
     frame_ms_ = frame_ms;
     min_silence_samples_ = min_silence_duration_ms * sr_per_ms_;
     speech_pad_left_samples_ = speech_pad_left_ms * sr_per_ms_;
@@ -90,8 +93,8 @@ void Vad::SetConfig(const int& sr,
     window_size_samples_ = frame_ms * sr_per_ms_;
     current_chunk_size_ = window_size_samples_;
 
-    fastdeploy::FDINFO << "sr=" << sr << " threshold=" << threshold
-                       << " frame_ms=" << frame_ms
+    fastdeploy::FDINFO << "sr=" << sr_per_ms_ << " threshold=" << threshold_
+                       << " beam=" << beam_ << " frame_ms=" << frame_ms_
                        << " min_silence_duration_ms=" << min_silence_duration_ms
                        << " speech_pad_left_ms=" << speech_pad_left_ms
                        << " speech_pad_right_ms=" << speech_pad_right_ms;
@@ -194,7 +197,7 @@ const Vad::State& Vad::Postprocess() {
         LOG_DEBUG << "{ speech start: " << start_sec
                   << " s; prob: " << outputProb_ << " }";
         states_.emplace_back(Vad::State::START);
-    } else if (outputProb_ >= threshold_ - 0.15 && triggerd_) {
+    } else if (outputProb_ >= threshold_ - beam_ && triggerd_) {
         // 3. Continue
 
         if (temp_end_ != 0) {
@@ -211,7 +214,7 @@ const Vad::State& Vad::Postprocess() {
         }
 
         states_.emplace_back(Vad::State::SPEECH);
-    } else if (outputProb_ < threshold_ - 0.15 && triggerd_) {
+    } else if (outputProb_ < threshold_ - beam_ && triggerd_) {
         // 4. End
         if (temp_end_ == 0) {
             temp_end_ = current_sample_;

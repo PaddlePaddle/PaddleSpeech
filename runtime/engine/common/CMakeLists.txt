@@ -12,4 +12,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/frontend
 add_subdirectory(frontend)
 
 add_library(common INTERFACE)
-add_definitions(common base utils kaldi-matrix frontend)
+target_link_libraries(common  INTERFACE base utils kaldi-matrix frontend)

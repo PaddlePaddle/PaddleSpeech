@@ -25,6 +25,7 @@ PPSHandle_t PPSVadCreateInstance(const char* conf_path) {
     nnet_conf.sr = conf.Read("sr", 16000);
     nnet_conf.frame_ms = conf.Read("frame_ms", 32);
     nnet_conf.threshold = conf.Read("threshold", 0.45f);
+    nnet_conf.beam = conf.Read("beam", 0.15f);
     nnet_conf.min_silence_duration_ms =
         conf.Read("min_silence_duration_ms", 200);
     nnet_conf.speech_pad_left_ms = conf.Read("speech_pad_left_ms", 0);

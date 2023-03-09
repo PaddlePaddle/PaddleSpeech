@@ -14,7 +14,7 @@
 
 #include "vad/jni/vad_jni_interface.h"
 
-JNIEXPORT jlong JNICALL Java_com_baidu_paddlespeech_PPSVadJni_createInstance(
+JNIEXPORT jlong JNICALL Java_com_baidu_paddlespeech_vadjni_createInstance(
     JNIEnv* env, jobject thiz, jstring conf_path) {
     const char* path = env->GetStringUTFChars(conf_path, JNI_FALSE);
     PPSHandle_t handle = PPSVadCreateInstance(path);
@@ -22,26 +22,26 @@ JNIEXPORT jlong JNICALL Java_com_baidu_paddlespeech_PPSVadJni_createInstance(
     return (jlong)(handle);
 }
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_destoryInstance(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_destoryInstance(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance) {
     PPSHandle_t handle = (PPSHandle_t)(instance);
     return (jint)PPSVadDestroyInstance(handle);
 }
 
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_reset(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_reset(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance) {
     PPSHandle_t handle = (PPSHandle_t)(instance);
     return (jint)PPSVadReset(handle);
 }
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_chunkSizeSamples(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_chunkSizeSamples(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance) {
     PPSHandle_t handle = (PPSHandle_t)(instance);
     return (jint)PPSVadChunkSizeSamples(handle);
 }
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_feedForward(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_feedForward(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance, jfloatArray chunk) {
     PPSHandle_t handle = (PPSHandle_t)(instance);
     jsize num_elms = env->GetArrayLength(chunk);

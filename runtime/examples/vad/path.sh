@@ -3,7 +3,7 @@
 unset GREP_OPTIONS
 
 ENGINE_ROOT=$PWD/../../
-ENGINE_BUILD=$ENGINE_ROOT/build/engine/vad
+ENGINE_BUILD=$ENGINE_ROOT/build/Linux/x86_64/engine/vad
 
 ENGINE_TOOLS=$ENGINE_ROOT/tools
 TOOLS_BIN=$ENGINE_TOOLS/valgrind/install/bin

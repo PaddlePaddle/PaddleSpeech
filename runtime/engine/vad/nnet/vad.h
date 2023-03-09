@@ -29,6 +29,7 @@ struct VadNnetConf {
     int sr;
     int frame_ms;
     float threshold;
+    float beam;
     int min_silence_duration_ms;
     int speech_pad_left_ms;
     int speech_pad_right_ms;
@@ -59,6 +60,7 @@ class Vad : public fastdeploy::FastDeployModel {
     void SetConfig(const int& sr,
                    const int& frame_ms,
                    const float& threshold,
+                   const float& beam,
                    const int& min_silence_duration_ms,
                    const int& speech_pad_left_ms,
                    const int& speech_pad_right_ms);
@@ -130,6 +132,7 @@ class Vad : public fastdeploy::FastDeployModel {
     int sample_rate_ = 16000;
     int frame_ms_ = 32;  // 32, 64, 96 for 16k
     float threshold_ = 0.5f;
+    float beam_ = 0.15f;
 
     int64_t window_size_samples_;  // support 256 512 768 for 8k; 512 1024 1536
                                    // for 16k.

@@ -14,7 +14,7 @@ TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
 # Create build directory
 BUILD_ROOT=build/Android
 BUILD_DIR=${BUILD_ROOT}/${ANDROID_ABI}-api-21
-#FASDEPLOY_INSTALL_DIR="${BUILD_DIR}/install"
+FASDEPLOY_INSTALL_DIR="/workspace/zhanghui/paddle/FastDeploy/build/Android/arm64-v8a-api-21/install"
 
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
@@ -29,8 +29,8 @@ cmake -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} \
       -DANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN} \
       -DWITH_ASR=OFF \
       -DWITH_CLS=OFF \
+      -DFASTDEPLOY_INSTALL_DIR=${FASTDEPLOY_INSTALL_DIR} \
       -Wno-dev ../../..
-      #-DFASTDEPLOY_INSTALL_DIR=${FASTDEPLOY_INSTALL_DIR} \
 
 # Build FastDeploy Android C++ SDK
 make

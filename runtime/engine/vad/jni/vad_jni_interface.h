@@ -14,7 +14,7 @@
 
 
 // PackageName: paddlespeech.baidu.com
-// ClassName: PPSVadJni
+// ClassName: vadjni
 #include <jni.h>
 
 #include "vad/interface/vad_interface.h"
@@ -26,18 +26,18 @@ extern "C" {
 typedef jlong PPSJniHandle_t;
 
 JNIEXPORT PPSJniHandle_t JNICALL
-Java_com_baidu_paddlespeech_PPSVadJni_createInstance(JNIEnv* env,
-                                                     jobject thiz,
-                                                     jstring conf_path);
+Java_com_baidu_paddlespeech_vadjni_createInstance(JNIEnv* env,
+                                                  jobject thiz,
+                                                  jstring conf_path);
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_destoryInstance(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_destoryInstance(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance);
 
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_reset(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_reset(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance);
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_chunkSizeSamples(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_chunkSizeSamples(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance);
 
 // typedef enum {
@@ -49,7 +49,7 @@ JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_chunkSizeSamples(
 //     PPS_VAD_NUMSTATES,    // number of states
 // } PPSVadState_t;
 
-JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_PPSVadJni_feedForward(
+JNIEXPORT jint JNICALL Java_com_baidu_paddlespeech_vadjni_feedForward(
     JNIEnv* env, jobject thiz, PPSJniHandle_t instance, jfloatArray chunk);
 
 #ifdef __cplusplus

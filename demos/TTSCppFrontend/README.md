@@ -31,6 +31,12 @@ Dependent libraries will be automatically downloaded to the `third-party/build` 
 
 If the download speed is too slow, you can open [third-party/CMakeLists.txt](third-party/CMakeLists.txt) and modify `GIT_REPOSITORY` URLs.
 
+## Download dictionary files
+
+```
+./download.sh
+```
+
 ## Run
 
 ```
@@ -46,4 +52,4 @@ If the download speed is too slow, you can open [third-party/CMakeLists.txt](thi
 ./clean.sh
 ```
 
-The folders `build` and `third-party/build` will be deleted.
+The folders `front_demo/dict`, `build` and `third-party/build` will be deleted.

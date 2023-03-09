@@ -178,6 +178,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 👑 2023.03.09: Add [Wav2vec2ASR-zh](./examples/aishell/asr3).
 - 🎉 2023.03.07: Add [TTS ARM Linux C++ Demo](./demos/TTSArmLinux).
 - 🎉 2023.02.16: Add [Cantonese TTS](./examples/canton/tts3).
 - 🔥 2023.01.10: Add [code-switch asr CLI and Demos](./demos/speech_recognition).

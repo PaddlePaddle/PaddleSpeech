@@ -45,8 +45,8 @@ public:
     inline uint16_t GetWavAudioFormat();
 
     bool Init(
-            const std::string &AMModelPath,
-            const std::string &VOCModelPath,
+            const std::string &AcousticModelPath,
+            const std::string &VocoderPath,
             PowerMode cpuPowerMode,
             int cpuThreadNum,
             // WAV采样率（必须与模型输出匹配）
@@ -57,12 +57,12 @@ public:
         // Release model if exists
         ReleaseModel();
 
-        AM_predictor_ = LoadModel(AMModelPath, cpuThreadNum, cpuPowerMode);
-        if (AM_predictor_ == nullptr) {
+        acoustic_model_predictor_ = LoadModel(AcousticModelPath, cpuThreadNum, cpuPowerMode);
+        if (acoustic_model_predictor_ == nullptr) {
             return false;
         }
-        VOC_predictor_ = LoadModel(VOCModelPath, cpuThreadNum, cpuPowerMode);
-        if (VOC_predictor_ == nullptr) {
+        vocoder_predictor_ = LoadModel(VocoderPath, cpuThreadNum, cpuPowerMode);
+        if (vocoder_predictor_ == nullptr) {
             return false;
         }
 
@@ -91,8 +91,8 @@ public:
     }
 
     void ReleaseModel() {
-        AM_predictor_ = nullptr;
-        VOC_predictor_ = nullptr;
+        acoustic_model_predictor_ = nullptr;
+        vocoder_predictor_ = nullptr;
     }
 
     bool RunModel(const std::vector<int64_t> &phones) {
@@ -104,7 +104,7 @@ public:
         auto start = std::chrono::system_clock::now();
 
         // 执行推理
-        VOCOutputToWav(GetVOCOutput(GetAMOutput(phones)));
+        VocoderOutputToWav(GetVocoderOutput(GetAcousticModelOutput(phones)));
 
         // 计时结束
         auto end = std::chrono::system_clock::now();
@@ -116,16 +116,16 @@ public:
         return true;
     }
 
-    std::unique_ptr<const Tensor> GetAMOutput(const std::vector<int64_t> &phones) {
-        auto phones_handle = AM_predictor_->GetInput(0);
+    std::unique_ptr<const Tensor> GetAcousticModelOutput(const std::vector<int64_t> &phones) {
+        auto phones_handle = acoustic_model_predictor_->GetInput(0);
         phones_handle->Resize({static_cast<int64_t>(phones.size())});
         phones_handle->CopyFromCpu(phones.data());
-        AM_predictor_->Run();
+        acoustic_model_predictor_->Run();
 
         // 获取输出Tensor
-        auto am_output_handle = AM_predictor_->GetOutput(0);
+        auto am_output_handle = acoustic_model_predictor_->GetOutput(0);
         // 打印输出Tensor的shape
-        std::cout << "AM Output shape: ";
+        std::cout << "Acoustic Model Output shape: ";
         auto shape = am_output_handle->shape();
         for (auto s : shape) {
             std::cout << s << ", ";
@@ -135,19 +135,19 @@ public:
         return am_output_handle;
     }
 
-    std::unique_ptr<const Tensor> GetVOCOutput(std::unique_ptr<const Tensor> &&amOutput) {
-        auto mel_handle = VOC_predictor_->GetInput(0);
+    std::unique_ptr<const Tensor> GetVocoderOutput(std::unique_ptr<const Tensor> &&amOutput) {
+        auto mel_handle = vocoder_predictor_->GetInput(0);
         // [?, 80]
         auto dims = amOutput->shape();
         mel_handle->Resize(dims);
         auto am_output_data = amOutput->mutable_data<float>();
         mel_handle->CopyFromCpu(am_output_data);
-        VOC_predictor_->Run();
+        vocoder_predictor_->Run();
 
         // 获取输出Tensor
-        auto voc_output_handle = VOC_predictor_->GetOutput(0);
+        auto voc_output_handle = vocoder_predictor_->GetOutput(0);
         // 打印输出Tensor的shape
-        std::cout << "VOC Output shape: ";
+        std::cout << "Vocoder Output shape: ";
         auto shape = voc_output_handle->shape();
         for (auto s : shape) {
             std::cout << s << ", ";
@@ -157,7 +157,7 @@ public:
         return voc_output_handle;
     }
 
-    void VOCOutputToWav(std::unique_ptr<const Tensor> &&vocOutput) {
+    void VocoderOutputToWav(std::unique_ptr<const Tensor> &&vocOutput) {
         // 获取输出Tensor的数据
         int64_t output_size = 1;
         for (auto dim : vocOutput->shape()) {
@@ -175,7 +175,7 @@ public:
     void SaveFloatWav(float *floatWav, int64_t size);
 
     bool IsLoaded() {
-        return AM_predictor_ != nullptr && VOC_predictor_ != nullptr;
+        return acoustic_model_predictor_ != nullptr && vocoder_predictor_ != nullptr;
     }
 
     float GetInferenceTime() {
@@ -231,8 +231,8 @@ private:
     float inference_time_ = 0;
     uint32_t wav_sample_rate_ = 0;
     std::vector<WavDataType> wav_;
-    std::shared_ptr<PaddlePredictor> AM_predictor_ = nullptr;
-    std::shared_ptr<PaddlePredictor> VOC_predictor_ = nullptr;
+    std::shared_ptr<PaddlePredictor> acoustic_model_predictor_ = nullptr;
+    std::shared_ptr<PaddlePredictor> vocoder_predictor_ = nullptr;
 };
 
 template<>

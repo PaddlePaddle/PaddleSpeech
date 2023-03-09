@@ -12,7 +12,7 @@ mkdir -p "$OUTPUT_DIR"
 
 # run
 for i in {1..10}; do
-    (set -x; ./build/paddlespeech_tts_demo "$AM_MODEL_PATH" "$VOC_MODEL_PATH" $i "$OUTPUT_DIR/$i.wav")
+    (set -x; ./build/paddlespeech_tts_demo "$ACOUSTIC_MODEL_PATH" "$VOCODER_PATH" $i "$OUTPUT_DIR/$i.wav")
 done
 
 ls -lh "$OUTPUT_DIR"/*.wav

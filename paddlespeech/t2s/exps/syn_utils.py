@@ -149,8 +149,6 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
             print("single speaker fastspeech2!")
     elif am_name == 'diffsinger':
         fields = ["utt_id", "text", "note", "note_dur", "is_slur"]
-    elif am_name == 'fastspeech2midi':
-        fields = ["utt_id", "text", "note", "note_dur", "is_slur"]
     elif am_name == 'speedyspeech':
         fields = ["utt_id", "phones", "tones"]
     elif am_name == 'tacotron2':

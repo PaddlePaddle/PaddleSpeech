@@ -52,10 +52,26 @@ def Linear(*args, **kwargs):
 
 class ResidualBlock(nn.Layer):
     """ResidualBlock
+
+    Args:
+        encoder_hidden (int, optional): 
+            Input feature size of the 1D convolution, by default 256
+        residual_channels (int, optional): 
+            Feature size of the residual output(and also the input), by default 256
+        gate_channels (int, optional): 
+            Output feature size of the 1D convolution, by default 512
+        kernel_size (int, optional): 
+            Kernel size of the 1D convolution, by default 3
+        dilation (int, optional): 
+            Dilation of the 1D convolution, by default 4
     """
 
-    def __init__(self, encoder_hidden, residual_channels, gate_channels,
-                 kernel_size, dilation):
+    def __init__(self,
+                 encoder_hidden: int=256,
+                 residual_channels: int=256,
+                 gate_channels: int=512,
+                 kernel_size: int=3,
+                 dilation: int=4):
         super().__init__()
         self.dilated_conv = Conv1D(
             residual_channels,
@@ -67,17 +83,26 @@ class ResidualBlock(nn.Layer):
         self.conditioner_projection = Conv1D(encoder_hidden, gate_channels, 1)
         self.output_projection = Conv1D(residual_channels, gate_channels, 1)
 
-    def forward(self, x, conditioner, diffusion_step):
-        """_summary_
-
+    def forward(
+            self,
+            x: paddle.Tensor,
+            diffusion_step: paddle.Tensor,
+            cond: paddle.Tensor, ):
+        """Calculate forward propagation.
         Args:
-            nn (_type_): _description_
+            spec (Tensor(float32)): input feature. (B, residual_channels, T)
+            diffusion_step (Tensor(int64)):  The timestep input (adding noise step). (B,)
+            cond (Tensor(float32)): The auxiliary input (e.g. fastspeech2 encoder output). (B, residual_channels, T)
+
+        Returns:
+            x (Tensor(float32)): output (B, residual_channels, T)
+
         """
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
-        conditioner = self.conditioner_projection(conditioner)
+        cond = self.conditioner_projection(cond)
         y = x + diffusion_step
 
-        y = self.dilated_conv(y) + conditioner
+        y = self.dilated_conv(y) + cond
 
         gate, filter = paddle.chunk(y, 2, axis=1)
         y = F.sigmoid(gate) * paddle.tanh(filter)
@@ -88,22 +113,14 @@ class ResidualBlock(nn.Layer):
 
 
 class SinusoidalPosEmb(nn.Layer):
-    """_summary_
-
-    Args:
-        nn (_type_): _description_
+    """Positional embedding
     """
 
-    def __init__(self, dim):
+    def __init__(self, dim: int=256):
         super().__init__()
         self.dim = dim
 
-    def forward(self, x):
-        """_summary_
-
-        Args:
-            nn (_type_): _description_
-        """
+    def forward(self, x: paddle.Tensor):
         x = paddle.cast(x, 'float32')
         half_dim = self.dim // 2
         emb = math.log(10000) / (half_dim - 1)
@@ -114,6 +131,36 @@ class SinusoidalPosEmb(nn.Layer):
 
 
 class DiffNet(nn.Layer):
+    """A Mel-Spectrogram Denoiser
+
+    Args:
+        in_channels (int, optional): 
+            Number of channels of the input mel-spectrogram, by default 80
+        out_channels (int, optional): 
+            Number of channels of the output mel-spectrogram, by default 80
+        kernel_size (int, optional): 
+            Kernel size of the residual blocks inside, by default 3
+        layers (int, optional): 
+            Number of residual blocks inside, by default 20
+        stacks (int, optional):
+            The number of groups to split the residual blocks into, by default 5
+            Within each group, the dilation of the residual block grows exponentially.
+        residual_channels (int, optional): 
+            Residual channel of the residual blocks, by default 256
+        gate_channels (int, optional): 
+            Gate channel of the residual blocks, by default 512
+        skip_channels (int, optional): 
+            Skip channel of the residual blocks, by default 256
+        aux_channels (int, optional): 
+            Auxiliary channel of the residual blocks, by default 256
+        dropout (float, optional): 
+            Dropout of the residual blocks, by default 0.
+        bias (bool, optional): 
+            Whether to use bias in residual blocks, by default True
+        use_weight_norm (bool, optional): 
+            Whether to use weight norm in all convolutions, by default False
+    """
+
     def __init__(
             self,
             in_channels: int=80,
@@ -162,13 +209,20 @@ class DiffNet(nn.Layer):
                                         self.out_channels, 1)
         zeros_(self.output_projection.weight)
 
-    def forward(self, spec, diffusion_step, cond):
-        """
+    def forward(
+            self,
+            spec: paddle.Tensor,
+            diffusion_step: paddle.Tensor,
+            cond: paddle.Tensor, ):
+        """Calculate forward propagation.
+        Args:
+            spec (Tensor(float32)): The input mel-spectrogram. (B, n_mel, T)
+            diffusion_step (Tensor(int64)):  The timestep input (adding noise step). (B,)
+            cond (Tensor(float32)): The auxiliary input (e.g. fastspeech2 encoder output). (B, D_enc_out, T)
 
-        :param spec: [B, M, T]
-        :param diffusion_step: [B, 1]
-        :param cond: [B, M, T]
-        :return:
+        Returns:
+            x (Tensor(float32)): pred noise (B, n_mel, T)
+
         """
         x = spec
         x = self.input_projection(x)  # x [B, residual_channel, T]
@@ -178,7 +232,10 @@ class DiffNet(nn.Layer):
         diffusion_step = self.mlp(diffusion_step)
         skip = []
         for layer_id, layer in enumerate(self.residual_layers):
-            x, skip_connection = layer(x, cond, diffusion_step)
+            x, skip_connection = layer(
+                x=x,
+                diffusion_step=diffusion_step,
+                cond=cond, )
             skip.append(skip_connection)
         x = paddle.sum(
             paddle.stack(skip), axis=0) / math.sqrt(len(self.residual_layers))

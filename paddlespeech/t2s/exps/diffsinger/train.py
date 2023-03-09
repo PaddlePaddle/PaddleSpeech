@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -127,9 +127,21 @@ def train_sp(args, config):
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
 
+    with open(args.speech_stretchs, "r") as f:
+        spec_min = np.load(args.speech_stretchs)[0]
+        spec_max = np.load(args.speech_stretchs)[1]
+        spec_min = paddle.to_tensor(spec_min)
+        spec_max = paddle.to_tensor(spec_max)
+    print("min and max spec done!")
+
     odim = config.n_mels
     config["model"]["fastspeech2_params"]["spk_num"] = spk_num
-    model = DiffSinger(idim=vocab_size, odim=odim, **config["model"])
+    model = DiffSinger(
+        idim=vocab_size,
+        odim=odim,
+        **config["model"],
+        spec_min=spec_min,
+        spec_max=spec_max)
     model_fs2 = model.fs2
     model_ds = model.diffusion
     if world_size > 1:
@@ -143,13 +155,6 @@ def train_sp(args, config):
     print("criterions done!")
 
     optimizer_fs2 = build_optimizers(model_fs2, **config["fs2_optimizer"])
-    # gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
-    # optimizer_ds = AdamW(
-    #     learning_rate=config["ds_scheduler_params"]["learning_rate"],
-    #     grad_clip=gradient_clip_ds,
-    #     parameters=model_ds.parameters(),
-    #     **config["ds_optimizer_params"])
-
     lr_schedule_ds = StepDecay(**config["ds_scheduler_params"])
     gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
     optimizer_ds = AdamW(
@@ -178,7 +183,8 @@ def train_sp(args, config):
         },
         dataloader=train_dataloader,
         ds_train_start_steps=config.ds_train_start_steps,
-        output_dir=output_dir)
+        output_dir=output_dir,
+        only_train_diffusion=config["only_train_diffusion"])
 
     evaluator = DiffSingerEvaluator(
         model=model,
@@ -222,6 +228,10 @@ def main():
         type=str,
         default=None,
         help="speaker id map file for multiple speaker model.")
+    parser.add_argument(
+        "--speech-stretchs",
+        type=str,
+        help="The min and max values of the mel spectrum.")
 
     args = parser.parse_args()
 

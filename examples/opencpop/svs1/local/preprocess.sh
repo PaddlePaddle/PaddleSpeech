@@ -64,3 +64,11 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --phones-dict=dump/phone_id_map.txt \
         --speaker-dict=dump/speaker_id_map.txt
 fi
+
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+    # Get feature(mel) extremum for diffusion stretch
+    echo "Get feature(mel) extremum  ..."
+    python3 ${BIN_DIR}/computer_extremum.py \
+        --metadata=dump/train/norm/metadata.jsonl \
+        --speech-stretchs=dump/train/speech_stretchs.npy
+fi

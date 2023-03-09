@@ -9,4 +9,5 @@ python3 ${BIN_DIR}/train.py \
     --config=${config_path} \
     --output-dir=${train_output_path} \
     --ngpu=1 \
-    --phones-dict=dump/phone_id_map.txt
+    --phones-dict=dump/phone_id_map.txt \
+    --speech-stretchs=dump/train/speech_stretchs.npy

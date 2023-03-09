@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -139,9 +139,8 @@ class DiffSingerUpdater(StandardUpdater):
 
         # Then only train diffusion module, freeze fastspeech2 parameters.
         if self.state.iteration > self.ds_train_start_steps:
-            if self.only_train_diffusion:
-                for param in self.model.fs2.parameters():
-                    param.trainable = False
+            for param in self.model.fs2.parameters():
+                param.trainable = False if self.only_train_diffusion else True
 
             noise_pred, noise_target, mel_masks = self.model(
                 text=batch["text"],
@@ -213,7 +212,59 @@ class DiffSingerEvaluator(StandardEvaluator):
         if spk_emb is not None:
             spk_id = None
 
-        # Here show diffsinger eval     
+        # Here show fastspeech2 eval 
+        before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits = self.model(
+            text=batch["text"],
+            note=batch["note"],
+            note_dur=batch["note_dur"],
+            is_slur=batch["is_slur"],
+            text_lengths=batch["text_lengths"],
+            speech=batch["speech"],
+            speech_lengths=batch["speech_lengths"],
+            durations=batch["durations"],
+            pitch=batch["pitch"],
+            energy=batch["energy"],
+            spk_id=spk_id,
+            spk_emb=spk_emb,
+            only_train_fs2=True, )
+
+        l1_loss_fs2, ssim_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
+            after_outs=after_outs,
+            before_outs=before_outs,
+            d_outs=d_outs,
+            p_outs=p_outs,
+            e_outs=e_outs,
+            ys=ys,
+            ds=batch["durations"],
+            ps=batch["pitch"],
+            es=batch["energy"],
+            ilens=batch["text_lengths"],
+            olens=olens,
+            spk_logits=spk_logits,
+            spk_ids=spk_id, )
+
+        loss_fs2 = l1_loss_fs2 + ssim_loss_fs2 + duration_loss + pitch_loss + energy_loss + speaker_loss
+
+        report("eval/loss_fs2", float(loss_fs2))
+        report("eval/l1_loss_fs2", float(l1_loss_fs2))
+        report("eval/ssim_loss_fs2", float(ssim_loss_fs2))
+        report("eval/duration_loss", float(duration_loss))
+        report("eval/pitch_loss", float(pitch_loss))
+        report("eval/energy_loss", float(energy_loss))
+
+        losses_dict["l1_loss_fs2"] = float(l1_loss_fs2)
+        losses_dict["ssim_loss_fs2"] = float(ssim_loss_fs2)
+        losses_dict["duration_loss"] = float(duration_loss)
+        losses_dict["pitch_loss"] = float(pitch_loss)
+        losses_dict["energy_loss"] = float(energy_loss)
+
+        if speaker_loss != 0.:
+            report("eval/speaker_loss", float(speaker_loss))
+            losses_dict["speaker_loss"] = float(speaker_loss)
+
+        losses_dict["loss_fs2"] = float(loss_fs2)
+
+        # Here show diffusion eval
         noise_pred, noise_target, mel_masks = self.model(
             text=batch["text"],
             note=batch["note"],
@@ -236,6 +287,7 @@ class DiffSingerEvaluator(StandardEvaluator):
             noise_pred=noise_pred,
             noise_target=noise_target,
             mel_masks=mel_masks, )
+
         loss_ds = l1_loss_ds
 
         report("eval/loss_ds", float(loss_ds))

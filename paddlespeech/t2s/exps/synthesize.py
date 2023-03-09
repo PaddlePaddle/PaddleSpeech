@@ -112,44 +112,29 @@ def evaluate(args):
                     note = paddle.to_tensor(datum["note"])
                     note_dur = paddle.to_tensor(datum["note_dur"])
                     is_slur = paddle.to_tensor(datum["is_slur"])
+                    # get_mel_fs2 = False, means mel from diffusion, get_mel_fs2 = True, means mel from fastspeech2.
                     get_mel_fs2 = False
                     # mel: [T, mel_bin]
-                    mel1 = am_inference(
+                    mel = am_inference(
                         phone_ids,
                         note=note,
                         note_dur=note_dur,
                         is_slur=is_slur,
-                        get_mel_fs2=True)
-                    mel2 = am_inference(
-                        phone_ids,
-                        note=note,
-                        note_dur=note_dur,
-                        is_slur=is_slur,
-                        get_mel_fs2=False)
-                wav1 = voc_inference(mel1)
-                wav2 = voc_inference(mel2)
+                        get_mel_fs2=get_mel_fs2)
+                # vocoder
+                wav = voc_inference(mel)
 
-            wav1 = wav1.numpy()
-            wav2 = wav2.numpy()
-            N += wav1.size
-            N += wav2.size
+            wav = wav.numpy()
+            N += wav.size
             T += t.elapse
-            speed = 2 * wav1.size / t.elapse
+            speed = wav.size / t.elapse
             rtf = am_config.fs / speed
         print(
-            f"{utt_id}, mel: {mel1.shape}, wave: {wav1.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
+            f"{utt_id}, mel: {mel.shape}, wave: {wav.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
         sf.write(
-            str(output_dir / (utt_id + "_fs2.wav")),
-            wav1,
-            samplerate=am_config.fs)
-        sf.write(
-            str(output_dir / (utt_id + "_diffusion.wav")),
-            wav2,
-            samplerate=am_config.fs)
-
+            str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
         print(f"{utt_id} done!")
-        # break
     print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
 

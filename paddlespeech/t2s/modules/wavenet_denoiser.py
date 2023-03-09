@@ -131,19 +131,19 @@ class WaveNetDenoiser(nn.Layer):
         if use_weight_norm:
             self.apply_weight_norm()
 
-    def forward(self, x, t, c):
+    def forward(self, x: paddle.Tensor, t: paddle.Tensor, c: paddle.Tensor):
         """Denoise mel-spectrogram.
 
         Args:
             x(Tensor): 
-                Shape (N, C_in, T), The input mel-spectrogram.
+                Shape (B, C_in, T), The input mel-spectrogram.
             t(Tensor): 
-                Shape (N), The timestep input.
+                Shape (B), The timestep input.
             c(Tensor): 
-                Shape (N, C_aux, T'). The auxiliary input (e.g. fastspeech2 encoder output). 
+                Shape (B, C_aux, T'). The auxiliary input (e.g. fastspeech2 encoder output).
 
         Returns:
-            Tensor: Shape (N, C_out, T), the denoised mel-spectrogram.
+            Tensor: Shape (B, C_out, T), the pred noise.
         """
         assert c.shape[-1] == x.shape[-1]
 
@@ -189,4 +189,3 @@ class WaveNetDenoiser(nn.Layer):
                 pass
 
         self.apply(_remove_weight_norm)
-

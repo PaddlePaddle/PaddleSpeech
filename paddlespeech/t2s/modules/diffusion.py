@@ -44,6 +44,13 @@ class GaussianDiffusion(nn.Layer):
             beta schedule parameter for the scheduler, by default 'squaredcos_cap_v2' (cosine schedule).
         num_max_timesteps (int, optional): 
             The max timestep transition from real to noise, by default None.
+        stretch (bool, optional): 
+            Whether to stretch before diffusion, by defalut True.
+        min_values: (paddle.Tensor):
+            The minimum value of the feature to stretch.
+        max_values: (paddle.Tensor):
+            The maximum value of the feature to stretch.
+    
     
     Examples: 
         >>> import paddle
@@ -191,7 +198,6 @@ class GaussianDiffusion(nn.Layer):
 
         """
         if self.stretch:
-            assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."
             x = x.transpose((0, 2, 1))
             x = self.norm_spec(x)
             x = x.transpose((0, 2, 1))
@@ -291,7 +297,6 @@ class GaussianDiffusion(nn.Layer):
 
         noisy_input = noise
         if self.stretch and ref_x is not None:
-            assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."
             ref_x = ref_x.transpose((0, 2, 1))
             ref_x = self.norm_spec(ref_x)
             ref_x = ref_x.transpose((0, 2, 1))
@@ -315,7 +320,6 @@ class GaussianDiffusion(nn.Layer):
                 denoised_output = paddle.clip(denoised_output, n_min, n_max)
 
         if self.stretch:
-            assert self.min_values is not None and self.max_values is not None, "self.min_values and self.max_values should not be None."
             denoised_output = denoised_output.transpose((0, 2, 1))
             denoised_output = self.denorm_spec(denoised_output)
             denoised_output = denoised_output.transpose((0, 2, 1))

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -136,7 +136,9 @@ class DiffSinger(nn.Layer):
                 "beta_schedule": "squaredcos_cap_v2",
                 "num_max_timesteps": 60
             },
-            stretch: bool=True, ):
+            stretch: bool=True,
+            spec_min: paddle.Tensor=None,
+            spec_max: paddle.Tensor=None, ):
         """Initialize DiffSinger module.
 
         Args:
@@ -149,6 +151,7 @@ class DiffSinger(nn.Layer):
             fastspeech2_params (Dict[str, Any]): Parameter dict for fastspeech2 module.
             denoiser_params (Dict[str, Any]): Parameter dict for dinoiser module.
             diffusion_params (Dict[str, Any]): Parameter dict for diffusion module.
+            stretch (bool): Whether to stretch before diffusion. Defaults True.
         """
         assert check_argument_types()
         super().__init__()
@@ -159,33 +162,6 @@ class DiffSinger(nn.Layer):
             note_num=note_num,
             is_slur_num=is_slur_num)
         denoiser = DiffNet(**denoiser_params)
-        spec_min = paddle.to_tensor(
-            np.array([
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0,
-                -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0
-            ]))
-        spec_max = paddle.to_tensor(
-            np.array([
-                -0.79453, -0.81116, -0.61631, -0.30679, -0.13863, -0.050652,
-                -0.11563, -0.10679, -0.091068, -0.062174, -0.075302, -0.072217,
-                -0.063815, -0.073299, 0.007361, -0.072508, -0.050234, -0.16534,
-                -0.26928, -0.20782, -0.20823, -0.11702, -0.070128, -0.065868,
-                -0.012675, 0.0015121, -0.089902, -0.21392, -0.23789, -0.28922,
-                -0.30405, -0.23029, -0.22088, -0.21542, -0.29367, -0.30137,
-                -0.38281, -0.4359, -0.28681, -0.46855, -0.57485, -0.47022,
-                -0.54266, -0.44848, -0.6412, -0.687, -0.6486, -0.76436,
-                -0.49971, -0.71068, -0.69724, -0.61487, -0.55843, -0.69773,
-                -0.57502, -0.70919, -0.82431, -0.84213, -0.90431, -0.8284,
-                -0.77945, -0.82758, -0.87699, -1.0532, -1.0766, -1.1198,
-                -1.0185, -0.98983, -1.0001, -1.0756, -1.0024, -1.0304, -1.0579,
-                -1.0188, -1.05, -1.0842, -1.0923, -1.1223, -1.2381, -1.6467
-            ]))
         self.diffusion = GaussianDiffusion(
             denoiser,
             **diffusion_params,

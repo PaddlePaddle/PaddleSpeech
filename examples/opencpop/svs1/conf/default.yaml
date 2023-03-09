@@ -34,6 +34,7 @@ model:
     # music score related
     note_num: 300                                     # number of note
     is_slur_num: 2                                    # number of slur
+    stretch: True                                     # whether to stretch before diffusion
 
     # fastspeech2 module
     fastspeech2_params:
@@ -142,15 +143,14 @@ ds_grad_norm: 1
 ###########################################################
 #                    INTERVAL SETTING                     #
 ###########################################################
+only_train_diffusion: True                 # Whether to freeze fastspeech2 parameters when training diffusion
 ds_train_start_steps: 160000              # Number of steps to start to train diffusion module.
 train_max_steps: 320000                   # Number of training steps.
 save_interval_steps: 2000                 # Interval steps to save checkpoint.
 eval_interval_steps: 2000                 # Interval steps to evaluate the network.
-num_snapshots: 5                        # Number of saved models
-
+num_snapshots: 5
 
 ###########################################################
 #                       OTHER SETTING                     #
 ###########################################################
 seed: 10086
-find_unused_parameters: True

@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -175,18 +175,18 @@ class FastSpeech2MIDI(FastSpeech2):
 
         before_outs = after_outs = d_outs = p_outs = e_outs = spk_logits = None
         # forward encoder
-        x_masks = self._source_mask(ilens)
+        masks = self._source_mask(ilens)
         note_emb = self.note_embedding_table(note)
         note_dur_emb = self.note_dur_layer(paddle.unsqueeze(note_dur, axis=-1))
         is_slur_emb = self.is_slur_embedding_table(is_slur)
 
         # (B, Tmax, adim)
         hs, _ = self.encoder(
-            xs,
-            x_masks,
-            note_emb,
-            note_dur_emb,
-            is_slur_emb, )
+            xs=xs,
+            masks=masks,
+            note_emb=note_emb,
+            note_dur_emb=note_dur_emb,
+            is_slur_emb=is_slur_emb, )
 
         if self.spk_num and self.enable_speaker_classifier and not is_inference:
             hs_for_spk_cls = self.grad_reverse(hs)

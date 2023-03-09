@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
+from typing import List
+from typing import Optional
+from typing import Union
+
 import librosa
 import numpy as np
 import pyworld
 from scipy.interpolate import interp1d
-from typing import List
-
-from typing import Optional
-from typing import Union
 from typing_extensions import Literal
-
 
 
 class LogMelFBank():
@@ -80,7 +79,7 @@ class LogMelFBank():
 
     def _spectrogram(self, wav: np.ndarray):
         D = self._stft(wav)
-        return np.abs(D) ** self.power
+        return np.abs(D)**self.power
 
     def _mel_spectrogram(self, wav: np.ndarray):
         S = self._spectrogram(wav)
@@ -139,7 +138,7 @@ class Pitch():
                       input: np.ndarray,
                       use_continuous_f0: bool=True,
                       use_log_f0: bool=True) -> np.ndarray:
-        input = input.astype(float)
+        input = input.astype(np.float32)
         frame_period = 1000 * self.hop_length / self.sr
         f0, timeaxis = pyworld.dio(
             input,

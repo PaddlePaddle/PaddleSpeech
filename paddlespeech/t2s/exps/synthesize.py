@@ -60,7 +60,8 @@ def evaluate(args):
         am_stat=args.am_stat,
         phones_dict=args.phones_dict,
         tones_dict=args.tones_dict,
-        speaker_dict=args.speaker_dict)
+        speaker_dict=args.speaker_dict,
+        speech_stretchs=args.speech_stretchs, )
     test_dataset = get_test_dataset(
         test_metadata=test_metadata,
         am=args.am,
@@ -221,6 +222,11 @@ def parse_args():
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
+    parser.add_argument(
+        "--speech_stretchs",
+        type=str,
+        default=None,
+        help="The min and max values of the mel spectrum.")
 
     args = parser.parse_args()
     return args

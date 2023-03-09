@@ -333,14 +333,16 @@ def run_frontend(frontend: object,
 
 
 # dygraph
-def get_am_inference(am: str='fastspeech2_csmsc',
-                     am_config: CfgNode=None,
-                     am_ckpt: Optional[os.PathLike]=None,
-                     am_stat: Optional[os.PathLike]=None,
-                     phones_dict: Optional[os.PathLike]=None,
-                     tones_dict: Optional[os.PathLike]=None,
-                     speaker_dict: Optional[os.PathLike]=None,
-                     return_am: bool=False):
+def get_am_inference(
+        am: str='fastspeech2_csmsc',
+        am_config: CfgNode=None,
+        am_ckpt: Optional[os.PathLike]=None,
+        am_stat: Optional[os.PathLike]=None,
+        phones_dict: Optional[os.PathLike]=None,
+        tones_dict: Optional[os.PathLike]=None,
+        speaker_dict: Optional[os.PathLike]=None,
+        return_am: bool=False,
+        speech_stretchs: Optional[os.PathLike]=None, ):
     with open(phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
@@ -364,8 +366,18 @@ def get_am_inference(am: str='fastspeech2_csmsc',
         am = am_class(
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
     elif am_name == 'diffsinger':
+        with open(speech_stretchs, "r") as f:
+            spec_min = np.load(speech_stretchs)[0]
+            spec_max = np.load(speech_stretchs)[1]
+            spec_min = paddle.to_tensor(spec_min)
+            spec_max = paddle.to_tensor(spec_max)
         am_config["model"]["fastspeech2_params"]["spk_num"] = spk_num
-        am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+        am = am_class(
+            idim=vocab_size,
+            odim=odim,
+            **am_config["model"],
+            spec_min=spec_min,
+            spec_max=spec_max, )
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size,

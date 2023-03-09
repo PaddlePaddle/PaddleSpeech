@@ -21,6 +21,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_stat=pwgan_opencpop/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt \
+	--speech_stretchs=dump/train/speech_stretchs.npy
 fi
 

@@ -17,16 +17,8 @@
 #include <cstring>
 #include <iomanip>
 
+#include "common/base/common.h"
 
-#ifdef NDEBUG
-#define LOG_DEBUG                           \
-    ::fastdeploy::FDLogger(true, "[DEBUG]") \
-        << __REL_FILE__ << "(" << __LINE__ << ")::" << __FUNCTION__ << "\t"
-#else
-#define LOG_DEBUG                            \
-    ::fastdeploy::FDLogger(false, "[DEBUG]") \
-        << __REL_FILE__ << "(" << __LINE__ << ")::" << __FUNCTION__ << "\t"
-#endif
 
 namespace ppspeech {
 
@@ -184,8 +176,8 @@ const Vad::State& Vad::Postprocess() {
 
     if (outputProb_ < threshold_ && !triggerd_) {
         // 1. Silence
-        LOG_DEBUG << "{ silence: " << 1.0 * current_sample_ / sample_rate_
-                  << " s; prob: " << outputProb_ << " }";
+        DLOG(INFO) << "{ silence: " << 1.0 * current_sample_ / sample_rate_
+                   << " s; prob: " << outputProb_ << " }";
         states_.emplace_back(Vad::State::SIL);
     } else if (outputProb_ >= threshold_ && !triggerd_) {
         // 2. Start
@@ -194,23 +186,24 @@ const Vad::State& Vad::Postprocess() {
             current_sample_ - current_chunk_size_ - speech_pad_left_samples_;
         float start_sec = 1.0 * speech_start_ / sample_rate_;
         speakStart_.emplace_back(start_sec);
-        LOG_DEBUG << "{ speech start: " << start_sec
-                  << " s; prob: " << outputProb_ << " }";
+        DLOG(INFO) << "{ speech start: " << start_sec
+                   << " s; prob: " << outputProb_ << " }";
         states_.emplace_back(Vad::State::START);
     } else if (outputProb_ >= threshold_ - beam_ && triggerd_) {
         // 3. Continue
 
         if (temp_end_ != 0) {
             // speech prob relaxation, speech continues again
-            LOG_DEBUG << "{ speech fake end(sil < min_silence_ms) to continue: "
-                      << 1.0 * current_sample_ / sample_rate_
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO)
+                << "{ speech fake end(sil < min_silence_ms) to continue: "
+                << 1.0 * current_sample_ / sample_rate_
+                << " s; prob: " << outputProb_ << " }";
             temp_end_ = 0;
         } else {
             // speech prob relaxation, keep tracking speech
-            LOG_DEBUG << "{ speech continue: "
-                      << 1.0 * current_sample_ / sample_rate_
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO) << "{ speech continue: "
+                       << 1.0 * current_sample_ / sample_rate_
+                       << " s; prob: " << outputProb_ << " }";
         }
 
         states_.emplace_back(Vad::State::SPEECH);
@@ -223,9 +216,9 @@ const Vad::State& Vad::Postprocess() {
         // check possible speech end
         if (current_sample_ - temp_end_ < min_silence_samples_) {
             // a. silence < min_slience_samples, continue speaking
-            LOG_DEBUG << "{ speech fake end(sil < min_silence_ms): "
-                      << 1.0 * current_sample_ / sample_rate_
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO) << "{ speech fake end(sil < min_silence_ms): "
+                       << 1.0 * current_sample_ / sample_rate_
+                       << " s; prob: " << outputProb_ << " }";
             states_.emplace_back(Vad::State::SIL);
         } else {
             // b. silence >= min_slience_samples, end speaking
@@ -234,8 +227,8 @@ const Vad::State& Vad::Postprocess() {
             triggerd_ = false;
             auto end_sec = 1.0 * speech_end_ / sample_rate_;
             speakEnd_.emplace_back(end_sec);
-            LOG_DEBUG << "{ speech end: " << end_sec
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO) << "{ speech end: " << end_sec
+                       << " s; prob: " << outputProb_ << " }";
             states_.emplace_back(Vad::State::END);
         }
     }

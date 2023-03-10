@@ -3,7 +3,7 @@ set(srcs
 )
 
 add_library(pps_vad ${srcs})
-target_link_libraries(pps_vad PUBLIC ${FASTDEPLOY_LIBS} common)
+target_link_libraries(pps_vad PUBLIC ${FASTDEPLOY_LIBS} common extern_glog)
 
 
 set(bin_name vad_nnet_main)

@@ -3,7 +3,7 @@ set(srcs
 )
 
 add_library(pps_vad_interface ${srcs})
-target_link_libraries(pps_vad_interface PUBLIC pps_vad)
+target_link_libraries(pps_vad_interface PUBLIC pps_vad extern_glog)
 
 
 set(bin_name vad_interface_main)

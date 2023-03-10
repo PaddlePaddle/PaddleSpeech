@@ -51,6 +51,16 @@ LogMessage::~LogMessage() {
     }
 }
 
+std::ostream* LogMessage::nullstream() {
+    thread_local static std::ofstream os;
+    thread_local static bool flag_set = false;
+    if (!flag_set) {
+        os.setstate(std::ios_base::badbit);
+        flag_set = true;
+    }
+    return &os;
+}
+
 void LogMessage::init(const char* file, int line) {
     time_t t = time(0);
     char tmp[100];

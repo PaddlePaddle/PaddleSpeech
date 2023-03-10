@@ -164,8 +164,8 @@ using the `tar` scripts to unpack the model and then you can use the script to t
 
 For example:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz
-tar xzvf wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz
+tar xzvf wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
@@ -185,8 +185,8 @@ In some situations, you want to use the trained model to do the inference for th
 ```
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz
-tar xzvf wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz
+tar xzvf wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz
 ```
 You can download the audio demo:
 ```bash

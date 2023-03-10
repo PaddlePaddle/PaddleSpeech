@@ -103,6 +103,22 @@ ssl_dynamic_pretrained_models = {
             'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
         },
     },
+    "wav2vec2ASR_aishell1-zh-16k": {
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz',
+            'md5':
+            '9f0bc943adb822789bf61e674b229d17',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/wav2vec2ASR/checkpoints/avg_1',
+            'model':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+            'params':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+        },
+    },
 }
 
 # ---------------------------------
@@ -1644,8 +1660,8 @@ tts_static_pretrained_models["pwgan_male-en"] = tts_static_pretrained_models[
     "pwgan_male-mix"] = tts_static_pretrained_models["pwgan_male-zh"]
 tts_static_pretrained_models["hifigan_male-en"] = tts_static_pretrained_models[
     "hifigan_male-mix"] = tts_static_pretrained_models["hifigan_male-zh"]
-tts_static_pretrained_models["pwgan_aishell3-canton"] = tts_static_pretrained_models[
-    "pwgan_aishell3-zh"]
+tts_static_pretrained_models[
+    "pwgan_aishell3-canton"] = tts_static_pretrained_models["pwgan_aishell3-zh"]
 
 tts_onnx_pretrained_models = {
     # speedyspeech
@@ -1979,8 +1995,9 @@ tts_onnx_pretrained_models["pwgan_male_onnx-en"] = tts_onnx_pretrained_models[
 tts_onnx_pretrained_models["hifigan_male_onnx-en"] = tts_onnx_pretrained_models[
     "hifigan_male_onnx-mix"] = tts_onnx_pretrained_models[
         "hifigan_male_onnx-zh"]
-tts_onnx_pretrained_models["pwgan_aishell3_onnx-canton"] = tts_onnx_pretrained_models[
-    "pwgan_aishell3_onnx-zh"]
+tts_onnx_pretrained_models[
+    "pwgan_aishell3_onnx-canton"] = tts_onnx_pretrained_models[
+        "pwgan_aishell3_onnx-zh"]
 
 # ---------------------------------
 # ------------ Vector -------------
@@ -2058,10 +2075,10 @@ rhy_frontend_models = {
 # ---------------------------------
 
 StarGANv2VC_source = {
-    '1.0' :{
-        'url': 'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/starganv2vc/StarGANv2VC_source.zip',
-        'md5': '195e169419163f5648030ba84c71f866',
-
+    '1.0': {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/starganv2vc/StarGANv2VC_source.zip',
+        'md5':
+        '195e169419163f5648030ba84c71f866',
     }
 }
-

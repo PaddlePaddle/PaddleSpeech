@@ -7,25 +7,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(system)
 
-# Ninja Generator will set CMAKE_BUILD_TYPE to Debug
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE
-      "Release"
-      CACHE
-        STRING
-        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel"
-        FORCE)
-endif()
-
 project(paddlespeech VERSION 0.1)
 
 set(PPS_VERSION_MAJOR 1)
 set(PPS_VERSION_MINOR 0)
 set(PPS_VERSION_PATCH 0)
 set(PPS_VERSION "${PPS_VERSION_MAJOR}.${PPS_VERSION_MINOR}.${PPS_VERSION_PATCH}")
-
-include(FetchContent)
-include(ExternalProject)
 
 # fc_patch dir
 set(FETCHCONTENT_QUIET off)
@@ -38,16 +25,11 @@ set(PPS_CXX_STANDARD 14)
 
 # set std-14
 set(CMAKE_CXX_STANDARD ${PPS_CXX_STANDARD})
-add_compile_options(-fPIC)
 
-# compiler option
-# Keep the same with openfst, -fPIC or -fpic
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ldl")
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
-
-# install dir into `build/install`
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install)
+# Ninja Generator will set CMAKE_BUILD_TYPE to Debug
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif()
 
 # find_* e.g. find_library work when Cross-Compiling
 if(ANDROID)
@@ -57,6 +39,11 @@ if(ANDROID)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 endif()
 
+# install dir into `build/install`
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install)
+
+include(FetchContent)
+include(ExternalProject)
 ###############################################################################
 # Option Configurations
 ###############################################################################
@@ -98,6 +85,7 @@ endif()
 ###############################################################################
 # Find Package
 ###############################################################################
+# https://github.com/Kitware/CMake/blob/v3.1.0/Modules/FindThreads.cmake#L207
 find_package(Threads REQUIRED)
 
 if(WITH_ASR)

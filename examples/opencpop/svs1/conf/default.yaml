@@ -34,7 +34,9 @@ model:
     # music score related
     note_num: 300                                     # number of note
     is_slur_num: 2                                    # number of slur
-    stretch: True                                     # whether to stretch before diffusion
+    # fastspeech2 module options
+    use_energy_pred: False                            # whether use energy predictor
+    use_postnet: False                                # whether use postnet
 
     # fastspeech2 module
     fastspeech2_params:
@@ -105,8 +107,8 @@ model:
         beta_start: 0.0001                            # beta start parameter for the scheduler
         beta_end: 0.06                                # beta end parameter for the scheduler
         beta_schedule: "linear"                       # beta schedule parameter for the scheduler
-        num_max_timesteps: 100                         # The max timestep transition from real to noise
-
+        num_max_timesteps: 100                        # The max timestep transition from real to noise
+        stretch: True                                 # whether to stretch before diffusion
 
 
 ###########################################################
@@ -136,7 +138,7 @@ ds_optimizer_params:
 ds_scheduler_params:
     learning_rate: 0.001              
     gamma: 0.5                          
-    step_size: 50000  
+    step_size: 50000
 ds_grad_norm: 1
 
 
@@ -149,6 +151,7 @@ train_max_steps: 320000                   # Number of training steps.
 save_interval_steps: 2000                 # Interval steps to save checkpoint.
 eval_interval_steps: 2000                 # Interval steps to evaluate the network.
 num_snapshots: 5
+
 
 ###########################################################
 #                       OTHER SETTING                     #

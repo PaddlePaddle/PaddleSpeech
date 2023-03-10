@@ -373,11 +373,11 @@ def get_am_inference(
             spec_max = paddle.to_tensor(spec_max)
         am_config["model"]["fastspeech2_params"]["spk_num"] = spk_num
         am = am_class(
+            spec_min=spec_min,
+            spec_max=spec_max,
             idim=vocab_size,
             odim=odim,
-            **am_config["model"],
-            spec_min=spec_min,
-            spec_max=spec_max, )
+            **am_config["model"], )
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size,

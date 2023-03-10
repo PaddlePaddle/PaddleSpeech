@@ -137,11 +137,11 @@ def train_sp(args, config):
     odim = config.n_mels
     config["model"]["fastspeech2_params"]["spk_num"] = spk_num
     model = DiffSinger(
+        spec_min=spec_min,
+        spec_max=spec_max,
         idim=vocab_size,
         odim=odim,
-        **config["model"],
-        spec_min=spec_min,
-        spec_max=spec_max)
+        **config["model"], )
     model_fs2 = model.fs2
     model_ds = model.diffusion
     if world_size > 1:

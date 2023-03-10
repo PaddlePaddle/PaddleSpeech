@@ -121,17 +121,18 @@ class DiffSingerUpdater(StandardUpdater):
             report("train/ssim_loss_fs2", float(ssim_loss_fs2))
             report("train/duration_loss", float(duration_loss))
             report("train/pitch_loss", float(pitch_loss))
-            report("train/energy_loss", float(energy_loss))
 
             losses_dict["l1_loss_fs2"] = float(l1_loss_fs2)
             losses_dict["ssim_loss_fs2"] = float(ssim_loss_fs2)
             losses_dict["duration_loss"] = float(duration_loss)
             losses_dict["pitch_loss"] = float(pitch_loss)
-            losses_dict["energy_loss"] = float(energy_loss)
 
             if speaker_loss != 0.:
                 report("train/speaker_loss", float(speaker_loss))
                 losses_dict["speaker_loss"] = float(speaker_loss)
+            if energy_loss != 0.:
+                report("train/energy_loss", float(energy_loss))
+                losses_dict["energy_loss"] = float(energy_loss)
 
             losses_dict["loss_fs2"] = float(loss_fs2)
             self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
@@ -250,17 +251,18 @@ class DiffSingerEvaluator(StandardEvaluator):
         report("eval/ssim_loss_fs2", float(ssim_loss_fs2))
         report("eval/duration_loss", float(duration_loss))
         report("eval/pitch_loss", float(pitch_loss))
-        report("eval/energy_loss", float(energy_loss))
 
         losses_dict["l1_loss_fs2"] = float(l1_loss_fs2)
         losses_dict["ssim_loss_fs2"] = float(ssim_loss_fs2)
         losses_dict["duration_loss"] = float(duration_loss)
         losses_dict["pitch_loss"] = float(pitch_loss)
-        losses_dict["energy_loss"] = float(energy_loss)
 
         if speaker_loss != 0.:
             report("eval/speaker_loss", float(speaker_loss))
             losses_dict["speaker_loss"] = float(speaker_loss)
+        if energy_loss != 0.:
+            report("eval/energy_loss", float(energy_loss))
+            losses_dict["energy_loss"] = float(energy_loss)
 
         losses_dict["loss_fs2"] = float(loss_fs2)
 

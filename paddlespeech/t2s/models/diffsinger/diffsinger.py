@@ -42,9 +42,14 @@ class DiffSinger(nn.Layer):
 
     def __init__(
             self,
+            # min and max spec for stretching before diffusion
+            spec_min: paddle.Tensor,
+            spec_max: paddle.Tensor,
             # fastspeech2midi config
             idim: int,
             odim: int,
+            use_energy_pred: bool=False,
+            use_postnet: bool=False,
             # music score related 
             note_num: int=300,
             is_slur_num: int=2,
@@ -134,24 +139,23 @@ class DiffSinger(nn.Layer):
                 "beta_start": 0.0001,
                 "beta_end": 0.06,
                 "beta_schedule": "squaredcos_cap_v2",
-                "num_max_timesteps": 60
-            },
-            stretch: bool=True,
-            spec_min: paddle.Tensor=None,
-            spec_max: paddle.Tensor=None, ):
+                "num_max_timesteps": 60,
+                "stretch": True,
+            }, ):
         """Initialize DiffSinger module.
 
         Args:
-            idim (int): 
-                Dimension of the inputs (Input vocabrary size.).
-            odim (int): 
-                Dimension of the outputs (Acoustic feature dimension.).
+            spec_min (paddle.Tensor): The minimum value of the feature(mel) to stretch before diffusion.
+            spec_max (paddle.Tensor): The maximum value of the feature(mel) to stretch before diffusion.
+            idim (int): Dimension of the inputs (Input vocabrary size.).
+            odim (int): Dimension of the outputs (Acoustic feature dimension.).
+            use_energy_pred (bool, optional): whether use energy predictor. Defaults False.
+            use_postnet (bool, optional): whether use postnet. Defaults False.
             note_num (int, optional): The number of note. Defaults to 300.
             is_slur_num (int, optional): The number of slur. Defaults to 2.
             fastspeech2_params (Dict[str, Any]): Parameter dict for fastspeech2 module.
             denoiser_params (Dict[str, Any]): Parameter dict for dinoiser module.
             diffusion_params (Dict[str, Any]): Parameter dict for diffusion module.
-            stretch (bool): Whether to stretch before diffusion. Defaults True.
         """
         assert check_argument_types()
         super().__init__()
@@ -160,12 +164,13 @@ class DiffSinger(nn.Layer):
             odim=odim,
             fastspeech2_params=fastspeech2_params,
             note_num=note_num,
-            is_slur_num=is_slur_num)
+            is_slur_num=is_slur_num,
+            use_energy_pred=use_energy_pred,
+            use_postnet=use_postnet, )
         denoiser = DiffNet(**denoiser_params)
         self.diffusion = GaussianDiffusion(
             denoiser,
             **diffusion_params,
-            stretch=stretch,
             min_values=spec_min,
             max_values=spec_max, )
 
@@ -319,7 +324,7 @@ class DiffSingerInference(nn.Layer):
             logmel(Tensor(float32)): denorm logmel, [T, mel_bin]
         """
         normalized_mel = self.acoustic_model.inference(
-            text,
+            text=text,
             note=note,
             note_dur=note_dur,
             is_slur=is_slur,

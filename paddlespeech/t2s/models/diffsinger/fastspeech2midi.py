@@ -42,7 +42,9 @@ class FastSpeech2MIDI(FastSpeech2):
             # note emb
             note_num: int=300,
             # is_slur emb
-            is_slur_num: int=2, ):
+            is_slur_num: int=2,
+            use_energy_pred: bool=False,
+            use_postnet: bool=False, ):
         """Initialize FastSpeech2 module for svs.
         Args:
             fastspeech2_params (Dict):
@@ -57,6 +59,10 @@ class FastSpeech2MIDI(FastSpeech2):
         """
         assert check_argument_types()
         super().__init__(idim=idim, odim=odim, **fastspeech2_params)
+        self.use_energy_pred = use_energy_pred
+        self.use_postnet = use_postnet
+        if not self.use_postnet:
+            self.postnet = None
 
         self.note_embed_dim = self.is_slur_embed_dim = fastspeech2_params[
             "adim"]
@@ -214,12 +220,14 @@ class FastSpeech2MIDI(FastSpeech2):
         if is_train_diffusion:
             hs = self.length_regulator(hs, ds, is_inference=False)
             p_outs = self.pitch_predictor(hs.detach(), pitch_masks)
-            e_outs = self.energy_predictor(hs.detach(), pitch_masks)
             p_embs = self.pitch_embed(p_outs.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
-            e_embs = self.energy_embed(e_outs.transpose((0, 2, 1))).transpose(
-                (0, 2, 1))
-            hs = hs + p_embs + e_embs
+            hs += p_embs
+            if self.use_energy_pred:
+                e_outs = self.energy_predictor(hs.detach(), pitch_masks)
+                e_embs = self.energy_embed(
+                    e_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
+                hs += e_embs
 
         elif is_inference:
             # (B, Tmax)
@@ -238,20 +246,21 @@ class FastSpeech2MIDI(FastSpeech2):
                     p_outs = self.pitch_predictor(hs.detach(), pitch_masks)
                 else:
                     p_outs = self.pitch_predictor(hs, pitch_masks)
-
-            if es is not None:
-                e_outs = es
-            else:
-                if self.stop_gradient_from_energy_predictor:
-                    e_outs = self.energy_predictor(hs.detach(), pitch_masks)
-                else:
-                    e_outs = self.energy_predictor(hs, pitch_masks)
-
             p_embs = self.pitch_embed(p_outs.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
-            e_embs = self.energy_embed(e_outs.transpose((0, 2, 1))).transpose(
-                (0, 2, 1))
-            hs = hs + p_embs + e_embs
+            hs += p_embs
+
+            if self.use_energy_pred:
+                if es is not None:
+                    e_outs = es
+                else:
+                    if self.stop_gradient_from_energy_predictor:
+                        e_outs = self.energy_predictor(hs.detach(), pitch_masks)
+                    else:
+                        e_outs = self.energy_predictor(hs, pitch_masks)
+                e_embs = self.energy_embed(
+                    e_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
+                hs += e_embs
 
         # training
         else:
@@ -262,15 +271,18 @@ class FastSpeech2MIDI(FastSpeech2):
                 p_outs = self.pitch_predictor(hs.detach(), pitch_masks)
             else:
                 p_outs = self.pitch_predictor(hs, pitch_masks)
-            if self.stop_gradient_from_energy_predictor:
-                e_outs = self.energy_predictor(hs.detach(), pitch_masks)
-            else:
-                e_outs = self.energy_predictor(hs, pitch_masks)
             p_embs = self.pitch_embed(ps.transpose((0, 2, 1))).transpose(
                 (0, 2, 1))
-            e_embs = self.energy_embed(es.transpose((0, 2, 1))).transpose(
-                (0, 2, 1))
-            hs = hs + p_embs + e_embs
+            hs += p_embs
+
+            if self.use_energy_pred:
+                if self.stop_gradient_from_energy_predictor:
+                    e_outs = self.energy_predictor(hs.detach(), pitch_masks)
+                else:
+                    e_outs = self.energy_predictor(hs, pitch_masks)
+                e_embs = self.energy_embed(es.transpose((0, 2, 1))).transpose(
+                    (0, 2, 1))
+                hs += e_embs
 
         # forward decoder
         if olens is not None and not is_inference:
@@ -304,7 +316,6 @@ class FastSpeech2MIDI(FastSpeech2):
         else:
             after_outs = before_outs + self.postnet(
                 before_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
-        after_outs = before_outs
 
         return before_outs, after_outs, d_outs, p_outs, e_outs, spk_logits
 
@@ -475,6 +486,9 @@ class FastSpeech2MIDI(FastSpeech2):
                 spk_emb=spk_emb,
                 spk_id=spk_id, )
 
+        if e_outs is None:
+            e_outs = [None]
+
         return outs[0], d_outs[0], p_outs[0], e_outs[0]
 
 
@@ -552,14 +566,14 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
             # make feature for ssim loss
             out_pad_masks = make_pad_mask(olens).unsqueeze(-1)
             before_outs_ssim = masked_fill(before_outs, out_pad_masks, 0.0)
-            if after_outs is not None:
+            if not paddle.equal_all(after_outs, before_outs):
                 after_outs_ssim = masked_fill(after_outs, out_pad_masks, 0.0)
             ys_ssim = masked_fill(ys, out_pad_masks, 0.0)
 
             out_masks = make_non_pad_mask(olens).unsqueeze(-1)
             before_outs = before_outs.masked_select(
                 out_masks.broadcast_to(before_outs.shape))
-            if after_outs is not None:
+            if not paddle.equal_all(after_outs, before_outs):
                 after_outs = after_outs.masked_select(
                     out_masks.broadcast_to(after_outs.shape))
             ys = ys.masked_select(out_masks.broadcast_to(ys.shape))
@@ -570,10 +584,11 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
             pitch_masks = out_masks
             p_outs = p_outs.masked_select(
                 pitch_masks.broadcast_to(p_outs.shape))
-            e_outs = e_outs.masked_select(
-                pitch_masks.broadcast_to(e_outs.shape))
             ps = ps.masked_select(pitch_masks.broadcast_to(ps.shape))
-            es = es.masked_select(pitch_masks.broadcast_to(es.shape))
+            if e_outs is not None:
+                e_outs = e_outs.masked_select(
+                    pitch_masks.broadcast_to(e_outs.shape))
+                es = es.masked_select(pitch_masks.broadcast_to(es.shape))
 
             if spk_logits is not None and spk_ids is not None:
                 batch_size = spk_ids.shape[0]
@@ -589,7 +604,7 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
         l1_loss = self.l1_criterion(before_outs, ys)
         ssim_loss = 1.0 - ssim(
             before_outs_ssim.unsqueeze(1), ys_ssim.unsqueeze(1))
-        if after_outs is not None:
+        if not paddle.equal_all(after_outs, before_outs):
             l1_loss += self.l1_criterion(after_outs, ys)
             ssim_loss += (
                 1.0 - ssim(after_outs_ssim.unsqueeze(1), ys_ssim.unsqueeze(1)))
@@ -598,7 +613,8 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
 
         duration_loss = self.duration_criterion(d_outs, ds)
         pitch_loss = self.l1_criterion(p_outs, ps)
-        energy_loss = self.l1_criterion(e_outs, es)
+        if e_outs is not None:
+            energy_loss = self.l1_criterion(e_outs, es)
 
         if spk_logits is not None and spk_ids is not None:
             speaker_loss = self.ce_criterion(spk_logits, spk_ids) / batch_size
@@ -630,8 +646,9 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
             pitch_loss = pitch_loss.multiply(pitch_weights)
             pitch_loss = pitch_loss.masked_select(
                 pitch_masks.broadcast_to(pitch_loss.shape)).sum()
-            energy_loss = energy_loss.multiply(pitch_weights)
-            energy_loss = energy_loss.masked_select(
-                pitch_masks.broadcast_to(energy_loss.shape)).sum()
+            if e_outs is not None:
+                energy_loss = energy_loss.multiply(pitch_weights)
+                energy_loss = energy_loss.masked_select(
+                    pitch_masks.broadcast_to(energy_loss.shape)).sum()
 
         return l1_loss, ssim_loss, duration_loss, pitch_loss, energy_loss, speaker_loss

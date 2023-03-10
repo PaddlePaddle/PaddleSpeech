@@ -12,7 +12,7 @@
 
 ```
 # Ubuntu
-sudo apt install build-essential cmake wget tar unzip
+sudo apt install build-essential cmake pkg-config wget tar unzip
 
 # CentOS
 sudo yum groupinstall "Development Tools"

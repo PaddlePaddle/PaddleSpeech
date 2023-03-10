@@ -13,7 +13,7 @@ set(ABSL_PROPAGATE_CXX_STD ON)
 
 ########## Dependencies ##########
 
-set(ENV{PKG_CONFIG_PATH} "${CMAKE_SOURCE_DIR}/third-party/build/lib/pkgconfig")
+set(ENV{PKG_CONFIG_PATH} "${CMAKE_SOURCE_DIR}/third-party/build/lib/pkgconfig:${CMAKE_SOURCE_DIR}/third-party/build/lib64/pkgconfig")
 find_package(PkgConfig REQUIRED)
 
 # It is hard to load xxx-config.cmake in a custom location, so use pkgconfig instead.

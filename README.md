@@ -180,6 +180,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 ### Recent Update
 - 👑 2023.03.09: Add [Wav2vec2ASR-zh](./examples/aishell/asr3).
 - 🎉 2023.03.07: Add [TTS ARM Linux C++ Demo](./demos/TTSArmLinux).
+- 🔥 2023.03.03 Add Voice Conversion [StarGANv2-VC synthesize pipeline](./examples/vctk/vc3).
 - 🎉 2023.02.16: Add [Cantonese TTS](./examples/canton/tts3).
 - 🔥 2023.01.10: Add [code-switch asr CLI and Demos](./demos/speech_recognition).
 - 👑 2023.01.06: Add [code-switch asr tal_cs recipe](./examples/tal_cs/asr1/).

@@ -6,7 +6,7 @@
 #include <codecvt>
 
 
-namespace speechnn {
+namespace ppspeech {
 // wstring to string
 std::string wstring2utf8string(const std::wstring& str);
  

@@ -12,7 +12,7 @@
 #include "absl/strings/str_split.h"
 
 
-namespace speechnn {
+namespace ppspeech {
     
     class FrontEngineInterface : public TextNormalizer{
         public:

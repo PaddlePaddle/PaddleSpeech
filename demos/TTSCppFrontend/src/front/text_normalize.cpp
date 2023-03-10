@@ -1,6 +1,6 @@
 #include "front/text_normalize.h"
 
-namespace speechnn {
+namespace ppspeech {
 
 // 初始化 digits_map and unit_map
 int TextNormalizer::InitMap() {

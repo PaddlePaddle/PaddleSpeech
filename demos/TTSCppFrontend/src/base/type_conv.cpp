@@ -1,6 +1,6 @@
 #include "base/type_conv.h"
 
-namespace speechnn {
+namespace ppspeech {
 // wstring to string
 std::string wstring2utf8string(const std::wstring& str)
 {

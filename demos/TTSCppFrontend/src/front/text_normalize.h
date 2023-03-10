@@ -10,7 +10,7 @@
 #include "absl/strings/strip.h"
 #include "base/type_conv.h"
 
-namespace speechnn {
+namespace ppspeech {
 
 class TextNormalizer {
 public:

@@ -13,8 +13,8 @@ DEFINE_string(front_conf, "./front_demo/front.conf", "Front conf file");
 int main(int argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     // 实例化文本前端引擎
-    speechnn::FrontEngineInterface *front_inst = nullptr;
-    front_inst = new speechnn::FrontEngineInterface(FLAGS_front_conf);
+    ppspeech::FrontEngineInterface *front_inst = nullptr;
+    front_inst = new ppspeech::FrontEngineInterface(FLAGS_front_conf);
     if ((!front_inst) || (front_inst->init())) {
         LOG(ERROR) << "Creater tts engine failed!";
         if (front_inst != nullptr) {
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    std::wstring ws_sentence = speechnn::utf8string2wstring(FLAGS_sentence);
+    std::wstring ws_sentence = ppspeech::utf8string2wstring(FLAGS_sentence);
 
     // 繁体转简体
     std::wstring sentence_simp;
@@ -45,9 +45,9 @@ int main(int argc, char** argv) {
     LOG(INFO) << "Start to get the phoneme and tone id sequence of each sentence";
     for(int i = 0; i < sentence_part.size(); i++) {
 
-        LOG(INFO) << "Raw sentence is: " << speechnn::wstring2utf8string(sentence_part[i]);
+        LOG(INFO) << "Raw sentence is: " << ppspeech::wstring2utf8string(sentence_part[i]);
         front_inst->SentenceNormalize(sentence_part[i]);
-        s_sentence = speechnn::wstring2utf8string(sentence_part[i]);
+        s_sentence = ppspeech::wstring2utf8string(sentence_part[i]);
         LOG(INFO) << "After normalization sentence is: " << s_sentence;
         
         if (0 != front_inst->GetSentenceIds(s_sentence, phoneids, toneids)) {

@@ -1,6 +1,6 @@
 #include "front/front_interface.h"
 
-namespace speechnn {
+namespace ppspeech {
 
 int FrontEngineInterface::init() {
     if (_initialed) {
@@ -141,12 +141,12 @@ int FrontEngineInterface::Trand2Simp(const std::wstring &sentence, std::wstring 
     //sentence_simp = sentence;
     for(int i = 0; i < sentence.length(); i++) {
         std::wstring temp(1, sentence[i]);
-        std::string sigle_word = speechnn::wstring2utf8string(temp);
+        std::string sigle_word = ppspeech::wstring2utf8string(temp);
         // 单个字是否在繁转简的字典里
         if(trand_simp_map.find(sigle_word) == trand_simp_map.end()) {
             sentence_simp += temp;    
         } else {
-            sentence_simp += (speechnn::utf8string2wstring(trand_simp_map[sigle_word]));
+            sentence_simp += (ppspeech::utf8string2wstring(trand_simp_map[sigle_word]));
         }
     }
 
@@ -323,7 +323,7 @@ bool FrontEngineInterface::AllToneThree(const std::vector<std::string> &finals) 
 // 判断词是否是叠词
 bool FrontEngineInterface::IsReduplication(const std::string &word) {
     bool flags = false;
-    std::wstring word_wstr = speechnn::utf8string2wstring(word);
+    std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     int len = word_wstr.length();
     if(len == 2 && word_wstr[0] == word_wstr[1]){
         flags = true;
@@ -355,7 +355,7 @@ int FrontEngineInterface::GetInitialsFinals(const std::string &word, std::vector
         }
     }
     
-    assert(word_finals.size() == speechnn::utf8string2wstring(word).length() && word_finals.size() == word_initials.size());
+    assert(word_finals.size() == ppspeech::utf8string2wstring(word).length() && word_finals.size() == word_initials.size());
 
     return 0;
 }
@@ -372,7 +372,7 @@ int FrontEngineInterface::GetFinals(const std::string &word, std::vector<std::st
 }
 
 int FrontEngineInterface::Word2WordVec(const std::string &word, std::vector<std::wstring> &wordvec) {
-    std::wstring word_wstr = speechnn::utf8string2wstring(word);
+    std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     for(int i = 0; i < word_wstr.length(); i++) {
         std::wstring word_sigle(1, word_wstr[i]);
         wordvec.push_back(word_sigle);
@@ -525,7 +525,7 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeThre
         if(i - 1 >= 0 && AllToneThree(finals[i - 1]) && AllToneThree(finals[i]) && !merge_last[i - 1]) {
             // if the last word is reduplication, not merge, because reduplication need to be _neural_sandhi
             if(!IsReduplication(seg_result[i - 1].first) && 
-               (speechnn::utf8string2wstring(seg_result[i - 1].first)).length() + (speechnn::utf8string2wstring(word)).length() <= 3) {
+               (ppspeech::utf8string2wstring(seg_result[i - 1].first)).length() + (ppspeech::utf8string2wstring(word)).length() <= 3) {
                 result.back().first = result.back().first + seg_result[i].first;
                 merge_last[i] = true;
             } else {
@@ -583,7 +583,7 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeThre
            !finals[i].empty() && absl::EndsWith(finals[i].front(), "3") == true && !merge_last[i - 1]) {
             // if the last word is reduplication, not merge, because reduplication need to be _neural_sandhi
             if(!IsReduplication(seg_result[i - 1].first) && 
-               (speechnn::utf8string2wstring(seg_result[i - 1].first)).length() + speechnn::utf8string2wstring(word).length() <= 3) {
+               (ppspeech::utf8string2wstring(seg_result[i - 1].first)).length() + ppspeech::utf8string2wstring(word).length() <= 3) {
                 result.back().first = result.back().first + seg_result[i].first;
                 merge_last[i] = true;
             } else {
@@ -680,7 +680,7 @@ int FrontEngineInterface::YiSandhi(const std::string &word, std::vector<std::str
 
     //情况1："一" in number sequences, e.g. 一零零, 二一零
     std::wstring num_wstr = L"零一二三四六七八九";
-    std::wstring word_wstr = speechnn::utf8string2wstring(word);
+    std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     if(word_wstr.find(yi) != word_wstr.npos && wordvec.back() != yi) {
         int flags = 0;
         for(int j = 0; j < wordvec.size(); j++) {
@@ -715,7 +715,7 @@ int FrontEngineInterface::YiSandhi(const std::string &word, std::vector<std::str
 }
 
 int FrontEngineInterface::NeuralSandhi(const std::string &word, const std::string &pos, std::vector<std::string> &finals) {
-    std::wstring word_wstr = speechnn::utf8string2wstring(word);
+    std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
     if(0 != Word2WordVec(word, wordvec)) {
@@ -768,7 +768,7 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word, const std::strin
         finals.back() = finals.back().replace(finals.back().length() - 1, 1, "5");
     } else {
         if(find(must_neural_tone_words.begin(), must_neural_tone_words.end(), word) != must_neural_tone_words.end()
-           || (word_num >= 2 && find(must_neural_tone_words.begin(), must_neural_tone_words.end(), speechnn::wstring2utf8string(word_wstr.substr(word_num - 2))) != must_neural_tone_words.end())) {
+           || (word_num >= 2 && find(must_neural_tone_words.begin(), must_neural_tone_words.end(), ppspeech::wstring2utf8string(word_wstr.substr(word_num - 2))) != must_neural_tone_words.end())) {
                finals.back() = finals.back().replace(finals.back().length() - 1, 1, "5");
            }
     }
@@ -782,16 +782,16 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word, const std::strin
     // 创建对应的 韵母列表
     std::vector<std::vector<std::string>> finals_list;
     std::vector<std::string> finals_temp;
-    finals_temp.assign(finals.begin(), finals.begin() + speechnn::utf8string2wstring(word_list[0]).length());
+    finals_temp.assign(finals.begin(), finals.begin() + ppspeech::utf8string2wstring(word_list[0]).length());
     finals_list.push_back(finals_temp);
-    finals_temp.assign(finals.begin() + speechnn::utf8string2wstring(word_list[0]).length(), finals.end());
+    finals_temp.assign(finals.begin() + ppspeech::utf8string2wstring(word_list[0]).length(), finals.end());
     finals_list.push_back(finals_temp);
 
     finals = {};
     for(int i = 0; i < word_list.size(); i++) {
-        std::wstring temp_wstr = speechnn::utf8string2wstring(word_list[i]);
+        std::wstring temp_wstr = ppspeech::utf8string2wstring(word_list[i]);
         if((find(must_neural_tone_words.begin(), must_neural_tone_words.end(), word_list[i]) != must_neural_tone_words.end())
-           || (temp_wstr.length() >= 2 && find(must_neural_tone_words.begin(), must_neural_tone_words.end(), speechnn::wstring2utf8string(temp_wstr.substr(temp_wstr.length() - 2))) != must_neural_tone_words.end())) {
+           || (temp_wstr.length() >= 2 && find(must_neural_tone_words.begin(), must_neural_tone_words.end(), ppspeech::wstring2utf8string(temp_wstr.substr(temp_wstr.length() - 2))) != must_neural_tone_words.end())) {
                finals_list[i].back() = finals_list[i].back().replace(finals_list[i].back().length() - 1, 1, "5");
            }
         finals.insert(finals.end(), finals_list[i].begin(), finals_list[i].end());
@@ -801,7 +801,7 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word, const std::strin
 }
 
 int FrontEngineInterface::ThreeSandhi(const std::string &word, std::vector<std::string> &finals) {
-    std::wstring word_wstr = speechnn::utf8string2wstring(word);
+    std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::vector<std::string>> finals_list;
     std::vector<std::string> finals_temp;
     std::vector<std::wstring> wordvec;
@@ -823,7 +823,7 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word, std::vector<std::
             return -1;
         }
         if(AllToneThree(finals)) {
-            std::wstring temp_wstr = speechnn::utf8string2wstring(word_list[0]);
+            std::wstring temp_wstr = ppspeech::utf8string2wstring(word_list[0]);
             //disyllabic + monosyllabic, e.g. 蒙古/包
             if(temp_wstr.length() == 2) {
                 finals[0] = finals[0].replace(finals[0].length() - 1, 1, "2");
@@ -835,9 +835,9 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word, std::vector<std::
             // 创建对应的 韵母列表
             finals_temp = {};
             finals_list = {};
-            finals_temp.assign(finals.begin(), finals.begin() + speechnn::utf8string2wstring(word_list[0]).length());
+            finals_temp.assign(finals.begin(), finals.begin() + ppspeech::utf8string2wstring(word_list[0]).length());
             finals_list.push_back(finals_temp);
-            finals_temp.assign(finals.begin() + speechnn::utf8string2wstring(word_list[0]).length(), finals.end());
+            finals_temp.assign(finals.begin() + ppspeech::utf8string2wstring(word_list[0]).length(), finals.end());
             finals_list.push_back(finals_temp);
             
             finals = {};
@@ -892,7 +892,7 @@ std::vector<std::vector<std::string>> FrontEngineInterface::MergeErhua(const std
     std::vector<std::string> new_finals = {};
     std::vector<std::vector<std::string>> new_initials_finals;
     std::vector<std::string> specified_pos = {"a", "j", "nr"};
-    std::wstring word_wstr = speechnn::utf8string2wstring(word);
+    std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
     if(0 != Word2WordVec(word, wordvec)) {
@@ -915,7 +915,7 @@ std::vector<std::vector<std::string>> FrontEngineInterface::MergeErhua(const std
     assert(finals.size() == word_num);
     for(int i = 0; i < finals.size(); i++) {
         if(i == finals.size() - 1 && wordvec[i] == L"儿" && (finals[i] == "er2" || finals[i] == "er5") && word_num >= 2 &&
-           find(not_erhua.begin(), not_erhua.end(), speechnn::wstring2utf8string(word_wstr.substr(word_wstr.length() - 2))) == not_erhua.end() && !new_finals.empty()) {
+           find(not_erhua.begin(), not_erhua.end(), ppspeech::wstring2utf8string(word_wstr.substr(word_wstr.length() - 2))) == not_erhua.end() && !new_finals.empty()) {
             new_finals.back() = new_finals.back().substr(0, new_finals.back().length()-1) + "r" + new_finals.back().substr(new_finals.back().length()-1);
         } else {
             new_initials.push_back(initials[i]);

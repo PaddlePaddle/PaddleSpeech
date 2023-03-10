@@ -67,7 +67,7 @@ class LogMessage {
     void init(const char* file, int line);
 
   private:
-    std::shared_ptr<std::ostream> stream_;
+    std::ostream* stream_;
     Severity level_;
     bool verbose_;
     bool out_to_file_;

@@ -16,6 +16,7 @@
 #include <iostream>
 #include <vector>
 
+#include "common/base/common.h"
 #include "vad/frontend/wav.h"
 #include "vad/interface/vad_interface.h"
 
@@ -35,6 +36,8 @@ int main(int argc, char* argv[]) {
 
     std::vector<float> inputWav;  // [0, 1]
     wav::WavReader wav_reader = wav::WavReader(audio_file);
+    auto sr = wav_reader.sample_rate();
+    CHECK(sr == 16000) << " sr is " << sr << " expect 16000";
 
     auto num_samples = wav_reader.num_samples();
     inputWav.resize(num_samples);
@@ -42,6 +45,7 @@ int main(int argc, char* argv[]) {
         inputWav[i] = wav_reader.data()[i] / 32768;
     }
 
+    ppspeech::Timer timer;
     int window_size_samples = PPSVadChunkSizeSamples(handle);
     for (int64_t j = 0; j < num_samples; j += window_size_samples) {
         auto start = j;
@@ -57,6 +61,9 @@ int main(int argc, char* argv[]) {
         std::cout << s << " ";
     }
     std::cout << std::endl;
+
+    std::cout << "RTF=" << timer.Elapsed() / double(num_samples / sr)
+              << std::endl;
 
     PPSVadReset(handle);
 

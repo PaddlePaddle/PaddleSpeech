@@ -84,9 +84,6 @@ if(ENABLE_VISION)
         file(GLOB_RECURSE ALL_OPENCV_DYN_LIBS ${OpenCV_DIR}/../../${DYN_LIB_SUFFIX})
     endif()
    
-    message(STATUS "ALL_DEPS_DYN_LIBS=${ALL_DEPS_DYN_LIBS}")
-    message(STATUS "OpenCV_DIR=${OpenCV_DIR}")
-    message(STATUS "ALL_OPENCV_DYN_LIBS=${ALL_OPENCV_DYN_LIBS}")
     list(REMOVE_ITEM ALL_DEPS_DYN_LIBS ${ALL_OPENCV_DYN_LIBS})
 
     if(WIN32)

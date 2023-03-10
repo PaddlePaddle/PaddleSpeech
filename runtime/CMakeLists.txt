@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+# >=3.17 support -DCMAKE_FIND_DEBUG_MODE=ON
+cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 set(CMAKE_PROJECT_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnableCMP0048.cmake")
 
@@ -32,6 +33,7 @@ get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_FIND_DEBUG_MODE OFF)
 set(PPS_CXX_STANDARD 14)
 
 # set std-14
@@ -46,6 +48,14 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall
 
 # install dir into `build/install`
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install)
+
+# find_* e.g. find_library work when Cross-Compiling
+if(ANDROID)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+endif()
 
 ###############################################################################
 # Option Configurations

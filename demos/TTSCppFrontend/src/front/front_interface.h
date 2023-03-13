@@ -73,7 +73,7 @@ class FrontEngineInterface : public TextNormalizer {
             std::vector<std::pair<std::string, std::string>> *cut_result);
 
     // 字词到音素的映射，查找字典
-    int GetPhone(const std::string &word, std::string &phone);
+    int GetPhone(const std::string &word, std::string *phone);
 
     // 音素到音素id
     int Phone2Phoneid(const std::string &phone,

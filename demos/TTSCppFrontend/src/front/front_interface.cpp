@@ -330,17 +330,17 @@ int FrontEngineInterface::Cut(
 }
 
 int FrontEngineInterface::GetPhone(const std::string &word,
-                                   std::string &phone) {
+                                   std::string *phone) {
     // 判断 word 在不在 词典里，如果不在，进行CutAll分词
     if (word_phone_map.find(word) == word_phone_map.end()) {
         std::vector<std::string> wordcut;
         _jieba->CutAll(word, wordcut);
-        phone = word_phone_map[wordcut[0]];
+        phone->assign(word_phone_map[wordcut[0]]);
         for (int i = 1; i < wordcut.size(); i++) {
-            phone += (" " + word_phone_map[wordcut[i]]);
+            phone->assign( (*phone)+(" " + word_phone_map[wordcut[i]]));
         }
     } else {
-        phone = word_phone_map[word];
+        phone->assign(word_phone_map[word]);
     }
 
     return 0;
@@ -400,7 +400,7 @@ int FrontEngineInterface::GetInitialsFinals(
     std::vector<std::string> *word_initials,
     std::vector<std::string> *word_finals) {
     std::string phone;
-    GetPhone(word, phone);  //获取字词对应的音素
+    GetPhone(word, &phone);  //获取字词对应的音素
     std::vector<std::string> phone_vec = absl::StrSplit(phone, " ");
     //获取韵母，每个字的音素有1或者2个，start为单个字音素的起始位置。
     int start = 0;

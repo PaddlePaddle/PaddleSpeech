@@ -5,6 +5,7 @@ set(csrc
   math.cc
   strings.cc
   audio_process.cc
+  timer.cc
 )
 
 add_library(utils ${csrc})

@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+# >=3.17 support -DCMAKE_FIND_DEBUG_MODE=ON
+cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
 set(CMAKE_PROJECT_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnableCMP0048.cmake")
 
@@ -6,20 +7,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(system)
 
-# Ninja Generator will set CMAKE_BUILD_TYPE to Debug
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE
-      "Release"
-      CACHE
-        STRING
-        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel"
-        FORCE)
-endif()
-
 project(paddlespeech VERSION 0.1)
 
-include(FetchContent)
-include(ExternalProject)
+set(PPS_VERSION_MAJOR 1)
+set(PPS_VERSION_MINOR 0)
+set(PPS_VERSION_PATCH 0)
+set(PPS_VERSION "${PPS_VERSION_MAJOR}.${PPS_VERSION_MINOR}.${PPS_VERSION_PATCH}")
 
 # fc_patch dir
 set(FETCHCONTENT_QUIET off)
@@ -27,21 +20,36 @@ get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_FIND_DEBUG_MODE OFF)
 set(PPS_CXX_STANDARD 14)
 
 # set std-14
 set(CMAKE_CXX_STANDARD ${PPS_CXX_STANDARD})
-add_compile_options(-fPIC)
 
-# compiler option
-# Keep the same with openfst, -fPIC or -fpic
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ldl")
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
+# Ninja Generator will set CMAKE_BUILD_TYPE to Debug
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif()
 
+# find_* e.g. find_library work when Cross-Compiling
+if(ANDROID)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+endif()
+
+# install dir into `build/install`
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install)
+
+include(FetchContent)
+include(ExternalProject)
 ###############################################################################
 # Option Configurations
 ###############################################################################
+# https://github.com/google/brotli/pull/655
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 option(WITH_ASR "build asr" ON)
 option(WITH_CLS "build cls" ON)
 option(WITH_VAD "build vad" ON)
@@ -77,6 +85,7 @@ endif()
 ###############################################################################
 # Find Package
 ###############################################################################
+# https://github.com/Kitware/CMake/blob/v3.1.0/Modules/FindThreads.cmake#L207
 find_package(Threads REQUIRED)
 
 if(WITH_ASR)
@@ -157,6 +166,22 @@ include(summary)
 ###############################################################################
 # Add local library
 ###############################################################################
-set(ENGINE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/engine)
+set(ENGINE_ROOT ${CMAKE_SOURCE_DIR}/engine)
 
 add_subdirectory(engine)
+
+
+###############################################################################
+# CPack library
+###############################################################################
+# build a CPack driven installer package
+include (InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_NAME "paddlespeech_library")
+set(CPACK_PACKAGE_VENDOR "paddlespeech")
+set(CPACK_PACKAGE_VERSION_MAJOR 1)
+set(CPACK_PACKAGE_VERSION_MINOR 0)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_PACKAGE_DESCRIPTION "paddlespeech library")
+set(CPACK_PACKAGE_CONTACT "paddlespeech@baidu.com")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include (CPack)

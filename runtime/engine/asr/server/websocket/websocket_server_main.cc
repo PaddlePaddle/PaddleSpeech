@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "websocket/websocket_server.h"
 #include "decoder/param.h"
+#include "websocket/websocket_server.h"
 
 DEFINE_int32(port, 8082, "websocket listening port");
 

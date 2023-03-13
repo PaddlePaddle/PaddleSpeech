@@ -590,7 +590,7 @@ class MatrixBase {
      * SpMatrix and use Eig() function there, which uses eigenvalue
      * decomposition
      * directly rather than SVD.
-    */
+     */
 
     /// stream read.
     /// Use instead of stream<<*this, if you want to add to existing contents.

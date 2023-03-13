@@ -14,8 +14,8 @@
 
 // todo refactor, repalce with gtest
 
-#include "decoder/ctc_tlg_decoder.h"
 #include "base/common.h"
+#include "decoder/ctc_tlg_decoder.h"
 #include "decoder/param.h"
 #include "frontend/data_cache.h"
 #include "kaldi/util/table-types.h"

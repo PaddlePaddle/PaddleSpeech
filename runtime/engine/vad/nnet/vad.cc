@@ -1,4 +1,5 @@
 // Copyright (c) 2023 Chen Qianhe Authors. All Rights Reserved.
+// Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,20 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "vad.h"
+#include "vad/nnet/vad.h"
+
 #include <cstring>
 #include <iomanip>
 
+#include "common/base/common.h"
 
-#ifdef NDEBUG
-#define LOG_DEBUG                                                              \
-    ::fastdeploy::FDLogger(true, "[DEBUG]") << __REL_FILE__ << "(" << __LINE__ \
-                                            << ")::" << __FUNCTION__ << "\t"
-#else
-#define LOG_DEBUG                            \
-    ::fastdeploy::FDLogger(false, "[DEBUG]") \
-        << __REL_FILE__ << "(" << __LINE__ << ")::" << __FUNCTION__ << "\t"
-#endif
+
+namespace ppspeech {
 
 Vad::Vad(const std::string& model_file,
          const fastdeploy::RuntimeOption&
@@ -48,18 +44,30 @@ Vad::Vad(const std::string& model_file,
 }
 
 void Vad::Init() {
-    std::call_once(init_, [&]() { initialized = Initialize(); });
+    std::lock_guard<std::mutex> lock(init_lock_);
+    Initialize();
 }
 
 std::string Vad::ModelName() const { return "VAD"; }
 
-void Vad::SetConfig(int sr,
-                    int frame_ms,
-                    float threshold,
-                    int min_silence_duration_ms,
-                    int speech_pad_left_ms,
-                    int speech_pad_right_ms) {
-    if (initialized) {
+void Vad::SetConfig(const VadNnetConf conf) {
+    SetConfig(conf.sr,
+              conf.frame_ms,
+              conf.threshold,
+              conf.beam,
+              conf.min_silence_duration_ms,
+              conf.speech_pad_left_ms,
+              conf.speech_pad_right_ms);
+}
+
+void Vad::SetConfig(const int& sr,
+                    const int& frame_ms,
+                    const float& threshold,
+                    const float& beam,
+                    const int& min_silence_duration_ms,
+                    const int& speech_pad_left_ms,
+                    const int& speech_pad_right_ms) {
+    if (initialized_) {
         fastdeploy::FDERROR << "SetConfig must be called before init"
                             << std::endl;
         throw std::runtime_error("SetConfig must be called before init");
@@ -67,6 +75,7 @@ void Vad::SetConfig(int sr,
     sample_rate_ = sr;
     sr_per_ms_ = sr / 1000;
     threshold_ = threshold;
+    beam_ = beam;
     frame_ms_ = frame_ms;
     min_silence_samples_ = min_silence_duration_ms * sr_per_ms_;
     speech_pad_left_samples_ = speech_pad_left_ms * sr_per_ms_;
@@ -76,8 +85,8 @@ void Vad::SetConfig(int sr,
     window_size_samples_ = frame_ms * sr_per_ms_;
     current_chunk_size_ = window_size_samples_;
 
-    fastdeploy::FDINFO << "sr=" << sr << " threshold=" << threshold
-                       << " frame_ms=" << frame_ms
+    fastdeploy::FDINFO << "sr=" << sr_per_ms_ << " threshold=" << threshold_
+                       << " beam=" << beam_ << " frame_ms=" << frame_ms_
                        << " min_silence_duration_ms=" << min_silence_duration_ms
                        << " speech_pad_left_ms=" << speech_pad_left_ms
                        << " speech_pad_right_ms=" << speech_pad_right_ms;
@@ -114,12 +123,17 @@ bool Vad::Initialize() {
 
     Reset();
 
+
     // InitRuntime
     if (!InitRuntime()) {
         fastdeploy::FDERROR << "Failed to initialize fastdeploy backend."
                             << std::endl;
         return false;
     }
+
+    initialized_ = true;
+
+
     fastdeploy::FDINFO << "init done.";
     return true;
 }
@@ -162,8 +176,8 @@ const Vad::State& Vad::Postprocess() {
 
     if (outputProb_ < threshold_ && !triggerd_) {
         // 1. Silence
-        LOG_DEBUG << "{ silence: " << 1.0 * current_sample_ / sample_rate_
-                  << " s; prob: " << outputProb_ << " }";
+        DLOG(INFO) << "{ silence: " << 1.0 * current_sample_ / sample_rate_
+                   << " s; prob: " << outputProb_ << " }";
         states_.emplace_back(Vad::State::SIL);
     } else if (outputProb_ >= threshold_ && !triggerd_) {
         // 2. Start
@@ -172,27 +186,28 @@ const Vad::State& Vad::Postprocess() {
             current_sample_ - current_chunk_size_ - speech_pad_left_samples_;
         float start_sec = 1.0 * speech_start_ / sample_rate_;
         speakStart_.emplace_back(start_sec);
-        LOG_DEBUG << "{ speech start: " << start_sec
-                  << " s; prob: " << outputProb_ << " }";
+        DLOG(INFO) << "{ speech start: " << start_sec
+                   << " s; prob: " << outputProb_ << " }";
         states_.emplace_back(Vad::State::START);
-    } else if (outputProb_ >= threshold_ - 0.15 && triggerd_) {
+    } else if (outputProb_ >= threshold_ - beam_ && triggerd_) {
         // 3. Continue
 
         if (temp_end_ != 0) {
             // speech prob relaxation, speech continues again
-            LOG_DEBUG << "{ speech fake end(sil < min_silence_ms) to continue: "
-                      << 1.0 * current_sample_ / sample_rate_
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO)
+                << "{ speech fake end(sil < min_silence_ms) to continue: "
+                << 1.0 * current_sample_ / sample_rate_
+                << " s; prob: " << outputProb_ << " }";
             temp_end_ = 0;
         } else {
             // speech prob relaxation, keep tracking speech
-            LOG_DEBUG << "{ speech continue: "
-                      << 1.0 * current_sample_ / sample_rate_
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO) << "{ speech continue: "
+                       << 1.0 * current_sample_ / sample_rate_
+                       << " s; prob: " << outputProb_ << " }";
         }
 
         states_.emplace_back(Vad::State::SPEECH);
-    } else if (outputProb_ < threshold_ - 0.15 && triggerd_) {
+    } else if (outputProb_ < threshold_ - beam_ && triggerd_) {
         // 4. End
         if (temp_end_ == 0) {
             temp_end_ = current_sample_;
@@ -201,9 +216,9 @@ const Vad::State& Vad::Postprocess() {
         // check possible speech end
         if (current_sample_ - temp_end_ < min_silence_samples_) {
             // a. silence < min_slience_samples, continue speaking
-            LOG_DEBUG << "{ speech fake end(sil < min_silence_ms): "
-                      << 1.0 * current_sample_ / sample_rate_
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO) << "{ speech fake end(sil < min_silence_ms): "
+                       << 1.0 * current_sample_ / sample_rate_
+                       << " s; prob: " << outputProb_ << " }";
             states_.emplace_back(Vad::State::SIL);
         } else {
             // b. silence >= min_slience_samples, end speaking
@@ -212,8 +227,8 @@ const Vad::State& Vad::Postprocess() {
             triggerd_ = false;
             auto end_sec = 1.0 * speech_end_ / sample_rate_;
             speakEnd_.emplace_back(end_sec);
-            LOG_DEBUG << "{ speech end: " << end_sec
-                      << " s; prob: " << outputProb_ << " }";
+            DLOG(INFO) << "{ speech end: " << end_sec
+                       << " s; prob: " << outputProb_ << " }";
             states_.emplace_back(Vad::State::END);
         }
     }
@@ -304,3 +319,5 @@ std::ostream& operator<<(std::ostream& os, const Vad::State& s) {
     }
     return os;
 }
+
+}  // namespace ppspeech

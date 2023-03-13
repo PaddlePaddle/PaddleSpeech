@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "base/common.h"
+#include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "frontend/data_cache.h"
 #include "fst/symbol-table.h"
 #include "kaldi/util/table-types.h"
@@ -117,9 +117,9 @@ int main(int argc, char* argv[]) {
                     ori_feature_len - chunk_idx * chunk_stride, chunk_size);
             }
             if (this_chunk_size < receptive_field_length) {
-                LOG(WARNING) << "utt: " << utt << " skip last "
-                             << this_chunk_size << " frames, expect is "
-                             << receptive_field_length;
+                LOG(WARNING)
+                    << "utt: " << utt << " skip last " << this_chunk_size
+                    << " frames, expect is " << receptive_field_length;
                 break;
             }
 

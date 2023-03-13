@@ -3,7 +3,7 @@ set(srcs
     panns_interface.cc
 )
 
-add_library(cls SHARED ${srcs})
+add_library(cls ${srcs})
 target_link_libraries(cls INTERFACE -static-libstdc++;-Wl,-Bsymbolic ${FASTDEPLOY_LIBS} kaldi-matrix kaldi-base frontend utils )
 
 set(bin_name panns_nnet_main)

@@ -821,12 +821,12 @@ void cftfsub(int n, double *a, int *ip, int nw, double *w) {
             } else
 #endif /* USE_CDFT_THREADS */
                 if (n > 512) {
-                cftrec4(n, a, nw, w);
-            } else if (n > 128) {
-                cftleaf(n, 1, a, nw, w);
-            } else {
-                cftfx41(n, a, nw, w);
-            }
+                    cftrec4(n, a, nw, w);
+                } else if (n > 128) {
+                    cftleaf(n, 1, a, nw, w);
+                } else {
+                    cftfx41(n, a, nw, w);
+                }
             bitrv2(n, ip, a);
         } else if (n == 32) {
             cftf161(a, &w[nw - 8]);
@@ -868,12 +868,12 @@ void cftbsub(int n, double *a, int *ip, int nw, double *w) {
             } else
 #endif /* USE_CDFT_THREADS */
                 if (n > 512) {
-                cftrec4(n, a, nw, w);
-            } else if (n > 128) {
-                cftleaf(n, 1, a, nw, w);
-            } else {
-                cftfx41(n, a, nw, w);
-            }
+                    cftrec4(n, a, nw, w);
+                } else if (n > 128) {
+                    cftleaf(n, 1, a, nw, w);
+                } else {
+                    cftfx41(n, a, nw, w);
+                }
             bitrv2conj(n, ip, a);
         } else if (n == 32) {
             cftf161(a, &w[nw - 8]);

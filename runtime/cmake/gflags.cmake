@@ -9,3 +9,5 @@ FetchContent_MakeAvailable(gflags)
 
 # openfst need
 include_directories(${gflags_BINARY_DIR}/include)
+
+install(FILES ${gflags_BINARY_DIR}/libgflags_nothreads.a DESTINATION lib)

@@ -90,7 +90,7 @@ typedef uint32 UnsignedMatrixIndexT;
 // typedef size_t MatrixIndexT;
 // typedef ssize_t SignedMatrixIndexT;
 // typedef size_t UnsignedMatrixIndexT;
-}
+}  // namespace kaldi
 
 
 #endif  // KALDI_MATRIX_MATRIX_COMMON_H_

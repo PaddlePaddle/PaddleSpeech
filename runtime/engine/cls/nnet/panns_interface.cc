@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "cls/nnet/panns_interface.h"
+
 #include "cls/nnet/panns_nnet.h"
 #include "common/base/config.h"
 

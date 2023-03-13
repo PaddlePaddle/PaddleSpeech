@@ -18,15 +18,15 @@
 
 #pragma once
 
+#include <stdlib.h>
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <thread>
-
-#include <stdlib.h>
-#include <unistd.h>
 
 #include "base/common.h"
 #include "base/macros.h"
@@ -61,13 +61,15 @@ class LogMessage {
 
     ~LogMessage();
 
-    std::ostream& stream() { return *stream_; }
+    std::ostream& stream() { return verbose_ ? *stream_ : *nullstream(); }
 
   private:
     void init(const char* file, int line);
+    std::ostream* nullstream();
 
   private:
-    std::shared_ptr<std::ostream> stream_;
+    std::ostream* stream_;
+    std::ostream* null_stream_;
     Severity level_;
     bool verbose_;
     bool out_to_file_;
@@ -88,14 +90,16 @@ class LogMessage {
 }  // namespace ppspeech
 
 
-#ifndef NDEBUG
-#define DLOG_DEBUG \
-    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::DEBUG, false)
+#ifdef NDEBUG
+#define DLOG_INFO \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::INFO, false)
+#define DLOG_WARNING \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::WARNING, false)
+#define DLOG_ERROR \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::ERROR, false)
+#define DLOG_FATAL \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::FATAL, false)
 #else
-#define DLOG_DEBUG \
-    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::DEBUG, true)
-#endif
-
 #define DLOG_INFO \
     ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::INFO, true)
 #define DLOG_WARNING \
@@ -104,17 +108,30 @@ class LogMessage {
     ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::ERROR, true)
 #define DLOG_FATAL \
     ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::FATAL, true)
+#endif
 
-#define DLOG_0 DLOG_DEBUG
-#define DLOG_1 DLOG_INFO
-#define DLOG_2 DLOG_WARNING
-#define DLOG_3 DLOG_ERROR
-#define DLOG_4 DLOG_FATAL
 
-#define LOG(level) DLOG_##level.stream()
+#define LOG_INFO \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::INFO, true)
+#define LOG_WARNING \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::WARNING, true)
+#define LOG_ERROR \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::ERROR, true)
+#define LOG_FATAL \
+    ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::FATAL, true)
+
+
+#define LOG_0 LOG_DEBUG
+#define LOG_1 LOG_INFO
+#define LOG_2 LOG_WARNING
+#define LOG_3 LOG_ERROR
+#define LOG_4 LOG_FATAL
+
+#define LOG(level) LOG_##level.stream()
+
+#define DLOG(level) DLOG_##level.stream()
 
 #define VLOG(verboselevel) LOG(verboselevel)
-
 
 #define CHECK(exp)                                        \
     ppspeech::log::LogMessage(                            \

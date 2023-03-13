@@ -375,7 +375,7 @@ bool FrontEngineInterface::AllToneThree(
     const std::vector<std::string> &finals) {
     bool flags = true;
     for (int i = 0; i < finals.size(); i++) {
-        if ((int)finals[i].back() != 51) {  //如果读音不为第三声
+        if (static_cast<int>(finals[i].back()) != 51) {  //如果读音不为第三声
             flags = false;
         }
     }
@@ -410,7 +410,7 @@ int FrontEngineInterface::GetInitialsFinals(
         }
         // 最后一位不是数字或者最后一位的数字是0，均表示声母，第二个是韵母
         else if (isdigit(phone_vec[start].back()) == 0 ||
-                 (int)phone_vec[start].back() == 48) {
+                 static_cast<int>(phone_vec[start].back()) == 48) {
             word_initials.push_back(phone_vec[start]);
             word_finals.push_back(phone_vec[start + 1]);
             start += 2;

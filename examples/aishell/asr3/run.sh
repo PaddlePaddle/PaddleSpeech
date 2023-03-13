@@ -4,9 +4,9 @@ set -e
 . ./path.sh || exit 1;
 . ./cmd.sh || exit 1;
 
-gpus=0,1,2,3
-stage=0
-stop_stage=4
+gpus=0
+stage=1
+stop_stage=1
 conf_path=conf/wav2vec2ASR.yaml
 ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
@@ -19,7 +19,7 @@ audio_file=data/demo_002_en.wav
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
-echo "checkpoint name ${ckpt}"git revert -v 
+echo "checkpoint name ${ckpt}" 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data

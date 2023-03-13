@@ -223,11 +223,11 @@ int FrontEngineInterface::GetSegResult(
 }
 
 int FrontEngineInterface::GetSentenceIds(const std::string &sentence,
-                                         std::vector<int> &phoneids,
-                                         std::vector<int> &toneids) {
+                                         std::vector<int> *phoneids,
+                                         std::vector<int> *toneids) {
     std::vector<std::pair<std::string, std::string>>
         cut_result;  //分词结果包含词和词性
-    if (0 != Cut(sentence, cut_result)) {
+    if (0 != Cut(sentence, &cut_result)) {
         LOG(ERROR) << "Cut sentence: \"" << sentence << "\" failed";
         return -1;
     }
@@ -241,8 +241,8 @@ int FrontEngineInterface::GetSentenceIds(const std::string &sentence,
 
 int FrontEngineInterface::GetWordsIds(
     const std::vector<std::pair<std::string, std::string>> &cut_result,
-    std::vector<int> &phoneids,
-    std::vector<int> &toneids) {
+    std::vector<int> *phoneids,
+    std::vector<int> *toneids) {
     std::string word;
     std::string pos;
     std::vector<std::string> word_initials;
@@ -308,20 +308,19 @@ int FrontEngineInterface::GetWordsIds(
             }
         }
     }
-
     return 0;
 }
 
 int FrontEngineInterface::Cut(
     const std::string &sentence,
-    std::vector<std::pair<std::string, std::string>> &cut_result) {
+    std::vector<std::pair<std::string, std::string>> *cut_result) {
     std::vector<std::pair<std::string, std::string>> cut_result_jieba;
 
     // 结巴分词
     _jieba->Tag(sentence, cut_result_jieba);
 
     // 对分词后结果进行整合
-    if (0 != MergeforModify(cut_result_jieba, cut_result)) {
+    if (0 != MergeforModify(&cut_result_jieba, cut_result)) {
         LOG(ERROR) << "Failed to modify  for word segmentation result.";
         return -1;
     }
@@ -347,23 +346,23 @@ int FrontEngineInterface::GetPhone(const std::string &word,
 }
 
 int FrontEngineInterface::Phone2Phoneid(const std::string &phone,
-                                        std::vector<int> &phoneid,
-                                        std::vector<int> &toneid) {
+                                        std::vector<int> *phoneid,
+                                        std::vector<int> *toneid) {
     std::vector<std::string> phone_vec;
     phone_vec = absl::StrSplit(phone, " ");
     std::string temp_phone;
     for (int i = 0; i < phone_vec.size(); i++) {
         temp_phone = phone_vec[i];
         if (_seperate_tone == "true") {
-            phoneid.push_back(atoi(
+            phoneid->push_back(atoi(
                 (phone_id_map[temp_phone.substr(0, temp_phone.length() - 1)])
                     .c_str()));
-            toneid.push_back(
+            toneid->push_back(
                 atoi((tone_id_map[temp_phone.substr(temp_phone.length() - 1,
                                                     temp_phone.length())])
                          .c_str()));
         } else {
-            phoneid.push_back(atoi((phone_id_map[temp_phone]).c_str()));
+            phoneid->push_back(atoi((phone_id_map[temp_phone]).c_str()));
         }
     }
     return 0;
@@ -477,15 +476,17 @@ int FrontEngineInterface::SplitWord(const std::string &word,
 
 // example: 不 一起 --> 不一起
 std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeBu(
-    std::vector<std::pair<std::string, std::string>> &seg_result) {
+    std::vector<std::pair<std::string, std::string>> *seg_result) {
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
     std::string last_word = "";
 
-    for (int i = 0; i < seg_result.size(); i++) {
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+    for (int i = 0; i < seg_result->size(); i++) {
+        // word = seg_result[i].first;
+        word = std::get<0>((*seg_result)[i]);
+        // pos = seg_result[i].second;
+        pos = std::get<1>((*seg_result)[i]);
         if (last_word == "不") {
             word = last_word + word;
         }
@@ -504,35 +505,40 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeBu(
 }
 
 std::vector<std::pair<std::string, std::string>> FrontEngineInterface::Mergeyi(
-    std::vector<std::pair<std::string, std::string>> &seg_result) {
-    std::vector<std::pair<std::string, std::string>> result_temp;
+    std::vector<std::pair<std::string, std::string>> *seg_result) {
+    std::vector<std::pair<std::string, std::string>> *result_temp =
+        new std::vector<std::pair<std::string, std::string>>();
     std::string word;
     std::string pos;
-
     // function 1  example: 听 一 听 --> 听一听
-    for (int i = 0; i < seg_result.size(); i++) {
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
-        if ((i - 1 >= 0) && (word == "一") && (i + 1 < seg_result.size()) &&
-            (seg_result[i - 1].first == seg_result[i + 1].first) &&
-            seg_result[i - 1].second == "v") {
-            result_temp[i - 1].first =
-                result_temp[i - 1].first + "一" + result_temp[i - 1].first;
+    for (int i = 0; i < seg_result->size(); i++) {
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
+
+        if ((i - 1 >= 0) && (word == "一") && (i + 1 < seg_result->size()) &&
+            (std::get<0>((*seg_result)[i - 1]) ==
+             std::get<0>((*seg_result)[i + 1])) &&
+            std::get<1>((*seg_result)[i - 1]) == "v") {
+            std::get<0>((*result_temp)[i - 1]) =
+                std::get<0>((*result_temp)[i - 1]) + "一" +
+                std::get<0>((*result_temp)[i - 1]);
         } else {
-            if ((i - 2 >= 0) && (seg_result[i - 1].first == "一") &&
-                (seg_result[i - 2].first == word) && (pos == "v")) {
+            if ((i - 2 >= 0) && (std::get<0>((*seg_result)[i - 1]) == "一") &&
+                (std::get<0>((*seg_result)[i - 2]) == word) && (pos == "v")) {
                 continue;
             } else {
-                result_temp.push_back(make_pair(word, pos));
+                result_temp->push_back(make_pair(word, pos));
             }
         }
     }
 
     // function 2  example: 一 你 -->  一你
     std::vector<std::pair<std::string, std::string>> result = {};
-    for (int j = 0; j < result_temp.size(); j++) {
-        word = result_temp[j].first;
-        pos = result_temp[j].second;
+    for (int j = 0; j < result_temp->size(); j++) {
+        // word = result_temp[j].first;
+        // pos = result_temp[j].second;
+        word = std::get<0>((*result_temp)[j]);
+        pos = std::get<1>((*result_temp)[j]);
         if ((result.size() != 0) && (result.back().first == "一")) {
             result.back().first = result.back().first + word;
         } else {
@@ -546,16 +552,17 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::Mergeyi(
 // example: 你 你 --> 你你
 std::vector<std::pair<std::string, std::string>>
 FrontEngineInterface::MergeReduplication(
-    std::vector<std::pair<std::string, std::string>> &seg_result) {
+    std::vector<std::pair<std::string, std::string>> *seg_result) {
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
 
-    for (int i = 0; i < seg_result.size(); i++) {
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+    for (int i = 0; i < seg_result->size(); i++) {
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
         if ((result.size() != 0) && (word == result.back().first)) {
-            result.back().first = result.back().first + seg_result[i].first;
+            result.back().first =
+                result.back().first + std::get<0>((*seg_result)[i]);
         } else {
             result.push_back(make_pair(word, pos));
         }
@@ -567,17 +574,20 @@ FrontEngineInterface::MergeReduplication(
 // the first and the second words are all_tone_three
 std::vector<std::pair<std::string, std::string>>
 FrontEngineInterface::MergeThreeTones(
-    std::vector<std::pair<std::string, std::string>> &seg_result) {
+    std::vector<std::pair<std::string, std::string>> *seg_result) {
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
     std::vector<std::vector<std::string>> finals;  //韵母数组
     std::vector<std::string> word_final;
-    std::vector<bool> merge_last(seg_result.size(), false);
+    std::vector<bool> merge_last(seg_result->size(), false);
 
     // 判断最后一个分词结果是不是标点，不看标点的声母韵母
-    int word_num = seg_result.size() - 1;
-    if (std::find(_punc.begin(), _punc.end(), seg_result[word_num].first) ==
+    int word_num = seg_result->size() - 1;
+
+    // seg_result[word_num].first
+    if (std::find(
+            _punc.begin(), _punc.end(), std::get<0>((*seg_result)[word_num])) ==
         _punc.end()) {  // 最后一个分词结果不是标点
         word_num += 1;
     }
@@ -585,8 +595,10 @@ FrontEngineInterface::MergeThreeTones(
     // 获取韵母数组
     for (int i = 0; i < word_num; i++) {
         word_final = {};
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+        // word = seg_result[i].first;
+        // pos = seg_result[i].second;
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
         if (std::find(_punc_omit.begin(), _punc_omit.end(), word) ==
             _punc_omit.end()) {  // 非可忽略的标点，即文字
             if (0 != GetFinals(word, word_final)) {
@@ -600,18 +612,23 @@ FrontEngineInterface::MergeThreeTones(
 
     // 对第三声读音的字词分词结果进行处理
     for (int i = 0; i < word_num; i++) {
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+        // word = seg_result[i].first;
+        // pos = seg_result[i].second;
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
         if (i - 1 >= 0 && AllToneThree(finals[i - 1]) &&
             AllToneThree(finals[i]) && !merge_last[i - 1]) {
             // if the last word is reduplication, not merge, because
             // reduplication need to be _neural_sandhi
-            if (!IsReduplication(seg_result[i - 1].first) &&
-                (ppspeech::utf8string2wstring(seg_result[i - 1].first))
+            // seg_result[i - 1].first
+            if (!IsReduplication(std::get<0>((*seg_result)[i - 1])) &&
+                (ppspeech::utf8string2wstring(
+                     std::get<0>((*seg_result)[i - 1])))
                             .length() +
                         (ppspeech::utf8string2wstring(word)).length() <=
                     3) {
-                result.back().first = result.back().first + seg_result[i].first;
+                result.back().first =
+                    result.back().first + std::get<0>((*seg_result)[i]);
                 merge_last[i] = true;
             } else {
                 result.push_back(make_pair(word, pos));
@@ -622,9 +639,12 @@ FrontEngineInterface::MergeThreeTones(
     }
 
     //把标点的分词结果补上
-    if (word_num < seg_result.size()) {
+    if (word_num < seg_result->size()) {
         result.push_back(
-            make_pair(seg_result[word_num].first, seg_result[word_num].second));
+            // seg_result[word_num].first seg_result[word_num].second
+            // std::get<0>((*seg_result)[word_num])
+            make_pair(std::get<0>((*seg_result)[word_num]),
+                      std::get<1>((*seg_result)[word_num])));
     }
 
     return result;
@@ -633,17 +653,18 @@ FrontEngineInterface::MergeThreeTones(
 // the last char of first word and the first char of second word is tone_three
 std::vector<std::pair<std::string, std::string>>
 FrontEngineInterface::MergeThreeTones2(
-    std::vector<std::pair<std::string, std::string>> &seg_result) {
+    std::vector<std::pair<std::string, std::string>> *seg_result) {
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
     std::vector<std::vector<std::string>> finals;  //韵母数组
     std::vector<std::string> word_final;
-    std::vector<bool> merge_last(seg_result.size(), false);
+    std::vector<bool> merge_last(seg_result->size(), false);
 
     // 判断最后一个分词结果是不是标点
-    int word_num = seg_result.size() - 1;
-    if (std::find(_punc.begin(), _punc.end(), seg_result[word_num].first) ==
+    int word_num = seg_result->size() - 1;
+    if (std::find(
+            _punc.begin(), _punc.end(), std::get<0>((*seg_result)[word_num])) ==
         _punc.end()) {  // 最后一个分词结果不是标点
         word_num += 1;
     }
@@ -651,8 +672,10 @@ FrontEngineInterface::MergeThreeTones2(
     // 获取韵母数组
     for (int i = 0; i < word_num; i++) {
         word_final = {};
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+        // word = seg_result[i].first;
+        // pos = seg_result[i].second;
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
         // 如果是文字，则获取韵母，如果是可忽略的标点，例如引号，则跳过
         if (std::find(_punc_omit.begin(), _punc_omit.end(), word) ==
             _punc_omit.end()) {
@@ -667,8 +690,10 @@ FrontEngineInterface::MergeThreeTones2(
 
     // 对第三声读音的字词分词结果进行处理
     for (int i = 0; i < word_num; i++) {
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+        // word = seg_result[i].first;
+        // pos = seg_result[i].second;
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
         if (i - 1 >= 0 && !finals[i - 1].empty() &&
             absl::EndsWith(finals[i - 1].back(), "3") == true &&
             !finals[i].empty() &&
@@ -676,12 +701,15 @@ FrontEngineInterface::MergeThreeTones2(
             !merge_last[i - 1]) {
             // if the last word is reduplication, not merge, because
             // reduplication need to be _neural_sandhi
-            if (!IsReduplication(seg_result[i - 1].first) &&
-                (ppspeech::utf8string2wstring(seg_result[i - 1].first))
+            // seg_result[i - 1].first
+            if (!IsReduplication(std::get<0>((*seg_result)[i - 1])) &&
+                (ppspeech::utf8string2wstring(
+                     std::get<0>((*seg_result)[i - 1])))
                             .length() +
                         ppspeech::utf8string2wstring(word).length() <=
                     3) {
-                result.back().first = result.back().first + seg_result[i].first;
+                result.back().first =
+                    result.back().first + std::get<0>((*seg_result)[i]);
                 merge_last[i] = true;
             } else {
                 result.push_back(make_pair(word, pos));
@@ -692,9 +720,9 @@ FrontEngineInterface::MergeThreeTones2(
     }
 
     //把标点的分词结果补上
-    if (word_num < seg_result.size()) {
-        result.push_back(
-            make_pair(seg_result[word_num].first, seg_result[word_num].second));
+    if (word_num < seg_result->size()) {
+        result.push_back(make_pair(std::get<0>((*seg_result)[word_num]),
+                                   std::get<1>((*seg_result)[word_num])));
     }
 
     return result;
@@ -702,16 +730,19 @@ FrontEngineInterface::MergeThreeTones2(
 
 // example: 吃饭 儿 --> 吃饭儿
 std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeEr(
-    std::vector<std::pair<std::string, std::string>> &seg_result) {
+    std::vector<std::pair<std::string, std::string>> *seg_result) {
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
 
-    for (int i = 0; i < seg_result.size(); i++) {
-        word = seg_result[i].first;
-        pos = seg_result[i].second;
+    for (int i = 0; i < seg_result->size(); i++) {
+        // word = seg_result[i].first;
+        // pos = seg_result[i].second;
+        word = std::get<0>((*seg_result)[i]);
+        pos = std::get<1>((*seg_result)[i]);
         if ((i - 1 >= 0) && (word == "儿")) {
-            result.back().first = result.back().first + seg_result[i].first;
+            result.back().first =
+                result.back().first + std::get<0>((*seg_result)[i]);
         } else {
             result.push_back(make_pair(word, pos));
         }
@@ -721,22 +752,28 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeEr(
 }
 
 int FrontEngineInterface::MergeforModify(
-    std::vector<std::pair<std::string, std::string>> &seg_word_type,
-    std::vector<std::pair<std::string, std::string>> &modify_seg_word_type) {
+    std::vector<std::pair<std::string, std::string>> *seg_word_type,
+    std::vector<std::pair<std::string, std::string>> *modify_seg_word_type) {
     std::vector<std::string> seg_result;
-    GetSegResult(&seg_word_type, &seg_result);
+    GetSegResult(seg_word_type, &seg_result);
     LOG(INFO) << "Before merge, seg result is: "
               << limonp::Join(seg_result.begin(), seg_result.end(), "/");
-
-    modify_seg_word_type = MergeBu(seg_word_type);
-    modify_seg_word_type = Mergeyi(modify_seg_word_type);
-    modify_seg_word_type = MergeReduplication(modify_seg_word_type);
-    modify_seg_word_type = MergeThreeTones(modify_seg_word_type);
-    modify_seg_word_type = MergeThreeTones2(modify_seg_word_type);
-    modify_seg_word_type = MergeEr(modify_seg_word_type);
-
+    std::vector<std::pair<std::string, std::string>> tmp;
+    tmp = MergeBu(seg_word_type);
+    *modify_seg_word_type = tmp;
+    tmp = Mergeyi(modify_seg_word_type);
+    *modify_seg_word_type = tmp;
+    tmp = MergeReduplication(modify_seg_word_type);
+    *modify_seg_word_type = tmp;
+    tmp = MergeThreeTones(modify_seg_word_type);
+    *modify_seg_word_type = tmp;
+    tmp = MergeThreeTones2(modify_seg_word_type);
+    *modify_seg_word_type = tmp;
+    tmp = MergeEr(modify_seg_word_type);
+    *modify_seg_word_type = tmp;
     seg_result = {};
-    GetSegResult(&modify_seg_word_type, &seg_result);
+
+    GetSegResult(modify_seg_word_type, &seg_result);
     LOG(INFO) << "After merge, seg result is: "
               << limonp::Join(seg_result.begin(), seg_result.end(), "/");
 

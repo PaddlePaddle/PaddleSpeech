@@ -56,29 +56,29 @@ class FrontEngineInterface : public TextNormalizer {
     // 生成句子的音素，音调id。如果音素和音调未分开，则 toneids
     // 为空（fastspeech2），反之则不为空(speedyspeech)
     int GetSentenceIds(const std::string &sentence,
-                       std::vector<int> &phoneids,
-                       std::vector<int> &toneids);
+                       std::vector<int> *phoneids,
+                       std::vector<int> *toneids);
 
     // 根据分词结果获取词的音素，音调id，并对读音进行适当修改
     // (ModifyTone)。如果音素和音调未分开，则 toneids
     // 为空（fastspeech2），反之则不为空(speedyspeech)
     int GetWordsIds(
         const std::vector<std::pair<std::string, std::string>> &cut_result,
-        std::vector<int> &phoneids,
-        std::vector<int> &toneids);
+        std::vector<int> *phoneids,
+        std::vector<int> *toneids);
 
     // 结巴分词生成包含词和词性的分词结果，再对分词结果进行适当修改
     // (MergeforModify)
     int Cut(const std::string &sentence,
-            std::vector<std::pair<std::string, std::string>> &cut_result);
+            std::vector<std::pair<std::string, std::string>> *cut_result);
 
     // 字词到音素的映射，查找字典
     int GetPhone(const std::string &word, std::string &phone);
 
     // 音素到音素id
     int Phone2Phoneid(const std::string &phone,
-                      std::vector<int> &phoneid,
-                      std::vector<int> &toneids);
+                      std::vector<int> *phoneid,
+                      std::vector<int> *toneids);
 
 
     // 根据韵母判断该词中每个字的读音都为第三声。true表示词中每个字都是第三声
@@ -106,32 +106,32 @@ class FrontEngineInterface : public TextNormalizer {
 
     // 对分词结果进行处理：对包含“不”字的分词结果进行整理
     std::vector<std::pair<std::string, std::string>> MergeBu(
-        std::vector<std::pair<std::string, std::string>> &seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result);
 
     // 对分词结果进行处理：对包含“一”字的分词结果进行整理
     std::vector<std::pair<std::string, std::string>> Mergeyi(
-        std::vector<std::pair<std::string, std::string>> &seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result);
 
     // 对分词结果进行处理：对前后相同的两个字进行合并
     std::vector<std::pair<std::string, std::string>> MergeReduplication(
-        std::vector<std::pair<std::string, std::string>> &seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result);
 
     // 对一个词和后一个词他们的读音均为第三声的两个词进行合并
     std::vector<std::pair<std::string, std::string>> MergeThreeTones(
-        std::vector<std::pair<std::string, std::string>> &seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result);
 
     // 对一个词的最后一个读音和后一个词的第一个读音为第三声的两个词进行合并
     std::vector<std::pair<std::string, std::string>> MergeThreeTones2(
-        std::vector<std::pair<std::string, std::string>> &seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result);
 
     // 对分词结果进行处理：对包含“儿”字的分词结果进行整理
     std::vector<std::pair<std::string, std::string>> MergeEr(
-        std::vector<std::pair<std::string, std::string>> &seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result);
 
     // 对分词结果进行处理、修改
     int MergeforModify(
-        std::vector<std::pair<std::string, std::string>> &seg_result,
-        std::vector<std::pair<std::string, std::string>> &merge_seg_result);
+        std::vector<std::pair<std::string, std::string>> *seg_result,
+        std::vector<std::pair<std::string, std::string>> *merge_seg_result);
 
 
     // 对包含“不”字的相关词音调进行修改

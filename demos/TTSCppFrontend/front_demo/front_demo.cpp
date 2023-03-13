@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         s_sentence = ppspeech::wstring2utf8string(sentence_part[i]);
         LOG(INFO) << "After normalization sentence is: " << s_sentence;
 
-        if (0 != front_inst->GetSentenceIds(s_sentence, phoneids, toneids)) {
+        if (0 != front_inst->GetSentenceIds(s_sentence, &phoneids, &toneids)) {
             LOG(ERROR) << "TTS inst get sentence phoneids and toneids failed";
             return -1;
         }

@@ -10,9 +10,9 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "Extract features ..."
     python3 ${BIN_DIR}/preprocess.py \
         --dataset=opencpop \
-        --rootdir=~/datasets/SVS/Opencpop/segments \
+        --rootdir=~/datasets/Opencpop/segments \
         --dumpdir=dump \
-        --label-file=~/datasets/SVS/Opencpop/segments/transcriptions.txt \
+        --label-file=~/datasets/Opencpop/segments/transcriptions.txt \
         --config=${config_path} \
         --num-cpu=20 \
         --cut-sil=True
@@ -68,7 +68,7 @@ fi
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     # Get feature(mel) extremum for diffusion stretch
     echo "Get feature(mel) extremum  ..."
-    python3 ${BIN_DIR}/computer_extremum.py \
+    python3 ${BIN_DIR}/get_minmax.py \
         --metadata=dump/train/norm/metadata.jsonl \
         --speech-stretchs=dump/train/speech_stretchs.npy
 fi

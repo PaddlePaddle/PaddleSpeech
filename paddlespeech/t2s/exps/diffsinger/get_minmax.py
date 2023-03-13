@@ -21,7 +21,7 @@ from tqdm import tqdm
 from paddlespeech.t2s.datasets.data_table import DataTable
 
 
-def find_min_max_spec(spec, min_spec, max_spec):
+def get_minmax(spec, min_spec, max_spec):
     # spec: [T, 80]
     for i in range(spec.shape[1]):
         min_value = np.min(spec[:, i])
@@ -62,16 +62,15 @@ def main():
     logging.info(f"The number of files = {len(dataset)}.")
 
     n_mel = 80
-    min_spec = 100 * np.ones(shape=(n_mel), dtype=np.float32)
-    max_spec = -100 * np.ones(shape=(n_mel), dtype=np.float32)
+    min_spec = 100.0 * np.ones(shape=(n_mel), dtype=np.float32)
+    max_spec = -100.0 * np.ones(shape=(n_mel), dtype=np.float32)
 
     for item in tqdm(dataset):
         spec = item['speech']
-        min_spec, max_spec = find_min_max_spec(spec, min_spec, max_spec)
+        min_spec, max_spec = get_minmax(spec, min_spec, max_spec)
 
-    print(min_spec)
-    print(max_spec)
-
+    # Using min_spec=-6.0 training effect is better so far
+    min_spec = -6.0 * np.ones(shape=(n_mel), dtype=np.float32)
     min_max_spec = np.stack([min_spec, max_spec], axis=0)
     np.save(
         str(args.speech_stretchs),

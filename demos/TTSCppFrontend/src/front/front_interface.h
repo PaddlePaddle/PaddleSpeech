@@ -98,7 +98,7 @@ class FrontEngineInterface : public TextNormalizer {
 
     // 整个词转成向量形式，向量的每个元素对应词的一个字
     int Word2WordVec(const std::string &word,
-                     std::vector<std::wstring> &wordvec);
+                     std::vector<std::wstring> *wordvec);
 
     // 将整个词重新进行 full cut，分词后，各个词会在词典中
     int SplitWord(const std::string &word,

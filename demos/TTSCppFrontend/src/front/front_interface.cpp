@@ -438,11 +438,11 @@ int FrontEngineInterface::GetFinals(const std::string &word,
 }
 
 int FrontEngineInterface::Word2WordVec(const std::string &word,
-                                       std::vector<std::wstring> &wordvec) {
+                                       std::vector<std::wstring> *wordvec) {
     std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     for (int i = 0; i < word_wstr.length(); i++) {
         std::wstring word_sigle(1, word_wstr[i]);
-        wordvec.push_back(word_sigle);
+        wordvec->push_back(word_sigle);
     }
     return 0;
 }
@@ -785,7 +785,7 @@ int FrontEngineInterface::BuSandi(const std::string &word,
     std::wstring bu = L"不";
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
-    if (0 != Word2WordVec(word, wordvec)) {
+    if (0 != Word2WordVec(word, &wordvec)) {
         LOG(ERROR) << "Failed to get word vector";
         return -1;
     }
@@ -812,7 +812,7 @@ int FrontEngineInterface::YiSandhi(const std::string &word,
     std::wstring yi = L"一";
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
-    if (0 != Word2WordVec(word, wordvec)) {
+    if (0 != Word2WordVec(word, &wordvec)) {
         LOG(ERROR) << "Failed to get word vector";
         return -1;
     }
@@ -862,7 +862,7 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
     std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
-    if (0 != Word2WordVec(word, wordvec)) {
+    if (0 != Word2WordVec(word, &wordvec)) {
         LOG(ERROR) << "Failed to get word vector";
         return -1;
     }
@@ -985,7 +985,7 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
     std::vector<std::string> finals_temp;
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
-    if (0 != Word2WordVec(word, wordvec)) {
+    if (0 != Word2WordVec(word, &wordvec)) {
         LOG(ERROR) << "Failed to get word vector";
         return -1;
     }
@@ -1094,7 +1094,7 @@ std::vector<std::vector<std::string>> FrontEngineInterface::MergeErhua(
     std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
-    if (0 != Word2WordVec(word, wordvec)) {
+    if (0 != Word2WordVec(word, &wordvec)) {
         LOG(ERROR) << "Failed to get word vector";
     }
     int word_num = wordvec.size();

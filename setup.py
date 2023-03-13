@@ -64,7 +64,7 @@ base = [
     "sacrebleu",
     "textgrid",
     "timer",
-    "ToJyutping",
+    "ToJyutping==0.2.1",
     "typeguard",
     "webrtcvad",
     "yacs~=0.1.8",

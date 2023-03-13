@@ -89,12 +89,12 @@ class FrontEngineInterface : public TextNormalizer {
 
     // 获取每个字词的声母韵母列表
     int GetInitialsFinals(const std::string &word,
-                          std::vector<std::string> &word_initials,
-                          std::vector<std::string> &word_finals);
+                          std::vector<std::string> *word_initials,
+                          std::vector<std::string> *word_finals);
 
     // 获取每个字词的韵母列表
     int GetFinals(const std::string &word,
-                  std::vector<std::string> &word_finals);
+                  std::vector<std::string> *word_finals);
 
     // 整个词转成向量形式，向量的每个元素对应词的一个字
     int Word2WordVec(const std::string &word,

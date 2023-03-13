@@ -260,7 +260,7 @@ int FrontEngineInterface::GetWordsIds(
             if (std::find(_punc.begin(), _punc.end(), word) ==
                 _punc.end()) {  // 文字
                 // 获取字词的声母韵母列表
-                if (0 != GetInitialsFinals(word, word_initials, word_finals)) {
+                if (0 != GetInitialsFinals(word, &word_initials, &word_finals)) {
                     LOG(ERROR)
                         << "Genarate the word_initials and word_finals of "
                         << word << " failed";
@@ -396,8 +396,8 @@ bool FrontEngineInterface::IsReduplication(const std::string &word) {
 // 为韵母列表
 int FrontEngineInterface::GetInitialsFinals(
     const std::string &word,
-    std::vector<std::string> &word_initials,
-    std::vector<std::string> &word_finals) {
+    std::vector<std::string> *word_initials,
+    std::vector<std::string> *word_finals) {
     std::string phone;
     GetPhone(word, phone);  //获取字词对应的音素
     std::vector<std::string> phone_vec = absl::StrSplit(phone, " ");
@@ -410,27 +410,27 @@ int FrontEngineInterface::GetInitialsFinals(
         // 最后一位不是数字或者最后一位的数字是0，均表示声母，第二个是韵母
         else if (isdigit(phone_vec[start].back()) == 0 ||
                  static_cast<int>(phone_vec[start].back()) == 48) {
-            word_initials.push_back(phone_vec[start]);
-            word_finals.push_back(phone_vec[start + 1]);
+            word_initials->push_back(phone_vec[start]);
+            word_finals->push_back(phone_vec[start + 1]);
             start += 2;
         } else {
-            word_initials.push_back("");
-            word_finals.push_back(phone_vec[start]);
+            word_initials->push_back("");
+            word_finals->push_back(phone_vec[start]);
             start += 1;
         }
     }
 
-    assert(word_finals.size() == ppspeech::utf8string2wstring(word).length() &&
-           word_finals.size() == word_initials.size());
+    assert(word_finals->size() == ppspeech::utf8string2wstring(word).length() &&
+           word_finals->size() == word_initials->size());
 
     return 0;
 }
 
 // 获取每个字词的韵母列表
 int FrontEngineInterface::GetFinals(const std::string &word,
-                                    std::vector<std::string> &word_finals) {
+                                    std::vector<std::string> *word_finals) {
     std::vector<std::string> word_initials;
-    if (0 != GetInitialsFinals(word, word_initials, word_finals)) {
+    if (0 != GetInitialsFinals(word, &word_initials, word_finals)) {
         LOG(ERROR) << "Failed to get word finals";
         return -1;
     }
@@ -601,7 +601,7 @@ FrontEngineInterface::MergeThreeTones(
         pos = std::get<1>((*seg_result)[i]);
         if (std::find(_punc_omit.begin(), _punc_omit.end(), word) ==
             _punc_omit.end()) {  // 非可忽略的标点，即文字
-            if (0 != GetFinals(word, word_final)) {
+            if (0 != GetFinals(word, &word_final)) {
                 LOG(ERROR) << "Failed to get the final of word.";
             }
         }
@@ -679,7 +679,7 @@ FrontEngineInterface::MergeThreeTones2(
         // 如果是文字，则获取韵母，如果是可忽略的标点，例如引号，则跳过
         if (std::find(_punc_omit.begin(), _punc_omit.end(), word) ==
             _punc_omit.end()) {
-            if (0 != GetFinals(word, word_final)) {
+            if (0 != GetFinals(word, &word_final)) {
                 LOG(ERROR) << "Failed to get the final of word.";
             }
         }

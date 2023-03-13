@@ -88,13 +88,13 @@ std::string TextNormalizer::CreateTextValue(const std::string &num_str,
         std::string first_part;
         std::string second_part;
 
-        if (len > 1 and len <= 2) {
+        if (len > 1 && len <= 2) {
             largest_unit = 1;
-        } else if (len > 2 and len <= 3) {
+        } else if (len > 2 && len <= 3) {
             largest_unit = 2;
-        } else if (len > 3 and len <= 4) {
+        } else if (len > 3 && len <= 4) {
             largest_unit = 3;
-        } else if (len > 4 and len <= 8) {
+        } else if (len > 4 && len <= 8) {
             largest_unit = 4;
         } else if (len > 8) {
             largest_unit = 8;

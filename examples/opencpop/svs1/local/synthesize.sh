@@ -16,9 +16,9 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --am_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --am_stat=dump/train/speech_stats.npy \
         --voc=pwgan_opencpop \
-        --voc_config=pwgan_opencpop/default.yaml \
-        --voc_ckpt=pwgan_opencpop/snapshot_iter_100000.pdz \
-        --voc_stat=pwgan_opencpop/feats_stats.npy \
+        --voc_config=pwgan_opencpop_ckpt_1.4.0/default.yaml \
+        --voc_ckpt=pwgan_opencpop_ckpt_1.4.0/snapshot_iter_100000.pdz \
+        --voc_stat=pwgan_opencpop_ckpt_1.4.0/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
         --phones_dict=dump/phone_id_map.txt \

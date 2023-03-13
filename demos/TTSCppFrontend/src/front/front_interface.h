@@ -102,7 +102,7 @@ class FrontEngineInterface : public TextNormalizer {
 
     // 将整个词重新进行 full cut，分词后，各个词会在词典中
     int SplitWord(const std::string &word,
-                  std::vector<std::string> &fullcut_word);
+                  std::vector<std::string> *fullcut_word);
 
     // 对分词结果进行处理：对包含“不”字的分词结果进行整理
     std::vector<std::pair<std::string, std::string>> MergeBu(

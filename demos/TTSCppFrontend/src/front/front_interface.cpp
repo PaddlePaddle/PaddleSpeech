@@ -449,7 +449,7 @@ int FrontEngineInterface::Word2WordVec(const std::string &word,
 
 // yuantian01解释：把一个词再进行分词找到。例子：小雨伞 --> 小 雨伞 或者 小雨 伞
 int FrontEngineInterface::SplitWord(const std::string &word,
-                                    std::vector<std::string> &new_word_vec) {
+                                    std::vector<std::string> *new_word_vec) {
     std::vector<std::string> word_vec;
     std::string second_subword;
     _jieba->CutForSearch(word, word_vec);
@@ -461,12 +461,12 @@ int FrontEngineInterface::SplitWord(const std::string &word,
     int first_begin_idx = word.find_first_of(first_subword);
     if (first_begin_idx == 0) {
         second_subword = word.substr(first_subword.length());
-        new_word_vec.push_back(first_subword);
-        new_word_vec.push_back(second_subword);
+        new_word_vec->push_back(first_subword);
+        new_word_vec->push_back(second_subword);
     } else {
         second_subword = word.substr(0, word.length() - first_subword.length());
-        new_word_vec.push_back(second_subword);
-        new_word_vec.push_back(first_subword);
+        new_word_vec->push_back(second_subword);
+        new_word_vec->push_back(first_subword);
     }
 
     return 0;
@@ -940,7 +940,7 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
 
     // 进行进一步分词，把长词切分更短些
     std::vector<std::string> word_list;
-    if (0 != SplitWord(word, word_list)) {
+    if (0 != SplitWord(word, &word_list)) {
         LOG(ERROR) << "Failed to split word.";
         return -1;
     }
@@ -997,7 +997,7 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
     } else if (word_num == 3) {
         // 进行进一步分词，把长词切分更短些
         std::vector<std::string> word_list;
-        if (0 != SplitWord(word, word_list)) {
+        if (0 != SplitWord(word, &word_list)) {
             LOG(ERROR) << "Failed to split word.";
             return -1;
         }

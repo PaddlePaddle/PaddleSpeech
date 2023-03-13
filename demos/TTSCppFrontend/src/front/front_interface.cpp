@@ -482,9 +482,7 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeBu(
     std::string last_word = "";
 
     for (int i = 0; i < seg_result->size(); i++) {
-        // word = seg_result[i].first;
         word = std::get<0>((*seg_result)[i]);
-        // pos = seg_result[i].second;
         pos = std::get<1>((*seg_result)[i]);
         if (last_word == "不") {
             word = last_word + word;
@@ -534,8 +532,6 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::Mergeyi(
     // function 2  example: 一 你 -->  一你
     std::vector<std::pair<std::string, std::string>> result = {};
     for (int j = 0; j < result_temp->size(); j++) {
-        // word = result_temp[j].first;
-        // pos = result_temp[j].second;
         word = std::get<0>((*result_temp)[j]);
         pos = std::get<1>((*result_temp)[j]);
         if ((result.size() != 0) && (result.back().first == "一")) {
@@ -594,8 +590,6 @@ FrontEngineInterface::MergeThreeTones(
     // 获取韵母数组
     for (int i = 0; i < word_num; i++) {
         word_final = {};
-        // word = seg_result[i].first;
-        // pos = seg_result[i].second;
         word = std::get<0>((*seg_result)[i]);
         pos = std::get<1>((*seg_result)[i]);
         if (std::find(_punc_omit.begin(), _punc_omit.end(), word) ==
@@ -611,8 +605,6 @@ FrontEngineInterface::MergeThreeTones(
 
     // 对第三声读音的字词分词结果进行处理
     for (int i = 0; i < word_num; i++) {
-        // word = seg_result[i].first;
-        // pos = seg_result[i].second;
         word = std::get<0>((*seg_result)[i]);
         pos = std::get<1>((*seg_result)[i]);
         if (i - 1 >= 0 && AllToneThree(finals[i - 1]) &&
@@ -671,8 +663,6 @@ FrontEngineInterface::MergeThreeTones2(
     // 获取韵母数组
     for (int i = 0; i < word_num; i++) {
         word_final = {};
-        // word = seg_result[i].first;
-        // pos = seg_result[i].second;
         word = std::get<0>((*seg_result)[i]);
         pos = std::get<1>((*seg_result)[i]);
         // 如果是文字，则获取韵母，如果是可忽略的标点，例如引号，则跳过
@@ -689,8 +679,6 @@ FrontEngineInterface::MergeThreeTones2(
 
     // 对第三声读音的字词分词结果进行处理
     for (int i = 0; i < word_num; i++) {
-        // word = seg_result[i].first;
-        // pos = seg_result[i].second;
         word = std::get<0>((*seg_result)[i]);
         pos = std::get<1>((*seg_result)[i]);
         if (i - 1 >= 0 && !finals[i - 1].empty() &&
@@ -735,8 +723,6 @@ std::vector<std::pair<std::string, std::string>> FrontEngineInterface::MergeEr(
     std::string pos;
 
     for (int i = 0; i < seg_result->size(); i++) {
-        // word = seg_result[i].first;
-        // pos = seg_result[i].second;
         word = std::get<0>((*seg_result)[i]);
         pos = std::get<1>((*seg_result)[i]);
         if ((i - 1 >= 0) && (word == "儿")) {

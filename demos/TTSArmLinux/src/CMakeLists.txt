@@ -36,7 +36,7 @@ message(STATUS "PADDLE LITE DIR: ${PADDLE_LITE_DIR}")
 include_directories(${PADDLE_LITE_DIR}/include)
 link_directories(${PADDLE_LITE_DIR}/libs/${ARM_ABI})
 link_directories(${PADDLE_LITE_DIR}/lib)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 if(ARM_ABI STREQUAL "armv8")
     set(CMAKE_CXX_FLAGS "-march=armv8-a ${CMAKE_CXX_FLAGS}")
     set(CMAKE_C_FLAGS "-march=armv8-a ${CMAKE_C_FLAGS}")

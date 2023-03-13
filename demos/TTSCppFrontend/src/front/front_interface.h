@@ -29,7 +29,7 @@ namespace ppspeech {
 
 class FrontEngineInterface : public TextNormalizer {
   public:
-    FrontEngineInterface(std::string conf) : _conf_file(conf) {
+    explicit FrontEngineInterface(std::string conf) : _conf_file(conf) {
         TextNormalizer();
         _jieba = nullptr;
         _initialed = false;

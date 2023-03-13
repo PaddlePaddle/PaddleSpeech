@@ -1,0 +1,129 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.baidu.paddlespeech.vadjni'
+    compileSdk 33
+    ndkVersion '23.1.7779620'
+
+    defaultConfig {
+        applicationId "com.baidu.paddlespeech.vadjni"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_PLATFORM=android-21', '-DANDROID_STL=c++_shared', "-DANDROID_TOOLCHAIN=clang"
+                abiFilters 'arm64-v8a'
+                cppFlags "-std=c++11"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+dependencies {
+    // Dependency on local binaries
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // Dependency on a remote binary
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}
+
+def CXX_LIB = [
+//        [
+//                'src' : 'https://bj.bcebos.com/fastdeploy/dev/android/fastdeploy-android-with-text-0.0.0-shared.tgz',
+//                'dest': 'libs',
+//                'name': 'fastdeploy-android-latest-shared-dev'
+//        ]
+]
+
+task downloadAndExtractLibs(type: DefaultTask) {
+    doFirst {
+        println "[INFO] Downloading and extracting fastdeploy android c++ lib ..."
+    }
+    doLast {
+        String cachePath = "cache"
+        if (!file("${cachePath}").exists()) {
+            mkdir "${cachePath}"
+        }
+
+        CXX_LIB.eachWithIndex { lib, index ->
+
+            String[] libPaths = lib.src.split("/")
+            String sdkName = lib.name
+            String libName = libPaths[libPaths.length - 1]
+            libName = libName.substring(0, libName.indexOf("tgz") - 1)
+            String cacheName = cachePath + "/" + "${libName}.tgz"
+
+            String libDir = lib.dest + "/" + libName
+            String sdkDir = lib.dest + "/" + sdkName
+
+            boolean copyFiles = false
+            if (!file("${sdkDir}").exists()) {
+                // Download lib and rename to sdk name later.
+                if (!file("${cacheName}").exists()) {
+                    println "[INFO] Downloading ${lib.src} -> ${cacheName}"
+                    ant.get(src: lib.src, dest: file("${cacheName}"))
+                }
+                copyFiles = true
+            }
+
+            if (copyFiles) {
+                println "[INFO] Taring ${cacheName} -> ${libDir}"
+                copy { from(tarTree("${cacheName}")) into("${lib.dest}") }
+                if (!libName.equals(sdkName)) {
+                    if (file("${sdkDir}").exists()) {
+                        delete("${sdkDir}")
+                        println "[INFO] Remove old ${sdkDir}"
+                    }
+                    mkdir "${sdkDir}"
+                    println "[INFO] Coping ${libDir} -> ${sdkDir}"
+                    copy { from("${libDir}") into("${sdkDir}") }
+                    delete("${libDir}")
+                    println "[INFO] Removed ${libDir}"
+                    println "[INFO] Update ${sdkDir} done!"
+                }
+            } else {
+                println "[INFO] ${sdkDir} already exists!"
+                println "[WARN] Please delete ${cacheName} and ${sdkDir} " +
+                        "if you want to UPDATE ${sdkName} c++ lib. Then, rebuild this sdk."
+            }
+        }
+    }
+}
+
+preBuild.dependsOn downloadAndExtractLibs

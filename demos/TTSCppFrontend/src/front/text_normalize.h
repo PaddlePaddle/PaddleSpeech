@@ -36,7 +36,7 @@ class TextNormalizer {
                 const int &len,
                 const std::wstring &repstr);
     int SplitByPunc(const std::wstring &sentence,
-                    std::vector<std::wstring> &sentence_part);
+                    std::vector<std::wstring> *sentence_part);
 
     std::string CreateTextValue(const std::string &num, bool use_zero = true);
     std::string SingleDigit2Text(const std::string &num_str,

@@ -51,19 +51,19 @@ int TextNormalizer::Replace(std::wstring *sentence,
 
 // 根据标点符号切分句子
 int TextNormalizer::SplitByPunc(const std::wstring &sentence,
-                                std::vector<std::wstring> &sentence_part) {
+                                std::vector<std::wstring> *sentence_part) {
     std::wstring temp = sentence;
     std::wregex reg(L"[：，；。？！,;?!]");
     std::wsmatch match;
 
     while (std::regex_search(temp, match, reg)) {
-        sentence_part.push_back(
+        sentence_part->push_back(
             temp.substr(0, match.position(0) + match.length(0)));
         Replace(&temp, 0, match.position(0) + match.length(0), L"");
     }
     // 如果最后没有标点符号
     if (temp != L"") {
-        sentence_part.push_back(temp);
+        sentence_part->push_back(temp);
     }
     return 0;
 }

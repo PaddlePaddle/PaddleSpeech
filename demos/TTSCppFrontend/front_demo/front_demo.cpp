@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 
     // 根据标点进行分句
     LOG(INFO) << "Start to segment sentences by punctuation";
-    front_inst->SplitByPunc(ws_sentence, sentence_part);
+    front_inst->SplitByPunc(ws_sentence, &sentence_part);
     LOG(INFO) << "Segment sentences through punctuation successfully";
 
     // 分句后获取音素id

@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
+from typing import List
+from typing import Optional
+from typing import Union
+
 import librosa
 import numpy as np
 import pyworld
 from scipy.interpolate import interp1d
-
-from typing import Optional
-from typing import Union
 from typing_extensions import Literal
-
 
 
 class LogMelFBank():
@@ -79,7 +79,7 @@ class LogMelFBank():
 
     def _spectrogram(self, wav: np.ndarray):
         D = self._stft(wav)
-        return np.abs(D) ** self.power
+        return np.abs(D)**self.power
 
     def _mel_spectrogram(self, wav: np.ndarray):
         S = self._spectrogram(wav)
@@ -117,7 +117,6 @@ class Pitch():
         if (f0 == 0).all():
             print("All frames seems to be unvoiced, this utt will be removed.")
             return f0
-
         # padding start and end of f0 sequence
         start_f0 = f0[f0 != 0][0]
         end_f0 = f0[f0 != 0][-1]
@@ -179,6 +178,8 @@ class Pitch():
         f0 = self._calculate_f0(wav, use_continuous_f0, use_log_f0)
         if use_token_averaged_f0 and duration is not None:
             f0 = self._average_by_duration(f0, duration)
+        else:
+            f0 = np.expand_dims(np.array(f0), 0).T
         return f0
 
 
@@ -237,6 +238,8 @@ class Energy():
         energy = self._calculate_energy(wav)
         if use_token_averaged_energy and duration is not None:
             energy = self._average_by_duration(energy, duration)
+        else:
+            energy = np.expand_dims(np.array(energy), 0).T
         return energy
 
 

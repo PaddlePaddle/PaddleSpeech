@@ -93,6 +93,7 @@ class FastSpeech2(nn.Layer):
             transformer_dec_dropout_rate: float=0.1,
             transformer_dec_positional_dropout_rate: float=0.1,
             transformer_dec_attn_dropout_rate: float=0.1,
+            transformer_activation_type: str="relu",
             # for conformer
             conformer_pos_enc_layer_type: str="rel_pos",
             conformer_self_attn_layer_type: str="rel_selfattn",
@@ -200,6 +201,8 @@ class FastSpeech2(nn.Layer):
                 Dropout rate after decoder positional encoding.
             transformer_dec_attn_dropout_rate (float): 
                 Dropout rate in decoder self-attention module.
+            transformer_activation_type (str): 
+                Activation function type in transformer.
             conformer_pos_enc_layer_type (str): 
                 Pos encoding layer type in conformer.
             conformer_self_attn_layer_type (str): 
@@ -250,7 +253,7 @@ class FastSpeech2(nn.Layer):
                 Kernel size of energy embedding.
             energy_embed_dropout_rate (float): 
                 Dropout rate for energy embedding.
-            stop_gradient_from_energy_predictor（bool): 
+            stop_gradient_from_energy_predictor (bool): 
                 Whether to stop gradient from energy predictor to encoder.
             spk_num (Optional[int]): 
                 Number of speakers. If not None, assume that the spk_embed_dim is not None,
@@ -269,7 +272,7 @@ class FastSpeech2(nn.Layer):
                 How to integrate tone embedding.
             init_type (str): 
                 How to initialize transformer parameters.
-            init_enc_alpha （float): 
+            init_enc_alpha (float): 
                 Initial value of alpha in scaled pos encoding of the encoder.
             init_dec_alpha (float): 
                 Initial value of alpha in scaled pos encoding of the decoder.
@@ -344,7 +347,8 @@ class FastSpeech2(nn.Layer):
                 normalize_before=encoder_normalize_before,
                 concat_after=encoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
-                positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+                activation_type=transformer_activation_type)
         elif encoder_type == "conformer":
             self.encoder = ConformerEncoder(
                 idim=idim,
@@ -453,7 +457,8 @@ class FastSpeech2(nn.Layer):
                 normalize_before=decoder_normalize_before,
                 concat_after=decoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
-                positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
+                positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+                activation_type=conformer_activation_type, )
         elif decoder_type == "conformer":
             self.decoder = ConformerEncoder(
                 idim=0,

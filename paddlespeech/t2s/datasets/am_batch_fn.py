@@ -414,6 +414,129 @@ def fastspeech2_multi_spk_batch_fn(examples):
     return batch
 
 
+def diffsinger_single_spk_batch_fn(examples):
+    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    note = [np.array(item["note"], dtype=np.int64) for item in examples]
+    note_dur = [np.array(item["note_dur"], dtype=np.float32) for item in examples]
+    is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
+    speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
+    pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
+    energy = [np.array(item["energy"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    speech_lengths = [
+        np.array(item["speech_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    note = batch_sequences(note)
+    note_dur = batch_sequences(note_dur)
+    is_slur = batch_sequences(is_slur)
+    pitch = batch_sequences(pitch)
+    speech = batch_sequences(speech)
+    durations = batch_sequences(durations)
+    energy = batch_sequences(energy)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    note = paddle.to_tensor(note)
+    note_dur = paddle.to_tensor(note_dur)
+    is_slur = paddle.to_tensor(is_slur)
+    pitch = paddle.to_tensor(pitch)
+    speech = paddle.to_tensor(speech)
+    durations = paddle.to_tensor(durations)
+    energy = paddle.to_tensor(energy)
+    text_lengths = paddle.to_tensor(text_lengths)
+    speech_lengths = paddle.to_tensor(speech_lengths)
+
+    batch = {
+        "text": text,
+        "note": note,
+        "note_dur": note_dur,
+        "is_slur": is_slur,
+        "text_lengths": text_lengths,
+        "durations": durations,
+        "speech": speech,
+        "speech_lengths": speech_lengths,
+        "pitch": pitch,
+        "energy": energy
+    }
+    return batch
+
+
+def diffsinger_multi_spk_batch_fn(examples):
+    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    note = [np.array(item["note"], dtype=np.int64) for item in examples]
+    note_dur = [np.array(item["note_dur"], dtype=np.float32) for item in examples]
+    is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
+    speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
+    pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
+    energy = [np.array(item["energy"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    speech_lengths = [
+        np.array(item["speech_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    note = batch_sequences(note)
+    note_dur = batch_sequences(note_dur)
+    is_slur = batch_sequences(is_slur)
+    pitch = batch_sequences(pitch)
+    speech = batch_sequences(speech)
+    durations = batch_sequences(durations)
+    energy = batch_sequences(energy)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    note = paddle.to_tensor(note)
+    note_dur = paddle.to_tensor(note_dur)
+    is_slur = paddle.to_tensor(is_slur)
+    pitch = paddle.to_tensor(pitch)
+    speech = paddle.to_tensor(speech)
+    durations = paddle.to_tensor(durations)
+    energy = paddle.to_tensor(energy)
+    text_lengths = paddle.to_tensor(text_lengths)
+    speech_lengths = paddle.to_tensor(speech_lengths)
+
+    batch = {
+        "text": text,
+        "note": note,
+        "note_dur": note_dur,
+        "is_slur": is_slur,
+        "text_lengths": text_lengths,
+        "durations": durations,
+        "speech": speech,
+        "speech_lengths": speech_lengths,
+        "pitch": pitch,
+        "energy": energy
+    }
+    # spk_emb has a higher priority than spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
+        ]
+        spk_emb = batch_sequences(spk_emb)
+        spk_emb = paddle.to_tensor(spk_emb)
+        batch["spk_emb"] = spk_emb
+    elif "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = paddle.to_tensor(spk_id)
+        batch["spk_id"] = spk_id
+    return batch
+
+
 def transformer_single_spk_batch_fn(examples):
     # fields = ["text", "text_lengths", "speech", "speech_lengths"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]

@@ -56,6 +56,11 @@ model_alias = {
     "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
     "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
+    "diffsinger":
+    "paddlespeech.t2s.models.diffsinger:DiffSinger",
+    "diffsinger_inference":
+    "paddlespeech.t2s.models.diffsinger:DiffSingerInference",
+
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -142,6 +147,8 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
             fields += ["spk_emb"]
         else:
             print("single speaker fastspeech2!")
+    elif am_name == 'diffsinger':
+        fields = ["utt_id", "text", "note", "note_dur", "is_slur"]
     elif am_name == 'speedyspeech':
         fields = ["utt_id", "phones", "tones"]
     elif am_name == 'tacotron2':
@@ -326,14 +333,16 @@ def run_frontend(frontend: object,
 
 
 # dygraph
-def get_am_inference(am: str='fastspeech2_csmsc',
-                     am_config: CfgNode=None,
-                     am_ckpt: Optional[os.PathLike]=None,
-                     am_stat: Optional[os.PathLike]=None,
-                     phones_dict: Optional[os.PathLike]=None,
-                     tones_dict: Optional[os.PathLike]=None,
-                     speaker_dict: Optional[os.PathLike]=None,
-                     return_am: bool=False):
+def get_am_inference(
+        am: str='fastspeech2_csmsc',
+        am_config: CfgNode=None,
+        am_ckpt: Optional[os.PathLike]=None,
+        am_stat: Optional[os.PathLike]=None,
+        phones_dict: Optional[os.PathLike]=None,
+        tones_dict: Optional[os.PathLike]=None,
+        speaker_dict: Optional[os.PathLike]=None,
+        return_am: bool=False,
+        speech_stretchs: Optional[os.PathLike]=None, ):
     with open(phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
@@ -356,6 +365,19 @@ def get_am_inference(am: str='fastspeech2_csmsc',
     if am_name == 'fastspeech2':
         am = am_class(
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
+    elif am_name == 'diffsinger':
+        with open(speech_stretchs, "r") as f:
+            spec_min = np.load(speech_stretchs)[0]
+            spec_max = np.load(speech_stretchs)[1]
+            spec_min = paddle.to_tensor(spec_min)
+            spec_max = paddle.to_tensor(spec_max)
+        am_config["model"]["fastspeech2_params"]["spk_num"] = spk_num
+        am = am_class(
+            spec_min=spec_min,
+            spec_max=spec_max,
+            idim=vocab_size,
+            odim=odim,
+            **am_config["model"], )
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size,
@@ -366,8 +388,6 @@ def get_am_inference(am: str='fastspeech2_csmsc',
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     elif am_name == 'erniesat':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
-    else:
-        print("wrong am, please input right am!!!")
 
     am.set_state_dict(paddle.load(am_ckpt)["main_params"])
     am.eval()

@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
     // 繁体转简体
     std::wstring sentence_simp;
-    front_inst->Trand2Simp(ws_sentence, sentence_simp);
+    front_inst->Trand2Simp(ws_sentence, &sentence_simp);
     ws_sentence = sentence_simp;
 
     std::string s_sentence;

@@ -178,17 +178,17 @@ int FrontEngineInterface::ReadConfFile() {
 }
 
 int FrontEngineInterface::Trand2Simp(const std::wstring &sentence,
-                                     std::wstring &sentence_simp) {
+                                     std::wstring *sentence_simp) {
     // sentence_simp = sentence;
     for (int i = 0; i < sentence.length(); i++) {
         std::wstring temp(1, sentence[i]);
         std::string sigle_word = ppspeech::wstring2utf8string(temp);
         // 单个字是否在繁转简的字典里
         if (trand_simp_map.find(sigle_word) == trand_simp_map.end()) {
-            sentence_simp += temp;
+            sentence_simp->append(temp);
         } else {
-            sentence_simp +=
-                (ppspeech::utf8string2wstring(trand_simp_map[sigle_word]));
+            sentence_simp->append(
+                (ppspeech::utf8string2wstring(trand_simp_map[sigle_word])));
         }
     }
 

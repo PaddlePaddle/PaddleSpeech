@@ -43,7 +43,7 @@ class FrontEngineInterface : public TextNormalizer {
     int ReadConfFile();
 
     // 简体转繁体
-    int Trand2Simp(const std::wstring &sentence, std::wstring &sentence_simp);
+    int Trand2Simp(const std::wstring &sentence, std::wstring *sentence_simp);
 
     // 生成字典
     int GenDict(const std::string &file,

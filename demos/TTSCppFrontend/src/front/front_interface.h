@@ -194,5 +194,5 @@ class FrontEngineInterface : public TextNormalizer {
     std::vector<std::string> must_not_neural_tone_words;
     std::vector<std::string> must_neural_tone_words;
 };
-}
+}  // namespace ppspeech
 #endif

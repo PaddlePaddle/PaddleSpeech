@@ -260,7 +260,8 @@ int FrontEngineInterface::GetWordsIds(
             if (std::find(_punc.begin(), _punc.end(), word) ==
                 _punc.end()) {  // 文字
                 // 获取字词的声母韵母列表
-                if (0 != GetInitialsFinals(word, &word_initials, &word_finals)) {
+                if (0 !=
+                    GetInitialsFinals(word, &word_initials, &word_finals)) {
                     LOG(ERROR)
                         << "Genarate the word_initials and word_finals of "
                         << word << " failed";

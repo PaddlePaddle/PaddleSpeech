@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < sentence_part.size(); i++) {
         LOG(INFO) << "Raw sentence is: "
                   << ppspeech::wstring2utf8string(sentence_part[i]);
-        front_inst->SentenceNormalize(sentence_part[i]);
+        front_inst->SentenceNormalize(&sentence_part[i]);
         s_sentence = ppspeech::wstring2utf8string(sentence_part[i]);
         LOG(INFO) << "After normalization sentence is: " << s_sentence;
 

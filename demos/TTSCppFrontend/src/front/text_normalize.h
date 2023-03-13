@@ -51,21 +51,21 @@ class TextNormalizer {
     std::string Digits2Text(const std::string &num_str);
     std::string Digits2Text(const std::wstring &num);
 
-    int ReData(std::wstring &sentence);
-    int ReData2(std::wstring &sentence);
-    int ReTime(std::wstring &sentence);
-    int ReTemperature(std::wstring &sentence);
-    int ReFrac(std::wstring &sentence);
-    int RePercentage(std::wstring &sentence);
-    int ReMobilePhone(std::wstring &sentence);
-    int RePhone(std::wstring &sentence);
-    int ReRange(std::wstring &sentence);
-    int ReInterger(std::wstring &sentence);
-    int ReDecimalNum(std::wstring &sentence);
-    int RePositiveQuantifiers(std::wstring &sentence);
-    int ReDefalutNum(std::wstring &sentence);
-    int ReNumber(std::wstring &sentence);
-    int SentenceNormalize(std::wstring &sentence);
+    int ReData(std::wstring *sentence);
+    int ReData2(std::wstring *sentence);
+    int ReTime(std::wstring *sentence);
+    int ReTemperature(std::wstring *sentence);
+    int ReFrac(std::wstring *sentence);
+    int RePercentage(std::wstring *sentence);
+    int ReMobilePhone(std::wstring *sentence);
+    int RePhone(std::wstring *sentence);
+    int ReRange(std::wstring *sentence);
+    int ReInterger(std::wstring *sentence);
+    int ReDecimalNum(std::wstring *sentence);
+    int RePositiveQuantifiers(std::wstring *sentence);
+    int ReDefalutNum(std::wstring *sentence);
+    int ReNumber(std::wstring *sentence);
+    int SentenceNormalize(std::wstring *sentence);
 
 
   private:

@@ -199,14 +199,14 @@ std::string TextNormalizer::Digits2Text(const std::wstring &num) {
 }
 
 // 日期，2021年8月18日 --> 二零二一年八月十八日
-int TextNormalizer::ReData(std::wstring &sentence) {
+int TextNormalizer::ReData(std::wstring *sentence) {
     std::wregex reg(
         L"(\\d{4}|\\d{2})年((0?[1-9]|1[0-2])月)?(((0?[1-9])|((1|2)[0-9])|30|31)"
         L"([日号]))?");
     std::wsmatch match;
     std::string rep;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = "";
         rep += SingleDigit2Text(match[1]) + "年";
         if (match[3] != L"") {
@@ -217,7 +217,7 @@ int TextNormalizer::ReData(std::wstring &sentence) {
                    wstring2utf8string(match[9]);
         }
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -228,18 +228,18 @@ int TextNormalizer::ReData(std::wstring &sentence) {
 
 
 // XX-XX-XX or XX/XX/XX 例如：2021/08/18 --> 二零二一年八月十八日
-int TextNormalizer::ReData2(std::wstring &sentence) {
+int TextNormalizer::ReData2(std::wstring *sentence) {
     std::wregex reg(
         L"(\\d{4})([- /.])(0[1-9]|1[012])\\2(0[1-9]|[12][0-9]|3[01])");
     std::wsmatch match;
     std::string rep;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = "";
         rep += (SingleDigit2Text(match[1]) + "年");
         rep += (MultiDigit2Text(match[3], false, false) + "月");
         rep += (MultiDigit2Text(match[4], false, false) + "日");
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -249,12 +249,12 @@ int TextNormalizer::ReData2(std::wstring &sentence) {
 }
 
 // XX:XX:XX   09:09:02 --> 九点零九分零二秒
-int TextNormalizer::ReTime(std::wstring &sentence) {
+int TextNormalizer::ReTime(std::wstring *sentence) {
     std::wregex reg(L"([0-1]?[0-9]|2[0-3]):([0-5][0-9])(:([0-5][0-9]))?");
     std::wsmatch match;
     std::string rep;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = "";
         rep += (MultiDigit2Text(match[1], false, false) + "点");
         if (absl::StartsWith(wstring2utf8string(match[2]), "0")) {
@@ -266,7 +266,7 @@ int TextNormalizer::ReTime(std::wstring &sentence) {
         }
         rep += (MultiDigit2Text(match[4]) + "秒");
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -276,7 +276,7 @@ int TextNormalizer::ReTime(std::wstring &sentence) {
 }
 
 // 温度，例如：-24.3℃ --> 零下二十四点三度
-int TextNormalizer::ReTemperature(std::wstring &sentence) {
+int TextNormalizer::ReTemperature(std::wstring *sentence) {
     std::wregex reg(L"(-?)(\\d+(\\.\\d+)?)(°C|℃|度|摄氏度)");
     std::wsmatch match;
     std::string rep;
@@ -284,12 +284,12 @@ int TextNormalizer::ReTemperature(std::wstring &sentence) {
     std::vector<std::string> integer_decimal;
     std::string unit;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         match[1] == L"-" ? sign = "负" : sign = "";
         match[4] == L"摄氏度" ? unit = "摄氏度" : unit = "度";
         rep = sign + Digits2Text(match[2]) + unit;
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -299,16 +299,16 @@ int TextNormalizer::ReTemperature(std::wstring &sentence) {
 }
 
 // 分数，例如： 1/3 --> 三分之一
-int TextNormalizer::ReFrac(std::wstring &sentence) {
+int TextNormalizer::ReFrac(std::wstring *sentence) {
     std::wregex reg(L"(-?)(\\d+)/(\\d+)");
     std::wsmatch match;
     std::string sign;
     std::string rep;
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         match[1] == L"-" ? sign = "负" : sign = "";
         rep = sign + MultiDigit2Text(match[3]) + "分之" +
               MultiDigit2Text(match[2]);
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -318,18 +318,18 @@ int TextNormalizer::ReFrac(std::wstring &sentence) {
 }
 
 // 百分数，例如：45.5% --> 百分之四十五点五
-int TextNormalizer::RePercentage(std::wstring &sentence) {
+int TextNormalizer::RePercentage(std::wstring *sentence) {
     std::wregex reg(L"(-?)(\\d+(\\.\\d+)?)%");
     std::wsmatch match;
     std::string sign;
     std::string rep;
     std::vector<std::string> integer_decimal;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         match[1] == L"-" ? sign = "负" : sign = "";
         rep = sign + "百分之" + Digits2Text(match[2]);
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -339,21 +339,21 @@ int TextNormalizer::RePercentage(std::wstring &sentence) {
 }
 
 // 手机号码，例如：+86 18883862235 --> 八六幺八八八三八六二二三五
-int TextNormalizer::ReMobilePhone(std::wstring &sentence) {
+int TextNormalizer::ReMobilePhone(std::wstring *sentence) {
     std::wregex reg(
         L"(\\d)?((\\+?86 ?)?1([38]\\d|5[0-35-9]|7[678]|9[89])\\d{8})(\\d)?");
     std::wsmatch match;
     std::string rep;
     std::vector<std::string> country_phonenum;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         country_phonenum = absl::StrSplit(wstring2utf8string(match[0]), "+");
         rep = "";
         for (int i = 0; i < country_phonenum.size(); i++) {
             LOG(INFO) << country_phonenum[i];
             rep += SingleDigit2Text(country_phonenum[i], true);
         }
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -363,20 +363,20 @@ int TextNormalizer::ReMobilePhone(std::wstring &sentence) {
 }
 
 // 座机号码，例如：010-51093154 --> 零幺零五幺零九三幺五四
-int TextNormalizer::RePhone(std::wstring &sentence) {
+int TextNormalizer::RePhone(std::wstring *sentence) {
     std::wregex reg(
         L"(\\d)?((0(10|2[1-3]|[3-9]\\d{2})-?)?[1-9]\\d{6,7})(\\d)?");
     std::wsmatch match;
     std::vector<std::string> zone_phonenum;
     std::string rep;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = "";
         zone_phonenum = absl::StrSplit(wstring2utf8string(match[0]), "-");
         for (int i = 0; i < zone_phonenum.size(); i++) {
             rep += SingleDigit2Text(zone_phonenum[i], true);
         }
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -386,7 +386,7 @@ int TextNormalizer::RePhone(std::wstring &sentence) {
 }
 
 // 范围，例如：60~90 --> 六十到九十
-int TextNormalizer::ReRange(std::wstring &sentence) {
+int TextNormalizer::ReRange(std::wstring *sentence) {
     std::wregex reg(
         L"((-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+)))[-~]((-?)((\\d+)(\\.\\d+)?)|(\\.("
         L"\\d+)))");
@@ -395,7 +395,7 @@ int TextNormalizer::ReRange(std::wstring &sentence) {
     std::string sign1;
     std::string sign2;
 
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = "";
         match[2] == L"-" ? sign1 = "负" : sign1 = "";
         if (match[6] != L"") {
@@ -410,7 +410,7 @@ int TextNormalizer::ReRange(std::wstring &sentence) {
             rep += sign2 + Digits2Text(match[10]);
         }
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -420,13 +420,13 @@ int TextNormalizer::ReRange(std::wstring &sentence) {
 }
 
 // 带负号的整数，例如：-10 --> 负十
-int TextNormalizer::ReInterger(std::wstring &sentence) {
+int TextNormalizer::ReInterger(std::wstring *sentence) {
     std::wregex reg(L"(-)(\\d+)");
     std::wsmatch match;
     std::string rep;
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = "负" + MultiDigit2Text(match[2]);
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -436,13 +436,13 @@ int TextNormalizer::ReInterger(std::wstring &sentence) {
 }
 
 // 纯小数
-int TextNormalizer::ReDecimalNum(std::wstring &sentence) {
+int TextNormalizer::ReDecimalNum(std::wstring *sentence) {
     std::wregex reg(L"(-?)((\\d+)(\\.\\d+))|(\\.(\\d+))");
     std::wsmatch match;
     std::string sign;
     std::string rep;
     // std::vector<std::string> integer_decimal;
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         match[1] == L"-" ? sign = "负" : sign = "";
         if (match[5] != L"") {
             rep = sign + Digits2Text(match[5]);
@@ -450,7 +450,7 @@ int TextNormalizer::ReDecimalNum(std::wstring &sentence) {
             rep = sign + Digits2Text(match[2]);
         }
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -460,7 +460,7 @@ int TextNormalizer::ReDecimalNum(std::wstring &sentence) {
 }
 
 // 正整数 + 量词
-int TextNormalizer::RePositiveQuantifiers(std::wstring &sentence) {
+int TextNormalizer::RePositiveQuantifiers(std::wstring *sentence) {
     std::wstring common_quantifiers =
         L"(朵|匹|张|座|回|场|尾|条|个|首|阙|阵|网|炮|顶|丘|棵|只|支|袭|辆|挑|"
         L"担|颗|壳|窠|曲|墙|群|腔|砣|座|客|贯|扎|捆|刀|令|打|手|罗|坡|山|岭|江|"
@@ -475,9 +475,9 @@ int TextNormalizer::RePositiveQuantifiers(std::wstring &sentence) {
     std::wregex reg(L"(\\d+)([多余几])?" + common_quantifiers);
     std::wsmatch match;
     std::string rep;
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         rep = MultiDigit2Text(match[1]);
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(1),
                 match.length(1),
                 utf8string2wstring(rep));
@@ -487,11 +487,11 @@ int TextNormalizer::RePositiveQuantifiers(std::wstring &sentence) {
 }
 
 // 编号类数字，例如： 89757 --> 八九七五七
-int TextNormalizer::ReDefalutNum(std::wstring &sentence) {
+int TextNormalizer::ReDefalutNum(std::wstring *sentence) {
     std::wregex reg(L"\\d{3}\\d*");
     std::wsmatch match;
-    while (std::regex_search(sentence, match, reg)) {
-        Replace(&sentence,
+    while (std::regex_search(*sentence, match, reg)) {
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(SingleDigit2Text(match[0])));
@@ -500,12 +500,12 @@ int TextNormalizer::ReDefalutNum(std::wstring &sentence) {
     return 0;
 }
 
-int TextNormalizer::ReNumber(std::wstring &sentence) {
+int TextNormalizer::ReNumber(std::wstring *sentence) {
     std::wregex reg(L"(-?)((\\d+)(\\.\\d+)?)|(\\.(\\d+))");
     std::wsmatch match;
     std::string sign;
     std::string rep;
-    while (std::regex_search(sentence, match, reg)) {
+    while (std::regex_search(*sentence, match, reg)) {
         match[1] == L"-" ? sign = "负" : sign = "";
         if (match[5] != L"") {
             rep = sign + Digits2Text(match[5]);
@@ -513,7 +513,7 @@ int TextNormalizer::ReNumber(std::wstring &sentence) {
             rep = sign + Digits2Text(match[2]);
         }
 
-        Replace(&sentence,
+        Replace(sentence,
                 match.position(0),
                 match.length(0),
                 utf8string2wstring(rep));
@@ -522,7 +522,7 @@ int TextNormalizer::ReNumber(std::wstring &sentence) {
 }
 
 // 整体正则，按顺序
-int TextNormalizer::SentenceNormalize(std::wstring &sentence) {
+int TextNormalizer::SentenceNormalize(std::wstring *sentence) {
     ReData(sentence);
     ReData2(sentence);
     ReTime(sentence);

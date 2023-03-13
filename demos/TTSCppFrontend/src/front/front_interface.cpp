@@ -213,11 +213,11 @@ int FrontEngineInterface::GenDict(const std::string &dict_file,
 }
 
 int FrontEngineInterface::GetSegResult(
-    std::vector<std::pair<std::string, std::string>> &seg,
-    std::vector<std::string> &seg_words) {
+    std::vector<std::pair<std::string, std::string>> *seg,
+    std::vector<std::string> *seg_words) {
     std::vector<std::pair<std::string, std::string>>::iterator iter;
-    for (iter = seg.begin(); iter != seg.end(); iter++) {
-        seg_words.push_back((*iter).first);
+    for (iter = seg->begin(); iter != seg->end(); iter++) {
+        seg_words->push_back((*iter).first);
     }
     return 0;
 }
@@ -724,7 +724,7 @@ int FrontEngineInterface::MergeforModify(
     std::vector<std::pair<std::string, std::string>> &seg_word_type,
     std::vector<std::pair<std::string, std::string>> &modify_seg_word_type) {
     std::vector<std::string> seg_result;
-    GetSegResult(seg_word_type, seg_result);
+    GetSegResult(&seg_word_type, &seg_result);
     LOG(INFO) << "Before merge, seg result is: "
               << limonp::Join(seg_result.begin(), seg_result.end(), "/");
 
@@ -736,7 +736,7 @@ int FrontEngineInterface::MergeforModify(
     modify_seg_word_type = MergeEr(modify_seg_word_type);
 
     seg_result = {};
-    GetSegResult(modify_seg_word_type, seg_result);
+    GetSegResult(&modify_seg_word_type, &seg_result);
     LOG(INFO) << "After merge, seg result is: "
               << limonp::Join(seg_result.begin(), seg_result.end(), "/");
 

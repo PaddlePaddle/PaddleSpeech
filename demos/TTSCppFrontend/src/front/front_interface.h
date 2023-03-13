@@ -50,8 +50,8 @@ class FrontEngineInterface : public TextNormalizer {
                 std::map<std::string, std::string> &map);
 
     // 由 词+词性的分词结果转为仅包含词的结果
-    int GetSegResult(std::vector<std::pair<std::string, std::string>> &seg,
-                     std::vector<std::string> &seg_words);
+    int GetSegResult(std::vector<std::pair<std::string, std::string>> *seg,
+                     std::vector<std::string> *seg_words);
 
     // 生成句子的音素，音调id。如果音素和音调未分开，则 toneids
     // 为空（fastspeech2），反之则不为空(speedyspeech)

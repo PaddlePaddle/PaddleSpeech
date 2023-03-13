@@ -2,23 +2,23 @@
 
 namespace ppspeech {
 
-std::string BlankProcess(const std::string& str) {
+std::string RemoveBlk(const std::string& str) {
     std::string out = "";
-    int p = 0;
+    int ptr_in = 0;    //  the pointer of input string (for traversal)
     int end = str.size();
-    int q = -1;  //  last char of the output string
-    while (p != end) {
-        while (p != end && str[p] == ' ') {
-            p += 1;
+    int ptr_out = -1;  //  the pointer of output string (last char)
+    while (ptr_in != end) {
+        while (ptr_in != end && str[ptr_in] == ' ') {
+            ptr_in += 1;
         }
-        if (p == end) 
+        if (ptr_in == end) 
             return out;
-        if (q != -1 && isalpha(str[p]) && isalpha(str[q]) && str[p-1] == ' ')
+        if (ptr_out != -1 && isalpha(str[ptr_in]) && isalpha(str[ptr_out]) && str[ptr_in-1] == ' ')
             // add a space when the last and current chars are in English and there have space(s) between them
             out += ' ';
-        out += str[p];
-        q = p;
-        p += 1;
+        out += str[ptr_in];
+        ptr_out = ptr_in;
+        ptr_in += 1;
     }
     return out;
 }

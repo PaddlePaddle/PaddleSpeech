@@ -407,10 +407,8 @@ int FrontEngineInterface::GetInitialsFinals(
     while (start < phone_vec.size()) {
         if (phone_vec[start] == "sp" || phone_vec[start] == "sp0") {
             start += 1;
-        }
-        // 最后一位不是数字或者最后一位的数字是0，均表示声母，第二个是韵母
-        else if (isdigit(phone_vec[start].back()) == 0 ||
-                 static_cast<int>(phone_vec[start].back()) == 48) {
+        } else if (isdigit(phone_vec[start].back()) == 0 ||
+                   static_cast<int>(phone_vec[start].back()) == 48) {
             word_initials->push_back(phone_vec[start]);
             word_finals->push_back(phone_vec[start + 1]);
             start += 2;
@@ -921,11 +919,9 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
                fangxiang.find(wordvec[word_num - 2]) != fangxiang.npos) {
         finals.back() =
             finals.back().replace(finals.back().length() - 1, 1, "5");
-    }
-    // 情况3：对“个”字前面带有修饰词的字词读音处理
-    else if ((ge_idx != word_wstr.npos && ge_idx >= 1 &&
-              xiushi.find(wordvec[ge_idx - 1]) != xiushi.npos) ||
-             word_wstr == ge) {
+    } else if ((ge_idx != word_wstr.npos && ge_idx >= 1 &&
+                xiushi.find(wordvec[ge_idx - 1]) != xiushi.npos) ||
+               word_wstr == ge) {
         finals.back() =
             finals.back().replace(finals.back().length() - 1, 1, "5");
     } else {

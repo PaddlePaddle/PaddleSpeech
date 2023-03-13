@@ -1,7 +1,7 @@
 #!/bin/bash
 
 stage=-1
-stop_stage=-1
+stop_stage=3
 dict_dir=data/lang_char
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit -1;

@@ -47,7 +47,7 @@ class FrontEngineInterface : public TextNormalizer {
 
     // 生成字典
     int GenDict(const std::string &file,
-                std::map<std::string, std::string> &map);
+                std::map<std::string, std::string> *map);
 
     // 由 词+词性的分词结果转为仅包含词的结果
     int GetSegResult(std::vector<std::pair<std::string, std::string>> *seg,

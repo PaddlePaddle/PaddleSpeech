@@ -114,27 +114,27 @@ int FrontEngineInterface::init() {
 
 
     // 生成词典（词到音素的映射）
-    if (0 != GenDict(_word2phone_path, word_phone_map)) {
+    if (0 != GenDict(_word2phone_path, &word_phone_map)) {
         LOG(ERROR) << "Genarate word2phone dict failed";
         return -1;
     }
 
     // 生成音素字典（音素到音素id的映射）
-    if (0 != GenDict(_phone2id_path, phone_id_map)) {
+    if (0 != GenDict(_phone2id_path, &phone_id_map)) {
         LOG(ERROR) << "Genarate phone2id dict failed";
         return -1;
     }
 
     // 生成音调字典（音调到音调id的映射）
     if (_seperate_tone == "true") {
-        if (0 != GenDict(_tone2id_path, tone_id_map)) {
+        if (0 != GenDict(_tone2id_path, &tone_id_map)) {
             LOG(ERROR) << "Genarate tone2id dict failed";
             return -1;
         }
     }
 
     // 生成繁简字典（繁体到简体id的映射）
-    if (0 != GenDict(_trand2simp_path, trand_simp_map)) {
+    if (0 != GenDict(_trand2simp_path, &trand_simp_map)) {
         LOG(ERROR) << "Genarate trand2simp dict failed";
         return -1;
     }
@@ -196,7 +196,7 @@ int FrontEngineInterface::Trand2Simp(const std::wstring &sentence,
 }
 
 int FrontEngineInterface::GenDict(const std::string &dict_file,
-                                  std::map<std::string, std::string> &map) {
+                                  std::map<std::string, std::string> *map) {
     std::ifstream is(dict_file.c_str(), std::ifstream::in);
     if (!is.good()) {
         LOG(ERROR) << "Cannot open dict file: " << dict_file;
@@ -207,7 +207,7 @@ int FrontEngineInterface::GenDict(const std::string &dict_file,
         size_t pos = line.find_first_of(" ", 0);
         key = line.substr(0, pos);
         value = line.substr(pos + 1);
-        map[key] = value;
+        (*map)[key] = value;
     }
     return 0;
 }

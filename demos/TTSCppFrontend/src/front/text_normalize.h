@@ -31,7 +31,7 @@ class TextNormalizer {
     ~TextNormalizer() {}
 
     int InitMap();
-    int Replace(std::wstring &sentence,
+    int Replace(std::wstring *sentence,
                 const int &pos,
                 const int &len,
                 const std::wstring &repstr);

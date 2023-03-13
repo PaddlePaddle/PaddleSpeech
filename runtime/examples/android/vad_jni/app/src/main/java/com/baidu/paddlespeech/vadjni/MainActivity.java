@@ -30,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(stringFromJNI());
 
         Button lw = binding.loadWav;
-
-        instance = createInstance();
     }
 
     /**
@@ -40,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
      */
     public native String stringFromJNI();
 
-    public native long createInstance(String config_path);
+    public static native long createInstance(String config_path);
 
-    public native int destroyInstance(long instance);
+    public static native int destroyInstance(long instance);
 
-    public native int reset(long instance);
+    public static native int reset(long instance);
 
-    public native int chunkSizeSamples(long instance);
+    public static native int chunkSizeSamples(long instance);
 
-    public native int feedForward(long instance, float[] chunk);
+    public static native int feedForward(long instance, float[] chunk);
 }

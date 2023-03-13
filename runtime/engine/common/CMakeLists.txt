@@ -13,3 +13,7 @@ add_subdirectory(frontend)
 
 add_library(common INTERFACE)
 target_link_libraries(common  INTERFACE base utils kaldi-matrix frontend)
+install(TARGETS base DESTINATION lib)
+install(TARGETS utils DESTINATION lib)
+install(TARGETS kaldi-matrix DESTINATION lib)
+install(TARGETS frontend DESTINATION lib)

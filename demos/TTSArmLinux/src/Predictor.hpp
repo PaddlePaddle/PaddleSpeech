@@ -11,6 +11,7 @@ using namespace paddle::lite_api;
 
 class PredictorInterface {
 public:
+    virtual ~PredictorInterface() = 0;
     virtual bool Init(
             const std::string &AcousticModelPath,
             const std::string &VocoderPath,
@@ -38,6 +39,8 @@ public:
     virtual void ReleaseWav() = 0;
     virtual bool WriteWavToFile(const std::string &wavPath) = 0;
 };
+
+PredictorInterface::~PredictorInterface() {}
 
 // WavDataType: WAV数据类型
 // 可在 int16_t 和 float 之间切换，

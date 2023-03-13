@@ -269,7 +269,7 @@ int FrontEngineInterface::GetWordsIds(
                 }
 
                 // 对读音进行修改
-                if (0 != ModifyTone(word, pos, word_finals)) {
+                if (0 != ModifyTone(word, pos, &word_finals)) {
                     LOG(ERROR) << "Failed to modify tone.";
                 }
 
@@ -337,7 +337,7 @@ int FrontEngineInterface::GetPhone(const std::string &word,
         _jieba->CutAll(word, wordcut);
         phone->assign(word_phone_map[wordcut[0]]);
         for (int i = 1; i < wordcut.size(); i++) {
-            phone->assign( (*phone)+(" " + word_phone_map[wordcut[i]]));
+            phone->assign((*phone) + (" " + word_phone_map[wordcut[i]]));
         }
     } else {
         phone->assign(word_phone_map[word]);
@@ -781,7 +781,7 @@ int FrontEngineInterface::MergeforModify(
 
 
 int FrontEngineInterface::BuSandi(const std::string &word,
-                                  std::vector<std::string> &finals) {
+                                  std::vector<std::string> *finals) {
     std::wstring bu = L"不";
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
@@ -792,13 +792,14 @@ int FrontEngineInterface::BuSandi(const std::string &word,
 
     // e.g. 看不懂   b u4  -->  b u5, 将韵母的最后一位替换成 5
     if (wordvec.size() == 3 && wordvec[1] == bu) {
-        finals[1] = finals[1].replace(finals[1].length() - 1, 1, "5");
+        (*finals)[1] = (*finals)[1].replace((*finals)[1].length() - 1, 1, "5");
     } else {
         // e.g. 不怕  b u4 --> b u2, 将韵母的最后一位替换成 2
         for (int i = 0; i < wordvec.size(); i++) {
             if (wordvec[i] == bu && i + 1 < wordvec.size() &&
-                absl::EndsWith(finals[i + 1], "4") == true) {
-                finals[i] = finals[i].replace(finals[i].length() - 1, 1, "2");
+                absl::EndsWith((*finals)[i + 1], "4") == true) {
+                (*finals)[i] =
+                    (*finals)[i].replace((*finals)[i].length() - 1, 1, "2");
             }
         }
     }
@@ -808,7 +809,7 @@ int FrontEngineInterface::BuSandi(const std::string &word,
 
 
 int FrontEngineInterface::YiSandhi(const std::string &word,
-                                   std::vector<std::string> &finals) {
+                                   std::vector<std::string> *finals) {
     std::wstring yi = L"一";
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
@@ -834,20 +835,20 @@ int FrontEngineInterface::YiSandhi(const std::string &word,
     } else if (wordvec.size() == 3 && wordvec[1] == yi &&
                wordvec[0] == wordvec[2]) {
         // "一" between reduplication words shold be yi5, e.g. 看一看
-        finals[1] = finals[1].replace(finals[1].length() - 1, 1, "5");
+        (*finals)[1] = (*finals)[1].replace((*finals)[1].length() - 1, 1, "5");
     } else if (wordvec[0] == L"第" && wordvec[1] == yi) {  //以第一位开始
-        finals[1] = finals[1].replace(finals[1].length() - 1, 1, "1");
+        (*finals)[1] = (*finals)[1].replace((*finals)[1].length() - 1, 1, "1");
     } else {
         for (int i = 0; i < wordvec.size(); i++) {
             if (wordvec[i] == yi && i + 1 < wordvec.size()) {
-                if (absl::EndsWith(finals[i + 1], "4") == true) {
+                if (absl::EndsWith((*finals)[i + 1], "4") == true) {
                     // "一" before tone4 should be yi2, e.g. 一段
-                    finals[i] =
-                        finals[i].replace(finals[i].length() - 1, 1, "2");
+                    (*finals)[i] =
+                        (*finals)[i].replace((*finals)[i].length() - 1, 1, "2");
                 } else {
                     // "一" before non-tone4 should be yi4, e.g. 一天
-                    finals[i] =
-                        finals[i].replace(finals[i].length() - 1, 1, "4");
+                    (*finals)[i] =
+                        (*finals)[i].replace((*finals)[i].length() - 1, 1, "4");
                 }
             }
         }
@@ -858,7 +859,7 @@ int FrontEngineInterface::YiSandhi(const std::string &word,
 
 int FrontEngineInterface::NeuralSandhi(const std::string &word,
                                        const std::string &pos,
-                                       std::vector<std::string> &finals) {
+                                       std::vector<std::string> *finals) {
     std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::wstring> wordvec;
     // 一个词转成向量形式
@@ -874,7 +875,8 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
         std::string inits = "nva";
         if (j - 1 >= 0 && wordvec[j] == wordvec[j - 1] &&
             inits.find(pos[0]) != inits.npos) {
-            finals[j] = finals[j].replace(finals[j].length() - 1, 1, "5");
+            (*finals)[j] =
+                (*finals)[j].replace((*finals)[j].length() - 1, 1, "5");
         }
     }
 
@@ -894,36 +896,36 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
     auto ge_idx = word_wstr.find_first_of(ge);  // 出现“个”的第一个位置
 
     if (word_num >= 1 && yuqici.find(wordvec.back()) != yuqici.npos) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else if (word_num >= 1 && de.find(wordvec.back()) != de.npos) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else if (word_num == 1 && le.find(wordvec[0]) != le.npos &&
                find(le_pos.begin(), le_pos.end(), pos) != le_pos.end()) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else if (word_num > 1 && men.find(wordvec.back()) != men.npos &&
                find(men_pos.begin(), men_pos.end(), pos) != men_pos.end() &&
                find(must_not_neural_tone_words.begin(),
                     must_not_neural_tone_words.end(),
                     word) != must_not_neural_tone_words.end()) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else if (word_num > 1 && weizhi.find(wordvec.back()) != weizhi.npos &&
                find(weizhi_pos.begin(), weizhi_pos.end(), pos) !=
                    weizhi_pos.end()) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else if (word_num > 1 && dong.find(wordvec.back()) != dong.npos &&
                fangxiang.find(wordvec[word_num - 2]) != fangxiang.npos) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else if ((ge_idx != word_wstr.npos && ge_idx >= 1 &&
                 xiushi.find(wordvec[ge_idx - 1]) != xiushi.npos) ||
                word_wstr == ge) {
-        finals.back() =
-            finals.back().replace(finals.back().length() - 1, 1, "5");
+        (*finals).back() =
+            (*finals).back().replace((*finals).back().length() - 1, 1, "5");
     } else {
         if (find(must_neural_tone_words.begin(),
                  must_neural_tone_words.end(),
@@ -933,8 +935,8 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
                   must_neural_tone_words.end(),
                   ppspeech::wstring2utf8string(word_wstr.substr(
                       word_num - 2))) != must_neural_tone_words.end())) {
-            finals.back() =
-                finals.back().replace(finals.back().length() - 1, 1, "5");
+            (*finals).back() =
+                (*finals).back().replace((*finals).back().length() - 1, 1, "5");
         }
     }
 
@@ -947,16 +949,16 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
     // 创建对应的 韵母列表
     std::vector<std::vector<std::string>> finals_list;
     std::vector<std::string> finals_temp;
-    finals_temp.assign(
-        finals.begin(),
-        finals.begin() + ppspeech::utf8string2wstring(word_list[0]).length());
+    finals_temp.assign((*finals).begin(),
+                       (*finals).begin() +
+                           ppspeech::utf8string2wstring(word_list[0]).length());
     finals_list.push_back(finals_temp);
     finals_temp.assign(
-        finals.begin() + ppspeech::utf8string2wstring(word_list[0]).length(),
-        finals.end());
+        (*finals).begin() + ppspeech::utf8string2wstring(word_list[0]).length(),
+        (*finals).end());
     finals_list.push_back(finals_temp);
 
-    finals = {};
+    finals = new std::vector<std::string>();
     for (int i = 0; i < word_list.size(); i++) {
         std::wstring temp_wstr = ppspeech::utf8string2wstring(word_list[i]);
         if ((find(must_neural_tone_words.begin(),
@@ -971,15 +973,15 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
             finals_list[i].back() = finals_list[i].back().replace(
                 finals_list[i].back().length() - 1, 1, "5");
         }
-        finals.insert(
-            finals.end(), finals_list[i].begin(), finals_list[i].end());
+        (*finals).insert(
+            (*finals).end(), finals_list[i].begin(), finals_list[i].end());
     }
 
     return 0;
 }
 
 int FrontEngineInterface::ThreeSandhi(const std::string &word,
-                                      std::vector<std::string> &finals) {
+                                      std::vector<std::string> *finals) {
     std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     std::vector<std::vector<std::string>> finals_list;
     std::vector<std::string> finals_temp;
@@ -992,8 +994,8 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
     int word_num = wordvec.size();
     assert(word_num == word_wstr.length());
 
-    if (word_num == 2 && AllToneThree(finals)) {
-        finals[0] = finals[0].replace(finals[0].length() - 1, 1, "2");
+    if (word_num == 2 && AllToneThree((*finals))) {
+        (*finals)[0] = (*finals)[0].replace((*finals)[0].length() - 1, 1, "2");
     } else if (word_num == 3) {
         // 进行进一步分词，把长词切分更短些
         std::vector<std::string> word_list;
@@ -1001,29 +1003,32 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
             LOG(ERROR) << "Failed to split word.";
             return -1;
         }
-        if (AllToneThree(finals)) {
+        if (AllToneThree((*finals))) {
             std::wstring temp_wstr = ppspeech::utf8string2wstring(word_list[0]);
             // disyllabic + monosyllabic, e.g. 蒙古/包
             if (temp_wstr.length() == 2) {
-                finals[0] = finals[0].replace(finals[0].length() - 1, 1, "2");
-                finals[1] = finals[1].replace(finals[1].length() - 1, 1, "2");
+                (*finals)[0] =
+                    (*finals)[0].replace((*finals)[0].length() - 1, 1, "2");
+                (*finals)[1] =
+                    (*finals)[1].replace((*finals)[1].length() - 1, 1, "2");
             } else if (temp_wstr.length() ==
                        1) {  // monosyllabic + disyllabic, e.g. 纸/老虎
-                finals[1] = finals[1].replace(finals[1].length() - 1, 1, "2");
+                (*finals)[1] =
+                    (*finals)[1].replace((*finals)[1].length() - 1, 1, "2");
             }
         } else {
             // 创建对应的 韵母列表
             finals_temp = {};
             finals_list = {};
             finals_temp.assign(
-                finals.begin(),
-                finals.begin() +
+                (*finals).begin(),
+                (*finals).begin() +
                     ppspeech::utf8string2wstring(word_list[0]).length());
             finals_list.push_back(finals_temp);
             finals_temp.assign(
-                finals.begin() +
+                (*finals).begin() +
                     ppspeech::utf8string2wstring(word_list[0]).length(),
-                finals.end());
+                (*finals).end());
             finals_list.push_back(finals_temp);
 
             finals = {};
@@ -1040,29 +1045,29 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
                         finals_list[0].back().length() - 1, 1, "2");
                 }
             }
-            finals.insert(
-                finals.end(), finals_list[0].begin(), finals_list[0].end());
-            finals.insert(
-                finals.end(), finals_list[1].begin(), finals_list[1].end());
+            (*finals).insert(
+                (*finals).end(), finals_list[0].begin(), finals_list[0].end());
+            (*finals).insert(
+                (*finals).end(), finals_list[1].begin(), finals_list[1].end());
         }
 
     } else if (word_num == 4) {  //将成语拆分为两个长度为 2 的单词
         // 创建对应的 韵母列表
         finals_temp = {};
         finals_list = {};
-        finals_temp.assign(finals.begin(), finals.begin() + 2);
+        finals_temp.assign((*finals).begin(), (*finals).begin() + 2);
         finals_list.push_back(finals_temp);
-        finals_temp.assign(finals.begin() + 2, finals.end());
+        finals_temp.assign((*finals).begin() + 2, (*finals).end());
         finals_list.push_back(finals_temp);
 
-        finals = {};
+        finals = new std::vector<std::string>();
         for (int j = 0; j < finals_list.size(); j++) {
             if (AllToneThree(finals_list[j])) {
                 finals_list[j][0] = finals_list[j][0].replace(
                     finals_list[j][0].length() - 1, 1, "2");
             }
-            finals.insert(
-                finals.end(), finals_list[j].begin(), finals_list[j].end());
+            (*finals).insert(
+                (*finals).end(), finals_list[j].begin(), finals_list[j].end());
         }
     }
 
@@ -1071,7 +1076,7 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
 
 int FrontEngineInterface::ModifyTone(const std::string &word,
                                      const std::string &pos,
-                                     std::vector<std::string> &finals) {
+                                     std::vector<std::string> *finals) {
     if ((0 != BuSandi(word, finals)) || (0 != YiSandhi(word, finals)) ||
         (0 != NeuralSandhi(word, pos, finals)) ||
         (0 != ThreeSandhi(word, finals))) {

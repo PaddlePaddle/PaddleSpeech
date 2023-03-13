@@ -135,23 +135,23 @@ class FrontEngineInterface : public TextNormalizer {
 
 
     // 对包含“不”字的相关词音调进行修改
-    int BuSandi(const std::string &word, std::vector<std::string> &finals);
+    int BuSandi(const std::string &word, std::vector<std::string> *finals);
 
     // 对包含“一”字的相关词音调进行修改
-    int YiSandhi(const std::string &word, std::vector<std::string> &finals);
+    int YiSandhi(const std::string &word, std::vector<std::string> *finals);
 
     // 对一些特殊词（包括量词，语助词等）的相关词音调进行修改
     int NeuralSandhi(const std::string &word,
                      const std::string &pos,
-                     std::vector<std::string> &finals);
+                     std::vector<std::string> *finals);
 
     // 对包含第三声的相关词音调进行修改
-    int ThreeSandhi(const std::string &word, std::vector<std::string> &finals);
+    int ThreeSandhi(const std::string &word, std::vector<std::string> *finals);
 
     // 对字词音调进行处理、修改
     int ModifyTone(const std::string &word,
                    const std::string &pos,
-                   std::vector<std::string> &finals);
+                   std::vector<std::string> *finals);
 
 
     // 对儿化音进行处理

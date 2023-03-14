@@ -27,8 +27,6 @@ from paddle import inference
 from paddle import jit
 from paddle.io import DataLoader
 from paddle.static import InputSpec
-from yacs.config import CfgNode
-
 from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
@@ -38,6 +36,7 @@ from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
+from yacs.config import CfgNode
 
 # remove [W:onnxruntime: xxx] from ort
 ort.set_default_logger_severity(3)
@@ -490,6 +489,7 @@ def get_predictor(
         device: str='cpu',
         # for gpu
         use_trt: bool=False,
+        device_id: int=0,
         # for trt
         use_dynamic_shape: bool=True,
         min_subgraph_size: int=5,
@@ -505,6 +505,7 @@ def get_predictor(
         params_file (os.PathLike): name of params_file.
         device (str): Choose the device you want to run, it can be: cpu/gpu, default is cpu.
         use_trt (bool): whether to use TensorRT or not in GPU.
+        device_id (int): Choose your device id, only valid when the device is gpu, default 0.
         use_dynamic_shape (bool): use dynamic shape or not in TensorRT.
         use_mkldnn (bool): whether to use MKLDNN or not in CPU.
         cpu_threads (int): num of thread when use CPU.
@@ -521,7 +522,7 @@ def get_predictor(
     config.enable_memory_optim()
     config.switch_ir_optim(True)
     if device == "gpu":
-        config.enable_use_gpu(100, 0)
+        config.enable_use_gpu(100, device_id)
     else:
         config.disable_gpu()
         config.set_cpu_math_library_num_threads(cpu_threads)

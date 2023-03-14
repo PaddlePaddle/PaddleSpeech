@@ -14,7 +14,7 @@ ckpt_prefix=$3
 audio_file=$4
 
 mkdir -p data
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
 if [ $? -ne 0 ]; then
    exit 1
 fi

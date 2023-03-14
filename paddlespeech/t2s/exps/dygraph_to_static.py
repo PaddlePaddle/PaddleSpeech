@@ -132,6 +132,7 @@ def parse_args():
             'pwgan_male',
             'hifigan_male',
             'pwgan_opencpop',
+            'hifigan_opencpop',
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(

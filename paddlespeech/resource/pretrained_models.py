@@ -102,13 +102,11 @@ ssl_dynamic_pretrained_models = {
             'params':
             'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
         },
-    },
-    "wav2vec2ASR_aishell1-zh-16k": {
         '1.4': {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz',
             'md5':
-            '9f0bc943adb822789bf61e674b229d17',
+            '150e51b8ea5d255ccce6b395de8d916a',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

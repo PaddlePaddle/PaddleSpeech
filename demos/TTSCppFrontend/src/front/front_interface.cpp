@@ -1017,7 +1017,7 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
                 (*finals).end());
             finals_list.push_back(finals_temp);
 
-            finals = {};
+            finals = new std::vector<std::string>();
             for (int i = 0; i < finals_list.size(); i++) {
                 // e.g. 所有/人
                 if (AllToneThree(finals_list[i]) &&

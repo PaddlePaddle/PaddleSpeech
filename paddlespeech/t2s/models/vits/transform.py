@@ -245,6 +245,6 @@ def rational_quadratic_spline(
 def _searchsorted(bin_locations, inputs, eps=1e-6):
     bin_locations[..., -1] += eps
     mask = inputs[..., None] >= bin_locations
-    mask_int = paddle.cast(mask, 'int64')
+    mask_int = paddle.cast(mask, dtype='int64')
     out = paddle.sum(mask_int, axis=-1) - 1
     return out

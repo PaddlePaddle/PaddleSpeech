@@ -42,6 +42,7 @@ def parse_args():
             'hifigan_aishell3',
             'hifigan_ljspeech',
             'hifigan_vctk',
+            'pwgan_opencpop',
         ],
         help='Choose model type of tts task.')
 

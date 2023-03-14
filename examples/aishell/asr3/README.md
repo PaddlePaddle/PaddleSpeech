@@ -190,9 +190,9 @@ tar xzvf wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz
 ```
 You can download the audio demo:
 ```bash
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
+wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/wav2vec2ASR.yaml conf/tuning/decode.yaml exp/wav2vec2ASR/checkpoints/avg_1 data/demo_002_en.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/wav2vec2ASR.yaml conf/tuning/decode.yaml exp/wav2vec2ASR/checkpoints/avg_1 data/demo_01_03.wav
 ```

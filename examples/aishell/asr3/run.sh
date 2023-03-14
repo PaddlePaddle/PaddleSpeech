@@ -15,7 +15,7 @@ resume=         # xx e.g. 30
 export FLAGS_cudnn_deterministic=1
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 
-audio_file=data/demo_002_en.wav
+audio_file=data/demo_01_03.wav
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')

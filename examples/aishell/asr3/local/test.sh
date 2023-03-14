@@ -8,9 +8,7 @@ echo "using $ngpu gpus..."
 expdir=exp
 datadir=data
 
-train_set=train_960
-recog_set="test-clean test-other dev-clean dev-other"
-recog_set="test-clean"
+train_set=train
 
 config_path=$1
 decode_config_path=$2
@@ -75,7 +73,7 @@ for type in ctc_prefix_beam_search; do
         --trans_hyp ${ckpt_prefix}.${type}.rsl.text
 
     python3 utils/compute-wer.py --char=1 --v=1 \
-        data/manifest.test-clean.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
+        data/manifest.test.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
     echo "decoding ${type} done."
 done
 

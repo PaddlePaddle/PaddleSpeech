@@ -6,7 +6,7 @@ Currently it only supports Chinese, any English word will crash the demo.
 
 ## Install Build Tools
 
-```
+```bash
 # Ubuntu
 sudo apt install build-essential cmake pkg-config
 
@@ -19,7 +19,7 @@ If your cmake version is too old, you can go here to download a precompiled new 
 
 ## Build
 
-```
+```bash
 # Build with all CPU cores
 ./build.sh
 
@@ -33,14 +33,14 @@ If the download speed is too slow, you can open [third-party/CMakeLists.txt](thi
 
 ## Download dictionary files
 
-```
+```bash
 ./download.sh
 ```
 
 ## Run
 You can change `--phone2id_path` in `./front_demo/front.conf` to the `phone_id_map.txt` of your own acoustic model.
 
-```
+```bash
 ./run_front_demo.sh
 ./run_front_demo.sh --help
 ./run_front_demo.sh --sentence "这是语音合成服务的文本前端，用于将文本转换为音素序号数组。"
@@ -49,7 +49,7 @@ You can change `--phone2id_path` in `./front_demo/front.conf` to the `phone_id_m
 
 ## Clean
 
-```
+```bash
 ./clean.sh
 ```
 

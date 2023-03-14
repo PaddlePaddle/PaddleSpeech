@@ -10,7 +10,7 @@
 
 ### 安装依赖
 
-```
+```bash
 # Ubuntu
 sudo apt install build-essential cmake pkg-config wget tar unzip
 
@@ -25,15 +25,13 @@ sudo yum install cmake wget tar unzip
 
 可用以下命令下载：
 
-```
-git clone https://github.com/PaddlePaddle/PaddleSpeech.git
-cd PaddleSpeech/demos/TTSArmLinux
+```bash
 ./download.sh
 ```
 
 ### 编译 Demo
 
-```
+```bash
 ./build.sh
 ```
 
@@ -43,7 +41,9 @@ cd PaddleSpeech/demos/TTSArmLinux
 
 ### 运行
 
-```
+你可以修改 `./front.conf` 中 `--phone2id_path` 参数为你自己的声学模型的 `phone_id_map.txt` 。
+
+```bash
 ./run.sh
 ./run.sh --sentence "语音合成测试"
 ./run.sh --sentence "输出到指定的音频文件" --output_wav ./output/test.wav

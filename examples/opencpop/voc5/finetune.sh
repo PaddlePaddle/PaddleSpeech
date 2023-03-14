@@ -2,9 +2,9 @@
 
 source path.sh
 
-gpus=7
-stage=5
-stop_stage=5
+gpus=0
+stage=0
+stop_stage=100
 
 source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 

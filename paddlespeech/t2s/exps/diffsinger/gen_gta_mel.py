@@ -216,12 +216,6 @@ def main():
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
 
-    parser.add_argument(
-        "--cut-sil",
-        type=str2bool,
-        default=True,
-        help="whether cut sil in the edge of audio")
-
     args = parser.parse_args()
 
     if args.ngpu == 0:

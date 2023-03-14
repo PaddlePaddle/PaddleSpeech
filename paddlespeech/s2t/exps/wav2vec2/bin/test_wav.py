@@ -34,8 +34,9 @@ class Wav2vec2Infer():
         self.args = args
         self.config = config
         self.audio_file = args.audio_file
+        self.tokenizer = config.get("tokenizer", None)
 
-        if self.config.tokenizer:
+        if self.tokenizer:
             self.text_feature = AutoTokenizer.from_pretrained(
                 self.config.tokenizer)
         else:
@@ -72,7 +73,7 @@ class Wav2vec2Infer():
                 text_feature=self.text_feature,
                 decoding_method=decode_config.decoding_method,
                 beam_size=decode_config.beam_size,
-                tokenizer=self.config.tokenizer, )
+                tokenizer=self.tokenizer, )
             rsl = result_transcripts[0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {rsl}")

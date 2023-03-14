@@ -40,8 +40,6 @@ If the download speed is too slow, you can open [third-party/CMakeLists.txt](thi
 ## Run
 You can change `--phone2id_path` in `./front_demo/front.conf` to the `phone_id_map.txt` of your own acoustic model.
 
-You can change `--phone2id_path` in `./front_demo/front.conf` to the `phone_id_map.txt` of your own acoustic model.
-
 ```bash
 ./run_front_demo.sh
 ./run_front_demo.sh --help

@@ -371,8 +371,9 @@ class VITSGenerator(nn.Layer):
             # (B, H, T_text)
             s_p_sq_r = paddle.exp(-2 * logs_p)
             # (B, 1, T_text)
+            tmp1 = -0.5 * math.log(2 * math.pi) - logs_p
             neg_x_ent_1 = paddle.sum(
-                -0.5 * math.log(2 * math.pi) - logs_p,
+                tmp1,
                 [1],
                 keepdim=True, )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
@@ -384,8 +385,9 @@ class VITSGenerator(nn.Layer):
                 z_p.transpose([0, 2, 1]),
                 (m_p * s_p_sq_r), )
             # (B, 1, T_text)
+            tmp2 = -0.5 * (m_p**2) * s_p_sq_r
             neg_x_ent_4 = paddle.sum(
-                -0.5 * (m_p**2) * s_p_sq_r,
+                tmp2,
                 [1],
                 keepdim=True, )
             # (B, T_feats, T_text)
@@ -403,7 +405,6 @@ class VITSGenerator(nn.Layer):
         w = attn.sum(2)
         dur_nll = self.duration_predictor(x, x_mask, w=w, g=g)
         dur_nll = dur_nll / paddle.sum(x_mask)
-
         # expand the length to match with the feature sequence
         # (B, T_feats, T_text) x (B, T_text, H) -> (B, H, T_feats)
         m_p = paddle.matmul(attn.squeeze(1),
@@ -511,8 +512,9 @@ class VITSGenerator(nn.Layer):
             # (B, H, T_text)
             s_p_sq_r = paddle.exp(-2 * logs_p)
             # (B, 1, T_text)
+            tmp3 = -0.5 * math.log(2 * math.pi) - logs_p
             neg_x_ent_1 = paddle.sum(
-                -0.5 * math.log(2 * math.pi) - logs_p,
+                tmp3,
                 [1],
                 keepdim=True, )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
@@ -524,8 +526,9 @@ class VITSGenerator(nn.Layer):
                 z_p.transpose([0, 2, 1]),
                 (m_p * s_p_sq_r), )
             # (B, 1, T_text)
+            tmp4 = -0.5 * (m_p**2) * s_p_sq_r
             neg_x_ent_4 = paddle.sum(
-                -0.5 * (m_p**2) * s_p_sq_r,
+                tmp4,
                 [1],
                 keepdim=True, )
             # (B, T_feats, T_text)

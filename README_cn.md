@@ -184,7 +184,7 @@
 
 ### 近期更新
 - 👑 2023.03.09: 新增 [Wav2vec2ASR-zh](./examples/aishell/asr3)。
-- 🎉 2023.03.07: 新增 [TTS ARM Linux C++ 部署示例](./demos/TTSArmLinux)。
+- 🎉 2023.03.07: 新增 [TTS ARM Linux C++ 部署示例 (包含 C++ 中文文本前端模块)](./demos/TTSArmLinux)。
 - 🔥 2023.03.03: 新增声音转换模型 [StarGANv2-VC 合成流程](./examples/vctk/vc3)。
 - 🎉 2023.02.16: 新增[粤语语音合成](./examples/canton/tts3)。
 - 🔥 2023.01.10: 新增[中英混合 ASR CLI 和 Demos](./demos/speech_recognition)。

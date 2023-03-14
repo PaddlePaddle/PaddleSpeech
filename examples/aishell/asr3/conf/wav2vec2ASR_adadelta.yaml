@@ -140,10 +140,12 @@ n_epoch: 80
 accum_grad: 1
 global_grad_clip: 5.0
 
-model_optim: sgd
+model_optim: adadelta
 model_optim_conf:
   lr: 1.0
   weight_decay: 0.0
+  rho: 0.95
+  epsilon: 1.0e-8
 
 wav2vec2_optim: adam
 wav2vec2_optim_conf:
@@ -164,4 +166,3 @@ log_interval: 1
 checkpoint:
   kbest_n: 50
   latest_n: 5
-

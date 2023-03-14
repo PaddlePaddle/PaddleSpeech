@@ -1,0 +1,1 @@
+../../../csmsc/voc5/local/synthesize.sh

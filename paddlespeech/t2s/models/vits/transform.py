@@ -61,8 +61,12 @@ def piecewise_rational_quadratic_transform(
 
 
 def mask_preprocess(x, mask):
+    # bins.dtype = int32
     B, C, T, bins = paddle.shape(x)
-    new_x = paddle.zeros([mask.sum(), bins])
+    mask_int = paddle.cast(mask, dtype='int64')
+    # paddle.sum 输入是 int32 或 bool 的时候，输出是 int64
+    # paddle.zeros (fill_constant) 的 shape 会被强制转成 int32 类型
+    new_x = paddle.zeros([paddle.sum(mask_int), bins])
     for i in range(bins):
         new_x[:, i] = x[:, :, :, i][mask]
     return new_x
@@ -240,4 +244,7 @@ def rational_quadratic_spline(
 
 def _searchsorted(bin_locations, inputs, eps=1e-6):
     bin_locations[..., -1] += eps
-    return paddle.sum(inputs[..., None] >= bin_locations, axis=-1) - 1
+    mask = inputs[..., None] >= bin_locations
+    mask_int = paddle.cast(mask, dtype='int64')
+    out = paddle.sum(mask_int, axis=-1) - 1
+    return out

@@ -4,12 +4,15 @@ set -xe
 BUILD_ROOT=build/Linux
 BUILD_DIR=${BUILD_ROOT}/x86_64
 
+mkdir -p ${BUILD_DIR}
+
 BUILD_TYPE=Release
 #BUILD_TYPE=Debug
 BUILD_SO=OFF
 BUILD_ASR=OFF
 BUILD_CLS=ON
 BUILD_VAD=ON
+FASTDEPLOY_INSTALL_DIR=""
 
 # the build script had verified in the paddlepaddle docker image.
 # please follow the instruction below to install PaddlePaddle image.
@@ -20,5 +23,7 @@ cmake -B ${BUILD_DIR} \
        	-DBUILD_SHARED_LIBS=${BUILD_SO} \
 	-DWITH_ASR=${BUILD_ASR} \
 	-DWITH_CLS=${BUILD_CLS} \
-	-DWITH_VAD=${BUILD_VAD}
+	-DWITH_VAD=${BUILD_VAD} \
+	-DFASTDEPLOY_INSTALL_DIR=${FASTDEPLOY_INSTALL_DIR}
+
 cmake --build ${BUILD_DIR} -j

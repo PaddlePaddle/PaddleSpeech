@@ -577,43 +577,50 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     <td>
     <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
     </td>
-    </tr>
-    <tr>
-      <td rowspan="5">声学模型</td>
+   </tr>
+   <tr>
+      <td rowspan="6">声学模型</td>
       <td>Tacotron2</td>
       <td>LJSpeech / CSMSC</td>
       <td>
       <a href = "./examples/ljspeech/tts0">tacotron2-ljspeech</a> / <a href = "./examples/csmsc/tts0">tacotron2-csmsc</a>
       </td>
-    </tr>
-    <tr>
+   </tr>
+   <tr>
       <td>Transformer TTS</td>
       <td>LJSpeech</td>
       <td>
       <a href = "./examples/ljspeech/tts1">transformer-ljspeech</a>
       </td>
-    </tr>
-    <tr>
+   </tr>
+   <tr>
       <td>SpeedySpeech</td>
       <td>CSMSC</td>
       <td >
       <a href = "./examples/csmsc/tts2">speedyspeech-csmsc</a>
       </td>
-    </tr>
-    <tr>
+   </tr>
+   <tr>
       <td>FastSpeech2</td>
       <td>LJSpeech / VCTK / CSMSC / AISHELL-3 / ZH_EN / finetune</td>
       <td>
       <a href = "./examples/ljspeech/tts3">fastspeech2-ljspeech</a> / <a href = "./examples/vctk/tts3">fastspeech2-vctk</a> / <a href = "./examples/csmsc/tts3">fastspeech2-csmsc</a> / <a href = "./examples/aishell3/tts3">fastspeech2-aishell3</a> / <a href = "./examples/zh_en_tts/tts3">fastspeech2-zh_en</a> / <a href = "./examples/other/tts_finetune/tts3">fastspeech2-finetune</a>
       </td>
-    </tr>
-    <tr>
+   </tr>
+   <tr>
       <td><a href = "https://arxiv.org/abs/2211.03545">ERNIE-SAT</a></td>
       <td>VCTK / AISHELL-3 / ZH_EN</td>
       <td>
       <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>
       </td>
-    </tr>
+   </tr>
+   <tr>
+      <td>DiffSinger</td>
+      <td>Opencpop</td>
+      <td>
+      <a href = "./examples/opencpop/svs1">DiffSinger-opencpop</a>
+      </td>
+   </tr>
    <tr>
       <td rowspan="6">声码器</td>
       <td >WaveFlow</td>
@@ -624,9 +631,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td >Parallel WaveGAN</td>
-      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3 / Opencpop</td>
       <td>
-      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a> /  <a href = "./examples/aishell3/voc1">PWGAN-aishell3</a>
+      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a> /  <a href = "./examples/aishell3/voc1">PWGAN-aishell3</a> / <a href = "./examples/opencpop/voc1">PWGAN-opencpop</a>
       </td>
     </tr>
     <tr>
@@ -645,9 +652,9 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
     <tr>
       <td >HiFiGAN</td>
-      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3 / Opencpop</td>
       <td>
-      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
+      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a> / <a href = "./examples/opencpop/voc5">HiFiGAN-opencpop</a>
       </td>
     </tr>
     <tr>
@@ -703,6 +710,7 @@ PaddleSpeech 的 **语音合成** 主要包含三个模块：文本前端、声�
     </tr>
   </tbody>
 </table>
+
 
 <a name="声音分类模型"></a>
 **声音分类**

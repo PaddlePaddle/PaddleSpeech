@@ -72,9 +72,7 @@ if(WITH_TESTING)
 endif()
 
 # fastdeploy
-if(NOT WITH_ASR)
-    include(fastdeploy)
-endif()
+include(fastdeploy)
 
 if(WITH_ASR)
     # openfst

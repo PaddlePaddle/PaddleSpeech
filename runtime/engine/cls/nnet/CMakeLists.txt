@@ -8,4 +8,4 @@ target_link_libraries(cls INTERFACE -static-libstdc++;-Wl,-Bsymbolic ${FASTDEPLO
 
 set(bin_name panns_nnet_main)
 add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
-target_link_libraries(${bin_name} -static-libstdc++;-Wl,-Bsymbolic gflags glog)
+target_link_libraries(${bin_name} -static-libstdc++;-Wl,-Bsymbolic gflags glog cls)

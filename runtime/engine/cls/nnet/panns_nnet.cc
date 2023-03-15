@@ -67,7 +67,7 @@ int ClsNnet::Init(const ClsNnetConf& conf) {
     runtime_option.UsePaddleInferBackend();
 #endif
     runtime_option.SetCpuThreadNum(conf.num_cpu_thread_);
-    runtime_option.DeletePaddleBackendPass("simplify_with_basic_ops_pass");
+    // runtime_option.DeletePaddleBackendPass("simplify_with_basic_ops_pass");
     runtime_ = std::unique_ptr<fastdeploy::Runtime>(new fastdeploy::Runtime());
     if (!runtime_->Init(runtime_option)) {
         std::cerr << "--- Init FastDeploy Runitme Failed! "

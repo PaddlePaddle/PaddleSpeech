@@ -21,7 +21,7 @@ import glob
 import logging
 import os
 
-from paddlespeech.s2t.models.wav2vec2.io.dataio import read_audio
+from paddlespeech.s2t.io.speechbrain.dataio import read_audio
 
 logger = logging.getLogger(__name__)
 

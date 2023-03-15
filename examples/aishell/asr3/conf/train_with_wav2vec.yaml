@@ -83,7 +83,7 @@ dnn_neurons: 1024
 freeze_wav2vec: False
 dropout: 0.15
 
-tokenizer: !apply:transformers.BertTokenizer.from_pretrained
+tokenizer: !apply:paddlenlp.transformers.AutoTokenizer.from_pretrained
    pretrained_model_name_or_path: bert-base-chinese
 # bert-base-chinese tokens length
 output_neurons: 21128

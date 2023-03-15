@@ -578,11 +578,11 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
   </thead>
   <tbody>
     <tr>
-    <td> Text Frontend </td>
-    <td colspan="2"> &emsp; </td>
-    <td>
-    <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
-    </td>
+      <td> Text Frontend </td>
+      <td colspan="2"> &emsp; </td>
+      <td>
+      <a href = "./examples/other/tn">tn</a> / <a href = "./examples/other/g2p">g2p</a>
+      </td>
     </tr>
     <tr>
       <td rowspan="6">Acoustic Model</td>
@@ -621,12 +621,12 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       </td>
     </tr>
     <tr>
-    <td>DiffSinger</td>
+      <td>DiffSinger</td>
       <td>Opencpop</td>
       <td>
       <a href = "./examples/opencpop/svs1">DiffSinger-opencpop</a>
       </td>
-    </tr>
+   </tr>
    <tr>
       <td rowspan="6">Vocoder</td>
       <td >WaveFlow</td>
@@ -637,7 +637,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
     <tr>
       <td >Parallel WaveGAN</td>
-      <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td >LJSpeech / VCTK / CSMSC / AISHELL-3 / Opencpop</td>
       <td>
       <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a> /  <a href = "./examples/aishell3/voc1">PWGAN-aishell3</a> / <a href = "./examples/opencpop/voc1">PWGAN-opencpop</a>
       </td>
@@ -658,7 +658,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </tr>
     <tr>
       <td>HiFiGAN</td>
-      <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
+      <td>LJSpeech / VCTK / CSMSC / AISHELL-3 / Opencpop</td>
       <td>
       <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a> / <a href = "./examples/opencpop/voc5">HiFiGAN-opencpop</a>
       </td>

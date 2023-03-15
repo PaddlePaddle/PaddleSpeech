@@ -585,7 +585,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
     </td>
     </tr>
     <tr>
-      <td rowspan="5">Acoustic Model</td>
+      <td rowspan="6">Acoustic Model</td>
       <td>Tacotron2</td>
       <td>LJSpeech / CSMSC</td>
       <td>
@@ -620,6 +620,13 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <a href = "./examples/vctk/ernie_sat">ERNIE-SAT-vctk</a> / <a href = "./examples/aishell3/ernie_sat">ERNIE-SAT-aishell3</a> / <a href = "./examples/aishell3_vctk/ernie_sat">ERNIE-SAT-zh_en</a>
       </td>
     </tr>
+    <tr>
+    <td>DiffSinger</td>
+      <td>Opencpop</td>
+      <td>
+      <a href = "./examples/opencpop/svs1">DiffSinger-opencpop</a>
+      </td>
+    </tr>
    <tr>
       <td rowspan="6">Vocoder</td>
       <td >WaveFlow</td>
@@ -632,7 +639,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td >Parallel WaveGAN</td>
       <td >LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a> /  <a href = "./examples/aishell3/voc1">PWGAN-aishell3</a>
+      <a href = "./examples/ljspeech/voc1">PWGAN-ljspeech</a> / <a href = "./examples/vctk/voc1">PWGAN-vctk</a> / <a href = "./examples/csmsc/voc1">PWGAN-csmsc</a> /  <a href = "./examples/aishell3/voc1">PWGAN-aishell3</a> / <a href = "./examples/opencpop/voc1">PWGAN-opencpop</a>
       </td>
     </tr>
     <tr>
@@ -653,7 +660,7 @@ PaddleSpeech supports a series of most popular models. They are summarized in [r
       <td>HiFiGAN</td>
       <td>LJSpeech / VCTK / CSMSC / AISHELL-3</td>
       <td>
-      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a>
+      <a href = "./examples/ljspeech/voc5">HiFiGAN-ljspeech</a> / <a href = "./examples/vctk/voc5">HiFiGAN-vctk</a> / <a href = "./examples/csmsc/voc5">HiFiGAN-csmsc</a> / <a href = "./examples/aishell3/voc5">HiFiGAN-aishell3</a> / <a href = "./examples/opencpop/voc5">HiFiGAN-opencpop</a>
       </td>
     </tr>
     <tr>

@@ -65,7 +65,7 @@ base = [
     "textgrid",
     "timer",
     "ToJyutping==0.2.1",
-    "typeguard",
+    "typeguard==2.13.3",
     "webrtcvad",
     "yacs~=0.1.8",
     "zhon",

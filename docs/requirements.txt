@@ -39,7 +39,7 @@ sphinx_rtd_theme
 textgrid
 timer
 ToJyutping
-typeguard
+typeguard==2.13.3
 webrtcvad
 websockets
 yacs~=0.1.8

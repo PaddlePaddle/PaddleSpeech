@@ -13,4 +13,4 @@ target_link_libraries(${bin_name} pps_vad)
 
 file(RELATIVE_PATH DEST_DIR ${ENGINE_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
 install(TARGETS pps_vad DESTINATION lib)
-install(TARGETS extern_glog DESTINATION lib)
+install(TARGETS glog DESTINATION lib)

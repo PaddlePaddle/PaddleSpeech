@@ -16,6 +16,7 @@
 #include <string>
 
 #include "base/flags.h"
+#include "base/log.h"
 #include "cls/nnet/panns_interface.h"
 
 DEFINE_string(conf_path, "", "config path");

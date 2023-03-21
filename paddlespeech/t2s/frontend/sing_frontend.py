@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,23 +18,7 @@ from typing import List
 import librosa
 import numpy as np
 import paddle
-import ToJyutping
 from pypinyin import lazy_pinyin
-from pypinyin import pinyin
-from pypinyin import Style
-
-from paddlespeech.t2s.frontend.zh_normalization.text_normlization import TextNormalizer
-
-INITIALS = [
-    'zh', 'ch', 'sh', 'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h',
-    'j', 'q', 'x', 'r', 'z', 'c', 's', 'y', 'w'
-]
-FINALS = [
-    'a', 'ai', 'an', 'ang', 'ao', 'e', 'ei', 'en', 'eng', 'er', 'i', 'ia',
-    'ian', 'iang', 'iao', 'ie', 'in', 'ing', 'iong', 'iu', 'ng', 'o', 'ong',
-    'ou', 'u', 'ua', 'uai', 'uan', 'uang', 'ui', 'un', 'uo', 'v', 'van', 've',
-    'vn'
-]
 
 
 class SingFrontend():
@@ -64,14 +48,14 @@ class SingFrontend():
                 self.vocab_phones[phn] = int(id)
 
     def get_phones(self, sentence: str) -> List[int]:
-        """_summary_
+        """get phone list
 
         Args:
             sentence (str): sentence
 
         Returns:
             List[int]: phones list
-        
+
         Example:
             sentence = "你好"
             phones = ['n i', 'h ao']

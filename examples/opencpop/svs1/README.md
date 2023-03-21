@@ -157,8 +157,8 @@ optional arguments:
                         The min and max values of the mel spectrum, using on diffusion of diffsinger.
 ```
 
-`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
-You need to download the pinyin-to-phone mapping file in advance: `wget https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/pinyin_to_phone.txt`
+`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file. 
+`local/pinyin_to_phone.txt` comes from the readme of the opencpop dataset, indicating the mapping from pinyin to phonemes in opencpop.
 
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}

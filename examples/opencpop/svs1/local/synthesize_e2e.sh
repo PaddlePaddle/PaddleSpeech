@@ -25,7 +25,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speech_stretchs=dump/train/speech_stretchs.npy \
-        --pinyin_phone=./pinyin_to_phone.txt
+        --pinyin_phone=local/pinyin_to_phone.txt
 fi
 
 # for more GAN Vocoders
@@ -48,6 +48,6 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speech_stretchs=dump/train/speech_stretchs.npy \
-        --pinyin_phone=./pinyin_to_phone.txt
+        --pinyin_phone=local/pinyin_to_phone.txt
         
 fi

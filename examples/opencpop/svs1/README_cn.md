@@ -163,7 +163,7 @@ optional arguments:
 ```
 
 `./local/synthesize_e2e.sh` 调用 `${BIN_DIR}/../synthesize_e2e.py`，即可从文本文件中合成波形。
-需要提前下载拼音映射音素的文件：`wget https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/pinyin_to_phone.txt`
+`local/pinyin_to_phone.txt`来源于opencpop数据集中的README，表示opencpop中拼音到音素的映射。
 
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}

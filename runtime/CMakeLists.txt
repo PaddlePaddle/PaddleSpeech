@@ -71,6 +71,8 @@ option(WITH_GPU "NNet using GPU." OFF)
 option(WITH_PROFILING "enable c++ profling" OFF)
 option(WITH_TESTING "unit test" ON)
 
+option(WITH_ONNX "u2 support onnx runtime" ON)
+
 ###############################################################################
 # Include Third Party
 ###############################################################################
@@ -79,6 +81,15 @@ include(gflags)
 include(glog)
 
 include(pybind)
+
+#onnx
+if(WITH_ONNX)
+    include(onnx)
+endif()
+
+# paddle lib
+include(paddleinference)
+
 # gtest
 if(WITH_TESTING)
     include(gtest) # download, build, install gtest

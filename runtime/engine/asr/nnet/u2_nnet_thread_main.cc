@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+#ifndef USE_ONNX
+    #include "nnet/u2_nnet.h"
+#else
+    #include "nnet/u2_onnx_nnet.h"
+#endif
 #include "base/common.h"
 #include "decoder/param.h"
 #include "frontend/feature_pipeline.h"
@@ -55,11 +59,18 @@ int main(int argc, char* argv[]) {
     kaldi::BaseFloatMatrixWriter nnet_out_writer(FLAGS_nnet_prob_wspecifier);
 
     ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
+#ifdef USE_ONNX
+    ppspeech::U2OnnxNnet::InitEngineThreads(1);
+#endif
     ppspeech::FeaturePipelineOptions feature_opts =
         ppspeech::FeaturePipelineOptions::InitFromFlags();
     feature_opts.assembler_opts.fill_zero = false;
 
+#ifndef USE_ONNX
     std::shared_ptr<ppspeech::U2Nnet> nnet(new ppspeech::U2Nnet(model_opts));
+#else
+    std::shared_ptr<ppspeech::U2OnnxNnet> nnet(new ppspeech::U2OnnxNnet(model_opts));
+#endif
     std::shared_ptr<ppspeech::FeaturePipeline> feature_pipeline(
         new ppspeech::FeaturePipeline(feature_opts));
     std::shared_ptr<ppspeech::NnetProducer> nnet_producer(

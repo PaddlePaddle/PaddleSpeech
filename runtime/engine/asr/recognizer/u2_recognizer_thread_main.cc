@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "recognizer/u2_recognizer.h"
 #include "decoder/param.h"
 #include "frontend/wave-reader.h"
 #include "kaldi/util/table-types.h"
-#include "recognizer/u2_recognizer.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
@@ -78,6 +78,9 @@ int main(int argc, char* argv[]) {
             }
 
             recognizer_ptr->Accept(wav_chunk);
+            // if (cur_chunk_size < chunk_sample_size) {
+            //     recognizer_ptr->SetInputFinished();
+            // }
 
             // no overlap
             sample_offset += cur_chunk_size;

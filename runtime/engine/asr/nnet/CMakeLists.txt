@@ -1,9 +1,14 @@
 set(srcs decodable.cc nnet_producer.cc)
 
 list(APPEND srcs u2_nnet.cc)
-
+if(WITH_ONNX)
+    list(APPEND srcs u2_onnx_nnet.cc)
+endif()
 add_library(nnet STATIC ${srcs})
 target_link_libraries(nnet utils)
+if(WITH_ONNX)
+    target_link_libraries(nnet onnxruntime)
+endif()
 
 target_compile_options(nnet  PUBLIC ${PADDLE_COMPILE_FLAGS})
 target_include_directories(nnet  PUBLIC ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})

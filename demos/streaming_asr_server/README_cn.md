@@ -90,7 +90,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
   server_executor = ServerExecutor()
   server_executor(
-      config_file="./conf/ws_conformer_wenetspeech_application", 
+      config_file="./conf/ws_conformer_wenetspeech_application_faster.yaml", 
       log_file="./log/paddlespeech.log")
   ```
 

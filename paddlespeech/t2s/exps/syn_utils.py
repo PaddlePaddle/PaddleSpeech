@@ -20,6 +20,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+import jsonlines
 import numpy as np
 import onnxruntime as ort
 import paddle
@@ -35,6 +36,7 @@ from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
 from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.canton_frontend import CantonFrontend
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
+from paddlespeech.t2s.frontend.sing_frontend import SingFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
@@ -124,6 +126,19 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
                 elif lang == 'mix':
                     sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
+    return sentences
+
+
+# input for svs
+def get_sentences_svs(text_file: Optional[os.PathLike]):
+    # construct dataset for evaluation
+    sentences = []
+    with jsonlines.open(text_file, 'r') as reader:
+        svs_inputs = list(reader)
+    for svs_input in svs_inputs:
+        utt_id = svs_input['utt_id']
+        sentence = svs_input
+        sentences.append((utt_id, sentence))
     return sentences
 
 
@@ -268,6 +283,7 @@ def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
 def get_frontend(lang: str='zh',
                  phones_dict: Optional[os.PathLike]=None,
                  tones_dict: Optional[os.PathLike]=None,
+                 pinyin_phone: Optional[os.PathLike]=None,
                  use_rhy=False):
     if lang == 'zh':
         frontend = Frontend(
@@ -281,18 +297,23 @@ def get_frontend(lang: str='zh',
     elif lang == 'mix':
         frontend = MixFrontend(
             phone_vocab_path=phones_dict, tone_vocab_path=tones_dict)
+    elif lang == 'sing':
+        frontend = SingFrontend(
+            pinyin_phone_path=pinyin_phone, phone_vocab_path=phones_dict)
     else:
         print("wrong lang!")
     return frontend
 
 
-def run_frontend(frontend: object,
-                 text: str,
-                 merge_sentences: bool=False,
-                 get_tone_ids: bool=False,
-                 lang: str='zh',
-                 to_tensor: bool=True,
-                 add_blank: bool=False):
+def run_frontend(
+        frontend: object,
+        text: str,
+        merge_sentences: bool=False,
+        get_tone_ids: bool=False,
+        lang: str='zh',
+        to_tensor: bool=True,
+        add_blank: bool=False,
+        svs_input: Dict[str, str]=None, ):
     outs = dict()
     if lang == 'zh':
         input_ids = {}
@@ -326,8 +347,18 @@ def run_frontend(frontend: object,
         input_ids = frontend.get_input_ids(
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
+    elif lang == 'sing':
+        input_ids = frontend.get_input_ids(
+            svs_input=svs_input, to_tensor=to_tensor)
+        phone_ids = input_ids["phone_ids"]
+        note_ids = input_ids["note_ids"]
+        note_durs = input_ids["note_durs"]
+        is_slurs = input_ids["is_slurs"]
+        outs.update({'note_ids': note_ids})
+        outs.update({'note_durs': note_durs})
+        outs.update({'is_slurs': is_slurs})
     else:
-        print("lang should in {'zh', 'en', 'mix', 'canton'}!")
+        print("lang should in {'zh', 'en', 'mix', 'canton', 'sing'}!")
     outs.update({'phone_ids': phone_ids})
     return outs
 
@@ -474,6 +505,7 @@ def am_to_static(am_inference,
     elif am_name == 'tacotron2':
         am_inference = jit.to_static(
             am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+
     elif am_name == 'vits':
         if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
             am_inference = jit.to_static(
@@ -485,8 +517,20 @@ def am_to_static(am_inference,
         else:
             am_inference = jit.to_static(
                 am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
+
+    elif am_name == 'diffsinger':
+        am_inference = jit.to_static(
+            am_inference,
+            input_spec=[
+                InputSpec([-1], dtype=paddle.int64),  # phone
+                InputSpec([-1], dtype=paddle.int64),  # note
+                InputSpec([-1], dtype=paddle.float32),  # note_dur
+                InputSpec([-1], dtype=paddle.int64),  # is_slur
+            ])
+
     jit.save(am_inference, os.path.join(inference_dir, am))
     am_inference = jit.load(os.path.join(inference_dir, am))
+
     return am_inference
 
 

@@ -70,7 +70,7 @@ Train a FastSpeech2 model.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG       fastspeech2 config file.
+  --config CONFIG       diffsinger config file.
   --train-metadata TRAIN_METADATA
                         training data.
   --dev-metadata DEV_METADATA
@@ -126,6 +126,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}
                         Choose acoustic model type of tts task.
+       {diffsinger_opencpop} Choose acoustic model type of svs task.
   --am_config AM_CONFIG
                         Config of acoustic model.
   --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
@@ -141,6 +142,7 @@ optional arguments:
                         whether training voice cloning model.
   --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,wavernn_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,style_melgan_csmsc}
                         Choose vocoder type of tts task.
+        {pwgan_opencpop, hifigan_opencpop} Choose vocoder type of svs task.
   --voc_config VOC_CONFIG
                         Config of voc.
   --voc_ckpt VOC_CKPT   Checkpoint file of voc.
@@ -151,8 +153,83 @@ optional arguments:
                         test metadata.
   --output_dir OUTPUT_DIR
                         output dir.
-  --speech-stretchs     mel min and max values file.
+  --speech-stretchs     SPEECH_STRETCHS
+                        The min and max values of the mel spectrum, using on diffusion of diffsinger.
 ```
+
+`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file. 
+`local/pinyin_to_phone.txt` comes from the readme of the opencpop dataset, indicating the mapping from pinyin to phonemes in opencpop.
+
+```bash
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+```
+```text
+usage: synthesize_e2e.py [-h]
+                         [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]
+                         [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                         [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                         [--speaker_dict SPEAKER_DICT] [--spk_id SPK_ID]
+                         [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,wavernn_csmsc}]
+                         [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                         [--voc_stat VOC_STAT] [--lang LANG]
+                         [--inference_dir INFERENCE_DIR] [--ngpu NGPU]
+                         [--text TEXT] [--output_dir OUTPUT_DIR]
+                         [--pinyin_phone PINYIN_PHONE]
+                         [--speech_stretchs SPEECH_STRETCHS]
+
+Synthesize with acoustic model & vocoder
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}
+                        Choose acoustic model type of tts task.
+       {diffsinger_opencpop} Choose acoustic model type of svs task.
+  --am_config AM_CONFIG
+                        Config of acoustic model.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
+                        phone vocabulary file.
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --spk_id SPK_ID       spk id for multi speaker acoustic model
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,wavernn_csmsc}
+                        Choose vocoder type of tts task.
+        {pwgan_opencpop, hifigan_opencpop} Choose vocoder type of svs task.
+  --voc_config VOC_CONFIG
+                        Config of voc.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
+  --lang LANG           {zh, en, mix, canton} Choose language type of tts task.
+                        {sing} Choose language type of svs task.
+  --inference_dir INFERENCE_DIR
+                        dir to save inference models
+  --ngpu NGPU           if ngpu == 0, use cpu.
+  --text TEXT           text to synthesize file, a 'utt_id sentence' pair per line for tts task.
+                        A '{ utt_id input_type (is word) text notes note_durs}' or '{utt_id input_type (is phoneme) phones notes note_durs is_slurs}' pair per line for svs task.
+  --output_dir OUTPUT_DIR
+                        output dir.
+  --pinyin_phone PINYIN_PHONE
+                        pinyin to phone map file, using on sing_frontend.
+  --speech_stretchs SPEECH_STRETCHS
+                        The min and max values of the mel spectrum, using on diffusion of diffsinger.
+```
+1. `--am` is acoustic model type with the format {model_name}_{dataset}
+2. `--am_config`, `--am_ckpt`, `--am_stat` and `--phones_dict` are arguments for acoustic model, which correspond to the 4 files in the diffsinger pretrained model.
+3. `--voc` is vocoder type with the format {model_name}_{dataset}
+4. `--voc_config`, `--voc_ckpt`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
+5. `--lang` is language. `zh`, `en`, `mix` and `canton` for tts task. `sing` for tts task.
+6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
+7. `--text` is the text file, which contains sentences to synthesize.
+8. `--output_dir` is the directory to save synthesized audio files.
+9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+10. `--inference_dir` is the directory to save static models. If this line is not added, it will not be generated and saved as a static model.
+11. `--pinyin_phone` pinyin to phone map file, using on sing_frontend.
+12. `--speech_stretchs` The min and max values of the mel spectrum, using on diffusion of diffsinger.
+
+Note: At present, the diffsinger model does not support dynamic to static, so do not add `--inference_dir`.
 
 
 ## Pretrained Model
@@ -165,10 +242,35 @@ diffsinger_opencpop_ckpt_1.4.0.zip
 ├── default.yaml             # default config used to train diffsinger
 ├── energy_stats.npy         # statistics used to normalize energy when training diffsinger if norm is needed
 ├── phone_id_map.txt         # phone vocabulary file when training diffsinger
+├── pinyin_to_phone.txt      # pinyin-to-phoneme mapping file when training diffsinger
 ├── pitch_stats.npy          # statistics used to normalize pitch when training diffsinger if norm is needed 
 ├── snapshot_iter_160000.pdz # model parameters of diffsinger
 ├── speech_stats.npy         # statistics used to normalize mel when training diffsinger if norm is needed
-└── speech_stretchs.npy      # Min and max values to use for mel spectral stretching before training diffusion
+└── speech_stretchs.npy      # min and max values to use for mel spectral stretching before training diffusion
 
 ```
-At present, the text frontend is not perfect, and the method of `synthesize_e2e` is not supported for synthesizing audio. Try using `synthesize` first.
+
+You can use the following scripts to synthesize for `${BIN_DIR}/../sentences_sing.txt` using pretrained diffsinger and parallel wavegan models.
+
+```bash
+source path.sh
+
+FLAGS_allocator_strategy=naive_best_fit \
+FLAGS_fraction_of_gpu_memory_to_use=0.01 \
+python3 ${BIN_DIR}/../synthesize_e2e.py \
+  --am=diffsinger_opencpop \
+  --am_config=diffsinger_opencpop_ckpt_1.4.0/default.yaml \
+  --am_ckpt=diffsinger_opencpop_ckpt_1.4.0/snapshot_iter_160000.pdz \
+  --am_stat=diffsinger_opencpop_ckpt_1.4.0/speech_stats.npy  \
+  --voc=pwgan_opencpop \
+  --voc_config=pwgan_opencpop_ckpt_1.4.0/default.yaml \
+  --voc_ckpt=pwgan_opencpop_ckpt_1.4.0/snapshot_iter_100000.pdz \
+  --voc_stat=pwgan_opencpop_ckpt_1.4.0/feats_stats.npy \
+  --lang=sing \
+  --text=${BIN_DIR}/../sentences_sing.txt \
+  --output_dir=exp/default/test_e2e \
+  --phones_dict=diffsinger_opencpop_ckpt_1.4.0/phone_id_map.txt \
+  --pinyin_phone=diffsinger_opencpop_ckpt_1.4.0/pinyin_to_phone.txt \
+  --speech_stretchs=diffsinger_opencpop_ckpt_1.4.0/speech_stretchs.npy
+  
+```

@@ -44,7 +44,8 @@ class LinearNorm(nn.Layer):
             self.linear_layer.weight, gain=_calculate_gain(w_init_gain))
 
     def forward(self, x: paddle.Tensor):
-        return self.linear_layer(x)
+        out = self.linear_layer(x)
+        return out
 
 
 class ConvNorm(nn.Layer):
@@ -183,13 +184,14 @@ class Attention(nn.Layer):
         """
         Args:
             query: 
-                decoder output (batch, n_mel_channels * n_frames_per_step)
+                decoder output (B, n_mel_channels * n_frames_per_step)
             processed_memory: 
                 processed encoder outputs (B, T_in, attention_dim)
             attention_weights_cat: 
                 cumulative and prev. att weights (B, 2, max_time)
         Returns:
-            Tensor: alignment (batch, max_time)
+            Tensor: 
+                alignment (B, max_time)
         """
 
         processed_query = self.query_layer(query.unsqueeze(1))
@@ -254,7 +256,6 @@ class MFCC(nn.Layer):
         # -> (channel, time, n_mfcc).tranpose(...)
         mfcc = paddle.matmul(mel_specgram.transpose([0, 2, 1]),
                              self.dct_mat).transpose([0, 2, 1])
-
         # unpack batch
         if unsqueezed:
             mfcc = mfcc.squeeze(0)

@@ -194,9 +194,8 @@ class ASRS2S(nn.Layer):
             logit_outputs += [logit]
             alignments += [attention_weights]
 
-        hidden_outputs, logit_outputs, alignments = \
-            self.parse_decoder_outputs(
-                hidden_outputs, logit_outputs, alignments)
+        hidden_outputs, logit_outputs, alignments = self.parse_decoder_outputs(
+            hidden_outputs, logit_outputs, alignments)
 
         return hidden_outputs, logit_outputs, alignments
 

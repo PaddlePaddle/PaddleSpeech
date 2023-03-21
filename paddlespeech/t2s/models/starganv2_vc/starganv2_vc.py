@@ -32,12 +32,23 @@ class DownSample(nn.Layer):
         self.layer_type = layer_type
 
     def forward(self, x: paddle.Tensor):
+        """Calculate forward propagation.
+        Args:
+            x(Tensor(float32)): Shape (B, dim_in, n_mels, T).
+        Returns:
+            Tensor:
+                layer_type == 'none': Shape (B, dim_in, n_mels, T)
+                layer_type == 'timepreserve': Shape (B, dim_in, n_mels // 2, T)
+                layer_type == 'half': Shape (B, dim_in, n_mels // 2, T // 2)
+        """
         if self.layer_type == 'none':
             return x
         elif self.layer_type == 'timepreserve':
-            return F.avg_pool2d(x, (2, 1))
+            out = F.avg_pool2d(x, (2, 1))
+            return out
         elif self.layer_type == 'half':
-            return F.avg_pool2d(x, 2)
+            out = F.avg_pool2d(x, 2)
+            return out
         else:
             raise RuntimeError(
                 'Got unexpected donwsampletype %s, expected is [none, timepreserve, half]'
@@ -50,12 +61,23 @@ class UpSample(nn.Layer):
         self.layer_type = layer_type
 
     def forward(self, x: paddle.Tensor):
+        """Calculate forward propagation.
+        Args:
+            x(Tensor(float32)): Shape (B, dim_in, n_mels, T).
+        Returns:
+            Tensor:
+                layer_type == 'none': Shape (B, dim_in, n_mels, T)
+                layer_type == 'timepreserve': Shape (B, dim_in, n_mels * 2, T)
+                layer_type == 'half': Shape (B, dim_in, n_mels * 2, T * 2)
+        """
         if self.layer_type == 'none':
             return x
         elif self.layer_type == 'timepreserve':
-            return F.interpolate(x, scale_factor=(2, 1), mode='nearest')
+            out = F.interpolate(x, scale_factor=(2, 1), mode='nearest')
+            return out
         elif self.layer_type == 'half':
-            return F.interpolate(x, scale_factor=2, mode='nearest')
+            out = F.interpolate(x, scale_factor=2, mode='nearest')
+            return out
         else:
             raise RuntimeError(
                 'Got unexpected upsampletype %s, expected is [none, timepreserve, half]'
@@ -126,7 +148,9 @@ class ResBlk(nn.Layer):
             x(Tensor(float32)): Shape (B, dim_in, n_mels, T).
         Returns:
             Tensor:
-                Shape (B, dim_out, T, n_mels//(1 or 2), T//(1 or 2)).
+                downsample == 'none': Shape (B, dim_in, n_mels, T).
+                downsample == 'timepreserve': Shape (B, dim_out, T, n_mels // 2, T).
+                downsample == 'half': Shape (B, dim_out, T, n_mels // 2, T // 2).
         """
         x = self._shortcut(x) + self._residual(x)
         # unit variance
@@ -142,12 +166,21 @@ class AdaIN(nn.Layer):
         self.fc = nn.Linear(style_dim, num_features * 2)
 
     def forward(self, x: paddle.Tensor, s: paddle.Tensor):
+        """Calculate forward propagation.
+        Args:
+            x(Tensor(float32)): Shape (B, style_dim, n_mels, T).
+            s(Tensor(float32)): Shape (style_dim, ).
+        Returns:
+            Tensor:
+                Shape (B, style_dim, T, n_mels, T).
+        """
         if len(s.shape) == 1:
             s = s[None]
         h = self.fc(s)
         h = h.reshape((h.shape[0], h.shape[1], 1, 1))
         gamma, beta = paddle.split(h, 2, axis=1)
-        return (1 + gamma) * self.norm(x) + beta
+        out = (1 + gamma) * self.norm(x) + beta
+        return out
 
 
 class AdainResBlk(nn.Layer):
@@ -164,6 +197,7 @@ class AdainResBlk(nn.Layer):
         self.upsample = UpSample(layer_type=upsample)
         self.learned_sc = dim_in != dim_out
         self._build_weights(dim_in, dim_out, style_dim)
+        self.layer_type = upsample
 
     def _build_weights(self, dim_in: int, dim_out: int, style_dim: int=64):
         self.conv1 = nn.Conv2D(
@@ -209,12 +243,14 @@ class AdainResBlk(nn.Layer):
         """Calculate forward propagation.
         Args:
             x(Tensor(float32)): 
-                Shape (B, dim_in, n_mels', T').
+                Shape (B, dim_in, n_mels, T).
             s(Tensor(float32)):
                 Shape (64,).
         Returns:
             Tensor:
-                Shape (B, dim_out, n_mels'', T'').
+                upsample == 'none': Shape (B, dim_out, T, n_mels, T).  
+                upsample == 'timepreserve': Shape (B, dim_out, T, n_mels * 2, T).
+                upsample == 'half': Shape (B, dim_out, T, n_mels * 2, T * 2).  
         """
         out = self._residual(x, s)
         if self.w_hpf == 0:
@@ -333,27 +369,27 @@ class Generator(nn.Layer):
             masks:
                 None.
             F0:
-                Shape (B, num_features(256), n_mels//8, T).
+                Shape (B, num_features(256), n_mels // 8, T).
         Returns:
             Tensor:
-                output of generator. Shape (B, 1, n_mels, T//4*4)
+                output of generator. Shape (B, 1, n_mels, T // 4 * 4)
         """
         x = self.stem(x)
         cache = {}
-        # output: (B, max_conv_dim, n_mels//16, T//4)
+        # output: (B, max_conv_dim, n_mels // 16, T // 4)
         for block in self.encode:
             if (masks is not None) and (x.shape[2] in [32, 64, 128]):
                 cache[x.shape[2]] = x
             x = block(x)
         if F0 is not None:
-            # input: (B, num_features(256), n_mels//8, T)
-            # output: (B, num_features(256)//2, n_mels//16, T//2)
+            # input: (B, num_features(256), n_mels // 8, T)
+            # output: (B, num_features(256) // 2, n_mels // 16, T // 2)
             F0 = self.F0_conv(F0)
-            # output: (B, num_features(256)//2, n_mels//16, T//4)
+            # output: (B, num_features(256) // 2, n_mels // 16, T // 4)
             F0 = F.adaptive_avg_pool2d(F0, [x.shape[-2], x.shape[-1]])
             x = paddle.concat([x, F0], axis=1)
-        # input: (B, max_conv_dim+num_features(256)//2, n_mels//16, T//4*4)
-        # output: (B, dim_in, n_mels, T//4*4)
+        # input: (B, max_conv_dim+num_features(256) // 2, n_mels // 16, T // 4 * 4)
+        # output: (B, dim_in, n_mels, T // 4 * 4)
         for block in self.decode:
             x = block(x, s)
             if (masks is not None) and (x.shape[2] in [32, 64, 128]):
@@ -397,11 +433,10 @@ class MappingNetwork(nn.Layer):
             z(Tensor(float32)): 
                 Shape (B, 1, n_mels, T).
             y(Tensor(float32)):
-                speaker label. Shape (B,).
-                
+                speaker label. Shape (B, ).    
         Returns:
             Tensor:
-                Shape (style_dim,)
+                Shape (style_dim, )
         """
 
         h = self.shared(z)
@@ -411,7 +446,7 @@ class MappingNetwork(nn.Layer):
         # (B, num_domains, style_dim)
         out = paddle.stack(out, axis=1)
         idx = paddle.arange(y.shape[0])
-        # (style_dim,)
+        # (style_dim, )
         s = out[idx, y]
         return s
 
@@ -462,10 +497,10 @@ class StyleEncoder(nn.Layer):
             x(Tensor(float32)): 
                 Shape (B, 1, n_mels, T).   
             y(Tensor(float32)):
-                speaker label. Shape (B,).
+                speaker label. Shape (B, ).
         Returns:
             Tensor:
-                Shape (style_dim,)
+                Shape (style_dim, )
         """
         h = self.shared(x)
         h = h.reshape((h.shape[0], -1))
@@ -502,10 +537,12 @@ class Discriminator(nn.Layer):
         self.num_domains = num_domains
 
     def forward(self, x: paddle.Tensor, y: paddle.Tensor):
-        return self.dis(x, y)
+        out = self.dis(x, y)
+        return out
 
     def classifier(self, x: paddle.Tensor):
-        return self.cls.get_feature(x)
+        out = self.cls.get_feature(x)
+        return out
 
 
 class Discriminator2D(nn.Layer):

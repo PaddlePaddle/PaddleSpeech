@@ -46,11 +46,11 @@ class JDCNet(nn.Layer):
             nn.LeakyReLU(leaky_relu_slope),
             # out: (B, out_channels, T, n_mels)
             nn.Conv2D(64, 64, 3, padding=1, bias_attr=False), )
-        # output: (B, out_channels, T, n_mels//2)
+        # output: (B, out_channels, T, n_mels // 2)
         self.res_block1 = ResBlock(in_channels=64, out_channels=128)
-        # output: (B, out_channels, T, n_mels//4) 
+        # output: (B, out_channels, T, n_mels // 4) 
         self.res_block2 = ResBlock(in_channels=128, out_channels=192)
-        # output: (B, out_channels, T, n_mels//8)  
+        # output: (B, out_channels, T, n_mels // 8)  
         self.res_block3 = ResBlock(in_channels=192, out_channels=256)
         # pool block
         self.pool_block = nn.Sequential(
@@ -59,7 +59,7 @@ class JDCNet(nn.Layer):
             # (B, num_features, T, 2)
             nn.MaxPool2D(kernel_size=(1, 4)),
             nn.Dropout(p=0.5), )
-        # input: (B, T, input_size) - resized from (B, input_size//2, T, 2)
+        # input: (B, T, input_size), resized from (B, input_size // 2, T, 2)
         # output: (B, T, input_size)
         self.bilstm_classifier = nn.LSTM(
             input_size=512,
@@ -81,7 +81,7 @@ class JDCNet(nn.Layer):
                 Shape (B, num_class, n_mels, T).
         Returns:
             Tensor:
-                Shape (B, num_features, n_mels//8, T).
+                Shape (B, num_features, n_mels // 8, T).
         """
         x = x.astype(paddle.float32)
         x = x.transpose([0, 1, 3, 2] if len(x.shape) == 4 else [0, 2, 1])
@@ -105,10 +105,9 @@ class JDCNet(nn.Layer):
                 classifier output consists of predicted pitch classes per frame.
                 Shape: (B, seq_len, num_class).
             Tensor:
-                GAN_feature. Shape: (B, num_features, n_mels//8, seq_len)
+                GAN_feature. Shape: (B, num_features, n_mels // 8, seq_len)
             Tensor:
-                poolblock_out. Shape (B, seq_len, 512)
-                
+                poolblock_out. Shape (B, seq_len, 512)     
         """
         ###############################
         # forward pass for classifier #
@@ -201,7 +200,7 @@ class ResBlock(nn.Layer):
             x(Tensor(float32)): Shape (B, in_channels, T, n_mels).
         Returns:
             Tensor:
-                The residual output, Shape (B, out_channels, T, n_mels//2).
+                The residual output, Shape (B, out_channels, T, n_mels // 2).
         """
         x = self.pre_conv(x)
         if self.downsample:

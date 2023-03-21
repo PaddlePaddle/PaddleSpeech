@@ -99,7 +99,7 @@ class ASRCNN(nn.Layer):
             unmask_futre_steps (int): 
                 unmasking future step size.
         Return:
-            mask (paddle.BoolTensor): 
+            Tensor (paddle.Tensor(bool)): 
                 mask future timesteps mask[i, j] = True if i > j + unmask_future_steps else False
         """
         index_tensor = paddle.arange(out_length).unsqueeze(0).expand(
@@ -194,9 +194,8 @@ class ASRS2S(nn.Layer):
             logit_outputs += [logit]
             alignments += [attention_weights]
 
-        hidden_outputs, logit_outputs, alignments = \
-            self.parse_decoder_outputs(
-                hidden_outputs, logit_outputs, alignments)
+        hidden_outputs, logit_outputs, alignments = self.parse_decoder_outputs(
+            hidden_outputs, logit_outputs, alignments)
 
         return hidden_outputs, logit_outputs, alignments
 

@@ -19,6 +19,12 @@ set(FETCHCONTENT_QUIET off)
 get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
 set(FETCHCONTENT_BASE_DIR ${fc_patch})
 
+# compiler option
+# Keep the same with openfst, -fPIC or -fpic
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ldl")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb -ldl")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall -ldl")
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_FIND_DEBUG_MODE OFF)
 set(PPS_CXX_STANDARD 14)

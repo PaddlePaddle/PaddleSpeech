@@ -4,12 +4,10 @@
 
 namespace ppspeech {
 
-std::string RemoveBlk(const std::string& str);
+std::string DelBlank(const std::string& str);
 
-std::string AddBlk(const std::string& str);
+std::string AddBlank(const std::string& str);
 
-std::string ReverseFrac(const std::string& str, 
-                        const std::string& left_tag = "<tag>", 
-                        const std::string& right_tag = "</tag>");
+std::string ReverseFraction(const std::string& str);
 
 }  // namespace ppspeech

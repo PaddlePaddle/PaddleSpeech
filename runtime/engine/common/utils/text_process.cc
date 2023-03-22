@@ -2,7 +2,7 @@
 
 namespace ppspeech {
 
-std::string RemoveBlk(const std::string& str) {
+std::string DelBlank(const std::string& str) {
     std::string out = "";
     int ptr_in = 0;    //  the pointer of input string (for traversal)
     int end = str.size();
@@ -23,7 +23,7 @@ std::string RemoveBlk(const std::string& str) {
     return out;
 }
 
-std::string AddBlk(const std::string& str) {
+std::string AddBlank(const std::string& str) {
     std::string out = "";
     int ptr = 0;  // the pointer of the input string
     int end = str.size();
@@ -44,32 +44,29 @@ std::string AddBlk(const std::string& str) {
     return out;
 }
 
-std::string ReverseFrac(const std::string& str, 
-                        const std::string& left_tag, 
-                        const std::string& right_tag) {
+std::string ReverseFraction(const std::string& str) {
     std::string out = "";
     int ptr = 0;   // the pointer of the input string
     int end = str.size();
     int left, right, frac;  // the start index of the left tag, right tag and '/'.
     left = right = frac = 0;
-    int len_left_tag = left_tag.size();
-    int len_right_tag = right_tag.size();
+    int len_tag = 5;  // length of "<tag>"
 
     while (ptr != end) {
         // find the position of left tag, right tag and '/'. (xxx<tag>num1/num2</tag>)
-        left = str.find(left_tag, ptr);
+        left = str.find("<tag>", ptr);
         if (left == -1)
             break;
         out += str.substr(ptr, left - ptr);  // content before left tag (xxx)
         frac = str.find("/", left);
-        right = str.find(right_tag, frac);
+        right = str.find("<tag>", frac);
         
         out += str.substr(frac + 1, right - frac - 1) + '/' + 
-               str.substr(left + len_left_tag, frac - left - len_left_tag);  // num2/num1
-        ptr = right + len_right_tag;
+               str.substr(left + len_tag, frac - left - len_tag);  // num2/num1
+        ptr = right + len_tag;
     }
     if (ptr != end) {
-        out += str.substr(ptr, end - right - len_right_tag);
+        out += str.substr(ptr, end - ptr);
     }
     return out;
 }

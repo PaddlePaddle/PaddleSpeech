@@ -192,7 +192,8 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         x_padded = paddle.concat([zero_pad, x], axis=-1)
         x_padded = x_padded.reshape([b, h, t2 + 1, t1])
         # only keep the positions from 0 to time2
-        x = x_padded[:, :, 1:].reshape([b, h, t1, t2])[:, :, :, :t2 // 2 + 1]
+        new_t = paddle.cast(paddle.floor(t2 / 2) + 1, dtype='int32')
+        x = x_padded[:, :, 1:].reshape([b, h, t1, t2])[:, :, :, :new_t]
 
         if self.zero_triu:
             ones = paddle.ones((t1, t2))
@@ -221,7 +222,6 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         q, k, v = self.forward_qkv(query, key, value)
         # (batch, time1, head, d_k)
         q = q.transpose([0, 2, 1, 3])
-
         n_batch_pos = paddle.shape(pos_emb)[0]
         p = self.linear_pos(pos_emb).reshape(
             [n_batch_pos, -1, self.h, self.d_k])

@@ -72,6 +72,7 @@ include(gflags)
 
 include(glog)
 
+include(pybind)
 # gtest
 if(WITH_TESTING)
     include(gtest) # download, build, install gtest
@@ -109,6 +110,7 @@ if(WITH_ASR)
 
     message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
     message(STATUS "PYTHON_INCLUDE_DIR = ${PYTHON_INCLUDE_DIR}")
+    include_directories(${PYTHON_INCLUDE_DIR})
 
     if(pybind11_FOUND)
         message(STATUS "pybind11_INCLUDES = ${pybind11_INCLUDE_DIRS}")

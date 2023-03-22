@@ -103,7 +103,7 @@ class MultiHeadedAttention(nn.Layer):
             mask = paddle.logical_not(mask)
             # assume scores.dtype==paddle.float32, we only use "float32" here
             dtype = str(scores.dtype).split(".")[-1]
-            min_value = numpy.finfo(dtype).min
+            min_value = float(numpy.finfo(dtype).min)
             scores = masked_fill(scores, mask, min_value)
             # (batch, head, time1, time2)
             self.attn = softmax(scores)
@@ -194,11 +194,9 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         # only keep the positions from 0 to time2
         new_t = paddle.cast(paddle.floor(t2 / 2) + 1, dtype='int32')
         x = x_padded[:, :, 1:].reshape([b, h, t1, t2])[:, :, :, :new_t]
-
         if self.zero_triu:
             ones = paddle.ones((t1, t2))
             x = x * paddle.tril(ones, t2 - t1)[None, None, :, :]
-
         return x
 
     def forward(self, query, key, value, pos_emb, mask):

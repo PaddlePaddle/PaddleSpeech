@@ -19,6 +19,6 @@ foreach(bin_name IN LISTS TEST_BINS)
   target_link_libraries(${bin_name} nnet decoder fst utils gflags glog kaldi-base kaldi-matrix kaldi-util)
   target_compile_options(${bin_name}  PRIVATE ${PADDLE_COMPILE_FLAGS})
   target_include_directories(${bin_name}  PRIVATE ${pybind11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
-  target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS})
+  target_link_libraries(${bin_name}  ${PYTHON_LIBRARIES} ${PADDLE_LINK_FLAGS} -ldl)
 endforeach()
 

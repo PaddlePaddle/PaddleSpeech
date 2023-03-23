@@ -14,11 +14,6 @@ set(PPS_VERSION_MINOR 0)
 set(PPS_VERSION_PATCH 0)
 set(PPS_VERSION "${PPS_VERSION_MAJOR}.${PPS_VERSION_MINOR}.${PPS_VERSION_PATCH}")
 
-# fc_patch dir
-set(FETCHCONTENT_QUIET off)
-get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
-set(FETCHCONTENT_BASE_DIR ${fc_patch})
-
 # compiler option
 # Keep the same with openfst, -fPIC or -fpic
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ldl")
@@ -50,6 +45,12 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/install)
 
 include(FetchContent)
 include(ExternalProject)
+
+# fc_patch dir
+set(FETCHCONTENT_QUIET off)
+get_filename_component(fc_patch "fc_patch" REALPATH BASE_DIR "${CMAKE_SOURCE_DIR}")
+set(FETCHCONTENT_BASE_DIR ${fc_patch})
+
 ###############################################################################
 # Option Configurations
 ###############################################################################

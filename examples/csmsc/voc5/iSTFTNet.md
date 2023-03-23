@@ -1,6 +1,6 @@
 # iSTFTNet with CSMSC
 
-This example contains code used to train a [iSTFTNet]([[2203.02395] iSTFTNet: Fast and Lightweight Mel-Spectrogram Vocoder Incorporating Inverse Short-Time Fourier Transform (arxiv.org)](https://arxiv.org/abs/2203.02395)) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html), 
+This example contains code used to train a [iSTFTNet](https://arxiv.org/abs/2203.02395) model with [Chinese Standard Mandarin Speech Copus](https://www.data-baker.com/open_source.html).
 
 ## Dataset
 ### Download and Extract
@@ -121,21 +121,15 @@ The pretrained model can be downloaded here:
 
 iSTFTNet checkpoint contains files listed below.
 
-
 ```text
-
 iSTFTNet_csmsc_ckpt
-
 ├── iSTFT.yaml                    # config used to train iSTFTNet
-
 ├── feats_stats.npy               # statistics used to normalize spectrogram when training hifigan
-
 └── snapshot_iter_50000.pdz       # generator parameters of hifigan
-
 ```
 
 A Comparison between iSTFTNet and Hifigan
-|  Model   |      Step      | eval/generator_loss | eval/mel_loss | eval/feature_matching_loss |  rtf   | 
+|  Model   |      Step      | eval/generator_loss | eval/mel_loss | eval/feature_matching_loss |  rtf   |
 |:--------:|:--------------:|:-------------------:|:-------------:|:--------------------------:| :---: |
 | hifigan  | 1(gpu) x 50000 |       13.989        |    0.14683    |           1.3484           |  0.01517   |
 | istftNet | 1(gpu) x 50000 |       12.815        |    0.14293    |          0.98067           |  0.00747   |

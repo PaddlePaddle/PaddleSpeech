@@ -56,6 +56,7 @@ set(FETCHCONTENT_BASE_DIR ${fc_patch})
 ###############################################################################
 # https://github.com/google/brotli/pull/655
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(NDEBUG "debug option" OFF)
 
 option(WITH_ASR "build asr" ON)
 option(WITH_CLS "build cls" ON)

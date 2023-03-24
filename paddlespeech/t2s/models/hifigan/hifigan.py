@@ -21,7 +21,6 @@ from typing import Optional
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
-import numpy as np
 
 from paddlespeech.t2s.modules.activation import get_activation
 from paddlespeech.t2s.modules.nets_utils import initialize
@@ -103,7 +102,8 @@ class HiFiGANGenerator(nn.Layer):
         assert len(upsample_scales) >= istft_layer_id if use_istft else True
 
         # define modules
-        self.num_upsamples = len(upsample_kernel_sizes) if not use_istft else istft_layer_id
+        self.num_upsamples = len(
+            upsample_kernel_sizes) if not use_istft else istft_layer_id
         self.num_blocks = len(resblock_kernel_sizes)
         self.input_conv = nn.Conv1D(
             in_channels,
@@ -155,8 +155,13 @@ class HiFiGANGenerator(nn.Layer):
             self.istft_layer_id = istft_layer_id
             self.istft_n_fft = int(self.istft_hop_size * overlap_ratio)
             self.istft_win_size = self.istft_n_fft
-            self.reflection_pad = nn.Pad1D(padding=[1,0], mode='reflect')
-            self.conv_post = nn.Conv1D(channels// (2**(i + 1)), (self.istft_n_fft // 2 + 1)*2, kernel_size, 1, padding=(kernel_size - 1) // 2, )
+            self.reflection_pad = nn.Pad1D(padding=[1, 0], mode='reflect')
+            self.conv_post = nn.Conv1D(
+                channels // (2**(i + 1)),
+                (self.istft_n_fft // 2 + 1) * 2,
+                kernel_size,
+                1,
+                padding=(kernel_size - 1) // 2, )
         else:
             self.istft_layer_id = len(upsample_scales)
 
@@ -191,7 +196,7 @@ class HiFiGANGenerator(nn.Layer):
             for j in range(self.num_blocks):
                 cs += self.blocks[i * self.num_blocks + j](c)
             c = cs / self.num_blocks
-            
+
         if self.use_istft:
             c = F.leaky_relu(c)
             c = self.reflection_pad(c)
@@ -204,8 +209,13 @@ class HiFiGANGenerator(nn.Layer):
             spec = paddle.exp(c[:, :self.istft_n_fft // 2 + 1, :])
             phase = paddle.sin(c[:, self.istft_n_fft // 2 + 1:, :])
 
-            c = paddle.complex(spec*(paddle.cos(phase)), spec*(paddle.sin(phase)))
-            c = paddle.signal.istft(c, n_fft=self.istft_n_fft, hop_length=self.istft_hop_size, win_length=self.istft_win_size)
+            c = paddle.complex(spec * (paddle.cos(phase)),
+                               spec * (paddle.sin(phase)))
+            c = paddle.signal.istft(
+                c,
+                n_fft=self.istft_n_fft,
+                hop_length=self.istft_hop_size,
+                win_length=self.istft_win_size)
             c = c.unsqueeze(1)
         else:
             c = self.output_conv(c)

@@ -24,16 +24,15 @@ fmax: 7600               # Maximum frequency in mel basis calculation. (Hz)
 #         GENERATOR NETWORK ARCHITECTURE SETTING          #
 ###########################################################
 generator_params:
-    istft: True                           # use iSTFTNet
-    post_n_fft: 48                        # stft fft_num
-    gen_istft_hop_size: 12                # istft hop_length
-    gen_istft_n_fft: 48                   # istft n_fft
+    use_istft: True                       # Use iSTFTNet
+    istft_layer_id: 2                     # Use istft after istft_layer_id layers of upsample layer if use_istft=True
+    overlap_ratio: 4                      # The ratio of istft_n_fft and istft_hop_size
     in_channels: 80                       # Number of input channels.
     out_channels: 1                       # Number of output channels.
     channels: 512                         # Number of initial channels.
     kernel_size: 7                        # Kernel size of initial and final conv layers.
-    upsample_scales:  [5,5]               # Upsampling scales.
-    upsample_kernel_sizes: [10,10]        # Kernel size for upsampling layers.
+    upsample_scales:  [5, 5, 4, 3]        # Upsampling scales.
+    upsample_kernel_sizes: [10, 10, 8, 6] # Kernel size for upsampling layers.
     resblock_kernel_sizes: [3, 7, 11]     # Kernel size for residual blocks.
     resblock_dilations:                   # Dilations for residual blocks.
         - [1, 3, 5]
@@ -163,7 +162,7 @@ discriminator_grad_norm: -1             # Discriminator's gradient norm.
 ###########################################################
 generator_train_start_steps: 1     # Number of steps to start to train discriminator.
 discriminator_train_start_steps: 0 # Number of steps to start to train discriminator.
-train_max_steps: 50000          # Number of training steps.
+train_max_steps: 2500000          # Number of training steps.
 save_interval_steps: 5000         # Interval steps to save checkpoint.
 eval_interval_steps: 1000          # Interval steps to evaluate the network.
 

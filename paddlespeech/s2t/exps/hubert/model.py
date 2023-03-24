@@ -186,8 +186,8 @@ class HubertASRTrainer(Trainer):
             wavs_lens_rate = wavs_lens / wav.shape[1]
             wav = wav[:, :, 0]
 
-        # if hasattr(train_conf, 'audio_augment'):
-        #     wav = self.speech_augmentation(wav, wavs_lens_rate)
+        if hasattr(train_conf, 'audio_augment'):
+            wav = self.speech_augmentation(wav, wavs_lens_rate)
 
         loss = self.model(wav, wavs_lens_rate, target, target_lens)
 

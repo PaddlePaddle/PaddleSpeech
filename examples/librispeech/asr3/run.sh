@@ -7,7 +7,7 @@ MODEL=hubert
 
 gpus=2
 stage=1
-stop_stage=1
+stop_stage=3
 conf_path=conf/${MODEL}ASR.yaml
 ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
@@ -20,7 +20,7 @@ audio_file=data/demo_002_en.wav
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
-ckpt=test3
+ckpt=test6
 echo "checkpoint name ${ckpt}"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then

@@ -2,16 +2,20 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-
 # S3PRL has no contribution to this file
 # The file was copied from fairseq to remove the dependency on the entire fairseq package
-
 import logging
 import math
 import uuid
-from dataclasses import dataclass, field
-from enum import Enum, EnumMeta
-from typing import Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from dataclasses import field
+from enum import Enum
+from enum import EnumMeta
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 import paddle
@@ -20,7 +24,6 @@ import paddle.nn.functional as F
 from paddle import Tensor
 
 logger = logging.getLogger(__name__)
-
 
 
 class GLU(nn.Layer):
@@ -42,12 +45,14 @@ class GLU(nn.Layer):
         >>> input = paddle.randn([4, 2])
         >>> output = m(input)
     """
-    def __init__(self, axis: int = -1) -> None:
+
+    def __init__(self, axis: int=-1) -> None:
         super().__init__()
         self.axis = axis
 
     def forward(self, input: Tensor) -> Tensor:
         return F.glu(input, self.axis)
+
 
 class FairseqIncrementalState(object):
     def __init__(self, *args, **kwargs):
@@ -61,10 +66,9 @@ class FairseqIncrementalState(object):
         return "{}.{}".format(self._incremental_state_id, key)
 
     def get_incremental_state(
-        self,
-        incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]],
-        key: str,
-    ) -> Optional[Dict[str, Optional[Tensor]]]:
+            self,
+            incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]],
+            key: str, ) -> Optional[Dict[str, Optional[Tensor]]]:
         """Helper for getting incremental state for an nn.Layer."""
         full_key = self._get_full_incremental_state_key(key)
         if incremental_state is None or full_key not in incremental_state:
@@ -72,10 +76,10 @@ class FairseqIncrementalState(object):
         return incremental_state[full_key]
 
     def set_incremental_state(
-        self,
-        incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]],
-        key: str,
-        value: Dict[str, Optional[Tensor]],
+            self,
+            incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]],
+            key: str,
+            value: Dict[str, Optional[Tensor]],
     ) -> Optional[Dict[str, Dict[str, Optional[Tensor]]]]:
         """Helper for setting incremental state for an nn.Layer."""
         if incremental_state is not None:
@@ -85,9 +89,8 @@ class FairseqIncrementalState(object):
 
 
 def with_incremental_state(cls):
-    cls.__bases__ = (FairseqIncrementalState,) + tuple(
-        b for b in cls.__bases__ if b != FairseqIncrementalState
-    )
+    cls.__bases__ = (FairseqIncrementalState, ) + tuple(
+        b for b in cls.__bases__ if b != FairseqIncrementalState)
     return cls
 
 
@@ -105,25 +108,21 @@ class FairseqDropout(paddle.nn.Layer):
             return x
 
     def make_generation_fast_(
-        self,
-        name: str,
-        retain_dropout: bool = False,
-        retain_dropout_modules: Optional[List[str]] = None,
-        **kwargs,
-    ):
+            self,
+            name: str,
+            retain_dropout: bool=False,
+            retain_dropout_modules: Optional[List[str]]=None,
+            **kwargs, ):
         if retain_dropout:
             if retain_dropout_modules is not None and self.module_name is None:
                 logger.warning(
                     "Cannot enable dropout during inference for module {} "
-                    "because module_name was not set".format(name)
-                )
-            elif (
-                retain_dropout_modules is None  # if None, apply to all modules
-                or self.module_name in retain_dropout_modules
-            ):
-                logger.info(
-                    "Enabling dropout during inference for module: {}".format(name)
-                )
+                    "because module_name was not set".format(name))
+            elif (retain_dropout_modules is
+                  None  # if None, apply to all modules
+                  or self.module_name in retain_dropout_modules):
+                logger.info("Enabling dropout during inference for module: {}".
+                            format(name))
                 self.apply_during_inference = True
             else:
                 logger.info("Disabling dropout for module: {}".format(name))
@@ -162,16 +161,15 @@ def quant_noise(module, p, block_size):
     # 2D matrix
     if not is_conv:
         assert (
-            module.weight.shape[1] % block_size == 0
-        ), "Input features must be a multiple of block sizes"
+            module.weight.shape[1] %
+            block_size == 0), "Input features must be a multiple of block sizes"
 
     # 4D matrix
     else:
         # 1x1 convolutions
         if module.weight.shape[2:] == (1, 1):
-            assert (
-                module.weight.shape[1] % block_size == 0
-            ), "Input channels must be a multiple of block sizes"
+            assert (module.weight.shape[1] % block_size == 0
+                    ), "Input channels must be a multiple of block sizes"
         # regular convolutions
         else:
             k = module.weight.shape[2] * module.weight.shape[3]
@@ -188,9 +186,11 @@ def quant_noise(module, p, block_size):
 
                 # split weight matrix into blocks and randomly drop selected blocks
                 mask = paddle.zeros(
-                    [in_features // block_size * out_features], dtype=paddle.bool)
+                    [in_features // block_size * out_features],
+                    dtype=paddle.bool)
                 mask.bernoulli_(p)
-                mask = mask.unsqueeze(1).tile([1, block_size]).reshape([-1, in_features])
+                mask = mask.unsqueeze(1).tile([1, block_size]).reshape(
+                    [-1, in_features])
 
             else:
                 # gather weight and sizes
@@ -201,14 +201,13 @@ def quant_noise(module, p, block_size):
                 # split weight matrix into blocks and randomly drop selected blocks
                 if module.weight.shape[2:] == (1, 1):
                     mask = paddle.zeros(
-                        [in_channels // block_size * out_channels], dtype=paddle.bool
-                    )
+                        [in_channels // block_size * out_channels],
+                        dtype=paddle.bool)
                     mask.bernoulli_(p)
-                    mask = mask.unsqueeze(1).tile([1, block_size]).reshape([-1, in_channels])
+                    mask = mask.unsqueeze(1).tile([1, block_size]).reshape(
+                        [-1, in_channels])
                 else:
-                    mask = paddle.zeros(
-                        weight.shape
-                    )
+                    mask = paddle.zeros(weight.shape)
                     mask.bernoulli_(p)
                     mask = mask.unsqueeze(1).tile([1, in_channels, 1, 1])
 
@@ -228,28 +227,26 @@ class MultiheadAttention(nn.Layer):
     """
 
     def __init__(
-        self,
-        embed_dim,
-        num_heads,
-        kdim=None,
-        vdim=None,
-        dropout=0.0,
-        bias=True,
-        add_bias_kv=False,
-        add_zero_attn=False,
-        self_attention=False,
-        encoder_decoder_attention=False,
-        q_noise=0.0,
-        qn_block_size=8,
-        # TODO: pass in config rather than string.
-        # config defined in xformers.components.attention.AttentionConfig
-        xformers_att_config: Optional[str] = None,
-        xformers_blocksparse_layout: Optional[
-            paddle.Tensor
-        ] = None,  # This should be part of the config
-        xformers_blocksparse_blocksize: Optional[
-            int
-        ] = 16,  # This should be part of the config
+            self,
+            embed_dim,
+            num_heads,
+            kdim=None,
+            vdim=None,
+            dropout=0.0,
+            bias=True,
+            add_bias_kv=False,
+            add_zero_attn=False,
+            self_attention=False,
+            encoder_decoder_attention=False,
+            q_noise=0.0,
+            qn_block_size=8,
+            # TODO: pass in config rather than string.
+            # config defined in xformers.components.attention.AttentionConfig
+            xformers_att_config: Optional[str]=None,
+            xformers_blocksparse_layout: Optional[
+                paddle.Tensor]=None,  # This should be part of the config
+            xformers_blocksparse_blocksize: Optional[
+                int]=16,  # This should be part of the config
     ):
         super().__init__()
 
@@ -271,22 +268,20 @@ class MultiheadAttention(nn.Layer):
 
         self.num_heads = num_heads
         self.dropout_module = FairseqDropout(
-            dropout, module_name=self.__class__.__name__
-        )
+            dropout, module_name=self.__class__.__name__)
 
         self.head_dim = embed_dim // num_heads
-        assert (
-            self.head_dim * num_heads == self.embed_dim
-        ), "embed_dim must be divisible by num_heads"
+        assert (self.head_dim * num_heads == self.embed_dim
+                ), "embed_dim must be divisible by num_heads"
         self.scaling = self.head_dim**-0.5
 
         self.self_attention = self_attention
         self.encoder_decoder_attention = encoder_decoder_attention
 
         assert not self.self_attention or self.qkv_same_dim, (
-            "Self-attention requires query, key and " "value to be of the same size"
-        )
-        
+            "Self-attention requires query, key and "
+            "value to be of the same size")
+
         weight_attr = paddle.ParamAttr(initializer=nn.initializer.XavierUniform)
         bias_attr = nn.initializer.Constant(0)
         # self.k_proj = quant_noise(
@@ -303,16 +298,22 @@ class MultiheadAttention(nn.Layer):
         #     nn.Linear(embed_dim, embed_dim, weight_attr=weight_attr, bias_attr=bias if not bias else bias_attr), q_noise, qn_block_size
         # )
         self.k_proj = nn.Linear(self.kdim, embed_dim)
-        
+
         self.v_proj = nn.Linear(self.vdim, embed_dim)
-        
+
         self.q_proj = nn.Linear(embed_dim, embed_dim)
 
         self.out_proj = nn.Linear(embed_dim, embed_dim)
 
         if add_bias_kv:
-            self.bias_k = paddle.create_parameter(shape=[1, 1, embed_dim], dtype='float32', initializer=nn.initializer.XavierUniform)
-            self.bias_v = paddle.create_parameter(shape=[1, 1, embed_dim], dtype='float32', initializer=nn.initializer.XavierUniform)
+            self.bias_k = paddle.create_parameter(
+                shape=[1, 1, embed_dim],
+                dtype='float32',
+                initializer=nn.initializer.XavierUniform)
+            self.bias_v = paddle.create_parameter(
+                shape=[1, 1, embed_dim],
+                dtype='float32',
+                initializer=nn.initializer.XavierUniform)
         else:
             self.bias_k = self.bias_v = None
 
@@ -327,25 +328,25 @@ class MultiheadAttention(nn.Layer):
         self.onnx_trace = True
 
     # def reset_parameters(self):
-        # if self.qkv_same_dim:
-        #     # Empirically observed the convergence to be much better with
-        #     # the scaled initialization
-        #     nn.initializer.XavierUniform(self.k_proj.weight, gain=1 / math.sqrt(2))
-        #     nn.initializer.XavierUniform(self.v_proj.weight, gain=1 / math.sqrt(2))
-        #     nn.initializer.XavierUniform(self.q_proj.weight, gain=1 / math.sqrt(2))
+    # if self.qkv_same_dim:
+    #     # Empirically observed the convergence to be much better with
+    #     # the scaled initialization
+    #     nn.initializer.XavierUniform(self.k_proj.weight, gain=1 / math.sqrt(2))
+    #     nn.initializer.XavierUniform(self.v_proj.weight, gain=1 / math.sqrt(2))
+    #     nn.initializer.XavierUniform(self.q_proj.weight, gain=1 / math.sqrt(2))
     # else:
-        # self.k_proj.weight = paddle.ParamAttr()
-        # nn.initializer.XavierUniform(self.k_proj.weight)
-        # nn.initializer.XavierUniform(self.v_proj.weight)
-        # nn.initializer.XavierUniform(self.q_proj.weight)
+    # self.k_proj.weight = paddle.ParamAttr()
+    # nn.initializer.XavierUniform(self.k_proj.weight)
+    # nn.initializer.XavierUniform(self.v_proj.weight)
+    # nn.initializer.XavierUniform(self.q_proj.weight)
 
-        # nn.initializer.XavierUniform(self.out_proj.weight)
-        # if self.out_proj.bias is not None:
-        #     nn.initializer.Constant(self.out_proj.bias)
-        # if self.bias_k is not None:
-        #     nn.initializer.XavierNormal(self.bias_k)
-        # if self.bias_v is not None:
-        #     nn.initializer.XavierNormal(self.bias_v)
+    # nn.initializer.XavierUniform(self.out_proj.weight)
+    # if self.out_proj.bias is not None:
+    #     nn.initializer.Constant(self.out_proj.bias)
+    # if self.bias_k is not None:
+    #     nn.initializer.XavierNormal(self.bias_k)
+    # if self.bias_v is not None:
+    #     nn.initializer.XavierNormal(self.bias_v)
 
     def _get_reserve_head_index(self, num_heads_to_keep: int):
         k_proj_heads_norm = []
@@ -356,45 +357,25 @@ class MultiheadAttention(nn.Layer):
             start_idx = i * self.head_dim
             end_idx = (i + 1) * self.head_dim
             k_proj_heads_norm.append(
-                paddle.sum(
-                    paddle.abs(
-                        self.k_proj.weight[
-                            start_idx:end_idx,
-                        ]
-                    )
-                ).tolist()
-                + paddle.sum(paddle.abs(self.k_proj.bias[start_idx:end_idx])).tolist()
-            )
+                paddle.sum(paddle.abs(self.k_proj.weight[start_idx:end_idx, ]))
+                .tolist() + paddle.sum(
+                    paddle.abs(self.k_proj.bias[start_idx:end_idx])).tolist())
             q_proj_heads_norm.append(
-                paddle.sum(
-                    paddle.abs(
-                        self.q_proj.weight[
-                            start_idx:end_idx,
-                        ]
-                    )
-                ).tolist()
-                + paddle.sum(paddle.abs(self.q_proj.bias[start_idx:end_idx])).tolist()
-            )
+                paddle.sum(paddle.abs(self.q_proj.weight[start_idx:end_idx, ]))
+                .tolist() + paddle.sum(
+                    paddle.abs(self.q_proj.bias[start_idx:end_idx])).tolist())
             v_proj_heads_norm.append(
-                paddle.sum(
-                    paddle.abs(
-                        self.v_proj.weight[
-                            start_idx:end_idx,
-                        ]
-                    )
-                ).tolist()
-                + paddle.sum(paddle.abs(self.v_proj.bias[start_idx:end_idx])).tolist()
-            )
+                paddle.sum(paddle.abs(self.v_proj.weight[start_idx:end_idx, ]))
+                .tolist() + paddle.sum(
+                    paddle.abs(self.v_proj.bias[start_idx:end_idx])).tolist())
 
         heads_norm = []
         for i in range(self.num_heads):
-            heads_norm.append(
-                k_proj_heads_norm[i] + q_proj_heads_norm[i] + v_proj_heads_norm[i]
-            )
+            heads_norm.append(k_proj_heads_norm[i] + q_proj_heads_norm[i] +
+                              v_proj_heads_norm[i])
 
         sorted_head_index = sorted(
-            range(self.num_heads), key=lambda k: heads_norm[k], reverse=True
-        )
+            range(self.num_heads), key=lambda k: heads_norm[k], reverse=True)
         reserve_head_index = []
         for i in range(num_heads_to_keep):
             start = sorted_head_index[i] * self.head_dim
@@ -414,39 +395,28 @@ class MultiheadAttention(nn.Layer):
 
         for ele in reserve_head_index:
             start_idx, end_idx = ele
-            new_q_weight.append(
-                self.q_proj.weight[
-                    start_idx:end_idx,
-                ]
-            )
+            new_q_weight.append(self.q_proj.weight[start_idx:end_idx, ])
             new_q_bias.append(self.q_proj.bias[start_idx:end_idx])
 
-            new_k_weight.append(
-                self.k_proj.weight[
-                    start_idx:end_idx,
-                ]
-            )
+            new_k_weight.append(self.k_proj.weight[start_idx:end_idx, ])
 
             new_k_bias.append(self.k_proj.bias[start_idx:end_idx])
 
-            new_v_weight.append(
-                self.v_proj.weight[
-                    start_idx:end_idx,
-                ]
-            )
+            new_v_weight.append(self.v_proj.weight[start_idx:end_idx, ])
             new_v_bias.append(self.v_proj.bias[start_idx:end_idx])
 
-            new_out_proj_weight.append(self.out_proj.weight[:, start_idx:end_idx])
+            new_out_proj_weight.append(
+                self.out_proj.weight[:, start_idx:end_idx])
 
         new_q_weight = paddle.concat(new_q_weight).detach()
         new_k_weight = paddle.concat(new_k_weight).detach()
         new_v_weight = paddle.concat(new_v_weight).detach()
-        new_out_proj_weight = paddle.concat(new_out_proj_weight, axis=-1).detach()
+        new_out_proj_weight = paddle.concat(
+            new_out_proj_weight, axis=-1).detach()
         new_q_weight.stop_gradient = False
         new_k_weight.stop_gradient = False
         new_v_weight.stop_gradient = False
         new_out_proj_weight.stop_gradient = False
-
 
         new_q_bias = paddle.concat(new_q_bias).detach()
         new_q_bias.stop_gradient = False
@@ -457,16 +427,38 @@ class MultiheadAttention(nn.Layer):
         new_v_bias = paddle.concat(new_v_bias).detach()
         new_v_bias.stop_gradient = False
 
-        self.q_proj.weight = paddle.create_parameter(shape=new_q_weight.shape, dtype=new_q_weight.dtype, default_initializer=paddle.nn.initializer.Assign(new_q_weight))
-        self.q_proj.bias = paddle.create_parameter(shape=new_q_bias.shape, dtype=new_q_bias.dtype, default_initializer=paddle.nn.initializer.Assign(new_q_bias))
+        self.q_proj.weight = paddle.create_parameter(
+            shape=new_q_weight.shape,
+            dtype=new_q_weight.dtype,
+            default_initializer=paddle.nn.initializer.Assign(new_q_weight))
+        self.q_proj.bias = paddle.create_parameter(
+            shape=new_q_bias.shape,
+            dtype=new_q_bias.dtype,
+            default_initializer=paddle.nn.initializer.Assign(new_q_bias))
 
-        self.k_proj.weight = paddle.create_parameter(shape=new_k_weight.shape, dtype=new_k_weight.dtype, default_initializer=paddle.nn.initializer.Assign(new_k_weight))
-        self.k_proj.bias = paddle.create_parameter(shape=new_k_bias.shape, dtype=new_k_bias.dtype, default_initializer=paddle.nn.initializer.Assign(new_k_bias))
+        self.k_proj.weight = paddle.create_parameter(
+            shape=new_k_weight.shape,
+            dtype=new_k_weight.dtype,
+            default_initializer=paddle.nn.initializer.Assign(new_k_weight))
+        self.k_proj.bias = paddle.create_parameter(
+            shape=new_k_bias.shape,
+            dtype=new_k_bias.dtype,
+            default_initializer=paddle.nn.initializer.Assign(new_k_bias))
 
-        self.v_proj.weight = paddle.create_parameter(shape=new_v_weight.shape, dtype=new_v_weight.dtype, default_initializer=paddle.nn.initializer.Assign(new_v_weight))
-        self.v_proj.bias = paddle.create_parameter(shape=new_v_bias.shape, dtype=new_v_bias.dtype, default_initializer=paddle.nn.initializer.Assign(new_v_bias))
+        self.v_proj.weight = paddle.create_parameter(
+            shape=new_v_weight.shape,
+            dtype=new_v_weight.dtype,
+            default_initializer=paddle.nn.initializer.Assign(new_v_weight))
+        self.v_proj.bias = paddle.create_parameter(
+            shape=new_v_bias.shape,
+            dtype=new_v_bias.dtype,
+            default_initializer=paddle.nn.initializer.Assign(new_v_bias))
 
-        self.out_proj.weight = paddle.create_parameter(shape=new_out_proj_weight.shape, dtype=new_out_proj_weight.dtype, default_initializer=paddle.nn.initializer.Assign(new_out_proj_weight))
+        self.out_proj.weight = paddle.create_parameter(
+            shape=new_out_proj_weight.shape,
+            dtype=new_out_proj_weight.dtype,
+            default_initializer=paddle.nn.initializer.Assign(
+                new_out_proj_weight))
 
         self.num_heads = len(reserve_head_index)
         self.embed_dim = self.head_dim * self.num_heads
@@ -478,67 +470,74 @@ class MultiheadAttention(nn.Layer):
         self.skip_embed_dim_check = True
 
     def _pad_masks(
-        self,
-        key_padding_mask: Optional[Tensor],
-        attn_mask: Optional[Tensor],
+            self,
+            key_padding_mask: Optional[Tensor],
+            attn_mask: Optional[Tensor],
     ) -> Tuple[Optional[Tensor], Optional[Tensor]]:
         if attn_mask is not None:
-            shape = attn_mask.shape[:-1] + [1,]
-            attn_mask = paddle.concat([attn_mask, paddle.zeros(shape, dtype=attn_mask.dtype)], axis=-1)
+            shape = attn_mask.shape[:-1] + [
+                1,
+            ]
+            attn_mask = paddle.concat(
+                [attn_mask, paddle.zeros(shape, dtype=attn_mask.dtype)],
+                axis=-1)
         if key_padding_mask is not None:
-            shape = key_padding_mask.shape[:-1] + [1,]
-            key_padding_mask = paddle.concat([key_padding_mask, paddle.zeros(shape, dtype=key_padding_mask.dtype)], axis=-1)
+            shape = key_padding_mask.shape[:-1] + [
+                1,
+            ]
+            key_padding_mask = paddle.concat(
+                [
+                    key_padding_mask, paddle.zeros(
+                        shape, dtype=key_padding_mask.dtype)
+                ],
+                axis=-1)
         return key_padding_mask, attn_mask
 
     def _add_bias(
-        self,
-        k: Tensor,
-        v: Tensor,
-        key_padding_mask: Optional[Tensor],
-        attn_mask: Optional[Tensor],
-        bsz: int,
+            self,
+            k: Tensor,
+            v: Tensor,
+            key_padding_mask: Optional[Tensor],
+            attn_mask: Optional[Tensor],
+            bsz: int,
     ) -> Tuple[Tensor, Tensor, Optional[Tensor], Optional[Tensor]]:
         assert self.bias_k is not None
         assert self.bias_v is not None
         k = paddle.concat([k, self.bias_k.tile([1, bsz, 1])], axis=-1)
         v = paddle.concat([v, self.bias_v.tile([1, bsz, 1])], axis=-1)
         key_padding_mask, attn_mask = self._pad_masks(
-            key_padding_mask=key_padding_mask, attn_mask=attn_mask
-        )
+            key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         return k, v, key_padding_mask, attn_mask
 
     def _append_zero_attn(
-        self,
-        k: Tensor,
-        v: Tensor,
-        key_padding_mask: Optional[Tensor],
-        attn_mask: Optional[Tensor],
+            self,
+            k: Tensor,
+            v: Tensor,
+            key_padding_mask: Optional[Tensor],
+            attn_mask: Optional[Tensor],
     ) -> Tuple[Tensor, Tensor, Optional[Tensor], Optional[Tensor]]:
         zero_attn_shape = k.shape[:-2] + [1] + k.shape[-1:]
         k = paddle.concat(
-            [k, paddle.zeros(zero_attn_shape, dtype=k.dtype)], axis=-2
-        )
+            [k, paddle.zeros(zero_attn_shape, dtype=k.dtype)], axis=-2)
         v = paddle.concat(
-            [v, paddle.zeros(zero_attn_shape, dtype=v.dtype)], axis=-2
-        )
+            [v, paddle.zeros(zero_attn_shape, dtype=v.dtype)], axis=-2)
         key_padding_mask, attn_mask = self._pad_masks(
-            key_padding_mask=key_padding_mask, attn_mask=attn_mask
-        )
+            key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         return k, v, key_padding_mask, attn_mask
 
     def forward(
-        self,
-        query,
-        key: Optional[Tensor],
-        value: Optional[Tensor],
-        key_padding_mask: Optional[Tensor] = None,
-        incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]] = None,
-        need_weights: bool = True,
-        static_kv: bool = False,
-        attn_mask: Optional[Tensor] = None,
-        before_softmax: bool = False,
-        need_head_weights: bool = False,
-    ) -> Tuple[Tensor, Optional[Tensor]]:
+            self,
+            query,
+            key: Optional[Tensor],
+            value: Optional[Tensor],
+            key_padding_mask: Optional[Tensor]=None,
+            incremental_state: Optional[Dict[str, Dict[str, Optional[
+                Tensor]]]]=None,
+            need_weights: bool=True,
+            static_kv: bool=False,
+            attn_mask: Optional[Tensor]=None,
+            before_softmax: bool=False,
+            need_head_weights: bool=False, ) -> Tuple[Tensor, Optional[Tensor]]:
         """Input shape: Time x Batch x Channel
 
         Args:
@@ -564,9 +563,8 @@ class MultiheadAttention(nn.Layer):
         tgt_len, bsz, embed_dim = query.shape
         src_len = tgt_len
         if not self.skip_embed_dim_check:
-            assert (
-                embed_dim == self.embed_dim
-            ), f"query dim {embed_dim} != {self.embed_dim}"
+            assert (embed_dim == self.embed_dim
+                    ), f"query dim {embed_dim} != {self.embed_dim}"
         assert list(query.shape) == [tgt_len, bsz, embed_dim]
         # if key is not None:
         #     src_len, key_bsz, _ = key.size()
@@ -590,35 +588,35 @@ class MultiheadAttention(nn.Layer):
         # ):
         #     assert key is not None and value is not None
 
-            # if self.use_xformers:
-            #     return self._xformers_attn_forward(
-            #         query, key, value, key_padding_mask, need_weights, attn_mask
-            #     )
+        # if self.use_xformers:
+        #     return self._xformers_attn_forward(
+        #         query, key, value, key_padding_mask, need_weights, attn_mask
+        #     )
 
-            # else:
-            #     return F.multi_head_attention_forward(
-            #         query,
-            #         key,
-            #         value,
-            #         self.embed_dim,
-            #         self.num_heads,
-            #         torch.empty([0]),
-            #         torch.cat((self.q_proj.bias, self.k_proj.bias, self.v_proj.bias)),
-            #         self.bias_k,
-            #         self.bias_v,
-            #         self.add_zero_attn,
-            #         self.dropout_module.p,
-            #         self.out_proj.weight,
-            #         self.out_proj.bias,
-            #         self.training or self.dropout_module.apply_during_inference,
-            #         key_padding_mask,
-            #         need_weights,
-            #         attn_mask,
-            #         use_separate_proj_weight=True,
-            #         q_proj_weight=self.q_proj.weight,
-            #         k_proj_weight=self.k_proj.weight,
-            #         v_proj_weight=self.v_proj.weight,
-            #     )
+        # else:
+        #     return F.multi_head_attention_forward(
+        #         query,
+        #         key,
+        #         value,
+        #         self.embed_dim,
+        #         self.num_heads,
+        #         torch.empty([0]),
+        #         torch.cat((self.q_proj.bias, self.k_proj.bias, self.v_proj.bias)),
+        #         self.bias_k,
+        #         self.bias_v,
+        #         self.add_zero_attn,
+        #         self.dropout_module.p,
+        #         self.out_proj.weight,
+        #         self.out_proj.bias,
+        #         self.training or self.dropout_module.apply_during_inference,
+        #         key_padding_mask,
+        #         need_weights,
+        #         attn_mask,
+        #         use_separate_proj_weight=True,
+        #         q_proj_weight=self.q_proj.weight,
+        #         k_proj_weight=self.k_proj.weight,
+        #         v_proj_weight=self.v_proj.weight,
+        #     )
 
         if incremental_state is not None:
             saved_state = self._get_input_buffer(incremental_state)
@@ -644,13 +642,13 @@ class MultiheadAttention(nn.Layer):
             else:
                 if self.beam_size > 1 and bsz == key.size(1):
                     # key is [T, bsz*beam_size, C], reduce to [T, bsz, C]
-                    key = key.view(key.size(0), -1, self.beam_size, key.size(2))[
-                        :, :, 0, :
-                    ]
+                    key = key.view(
+                        key.size(0), -1, self.beam_size,
+                        key.size(2))[:, :, 0, :]
                     if key_padding_mask is not None:
                         key_padding_mask = key_padding_mask.view(
-                            -1, self.beam_size, key_padding_mask.size(1)
-                        )[:, 0, :]
+                            -1, self.beam_size,
+                            key_padding_mask.size(1))[:, 0, :]
                 k = self.k_proj(key)
                 v = self.v_proj(key)
 
@@ -664,16 +662,21 @@ class MultiheadAttention(nn.Layer):
         if self.bias_k is not None:
             assert self.bias_v is not None
             k, v, attn_mask, key_padding_mask = self._add_bias(
-                k, v, attn_mask, key_padding_mask, bsz
-            )
+                k, v, attn_mask, key_padding_mask, bsz)
 
-        q = paddle.reshape(q, [tgt_len, bsz * self.num_heads, self.head_dim]).transpose([1, 0, 2])
+        q = paddle.reshape(
+            q, [tgt_len, bsz * self.num_heads, self.head_dim]).transpose(
+                [1, 0, 2])
         kv_bsz = bsz  # need default value for scripting
         if k is not None:
             kv_bsz = k.shape[1]
-            k = paddle.reshape(k, [-1, kv_bsz * self.num_heads, self.head_dim]).transpose([1, 0, 2])
+            k = paddle.reshape(
+                k, [-1, kv_bsz * self.num_heads, self.head_dim]).transpose(
+                    [1, 0, 2])
         if v is not None:
-            v = paddle.reshape(v, [-1, kv_bsz * self.num_heads, self.head_dim]).transpose([1, 0, 2])
+            v = paddle.reshape(
+                v, [-1, kv_bsz * self.num_heads, self.head_dim]).transpose(
+                    [1, 0, 2])
 
         if saved_state is not None:
             # saved states are stored with shape (bsz, num_heads, seq_len, head_dim)
@@ -681,7 +684,8 @@ class MultiheadAttention(nn.Layer):
                 _prev_key = saved_state["prev_key"]
                 assert _prev_key is not None
                 kv_bsz = _prev_key.shape[0]
-                prev_key = _prev_key.reshape([kv_bsz * self.num_heads, -1, self.head_dim])
+                prev_key = _prev_key.reshape(
+                    [kv_bsz * self.num_heads, -1, self.head_dim])
                 if static_kv:
                     k = prev_key
                 else:
@@ -693,8 +697,7 @@ class MultiheadAttention(nn.Layer):
                 assert _prev_value is not None
                 assert kv_bsz == _prev_value.size(0)
                 prev_value = _prev_value.reshape(
-                    [kv_bsz * self.num_heads, -1, self.head_dim]
-                )
+                    [kv_bsz * self.num_heads, -1, self.head_dim])
                 if static_kv:
                     v = prev_value
                 else:
@@ -709,17 +712,17 @@ class MultiheadAttention(nn.Layer):
                 prev_key_padding_mask=prev_key_padding_mask,
                 batch_size=kv_bsz,
                 src_len=k.shape[1],
-                static_kv=static_kv,
-            )
+                static_kv=static_kv, )
 
-            saved_state["prev_key"] = k.reshape([kv_bsz, self.num_heads, -1, self.head_dim])
+            saved_state["prev_key"] = k.reshape(
+                [kv_bsz, self.num_heads, -1, self.head_dim])
             saved_state["prev_value"] = v.reshape(
-                [kv_bsz, self.num_heads, -1, self.head_dim]
-            )
+                [kv_bsz, self.num_heads, -1, self.head_dim])
             saved_state["prev_key_padding_mask"] = key_padding_mask
             # In this branch incremental_state is never None
             assert incremental_state is not None
-            incremental_state = self._set_input_buffer(incremental_state, saved_state)
+            incremental_state = self._set_input_buffer(incremental_state,
+                                                       saved_state)
         assert k is not None
         assert k.shape[1] == src_len
 
@@ -736,21 +739,26 @@ class MultiheadAttention(nn.Layer):
             assert v is not None
             src_len += 1
             k, v, key_padding_mask, attn_mask = self._append_zero_attn(
-                k=k, v=v, key_padding_mask=key_padding_mask, attn_mask=attn_mask
-            )
+                k=k,
+                v=v,
+                key_padding_mask=key_padding_mask,
+                attn_mask=attn_mask)
 
         if self.encoder_decoder_attention and bsz != kv_bsz:
             attn_weights = paddle.einsum(
                 "bxhtd,bhsd->bxhts",
                 q.reshape([kv_bsz, -1, self.num_heads] + q.shape[1:]),
-                k.reshape([kv_bsz, self.num_heads] + k.shape[1:]),
-            )
-            attn_weights = attn_weights.reshape([-1,] + attn_weights.shape[-2:])
+                k.reshape([kv_bsz, self.num_heads] + k.shape[1:]), )
+            attn_weights = attn_weights.reshape([
+                -1,
+            ] + attn_weights.shape[-2:])
         else:
             attn_weights = paddle.bmm(q, k.transpose([0, 2, 1]))
-        attn_weights = self.apply_sparse_mask(attn_weights, tgt_len, src_len, bsz)
+        attn_weights = self.apply_sparse_mask(attn_weights, tgt_len, src_len,
+                                              bsz)
 
-        assert list(attn_weights.shape) == [bsz * self.num_heads, tgt_len, src_len]
+        assert list(
+            attn_weights.shape) == [bsz * self.num_heads, tgt_len, src_len]
 
         if attn_mask is not None:
             attn_mask = attn_mask.unsqueeze(0)
@@ -760,37 +768,37 @@ class MultiheadAttention(nn.Layer):
 
         if key_padding_mask is not None:
             # don't attend to padding symbols
-            attn_weights = attn_weights.reshape([bsz, self.num_heads, tgt_len, src_len])
+            attn_weights = attn_weights.reshape(
+                [bsz, self.num_heads, tgt_len, src_len])
             if not is_tpu:
                 attn_weights = attn_weights.reshape(
-                    [kv_bsz, -1, self.num_heads, tgt_len, src_len]
-                )
+                    [kv_bsz, -1, self.num_heads, tgt_len, src_len])
                 attn_weights = paddle.where(
-                    key_padding_mask.unsqueeze(1)
-                    .unsqueeze(2)
-                    .unsqueeze(3)
+                    key_padding_mask.unsqueeze(1).unsqueeze(2).unsqueeze(3)
                     .astype('bool'),
                     float('-inf') * paddle.ones_like(attn_weights),
-                    attn_weights
-                )
+                    attn_weights)
             else:
                 attn_weights = attn_weights.transpose([2, 1, 0])
-                attn_weights = paddle.where(key_padding_mask, float('-inf') * paddle.ones_like(attn_weights), attn_weights)
+                attn_weights = paddle.where(key_padding_mask,
+                                            float('-inf') *
+                                            paddle.ones_like(attn_weights),
+                                            attn_weights)
                 attn_weights = attn_weights.transpose([2, 1, 0])
-            attn_weights = attn_weights.reshape([bsz * self.num_heads, tgt_len, src_len])
+            attn_weights = attn_weights.reshape(
+                [bsz * self.num_heads, tgt_len, src_len])
 
         if before_softmax:
             return attn_weights, v
 
-        def softmax_supporting_onnx_trace(x, dim: int, onnx_trace: bool = False):
+        def softmax_supporting_onnx_trace(x, dim: int, onnx_trace: bool=False):
             if onnx_trace:
                 return F.softmax(x, axis=dim)
             else:
                 return F.softmax(x, axis=dim, dtype='float32')
 
         attn_weights_float = softmax_supporting_onnx_trace(
-            attn_weights, dim=-1, onnx_trace=self.onnx_trace
-        )
+            attn_weights, dim=-1, onnx_trace=self.onnx_trace)
         attn_weights = paddle.cast(attn_weights_float, attn_weights.dtype)
         attn_probs = self.dropout_module(attn_weights)
 
@@ -798,34 +806,28 @@ class MultiheadAttention(nn.Layer):
         if self.encoder_decoder_attention and bsz != kv_bsz:
             attn = paddle.einsum(
                 "bxhts,bhsd->bxhtd",
-                attn_probs.reshape(
-                        [kv_bsz,
-                        -1,
-                        self.num_heads]
-                    + attn_probs.shape[1:]
-                ),
-                v.reshape(
-                        [kv_bsz,
-                        self.num_heads]
-                    + v.shape[1:]
-                ),
-            )
-            attn = attn.reshape([-1,] + attn.shape[-2:])
+                attn_probs.reshape([kv_bsz, -1, self.num_heads] +
+                                   attn_probs.shape[1:]),
+                v.reshape([kv_bsz, self.num_heads] + v.shape[1:]), )
+            attn = attn.reshape([
+                -1,
+            ] + attn.shape[-2:])
         else:
             attn = paddle.bmm(attn_probs, v)
-        assert list(attn.shape) == [bsz * self.num_heads, tgt_len, self.head_dim]
+        assert list(
+            attn.shape) == [bsz * self.num_heads, tgt_len, self.head_dim]
         if self.onnx_trace and attn.shape[1] == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
             # the transpose is a no-op copy before view, thus unnecessary
             attn = attn.reshape([tgt_len, bsz, self.embed_dim])
         else:
-            attn = attn.transpose([1, 0, 2]).reshape([tgt_len, bsz, self.embed_dim])
+            attn = attn.transpose([1, 0, 2]).reshape(
+                [tgt_len, bsz, self.embed_dim])
         attn = self.out_proj(attn)
         attn_weights: Optional[Tensor] = None
         if need_weights:
             attn_weights = attn_weights_float.reshape(
-                [bsz, self.num_heads, tgt_len, src_len]
-            ).transpose([1, 0, 2, 3])
+                [bsz, self.num_heads, tgt_len, src_len]).transpose([1, 0, 2, 3])
             if not need_head_weights:
                 # average attention weights over heads
                 attn_weights = attn_weights.mean(axis=0)
@@ -834,52 +836,51 @@ class MultiheadAttention(nn.Layer):
 
     @staticmethod
     def _append_prev_key_padding_mask(
-        key_padding_mask: Optional[Tensor],
-        prev_key_padding_mask: Optional[Tensor],
-        batch_size: int,
-        src_len: int,
-        static_kv: bool,
-    ) -> Optional[Tensor]:
+            key_padding_mask: Optional[Tensor],
+            prev_key_padding_mask: Optional[Tensor],
+            batch_size: int,
+            src_len: int,
+            static_kv: bool, ) -> Optional[Tensor]:
         # saved key padding masks have shape (bsz, seq_len)
         if prev_key_padding_mask is not None and static_kv:
             new_key_padding_mask = prev_key_padding_mask
         elif prev_key_padding_mask is not None and key_padding_mask is not None:
-            new_key_padding_mask = paddle.concat(
-                [paddle.cast(prev_key_padding_mask, 'float32'), paddle.cast(key_padding_mask, 'float32')], axis==1
-            )
+            new_key_padding_mask = paddle.concat([
+                paddle.cast(prev_key_padding_mask, 'float32'),
+                paddle.cast(key_padding_mask, 'float32')
+            ], axis == 1)
         # During incremental decoding, as the padding token enters and
         # leaves the frame, there will be a time when prev or current
         # is None
         elif prev_key_padding_mask is not None:
             if src_len > prev_key_padding_mask.shape[1]:
                 filler = paddle.zeros(
-                    [batch_size, src_len - prev_key_padding_mask.shape[1]],
-                )
-                new_key_padding_mask = paddle.concat(
-                    [paddle.cast(prev_key_padding_mask, 'float32'), paddle.cast(filler, 'float32')], axis==1
-                )
+                    [batch_size, src_len - prev_key_padding_mask.shape[1]], )
+                new_key_padding_mask = paddle.concat([
+                    paddle.cast(prev_key_padding_mask, 'float32'),
+                    paddle.cast(filler, 'float32')
+                ], axis == 1)
             else:
                 new_key_padding_mask = prev_key_padding_mask
         elif key_padding_mask is not None:
             if src_len > key_padding_mask.shape[1]:
                 filler = paddle.zeros(
-                    [batch_size, src_len - key_padding_mask.shape[1]],
-                )
-                new_key_padding_mask = paddle.concat(
-                    [paddle.cast(filler,'float32'), paddle.cast(key_padding_mask,'float32')], axis==1
-                )
+                    [batch_size, src_len - key_padding_mask.shape[1]], )
+                new_key_padding_mask = paddle.concat([
+                    paddle.cast(filler, 'float32'),
+                    paddle.cast(key_padding_mask, 'float32')
+                ], axis == 1)
             else:
-                new_key_padding_mask = paddle.cast(key_padding_mask,'float32')
+                new_key_padding_mask = paddle.cast(key_padding_mask, 'float32')
         else:
             new_key_padding_mask = prev_key_padding_mask
         return new_key_padding_mask
 
     @paddle.jit.to_static
     def reorder_incremental_state(
-        self,
-        incremental_state: Dict[str, Dict[str, Optional[Tensor]]],
-        new_order: Tensor,
-    ):
+            self,
+            incremental_state: Dict[str, Dict[str, Optional[Tensor]]],
+            new_order: Tensor, ):
         """Reorder buffered internal state (for incremental generation)."""
         input_buffer = self._get_input_buffer(incremental_state)
         if input_buffer is not None:
@@ -887,19 +888,24 @@ class MultiheadAttention(nn.Layer):
                 input_buffer_k = input_buffer[k]
                 if input_buffer_k is not None:
                     if self.encoder_decoder_attention:
-                        if input_buffer_k.shape[0] * self.beam_size == new_order.shape[0]:
+                        if input_buffer_k.shape[
+                                0] * self.beam_size == new_order.shape[0]:
                             return incremental_state
                         elif self.beam_size > 1:
                             input_buffer[k] = paddle.index_select(
                                 input_buffer_k,
-                                index=new_order.reshape([-1, self.beam_size])[:, 0] // self.beam_size,
-                                axis=0,
-                            )
+                                index=new_order.reshape(
+                                    [-1, self.beam_size])[:, 0] //
+                                self.beam_size,
+                                axis=0, )
                         else:
-                            input_buffer[k] = paddle.index_select(input_buffer_k, index=new_order, axis=0)
+                            input_buffer[k] = paddle.index_select(
+                                input_buffer_k, index=new_order, axis=0)
                     else:
-                        input_buffer[k] = paddle.index_select(input_buffer_k, index=new_order, axis=0)
-            incremental_state = self._set_input_buffer(incremental_state, input_buffer)
+                        input_buffer[k] = paddle.index_select(
+                            input_buffer_k, index=new_order, axis=0)
+            incremental_state = self._set_input_buffer(incremental_state,
+                                                       input_buffer)
         return incremental_state
 
     def set_beam_size(self, beam_size):
@@ -907,7 +913,8 @@ class MultiheadAttention(nn.Layer):
         self.beam_size = beam_size
 
     def _get_input_buffer(
-        self, incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]]
+            self,
+            incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]]
     ) -> Dict[str, Optional[Tensor]]:
         result = self.get_incremental_state(incremental_state, "attn_state")
         if result is not None:
@@ -917,13 +924,17 @@ class MultiheadAttention(nn.Layer):
             return empty_result
 
     def _set_input_buffer(
-        self,
-        incremental_state: Dict[str, Dict[str, Optional[Tensor]]],
-        buffer: Dict[str, Optional[Tensor]],
-    ):
-        return self.set_incremental_state(incremental_state, "attn_state", buffer)
+            self,
+            incremental_state: Dict[str, Dict[str, Optional[Tensor]]],
+            buffer: Dict[str, Optional[Tensor]], ):
+        return self.set_incremental_state(incremental_state, "attn_state",
+                                          buffer)
 
-    def apply_sparse_mask(self, attn_weights, tgt_len: int, src_len: int, bsz: int):
+    def apply_sparse_mask(self,
+                          attn_weights,
+                          tgt_len: int,
+                          src_len: int,
+                          bsz: int):
         return attn_weights
 
     def upgrade_state_dict_named(self, state_dict, name):
@@ -935,19 +946,21 @@ class MultiheadAttention(nn.Layer):
                 # in_proj_weight used to be q + k + v with same dimensions
                 dim = int(state_dict[k].shape[0] / 3)
                 items_to_add[prefix + "q_proj.weight"] = state_dict[k][:dim]
-                items_to_add[prefix + "k_proj.weight"] = state_dict[k][dim : 2 * dim]
-                items_to_add[prefix + "v_proj.weight"] = state_dict[k][2 * dim :]
+                items_to_add[prefix +
+                             "k_proj.weight"] = state_dict[k][dim:2 * dim]
+                items_to_add[prefix + "v_proj.weight"] = state_dict[k][2 * dim:]
 
                 keys_to_remove.append(k)
 
                 k_bias = prefix + "in_proj_bias"
                 if k_bias in state_dict.keys():
                     dim = int(state_dict[k].shape[0] / 3)
-                    items_to_add[prefix + "q_proj.bias"] = state_dict[k_bias][:dim]
+                    items_to_add[prefix +
+                                 "q_proj.bias"] = state_dict[k_bias][:dim]
                     items_to_add[prefix + "k_proj.bias"] = state_dict[k_bias][
-                        dim : 2 * dim
-                    ]
-                    items_to_add[prefix + "v_proj.bias"] = state_dict[k_bias][2 * dim :]
+                        dim:2 * dim]
+                    items_to_add[prefix +
+                                 "v_proj.bias"] = state_dict[k_bias][2 * dim:]
 
                     keys_to_remove.append(prefix + "in_proj_bias")
 
@@ -957,20 +970,20 @@ class MultiheadAttention(nn.Layer):
         for key, value in items_to_add.items():
             state_dict[key] = value
 
+
 class GumbelVectorQuantizer(nn.Layer):
     def __init__(
-        self,
-        dim,
-        num_vars,
-        temp,
-        groups,
-        combine_groups,
-        vq_dim,
-        time_first,
-        activation=nn.GELU(),
-        weight_proj_depth=1,
-        weight_proj_factor=1,
-    ):
+            self,
+            dim,
+            num_vars,
+            temp,
+            groups,
+            combine_groups,
+            vq_dim,
+            time_first,
+            activation=nn.GELU(),
+            weight_proj_depth=1,
+            weight_proj_factor=1, ):
         """Vector quantization using gumbel softmax
 
         Args:
@@ -1001,13 +1014,15 @@ class GumbelVectorQuantizer(nn.Layer):
         var_dim = vq_dim // groups
         num_groups = groups if not combine_groups else 1
 
-        self.vars = self.create_parameter((1, num_groups * num_vars, var_dim), default_initializer=nn.initializer.Uniform())
-
+        self.vars = self.create_parameter(
+            (1, num_groups * num_vars, var_dim),
+            default_initializer=nn.initializer.Uniform())
 
         if weight_proj_depth > 1:
 
             def block(input_dim, output_dim):
-                return nn.Sequential(nn.Linear(input_dim, output_dim), activation)
+                return nn.Sequential(
+                    nn.Linear(input_dim, output_dim), activation)
 
             inner_dim = self.input_dim * weight_proj_factor
             self.weight_proj = nn.Sequential(
@@ -1015,8 +1030,7 @@ class GumbelVectorQuantizer(nn.Layer):
                     block(self.input_dim if i == 0 else inner_dim, inner_dim)
                     for i in range(weight_proj_depth - 1)
                 ],
-                nn.Linear(inner_dim, groups * num_vars),
-            )
+                nn.Linear(inner_dim, groups * num_vars), )
         else:
             self.weight_proj = nn.Linear(self.input_dim, groups * num_vars)
             nn.initializer.Normal(mean=0, std=1)(self.weight_proj.weight)
@@ -1033,9 +1047,8 @@ class GumbelVectorQuantizer(nn.Layer):
         self.codebook_indices = None
 
     def set_num_updates(self, num_updates):
-        self.curr_temp = max(
-            self.max_temp * self.temp_decay**num_updates, self.min_temp
-        )
+        self.curr_temp = max(self.max_temp * self.temp_decay**num_updates,
+                             self.min_temp)
 
     def get_codebook_indices(self):
         if self.codebook_indices is None:
@@ -1044,13 +1057,11 @@ class GumbelVectorQuantizer(nn.Layer):
             p = [range(self.num_vars)] * self.groups
             inds = list(product(*p))
             self.codebook_indices = paddle.to_tensor(
-                inds, dtype='int64', place=self.vars.place
-            ).flatten()
+                inds, dtype='int64', place=self.vars.place).flatten()
 
             if not self.combine_groups:
                 self.codebook_indices = self.codebook_indices.reshape(
-                    self.num_vars**self.groups, -1
-                )
+                    self.num_vars**self.groups, -1)
                 for b in range(1, self.groups):
                     self.codebook_indices[:, b] += self.num_vars * b
                 self.codebook_indices = self.codebook_indices.flatten()
@@ -1058,23 +1069,20 @@ class GumbelVectorQuantizer(nn.Layer):
 
     def codebook(self):
         indices = self.get_codebook_indices()
-        return (
-            self.vars.squeeze(0)
-            .index_select(0, indices)
-            .reshape(self.num_vars**self.groups, -1)
-        )
+        return (self.vars.squeeze(0).index_select(0, indices)
+                .reshape(self.num_vars**self.groups, -1))
 
     def sample_from_codebook(self, b, n):
         indices = self.get_codebook_indices()
         indices = indices.reshape(-1, self.groups)
         cb_size = indices.shape[0]
-        assert (
-            n < cb_size
-        ), f"sample size {n} is greater than size of codebook {cb_size}"
-        sample_idx = paddle.randint(low=0, high=cb_size, shape=(b * n,))
+        assert (n < cb_size
+                ), f"sample size {n} is greater than size of codebook {cb_size}"
+        sample_idx = paddle.randint(low=0, high=cb_size, shape=(b * n, ))
         indices = indices[sample_idx]
 
-        z = self.vars.squeeze(0).index_select(0, indices.flatten()).reshape(b, n, -1)
+        z = self.vars.squeeze(0).index_select(0, indices.flatten()).reshape(
+            b, n, -1)
         return z
 
     def to_codebook_index(self, indices):
@@ -1104,23 +1112,23 @@ class GumbelVectorQuantizer(nn.Layer):
         hard_x.scatter_(-1, k.reshape([-1, 1]), 1.0)
         hard_x = hard_x.reshape([bsz * tsz, self.groups, -1])
         hard_probs = paddle.mean(hard_x.astype('float32'), axis=0)
-        result["code_perplexity"] = paddle.exp(
-            -paddle.sum(hard_probs * paddle.log(hard_probs + 1e-7), axis=-1)
-        ).sum()
+        result["code_perplexity"] = paddle.exp(-paddle.sum(
+            hard_probs * paddle.log(hard_probs + 1e-7), axis=-1)).sum()
 
-        avg_probs = F.softmax(x.reshape([bsz * tsz, self.groups, -1]).astype('float32'), axis=-1).mean(axis=0)
-        result["prob_perplexity"] = paddle.exp(
-            -paddle.sum(avg_probs * paddle.log(avg_probs + 1e-7), axis=-1)
-        ).sum()
-
+        avg_probs = F.softmax(
+            x.reshape([bsz * tsz, self.groups, -1]).astype('float32'),
+            axis=-1).mean(axis=0)
+        result["prob_perplexity"] = paddle.exp(-paddle.sum(
+            avg_probs * paddle.log(avg_probs + 1e-7), axis=-1)).sum()
 
         result["temp"] = self.curr_temp
 
         if self.training:
-            x = F.gumbel_softmax(x.astype('float32'), tau=self.curr_temp, hard=True).astype(x.dtype)
+            x = F.gumbel_softmax(
+                x.astype('float32'), tau=self.curr_temp,
+                hard=True).astype(x.dtype)
         else:
             x = hard_x
-
 
         x = x.reshape([bsz * tsz, -1])
 
@@ -1129,12 +1137,9 @@ class GumbelVectorQuantizer(nn.Layer):
             vars = vars.tile([1, self.groups, 1])
 
         if produce_targets:
-            result["targets"] = (
-                x.reshape([bsz * tsz * self.groups, -1])
-                .argmax(axis=-1)
-                .reshape([bsz, tsz, self.groups])
-                .detach()
-            )
+            result["targets"] = (x.reshape([bsz * tsz * self.groups, -1])
+                                 .argmax(axis=-1)
+                                 .reshape([bsz, tsz, self.groups]).detach())
 
         x = x.unsqueeze(-1) * vars
         x = x.reshape([bsz * tsz, self.groups, self.num_vars, -1])
@@ -1147,6 +1152,7 @@ class GumbelVectorQuantizer(nn.Layer):
         result["x"] = x
 
         return result
+
 
 class GradMultiply(paddle.autograd.PyLayer):
     @staticmethod
@@ -1170,7 +1176,7 @@ class SamePad(nn.Layer):
 
     def forward(self, x):
         if self.remove > 0:
-            x = x[:, :, : -self.remove]
+            x = x[:, :, :-self.remove]
         return x
 
 
@@ -1188,7 +1194,11 @@ class TransposeLast(nn.Layer):
 
 
 def LayerNorm(normalized_shape, eps=1e-5):
-    return nn.LayerNorm(normalized_shape, epsilon=eps, weight_attr=paddle.ParamAttr(), bias_attr=paddle.ParamAttr())  
+    return nn.LayerNorm(
+        normalized_shape,
+        epsilon=eps,
+        weight_attr=paddle.ParamAttr(),
+        bias_attr=paddle.ParamAttr())
 
 
 class Fp32LayerNorm(nn.LayerNorm):
@@ -1203,13 +1213,14 @@ class Fp32LayerNorm(nn.LayerNorm):
             self._normalized_shape,
             self.weight.astype('float32') if self.weight is not None else None,
             self.bias.astype('float32') if self.bias is not None else None,
-            self._epsilon,
-        )
+            self._epsilon, )
         return output.astype(input.dtype)
+
 
 class Fp32GroupNorm(nn.GroupNorm):
     def __init__(self, *args, **kwargs):
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
+
     def forward(self, input):
         # import pdb
         # pdb.set_trace()
@@ -1218,8 +1229,7 @@ class Fp32GroupNorm(nn.GroupNorm):
             self._num_groups,
             self.weight.astype('float32') if self.weight is not None else None,
             self.bias.astype('float32') if self.bias is not None else None,
-            self._epsilon,
-        )
+            self._epsilon, )
         return output.astype(input.dtype)
 
 
@@ -1260,11 +1270,8 @@ def get_activation_fn(activation: str) -> Callable:
     def gelu_accurate(x):
         if not hasattr(gelu_accurate, "_a"):
             gelu_accurate._a = math.sqrt(2 / math.pi)
-        return (
-            0.5
-            * x
-            * (1 + paddle.tanh(gelu_accurate._a * (x + 0.044715 * paddle.pow(x, 3))))
-        )
+        return (0.5 * x * (1 + paddle.tanh(gelu_accurate._a *
+                                           (x + 0.044715 * paddle.pow(x, 3)))))
 
     def gelu(x: paddle.Tensor) -> paddle.Tensor:
         return paddle.nn.functional.gelu(x.astype('float32')).astype(x.dtype)
@@ -1286,7 +1293,8 @@ def get_activation_fn(activation: str) -> Callable:
     elif activation == "swish":
         return paddle.nn.Swish
     else:
-        raise RuntimeError("--activation-fn {} not supported".format(activation))
+        raise RuntimeError(
+            "--activation-fn {} not supported".format(activation))
 
 
 def get_available_activation_fns() -> List:
@@ -1301,18 +1309,17 @@ def get_available_activation_fns() -> List:
 
 
 def compute_mask_indices(
-    shape: Tuple[int, int],
-    padding_mask: Optional[paddle.Tensor],
-    mask_prob: float,
-    mask_length: int,
-    mask_type: str = "static",
-    mask_other: float = 0.0,
-    min_masks: int = 0,
-    no_overlap: bool = False,
-    min_space: int = 0,
-    require_same_masks: bool = True,
-    mask_dropout: float = 0.0,
-) -> np.ndarray:
+        shape: Tuple[int, int],
+        padding_mask: Optional[paddle.Tensor],
+        mask_prob: float,
+        mask_length: int,
+        mask_type: str="static",
+        mask_other: float=0.0,
+        min_masks: int=0,
+        no_overlap: bool=False,
+        min_space: int=0,
+        require_same_masks: bool=True,
+        mask_dropout: float=0.0, ) -> np.ndarray:
     """
     Computes random mask spans for a given shape
 
@@ -1340,9 +1347,7 @@ def compute_mask_indices(
 
     all_num_mask = int(
         # add a random number for probabilistic rounding
-        mask_prob * all_sz / float(mask_length)
-        + np.random.rand()
-    )
+        mask_prob * all_sz / float(mask_length) + np.random.rand())
 
     all_num_mask = max(min_masks, all_num_mask)
 
@@ -1352,9 +1357,7 @@ def compute_mask_indices(
             sz = all_sz - padding_mask[i].long().sum().item()
             num_mask = int(
                 # add a random number for probabilistic rounding
-                mask_prob * sz / float(mask_length)
-                + np.random.rand()
-            )
+                mask_prob * sz / float(mask_length) + np.random.rand())
             num_mask = max(min_masks, num_mask)
         else:
             sz = all_sz
@@ -1363,7 +1366,8 @@ def compute_mask_indices(
         if mask_type == "static":
             lengths = np.full(num_mask, mask_length)
         elif mask_type == "uniform":
-            lengths = np.random.randint(mask_other, mask_length * 2 + 1, size=num_mask)
+            lengths = np.random.randint(
+                mask_other, mask_length * 2 + 1, size=num_mask)
         elif mask_type == "normal":
             lengths = np.random.normal(mask_length, mask_other, size=num_mask)
             lengths = [max(1, int(round(x))) for x in lengths]
@@ -1394,9 +1398,9 @@ def compute_mask_indices(
             min_length = min(lengths)
             for length in sorted(lengths, reverse=True):
                 lens = np.fromiter(
-                    (e - s if e - s >= length + min_space else 0 for s, e in parts),
-                    np.int,
-                )
+                    (e - s if e - s >= length + min_space else 0
+                     for s, e in parts),
+                    np.int, )
                 l_sum = np.sum(lens)
                 if l_sum == 0:
                     break
@@ -1412,13 +1416,10 @@ def compute_mask_indices(
 
             mask_idc = np.random.choice(sz - min_len, num_mask, replace=False)
 
-            mask_idc = np.asarray(
-                [
-                    mask_idc[j] + offset
-                    for j in range(len(mask_idc))
-                    for offset in range(lengths[j])
-                ]
-            )
+            mask_idc = np.asarray([
+                mask_idc[j] + offset
+                for j in range(len(mask_idc)) for offset in range(lengths[j])
+            ])
 
         mask_idcs.append(np.unique(mask_idc[mask_idc < sz]))
 
@@ -1429,8 +1430,7 @@ def compute_mask_indices(
         if mask_dropout > 0:
             num_holes = np.rint(len(mask_idc) * mask_dropout).astype(int)
             mask_idc = np.random.choice(
-                mask_idc, len(mask_idc) - num_holes, replace=False
-            )
+                mask_idc, len(mask_idc) - num_holes, replace=False)
 
         mask[i, mask_idc] = True
 
@@ -1460,12 +1460,17 @@ def pad_to_multiple(x, multiple, dim=-1, value=0):
     remainder = math.ceil(m) * multiple - tsz
     if m.is_integer():
         return x, 0
-    pad_offset = (0,) * (-1 - dim) * 2
-    return F.pad(x, pad=[*pad_offset, 0, remainder, *pad_offset], value=value, data_format='NLC'), remainder
+    pad_offset = (0, ) * (-1 - dim) * 2
+    return F.pad(
+        x,
+        pad=[*pad_offset, 0, remainder, *pad_offset],
+        value=value,
+        data_format='NLC'), remainder
 
 
 EXTRACTOR_MODE_CHOICES = ChoiceEnum(["default", "layer_norm"])
-MASKING_DISTRIBUTION_CHOICES = ChoiceEnum(["static", "uniform", "normal", "poisson"])
+MASKING_DISTRIBUTION_CHOICES = ChoiceEnum(
+    ["static", "uniform", "normal", "poisson"])
 LAYER_TYPE_CHOICES = ChoiceEnum(["transformer"])  # ToDo: conformer 
 
 
@@ -1474,46 +1479,39 @@ class Wav2Vec2Config:
     extractor_mode: EXTRACTOR_MODE_CHOICES = field(
         default="default",
         metadata={
-            "help": "mode for feature extractor. default has a single group norm with d "
+            "help":
+            "mode for feature extractor. default has a single group norm with d "
             "groups in the first conv block, whereas layer_norm has layer norms in "
             "every block (meant to use with normalize=True)"
-        },
-    )
+        }, )
     encoder_layers: int = field(
-        default=12, metadata={"help": "num encoder layers in the transformer"}
-    )
+        default=12, metadata={"help": "num encoder layers in the transformer"})
     encoder_embed_dim: int = field(
-        default=768, metadata={"help": "encoder embedding dimension"}
-    )
+        default=768, metadata={"help": "encoder embedding dimension"})
     encoder_ffn_embed_dim: int = field(
-        default=3072, metadata={"help": "encoder embedding dimension for FFN"}
-    )
+        default=3072, metadata={"help": "encoder embedding dimension for FFN"})
     encoder_attention_heads: int = field(
-        default=12, metadata={"help": "num encoder attention heads"}
-    )
+        default=12, metadata={"help": "num encoder attention heads"})
     activation_fn: ChoiceEnum(get_available_activation_fns()) = field(
-        default="gelu", metadata={"help": "activation function to use"}
-    )
+        default="gelu", metadata={"help": "activation function to use"})
     layer_type: LAYER_TYPE_CHOICES = field(
-        default="transformer", metadata={"help": "layer type in encoder"}
-    )
+        default="transformer", metadata={"help": "layer type in encoder"})
     # dropouts
     dropout: float = field(
-        default=0.1, metadata={"help": "dropout probability for the transformer"}
-    )
+        default=0.1,
+        metadata={"help": "dropout probability for the transformer"})
     attention_dropout: float = field(
-        default=0.1, metadata={"help": "dropout probability for attention weights"}
-    )
+        default=0.1,
+        metadata={"help": "dropout probability for attention weights"})
     activation_dropout: float = field(
-        default=0.0, metadata={"help": "dropout probability after activation in FFN"}
-    )
+        default=0.0,
+        metadata={"help": "dropout probability after activation in FFN"})
     encoder_layerdrop: float = field(
-        default=0.0, metadata={"help": "probability of dropping a tarnsformer layer"}
-    )
+        default=0.0,
+        metadata={"help": "probability of dropping a tarnsformer layer"})
     dropout_input: float = field(
         default=0.0,
-        metadata={"help": "dropout to apply to the input (after feat extr)"},
-    )
+        metadata={"help": "dropout to apply to the input (after feat extr)"}, )
     dropout_features: float = field(
         default=0.0,
         metadata={"help": "dropout to apply to the features (after feat extr)"},
@@ -1522,85 +1520,79 @@ class Wav2Vec2Config:
     final_dim: int = field(
         default=0,
         metadata={
-            "help": "project final representations and targets to this many dimensions."
+            "help":
+            "project final representations and targets to this many dimensions."
             "set to encoder_embed_dim is <= 0"
-        },
-    )
+        }, )
     layer_norm_first: bool = field(
-        default=False, metadata={"help": "apply layernorm first in the transformer"}
-    )
+        default=False,
+        metadata={"help": "apply layernorm first in the transformer"})
     conv_feature_layers: str = field(
         default="[(512, 10, 5)] + [(512, 3, 2)] * 4 + [(512,2,2)] + [(512,2,2)]",
         metadata={
-            "help": "string describing convolutional feature extraction layers in form of a python list that contains "
+            "help":
+            "string describing convolutional feature extraction layers in form of a python list that contains "
             "[(dim, kernel_size, stride), ...]"
-        },
-    )
+        }, )
     conv_bias: bool = field(
-        default=False, metadata={"help": "include bias in conv encoder"}
-    )
+        default=False, metadata={"help": "include bias in conv encoder"})
     logit_temp: float = field(
-        default=0.1, metadata={"help": "temperature to divide logits by"}
-    )
+        default=0.1, metadata={"help": "temperature to divide logits by"})
     quantize_targets: bool = field(
-        default=False, metadata={"help": "use quantized targets"}
-    )
+        default=False, metadata={"help": "use quantized targets"})
     quantize_input: bool = field(
-        default=False, metadata={"help": "use quantized inputs"}
-    )
+        default=False, metadata={"help": "use quantized inputs"})
     same_quantizer: bool = field(
-        default=False, metadata={"help": "use same quantizer for inputs and targets"}
-    )
+        default=False,
+        metadata={"help": "use same quantizer for inputs and targets"})
     target_glu: bool = field(
-        default=False, metadata={"help": "adds projection + glu to targets"}
-    )
+        default=False, metadata={"help": "adds projection + glu to targets"})
     feature_grad_mult: float = field(
-        default=1.0, metadata={"help": "multiply feature extractor var grads by this"}
-    )
+        default=1.0,
+        metadata={"help": "multiply feature extractor var grads by this"})
     quantizer_depth: int = field(
         default=1,
-        metadata={"help": "number of quantizer layers"},
-    )
+        metadata={"help": "number of quantizer layers"}, )
     quantizer_factor: int = field(
         default=3,
         metadata={
-            "help": "dimensionality increase for inner quantizer layers (if depth > 1)"
-        },
-    )
+            "help":
+            "dimensionality increase for inner quantizer layers (if depth > 1)"
+        }, )
     latent_vars: int = field(
         default=320,
-        metadata={"help": "number of latent variables V in each group of the codebook"},
-    )
+        metadata={
+            "help": "number of latent variables V in each group of the codebook"
+        }, )
     latent_groups: int = field(
         default=2,
-        metadata={"help": "number of groups G of latent variables in the codebook"},
-    )
+        metadata={
+            "help": "number of groups G of latent variables in the codebook"
+        }, )
     latent_dim: int = field(
         default=0,
         metadata={
-            "help": "if > 0, uses this dimensionality for latent variables. "
+            "help":
+            "if > 0, uses this dimensionality for latent variables. "
             "otherwise uses final_dim / latent_groups"
-        },
-    )
+        }, )
 
     # masking
     mask_length: int = field(default=10, metadata={"help": "mask length"})
     mask_prob: float = field(
-        default=0.65, metadata={"help": "probability of replacing a token with mask"}
-    )
+        default=0.65,
+        metadata={"help": "probability of replacing a token with mask"})
     mask_selection: MASKING_DISTRIBUTION_CHOICES = field(
-        default="static", metadata={"help": "how to choose mask length"}
-    )
+        default="static", metadata={"help": "how to choose mask length"})
     mask_other: float = field(
         default=0,
         metadata={
-            "help": "secondary mask argument (used for more complex distributions), "
+            "help":
+            "secondary mask argument (used for more complex distributions), "
             "see help in compute_mask_indices"
-        },
-    )
+        }, )
     no_mask_overlap: bool = field(
-        default=False, metadata={"help": "whether to allow masks to overlap"}
-    )
+        default=False, metadata={"help": "whether to allow masks to overlap"})
     mask_min_space: int = field(
         default=1,
         metadata={"help": "min space between spans (if no overlap is enabled)"},
@@ -1608,37 +1600,35 @@ class Wav2Vec2Config:
     require_same_masks: bool = field(
         default=True,
         metadata={
-            "help": "whether to number of masked timesteps must be the same across all "
+            "help":
+            "whether to number of masked timesteps must be the same across all "
             "examples in a batch"
-        },
-    )
+        }, )
     mask_dropout: float = field(
         default=0.0,
-        metadata={"help": "percent of masks to unmask for each sample"},
-    )
+        metadata={"help": "percent of masks to unmask for each sample"}, )
 
     # channel masking
     mask_channel_length: int = field(
-        default=10, metadata={"help": "length of the mask for features (channels)"}
-    )
+        default=10,
+        metadata={"help": "length of the mask for features (channels)"})
     mask_channel_prob: float = field(
-        default=0.0, metadata={"help": "probability of replacing a feature with 0"}
-    )
+        default=0.0,
+        metadata={"help": "probability of replacing a feature with 0"})
     mask_channel_before: bool = False
     mask_channel_selection: MASKING_DISTRIBUTION_CHOICES = field(
         default="static",
-        metadata={"help": "how to choose mask length for channel masking"},
-    )
+        metadata={"help": "how to choose mask length for channel masking"}, )
     mask_channel_other: float = field(
         default=0,
         metadata={
-            "help": "secondary mask argument (used for more complex distributions), "
+            "help":
+            "secondary mask argument (used for more complex distributions), "
             "see help in compute_mask_indicesh"
-        },
-    )
+        }, )
     no_mask_channel_overlap: bool = field(
-        default=False, metadata={"help": "whether to allow channel masks to overlap"}
-    )
+        default=False,
+        metadata={"help": "whether to allow channel masks to overlap"})
     mask_channel_min_space: int = field(
         default=1,
         metadata={"help": "min space between spans (if no overlap is enabled)"},
@@ -1647,76 +1637,77 @@ class Wav2Vec2Config:
     # negative selection
     num_negatives: int = field(
         default=100,
-        metadata={"help": "number of negative examples from the same sample"},
-    )
+        metadata={"help": "number of negative examples from the same sample"}, )
     negatives_from_everywhere: bool = field(
         default=False,
-        metadata={"help": "sample negatives from everywhere, not just masked states"},
-    )
+        metadata={
+            "help": "sample negatives from everywhere, not just masked states"
+        }, )
     cross_sample_negatives: int = field(
-        default=0, metadata={"help": "number of negative examples from the any sample"}
-    )
+        default=0,
+        metadata={"help": "number of negative examples from the any sample"})
     codebook_negatives: int = field(
-        default=0, metadata={"help": "number of negative examples codebook"}
-    )
+        default=0, metadata={"help": "number of negative examples codebook"})
 
     # positional embeddings
     conv_pos: int = field(
         default=128,
-        metadata={"help": "number of filters for convolutional positional embeddings"},
-    )
+        metadata={
+            "help": "number of filters for convolutional positional embeddings"
+        }, )
     conv_pos_groups: int = field(
         default=16,
-        metadata={"help": "number of groups for convolutional positional embedding"},
-    )
+        metadata={
+            "help": "number of groups for convolutional positional embedding"
+        }, )
     pos_conv_depth: int = field(
         default=1,
-        metadata={"help": "depth of positional encoder network"},
-    )
+        metadata={"help": "depth of positional encoder network"}, )
 
     latent_temp: Tuple[float, float, float] = field(
         default=(2, 0.5, 0.999995),
         metadata={
-            "help": "temperature for latent variable sampling. "
+            "help":
+            "temperature for latent variable sampling. "
             "can be tuple of 3 values (start, end, decay)"
-        },
-    )
-    max_positions: int = field(default=100000, metadata={"help": "Max positions"})
+        }, )
+    max_positions: int = field(
+        default=100000, metadata={"help": "Max positions"})
     checkpoint_activations: bool = field(
         default=False,
-        metadata={"help": "recompute activations and save memory for extra compute"},
-    )
+        metadata={
+            "help": "recompute activations and save memory for extra compute"
+        }, )
 
     # FP16 optimization
     required_seq_len_multiple: int = field(
         default=2,
         metadata={
-            "help": "pad the input to encoder such that the sequence length is divisible by multiple"
-        },
-    )
+            "help":
+            "pad the input to encoder such that the sequence length is divisible by multiple"
+        }, )
     crop_seq_to_multiple: int = field(
         default=1,
         metadata={
-            "help": "crop convolutional feature extractor output such that the sequence length is divisible by multiple"
-        },
-    )
+            "help":
+            "crop convolutional feature extractor output such that the sequence length is divisible by multiple"
+        }, )
 
     # Conformer
     depthwise_conv_kernel_size: int = field(
         default=31,
         metadata={
-            "help": "depthwise-conv-kernel-size for convolution in conformer layer"
-        },
-    )
+            "help":
+            "depthwise-conv-kernel-size for convolution in conformer layer"
+        }, )
     attn_type: str = field(
         default="",
-        metadata={"help": "if espnet use ESPNET MHA"},
-    )
+        metadata={"help": "if espnet use ESPNET MHA"}, )
     pos_enc_type: str = field(
         default="abs",
-        metadata={"help": "Positional encoding type to use in conformer"},
-    )
-    fp16: bool = field(default=False, metadata={"help": "If fp16 is being used"})
+        metadata={"help": "Positional encoding type to use in conformer"}, )
+    fp16: bool = field(
+        default=False, metadata={"help": "If fp16 is being used"})
 
 
 class Wav2Vec2Model(nn.Layer):
@@ -1731,14 +1722,11 @@ class Wav2Vec2Model(nn.Layer):
             conv_layers=feature_enc_layers,
             dropout=0.0,
             mode=cfg.extractor_mode,
-            conv_bias=cfg.conv_bias,
-        )
+            conv_bias=cfg.conv_bias, )
 
-        self.post_extract_proj = (
-            nn.Linear(self.embed, cfg.encoder_embed_dim)
-            if self.embed != cfg.encoder_embed_dim and not cfg.quantize_input
-            else None
-        )
+        self.post_extract_proj = (nn.Linear(self.embed, cfg.encoder_embed_dim)
+                                  if self.embed != cfg.encoder_embed_dim and
+                                  not cfg.quantize_input else None)
 
         self.crop_seq_to_multiple = cfg.crop_seq_to_multiple
 
@@ -1785,8 +1773,7 @@ class Wav2Vec2Model(nn.Layer):
                 vq_dim=vq_dim,
                 time_first=True,
                 weight_proj_depth=cfg.quantizer_depth,
-                weight_proj_factor=cfg.quantizer_factor,
-            )
+                weight_proj_factor=cfg.quantizer_factor, )
             self.project_q = nn.Linear(vq_dim, final_dim)
         else:
             self.project_q = nn.Linear(self.embed, final_dim)
@@ -1806,15 +1793,13 @@ class Wav2Vec2Model(nn.Layer):
                     vq_dim=vq_dim,
                     time_first=True,
                     weight_proj_depth=cfg.quantizer_depth,
-                    weight_proj_factor=cfg.quantizer_factor,
-                )
+                    weight_proj_factor=cfg.quantizer_factor, )
             self.project_inp = nn.Linear(vq_dim, cfg.encoder_embed_dim)
 
         self.mask_emb = self.create_parameter(
             shape=[cfg.encoder_embed_dim],
             default_initializer=paddle.nn.initializer.Uniform(),
-            dtype='float32',
-        )
+            dtype='float32', )
 
         encoder_cls = TransformerEncoder
 
@@ -1824,8 +1809,7 @@ class Wav2Vec2Model(nn.Layer):
         self.target_glu = None
         if cfg.target_glu:
             self.target_glu = nn.Sequential(
-                nn.Linear(final_dim, final_dim * 2), GLU()
-            )
+                nn.Linear(final_dim, final_dim * 2), GLU())
 
         self.final_proj = nn.Linear(cfg.encoder_embed_dim, final_dim)
 
@@ -1840,12 +1824,11 @@ class Wav2Vec2Model(nn.Layer):
         return cls(cfg)
 
     def apply_mask(
-        self,
-        x,
-        padding_mask,
-        mask_indices=None,
-        mask_channel_indices=None,
-    ):
+            self,
+            x,
+            padding_mask,
+            mask_indices=None,
+            mask_channel_indices=None, ):
         B, T, C = x.shape
 
         if self.mask_channel_prob > 0 and self.mask_channel_before:
@@ -1857,13 +1840,10 @@ class Wav2Vec2Model(nn.Layer):
                 self.mask_channel_selection,
                 self.mask_channel_other,
                 no_overlap=self.no_mask_channel_overlap,
-                min_space=self.mask_channel_min_space,
-            )
+                min_space=self.mask_channel_min_space, )
             mask_channel_indices = (
                 paddle.to_tensor(mask_channel_indices, plcae=x.plcae)
-                .unsqueeze(1)
-                .expand([-1, T, -1])
-            )
+                .unsqueeze(1).expand([-1, T, -1]))
             x[mask_channel_indices] = 0
 
         if self.mask_prob > 0:
@@ -1879,8 +1859,7 @@ class Wav2Vec2Model(nn.Layer):
                     no_overlap=self.no_mask_overlap,
                     min_space=self.mask_min_space,
                     require_same_masks=self.cfg.require_same_masks,
-                    mask_dropout=self.cfg.mask_dropout,
-                )
+                    mask_dropout=self.cfg.mask_dropout, )
                 mask_indices = paddle.to_tensor(mask_indices, place=x.place)
             x = index_put(x, mask_indices, self.mask_emb)
         else:
@@ -1896,13 +1875,10 @@ class Wav2Vec2Model(nn.Layer):
                     self.mask_channel_selection,
                     self.mask_channel_other,
                     no_overlap=self.no_mask_channel_overlap,
-                    min_space=self.mask_channel_min_space,
-                )
+                    min_space=self.mask_channel_min_space, )
                 mask_channel_indices = (
                     paddle.to_tensor(mask_channel_indices, place=x.place)
-                    .unsqueeze(1)
-                    .expand([-1, T, -1])
-                )
+                    .unsqueeze(1).expand([-1, T, -1]))
             x = index_put(x, mask_channel_indices, 0)
 
         return x, mask_indices
@@ -1922,31 +1898,21 @@ class Wav2Vec2Model(nn.Layer):
             assert high > 1, f"{bsz,tsz,fsz}"
 
             if self.n_negatives > 0:
-                tszs = (
-                    buffered_arange(num)
-                    .unsqueeze(-1)
-                    .expand([-1, self.n_negatives])
-                    .flatten()
-                )
+                tszs = (buffered_arange(num).unsqueeze(-1)
+                        .expand([-1, self.n_negatives]).flatten())
 
                 neg_idxs = paddle.randint(
-                    low=0, high=high - 1, shape=[bsz, self.n_negatives * num]
-                )
+                    low=0, high=high - 1, shape=[bsz, self.n_negatives * num])
                 neg_idxs[neg_idxs >= tszs] += 1
 
             if self.cross_sample_negatives > 0:
-                tszs = (
-                    buffered_arange(num)
-                    .unsqueeze(-1)
-                    .expand([-1, self.cross_sample_negatives])
-                    .flatten()
-                )
+                tszs = (buffered_arange(num).unsqueeze(-1)
+                        .expand([-1, self.cross_sample_negatives]).flatten())
 
                 cross_neg_idxs = paddle.randint(
                     low=0,
                     high=cross_high - 1,
-                    shape=[bsz, self.cross_sample_negatives * num],
-                )
+                    shape=[bsz, self.cross_sample_negatives * num], )
                 cross_neg_idxs[cross_neg_idxs >= tszs] += 1
 
         if self.n_negatives > 0:
@@ -1959,10 +1925,8 @@ class Wav2Vec2Model(nn.Layer):
 
         negs = y[neg_idxs.reshape([-1])]
         negs = negs.reshape(
-            [bsz, num, self.n_negatives + self.cross_sample_negatives, fsz]
-        ).transpose(
-            [2, 0, 1, 3]
-        )  # to NxBxTxC
+            [bsz, num, self.n_negatives + self.cross_sample_negatives,
+             fsz]).transpose([2, 0, 1, 3])  # to NxBxTxC
         return negs, neg_idxs
 
     def compute_preds(self, x, y, negatives):
@@ -1987,23 +1951,21 @@ class Wav2Vec2Model(nn.Layer):
         conv_cfg_list = eval(self.cfg.conv_feature_layers)
 
         for i in range(len(conv_cfg_list)):
-            input_lengths = _conv_out_length(
-                input_lengths, conv_cfg_list[i][1], conv_cfg_list[i][2]
-            )
+            input_lengths = _conv_out_length(input_lengths, conv_cfg_list[i][1],
+                                             conv_cfg_list[i][2])
 
         return paddle.cast(input_lengths, 'int64')
 
     def forward(
-        self,
-        source,
-        padding_mask=None,
-        mask=True,
-        features_only=False,
-        layer=None,
-        mask_indices=None,
-        mask_channel_indices=None,
-        padding_count=None,
-    ):
+            self,
+            source,
+            padding_mask=None,
+            mask=True,
+            features_only=False,
+            layer=None,
+            mask_indices=None,
+            mask_channel_indices=None,
+            padding_count=None, ):
 
         if self.feature_grad_mult > 0:
             features = self.feature_extractor(source)
@@ -2022,21 +1984,18 @@ class Wav2Vec2Model(nn.Layer):
         if padding_mask is not None and padding_mask.any():
             input_lengths = (1 - paddle.cast(padding_mask, 'int64')).sum(-1)
             # apply conv formula to get real output_lengths
-            output_lengths = self._get_feat_extract_output_lengths(input_lengths)
+            output_lengths = self._get_feat_extract_output_lengths(
+                input_lengths)
 
             padding_mask = paddle.zeros(
-                features.shape[:2], dtype=features.dtype
-            )
+                features.shape[:2], dtype=features.dtype)
 
             # these two operations makes sure that all values
             # before the output lengths indices are attended to
-            padding_mask[
-                (
-                    paddle.arange(padding_mask.shape[0]),
-                    output_lengths - 1,
-                )
-            ] = 1
-            padding_mask = paddle.cast((1 - padding_mask.flip([-1]).cumsum(-1).flip([-1])), 'bool')
+            padding_mask[(paddle.arange(padding_mask.shape[0]),
+                          output_lengths - 1, )] = 1
+            padding_mask = paddle.cast(
+                (1 - padding_mask.flip([-1]).cumsum(-1).flip([-1])), 'bool')
         else:
             padding_mask = None
 
@@ -2072,18 +2031,18 @@ class Wav2Vec2Model(nn.Layer):
                 features,
                 padding_mask,
                 mask_indices=mask_indices,
-                mask_channel_indices=mask_channel_indices,
-            )
+                mask_channel_indices=mask_channel_indices, )
             if mask_indices is not None:
-                y = unmasked_features[mask_indices].reshape(
-                    [unmasked_features.shape[0], -1, unmasked_features.shape[-1]]
-                )
+                y = unmasked_features[mask_indices].reshape([
+                    unmasked_features.shape[0], -1, unmasked_features.shape[-1]
+                ])
         else:
             x = features
             y = unmasked_features
             mask_indices = None
 
-        x, layer_results = self.encoder(x, padding_mask=padding_mask, layer=layer)
+        x, layer_results = self.encoder(
+            x, padding_mask=padding_mask, layer=layer)
 
         if features_only:
             return {
@@ -2106,8 +2065,7 @@ class Wav2Vec2Model(nn.Layer):
                 negs, _ = self.sample_negatives(
                     y,
                     mask_indices[0].sum(),
-                    padding_count=padding_count,
-                )
+                    padding_count=padding_count, )
                 y = y[mask_indices].reshape([y.shape[0], -1, y.shape[-1]])
 
             else:
@@ -2123,16 +2081,14 @@ class Wav2Vec2Model(nn.Layer):
                 negs, _ = self.sample_negatives(
                     y,
                     y.shape[1],
-                    padding_count=padding_count,
-                )
+                    padding_count=padding_count, )
 
             if self.codebook_negatives > 0:
                 cb_negs = self.quantizer.sample_from_codebook(
-                    y.shape[0] * y.shape[1], self.codebook_negatives
-                )
+                    y.shape[0] * y.shape[1], self.codebook_negatives)
                 cb_negs = cb_negs.reshape(
-                    [self.codebook_negatives, y.shape[0], y.shape[1], -1]
-                )  # order doesnt matter
+                    [self.codebook_negatives, y.shape[0], y.shape[1],
+                     -1])  # order doesnt matter
                 cb_negs = self.project_q(cb_negs)
                 negs = paddle.concat([negs, cb_negs], axis=0)
         else:
@@ -2142,15 +2098,13 @@ class Wav2Vec2Model(nn.Layer):
                 negs, _ = self.sample_negatives(
                     unmasked_features,
                     y.shape[1],
-                    padding_count=padding_count,
-                )
+                    padding_count=padding_count, )
                 negs = self.project_q(negs)
             else:
                 negs, _ = self.sample_negatives(
                     y,
                     y.shape[1],
-                    padding_count=padding_count,
-                )
+                    padding_count=padding_count, )
 
         x = x[mask_indices].reshape([x.shape[0], -1, x.shape[-1]])
 
@@ -2184,8 +2138,7 @@ class Wav2Vec2Model(nn.Layer):
 
     def extract_features(self, source, padding_mask, mask=False, layer=None):
         res = self.forward(
-            source, padding_mask, mask=mask, features_only=True, layer=layer
-        )
+            source, padding_mask, mask=mask, features_only=True, layer=layer)
         return res
 
     def get_logits(self, net_output):
@@ -2202,10 +2155,8 @@ class Wav2Vec2Model(nn.Layer):
         pen = []
 
         if "prob_perplexity" in net_output:
-            pen.append(
-                (net_output["num_vars"] - net_output["prob_perplexity"])
-                / net_output["num_vars"]
-            )
+            pen.append((net_output["num_vars"] - net_output["prob_perplexity"])
+                       / net_output["num_vars"])
 
         if "features_pen" in net_output:
             pen.append(net_output["features_pen"])
@@ -2220,39 +2171,41 @@ class Wav2Vec2Model(nn.Layer):
 
         if last_layer is not None:
             self.encoder.layers = nn.LayerList(
-                l for i, l in enumerate(self.encoder.layers) if i <= last_layer
-            )
+                l for i, l in enumerate(self.encoder.layers) if i <= last_layer)
 
 
 class ConvFeatureExtractionModel(nn.Layer):
     def __init__(
-        self,
-        conv_layers: List[Tuple[int, int, int]],
-        dropout: float = 0.0,
-        mode: str = "default",
-        conv_bias: bool = False,
-    ):
+            self,
+            conv_layers: List[Tuple[int, int, int]],
+            dropout: float=0.0,
+            mode: str="default",
+            conv_bias: bool=False, ):
         super().__init__()
 
         assert mode in {"default", "layer_norm"}
 
         def block(
-            n_in,
-            n_out,
-            k,
-            stride,
-            is_layer_norm=False,
-            is_group_norm=False,
-            conv_bias=False,
-        ):
+                n_in,
+                n_out,
+                k,
+                stride,
+                is_layer_norm=False,
+                is_group_norm=False,
+                conv_bias=False, ):
             def make_conv():
-                conv = nn.Conv1D(n_in, n_out, k, stride=stride, bias_attr=conv_bias if not conv_bias else paddle.ParamAttr())
+                conv = nn.Conv1D(
+                    n_in,
+                    n_out,
+                    k,
+                    stride=stride,
+                    bias_attr=conv_bias
+                    if not conv_bias else paddle.ParamAttr())
                 # nn.initializer.KaimingNormal()(conv.weight)
                 return conv
 
-            assert (
-                is_layer_norm and is_group_norm
-            ) == False, "layer norm and group norm are exclusive"
+            assert (is_layer_norm and is_group_norm
+                    ) is False, "layer norm and group norm are exclusive"
 
             if is_layer_norm:
                 return nn.Sequential(
@@ -2261,19 +2214,17 @@ class ConvFeatureExtractionModel(nn.Layer):
                     nn.Sequential(
                         TransposeLast(),
                         Fp32LayerNorm(dim),
-                        TransposeLast(),
-                    ),
-                    nn.GELU(),
-                )
+                        TransposeLast(), ),
+                    nn.GELU(), )
             elif is_group_norm:
                 return nn.Sequential(
                     make_conv(),
                     nn.Dropout(p=dropout),
                     Fp32GroupNorm(dim, dim),
-                    nn.GELU(),
-                )
+                    nn.GELU(), )
             else:
-                return nn.Sequential(make_conv(), nn.Dropout(p=dropout), nn.GELU())
+                return nn.Sequential(
+                    make_conv(), nn.Dropout(p=dropout), nn.GELU())
 
         in_d = 1
         self.conv_layers = nn.LayerList()
@@ -2289,9 +2240,7 @@ class ConvFeatureExtractionModel(nn.Layer):
                     stride,
                     is_layer_norm=mode == "layer_norm",
                     is_group_norm=mode == "default" and i == 0,
-                    conv_bias=conv_bias,
-                )
-            )
+                    conv_bias=conv_bias, ))
             in_d = dim
 
     def forward(self, x):
@@ -2312,8 +2261,7 @@ def make_conv_pos(e, k, g):
         e,
         kernel_size=k,
         padding=k // 2,
-        groups=g,
-    )
+        groups=g, )
     dropout = 0
     std = math.sqrt((4 * (1.0 - dropout)) / (k * e))
     nn.initializer.Normal(mean=0, std=std)(pos_conv.weight)
@@ -2335,8 +2283,7 @@ class TransformerEncoder(nn.Layer):
             attention_dropout=args.attention_dropout,
             activation_dropout=args.activation_dropout,
             activation_fn=args.activation_fn,
-            layer_norm_first=args.layer_norm_first,
-        )
+            layer_norm_first=args.layer_norm_first, )
         return layer
 
     def __init__(self, args: Wav2Vec2Config):
@@ -2352,40 +2299,33 @@ class TransformerEncoder(nn.Layer):
             k = max(3, args.conv_pos // num_layers)
 
             def make_conv_block(e, k, g, l):
-                return nn.Sequential(
-                    *[
-                        nn.Sequential(
-                            nn.Conv1D(
-                                e,
-                                e,
-                                kernel_size=k,
-                                padding=k // 2,
-                                groups=g,
-                            ),
-                            SamePad(k),
-                            TransposeLast(),
-                            LayerNorm(e, elementwise_affine=False),
-                            TransposeLast(),
-                            nn.GELU(),
-                        )
-                        for _ in range(l)
-                    ]
-                )
+                return nn.Sequential(*[
+                    nn.Sequential(
+                        nn.Conv1D(
+                            e,
+                            e,
+                            kernel_size=k,
+                            padding=k // 2,
+                            groups=g, ),
+                        SamePad(k),
+                        TransposeLast(),
+                        LayerNorm(e, elementwise_affine=False),
+                        TransposeLast(),
+                        nn.GELU(), ) for _ in range(l)
+                ])
 
-            self.pos_conv = make_conv_block(
-                self.embedding_dim, k, args.conv_pos_groups, num_layers
-            )
+            self.pos_conv = make_conv_block(self.embedding_dim, k,
+                                            args.conv_pos_groups, num_layers)
 
         else:
             self.pos_conv = make_conv_pos(
                 self.embedding_dim,
                 args.conv_pos,
-                args.conv_pos_groups,
-            )
+                args.conv_pos_groups, )
 
-        self.layers = nn.LayerList(
-            [self.build_encoder_layer(args) for _ in range(args.encoder_layers)]
-        )
+        self.layers = nn.LayerList([
+            self.build_encoder_layer(args) for _ in range(args.encoder_layers)
+        ])
         self.layer_norm_first = args.layer_norm_first
         self.layer_norm = LayerNorm(self.embedding_dim)
         self.layerdrop = args.encoder_layerdrop
@@ -2400,12 +2340,11 @@ class TransformerEncoder(nn.Layer):
         return x, layer_results
 
     def extract_features(
-        self,
-        x,
-        padding_mask=None,
-        tgt_layer=None,
-        min_layer=0,
-    ):
+            self,
+            x,
+            padding_mask=None,
+            tgt_layer=None,
+            min_layer=0, ):
 
         # import pdb
         # pdb.set_trace()
@@ -2421,15 +2360,16 @@ class TransformerEncoder(nn.Layer):
 
         # pad to the sequence length dimension
         x, pad_length = pad_to_multiple(
-            x, self.required_seq_len_multiple, dim=-2, value=0
-        )
+            x, self.required_seq_len_multiple, dim=-2, value=0)
         if pad_length > 0 and padding_mask is None:
             padding_mask = paddle.zeros([x.shape[0], x.shape[1]], dtype='bool')
             padding_mask[:, -pad_length:] = True
         else:
             padding_mask, _ = pad_to_multiple(
-                padding_mask, self.required_seq_len_multiple, dim=-1, value=True
-            )
+                padding_mask,
+                self.required_seq_len_multiple,
+                dim=-1,
+                value=True)
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         # B x T x C -> T x B x C
@@ -2441,8 +2381,7 @@ class TransformerEncoder(nn.Layer):
             dropout_probability = np.random.random() if self.layerdrop > 0 else 1
             if not self.training or (dropout_probability > self.layerdrop):
                 x, (z, lr) = layer(
-                    x, self_attn_padding_mask=padding_mask, need_weights=False
-                )
+                    x, self_attn_padding_mask=padding_mask, need_weights=False)
                 if i >= min_layer:
                     layer_results.append((x, z, lr))
             if i == tgt_layer:
@@ -2460,11 +2399,8 @@ class TransformerEncoder(nn.Layer):
             x = x[:, :-pad_length]
 
             def undo_pad(a, b, c):
-                return (
-                    a[:-pad_length],
-                    b[:-pad_length] if b is not None else b,
-                    c[:-pad_length],
-                )
+                return (a[:-pad_length], b[:-pad_length]
+                        if b is not None else b, c[:-pad_length], )
 
             layer_results = [undo_pad(*u) for u in layer_results]
 
@@ -2478,6 +2414,7 @@ class TransformerEncoder(nn.Layer):
         """Upgrade a (possibly old) state dict for new versions of fairseq."""
         return state_dict
 
+
 class TransformerSentenceEncoderLayer(nn.Layer):
     """
     Implements a Transformer Encoder Layer used in BERT/XLM style pre-trained
@@ -2485,16 +2422,15 @@ class TransformerSentenceEncoderLayer(nn.Layer):
     """
 
     def __init__(
-        self,
-        embedding_dim: float = 768,
-        ffn_embedding_dim: float = 3072,
-        num_attention_heads: int = 8,
-        dropout: float = 0.1,
-        attention_dropout: float = 0.1,
-        activation_dropout: float = 0.1,
-        activation_fn: str = "relu",
-        layer_norm_first: bool = False,
-    ) -> None:
+            self,
+            embedding_dim: float=768,
+            ffn_embedding_dim: float=3072,
+            num_attention_heads: int=8,
+            dropout: float=0.1,
+            attention_dropout: float=0.1,
+            activation_dropout: float=0.1,
+            activation_fn: str="relu",
+            layer_norm_first: bool=False, ) -> None:
 
         super().__init__()
         # Initialize parameters
@@ -2508,8 +2444,7 @@ class TransformerSentenceEncoderLayer(nn.Layer):
             self.embedding_dim,
             num_attention_heads,
             dropout=attention_dropout,
-            self_attention=True,
-        )
+            self_attention=True, )
 
         self.dropout1 = nn.Dropout(dropout)
         self.dropout2 = nn.Dropout(self.activation_dropout)
@@ -2526,13 +2461,12 @@ class TransformerSentenceEncoderLayer(nn.Layer):
         self.final_layer_norm = LayerNorm(self.embedding_dim)
 
     def forward(
-        self,
-        x: paddle.Tensor,
-        self_attn_mask: paddle.Tensor = None,
-        self_attn_padding_mask: paddle.Tensor = None,
-        need_weights: bool = False,
-        att_args=None,
-    ):
+            self,
+            x: paddle.Tensor,
+            self_attn_mask: paddle.Tensor=None,
+            self_attn_padding_mask: paddle.Tensor=None,
+            need_weights: bool=False,
+            att_args=None, ):
         """
         LayerNorm is applied either before or after the self-attention/ffn
         modules similar to the original Transformer imlementation.
@@ -2547,8 +2481,7 @@ class TransformerSentenceEncoderLayer(nn.Layer):
                 value=x,
                 key_padding_mask=self_attn_padding_mask,
                 attn_mask=self_attn_mask,
-                need_weights=False,
-            )
+                need_weights=False, )
             x = self.dropout1(x)
             x = residual + x
 
@@ -2568,8 +2501,7 @@ class TransformerSentenceEncoderLayer(nn.Layer):
                 key=x,
                 value=x,
                 key_padding_mask=self_attn_padding_mask,
-                need_weights=False,
-            )
+                need_weights=False, )
 
             x = self.dropout1(x)
             x = residual + x
@@ -2595,19 +2527,20 @@ class AudioPretrainingConfig:
     sample_rate: int = field(
         default=16_000,
         metadata={
-            "help": "target sample rate. audio files will be up/down sampled to this rate"
-        },
-    )
+            "help":
+            "target sample rate. audio files will be up/down sampled to this rate"
+        }, )
     normalize: bool = field(
         default=False,
-        metadata={"help": "if set, normalizes input to have 0 mean and unit variance"},
-    )
+        metadata={
+            "help": "if set, normalizes input to have 0 mean and unit variance"
+        }, )
     enable_padding: bool = field(
-        default=False, metadata={"help": "pad shorter samples instead of cropping"}
-    )
+        default=False,
+        metadata={"help": "pad shorter samples instead of cropping"})
     max_sample_size: Optional[int] = field(
-        default=None, metadata={"help": "max sample size to crop to for batching"}
-    )
+        default=None,
+        metadata={"help": "max sample size to crop to for batching"})
     min_sample_size: Optional[int] = field(
-        default=None, metadata={"help": "min sample size to skip small examples"}
-    )
+        default=None,
+        metadata={"help": "min sample size to skip small examples"})

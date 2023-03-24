@@ -27,8 +27,8 @@ from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import Spec
 from paddlespeech.s2t.modules.ctc import CTCDecoderBase as CTC
 from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 from paddlespeech.s2t.utils.ctc_utils import remove_duplicates_and_blank
-from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.s2t.utils.utility import log_add
 
 logger = Log(__name__).getlog()
 

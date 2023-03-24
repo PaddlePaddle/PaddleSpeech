@@ -15,10 +15,16 @@ from collections import defaultdict
 from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import Any, Optional
+from dataclasses import dataclass, field, is_dataclass
+from copy import deepcopy
+
+from omegaconf import II, MISSING, open_dict
 
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertConfig, HubertModel, HubertPretrainingConfig
 
 from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2ConfigPure
 from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2Model
@@ -32,39 +38,57 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-
-class Wav2vec2ASR(nn.Layer):
+class HubertASR(nn.Layer):
     def __init__(self, config: dict):
         super().__init__()
         init_type = config.get("init_type", None)
         with DefaultInitializerContext(init_type):
             self.config = config
-            wav2vec2_config = Wav2Vec2ConfigPure(config)
-            wav2vec2 = Wav2Vec2Model(wav2vec2_config)
+            with open(config.vocab_filepath) as f:
+                dicts = [symbol.strip() for symbol in f.readlines()]
+            task_cfg = self.merge_with_parent(HubertPretrainingConfig, dict(self.config.task_cfg))
+            model_cfg = self.merge_with_parent(HubertConfig, dict(self.config.model_cfg))
+            hubert = HubertModel(model_cfg, task_cfg, dicts)
+
             self.normalize_wav = config.normalize_wav
             self.output_norm = config.output_norm
             if hasattr(config, 'spec_augment'):
                 self.spec_augment = SpecAugment(**config.spec_augment)
 
-            if config.freeze_wav2vec2:
-                wav2vec2.eval()
-                for parm in wav2vec2.parameters():
+            if config.freeze_hubert:
+                hubert.eval()
+                for parm in hubert.parameters():
                     parm.trainable = False
-            self.wav2vec2 = wav2vec2
+            self.hubert = hubert
             self.enc = VanillaNN(**config.enc)
             self.ctc = CTC(**config.ctc,
                            odim=config.output_dim,
                            batch_average=False,
                            reduction='mean')
 
+    def merge_with_parent(self, dc: dataclass, cfg: dict):
+        assert is_dataclass(dc)
+        assert type(cfg) == dict
+        cfg = deepcopy(cfg)
+
+        def fix_cfg(cfg):
+            target_keys = set(dc.__dataclass_fields__.keys())
+            for k in list(cfg.keys()):
+                if k not in target_keys:
+                    del cfg[k]
+
+        fix_cfg(cfg)
+        assert len(cfg) > 0
+        return dc(**cfg)
+
     def forward(self, wav, wavs_lens_rate, target, target_lens):
-        # import pdb
-        # pdb.set_trace()
+
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape)
 
+        self.hubert.eval()
         # Extract wav2vec output
-        out = self.wav2vec2(wav)[0]
+        out = self.hubert.extract_features(wav)[0]
         # We normalize the output if required
         if self.output_norm:
             out = F.layer_norm(out, out.shape)

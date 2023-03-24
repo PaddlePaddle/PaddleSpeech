@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e
 
-. ./path.sh || exit 1;
+MODEL=hubert
+. ./path.sh ${MODEL} || exit 1;
 . ./cmd.sh || exit 1;
 
-gpus=0
-stage=0
-stop_stage=0
-conf_path=conf/wav2vec2ASR.yaml
+gpus=2
+stage=1
+stop_stage=1
+conf_path=conf/${MODEL}ASR.yaml
 ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=1
@@ -19,6 +20,7 @@ audio_file=data/demo_002_en.wav
 
 avg_ckpt=avg_${avg_num}
 ckpt=$(basename ${conf_path} | awk -F'.' '{print $1}')
+ckpt=test3
 echo "checkpoint name ${ckpt}"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then

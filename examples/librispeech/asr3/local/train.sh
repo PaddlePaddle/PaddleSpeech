@@ -38,7 +38,7 @@ python3 -u ${BIN_DIR}/train.py \
 --seed ${seed} \
 --resume ${resume}
 else
-python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} ${ips_config} ${BIN_DIR}/train.py \
+python3 -m paddle.distributed.launch --gpus=${CUDA_VISIBLE_DEVICES} --log_dir=exp/log/${ckpt_name} ${ips_config} ${BIN_DIR}/train.py \
 --ngpu ${ngpu} \
 --config ${config_path} \
 --output exp/${ckpt_name} \

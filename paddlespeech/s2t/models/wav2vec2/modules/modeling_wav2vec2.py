@@ -1114,7 +1114,6 @@ class Wav2Vec2Model(nn.Layer):
 
 class Wav2Vec2ConfigPure():
     model_type = "wav2vec2"
-
     def __init__(self, config):
         self.output_attentions = False
         self.output_hidden_states = False

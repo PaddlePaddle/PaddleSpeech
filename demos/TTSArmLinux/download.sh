@@ -3,6 +3,8 @@ set -e
 
 cd "$(dirname "$(realpath "$0")")"
 
+BASE_DIR="$PWD"
+
 # load configure
 . ./config.sh
 
@@ -38,6 +40,10 @@ download() {
     echo '======================='
 }
 
+########################################
+
+echo "Download models..."
+
 download 'inference_lite_lib.armlinux.armv8.gcc.with_extra.with_cv.tar.gz' \
     'https://paddlespeech.bj.bcebos.com/demos/TTSArmLinux/inference_lite_lib.armlinux.armv8.gcc.with_extra.with_cv.tar.gz' \
     '39e0c6604f97c70f5d13c573d7e709b9' \
@@ -54,3 +60,11 @@ download 'fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz' \
     "$MODELS_DIR"
 
 echo "Done."
+
+########################################
+
+echo "Download dictionary files..."
+
+ln -s src/TTSCppFrontend/front_demo/dict "$BASE_DIR/"
+
+"$BASE_DIR/src/TTSCppFrontend/download.sh"

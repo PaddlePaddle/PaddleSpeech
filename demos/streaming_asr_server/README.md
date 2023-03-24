@@ -9,7 +9,7 @@ This demo is an implementation of starting the streaming speech service and acce
 
 Streaming ASR server only support `websocket` protocol, and doesn't support `http` protocol.
 
-服务接口定义请参考:
+For service interface definitions, please refer to:
 - [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)
 
 ## Usage
@@ -23,7 +23,7 @@ You can choose one way from easy, meduim and hard to install paddlespeech.
 **If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to 
 
 ### 2. Prepare config File
-The configuration file can be found in `conf/ws_application.yaml` 和 `conf/ws_conformer_wenetspeech_application.yaml`.
+The configuration file can be found in `conf/ws_application.yaml` or `conf/ws_conformer_wenetspeech_application.yaml`.
 
 At present, the speech tasks integrated by the model include: DeepSpeech2 and conformer.
 
@@ -87,7 +87,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
   server_executor = ServerExecutor()
   server_executor(
-      config_file="./conf/ws_conformer_wenetspeech_application.yaml",
+      config_file="./conf/ws_conformer_wenetspeech_application_faster.yaml",
       log_file="./log/paddlespeech.log")
   ```
 

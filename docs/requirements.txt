@@ -38,8 +38,8 @@ sphinx-markdown-tables
 sphinx_rtd_theme
 textgrid
 timer
-ToJyutping
-typeguard
+ToJyutping==0.2.1
+typeguard==2.13.3
 webrtcvad
 websockets
 yacs~=0.1.8

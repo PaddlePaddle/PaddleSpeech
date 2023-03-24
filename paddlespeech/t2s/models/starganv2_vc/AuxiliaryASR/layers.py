@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import random
-
 import paddle
 import paddle.nn.functional as F
 import paddleaudio.functional as audio_F
@@ -46,7 +44,8 @@ class LinearNorm(nn.Layer):
             self.linear_layer.weight, gain=_calculate_gain(w_init_gain))
 
     def forward(self, x: paddle.Tensor):
-        return self.linear_layer(x)
+        out = self.linear_layer(x)
+        return out
 
 
 class ConvNorm(nn.Layer):
@@ -80,85 +79,6 @@ class ConvNorm(nn.Layer):
     def forward(self, signal: paddle.Tensor):
         conv_signal = self.conv(signal)
         return conv_signal
-
-
-class CausualConv(nn.Layer):
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 kernel_size: int=1,
-                 stride: int=1,
-                 padding: int=1,
-                 dilation: int=1,
-                 bias: bool=True,
-                 w_init_gain: str='linear',
-                 param=None):
-        super().__init__()
-        if padding is None:
-            assert (kernel_size % 2 == 1)
-            padding = int(dilation * (kernel_size - 1) / 2) * 2
-        else:
-            self.padding = padding * 2
-        self.conv = nn.Conv1D(
-            in_channels,
-            out_channels,
-            kernel_size=kernel_size,
-            stride=stride,
-            padding=self.padding,
-            dilation=dilation,
-            bias_attr=bias)
-
-        xavier_uniform_(
-            self.conv.weight, gain=_calculate_gain(w_init_gain, param=param))
-
-    def forward(self, x: paddle.Tensor):
-        x = self.conv(x)
-        x = x[:, :, :-self.padding]
-        return x
-
-
-class CausualBlock(nn.Layer):
-    def __init__(self,
-                 hidden_dim: int,
-                 n_conv: int=3,
-                 dropout_p: float=0.2,
-                 activ: str='lrelu'):
-        super().__init__()
-        self.blocks = nn.LayerList([
-            self._get_conv(
-                hidden_dim=hidden_dim,
-                dilation=3**i,
-                activ=activ,
-                dropout_p=dropout_p) for i in range(n_conv)
-        ])
-
-    def forward(self, x):
-        for block in self.blocks:
-            res = x
-            x = block(x)
-            x += res
-        return x
-
-    def _get_conv(self,
-                  hidden_dim: int,
-                  dilation: int,
-                  activ: str='lrelu',
-                  dropout_p: float=0.2):
-        layers = [
-            CausualConv(
-                in_channels=hidden_dim,
-                out_channels=hidden_dim,
-                kernel_size=3,
-                padding=dilation,
-                dilation=dilation), _get_activation_fn(activ),
-            nn.BatchNorm1D(hidden_dim), nn.Dropout(p=dropout_p), CausualConv(
-                in_channels=hidden_dim,
-                out_channels=hidden_dim,
-                kernel_size=3,
-                padding=1,
-                dilation=1), _get_activation_fn(activ), nn.Dropout(p=dropout_p)
-        ]
-        return nn.Sequential(*layers)
 
 
 class ConvBlock(nn.Layer):
@@ -264,13 +184,14 @@ class Attention(nn.Layer):
         """
         Args:
             query: 
-                decoder output (batch, n_mel_channels * n_frames_per_step)
+                decoder output (B, n_mel_channels * n_frames_per_step)
             processed_memory: 
                 processed encoder outputs (B, T_in, attention_dim)
             attention_weights_cat: 
                 cumulative and prev. att weights (B, 2, max_time)
         Returns:
-            Tensor: alignment (batch, max_time)
+            Tensor: 
+                alignment (B, max_time)
         """
 
         processed_query = self.query_layer(query.unsqueeze(1))
@@ -316,144 +237,6 @@ class Attention(nn.Layer):
         return attention_context, attention_weights
 
 
-class ForwardAttentionV2(nn.Layer):
-    def __init__(self,
-                 attention_rnn_dim: int,
-                 embedding_dim: int,
-                 attention_dim: int,
-                 attention_location_n_filters: int,
-                 attention_location_kernel_size: int):
-        super().__init__()
-        self.query_layer = LinearNorm(
-            in_dim=attention_rnn_dim,
-            out_dim=attention_dim,
-            bias=False,
-            w_init_gain='tanh')
-        self.memory_layer = LinearNorm(
-            in_dim=embedding_dim,
-            out_dim=attention_dim,
-            bias=False,
-            w_init_gain='tanh')
-        self.v = LinearNorm(in_dim=attention_dim, out_dim=1, bias=False)
-        self.location_layer = LocationLayer(
-            attention_n_filters=attention_location_n_filters,
-            attention_kernel_size=attention_location_kernel_size,
-            attention_dim=attention_dim)
-        self.score_mask_value = -float(1e20)
-
-    def get_alignment_energies(self,
-                               query: paddle.Tensor,
-                               processed_memory: paddle.Tensor,
-                               attention_weights_cat: paddle.Tensor):
-        """
-        Args:
-            query: 
-                decoder output (batch, n_mel_channels * n_frames_per_step)
-            processed_memory: 
-                processed encoder outputs (B, T_in, attention_dim)
-            attention_weights_cat: 
-                prev. and cumulative att weights (B, 2, max_time)
-        Returns:
-            Tensor: alignment (batch, max_time)
-        """
-
-        processed_query = self.query_layer(query.unsqueeze(1))
-        processed_attention_weights = self.location_layer(attention_weights_cat)
-        energies = self.v(
-            paddle.tanh(processed_query + processed_attention_weights +
-                        processed_memory))
-
-        energies = energies.squeeze(-1)
-        return energies
-
-    def forward(self,
-                attention_hidden_state: paddle.Tensor,
-                memory: paddle.Tensor,
-                processed_memory: paddle.Tensor,
-                attention_weights_cat: paddle.Tensor,
-                mask: paddle.Tensor,
-                log_alpha: paddle.Tensor):
-        """
-        Args:
-            attention_hidden_state: 
-                attention rnn last output
-            memory: 
-                encoder outputs
-            processed_memory: 
-                processed encoder outputs
-            attention_weights_cat: 
-                previous and cummulative attention weights
-            mask: 
-                binary mask for padded data
-        """
-        log_energy = self.get_alignment_energies(
-            query=attention_hidden_state,
-            processed_memory=processed_memory,
-            attention_weights_cat=attention_weights_cat)
-
-        if mask is not None:
-            log_energy[:] = paddle.where(
-                mask,
-                paddle.full(log_energy.shape, self.score_mask_value,
-                            log_energy.dtype), log_energy)
-        log_alpha_shift_padded = []
-        max_time = log_energy.shape[1]
-        for sft in range(2):
-            shifted = log_alpha[:, :max_time - sft]
-            shift_padded = F.pad(shifted, (sft, 0), 'constant',
-                                 self.score_mask_value)
-            log_alpha_shift_padded.append(shift_padded.unsqueeze(2))
-
-        biased = paddle.logsumexp(paddle.conat(log_alpha_shift_padded, 2), 2)
-        log_alpha_new = biased + log_energy
-        attention_weights = F.softmax(log_alpha_new, axis=1)
-        attention_context = paddle.bmm(attention_weights.unsqueeze(1), memory)
-        attention_context = attention_context.squeeze(1)
-
-        return attention_context, attention_weights, log_alpha_new
-
-
-class PhaseShuffle2D(nn.Layer):
-    def __init__(self, n: int=2):
-        super().__init__()
-        self.n = n
-        self.random = random.Random(1)
-
-    def forward(self, x: paddle.Tensor, move: int=None):
-        # x.size = (B, C, M, L)
-        if move is None:
-            move = self.random.randint(-self.n, self.n)
-
-        if move == 0:
-            return x
-        else:
-            left = x[:, :, :, :move]
-            right = x[:, :, :, move:]
-            shuffled = paddle.concat([right, left], axis=3)
-        return shuffled
-
-
-class PhaseShuffle1D(nn.Layer):
-    def __init__(self, n: int=2):
-        super().__init__()
-        self.n = n
-        self.random = random.Random(1)
-
-    def forward(self, x: paddle.Tensor, move: int=None):
-        # x.size = (B, C, M, L)
-        if move is None:
-            move = self.random.randint(-self.n, self.n)
-
-        if move == 0:
-            return x
-        else:
-            left = x[:, :, :move]
-            right = x[:, :, move:]
-            shuffled = paddle.concat([right, left], axis=2)
-
-        return shuffled
-
-
 class MFCC(nn.Layer):
     def __init__(self, n_mfcc: int=40, n_mels: int=80):
         super().__init__()
@@ -473,7 +256,6 @@ class MFCC(nn.Layer):
         # -> (channel, time, n_mfcc).tranpose(...)
         mfcc = paddle.matmul(mel_specgram.transpose([0, 2, 1]),
                              self.dct_mat).transpose([0, 2, 1])
-
         # unpack batch
         if unsqueezed:
             mfcc = mfcc.squeeze(0)

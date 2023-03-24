@@ -58,10 +58,7 @@ fi
 # paddle2onnx non streaming
 if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
     # install paddle2onnx
-    version=$(echo `pip list |grep "paddle2onnx"` |awk -F" " '{print $2}')
-    if [[ -z "$version" || ${version} != '1.0.0' ]]; then
-        pip install paddle2onnx==1.0.0
-    fi
+    pip install paddle2onnx --upgrade
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx fastspeech2_csmsc
     # considering the balance between speed and quality, we recommend that you use hifigan as vocoder
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_csmsc
@@ -77,10 +74,7 @@ fi
 # paddle2onnx streaming
 if [ ${stage} -le 9 ] && [ ${stop_stage} -ge 9 ]; then
     # install paddle2onnx
-    version=$(echo `pip list |grep "paddle2onnx"` |awk -F" " '{print $2}')
-    if [[ -z "$version" || ${version} != '1.0.0' ]]; then
-        pip install paddle2onnx==1.0.0
-    fi
+    pip install paddle2onnx --upgrade
     # streaming acoustic model
     ./local/paddle2onnx.sh ${train_output_path} inference_streaming inference_onnx_streaming fastspeech2_csmsc_am_encoder_infer
     ./local/paddle2onnx.sh ${train_output_path} inference_streaming inference_onnx_streaming fastspeech2_csmsc_am_decoder

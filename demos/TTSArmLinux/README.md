@@ -10,9 +10,9 @@
 
 ### 安装依赖
 
-```
+```bash
 # Ubuntu
-sudo apt install build-essential cmake wget tar unzip
+sudo apt install build-essential cmake pkg-config wget tar unzip
 
 # CentOS
 sudo yum groupinstall "Development Tools"
@@ -25,15 +25,13 @@ sudo yum install cmake wget tar unzip
 
 可用以下命令下载：
 
-```
-git clone https://github.com/PaddlePaddle/PaddleSpeech.git
-cd PaddleSpeech/demos/TTSArmLinux
+```bash
 ./download.sh
 ```
 
 ### 编译 Demo
 
-```
+```bash
 ./build.sh
 ```
 
@@ -43,12 +41,18 @@ cd PaddleSpeech/demos/TTSArmLinux
 
 ### 运行
 
-```
+你可以修改 `./front.conf` 中 `--phone2id_path` 参数为你自己的声学模型的 `phone_id_map.txt` 。
+
+```bash
 ./run.sh
+./run.sh --sentence "语音合成测试"
+./run.sh --sentence "输出到指定的音频文件" --output_wav ./output/test.wav
+./run.sh --help
 ```
 
-将把 [src/main.cpp](src/main.cpp) 里定义在 `sentencesToChoose` 数组中的十句话转换为 `wav` 文件，保存在 `output` 文件夹中。
+目前只支持中文合成，出现任何英文都会导致程序崩溃。
 
+如果未指定`--wav_file`，默认输出到`./output/tts.wav`。
 
 ## 手动编译 Paddle Lite 库
 

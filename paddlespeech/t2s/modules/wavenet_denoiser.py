@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import math
-from typing import Callable
-from typing import Optional
-from typing import Tuple
 
-import numpy as np
 import paddle
-import ppdiffusers
 from paddle import nn
 from ppdiffusers.models.embeddings import Timesteps
-from ppdiffusers.schedulers import DDPMScheduler
 
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.residual_block import WaveNetResidualBlock

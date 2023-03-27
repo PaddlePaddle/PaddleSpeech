@@ -9,7 +9,7 @@ stop_stage=100
 
 conf_path=conf/default.yaml
 train_output_path=exp/default
-ckpt_name=snapshot_iter_333000.pdz
+ckpt_name=snapshot_iter_153.pdz
 add_blank=true
 
 # with the following command, you can choose the stage range you want to run
@@ -59,7 +59,8 @@ fi
 if [ ${stage} -le 7 ] && [ ${stop_stage} -ge 7 ]; then
     # NOTE by yuantian 2022.11.21: please compile develop version of Paddle-Lite to export and run TTS models,
     #                   cause TTS models are supported by https://github.com/PaddlePaddle/Paddle-Lite/pull/10128
-    ./local/export2lite.sh ${train_output_path} inference pdlite vits_csmsc x86
+    # vits can only run in arm
+    ./local/export2lite.sh ${train_output_path} inference pdlite vits_csmsc arm
 fi
 
 if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then

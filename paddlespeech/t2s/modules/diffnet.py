@@ -17,7 +17,6 @@ import paddle
 import paddle.nn.functional as F
 from paddle import nn
 
-from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.utils.initialize import _calculate_fan_in_and_fan_out
 from paddlespeech.utils.initialize import kaiming_normal_
 from paddlespeech.utils.initialize import kaiming_uniform_

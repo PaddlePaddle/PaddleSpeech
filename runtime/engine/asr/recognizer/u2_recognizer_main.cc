@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
 
     int32 num_done = 0, num_err = 0;
     double tot_wav_duration = 0.0;
+    double tot_attention_rescore_time = 0.0;
     double tot_decode_time = 0.0;
 
     kaldi::SequentialTableReader<kaldi::WaveHolder> wav_reader(
@@ -46,10 +47,11 @@ int main(int argc, char* argv[]) {
 
     ppspeech::U2RecognizerResource resource =
         ppspeech::U2RecognizerResource::InitFromFlags();
-    ppspeech::U2Recognizer recognizer(resource);
+    std::shared_ptr<ppspeech::U2Recognizer> recognizer_ptr(
+        new ppspeech::U2Recognizer(resource));
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
-        recognizer.InitDecoder();
+        recognizer_ptr->InitDecoder();
         std::string utt = wav_reader.Key();
         const kaldi::WaveData& wave_data = wav_reader.Value();
         LOG(INFO) << "utt: " << utt;
@@ -64,8 +66,6 @@ int main(int argc, char* argv[]) {
         LOG(INFO) << "wav len (sample): " << tot_samples;
 
         int sample_offset = 0;
-        int cnt = 0;
-        kaldi::Timer timer;
         kaldi::Timer local_timer;
 
         while (sample_offset < tot_samples) {
@@ -76,32 +76,23 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < cur_chunk_size; ++i) {
                 wav_chunk[i] = waveform(sample_offset + i);
             }
-            // wav_chunk = waveform.Range(sample_offset + i, cur_chunk_size);
 
-            recognizer.Accept(wav_chunk);
-            if (cur_chunk_size < chunk_sample_size) {
-                recognizer.SetInputFinished();
-            }
-            recognizer.Decode();
-            if (recognizer.DecodedSomething()) {
-                LOG(INFO) << "Pratial result: " << cnt << " "
-                          << recognizer.GetPartialResult();
+            recognizer_ptr->Accept(wav_chunk);
+            if (cur_chunk_size == (tot_samples - sample_offset)) {
+                recognizer_ptr->SetInputFinished();
             }
 
             // no overlap
             sample_offset += cur_chunk_size;
-            cnt++;
         }
         CHECK(sample_offset == tot_samples);
+        recognizer_ptr->WaitDecodeFinished();
 
-        // second pass decoding
-        recognizer.Rescoring();
+        kaldi::Timer timer;
+        recognizer_ptr->AttentionRescoring();
+        tot_attention_rescore_time += timer.Elapsed();
 
-        tot_decode_time += timer.Elapsed();
-
-        std::string result = recognizer.GetFinalResult();
-
-
+        std::string result = recognizer_ptr->GetFinalResult();
         if (result.empty()) {
             // the TokenWriter can not write empty string.
             ++num_err;
@@ -109,6 +100,7 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
+        tot_decode_time += local_timer.Elapsed();
         LOG(INFO) << utt << " " << result;
         LOG(INFO) << " RTF: " << local_timer.Elapsed() / dur << " dur: " << dur
                   << " cost: " << local_timer.Elapsed();
@@ -117,9 +109,11 @@ int main(int argc, char* argv[]) {
 
         ++num_done;
     }
+    recognizer_ptr->WaitFinished();
 
     LOG(INFO) << "Done " << num_done << " out of " << (num_err + num_done);
     LOG(INFO) << "total wav duration is: " << tot_wav_duration << " sec";
     LOG(INFO) << "total decode cost:" << tot_decode_time << " sec";
+    LOG(INFO) << "total rescore cost:" << tot_attention_rescore_time << " sec";
     LOG(INFO) << "RTF is: " << tot_decode_time / tot_wav_duration;
 }

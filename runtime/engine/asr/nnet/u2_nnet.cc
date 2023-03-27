@@ -17,6 +17,7 @@
 // https://github.com/wenet-e2e/wenet/blob/main/runtime/core/decoder/asr_model.cc
 
 #include "nnet/u2_nnet.h"
+#include <type_traits>
 
 #ifdef WITH_PROFILING
 #include "paddle/fluid/platform/profiler.h"
@@ -214,7 +215,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
 
     // not cache feature in nnet
     CHECK_EQ(cached_feats_.size(), 0);
-    // CHECK_EQ(std::is_same<float, kaldi::BaseFloat>::value, true);
+    CHECK_EQ((std::is_same<float, kaldi::BaseFloat>::value), true);
     std::memcpy(feats_ptr,
                 chunk_feats.data(),
                 chunk_feats.size() * sizeof(kaldi::BaseFloat));

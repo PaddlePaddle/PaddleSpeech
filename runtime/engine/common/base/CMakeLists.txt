@@ -8,12 +8,12 @@ else()
 endif()
 
 if(ANDROID)
-  set(PPS_GLOB_LIB "base/log_impl.h")
+  set(PPS_GLOG_LIB "base/log_impl.h")
 else() #UNIX
   if(WITH_ASR)
-    set(PPS_GLOB_LIB "fst/log.h")
+    set(PPS_GLOG_LIB "fst/log.h")
   else()
-    set(PPS_GLOB_LIB "glog/logging.h")
+    set(PPS_GLOG_LIB "glog/logging.h")
   endif()
 endif()
 

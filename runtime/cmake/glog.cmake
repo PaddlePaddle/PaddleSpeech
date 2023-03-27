@@ -17,10 +17,10 @@ else() # UNIX
                     -DCMAKE_C_FLAGS_RELEASE=${CMAKE_C_FLAGS_RELEASE}
                     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
                     -DWITH_GFLAGS=OFF
-                    -DBUILD_TESTING=OFF
                     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                     ${EXTERNAL_OPTIONAL_ARGS}
   )
+  set(BUILD_TESTING OFF)
   FetchContent_MakeAvailable(glog)
   include_directories(${glog_BINARY_DIR} ${glog_SOURCE_DIR}/src)
 endif()

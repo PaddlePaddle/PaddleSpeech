@@ -17,8 +17,8 @@ set(PPS_VERSION "${PPS_VERSION_MAJOR}.${PPS_VERSION_MINOR}.${PPS_VERSION_PATCH}"
 # compiler option
 # Keep the same with openfst, -fPIC or -fpic
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ldl")
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb -ldl")
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall -ldl")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_FIND_DEBUG_MODE OFF)
@@ -38,6 +38,10 @@ if(ANDROID)
     set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+endif()
+
+if(BUILD_IN_MACOS)
+    add_definitions("-DOS_MACOSX")
 endif()
 
 # install dir into `build/install`

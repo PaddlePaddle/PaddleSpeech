@@ -15,6 +15,9 @@
 #include "recognizer/u2_recognizer.h"
 
 #include "nnet/u2_nnet.h"
+#ifdef USE_ONNX
+#include "nnet/u2_onnx_nnet.h"
+#endif
 
 namespace ppspeech {
 
@@ -28,7 +31,16 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
     std::shared_ptr<FeaturePipeline> feature_pipeline(
         new FeaturePipeline(feature_opts));
-    std::shared_ptr<NnetBase> nnet(new U2Nnet(resource.model_opts));
+    std::shared_ptr<NnetBase> nnet;
+#ifndef USE_ONNX
+    nnet.reset(new U2Nnet(resource.model_opts));
+#else
+    if (resource.model_opts.with_onnx_model){
+        nnet.reset(new U2OnnxNnet(resource.model_opts));
+    } else {
+        nnet.reset(new U2Nnet(resource.model_opts));
+    }
+#endif
     nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline));
     decodable_.reset(new Decodable(nnet_producer_, am_scale));
 

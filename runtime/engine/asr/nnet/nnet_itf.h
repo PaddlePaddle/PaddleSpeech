@@ -24,6 +24,9 @@ DECLARE_string(model_input_names);
 DECLARE_string(model_output_names);
 DECLARE_string(model_cache_names);
 DECLARE_string(model_cache_shapes);
+#ifdef USE_ONNX
+DECLARE_bool(with_onnx_model);
+#endif
 
 namespace ppspeech {
 
@@ -33,6 +36,9 @@ struct ModelOptions {
     int thread_num{1};  // predictor thread pool size for ds2;
     bool use_gpu{false};
     std::string model_path;
+#ifdef USE_ONNX
+    bool with_onnx_model{false};
+#endif
 
     std::string param_path;
 
@@ -51,6 +57,10 @@ struct ModelOptions {
         LOG(INFO) << "subsampling rate: " << opts.subsample_rate;
         opts.model_path = FLAGS_model_path;
         LOG(INFO) << "model path: " << opts.model_path;
+#ifdef USE_ONNX
+        opts.with_onnx_model = FLAGS_with_onnx_model;
+        LOG(INFO) << "with onnx model: " << opts.with_onnx_model;
+#endif
 
         opts.param_path = FLAGS_param_path;
         LOG(INFO) << "param path: " << opts.param_path;

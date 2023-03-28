@@ -78,14 +78,12 @@ int main(int argc, char* argv[]) {
             }
 
             recognizer_ptr->Accept(wav_chunk);
-            if (cur_chunk_size == (tot_samples - sample_offset)) {
-                recognizer_ptr->SetInputFinished();
-            }
 
             // no overlap
             sample_offset += cur_chunk_size;
         }
         CHECK(sample_offset == tot_samples);
+        recognizer_ptr->SetInputFinished();
         recognizer_ptr->WaitDecodeFinished();
 
         kaldi::Timer timer;

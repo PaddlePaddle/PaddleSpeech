@@ -25,4 +25,8 @@ std::vector<std::string> StrSplit(const std::string& str,
 
 std::string StrJoin(const std::vector<std::string>& strs, const char* delim);
 
+#ifdef _MSC_VER
+std::wstring ToWString(const std::string& str);
+#endif
+
 }  // namespace ppspeech

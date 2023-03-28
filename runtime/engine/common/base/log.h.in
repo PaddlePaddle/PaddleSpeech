@@ -14,4 +14,4 @@
 
 #pragma once
 
-#include "@PPS_GLOB_LIB@"
+#include "@PPS_GLOG_LIB@"

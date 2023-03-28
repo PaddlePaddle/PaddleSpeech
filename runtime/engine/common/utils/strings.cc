@@ -49,4 +49,16 @@ std::string StrJoin(const std::vector<std::string>& strs, const char* delim) {
     return ss.str();
 }
 
+#ifdef _MSC_VER
+std::wstring ToWString(const std::string& str) {
+    unsigned len = str.size() * 2;
+    setlocale(LC_CTYPE, "");
+    wchar_t* p = new wchar_t[len];
+    mbstowcs(p, str.c_str(), len);
+    std::wstring wstr(p);
+    delete[] p;
+    return wstr;
+}
+#endif
+
 }  // namespace ppspeech

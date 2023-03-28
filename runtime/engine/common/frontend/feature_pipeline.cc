@@ -28,12 +28,18 @@ FeaturePipeline::FeaturePipeline(const FeaturePipelineOptions& opts)
     base_feature.reset(
         new ppspeech::Fbank(opts.fbank_opts, std::move(data_source)));
 
-    CHECK_NE(opts.cmvn_file, "");
-    unique_ptr<FrontendInterface> cmvn(
-        new ppspeech::CMVN(opts.cmvn_file, std::move(base_feature)));
+    // CHECK_NE(opts.cmvn_file, "");
+    unique_ptr<FrontendInterface> cache;
+    if (opts.cmvn_file != ""){
+        unique_ptr<FrontendInterface> cmvn(
+            new ppspeech::CMVN(opts.cmvn_file, std::move(base_feature)));
 
-    unique_ptr<FrontendInterface> cache(
-        new ppspeech::FeatureCache(kint16max, std::move(cmvn)));
+        cache.reset(
+            new ppspeech::FeatureCache(kint16max, std::move(cmvn)));
+    } else {
+        cache.reset(
+            new ppspeech::FeatureCache(kint16max, std::move(base_feature)));
+    }
 
     base_extractor_.reset(
         new ppspeech::Assembler(opts.assembler_opts, std::move(cache)));

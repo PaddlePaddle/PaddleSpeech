@@ -39,6 +39,9 @@ DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 // nnet
 DEFINE_string(vocab_path, "", "nnet vocab path.");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
+#ifdef USE_ONNX
+DEFINE_bool(with_onnx_model, false, "True mean the model path is onnx model path");
+#endif
 DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 DEFINE_string(
     model_input_names,

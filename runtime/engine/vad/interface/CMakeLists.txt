@@ -11,7 +11,6 @@ add_executable(${bin_name} ${CMAKE_CURRENT_SOURCE_DIR}/${bin_name}.cc)
 target_link_libraries(${bin_name} pps_vad_interface)
 # set_target_properties(${bin_name} PROPERTIES PUBLIC_HEADER "vad_interface.h;../frontend/wav.h")
 
-
 file(RELATIVE_PATH DEST_DIR ${ENGINE_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
 install(TARGETS pps_vad_interface DESTINATION lib)
 install(FILES vad_interface.h DESTINATION include/${DEST_DIR})

@@ -1,7 +1,7 @@
 # >=3.17 support -DCMAKE_FIND_DEBUG_MODE=ON
 cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
 
-set(CMAKE_PROJECT_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnableCMP0048.cmake")
+set(CMAKE_PROJECT_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnableCMP0077.cmake")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -86,9 +86,6 @@ include(pybind)
 if(WITH_ONNX)
     include(onnx)
 endif()
-
-# paddle lib
-include(paddleinference)
 
 # gtest
 if(WITH_TESTING)

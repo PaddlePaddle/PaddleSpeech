@@ -1,10 +1,14 @@
 # https://www.jianshu.com/p/33672fb819f5
 
 PATH="/Applications/CMake.app/Contents/bin":"$PATH"
-ios_toolchain_cmake="/Users/masimeng/Documents/ios-cmake-4.2.0/ios.toolchain.cmake"
-fastdeploy_dir="/Users/masimeng/Documents/fastdeploy-ort-build-bak/MacOSX/"
+tools_dir=$1
+ios_toolchain_cmake=${tools_dir}/"/ios-cmake-4.2.0/ios.toolchain.cmake"
+fastdeploy_dir=${tools_dir}"/fastdeploy-ort-mac-build/"
 build_targets=("OS64")
 build_type_array=("Release")
+
+#static_name="libocr"
+#lib_name="libocr"
 
 # Switch to workpath
 current_path=`cd $(dirname $0);pwd`
@@ -37,12 +41,12 @@ do
         fi
         
         if [ ${target} == "OS64" ];then
-            fastdeploy_install_dir=${fastdeploy_dir}/arm64/install/
-        else
-                fastdeploy_install_dir=""
-                echo "fastdeploy_install_dir is null"
-                exit -1
-        fi
+            fastdeploy_install_dir=${fastdeploy_dir}/arm64
+	    else
+            fastdeploy_install_dir=""
+            echo "fastdeploy_install_dir is null"
+            exit -1
+	    fi
 
         cmake -DCMAKE_TOOLCHAIN_FILE=${ios_toolchain_cmake} \
             -DBUILD_IN_MACOS=ON \
@@ -52,19 +56,15 @@ do
             -DWITH_VAD=ON \
 	        -DFASTDEPLOY_INSTALL_DIR=${fastdeploy_install_dir} \
             -DPLATFORM=${target} ../../../
-            
-        if [ $? -ne 0 ];then
-            echo -e "\033[1;31;40mcmake ${build_type} ${target} failed \033[0m"
-            exit -1
-        fi
 
         cmake --build . --config ${build_type}
 
-        if [ $? -ne 0 ];then
-            echo -e "\033[1;31;40mmake ${build_type} ${target} failed \033[0m"
-            exit -1
-        fi
-        
+		mkdir output
+        cp engine/vad/interface/libpps_vad_interface.a output
+        cp engine/vad/interface/vad_interface_main.app/vad_interface_main output
+        cp ${fastdeploy_install_dir}/lib/libfastdeploy.dylib output
+	    cp ${fastdeploy_install_dir}/third_libs/install/onnxruntime/lib/libonnxruntime.dylib output	
+
     done
 done
 

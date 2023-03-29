@@ -90,7 +90,7 @@ class LogMessage {
 }  // namespace ppspeech
 
 
-#ifdef NDEBUG
+#ifndef PPS_DEBUG
 #define DLOG_INFO \
     ppspeech::log::LogMessage(__FILE__, __LINE__, ppspeech::log::INFO, false)
 #define DLOG_WARNING \
@@ -145,7 +145,7 @@ class LogMessage {
 #define CHECK_LT(x, y) CHECK((x) < (y))
 #define CHECK_GE(x, y) CHECK((x) >= (y))
 #define CHECK_GT(x, y) CHECK((x) > (y))
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
 #define DCHECK(x) CHECK(x)
 #define DCHECK_EQ(x, y) CHECK_EQ(x, y)
 #define DCHECK_NE(x, y) CHECK_NE(x, y)
@@ -153,7 +153,7 @@ class LogMessage {
 #define DCHECK_LT(x, y) CHECK_LT(x, y)
 #define DCHECK_GE(x, y) CHECK_GE(x, y)
 #define DCHECK_GT(x, y) CHECK_GT(x, y)
-#else  // NDEBUG
+#else
 #define DCHECK(condition) \
     while (false) CHECK(condition)
 #define DCHECK_EQ(val1, val2) \

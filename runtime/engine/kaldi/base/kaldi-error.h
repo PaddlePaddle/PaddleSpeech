@@ -181,7 +181,7 @@ private:
 // Also see KALDI_COMPILE_TIME_ASSERT, defined in base/kaldi-utils.h, and
 // KALDI_ASSERT_IS_INTEGER_TYPE and KALDI_ASSERT_IS_FLOATING_TYPE, also defined
 // there.
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
 #define KALDI_ASSERT(cond)                                                     \
   do {                                                                         \
     if (cond)                                                                  \

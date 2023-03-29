@@ -2,7 +2,7 @@
 
 set -ex
 
-ANDROID_NDK=/workspace/zhanghui/android-sdk/android-ndk-r25c
+ANDROID_NDK=/mnt/masimeng/workspace/software/android-ndk-r25b/
 
 # Setting up Android toolchanin
 ANDROID_ABI=arm64-v8a  # 'arm64-v8a', 'armeabi-v7a'
@@ -14,7 +14,7 @@ TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
 # Create build directory
 BUILD_ROOT=build/Android
 BUILD_DIR=${BUILD_ROOT}/${ANDROID_ABI}-api-21
-FASTDEPLOY_INSTALL_DIR="/workspace/zhanghui/paddle/FastDeploy/build/Android/arm64-v8a-api-21/install"
+FASTDEPLOY_INSTALL_DIR="/mnt/masimeng/workspace/FastDeploy/build/Android/arm64-v8a-api-21/install"
 
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}

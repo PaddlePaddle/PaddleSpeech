@@ -60,7 +60,10 @@ set(FETCHCONTENT_BASE_DIR ${fc_patch})
 ###############################################################################
 # https://github.com/google/brotli/pull/655
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(NDEBUG "debug option" OFF)
+option(WITH_PPS_DEBUG "debug option" OFF)
+if (WITH_PPS_DEBUG)
+    add_definitions("-DPPS_DEBUG")
+endif()
 
 option(WITH_ASR "build asr" ON)
 option(WITH_CLS "build cls" ON)
@@ -71,7 +74,7 @@ option(WITH_GPU "NNet using GPU." OFF)
 option(WITH_PROFILING "enable c++ profling" OFF)
 option(WITH_TESTING "unit test" ON)
 
-option(WITH_ONNX "u2 support onnx runtime" ON)
+option(WITH_ONNX "u2 support onnx runtime" OFF)
 
 ###############################################################################
 # Include Third Party

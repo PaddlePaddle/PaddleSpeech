@@ -19,10 +19,77 @@ import argparse
 import asyncio
 import codecs
 import os
+from pydub import AudioSegment
+import re
+import pdb
 
 from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 
+def convert_to_wav(input_file):
+    # Load audio file
+    audio = AudioSegment.from_file(input_file)
+
+    # Set parameters for audio file
+    audio = audio.set_channels(1)
+    audio = audio.set_frame_rate(16000)
+
+    # Create output filename
+    output_file = os.path.splitext(input_file)[0] + ".wav"
+
+    # Export audio file as WAV
+    audio.export(output_file, format="wav")
+
+    logger.info(f"{input_file} converted to {output_file}")
+
+def format_time(sec):
+    # Convert seconds to SRT format (HH:MM:SS,ms)
+    hours = int(sec/3600)
+    minutes = int((sec%3600)/60)
+    seconds = int(sec%60)
+    milliseconds = int((sec%1)*1000)
+    return f'{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}'
+
+def results2srt(results, srt_file):
+    """convert results from paddlespeech to srt format for subtitle
+    Args:
+        results (dict): results from paddlespeech
+    """
+    # times contains start and end time of each word
+    times = results['times']
+    # result contains the whole sentence including punctuation
+    result = results['result']
+    # split result into several sencences by '，' and '。'
+    sentences = re.split('，|。', result)[:-1]
+    # print("sentences: ", sentences)
+    # generate relative time for each sentence in sentences
+    relative_times = []
+    word_i = 0
+    for sentence in sentences:
+        relative_times.append([])
+        for word in sentence:
+            if relative_times[-1] == []:
+                relative_times[-1].append(times[word_i]['bg'])
+            if len(relative_times[-1]) == 1:
+                relative_times[-1].append(times[word_i]['ed'])
+            else:
+                relative_times[-1][1] = times[word_i]['ed']
+            word_i += 1
+    # print("relative_times: ", relative_times)
+    # generate srt file acoording to relative_times and sentences
+    with open(srt_file, 'w') as f:
+        for i in range(len(sentences)):
+            # Write index number
+            f.write(str(i+1)+'\n')
+            
+            # Write start and end times
+            start = format_time(relative_times[i][0])
+            end = format_time(relative_times[i][1])
+            f.write(start + ' --> ' + end + '\n')
+            
+            # Write text
+            f.write(sentences[i]+'\n\n')
+    logger.info(f"results saved to {srt_file}")
 
 def main(args):
     logger.info("asr websocket client start")
@@ -34,12 +101,20 @@ def main(args):
         punc_server_port=args.punc_server_port)
     loop = asyncio.get_event_loop()
 
+    # check if the wav file is mp3 format
+    # if so, convert it to wav format using convert_to_wav function
+    if args.wavfile and os.path.exists(args.wavfile):
+        if args.wavfile.endswith(".mp3"):
+            convert_to_wav(args.wavfile)
+            args.wavfile = args.wavfile.replace(".mp3", ".wav")
+
     # support to process single audio file
     if args.wavfile and os.path.exists(args.wavfile):
         logger.info(f"start to process the wavscp: {args.wavfile}")
         result = loop.run_until_complete(handler.run(args.wavfile))
-        result = result["result"]
-        logger.info(f"asr websocket client finished : {result}")
+        # result = result["result"]
+        # logger.info(f"asr websocket client finished : {result}")
+        results2srt(result, args.wavfile.replace(".wav", ".srt"))
 
     # support to process batch audios from wav.scp
     if args.wavscp and os.path.exists(args.wavscp):

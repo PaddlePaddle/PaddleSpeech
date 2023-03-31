@@ -69,9 +69,10 @@ void recognizer_func(ppspeech::RecognizerController* recognizer_controller,
         kaldi::WaveData wave_data;
         wave_data.Read(infile);
         int32 recog_id = -1;
-        while (recog_id != -1) {
+        while (recog_id == -1) {
             recog_id = recognizer_controller->GetRecognizerInstanceId();
         }
+        recognizer_controller->InitDecoder(recog_id);
         LOG(INFO) << "utt: " << utt;
         LOG(INFO) << "wav dur: " << wave_data.Duration() << " sec.";
         double dur = wave_data.Duration();

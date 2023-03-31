@@ -23,7 +23,6 @@ RecognizerController::RecognizerController(int num_worker, U2RecognizerResource 
     recognizer_workers.resize(num_worker);
     for (size_t i = 0; i < num_worker; ++i) {
         recognizer_workers[i].reset(new ppspeech::U2Recognizer(resource, nnet_->Clone())); 
-        recognizer_workers[i]->InitDecoder();
         waiting_workers.push(i);
     }
 }
@@ -43,16 +42,18 @@ int RecognizerController::GetRecognizerInstanceId() {
 
 RecognizerController::~RecognizerController() {
     for (size_t i = 0; i < recognizer_workers.size(); ++i) {
-        recognizer_workers[i]->SetInputFinished();
-        recognizer_workers[i]->WaitDecodeFinished();
+        recognizer_workers[i]->WaitFinished();
     }
+}
+
+void RecognizerController::InitDecoder(int idx) {
+    recognizer_workers[idx]->InitDecoder();
 }
 
 std::string RecognizerController::GetFinalResult(int idx) {
     recognizer_workers[idx]->WaitDecodeFinished();
     recognizer_workers[idx]->AttentionRescoring();
     std::string result = recognizer_workers[idx]->GetFinalResult();
-    recognizer_workers[idx]->InitDecoder();
     {
         std::unique_lock<std::mutex> lock(mutex_);
         waiting_workers.push(idx);

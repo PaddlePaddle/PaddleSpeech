@@ -25,6 +25,7 @@ class RecognizerController {
     explicit RecognizerController(int num_worker, U2RecognizerResource resource);  
     ~RecognizerController();
     int GetRecognizerInstanceId();
+    void InitDecoder(int idx);
     void Accept(std::vector<float> data, int idx);
     void SetInputFinished(int idx);
     std::string GetFinalResult(int idx);

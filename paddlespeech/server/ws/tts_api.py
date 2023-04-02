@@ -85,7 +85,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     resp = {"status": 0, "signal": "no valid json data"}
                     await websocket.send_json(resp)
 
-            # speech synthesis request 
+            # speech synthesis request
             elif 'text' in message:
                 text = message["text"]
                 spk_id = message["spk_id"]

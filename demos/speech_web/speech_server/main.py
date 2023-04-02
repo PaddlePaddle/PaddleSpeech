@@ -290,14 +290,14 @@ async def websocket_endpoint_online(websocket: WebSocket):
                 print("len message: ", len(message))
                 print("###############")
 
-                # we extract the remained audio pcm 
+                # we extract the remained audio pcm
                 # and decode for the result in this package data
                 connection_handler.extract_feat(message)
                 connection_handler.decode(is_finished=False)
                 asr_results = connection_handler.get_result()
 
                 # return the current period result
-                # if the engine create the vad instance, this connection will have many period results 
+                # if the engine create the vad instance, this connection will have many period results
                 resp = {'result': asr_results}
                 print(resp)
                 await websocket.send_json(resp)

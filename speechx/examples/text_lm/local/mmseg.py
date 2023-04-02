@@ -18,18 +18,18 @@ class Chunk:
         if w3:
             self.words.append(w3)
 
-    #计算chunk的总长度  
+    #计算chunk的总长度
     def totalWordLength(self):
         length = 0
         for word in self.words:
             length += len(word.text)
         return length
 
-    #计算平均长度  
+    #计算平均长度
     def averageWordLength(self):
         return float(self.totalWordLength()) / float(len(self.words))
 
-    #计算标准差  
+    #计算标准差
     def standardDeviation(self):
         average = self.averageWordLength()
         sum = 0.0
@@ -38,7 +38,7 @@ class Chunk:
             sum += float(tmp) * float(tmp)
         return sum
 
-    #自由语素度  
+    #自由语素度
     def wordFrequency(self):
         sum = 0
         for word in self.words:
@@ -58,7 +58,7 @@ class ComplexCompare:
                 i += 1
         return chunks[0:i]
 
-    #以下四个函数是mmseg算法的四种过滤原则，核心算法  
+    #以下四个函数是mmseg算法的四种过滤原则，核心算法
     def mmFilter(self, chunks):
         def comparator(a, b):
             return a.totalWordLength() - b.totalWordLength()
@@ -112,7 +112,7 @@ def loadDictWords(filepath):
     fsock.close()
 
 
-#判断该词word是否在字典dictWord中      
+#判断该词word是否在字典dictWord中
 def getDictWord(word):
     result = dictWord.get(word)
     if result:
@@ -120,7 +120,7 @@ def getDictWord(word):
     return None
 
 
-#开始加载字典  
+#开始加载字典
 def run():
     from os.path import join, dirname
     loadDictChars(join(dirname(__file__), 'data', 'chars.dic'))
@@ -137,11 +137,11 @@ class Analysis:
         self.cacheIndex = 0
         self.complexCompare = ComplexCompare()
 
-        #简单小技巧，用到个缓存，不知道具体有没有用处  
+        #简单小技巧，用到个缓存，不知道具体有没有用处
         for i in range(self.cacheSize):
             self.cache.append([-1, Word()])
 
-        #控制字典只加载一次  
+        #控制字典只加载一次
         if not dictWord:
             run()
 
@@ -155,11 +155,11 @@ class Analysis:
     def getNextChar(self):
         return self.text[self.pos]
 
-    #判断该字符是否是中文字符（不包括中文标点）    
+    #判断该字符是否是中文字符（不包括中文标点）
     def isChineseChar(self, charater):
         return 0x4e00 <= ord(charater) < 0x9fa6
 
-    #判断是否是ASCII码  
+    #判断是否是ASCII码
     def isASCIIChar(self, ch):
         import string
         if ch in string.whitespace:
@@ -168,7 +168,7 @@ class Analysis:
             return False
         return ch in string.printable
 
-    #得到下一个切割结果  
+    #得到下一个切割结果
     def getNextToken(self):
         while self.pos < self.textLength:
             if self.isChineseChar(self.getNextChar()):
@@ -179,19 +179,19 @@ class Analysis:
                 return token
         return None
 
-    #切割出非中文词  
+    #切割出非中文词
     def getASCIIWords(self):
-        # Skip pre-word whitespaces and punctuations  
-        #跳过中英文标点和空格  
+        # Skip pre-word whitespaces and punctuations
+        #跳过中英文标点和空格
         while self.pos < self.textLength:
             ch = self.getNextChar()
             if self.isASCIIChar(ch) or self.isChineseChar(ch):
                 break
             self.pos += 1
-        #得到英文单词的起始位置      
+        #得到英文单词的起始位置
         start = self.pos
 
-        #找出英文单词的结束位置  
+        #找出英文单词的结束位置
         while self.pos < self.textLength:
             ch = self.getNextChar()
             if not self.isASCIIChar(ch):
@@ -199,18 +199,18 @@ class Analysis:
             self.pos += 1
         end = self.pos
 
-        #Skip chinese word whitespaces and punctuations  
-        #跳过中英文标点和空格  
+        #Skip chinese word whitespaces and punctuations
+        #跳过中英文标点和空格
         while self.pos < self.textLength:
             ch = self.getNextChar()
             if self.isASCIIChar(ch) or self.isChineseChar(ch):
                 break
             self.pos += 1
 
-        #返回英文单词  
+        #返回英文单词
         return self.text[start:end]
 
-    #切割出中文词，并且做处理，用上述4种方法  
+    #切割出中文词，并且做处理，用上述4种方法
     def getChineseWords(self):
         chunks = self.createChunks()
         if len(chunks) > 1:
@@ -224,7 +224,7 @@ class Analysis:
         if len(chunks) == 0:
             return ''
 
-        #最后只有一种切割方法  
+        #最后只有一种切割方法
         word = chunks[0].words
         token = ""
         length = 0
@@ -235,7 +235,7 @@ class Analysis:
         self.pos += length
         return token
 
-    #三重循环来枚举切割方法，这里也可以运用递归来实现  
+    #三重循环来枚举切割方法，这里也可以运用递归来实现
     def createChunks(self):
         chunks = []
         originalPos = self.pos
@@ -267,9 +267,9 @@ class Analysis:
         self.pos = originalPos
         return chunks
 
-    #运用正向最大匹配算法结合字典来切割中文文本    
+    #运用正向最大匹配算法结合字典来切割中文文本
     def getMatchChineseWords(self):
-        #use cache,check it   
+        #use cache,check it
         for i in range(self.cacheSize):
             if self.cache[i][0] == self.pos:
                 return self.cache[i][1]
@@ -291,7 +291,7 @@ class Analysis:
                 words.append(word)
 
         self.pos = originalPos
-        #没有词则放置个‘X’，将文本长度标记为-1  
+        #没有词则放置个‘X’，将文本长度标记为-1
         if not words:
             word = Word()
             word.length = -1
@@ -308,7 +308,7 @@ class Analysis:
 if __name__ == "__main__":
 
     def cuttest(text):
-        #cut =  Analysis(text)  
+        #cut =  Analysis(text)
         tmp = ""
         try:
             for word in iter(Analysis(text)):

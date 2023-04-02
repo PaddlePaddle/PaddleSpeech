@@ -48,9 +48,9 @@ class JDCNet(nn.Layer):
             nn.Conv2D(64, 64, 3, padding=1, bias_attr=False), )
         # output: (B, out_channels, T, n_mels // 2)
         self.res_block1 = ResBlock(in_channels=64, out_channels=128)
-        # output: (B, out_channels, T, n_mels // 4) 
+        # output: (B, out_channels, T, n_mels // 4)
         self.res_block2 = ResBlock(in_channels=128, out_channels=192)
-        # output: (B, out_channels, T, n_mels // 8)  
+        # output: (B, out_channels, T, n_mels // 8)
         self.res_block3 = ResBlock(in_channels=192, out_channels=256)
         # pool block
         self.pool_block = nn.Sequential(

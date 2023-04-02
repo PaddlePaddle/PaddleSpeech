@@ -169,7 +169,7 @@ def main(args, config):
             # stage 9-2: audio sample augment method, which is done on the audio sample point
             #            the original wavefrom and the augmented waveform is concatented in a batch
             #            eg. five augment method in the augment pipeline
-            #                the final data nums is batch_size * [five + one] 
+            #                the final data nums is batch_size * [five + one]
             #                -> five augmented waveform batch plus one original batch waveform
             if len(augment_pipeline) != 0:
                 waveforms = waveform_augment(waveforms, augment_pipeline)

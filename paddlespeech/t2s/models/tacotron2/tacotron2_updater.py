@@ -68,7 +68,7 @@ class Tacotron2Updater(StandardUpdater):
     def update_core(self, batch):
         self.msg = "Rank: {}, ".format(dist.get_rank())
         losses_dict = {}
-        # spk_id!=None in multiple spk fastspeech2 
+        # spk_id!=None in multiple spk fastspeech2
         spk_id = batch["spk_id"] if "spk_id" in batch else None
         spk_emb = batch["spk_emb"] if "spk_emb" in batch else None
         if spk_emb is not None:
@@ -165,7 +165,7 @@ class Tacotron2Evaluator(StandardEvaluator):
     def evaluate_core(self, batch):
         self.msg = "Evaluate: "
         losses_dict = {}
-        # spk_id!=None in multiple spk fastspeech2 
+        # spk_id!=None in multiple spk fastspeech2
         spk_id = batch["spk_id"] if "spk_id" in batch else None
         spk_emb = batch["spk_emb"] if "spk_emb" in batch else None
         if spk_emb is not None:

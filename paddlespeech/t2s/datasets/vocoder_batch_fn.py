@@ -171,9 +171,9 @@ class WaveRNNClip(Clip):
             x.shape[-1] - 2 - (self.mel_win + 2 * self.aux_context_window)
             for x in mel
         ]
-        # the slice point of mel selecting randomly 
+        # the slice point of mel selecting randomly
         mel_offsets = [np.random.randint(0, offset) for offset in max_offsets]
-        # the slice point of wav selecting randomly, which is behind 2(=pad) frames 
+        # the slice point of wav selecting randomly, which is behind 2(=pad) frames
         sig_offsets = [(offset + self.aux_context_window) * self.hop_size
                        for offset in mel_offsets]
         # mels.shape[1] = voc_seq_len // hop_length + 2 * voc_pad

@@ -340,7 +340,7 @@ class FastSpeech2MIDI(FastSpeech2):
             spk_emb = spk_emb.unsqueeze(0)
 
         # (1, L, odim)
-        # use *_ to avoid bug in dygraph to static graph    
+        # use *_ to avoid bug in dygraph to static graph
         hs, _ = self._forward(
             xs=xs,
             note=note,
@@ -381,7 +381,7 @@ class FastSpeech2MIDI(FastSpeech2):
             spk_emb = spk_emb.unsqueeze(0)
 
         # (1, L, odim)
-        # use *_ to avoid bug in dygraph to static graph    
+        # use *_ to avoid bug in dygraph to static graph
         hs, h_masks = self._forward(
             xs=xs,
             note=note,

@@ -39,7 +39,7 @@ def data_process(src_dir, tgt_dir, wav_dir_list, text_file_list,
                     continue
                 utt = files.split('.')[0]
                 audio_name = utt.split('_')[0]
-                #format the name of utterance 
+                #format the name of utterance
                 while len(audio_name) < 6:
                     utt = '0' + utt
                     audio_name = '0' + audio_name

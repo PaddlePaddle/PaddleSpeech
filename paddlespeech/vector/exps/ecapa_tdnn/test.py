@@ -150,7 +150,7 @@ def main(args, config):
     # stage2: build the speaker verification eval instance with backbone model
     #         because the checkpoint dict name has the SpeakerIdetification prefix
     #         so we need to create the SpeakerIdetification instance
-    #         but we acutally use the backbone model to extact the audio embedding 
+    #         but we acutally use the backbone model to extact the audio embedding
     model = SpeakerIdetification(
         backbone=ecapa_tdnn, num_class=config.num_speakers)
 

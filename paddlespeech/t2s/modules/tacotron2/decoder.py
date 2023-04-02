@@ -458,7 +458,7 @@ class Decoder(nn.Layer):
             prev_att_ws.append(prev_att_w)
         # (B, Lmax)
         logits = paddle.concat(logits, axis=1)
-        # (B, odim, Lmax) 
+        # (B, odim, Lmax)
         before_outs = paddle.concat(outs, axis=2)
         # (B, Lmax, Tmax)
         att_ws = paddle.stack(att_ws, axis=1)

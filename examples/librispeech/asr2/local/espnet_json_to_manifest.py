@@ -10,11 +10,11 @@ def main(args):
     # manifest format:
     # {"input": [
     #       {"feat": "dev/deltafalse/feats.1.ark:842920", "name": "input1", "shape": [349, 83]}
-    #  ], 
+    #  ],
     #  "output": [
     #       {"name": "target1", "shape": [12, 5002], "text": "NO APOLLO", "token": "▁NO ▁A PO LL O", "tokenid": "3144 482 352 269 317"}
-    #  ], 
-    #  "utt2spk": "116-288045", 
+    #  ],
+    #  "utt2spk": "116-288045",
     #  "utt": "116-288045-0019"}
     with open(args.manifest_file, 'w') as fout:
         for key, value in data_json['utts'].items():

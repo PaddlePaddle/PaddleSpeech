@@ -66,7 +66,7 @@ class CTCPrefixBeamSearch:
         Returns:
             list: the search result
         """
-        # decode 
+        # decode
         logger.info("start to ctc prefix search")
         assert len(ctc_probs.shape) == 2
         batch_size = 1
@@ -82,10 +82,10 @@ class CTCPrefixBeamSearch:
 
         # cur_hyps: (prefix, (blank_ending_score, none_blank_ending_score))
         # 0. blank_ending_score,
-        # 1. none_blank_ending_score, 
-        # 2. viterbi_blank ending score, 
-        # 3. viterbi_non_blank score, 
-        # 4. current_token_prob, 
+        # 1. none_blank_ending_score,
+        # 2. viterbi_blank ending score,
+        # 3. viterbi_non_blank score,
+        # 4. current_token_prob,
         # 5. times_viterbi_blank, times_b
         # 6. times_titerbi_non_blank, times_nb
         if self.cur_hyps is None:

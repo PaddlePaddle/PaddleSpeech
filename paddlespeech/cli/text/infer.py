@@ -318,7 +318,7 @@ class TextExecutor(BaseExecutor):
         """
             Python API to call an executor.
         """
-        #Here is old version models 
+        #Here is old version models
         if model in ['ernie_linear_p7_wudao', 'ernie_linear_p3_wudao']:
             paddle.set_device(device)
             self._init_from_path(task, model, lang, config, ckpt_path,

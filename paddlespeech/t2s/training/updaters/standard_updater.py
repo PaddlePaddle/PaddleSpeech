@@ -70,7 +70,7 @@ class StandardUpdater(UpdaterBase):
         # 0. Snapshotting(as well as other extensions, like visualizer) is
         #    executed after a step of updating;
         # 1. We decide to increase the iteration index after updating and
-        #    before any all extension is executed. 
+        #    before any all extension is executed.
         # 3. We do not increase the iteration after extension because we
         #    prefer a consistent resume behavior, when load from a
         #    `snapshot_iter_100.pdz` then the next step to train is `101`,

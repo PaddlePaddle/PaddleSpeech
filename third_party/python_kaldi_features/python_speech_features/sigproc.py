@@ -41,7 +41,7 @@ def framesig(sig, frame_len, frame_step, dither=1.0, preemph=0.97, remove_dc_off
     if wintype is 'povey':
         win = numpy.empty(frame_len)
         for i in range(frame_len):
-            win[i] = (0.5-0.5*numpy.cos(2*numpy.pi/(frame_len-1)*i))**0.85     
+            win[i] = (0.5-0.5*numpy.cos(2*numpy.pi/(frame_len-1)*i))**0.85
     else: # the hamming window
         win = numpy.hamming(frame_len)
         

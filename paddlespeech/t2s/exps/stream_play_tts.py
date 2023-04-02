@@ -166,7 +166,7 @@ if __name__ == '__main__':
         wavs.append(sub_wav.flatten())
         # float32 to int16
         wav = float2pcm(sub_wav)
-        # to bytes  
+        # to bytes
         wav_bytes = wav.tobytes()
         stream.write(wav_bytes)
 

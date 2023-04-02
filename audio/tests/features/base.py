@@ -37,7 +37,7 @@ class FeatTest(unittest.TestCase):
         self.waveform, self.sr = load(os.path.abspath(os.path.basename(url)))
         self.waveform = self.waveform.astype(
             np.float32
-        )  # paddlespeech.s2t.transform.spectrogram only supports float32 
+        )  # paddlespeech.s2t.transform.spectrogram only supports float32
         dim = len(self.waveform.shape)
 
         assert dim in [1, 2]

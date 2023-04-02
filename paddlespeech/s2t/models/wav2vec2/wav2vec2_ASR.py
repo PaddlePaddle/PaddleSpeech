@@ -106,7 +106,7 @@ class Wav2vec2ASR(nn.Layer):
                 res = []
                 res_tokenids = []
                 for sequence in hyps:
-                    # Decode token terms to words 
+                    # Decode token terms to words
                     predicted_tokens = text_feature.convert_ids_to_tokens(
                         sequence)
                 tmp_res = []

@@ -26,7 +26,7 @@ import urllib.request
 github_url = 'https://api.github.com/repos'
 
 if __name__ == '__main__':
-    # usage: 
+    # usage:
     # 1. close milestone on github
     # 2. python3 tools/release_notes.py -c didi delta v0.3.3
 

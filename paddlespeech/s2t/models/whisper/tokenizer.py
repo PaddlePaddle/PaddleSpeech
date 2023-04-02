@@ -1,6 +1,6 @@
 # MIT License, Copyright (c) 2022 OpenAI.
 # Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
-# 
+#
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper/tokenizer.py)
 import os
 from dataclasses import dataclass

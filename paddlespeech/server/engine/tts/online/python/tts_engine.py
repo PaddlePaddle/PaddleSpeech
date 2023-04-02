@@ -379,7 +379,7 @@ class PaddleTTSConnectionHandler:
 
             # fastspeech2_csmsc
             if am == "fastspeech2_csmsc":
-                # am 
+                # am
                 mel = self.executor.am_inference(part_phone_ids)
                 if first_flag == 1:
                     first_am_et = time.time()
@@ -403,9 +403,9 @@ class PaddleTTSConnectionHandler:
 
                     yield sub_wav
 
-            # fastspeech2_cnndecoder_csmsc 
+            # fastspeech2_cnndecoder_csmsc
             elif am == "fastspeech2_cnndecoder_csmsc":
-                # am 
+                # am
                 orig_hs = self.executor.am_inference.encoder_infer(
                     part_phone_ids)
 

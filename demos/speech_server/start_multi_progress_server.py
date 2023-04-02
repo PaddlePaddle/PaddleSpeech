@@ -53,7 +53,7 @@ else:
     raise Exception("unsupported protocol")
     sys.exit(-1)
 
-# app needs to operate outside the main function 
+# app needs to operate outside the main function
 app.include_router(api_router)
 
 if __name__ == "__main__":

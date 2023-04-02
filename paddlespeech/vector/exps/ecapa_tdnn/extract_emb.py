@@ -55,7 +55,7 @@ def extract_audio_embedding(args, config):
     model.eval()
 
     # stage 4: read the audio data and extract the embedding
-    # wavform is one dimension numpy array 
+    # wavform is one dimension numpy array
     waveform, sr = load_audio(args.audio_path)
 
     # feat type is numpy array, whose shape is [dim, time]

@@ -329,7 +329,7 @@ class Generator(nn.Layer):
         for _ in range(2):
             self.encode.append(
                 ResBlk(dim_in=dim_out, dim_out=dim_out, normalize=True))
-        # F0 blocks 
+        # F0 blocks
         if F0_channel != 0:
             self.decode.insert(0,
                                AdainResBlk(

@@ -729,7 +729,7 @@ class FastSpeech2(nn.Layer):
             tone_id = tone_id.unsqueeze(0)
 
         # (1, L, odim)
-        # use *_ to avoid bug in dygraph to static graph    
+        # use *_ to avoid bug in dygraph to static graph
         hs, *_ = self._forward(
             xs,
             ilens,
@@ -1022,7 +1022,7 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
             # set normed pitch to zeros have the same effect with set denormd ones to mean
             pitch = paddle.zeros(p_outs.shape)
 
-        # set pitch, can overwrite robot set  
+        # set pitch, can overwrite robot set
         if isinstance(pitch, np.ndarray):
             pitch = paddle.to_tensor(pitch)
         elif isinstance(pitch, paddle.Tensor):

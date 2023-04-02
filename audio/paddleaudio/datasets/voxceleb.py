@@ -263,7 +263,7 @@ class VoxCeleb(Dataset):
         print(f'Generating csv: {output_file}')
         header = ["id", "duration", "wav", "start", "stop", "spk_id"]
         # Note: this may occurs c++ execption, but the program will execute fine
-        # so we can ignore the execption 
+        # so we can ignore the execption
         with Pool(cpu_count()) as p:
             infos = list(
                 tqdm(
@@ -307,7 +307,7 @@ class VoxCeleb(Dataset):
         speakers = set()
         print("Getting file list...")
         for path in [self.wav_path, self.vox2_base_path]:
-            # if vox2 directory is not set and vox2 is not a directory 
+            # if vox2 directory is not set and vox2 is not a directory
             # we will not process this directory
             if not path or not os.path.exists(path):
                 print(f"{path} is an invalid path, please check again, "

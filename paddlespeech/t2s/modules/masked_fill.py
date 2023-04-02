@@ -36,7 +36,7 @@ def broadcast_shape(shp1, shp2):
 def masked_fill(xs: paddle.Tensor,
                 mask: paddle.Tensor,
                 value: Union[float, int]):
-    # comment following line for converting dygraph to static graph. 
+    # comment following line for converting dygraph to static graph.
     # assert is_broadcastable(xs.shape, mask.shape) is True
     bshape = broadcast_shape(xs.shape, mask.shape)
     mask.stop_gradient = True

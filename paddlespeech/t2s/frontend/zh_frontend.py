@@ -476,7 +476,7 @@ class Frontend():
             print("----------------------------")
         return phonemes
 
-    #@an added for ssml pinyin 
+    #@an added for ssml pinyin
     def get_phonemes_ssml(self,
                           ssml_inputs: list,
                           merge_sentences: bool=True,
@@ -494,7 +494,7 @@ class Frontend():
                     merge_sentences=merge_sentences,
                     with_erhua=with_erhua)
             else:
-                # phonemes should be pinyin_spec 
+                # phonemes should be pinyin_spec
                 phonemes = self._g2p_assign(
                     sentences, pinyin_spec, merge_sentences=merge_sentences)
 

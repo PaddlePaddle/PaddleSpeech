@@ -385,7 +385,7 @@ def make_batchset(
 
     ikey = "input"
     okey = "output"
-    batch_sort_axis = 0  # index of list 
+    batch_sort_axis = 0  # index of list
     if count == "auto":
         if batch_size != 0:
             count = "seq"

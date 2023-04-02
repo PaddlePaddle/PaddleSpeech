@@ -132,7 +132,7 @@ class StochasticDurationPredictor(nn.Layer):
                 If inverse, log-duration tensor (B, 1, T_text).
         """
         # stop gradient
-        # x = x.detach()  
+        # x = x.detach()
         x = self.pre(x)
         if g is not None:
             # stop gradient

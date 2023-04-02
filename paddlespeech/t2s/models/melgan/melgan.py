@@ -187,7 +187,7 @@ class MelGANGenerator(nn.Layer):
         if use_final_nonlinear_activation:
             layers += [nn.Tanh()]
 
-        # define the model as a single function        
+        # define the model as a single function
         self.melgan = nn.Sequential(*layers)
         nn.initializer.set_global_initializer(None)
 
@@ -470,7 +470,7 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        # for 
+        # for
         if nonlinear_activation:
             nonlinear_activation = nonlinear_activation.lower()
 

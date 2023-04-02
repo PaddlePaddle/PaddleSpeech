@@ -129,14 +129,14 @@ class UpsampleNetwork(nn.Layer):
             Tensor:
                 Output tensor (B, (T - 2 * pad) *  prob(upsample_scales), res_out_dims).
         '''
-        # aux: [B, C_aux, T] 
+        # aux: [B, C_aux, T]
         # -> [B, res_out_dims, T - 2 * aux_context_window]
         # -> [B, 1, res_out_dims, T - 2 * aux_context_window]
         aux = self.resnet(m).unsqueeze(1)
         # aux: [B, 1, res_out_dims, T - 2 * aux_context_window]
         # -> [B, 1, res_out_dims, (T - 2 * pad) *  prob(upsample_scales)]
         aux = self.resnet_stretch(aux)
-        # aux: [B, 1, res_out_dims, T * prob(upsample_scales)] 
+        # aux: [B, 1, res_out_dims, T * prob(upsample_scales)]
         # -> [B, res_out_dims, T * prob(upsample_scales)]
         aux = aux.squeeze(1)
         # m: [B, C_aux, T] -> [B, 1, C_aux, T]

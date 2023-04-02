@@ -128,7 +128,7 @@ def evaluate(args):
 
 
 def parse_args():
-    # parse args and config 
+    # parse args and config
     parser = argparse.ArgumentParser(description="Synthesize with VITS")
 
     # model

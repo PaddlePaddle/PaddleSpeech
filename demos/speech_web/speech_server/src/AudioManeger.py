@@ -14,7 +14,7 @@ class AudioMannger:
                  frame=10,
                  data_width=2,
                  vad_default=300):
-        # 二进制 pcm 流 
+        # 二进制 pcm 流
         self.audios = b''
         self.asr_result = ""
         # Speech 核心主体

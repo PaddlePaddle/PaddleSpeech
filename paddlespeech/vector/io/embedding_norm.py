@@ -77,7 +77,7 @@ class InputNormalization:
             # computing actual time data statistics
             # we extract the snt_id embedding from the x
             # and the target paddle.Tensor will reduce an 0-axis
-            # so we need unsqueeze operation to recover the all axis 
+            # so we need unsqueeze operation to recover the all axis
             current_mean, current_std = self._compute_current_stats(
                 x[snt_id, 0:actual_size, ...].unsqueeze(0))
             current_means.append(current_mean)

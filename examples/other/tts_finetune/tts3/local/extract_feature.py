@@ -78,7 +78,7 @@ def get_map(duration_file: Union[str, Path],
     num = len(speakers)
     speaker_dict = dump_dir / "speaker_id_map.txt"
     spk_dict = {}
-    # get raw spkid-spk dict 
+    # get raw spkid-spk dict
     with open(pretrained_model_dir / "speaker_id_map.txt", 'r') as fr:
         for line in fr.readlines():
             spk = line.strip().split(" ")[0]

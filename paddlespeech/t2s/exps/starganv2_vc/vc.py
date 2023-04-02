@@ -219,7 +219,7 @@ def voice_conversion(args, uncompress_path):
 
 
 def parse_args():
-    # parse args and config  
+    # parse args and config
     parser = argparse.ArgumentParser(
         description="StarGANv2-VC Voice Conversion.")
     parser.add_argument("--source_path", type=str, help="source audio's path.")

@@ -50,7 +50,7 @@ class DiffSinger(nn.Layer):
             odim: int,
             use_energy_pred: bool=False,
             use_postnet: bool=False,
-            # music score related 
+            # music score related
             note_num: int=300,
             is_slur_num: int=2,
             fastspeech2_params: Dict[str, Any]={

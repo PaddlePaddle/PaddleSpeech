@@ -111,8 +111,8 @@ class SortagradDistributedBatchSampler(DistributedBatchSampler):
                     f'rank: {dist.get_rank()} dataset shuffle! epoch {self.epoch}'
                 )
                 if self._shuffle_method == "batch_shuffle":
-                    # using `batch_size * nrank`, or will cause instability loss and nan or inf grad, 
-                    # since diff batch examlpe length in batches case instability loss in diff rank, 
+                    # using `batch_size * nrank`, or will cause instability loss and nan or inf grad,
+                    # since diff batch examlpe length in batches case instability loss in diff rank,
                     # e.g. rank0 maxlength 20, rank3 maxlength 1000
                     indices = _batch_shuffle(
                         indices,

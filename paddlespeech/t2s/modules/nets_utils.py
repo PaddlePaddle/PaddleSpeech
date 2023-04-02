@@ -473,7 +473,7 @@ def phones_text_masking(xs_pad: paddle.Tensor,
     if mlm_prob == 1.0:
         masked_pos += 1
     elif mean_phn_span == 0:
-        # only speech 
+        # only speech
         length = sent_len
         mean_phn_span = min(length * mlm_prob // 3, 50)
         masked_phn_idxs = random_spans_noise_mask(

@@ -114,9 +114,9 @@ class Conv1dCell(nn.Conv1D):
             raise Exception("only use start_sequence in evaluation")
         self._buffer = None
 
-        # NOTE: call self's weight norm hook expliccitly since self.weight 
-        # is visited directly in this method without calling self.__call__ 
-        # method. If we do not trigger the weight norm hook, the weight 
+        # NOTE: call self's weight norm hook expliccitly since self.weight
+        # is visited directly in this method without calling self.__call__
+        # method. If we do not trigger the weight norm hook, the weight
         # may be outdated. e.g. after loading from a saved checkpoint
         # see also: https://github.com/pytorch/pytorch/issues/47588
         for hook in self._forward_pre_hooks.values():

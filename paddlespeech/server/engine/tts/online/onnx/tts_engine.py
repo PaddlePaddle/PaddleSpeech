@@ -314,7 +314,7 @@ class PaddleTTSConnectionHandler:
         get_tone_ids = False
         merge_sentences = False
 
-        # front 
+        # front
         frontend_st = time.time()
         if lang == 'zh':
             input_ids = self.executor.frontend.get_input_ids(
@@ -339,7 +339,7 @@ class PaddleTTSConnectionHandler:
 
             # fastspeech2_csmsc
             if am == "fastspeech2_csmsc_onnx":
-                # am 
+                # am
                 mel = self.executor.am_sess.run(
                     output_names=None, input_feed={'text': part_phone_ids})
                 mel = mel[0]
@@ -366,9 +366,9 @@ class PaddleTTSConnectionHandler:
 
                     yield sub_wav
 
-            # fastspeech2_cnndecoder_csmsc 
+            # fastspeech2_cnndecoder_csmsc
             elif am == "fastspeech2_cnndecoder_csmsc_onnx":
-                # am 
+                # am
                 orig_hs = self.executor.am_encoder_infer_sess.run(
                     None, input_feed={'text': part_phone_ids})
                 orig_hs = orig_hs[0]

@@ -97,7 +97,7 @@ def test_full_scores_words():
         if w not in model:
             print('"{0}" is an OOV'.format(w))
             oov.append(w)
-    # zh_giga.no_cna_cmn.prune01244.klm is chinese charactor LM 
+    # zh_giga.no_cna_cmn.prune01244.klm is chinese charactor LM
     assert oov == ["盘点", "不怕", "网站", "❗", "️", "海淘", "向来", "便宜", "保真",
                    "！"], 'error oov'
 

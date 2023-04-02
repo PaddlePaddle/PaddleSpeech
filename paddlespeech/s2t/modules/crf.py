@@ -163,7 +163,7 @@ class CRF(nn.Layer):
         first_tags = tags[:, 0]
         last_valid_idx = mask.int().sum(1) - 1
 
-        # TODO(Hui Zhang): not support fancy index. 
+        # TODO(Hui Zhang): not support fancy index.
         # last_tags = tags.gather(last_valid_idx.unsqueeze(1), axis=1).squeeze()
         batch_idx = paddle.arange(batch_size, dtype=last_valid_idx.dtype)
         gather_last_valid_idx = paddle.stack(

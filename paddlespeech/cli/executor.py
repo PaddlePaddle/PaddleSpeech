@@ -151,7 +151,7 @@ class BaseExecutor(ABC):
         print(raw_text, end='')  # Stdout
 
         if self._is_job_input(
-                input_) and job_dump_result:  # Dump to *.job.done 
+                input_) and job_dump_result:  # Dump to *.job.done
             try:
                 job_output_file = os.path.abspath(input_) + '.done'
                 sys.stdout = open(job_output_file, 'w')

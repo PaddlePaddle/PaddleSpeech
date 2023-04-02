@@ -42,7 +42,7 @@ DATA_HOME = os.path.expanduser('.')
 # you need to get the username & password via the google form
 
 # if you use the https://thor.robots.ox.ac.uk/~vgg/data/voxceleb/vox1a as the download base url,
-# you need use --no-check-certificate to connect the target download url 
+# you need use --no-check-certificate to connect the target download url
 
 BASE_URL = "https://thor.robots.ox.ac.uk/~vgg/data/voxceleb/vox1a"
 
@@ -146,7 +146,7 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
         os.makedirs(target_dir)
 
     # wav directory already exists, it need do nothing
-    # we will download the voxceleb1 data to ${target_dir}/vox1/dev/ or ${target_dir}/vox1/test directory 
+    # we will download the voxceleb1 data to ${target_dir}/vox1/dev/ or ${target_dir}/vox1/test directory
     if not os.path.exists(os.path.join(target_dir, "wav")):
         # download all dataset part
         print(f"start to download the vox1 zip package to {target_dir}")

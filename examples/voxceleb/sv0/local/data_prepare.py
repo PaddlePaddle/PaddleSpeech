@@ -33,7 +33,7 @@ def main(args, config):
 
     # stage 1: generate the voxceleb csv file
     # Note: this may occurs c++ execption, but the program will execute fine
-    # so we ignore the execption 
+    # so we ignore the execption
     # we explicitly pass the vox2 base path to data prepare and generate the audio info
     logger.info("start to generate the voxceleb dataset info")
     train_dataset = VoxCeleb(

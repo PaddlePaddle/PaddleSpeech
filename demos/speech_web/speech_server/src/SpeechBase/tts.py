@@ -85,7 +85,7 @@ class TTS:
         get_tone_ids = False
         merge_sentences = False
 
-        # front 
+        # front
         input_ids = self.frontend.get_input_ids(
             text, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
         phone_ids = input_ids["phone_ids"]
@@ -96,7 +96,7 @@ class TTS:
 
             # fastspeech2_csmsc
             if self.config.am == "fastspeech2_csmsc_onnx":
-                # am 
+                # am
                 mel = self.executor.am_sess.run(
                     output_names=None, input_feed={'text': part_phone_ids})
                 mel = mel[0]
@@ -114,9 +114,9 @@ class TTS:
 
                     yield self.after_process(sub_wav)
 
-            # fastspeech2_cnndecoder_csmsc 
+            # fastspeech2_cnndecoder_csmsc
             elif self.config.am == "fastspeech2_cnndecoder_csmsc_onnx":
-                # am 
+                # am
                 orig_hs = self.executor.am_encoder_infer_sess.run(
                     None, input_feed={'text': part_phone_ids})
                 orig_hs = orig_hs[0]

@@ -29,7 +29,7 @@ def main(args):
             # utt:str
             # utt2spk:str
             # input: [{name:str, shape:[dur_in_sec, feat_dim], feat:str, filetype:str}, ]
-            # output: [{name:str, shape:[tokenlen, vocab_dim], text:str, token:str, tokenid:str}, ] 
+            # output: [{name:str, shape:[tokenlen, vocab_dim], text:str, token:str, tokenid:str}, ]
             utt = line_json['utt']
             utt2spk = line_json['utt2spk']
 

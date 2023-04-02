@@ -119,7 +119,7 @@ class ASRWsAudioHandler(threading.Thread):
                             logging.info("receive msg={}".format(msg))
                 except asyncio.CancelledError:
                     # quit
-                    # send finished 
+                    # send finished
                     audio_info = json.dumps(
                         {
                             "name": "test.wav",

@@ -237,7 +237,7 @@ def get_phns_spans(wav_path: str,
         elif target_lang == 'en':
             # 原始句子
             phns_origin, origin_w2p = words2phns(str_origin, lang='zh')
-            # clone 句子 
+            # clone 句子
             phns_append, append_w2p_tmp = words2phns(str_append, lang='en')
         else:
             assert target_lang == 'zh' or target_lang == 'en', \

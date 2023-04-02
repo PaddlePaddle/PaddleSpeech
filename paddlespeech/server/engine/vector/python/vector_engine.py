@@ -102,7 +102,7 @@ class PaddleVectorConnectionHandler:
             audio (str): the audio data
             sample_rate (int, optional): the audio sample rate. Defaults to 16000.
         """
-        # we can not reuse the cache io.BytesIO(audio) data, 
+        # we can not reuse the cache io.BytesIO(audio) data,
         # because the soundfile will change the io.BytesIO(audio) to the end
         # thus we should convert the base64 string to io.BytesIO when we need the audio data
         if not self.executor._check(

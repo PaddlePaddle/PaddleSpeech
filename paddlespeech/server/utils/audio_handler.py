@@ -321,7 +321,7 @@ class TTSWsHandler:
             msg = json.loads(msg)
             session = msg["session"]
 
-            # 3. send speech synthesis request 
+            # 3. send speech synthesis request
             #text_base64 = str(base64.b64encode((text).encode('utf-8')), "UTF8")
             params = {
                 "text": text,
@@ -475,7 +475,7 @@ class TTSHttpHandler:
         st = time.time()
         html = requests.post(self.url, json.dumps(params), stream=True)
 
-        # 3. Process the received response 
+        # 3. Process the received response
         for chunk in html.iter_content(chunk_size=None):
             receive_time_list.append(time.time())
             audio = base64.b64decode(chunk)  # bytes

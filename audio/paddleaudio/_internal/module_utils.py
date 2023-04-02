@@ -68,7 +68,7 @@ def deprecated(direction: str, version: Optional[str]=None):
 
 def is_kaldi_available():
     try:
-        from paddleaudio import _paddleaudio  
+        from paddleaudio import _paddleaudio
         return True
     except Exception:
         return False
@@ -132,7 +132,7 @@ def requires_soundfile():
 
 def is_sox_available():
     try:
-        from paddleaudio import _paddleaudio  
+        from paddleaudio import _paddleaudio
         return True
     except Exception:
         return False

@@ -33,7 +33,7 @@ def mfcc(signal,samplerate=16000,winlen=0.025,winstep=0.01,numcep=13,
     return feat
 
 def fbank(signal,samplerate=16000,winlen=0.025,winstep=0.01,
-          nfilt=40,nfft=512,lowfreq=0,highfreq=None,dither=1.0,remove_dc_offset=True, preemph=0.97, 
+          nfilt=40,nfft=512,lowfreq=0,highfreq=None,dither=1.0,remove_dc_offset=True, preemph=0.97,
           wintype='hamming'):
     """Compute Mel-filterbank energy features from an audio signal.
 
@@ -116,7 +116,7 @@ def get_filterbanks(nfilt=26,nfft=512,samplerate=16000,lowfreq=0,highfreq=None):
     lowmel = hz2mel(lowfreq)
     highmel = hz2mel(highfreq)
 
-    # check kaldi/src/feat/Mel-computations.h    
+    # check kaldi/src/feat/Mel-computations.h
     fbank = numpy.zeros([nfilt,nfft//2+1])
     mel_freq_delta = (highmel-lowmel)/(nfilt+1)
     for j in range(0,nfilt):

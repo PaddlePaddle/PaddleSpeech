@@ -97,7 +97,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 # bytes for the pcm data
                 message = message["bytes"]
 
-                # we extract the remained audio pcm 
+                # we extract the remained audio pcm
                 # and decode for the result in this package data
                 connection_handler.extract_feat(message)
                 connection_handler.decode(is_finished=False)
@@ -126,7 +126,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         break
 
                 # return the current partial result
-                # if the engine create the vad instance, this connection will have many partial results 
+                # if the engine create the vad instance, this connection will have many partial results
                 resp = {'result': asr_results}
                 await websocket.send_json(resp)
 

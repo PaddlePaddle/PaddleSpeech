@@ -23,7 +23,7 @@ def sinusoid_position_encoding(num_positions: int,
                                start_pos: int=0,
                                dtype=None) -> paddle.Tensor:
     # return tensor shape (num_positions, feature_size)
-    # NOTE: to be compatible with paddle's to_static, we cannnot raise 
+    # NOTE: to be compatible with paddle's to_static, we cannnot raise
     # an exception here, take care of it by yourself
     # if (feature_size % 2 != 0):
     #     raise ValueError("size should be divisible by 2")

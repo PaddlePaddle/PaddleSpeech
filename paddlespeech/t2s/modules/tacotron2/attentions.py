@@ -180,7 +180,7 @@ class AttLoc(nn.Layer):
         att_conv = att_conv.squeeze(2).transpose([0, 2, 1])
         # att_conv: (utt, frame, att_conv_chans) -> (utt, frame, att_dim)
         att_conv = self.mlp_att(att_conv)
-        # dec_z_tiled: (utt, frame, att_dim)        
+        # dec_z_tiled: (utt, frame, att_dim)
         dec_z_tiled = self.mlp_dec(dec_z).reshape([batch, 1, self.att_dim])
 
         # dot with gvec

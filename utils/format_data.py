@@ -128,7 +128,7 @@ def main():
                     "filetype": filetype,
                 })
             else:
-                # isinstance(line, list), multi input 
+                # isinstance(line, list), multi input
                 raise NotImplementedError("not support multi input now!")
 
             fout.write(json.dumps(output_json) + '\n')

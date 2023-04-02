@@ -45,7 +45,7 @@ def prepare_csv(wav_files, output_file, config, split_chunks=True):
     csv_lines = []
     header = ["utt_id", "duration", "wav", "start", "stop", "label"]
     # voxceleb meta info for each training utterance segment
-    # we extract a segment from a utterance to train 
+    # we extract a segment from a utterance to train
     # and the segment' period is between start and stop time point in the original wav file
     # each field in the meta info means as follows:
     # utt_id: the utterance segment name, which is uniq in training dataset
@@ -53,7 +53,7 @@ def prepare_csv(wav_files, output_file, config, split_chunks=True):
     # wav: utterance file path, which should be absoulute path
     # start: start point in the original wav file sample point range
     # stop: stop point in the original wav file sample point range
-    # label: the utterance segment's label name, 
+    # label: the utterance segment's label name,
     #        which is speaker name in speaker verification domain
     for item in tqdm.tqdm(wav_files, total=len(wav_files)):
         item = json.loads(item.strip())
@@ -166,7 +166,7 @@ def get_train_dev_list(dataset_list, target_dir, split_ratio):
         f'we store the speakers to {os.path.join(target_dir, "meta", "label2id.txt")}'
     )
 
-    # the split_ratio is for train dataset 
+    # the split_ratio is for train dataset
     # the remaining is for dev dataset
     split_idx = int(split_ratio * len(audio_files))
     audio_files = sorted(audio_files)

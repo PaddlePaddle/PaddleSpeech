@@ -29,9 +29,13 @@ from paddlespeech.t2s.models.vits.transform import piecewise_rational_quadratic_
 
 class FlipFlow(nn.Layer):
     """Flip flow module."""
-
-    def forward(self, x: paddle.Tensor, *args, inverse: bool=False, **kwargs
-                ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            *args,
+            inverse: bool = False,
+            **kwargs
+    ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
             x (Tensor):
@@ -54,14 +58,14 @@ class FlipFlow(nn.Layer):
 
 class LogFlow(nn.Layer):
     """Log flow module."""
-
-    def forward(self,
-                x: paddle.Tensor,
-                x_mask: paddle.Tensor,
-                inverse: bool=False,
-                eps: float=1e-5,
-                **kwargs
-                ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            inverse: bool = False,
+            eps: float = 1e-5,
+            **kwargs
+    ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
             x (Tensor):
@@ -89,7 +93,6 @@ class LogFlow(nn.Layer):
 
 class ElementwiseAffineFlow(nn.Layer):
     """Elementwise affine flow module."""
-
     def __init__(self, channels: int):
         """Initialize ElementwiseAffineFlow module.
         Args:
@@ -110,12 +113,13 @@ class ElementwiseAffineFlow(nn.Layer):
             dtype=str(logs.numpy().dtype),
             default_initializer=paddle.nn.initializer.Assign(logs))
 
-    def forward(self,
-                x: paddle.Tensor,
-                x_mask: paddle.Tensor,
-                inverse: bool=False,
-                **kwargs
-                ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            inverse: bool = False,
+            **kwargs
+    ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
             x (Tensor):
@@ -142,7 +146,6 @@ class ElementwiseAffineFlow(nn.Layer):
 
 class Transpose(nn.Layer):
     """Transpose module for paddle.nn.Sequential()."""
-
     def __init__(self, dim1: int, dim2: int):
         """Initialize Transpose module."""
         super().__init__()
@@ -163,14 +166,14 @@ class Transpose(nn.Layer):
 
 class DilatedDepthSeparableConv(nn.Layer):
     """Dilated depth-separable conv module."""
-
     def __init__(
-            self,
-            channels: int,
-            kernel_size: int,
-            layers: int,
-            dropout_rate: float=0.0,
-            eps: float=1e-5, ):
+        self,
+        channels: int,
+        kernel_size: int,
+        layers: int,
+        dropout_rate: float = 0.0,
+        eps: float = 1e-5,
+    ):
         """Initialize DilatedDepthSeparableConv module.
         Args:
             channels (int):
@@ -198,7 +201,8 @@ class DilatedDepthSeparableConv(nn.Layer):
                         kernel_size,
                         groups=channels,
                         dilation=dilation,
-                        padding=padding, ),
+                        padding=padding,
+                    ),
                     Transpose(1, 2),
                     nn.LayerNorm(channels, epsilon=eps),
                     Transpose(1, 2),
@@ -206,17 +210,19 @@ class DilatedDepthSeparableConv(nn.Layer):
                     nn.Conv1D(
                         channels,
                         channels,
-                        1, ),
+                        1,
+                    ),
                     Transpose(1, 2),
                     nn.LayerNorm(channels, epsilon=eps),
                     Transpose(1, 2),
                     nn.GELU(),
-                    nn.Dropout(dropout_rate), ))
+                    nn.Dropout(dropout_rate),
+                ))
 
     def forward(self,
                 x: paddle.Tensor,
                 x_mask: paddle.Tensor,
-                g: Optional[paddle.Tensor]=None) -> paddle.Tensor:
+                g: Optional[paddle.Tensor] = None) -> paddle.Tensor:
         """Calculate forward propagation.
         Args:
             x (Tensor):
@@ -239,15 +245,15 @@ class DilatedDepthSeparableConv(nn.Layer):
 
 class ConvFlow(nn.Layer):
     """Convolutional flow module."""
-
     def __init__(
-            self,
-            in_channels: int,
-            hidden_channels: int,
-            kernel_size: int,
-            layers: int,
-            bins: int=10,
-            tail_bound: float=5.0, ):
+        self,
+        in_channels: int,
+        hidden_channels: int,
+        kernel_size: int,
+        layers: int,
+        bins: int = 10,
+        tail_bound: float = 5.0,
+    ):
         """Initialize ConvFlow module.
         Args:
             in_channels (int):
@@ -272,16 +278,19 @@ class ConvFlow(nn.Layer):
         self.input_conv = nn.Conv1D(
             self.half_channels,
             hidden_channels,
-            1, )
+            1,
+        )
         self.dds_conv = DilatedDepthSeparableConv(
             hidden_channels,
             kernel_size,
             layers,
-            dropout_rate=0.0, )
+            dropout_rate=0.0,
+        )
         self.proj = nn.Conv1D(
             hidden_channels,
             self.half_channels * (bins * 3 - 1),
-            1, )
+            1,
+        )
 
         weight = paddle.zeros(paddle.shape(self.proj.weight))
 
@@ -298,11 +307,11 @@ class ConvFlow(nn.Layer):
             default_initializer=paddle.nn.initializer.Assign(bias))
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_mask: paddle.Tensor,
-            g: Optional[paddle.Tensor]=None,
-            inverse: bool=False,
+        self,
+        x: paddle.Tensor,
+        x_mask: paddle.Tensor,
+        g: Optional[paddle.Tensor] = None,
+        inverse: bool = False,
     ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
         Args:
@@ -342,7 +351,8 @@ class ConvFlow(nn.Layer):
             unnormalized_derivatives=unnorm_derivatives,
             inverse=inverse,
             tails="linear",
-            tail_bound=self.tail_bound, )
+            tail_bound=self.tail_bound,
+        )
         x = paddle.concat([xa, xb], 1) * x_mask
         logdet = paddle.sum(logdet_abs * x_mask, [1, 2])
         if not inverse:

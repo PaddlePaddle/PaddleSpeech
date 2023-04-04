@@ -28,7 +28,8 @@ from paddlespeech.t2s.datasets.data_table import DataTable
 def main():
     """Run preprocessing process."""
     parser = argparse.ArgumentParser(
-        description="Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
+        description=
+        "Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
     )
     parser.add_argument(
         "--metadata",
@@ -37,27 +38,30 @@ def main():
         help="directory including feature files to be normalized. "
         "you need to specify either *-scp or rootdir.")
 
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump normalized feature files.")
-    parser.add_argument(
-        "--speech-stats",
-        type=str,
-        required=True,
-        help="speech statistics file.")
-    parser.add_argument(
-        "--pitch-stats", type=str, required=True, help="pitch statistics file.")
-    parser.add_argument(
-        "--energy-stats",
-        type=str,
-        required=True,
-        help="energy statistics file.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump normalized feature files.")
+    parser.add_argument("--speech-stats",
+                        type=str,
+                        required=True,
+                        help="speech statistics file.")
+    parser.add_argument("--pitch-stats",
+                        type=str,
+                        required=True,
+                        help="pitch statistics file.")
+    parser.add_argument("--energy-stats",
+                        type=str,
+                        required=True,
+                        help="energy statistics file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
 
     args = parser.parse_args()
 
@@ -69,13 +73,12 @@ def main():
     # get dataset
     with jsonlines.open(args.metadata, 'r') as reader:
         metadata = list(reader)
-    dataset = DataTable(
-        metadata,
-        converters={
-            "speech": np.load,
-            "pitch": np.load,
-            "energy": np.load,
-        })
+    dataset = DataTable(metadata,
+                        converters={
+                            "speech": np.load,
+                            "pitch": np.load,
+                            "energy": np.load,
+                        })
     logging.info(f"The number of files = {len(dataset)}.")
 
     # restore scaler

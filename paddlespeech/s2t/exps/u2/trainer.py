@@ -79,14 +79,16 @@ class U2Trainer(Trainer):
             train_dataset,
             batch_sampler=batch_sampler,
             collate_fn=collate_fn_train,
-            num_workers=config.num_workers, )
+            num_workers=config.num_workers,
+        )
         self.valid_loader = DataLoader(
             dev_dataset,
             batch_size=config.batch_size,
             shuffle=False,
             drop_last=False,
             collate_fn=collate_fn_dev,
-            num_workers=config.num_workers, )
+            num_workers=config.num_workers,
+        )
 
         # test dataset, return raw text
         config.manifest = config.test_manifest
@@ -151,9 +153,10 @@ class U2Trainer(Trainer):
                                                     scheduler_args)
 
         def optimizer_args(
-                config,
-                parameters,
-                lr_scheduler=None, ):
+            config,
+            parameters,
+            lr_scheduler=None,
+        ):
             train_config = config
             optim_type = train_config.optim
             optim_conf = train_config.optim_conf
@@ -162,8 +165,8 @@ class U2Trainer(Trainer):
             return {
                 "grad_clip": train_config.global_grad_clip,
                 "weight_decay": optim_conf.weight_decay,
-                "learning_rate": lr_scheduler
-                if lr_scheduler else optim_conf.lr,
+                "learning_rate":
+                lr_scheduler if lr_scheduler else optim_conf.lr,
                 "parameters": parameters,
                 "epsilon": 1e-9 if optim_type == 'noam' else None,
                 "beta1": 0.9 if optim_type == 'noam' else None,
@@ -182,13 +185,12 @@ class U2Trainer(Trainer):
         output_dir = self.output_dir
         config = self.config
 
-        updater = U2Updater(
-            model=self.model,
-            optimizer=self.optimizer,
-            scheduler=self.lr_scheduler,
-            dataloader=self.train_loader,
-            output_dir=output_dir,
-            accum_grad=config.accum_grad)
+        updater = U2Updater(model=self.model,
+                            optimizer=self.optimizer,
+                            scheduler=self.lr_scheduler,
+                            dataloader=self.train_loader,
+                            output_dir=output_dir,
+                            accum_grad=config.accum_grad)
 
         trainer = NewTrainer(updater, (config.n_epoch, 'epoch'), output_dir)
 
@@ -199,13 +201,11 @@ class U2Trainer(Trainer):
         if dist.get_rank() == 0:
             trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
             num_snapshots = config.checkpoint.kbest_n
-            trainer.extend(
-                Snapshot(
-                    mode='kbest',
-                    max_size=num_snapshots,
-                    indicator='VALID/LOSS',
-                    less_better=True),
-                trigger=(1, 'epoch'))
+            trainer.extend(Snapshot(mode='kbest',
+                                    max_size=num_snapshots,
+                                    indicator='VALID/LOSS',
+                                    less_better=True),
+                           trigger=(1, 'epoch'))
         # print(trainer.extensions)
         # trainer.run()
         self.trainer = trainer

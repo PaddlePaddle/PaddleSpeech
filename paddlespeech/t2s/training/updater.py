@@ -53,7 +53,6 @@ class UpdaterBase(object):
 
     So the best practice is to define a model and define a updater for it.
     """
-
     def __init__(self, init_state=None):
         if init_state is None:
             self.state = UpdaterState()

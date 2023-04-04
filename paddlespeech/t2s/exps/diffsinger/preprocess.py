@@ -49,15 +49,16 @@ ALL_FINALS = [
 
 
 def process_sentence(
-        config: Dict[str, Any],
-        fp: Path,
-        sentences: Dict,
-        output_dir: Path,
-        mel_extractor=None,
-        pitch_extractor=None,
-        energy_extractor=None,
-        cut_sil: bool=True,
-        spk_emb_dir: Path=None, ):
+    config: Dict[str, Any],
+    fp: Path,
+    sentences: Dict,
+    output_dir: Path,
+    mel_extractor=None,
+    pitch_extractor=None,
+    energy_extractor=None,
+    cut_sil: bool = True,
+    spk_emb_dir: Path = None,
+):
     utt_id = fp.stem
     record = None
     if utt_id in sentences:
@@ -136,17 +137,18 @@ def process_sentence(
 
 
 def process_sentences(
-        config,
-        fps: List[Path],
-        sentences: Dict,
-        output_dir: Path,
-        mel_extractor=None,
-        pitch_extractor=None,
-        energy_extractor=None,
-        nprocs: int=1,
-        cut_sil: bool=True,
-        spk_emb_dir: Path=None,
-        write_metadata_method: str='w', ):
+    config,
+    fps: List[Path],
+    sentences: Dict,
+    output_dir: Path,
+    mel_extractor=None,
+    pitch_extractor=None,
+    energy_extractor=None,
+    nprocs: int = 1,
+    cut_sil: bool = True,
+    spk_emb_dir: Path = None,
+    write_metadata_method: str = 'w',
+):
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
@@ -159,7 +161,8 @@ def process_sentences(
                 pitch_extractor=pitch_extractor,
                 energy_extractor=energy_extractor,
                 cut_sil=cut_sil,
-                spk_emb_dir=spk_emb_dir, )
+                spk_emb_dir=spk_emb_dir,
+            )
             if record:
                 results.append(record)
     else:
@@ -177,7 +180,8 @@ def process_sentences(
                         pitch_extractor,
                         energy_extractor,
                         cut_sil,
-                        spk_emb_dir, )
+                        spk_emb_dir,
+                    )
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
 
@@ -200,47 +204,48 @@ def main():
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
 
-    parser.add_argument(
-        "--dataset",
-        default="opencpop",
-        type=str,
-        help="name of dataset, should in {opencpop} now")
+    parser.add_argument("--dataset",
+                        default="opencpop",
+                        type=str,
+                        help="name of dataset, should in {opencpop} now")
 
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
 
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump feature files.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump feature files.")
 
-    parser.add_argument(
-        "--label-file", default=None, type=str, help="path to label file.")
+    parser.add_argument("--label-file",
+                        default=None,
+                        type=str,
+                        help="path to label file.")
 
     parser.add_argument("--config", type=str, help="diffsinger config file.")
 
-    parser.add_argument(
-        "--num-cpu", type=int, default=1, help="number of process.")
+    parser.add_argument("--num-cpu",
+                        type=int,
+                        default=1,
+                        help="number of process.")
 
-    parser.add_argument(
-        "--cut-sil",
-        type=str2bool,
-        default=True,
-        help="whether cut sil in the edge of audio")
+    parser.add_argument("--cut-sil",
+                        type=str2bool,
+                        default=True,
+                        help="whether cut sil in the edge of audio")
 
-    parser.add_argument(
-        "--spk_emb_dir",
-        default=None,
-        type=str,
-        help="directory to speaker embedding files.")
+    parser.add_argument("--spk_emb_dir",
+                        default=None,
+                        type=str,
+                        help="directory to speaker embedding files.")
 
-    parser.add_argument(
-        "--write_metadata_method",
-        default="w",
-        type=str,
-        choices=["w", "a"],
-        help="How the metadata.jsonl file is written.")
+    parser.add_argument("--write_metadata_method",
+                        default="w",
+                        type=str,
+                        choices=["w", "a"],
+                        help="How the metadata.jsonl file is written.")
     args = parser.parse_args()
 
     rootdir = Path(args.rootdir).expanduser()
@@ -265,7 +270,8 @@ def main():
         label_file,
         dataset=args.dataset,
         sample_rate=config.fs,
-        n_shift=config.n_shift, )
+        n_shift=config.n_shift,
+    )
 
     phone_id_map_path = dumpdir / "phone_id_map.txt"
     speaker_id_map_path = dumpdir / "speaker_id_map.txt"
@@ -311,65 +317,59 @@ def main():
     test_dump_dir.mkdir(parents=True, exist_ok=True)
 
     # Extractor
-    mel_extractor = LogMelFBank(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window,
-        n_mels=config.n_mels,
-        fmin=config.fmin,
-        fmax=config.fmax)
-    pitch_extractor = Pitch(
-        sr=config.fs,
-        hop_length=config.n_shift,
-        f0min=config.f0min,
-        f0max=config.f0max)
-    energy_extractor = Energy(
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window)
+    mel_extractor = LogMelFBank(sr=config.fs,
+                                n_fft=config.n_fft,
+                                hop_length=config.n_shift,
+                                win_length=config.win_length,
+                                window=config.window,
+                                n_mels=config.n_mels,
+                                fmin=config.fmin,
+                                fmax=config.fmax)
+    pitch_extractor = Pitch(sr=config.fs,
+                            hop_length=config.n_shift,
+                            f0min=config.f0min,
+                            f0max=config.f0max)
+    energy_extractor = Energy(n_fft=config.n_fft,
+                              hop_length=config.n_shift,
+                              win_length=config.win_length,
+                              window=config.window)
 
     # process for the 3 sections
     if train_wav_files:
-        process_sentences(
-            config=config,
-            fps=train_wav_files,
-            sentences=sentences,
-            output_dir=train_dump_dir,
-            mel_extractor=mel_extractor,
-            pitch_extractor=pitch_extractor,
-            energy_extractor=energy_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir,
-            write_metadata_method=args.write_metadata_method)
+        process_sentences(config=config,
+                          fps=train_wav_files,
+                          sentences=sentences,
+                          output_dir=train_dump_dir,
+                          mel_extractor=mel_extractor,
+                          pitch_extractor=pitch_extractor,
+                          energy_extractor=energy_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil,
+                          spk_emb_dir=spk_emb_dir,
+                          write_metadata_method=args.write_metadata_method)
     if dev_wav_files:
-        process_sentences(
-            config=config,
-            fps=dev_wav_files,
-            sentences=sentences,
-            output_dir=dev_dump_dir,
-            mel_extractor=mel_extractor,
-            pitch_extractor=pitch_extractor,
-            energy_extractor=energy_extractor,
-            cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir,
-            write_metadata_method=args.write_metadata_method)
+        process_sentences(config=config,
+                          fps=dev_wav_files,
+                          sentences=sentences,
+                          output_dir=dev_dump_dir,
+                          mel_extractor=mel_extractor,
+                          pitch_extractor=pitch_extractor,
+                          energy_extractor=energy_extractor,
+                          cut_sil=args.cut_sil,
+                          spk_emb_dir=spk_emb_dir,
+                          write_metadata_method=args.write_metadata_method)
     if test_wav_files:
-        process_sentences(
-            config=config,
-            fps=test_wav_files,
-            sentences=sentences,
-            output_dir=test_dump_dir,
-            mel_extractor=mel_extractor,
-            pitch_extractor=pitch_extractor,
-            energy_extractor=energy_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir,
-            write_metadata_method=args.write_metadata_method)
+        process_sentences(config=config,
+                          fps=test_wav_files,
+                          sentences=sentences,
+                          output_dir=test_dump_dir,
+                          mel_extractor=mel_extractor,
+                          pitch_extractor=pitch_extractor,
+                          energy_extractor=energy_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil,
+                          spk_emb_dir=spk_emb_dir,
+                          write_metadata_method=args.write_metadata_method)
 
 
 if __name__ == "__main__":

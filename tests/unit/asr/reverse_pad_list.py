@@ -24,7 +24,7 @@ from paddlespeech.audio.utils.tensor_utils import pad_sequence
 
 def reverse_pad_list(ys_pad: paddle.Tensor,
                      ys_lens: paddle.Tensor,
-                     pad_value: float=-1.0) -> paddle.Tensor:
+                     pad_value: float = -1.0) -> paddle.Tensor:
     """Reverse padding for the list of tensors.
     Args:
         ys_pad (tensor): The padded tensor (B, Tokenmax).
@@ -126,8 +126,8 @@ class TestU2Model(unittest.TestCase):
         self.sos = 5000
         self.eos = 5000
         self.ignore_id = -1
-        self.reverse_hyps = paddle.to_tensor([[4, 3, 2, 1, -1],
-                                              [5, 4, 3, 2, 1]])
+        self.reverse_hyps = paddle.to_tensor([[4, 3, 2, 1, -1], [5, 4, 3, 2,
+                                                                 1]])
         self.reverse_hyps_sos_eos = paddle.to_tensor(
             [[self.sos, 4, 3, 2, 1, self.eos], [self.sos, 5, 4, 3, 2, 1]])
 
@@ -140,14 +140,14 @@ class TestU2Model(unittest.TestCase):
         self.assertSequenceEqual(r_hyps.tolist(), self.reverse_hyps.tolist())
 
     def test_naive_reverse_pad_list_with_sos_eos(self):
-        r_hyps_sos_eos = naive_reverse_pad_list_with_sos_eos(self.hyps,
-                                                             self.hyps_lens)
+        r_hyps_sos_eos = naive_reverse_pad_list_with_sos_eos(
+            self.hyps, self.hyps_lens)
         self.assertSequenceEqual(r_hyps_sos_eos.tolist(),
                                  self.reverse_hyps_sos_eos.tolist())
 
     def test_static_reverse_pad_list_with_sos_eos(self):
-        r_hyps_sos_eos_static = reverse_pad_list_with_sos_eos(self.hyps,
-                                                              self.hyps_lens)
+        r_hyps_sos_eos_static = reverse_pad_list_with_sos_eos(
+            self.hyps, self.hyps_lens)
         self.assertSequenceEqual(r_hyps_sos_eos_static.tolist(),
                                  self.reverse_hyps_sos_eos.tolist())
 

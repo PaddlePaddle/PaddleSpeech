@@ -28,17 +28,18 @@ def _get_sox_encoding(encoding):
 
 class TestSaveBase(TempDirMixin):
     def assert_save_consistency(
-            self,
-            format: str,
-            *,
-            compression: float=None,
-            encoding: str=None,
-            bits_per_sample: int=None,
-            sample_rate: float=8000,
-            num_channels: int=2,
-            num_frames: float=3 * 8000,
-            src_dtype: str="int32",
-            test_mode: str="path", ):
+        self,
+        format: str,
+        *,
+        compression: float = None,
+        encoding: str = None,
+        bits_per_sample: int = None,
+        sample_rate: float = 8000,
+        num_channels: int = 2,
+        num_frames: float = 3 * 8000,
+        src_dtype: str = "int32",
+        test_mode: str = "path",
+    ):
         """`save` function produces file that is comparable with `sox` command
 
         To compare that the file produced by `save` function agains the file produced by
@@ -86,20 +87,21 @@ class TestSaveBase(TempDirMixin):
         ref_path = self.get_temp_path("3.2.ref.wav")
 
         # 1. Generate original wav
-        data = get_wav_data(
-            src_dtype, num_channels, normalize=False, num_frames=num_frames)
+        data = get_wav_data(src_dtype,
+                            num_channels,
+                            normalize=False,
+                            num_frames=num_frames)
         save_wav(src_path, data, sample_rate)
 
         # 2.1. Convert the original wav to target format with paddleaudio
         data = load_wav(src_path, normalize=False)[0]
         if test_mode == "path":
-            sox_io_backend.save(
-                tgt_path,
-                data,
-                sample_rate,
-                compression=compression,
-                encoding=encoding,
-                bits_per_sample=bits_per_sample)
+            sox_io_backend.save(tgt_path,
+                                data,
+                                sample_rate,
+                                compression=compression,
+                                encoding=encoding,
+                                bits_per_sample=bits_per_sample)
         elif test_mode == "fileobj":
             with open(tgt_path, "bw") as file_:
                 sox_io_backend.save(
@@ -109,7 +111,8 @@ class TestSaveBase(TempDirMixin):
                     format=format,
                     compression=compression,
                     encoding=encoding,
-                    bits_per_sample=bits_per_sample, )
+                    bits_per_sample=bits_per_sample,
+                )
         elif test_mode == "bytesio":
             file_ = io.BytesIO()
             sox_io_backend.save(
@@ -119,29 +122,33 @@ class TestSaveBase(TempDirMixin):
                 format=format,
                 compression=compression,
                 encoding=encoding,
-                bits_per_sample=bits_per_sample, )
+                bits_per_sample=bits_per_sample,
+            )
             file_.seek(0)
             with open(tgt_path, "bw") as f:
                 f.write(file_.read())
         else:
             raise ValueError(f"Unexpected test mode: {test_mode}")
         # 2.2. Convert the target format to wav with sox
-        sox_utils.convert_audio_file(
-            tgt_path, tst_path, encoding=cmp_encoding, bit_depth=cmp_bit_depth)
+        sox_utils.convert_audio_file(tgt_path,
+                                     tst_path,
+                                     encoding=cmp_encoding,
+                                     bit_depth=cmp_bit_depth)
         # 2.3. Load with SciPy
         found = load_wav(tst_path, normalize=False)[0]
 
         # 3.1. Convert the original wav to target format with sox
         sox_encoding = _get_sox_encoding(encoding)
-        sox_utils.convert_audio_file(
-            src_path,
-            sox_path,
-            compression=compression,
-            encoding=sox_encoding,
-            bit_depth=bits_per_sample)
+        sox_utils.convert_audio_file(src_path,
+                                     sox_path,
+                                     compression=compression,
+                                     encoding=sox_encoding,
+                                     bit_depth=bits_per_sample)
         # 3.2. Convert the target format to wav with sox
-        sox_utils.convert_audio_file(
-            sox_path, ref_path, encoding=cmp_encoding, bit_depth=cmp_bit_depth)
+        sox_utils.convert_audio_file(sox_path,
+                                     ref_path,
+                                     encoding=cmp_encoding,
+                                     bit_depth=cmp_bit_depth)
         # 3.3. Load with SciPy
         expected = load_wav(ref_path, normalize=False)[0]
 
@@ -161,14 +168,14 @@ class TestSave(TestSaveBase, unittest.TestCase):
             ("PCM_F", 64),
             ("ULAW", 8),
             ("ALAW", 8),
-        ], )
+        ],
+    )
     def test_save_wav(self, test_mode, enc_params):
         encoding, bits_per_sample = enc_params
-        self.assert_save_consistency(
-            "wav",
-            encoding=encoding,
-            bits_per_sample=bits_per_sample,
-            test_mode=test_mode)
+        self.assert_save_consistency("wav",
+                                     encoding=encoding,
+                                     bits_per_sample=bits_per_sample,
+                                     test_mode=test_mode)
 
     @nested_params(
         [
@@ -177,11 +184,13 @@ class TestSave(TestSaveBase, unittest.TestCase):
         [
             ("float32", ),
             ("int32", ),
-        ], )
+        ],
+    )
     def test_save_wav_dtype(self, test_mode, params):
         (dtype, ) = params
-        self.assert_save_consistency(
-            "wav", src_dtype=dtype, test_mode=test_mode)
+        self.assert_save_consistency("wav",
+                                     src_dtype=dtype,
+                                     test_mode=test_mode)
 
 
 if __name__ == '__main__':

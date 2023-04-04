@@ -46,9 +46,11 @@ def stft(x,
                 win_length=win_length,
                 window=window,
                 center=center,
-                pad_mode=pad_mode, ).T for ch in range(x.shape[1])
+                pad_mode=pad_mode,
+            ).T for ch in range(x.shape[1])
         ],
-        axis=1, )
+        axis=1,
+    )
 
     if single_channel:
         # x: [Time, Channel, Freq] -> [Time, Freq]
@@ -73,9 +75,11 @@ def istft(x, n_shift, win_length=None, window="hann", center=True):
                 hop_length=n_shift,
                 win_length=win_length,
                 window=window,
-                center=center, ) for ch in range(x.shape[1])
+                center=center,
+            ) for ch in range(x.shape[1])
         ],
-        axis=1, )
+        axis=1,
+    )
 
     if single_channel:
         # x: [Time, Channel] -> [Time]
@@ -97,8 +101,11 @@ def stft2logmelspectrogram(x_stft,
     # spc: (Time, Channel, Freq) or (Time, Freq)
     spc = np.abs(x_stft)
     # mel_basis: (Mel_freq, Freq)
-    mel_basis = librosa.filters.mel(
-        sr=fs, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax)
+    mel_basis = librosa.filters.mel(sr=fs,
+                                    n_fft=n_fft,
+                                    n_mels=n_mels,
+                                    fmin=fmin,
+                                    fmax=fmax)
     # lmspc: (Time, Channel, Mel_freq) or (Time, Mel_freq)
     lmspc = np.log10(np.maximum(eps, np.dot(spc, mel_basis.T)))
 
@@ -112,17 +119,18 @@ def spectrogram(x, n_fft, n_shift, win_length=None, window="hann"):
 
 
 def logmelspectrogram(
-        x,
-        fs,
-        n_mels,
-        n_fft,
-        n_shift,
-        win_length=None,
-        window="hann",
-        fmin=None,
-        fmax=None,
-        eps=1e-10,
-        pad_mode="reflect", ):
+    x,
+    fs,
+    n_mels,
+    n_fft,
+    n_shift,
+    win_length=None,
+    window="hann",
+    fmin=None,
+    fmax=None,
+    eps=1e-10,
+    pad_mode="reflect",
+):
     # stft: (Time, Channel, Freq) or (Time, Freq)
     x_stft = stft(
         x,
@@ -130,16 +138,16 @@ def logmelspectrogram(
         n_shift=n_shift,
         win_length=win_length,
         window=window,
-        pad_mode=pad_mode, )
+        pad_mode=pad_mode,
+    )
 
-    return stft2logmelspectrogram(
-        x_stft,
-        fs=fs,
-        n_mels=n_mels,
-        n_fft=n_fft,
-        fmin=fmin,
-        fmax=fmax,
-        eps=eps)
+    return stft2logmelspectrogram(x_stft,
+                                  fs=fs,
+                                  n_mels=n_mels,
+                                  n_fft=n_fft,
+                                  fmin=fmin,
+                                  fmax=fmax,
+                                  eps=eps)
 
 
 class Spectrogram():
@@ -156,7 +164,8 @@ class Spectrogram():
                     n_fft=self.n_fft,
                     n_shift=self.n_shift,
                     win_length=self.win_length,
-                    window=self.window, ))
+                    window=self.window,
+                ))
 
     def __call__(self, x):
         return spectrogram(
@@ -164,21 +173,23 @@ class Spectrogram():
             n_fft=self.n_fft,
             n_shift=self.n_shift,
             win_length=self.win_length,
-            window=self.window, )
+            window=self.window,
+        )
 
 
 class LogMelSpectrogram():
     def __init__(
-            self,
-            fs,
-            n_mels,
-            n_fft,
-            n_shift,
-            win_length=None,
-            window="hann",
-            fmin=None,
-            fmax=None,
-            eps=1e-10, ):
+        self,
+        fs,
+        n_mels,
+        n_fft,
+        n_shift,
+        win_length=None,
+        window="hann",
+        fmin=None,
+        fmax=None,
+        eps=1e-10,
+    ):
         self.fs = fs
         self.n_mels = n_mels
         self.n_fft = n_fft
@@ -202,7 +213,8 @@ class LogMelSpectrogram():
                     window=self.window,
                     fmin=self.fmin,
                     fmax=self.fmax,
-                    eps=self.eps, ))
+                    eps=self.eps,
+                ))
 
     def __call__(self, x):
         return logmelspectrogram(
@@ -212,7 +224,8 @@ class LogMelSpectrogram():
             n_fft=self.n_fft,
             n_shift=self.n_shift,
             win_length=self.win_length,
-            window=self.window, )
+            window=self.window,
+        )
 
 
 class Stft2LogMelSpectrogram():
@@ -233,7 +246,8 @@ class Stft2LogMelSpectrogram():
                     n_fft=self.n_fft,
                     fmin=self.fmin,
                     fmax=self.fmax,
-                    eps=self.eps, ))
+                    eps=self.eps,
+                ))
 
     def __call__(self, x):
         return stft2logmelspectrogram(
@@ -242,18 +256,20 @@ class Stft2LogMelSpectrogram():
             n_mels=self.n_mels,
             n_fft=self.n_fft,
             fmin=self.fmin,
-            fmax=self.fmax, )
+            fmax=self.fmax,
+        )
 
 
 class Stft():
     def __init__(
-            self,
-            n_fft,
-            n_shift,
-            win_length=None,
-            window="hann",
-            center=True,
-            pad_mode="reflect", ):
+        self,
+        n_fft,
+        n_shift,
+        win_length=None,
+        window="hann",
+        center=True,
+        pad_mode="reflect",
+    ):
         self.n_fft = n_fft
         self.n_shift = n_shift
         self.win_length = win_length
@@ -271,7 +287,8 @@ class Stft():
                     win_length=self.win_length,
                     window=self.window,
                     center=self.center,
-                    pad_mode=self.pad_mode, ))
+                    pad_mode=self.pad_mode,
+                ))
 
     def __call__(self, x):
         return stft(
@@ -281,7 +298,8 @@ class Stft():
             win_length=self.win_length,
             window=self.window,
             center=self.center,
-            pad_mode=self.pad_mode, )
+            pad_mode=self.pad_mode,
+        )
 
 
 class IStft():
@@ -299,7 +317,8 @@ class IStft():
                     n_shift=self.n_shift,
                     win_length=self.win_length,
                     window=self.window,
-                    center=self.center, ))
+                    center=self.center,
+                ))
 
     def __call__(self, x):
         return istft(
@@ -307,7 +326,8 @@ class IStft():
             self.n_shift,
             win_length=self.win_length,
             window=self.window,
-            center=self.center, )
+            center=self.center,
+        )
 
 
 class LogMelSpectrogramKaldi():
@@ -351,7 +371,8 @@ class LogMelSpectrogramKaldi():
                 n_mels=self.n_mels,
                 n_frame_shift=self.n_frame_shift,
                 n_frame_length=self.n_frame_length,
-                dither=self.dither, ))
+                dither=self.dither,
+            ))
 
     def __call__(self, x, train):
         """
@@ -369,14 +390,13 @@ class LogMelSpectrogramKaldi():
         if x.ndim != 1:
             raise ValueError("Not support x: [Time, Channel]")
         waveform = paddle.to_tensor(np.expand_dims(x, 0), dtype=paddle.float32)
-        mat = kaldi.fbank(
-            waveform,
-            n_mels=self.n_mels,
-            frame_length=self.n_frame_length,
-            frame_shift=self.n_frame_shift,
-            dither=dither,
-            energy_floor=self.energy_floor,
-            sr=self.fs)
+        mat = kaldi.fbank(waveform,
+                          n_mels=self.n_mels,
+                          frame_length=self.n_frame_length,
+                          frame_shift=self.n_frame_shift,
+                          dither=dither,
+                          energy_floor=self.energy_floor,
+                          sr=self.fs)
         mat = np.squeeze(mat.numpy())
         return mat
 
@@ -461,7 +481,8 @@ class LogMelSpectrogramKaldi_decay():
                 fmin=self.fmin,
                 fmax=self.fmax,
                 eps=self.eps,
-                dither=self.dither, ))
+                dither=self.dither,
+            ))
 
     def __call__(self, x, train):
         """

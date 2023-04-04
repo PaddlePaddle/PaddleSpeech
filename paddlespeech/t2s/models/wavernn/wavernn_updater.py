@@ -24,6 +24,7 @@ from paddle.optimizer import Optimizer
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def calculate_grad_norm(parameters, norm_type: str=2):
+def calculate_grad_norm(parameters, norm_type: str = 2):
     '''
     calculate grad norm of mdoel's parameters
     parameters:
@@ -63,7 +64,7 @@ class WaveRNNUpdater(StandardUpdater):
                  criterion: Layer,
                  dataloader: DataLoader,
                  init_state=None,
-                 output_dir: Path=None,
+                 output_dir: Path = None,
                  mode='RAW'):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
@@ -117,7 +118,7 @@ class WaveRNNEvaluator(StandardEvaluator):
                  model: Layer,
                  criterion: Layer,
                  dataloader: Optimizer,
-                 output_dir: Path=None,
+                 output_dir: Path = None,
                  valid_generate_loader=None,
                  config=None):
         super().__init__(model, dataloader)
@@ -163,8 +164,8 @@ class WaveRNNEvaluator(StandardEvaluator):
         for i, item in enumerate(self.valid_generate_loader):
             if i >= self.config.generate_num:
                 break
-            print(
-                '\n| Generating: {}/{}'.format(i + 1, self.config.generate_num))
+            print('\n| Generating: {}/{}'.format(i + 1,
+                                                 self.config.generate_num))
 
             mel = item['feats']
             wav = item['wave']
@@ -179,17 +180,19 @@ class WaveRNNEvaluator(StandardEvaluator):
                     self.config.inference.target, self.config.inference.overlap)
             else:
                 batch_str = 'gen_not_batched'
-            gen_save_path = str(self.valid_samples_dir /
-                                '{}_steps_{}_{}.wav'.format(self.iteration, i,
-                                                            batch_str))
+            gen_save_path = str(
+                self.valid_samples_dir /
+                '{}_steps_{}_{}.wav'.format(self.iteration, i, batch_str))
             # (1, T, C_aux) -> (T, C_aux)
             mel = mel.squeeze(0)
-            gen_sample = self.model.generate(
-                mel, self.config.inference.gen_batched,
-                self.config.inference.target, self.config.inference.overlap,
-                self.config.mu_law)
-            sf.write(
-                gen_save_path, gen_sample.numpy(), samplerate=self.config.fs)
+            gen_sample = self.model.generate(mel,
+                                             self.config.inference.gen_batched,
+                                             self.config.inference.target,
+                                             self.config.inference.overlap,
+                                             self.config.mu_law)
+            sf.write(gen_save_path,
+                     gen_sample.numpy(),
+                     samplerate=self.config.fs)
 
     def __call__(self, trainer=None):
         summary = self.evaluate()

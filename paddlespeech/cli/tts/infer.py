@@ -64,108 +64,103 @@ ONNX_SUPPORT_SET = {
 class TTSExecutor(BaseExecutor):
     def __init__(self):
         super().__init__('tts')
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.tts', add_help=True)
-        self.parser.add_argument(
-            '--input', type=str, default=None, help='Input text to generate.')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.tts',
+                                              add_help=True)
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Input text to generate.')
         # acoustic model
-        self.parser.add_argument(
-            '--am',
-            type=str,
-            default='fastspeech2_csmsc',
-            choices=[
-                'speedyspeech_csmsc',
-                'fastspeech2_csmsc',
-                'fastspeech2_ljspeech',
-                'fastspeech2_aishell3',
-                'fastspeech2_vctk',
-                'fastspeech2_mix',
-                'tacotron2_csmsc',
-                'tacotron2_ljspeech',
-                'fastspeech2_male',
-                'fastspeech2_canton',
-            ],
-            help='Choose acoustic model type of tts task.')
+        self.parser.add_argument('--am',
+                                 type=str,
+                                 default='fastspeech2_csmsc',
+                                 choices=[
+                                     'speedyspeech_csmsc',
+                                     'fastspeech2_csmsc',
+                                     'fastspeech2_ljspeech',
+                                     'fastspeech2_aishell3',
+                                     'fastspeech2_vctk',
+                                     'fastspeech2_mix',
+                                     'tacotron2_csmsc',
+                                     'tacotron2_ljspeech',
+                                     'fastspeech2_male',
+                                     'fastspeech2_canton',
+                                 ],
+                                 help='Choose acoustic model type of tts task.')
         self.parser.add_argument(
             '--am_config',
             type=str,
             default=None,
             help='Config of acoustic model. Use deault config when it is None.')
-        self.parser.add_argument(
-            '--am_ckpt',
-            type=str,
-            default=None,
-            help='Checkpoint file of acoustic model.')
+        self.parser.add_argument('--am_ckpt',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of acoustic model.')
         self.parser.add_argument(
             "--am_stat",
             type=str,
             default=None,
-            help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+            help=
+            "mean and standard deviation used to normalize spectrogram when training acoustic model."
         )
-        self.parser.add_argument(
-            "--phones_dict",
-            type=str,
-            default=None,
-            help="phone vocabulary file.")
-        self.parser.add_argument(
-            "--tones_dict",
-            type=str,
-            default=None,
-            help="tone vocabulary file.")
-        self.parser.add_argument(
-            "--speaker_dict",
-            type=str,
-            default=None,
-            help="speaker id map file.")
-        self.parser.add_argument(
-            '--spk_id',
-            type=int,
-            default=0,
-            help='spk id for multi speaker acoustic model')
+        self.parser.add_argument("--phones_dict",
+                                 type=str,
+                                 default=None,
+                                 help="phone vocabulary file.")
+        self.parser.add_argument("--tones_dict",
+                                 type=str,
+                                 default=None,
+                                 help="tone vocabulary file.")
+        self.parser.add_argument("--speaker_dict",
+                                 type=str,
+                                 default=None,
+                                 help="speaker id map file.")
+        self.parser.add_argument('--spk_id',
+                                 type=int,
+                                 default=0,
+                                 help='spk id for multi speaker acoustic model')
         # vocoder
-        self.parser.add_argument(
-            '--voc',
-            type=str,
-            default='hifigan_csmsc',
-            choices=[
-                'pwgan_csmsc',
-                'pwgan_ljspeech',
-                'pwgan_aishell3',
-                'pwgan_vctk',
-                'mb_melgan_csmsc',
-                'style_melgan_csmsc',
-                'hifigan_csmsc',
-                'hifigan_ljspeech',
-                'hifigan_aishell3',
-                'hifigan_vctk',
-                'wavernn_csmsc',
-                'pwgan_male',
-                'hifigan_male',
-            ],
-            help='Choose vocoder type of tts task.')
+        self.parser.add_argument('--voc',
+                                 type=str,
+                                 default='hifigan_csmsc',
+                                 choices=[
+                                     'pwgan_csmsc',
+                                     'pwgan_ljspeech',
+                                     'pwgan_aishell3',
+                                     'pwgan_vctk',
+                                     'mb_melgan_csmsc',
+                                     'style_melgan_csmsc',
+                                     'hifigan_csmsc',
+                                     'hifigan_ljspeech',
+                                     'hifigan_aishell3',
+                                     'hifigan_vctk',
+                                     'wavernn_csmsc',
+                                     'pwgan_male',
+                                     'hifigan_male',
+                                 ],
+                                 help='Choose vocoder type of tts task.')
 
         self.parser.add_argument(
             '--voc_config',
             type=str,
             default=None,
             help='Config of voc. Use deault config when it is None.')
-        self.parser.add_argument(
-            '--voc_ckpt',
-            type=str,
-            default=None,
-            help='Checkpoint file of voc.')
+        self.parser.add_argument('--voc_ckpt',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of voc.')
         self.parser.add_argument(
             "--voc_stat",
             type=str,
             default=None,
-            help="mean and standard deviation used to normalize spectrogram when training voc."
+            help=
+            "mean and standard deviation used to normalize spectrogram when training voc."
         )
         # other
-        self.parser.add_argument(
-            '--lang',
-            type=str,
-            default='zh',
-            help='Choose model language. zh or en or mix')
+        self.parser.add_argument('--lang',
+                                 type=str,
+                                 default='zh',
+                                 help='Choose model language. zh or en or mix')
         self.parser.add_argument(
             '--device',
             type=str,
@@ -174,23 +169,23 @@ class TTSExecutor(BaseExecutor):
 
         self.parser.add_argument('--cpu_threads', type=int, default=2)
 
-        self.parser.add_argument(
-            '--output', type=str, default='output.wav', help='output file name')
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('--output',
+                                 type=str,
+                                 default='output.wav',
+                                 help='output file name')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
             action='store_true',
             help='Increase logger verbosity of current task.')
-        self.parser.add_argument(
-            "--use_onnx",
-            type=str2bool,
-            default=False,
-            help="whether to usen onnxruntime inference.")
+        self.parser.add_argument("--use_onnx",
+                                 type=str2bool,
+                                 default=False,
+                                 help="whether to usen onnxruntime inference.")
         self.parser.add_argument(
             '--fs',
             type=int,
@@ -198,19 +193,20 @@ class TTSExecutor(BaseExecutor):
             help='sample rate for onnx models when use specified model files.')
 
     def _init_from_path(
-            self,
-            am: str='fastspeech2_csmsc',
-            am_config: Optional[os.PathLike]=None,
-            am_ckpt: Optional[os.PathLike]=None,
-            am_stat: Optional[os.PathLike]=None,
-            phones_dict: Optional[os.PathLike]=None,
-            tones_dict: Optional[os.PathLike]=None,
-            speaker_dict: Optional[os.PathLike]=None,
-            voc: str='hifigan_csmsc',
-            voc_config: Optional[os.PathLike]=None,
-            voc_ckpt: Optional[os.PathLike]=None,
-            voc_stat: Optional[os.PathLike]=None,
-            lang: str='zh', ):
+        self,
+        am: str = 'fastspeech2_csmsc',
+        am_config: Optional[os.PathLike] = None,
+        am_ckpt: Optional[os.PathLike] = None,
+        am_stat: Optional[os.PathLike] = None,
+        phones_dict: Optional[os.PathLike] = None,
+        tones_dict: Optional[os.PathLike] = None,
+        speaker_dict: Optional[os.PathLike] = None,
+        voc: str = 'hifigan_csmsc',
+        voc_config: Optional[os.PathLike] = None,
+        voc_ckpt: Optional[os.PathLike] = None,
+        voc_stat: Optional[os.PathLike] = None,
+        lang: str = 'zh',
+    ):
         """
         Init model and other resources from a specific path.
         """
@@ -304,8 +300,8 @@ class TTSExecutor(BaseExecutor):
             self.voc_config = os.path.abspath(voc_config)
             self.voc_ckpt = os.path.abspath(voc_ckpt)
             self.voc_stat = os.path.abspath(voc_stat)
-            self.voc_res_path = os.path.dirname(
-                os.path.abspath(self.voc_config))
+            self.voc_res_path = os.path.dirname(os.path.abspath(
+                self.voc_config))
 
         # Init body.
         with open(self.am_config) as f:
@@ -330,38 +326,37 @@ class TTSExecutor(BaseExecutor):
             spk_num = len(spk_id)
 
         # frontend
-        self.frontend = get_frontend(
-            lang=lang, phones_dict=self.phones_dict, tones_dict=self.tones_dict)
+        self.frontend = get_frontend(lang=lang,
+                                     phones_dict=self.phones_dict,
+                                     tones_dict=self.tones_dict)
 
         # acoustic model
-        self.am_inference = get_am_inference(
-            am=am,
-            am_config=self.am_config,
-            am_ckpt=self.am_ckpt,
-            am_stat=self.am_stat,
-            phones_dict=self.phones_dict,
-            tones_dict=self.tones_dict,
-            speaker_dict=self.speaker_dict)
+        self.am_inference = get_am_inference(am=am,
+                                             am_config=self.am_config,
+                                             am_ckpt=self.am_ckpt,
+                                             am_stat=self.am_stat,
+                                             phones_dict=self.phones_dict,
+                                             tones_dict=self.tones_dict,
+                                             speaker_dict=self.speaker_dict)
 
         # vocoder
-        self.voc_inference = get_voc_inference(
-            voc=voc,
-            voc_config=self.voc_config,
-            voc_ckpt=self.voc_ckpt,
-            voc_stat=self.voc_stat)
+        self.voc_inference = get_voc_inference(voc=voc,
+                                               voc_config=self.voc_config,
+                                               voc_ckpt=self.voc_ckpt,
+                                               voc_stat=self.voc_stat)
 
     def _init_from_path_onnx(self,
-                             am: str='fastspeech2_csmsc',
-                             am_ckpt: Optional[os.PathLike]=None,
-                             phones_dict: Optional[os.PathLike]=None,
-                             tones_dict: Optional[os.PathLike]=None,
-                             speaker_dict: Optional[os.PathLike]=None,
-                             voc: str='hifigan_csmsc',
-                             voc_ckpt: Optional[os.PathLike]=None,
-                             lang: str='zh',
-                             device: str='cpu',
-                             cpu_threads: int=2,
-                             fs: int=24000):
+                             am: str = 'fastspeech2_csmsc',
+                             am_ckpt: Optional[os.PathLike] = None,
+                             phones_dict: Optional[os.PathLike] = None,
+                             tones_dict: Optional[os.PathLike] = None,
+                             speaker_dict: Optional[os.PathLike] = None,
+                             voc: str = 'hifigan_csmsc',
+                             voc_ckpt: Optional[os.PathLike] = None,
+                             lang: str = 'zh',
+                             device: str = 'cpu',
+                             cpu_threads: int = 2,
+                             fs: int = 24000):
         if hasattr(self, 'am_sess') and hasattr(self, 'voc_sess'):
             logger.debug('Models had been initialized.')
             return
@@ -433,14 +428,17 @@ class TTSExecutor(BaseExecutor):
             self.voc_res_path = os.path.dirname(os.path.abspath(self.voc_ckpt))
 
         # frontend
-        self.frontend = get_frontend(
-            lang=lang, phones_dict=self.phones_dict, tones_dict=self.tones_dict)
-        self.am_sess = get_sess(
-            model_path=self.am_ckpt, device=device, cpu_threads=cpu_threads)
+        self.frontend = get_frontend(lang=lang,
+                                     phones_dict=self.phones_dict,
+                                     tones_dict=self.tones_dict)
+        self.am_sess = get_sess(model_path=self.am_ckpt,
+                                device=device,
+                                cpu_threads=cpu_threads)
 
         # vocoder
-        self.voc_sess = get_sess(
-            model_path=self.voc_ckpt, device=device, cpu_threads=cpu_threads)
+        self.voc_sess = get_sess(model_path=self.voc_ckpt,
+                                 device=device,
+                                 cpu_threads=cpu_threads)
 
     def preprocess(self, input: Any, *args, **kwargs):
         """
@@ -455,9 +453,9 @@ class TTSExecutor(BaseExecutor):
     @paddle.no_grad()
     def infer(self,
               text: str,
-              lang: str='zh',
-              am: str='fastspeech2_csmsc',
-              spk_id: int=0):
+              lang: str = 'zh',
+              am: str = 'fastspeech2_csmsc',
+              spk_id: int = 0):
         """
         Model inference and result stored in self.output.
         """
@@ -468,12 +466,11 @@ class TTSExecutor(BaseExecutor):
         if am_name == 'speedyspeech':
             get_tone_ids = True
         frontend_st = time.time()
-        frontend_dict = run_frontend(
-            frontend=self.frontend,
-            text=text,
-            merge_sentences=merge_sentences,
-            get_tone_ids=get_tone_ids,
-            lang=lang)
+        frontend_dict = run_frontend(frontend=self.frontend,
+                                     text=text,
+                                     merge_sentences=merge_sentences,
+                                     get_tone_ids=get_tone_ids,
+                                     lang=lang)
         self.frontend_time = time.time() - frontend_st
         self.am_time = 0
         self.voc_time = 0
@@ -490,8 +487,8 @@ class TTSExecutor(BaseExecutor):
             else:
                 # multi speaker
                 if am_dataset in {'aishell3', 'vctk', 'mix', 'canton'}:
-                    mel = self.am_inference(
-                        part_phone_ids, spk_id=paddle.to_tensor(spk_id))
+                    mel = self.am_inference(part_phone_ids,
+                                            spk_id=paddle.to_tensor(spk_id))
                 else:
                     mel = self.am_inference(part_phone_ids)
             self.am_time += (time.time() - am_st)
@@ -508,9 +505,9 @@ class TTSExecutor(BaseExecutor):
 
     def infer_onnx(self,
                    text: str,
-                   lang: str='zh',
-                   am: str='fastspeech2_csmsc',
-                   spk_id: int=0):
+                   lang: str = 'zh',
+                   am: str = 'fastspeech2_csmsc',
+                   spk_id: int = 0):
         am_name = am[:am.rindex('_')]
         am_dataset = am[am.rindex('_') + 1:]
         merge_sentences = False
@@ -525,7 +522,8 @@ class TTSExecutor(BaseExecutor):
             merge_sentences=merge_sentences,
             get_tone_ids=get_tone_ids,
             lang=lang,
-            to_tensor=False, )
+            to_tensor=False,
+        )
         self.frontend_time = time.time() - frontend_st
         phone_ids = frontend_dict['phone_ids']
         self.am_time = 0
@@ -550,8 +548,8 @@ class TTSExecutor(BaseExecutor):
             self.am_time += (time.time() - am_st)
             # voc
             voc_st = time.time()
-            wav = self.voc_sess.run(
-                output_names=None, input_feed={'logmel': mel})
+            wav = self.voc_sess.run(output_names=None,
+                                    input_feed={'logmel': mel})
             wav = wav[0]
             if flags == 0:
                 wav_all = wav
@@ -562,7 +560,8 @@ class TTSExecutor(BaseExecutor):
 
         self._outputs['wav'] = wav_all
 
-    def postprocess(self, output: str='output.wav') -> Union[str, os.PathLike]:
+    def postprocess(self,
+                    output: str = 'output.wav') -> Union[str, os.PathLike]:
         """
         Output postprocess and return results.
         This method get model output from self._outputs and convert it into human-readable results.
@@ -571,12 +570,13 @@ class TTSExecutor(BaseExecutor):
             Union[str, os.PathLike]: Human-readable results such as texts and audio files.
         """
         output = os.path.abspath(os.path.expanduser(output))
-        sf.write(
-            output, self._outputs['wav'].numpy(), samplerate=self.am_config.fs)
+        sf.write(output,
+                 self._outputs['wav'].numpy(),
+                 samplerate=self.am_config.fs)
         return output
 
     def postprocess_onnx(self,
-                         output: str='output.wav') -> Union[str, os.PathLike]:
+                         output: str = 'output.wav') -> Union[str, os.PathLike]:
         """
         Output postprocess and return results.
         This method get model output from self._outputs and convert it into human-readable results.
@@ -670,42 +670,41 @@ class TTSExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  text: str,
-                 am: str='fastspeech2_csmsc',
-                 am_config: Optional[os.PathLike]=None,
-                 am_ckpt: Optional[os.PathLike]=None,
-                 am_stat: Optional[os.PathLike]=None,
-                 spk_id: int=0,
-                 phones_dict: Optional[os.PathLike]=None,
-                 tones_dict: Optional[os.PathLike]=None,
-                 speaker_dict: Optional[os.PathLike]=None,
-                 voc: str='hifigan_csmsc',
-                 voc_config: Optional[os.PathLike]=None,
-                 voc_ckpt: Optional[os.PathLike]=None,
-                 voc_stat: Optional[os.PathLike]=None,
-                 lang: str='zh',
-                 device: str=paddle.get_device(),
-                 output: str='output.wav',
-                 use_onnx: bool=False,
-                 cpu_threads: int=2,
-                 fs: int=24000):
+                 am: str = 'fastspeech2_csmsc',
+                 am_config: Optional[os.PathLike] = None,
+                 am_ckpt: Optional[os.PathLike] = None,
+                 am_stat: Optional[os.PathLike] = None,
+                 spk_id: int = 0,
+                 phones_dict: Optional[os.PathLike] = None,
+                 tones_dict: Optional[os.PathLike] = None,
+                 speaker_dict: Optional[os.PathLike] = None,
+                 voc: str = 'hifigan_csmsc',
+                 voc_config: Optional[os.PathLike] = None,
+                 voc_ckpt: Optional[os.PathLike] = None,
+                 voc_stat: Optional[os.PathLike] = None,
+                 lang: str = 'zh',
+                 device: str = paddle.get_device(),
+                 output: str = 'output.wav',
+                 use_onnx: bool = False,
+                 cpu_threads: int = 2,
+                 fs: int = 24000):
         """
         Python API to call an executor.
         """
         if not use_onnx:
             paddle.set_device(device)
-            self._init_from_path(
-                am=am,
-                am_config=am_config,
-                am_ckpt=am_ckpt,
-                am_stat=am_stat,
-                phones_dict=phones_dict,
-                tones_dict=tones_dict,
-                speaker_dict=speaker_dict,
-                voc=voc,
-                voc_config=voc_config,
-                voc_ckpt=voc_ckpt,
-                voc_stat=voc_stat,
-                lang=lang)
+            self._init_from_path(am=am,
+                                 am_config=am_config,
+                                 am_ckpt=am_ckpt,
+                                 am_stat=am_stat,
+                                 phones_dict=phones_dict,
+                                 tones_dict=tones_dict,
+                                 speaker_dict=speaker_dict,
+                                 voc=voc,
+                                 voc_config=voc_config,
+                                 voc_ckpt=voc_ckpt,
+                                 voc_stat=voc_stat,
+                                 lang=lang)
 
             self.infer(text=text, lang=lang, am=am, spk_id=spk_id)
             res = self.postprocess(output=output)
@@ -714,23 +713,22 @@ class TTSExecutor(BaseExecutor):
             # use onnx
             # we use `cpu` for onnxruntime by default
             # please see description in https://github.com/PaddlePaddle/PaddleSpeech/pull/2220
-            self.task_resource = CommonTaskResource(
-                task='tts', model_format='onnx')
+            self.task_resource = CommonTaskResource(task='tts',
+                                                    model_format='onnx')
             assert (
                 am in ONNX_SUPPORT_SET and voc in ONNX_SUPPORT_SET
             ), f'the am and voc you choose, they should be in {ONNX_SUPPORT_SET}'
-            self._init_from_path_onnx(
-                am=am,
-                am_ckpt=am_ckpt,
-                phones_dict=phones_dict,
-                tones_dict=tones_dict,
-                speaker_dict=speaker_dict,
-                voc=voc,
-                voc_ckpt=voc_ckpt,
-                lang=lang,
-                device=device,
-                cpu_threads=cpu_threads,
-                fs=fs)
+            self._init_from_path_onnx(am=am,
+                                      am_ckpt=am_ckpt,
+                                      phones_dict=phones_dict,
+                                      tones_dict=tones_dict,
+                                      speaker_dict=speaker_dict,
+                                      voc=voc,
+                                      voc_ckpt=voc_ckpt,
+                                      lang=lang,
+                                      device=device,
+                                      cpu_threads=cpu_threads,
+                                      fs=fs)
             self.infer_onnx(text=text, lang=lang, am=am, spk_id=spk_id)
             res = self.postprocess_onnx(output=output)
             return res

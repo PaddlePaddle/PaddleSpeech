@@ -29,7 +29,6 @@ __all__ = [
 
 class TextIDBatcher(object):
     """A wrapper class for `batch_text_id`."""
-
     def __init__(self, pad_id=0, dtype=np.int64):
         self.pad_id = pad_id
         self.dtype = dtype
@@ -60,17 +59,15 @@ def batch_text_id(minibatch, pad_id=0, dtype=np.int64):
     for example in minibatch:
         pad_len = max_len - example.shape[0]
         batch.append(
-            np.pad(
-                example, [(0, pad_len)],
-                mode='constant',
-                constant_values=pad_id))
+            np.pad(example, [(0, pad_len)],
+                   mode='constant',
+                   constant_values=pad_id))
 
     return np.array(batch, dtype=dtype), np.array(lengths, dtype=np.int64)
 
 
 class WavBatcher(object):
     """A wrapper class for `batch_wav`."""
-
     def __init__(self, pad_value=0., dtype=np.float32):
         self.pad_value = pad_value
         self.dtype = dtype
@@ -103,27 +100,24 @@ def batch_wav(minibatch, pad_value=0., dtype=np.float32):
     for example in minibatch:
         pad_len = max_len - example.shape[-1]
         batch.append(
-            np.pad(
-                example, [(0, pad_len)],
-                mode='constant',
-                constant_values=pad_value))
+            np.pad(example, [(0, pad_len)],
+                   mode='constant',
+                   constant_values=pad_value))
     return np.array(batch, dtype=dtype), np.array(lengths, dtype=np.int64)
 
 
 class SpecBatcher(object):
     """A wrapper class for `batch_spec`"""
-
     def __init__(self, pad_value=0., time_major=False, dtype=np.float32):
         self.pad_value = pad_value
         self.dtype = dtype
         self.time_major = time_major
 
     def __call__(self, minibatch):
-        out = batch_spec(
-            minibatch,
-            pad_value=self.pad_value,
-            time_major=self.time_major,
-            dtype=self.dtype)
+        out = batch_spec(minibatch,
+                         pad_value=self.pad_value,
+                         time_major=self.time_major,
+                         dtype=self.dtype)
         return out
 
 
@@ -153,16 +147,14 @@ def batch_spec(minibatch, pad_value=0., time_major=False, dtype=np.float32):
         pad_len = max_len - example.shape[time_idx]
         if time_major:
             batch.append(
-                np.pad(
-                    example, [(0, pad_len), (0, 0)],
-                    mode='constant',
-                    constant_values=pad_value))
+                np.pad(example, [(0, pad_len), (0, 0)],
+                       mode='constant',
+                       constant_values=pad_value))
         else:
             batch.append(
-                np.pad(
-                    example, [(0, 0), (0, pad_len)],
-                    mode='constant',
-                    constant_values=pad_value))
+                np.pad(example, [(0, 0), (0, pad_len)],
+                       mode='constant',
+                       constant_values=pad_value))
     return np.array(batch, dtype=dtype), np.array(lengths, dtype=np.int64)
 
 
@@ -178,10 +170,12 @@ def batch_sequences(sequences, axis=0, pad_value=0):
 
     padded_sequences = []
     for seq, length in zip(sequences, seq_lengths):
-        padding = [(0, 0)] * axis + [(0, max_length - length)] + [(0, 0)] * (
-            ndim - axis - 1)
-        padded_seq = np.pad(
-            seq, padding, mode='constant', constant_values=pad_value)
+        padding = [(0, 0)] * axis + [(0, max_length - length)
+                                     ] + [(0, 0)] * (ndim - axis - 1)
+        padded_seq = np.pad(seq,
+                            padding,
+                            mode='constant',
+                            constant_values=pad_value)
         padded_sequences.append(padded_seq)
     batch = np.stack(padded_sequences)
     return batch

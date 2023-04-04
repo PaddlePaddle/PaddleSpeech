@@ -22,8 +22,8 @@ from paddle.optimizer.lr import StepDecay
 
 def test_optimizer():
     model1 = nn.Linear(3, 4)
-    optim1 = Adam(
-        parameters=model1.parameters(), learning_rate=StepDecay(0.1, 100))
+    optim1 = Adam(parameters=model1.parameters(),
+                  learning_rate=StepDecay(0.1, 100))
 
     output_dir = Path("temp_test_optimizer")
     shutil.rmtree(output_dir, ignore_errors=True)

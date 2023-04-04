@@ -57,7 +57,7 @@ def get_stats(pretrained_model_dir: Path):
 def get_map(duration_file: Union[str, Path],
             dump_dir: Path,
             pretrained_model_dir: Path,
-            replace_spkid: int=0):
+            replace_spkid: int = 0):
     """get phone map and speaker map, save on dump_dir
 
     Args:
@@ -113,36 +113,28 @@ def get_map(duration_file: Union[str, Path],
 
 def get_extractor(config):
     # Extractor
-    mel_extractor = LogMelFBank(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window,
-        n_mels=config.n_mels,
-        fmin=config.fmin,
-        fmax=config.fmax)
-    pitch_extractor = Pitch(
-        sr=config.fs,
-        hop_length=config.n_shift,
-        f0min=config.f0min,
-        f0max=config.f0max)
-    energy_extractor = Energy(
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window)
+    mel_extractor = LogMelFBank(sr=config.fs,
+                                n_fft=config.n_fft,
+                                hop_length=config.n_shift,
+                                win_length=config.win_length,
+                                window=config.window,
+                                n_mels=config.n_mels,
+                                fmin=config.fmin,
+                                fmax=config.fmax)
+    pitch_extractor = Pitch(sr=config.fs,
+                            hop_length=config.n_shift,
+                            f0min=config.f0min,
+                            f0max=config.f0max)
+    energy_extractor = Energy(n_fft=config.n_fft,
+                              hop_length=config.n_shift,
+                              win_length=config.win_length,
+                              window=config.window)
 
     return mel_extractor, pitch_extractor, energy_extractor
 
 
-def normalize(speech_scaler,
-              pitch_scaler,
-              energy_scaler,
-              vocab_phones: Dict,
-              vocab_speaker: Dict,
-              raw_dump_dir: Path,
-              type: str):
+def normalize(speech_scaler, pitch_scaler, energy_scaler, vocab_phones: Dict,
+              vocab_speaker: Dict, raw_dump_dir: Path, type: str):
 
     dumpdir = raw_dump_dir / type / "norm"
     dumpdir = Path(dumpdir).expanduser()
@@ -152,13 +144,12 @@ def normalize(speech_scaler,
     metadata_file = raw_dump_dir / type / "raw" / "metadata.jsonl"
     with jsonlines.open(metadata_file, 'r') as reader:
         metadata = list(reader)
-    dataset = DataTable(
-        metadata,
-        converters={
-            "speech": np.load,
-            "pitch": np.load,
-            "energy": np.load,
-        })
+    dataset = DataTable(metadata,
+                        converters={
+                            "speech": np.load,
+                            "pitch": np.load,
+                            "energy": np.load,
+                        })
     logging.info(f"The number of files = {len(dataset)}.")
 
     # process each file
@@ -219,10 +210,11 @@ def extract_feature(duration_file: str,
                     input_dir: Path,
                     dump_dir: Path,
                     pretrained_model_dir: Path,
-                    replace_spkid: int=0):
+                    replace_spkid: int = 0):
 
-    sentences, vocab_phones, vocab_speaker = get_map(
-        duration_file, dump_dir, pretrained_model_dir, replace_spkid)
+    sentences, vocab_phones, vocab_speaker = get_map(duration_file, dump_dir,
+                                                     pretrained_model_dir,
+                                                     replace_spkid)
     mel_extractor, pitch_extractor, energy_extractor = get_extractor(config)
 
     wav_files = sorted(list((input_dir).rglob("*.wav")))
@@ -250,52 +242,49 @@ def extract_feature(duration_file: str,
     speech_scaler, pitch_scaler, energy_scaler = get_stats(pretrained_model_dir)
 
     if train_wav_files:
-        process_sentences(
-            config=config,
-            fps=train_wav_files,
-            sentences=sentences,
-            output_dir=train_dump_dir,
-            mel_extractor=mel_extractor,
-            pitch_extractor=pitch_extractor,
-            energy_extractor=energy_extractor,
-            nprocs=num_cpu,
-            cut_sil=cut_sil,
-            spk_emb_dir=spk_emb_dir,
-            write_metadata_method=write_metadata_method)
+        process_sentences(config=config,
+                          fps=train_wav_files,
+                          sentences=sentences,
+                          output_dir=train_dump_dir,
+                          mel_extractor=mel_extractor,
+                          pitch_extractor=pitch_extractor,
+                          energy_extractor=energy_extractor,
+                          nprocs=num_cpu,
+                          cut_sil=cut_sil,
+                          spk_emb_dir=spk_emb_dir,
+                          write_metadata_method=write_metadata_method)
         # norm
         normalize(speech_scaler, pitch_scaler, energy_scaler, vocab_phones,
                   vocab_speaker, dump_dir, "train")
 
     if dev_wav_files:
-        process_sentences(
-            config=config,
-            fps=dev_wav_files,
-            sentences=sentences,
-            output_dir=dev_dump_dir,
-            mel_extractor=mel_extractor,
-            pitch_extractor=pitch_extractor,
-            energy_extractor=energy_extractor,
-            nprocs=num_cpu,
-            cut_sil=cut_sil,
-            spk_emb_dir=spk_emb_dir,
-            write_metadata_method=write_metadata_method)
+        process_sentences(config=config,
+                          fps=dev_wav_files,
+                          sentences=sentences,
+                          output_dir=dev_dump_dir,
+                          mel_extractor=mel_extractor,
+                          pitch_extractor=pitch_extractor,
+                          energy_extractor=energy_extractor,
+                          nprocs=num_cpu,
+                          cut_sil=cut_sil,
+                          spk_emb_dir=spk_emb_dir,
+                          write_metadata_method=write_metadata_method)
         # norm
         normalize(speech_scaler, pitch_scaler, energy_scaler, vocab_phones,
                   vocab_speaker, dump_dir, "dev")
 
     if test_wav_files:
-        process_sentences(
-            config=config,
-            fps=test_wav_files,
-            sentences=sentences,
-            output_dir=test_dump_dir,
-            mel_extractor=mel_extractor,
-            pitch_extractor=pitch_extractor,
-            energy_extractor=energy_extractor,
-            nprocs=num_cpu,
-            cut_sil=cut_sil,
-            spk_emb_dir=spk_emb_dir,
-            write_metadata_method=write_metadata_method)
+        process_sentences(config=config,
+                          fps=test_wav_files,
+                          sentences=sentences,
+                          output_dir=test_dump_dir,
+                          mel_extractor=mel_extractor,
+                          pitch_extractor=pitch_extractor,
+                          energy_extractor=energy_extractor,
+                          nprocs=num_cpu,
+                          cut_sil=cut_sil,
+                          spk_emb_dir=spk_emb_dir,
+                          write_metadata_method=write_metadata_method)
 
         # norm
         normalize(speech_scaler, pitch_scaler, energy_scaler, vocab_phones,
@@ -307,20 +296,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
 
-    parser.add_argument(
-        "--duration_file",
-        type=str,
-        default="./durations.txt",
-        help="duration file")
+    parser.add_argument("--duration_file",
+                        type=str,
+                        default="./durations.txt",
+                        help="duration file")
 
-    parser.add_argument(
-        "--input_dir",
-        type=str,
-        default="./input/baker_mini/newdir",
-        help="directory containing audio and label file")
+    parser.add_argument("--input_dir",
+                        type=str,
+                        default="./input/baker_mini/newdir",
+                        help="directory containing audio and label file")
 
-    parser.add_argument(
-        "--dump_dir", type=str, default="./dump", help="dump dir")
+    parser.add_argument("--dump_dir",
+                        type=str,
+                        default="./dump",
+                        help="dump dir")
 
     parser.add_argument(
         "--pretrained_model_dir",
@@ -328,8 +317,10 @@ if __name__ == '__main__':
         default="./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0",
         help="Path to pretrained model")
 
-    parser.add_argument(
-        "--replace_spkid", type=int, default=0, help="replace spk id")
+    parser.add_argument("--replace_spkid",
+                        type=int,
+                        default=0,
+                        help="replace spk id")
 
     args = parser.parse_args()
 
@@ -343,10 +334,9 @@ if __name__ == '__main__':
     with open(config_file) as f:
         config = CfgNode(yaml.safe_load(f))
 
-    extract_feature(
-        duration_file=args.duration_file,
-        config=config,
-        input_dir=input_dir,
-        dump_dir=dump_dir,
-        pretrained_model_dir=pretrained_model_dir,
-        replace_spkid=args.replace_spkid)
+    extract_feature(duration_file=args.duration_file,
+                    config=config,
+                    input_dir=input_dir,
+                    dump_dir=dump_dir,
+                    pretrained_model_dir=pretrained_model_dir,
+                    replace_spkid=args.replace_spkid)

@@ -24,7 +24,7 @@ from paddlespeech.t2s.modules.activation import get_activation
 
 
 class Stretch2D(nn.Layer):
-    def __init__(self, w_scale: int, h_scale: int, mode: str="nearest"):
+    def __init__(self, w_scale: int, h_scale: int, mode: str = "nearest"):
         """Strech an image (or image-like object) with some interpolation.
 
         Args:
@@ -55,8 +55,9 @@ class Stretch2D(nn.Layer):
                 The stretched image. Shape (N, C, H', W'), where ``H'=h_scale * H``, ``W'=w_scale * W``.
             
         """
-        out = F.interpolate(
-            x, scale_factor=(self.h_scale, self.w_scale), mode=self.mode)
+        out = F.interpolate(x,
+                            scale_factor=(self.h_scale, self.w_scale),
+                            mode=self.mode)
         return out
 
 
@@ -81,14 +82,13 @@ class UpsampleNet(nn.Layer):
             i.e. padding amount is ``receptive field - 1`` and 0 for before and after, respectively.
             If False, "same" padding is used along the time axis.
     """
-
     def __init__(self,
                  upsample_scales: List[int],
-                 nonlinear_activation: Optional[str]=None,
-                 nonlinear_activation_params: Dict[str, Any]={},
-                 interpolate_mode: str="nearest",
-                 freq_axis_kernel_size: int=1,
-                 use_causal_conv: bool=False):
+                 nonlinear_activation: Optional[str] = None,
+                 nonlinear_activation_params: Dict[str, Any] = {},
+                 interpolate_mode: str = "nearest",
+                 freq_axis_kernel_size: int = 1,
+                 use_causal_conv: bool = False):
         super().__init__()
         self.use_causal_conv = use_causal_conv
         self.up_layers = nn.LayerList()
@@ -102,8 +102,11 @@ class UpsampleNet(nn.Layer):
                 padding = (freq_axis_padding, scale * 2)
             else:
                 padding = (freq_axis_padding, scale)
-            conv = nn.Conv2D(
-                1, 1, kernel_size, padding=padding, bias_attr=False)
+            conv = nn.Conv2D(1,
+                             1,
+                             kernel_size,
+                             padding=padding,
+                             bias_attr=False)
             self.up_layers.extend([stretch, conv])
             if nonlinear_activation is not None:
                 # for compatibility
@@ -160,25 +163,23 @@ class ConvInUpsampleNet(nn.Layer):
             amount is ``receptive field - 1`` and 0 for before and after, respectively.
             If False, "same" padding is used along the time axis.
     """
-
     def __init__(self,
                  upsample_scales: List[int],
-                 nonlinear_activation: Optional[str]=None,
-                 nonlinear_activation_params: Dict[str, Any]={},
-                 interpolate_mode: str="nearest",
-                 freq_axis_kernel_size: int=1,
-                 aux_channels: int=80,
-                 aux_context_window: int=0,
-                 use_causal_conv: bool=False):
+                 nonlinear_activation: Optional[str] = None,
+                 nonlinear_activation_params: Dict[str, Any] = {},
+                 interpolate_mode: str = "nearest",
+                 freq_axis_kernel_size: int = 1,
+                 aux_channels: int = 80,
+                 aux_context_window: int = 0,
+                 use_causal_conv: bool = False):
         super().__init__()
         self.aux_context_window = aux_context_window
         self.use_causal_conv = use_causal_conv and aux_context_window > 0
         kernel_size = aux_context_window + 1 if use_causal_conv else 2 * aux_context_window + 1
-        self.conv_in = nn.Conv1D(
-            aux_channels,
-            aux_channels,
-            kernel_size=kernel_size,
-            bias_attr=False)
+        self.conv_in = nn.Conv1D(aux_channels,
+                                 aux_channels,
+                                 kernel_size=kernel_size,
+                                 bias_attr=False)
         self.upsample = UpsampleNet(
             upsample_scales=upsample_scales,
             nonlinear_activation=nonlinear_activation,

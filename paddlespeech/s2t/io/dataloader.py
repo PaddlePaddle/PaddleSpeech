@@ -38,7 +38,7 @@ logger = Log(__name__).getlog()
 
 
 def feat_dim_and_vocab_size(data_json: List[Dict[Text, Any]],
-                            mode: Text="asr",
+                            mode: Text = "asr",
                             iaxis=0,
                             oaxis=0):
     if mode == 'asr':
@@ -89,23 +89,23 @@ class StreamDataLoader():
     def __init__(self,
                  manifest_file: str,
                  train_mode: bool,
-                 unit_type: str='char',
-                 batch_size: int=0,
+                 unit_type: str = 'char',
+                 batch_size: int = 0,
                  preprocess_conf=None,
                  num_mel_bins=80,
                  frame_length=25,
                  frame_shift=10,
                  dither=0.0,
-                 minlen_in: float=0.0,
-                 maxlen_in: float=float('inf'),
-                 minlen_out: float=0.0,
-                 maxlen_out: float=float('inf'),
-                 resample_rate: int=16000,
-                 shuffle_size: int=10000,
-                 sort_size: int=1000,
-                 n_iter_processes: int=1,
-                 prefetch_factor: int=2,
-                 dist_sampler: bool=False,
+                 minlen_in: float = 0.0,
+                 maxlen_in: float = float('inf'),
+                 minlen_out: float = 0.0,
+                 maxlen_out: float = float('inf'),
+                 resample_rate: int = 16000,
+                 shuffle_size: int = 10000,
+                 sort_size: int = 1000,
+                 n_iter_processes: int = 1,
+                 prefetch_factor: int = 2,
+                 dist_sampler: bool = False,
                  cmvn_file="data/mean_std.json",
                  vocab_filepath='data/lang_char/vocab.txt'):
         self.manifest_file = manifest_file
@@ -159,21 +159,19 @@ class StreamDataLoader():
 
         self.dataset = base_dataset.append_list(
             streamdata.audio_tokenize(symbol_table),
-            streamdata.audio_data_filter(
-                frame_shift=frame_shift,
-                max_length=maxlen_in,
-                min_length=minlen_in,
-                token_max_length=maxlen_out,
-                token_min_length=minlen_out),
+            streamdata.audio_data_filter(frame_shift=frame_shift,
+                                         max_length=maxlen_in,
+                                         min_length=minlen_in,
+                                         token_max_length=maxlen_out,
+                                         token_min_length=minlen_out),
             streamdata.audio_resample(resample_rate=resample_rate),
-            streamdata.audio_compute_fbank(
-                num_mel_bins=num_mel_bins,
-                frame_length=frame_length,
-                frame_shift=frame_shift,
-                dither=dither),
-            streamdata.audio_spec_aug(**augment_conf)
-            if train_mode else streamdata.placeholder(
-            ),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
+            streamdata.audio_compute_fbank(num_mel_bins=num_mel_bins,
+                                           frame_length=frame_length,
+                                           frame_shift=frame_shift,
+                                           dither=dither),
+            streamdata.audio_spec_aug(
+                **augment_conf) if train_mode else streamdata.placeholder(
+                ),  # num_t_mask=2, num_f_mask=2, max_t=40, max_f=30, max_w=80)
             streamdata.shuffle(shuffle_size),
             streamdata.sort(sort_size=sort_size),
             streamdata.batched(batch_size),
@@ -209,25 +207,25 @@ class BatchDataLoader():
     def __init__(self,
                  json_file: str,
                  train_mode: bool,
-                 sortagrad: int=0,
-                 batch_size: int=0,
-                 maxlen_in: float=float('inf'),
-                 maxlen_out: float=float('inf'),
-                 minibatches: int=0,
-                 mini_batch_size: int=1,
-                 batch_count: str='auto',
-                 batch_bins: int=0,
-                 batch_frames_in: int=0,
-                 batch_frames_out: int=0,
-                 batch_frames_inout: int=0,
+                 sortagrad: int = 0,
+                 batch_size: int = 0,
+                 maxlen_in: float = float('inf'),
+                 maxlen_out: float = float('inf'),
+                 minibatches: int = 0,
+                 mini_batch_size: int = 1,
+                 batch_count: str = 'auto',
+                 batch_bins: int = 0,
+                 batch_frames_in: int = 0,
+                 batch_frames_out: int = 0,
+                 batch_frames_inout: int = 0,
                  preprocess_conf=None,
-                 n_iter_processes: int=1,
-                 subsampling_factor: int=1,
-                 load_aux_input: bool=False,
-                 load_aux_output: bool=False,
-                 num_encs: int=1,
-                 dist_sampler: bool=False,
-                 shortest_first: bool=False):
+                 n_iter_processes: int = 1,
+                 subsampling_factor: int = 1,
+                 load_aux_input: bool = False,
+                 load_aux_output: bool = False,
+                 num_encs: int = 1,
+                 dist_sampler: bool = False,
+                 shortest_first: bool = False):
         self.json_file = json_file
         self.train_mode = train_mode
         self.use_sortagrad = sortagrad == -1 or sortagrad > 0
@@ -252,8 +250,8 @@ class BatchDataLoader():
         with jsonlines.open(json_file, 'r') as reader:
             self.data_json = list(reader)
 
-        self.feat_dim, self.vocab_size = feat_dim_and_vocab_size(
-            self.data_json, mode='asr')
+        self.feat_dim, self.vocab_size = feat_dim_and_vocab_size(self.data_json,
+                                                                 mode='asr')
 
         # make minibatch list (variable length)
         self.minibaches = make_batchset(
@@ -270,7 +268,8 @@ class BatchDataLoader():
             batch_frames_out=batch_frames_out,
             batch_frames_inout=batch_frames_inout,
             iaxis=0,
-            oaxis=0, )
+            oaxis=0,
+        )
 
         # data reader
         self.reader = LoadInputsAndTargets(
@@ -303,19 +302,22 @@ class BatchDataLoader():
                 dataset=self.dataset,
                 batch_size=1,
                 shuffle=not self.use_sortagrad if self.train_mode else False,
-                drop_last=False, )
+                drop_last=False,
+            )
         else:
             self.batch_sampler = BatchSampler(
                 dataset=self.dataset,
                 batch_size=1,
                 shuffle=not self.use_sortagrad if self.train_mode else False,
-                drop_last=False, )
+                drop_last=False,
+            )
 
         self.dataloader = DataLoader(
             dataset=self.dataset,
             batch_sampler=self.batch_sampler,
             collate_fn=batch_collate,
-            num_workers=self.n_iter_processes, )
+            num_workers=self.n_iter_processes,
+        )
 
     def __len__(self):
         return len(self.dataloader)
@@ -395,7 +397,8 @@ class DataLoaderFactory():
                 prefetch_factor=config.prefetch_factor,
                 dist_sampler=config.dist_sampler,
                 cmvn_file=config.cmvn_file,
-                vocab_filepath=config.vocab_filepath, )
+                vocab_filepath=config.vocab_filepath,
+            )
         else:
             if mode == 'train':
                 config['manifest'] = config.train_manifest

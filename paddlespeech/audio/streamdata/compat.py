@@ -26,8 +26,9 @@ class FluidInterface:
         return self.compose(filters.unbatched())
 
     def listed(self, batchsize, partial=True):
-        return self.compose(
-            filters.batched(), batchsize=batchsize, collation_fn=None)
+        return self.compose(filters.batched(),
+                            batchsize=batchsize,
+                            collation_fn=None)
 
     def unlisted(self):
         return self.compose(filters.unlisted())
@@ -55,8 +56,11 @@ class FluidInterface:
             autodecode.ImageHandler(x) if isinstance(x, str) else x
             for x in args
         ]
-        decoder = autodecode.Decoder(
-            handlers, pre=pre, post=post, only=only, partial=partial)
+        decoder = autodecode.Decoder(handlers,
+                                     pre=pre,
+                                     post=post,
+                                     only=only,
+                                     partial=partial)
         return self.map(decoder, handler=handler)
 
     def map_dict(self, handler=reraise_exception, **kw):
@@ -116,25 +120,25 @@ class FluidInterface:
 
 class WebDataset(DataPipeline, FluidInterface):
     """Small fluid-interface wrapper for DataPipeline."""
-
     def __init__(
-            self,
-            urls,
-            handler=reraise_exception,
-            resampled=False,
-            repeat=False,
-            shardshuffle=None,
-            cache_size=0,
-            cache_dir=None,
-            detshuffle=False,
-            nodesplitter=shardlists.single_node_only,
-            verbose=False, ):
+        self,
+        urls,
+        handler=reraise_exception,
+        resampled=False,
+        repeat=False,
+        shardshuffle=None,
+        cache_size=0,
+        cache_dir=None,
+        detshuffle=False,
+        nodesplitter=shardlists.single_node_only,
+        verbose=False,
+    ):
         super().__init__()
         if isinstance(urls, IterableDataset):
             assert not resampled
             self.append(urls)
-        elif isinstance(urls, str) and (urls.endswith(".yaml") or
-                                        urls.endswith(".yml")):
+        elif isinstance(urls, str) and (urls.endswith(".yaml")
+                                        or urls.endswith(".yml")):
             with (open(urls)) as stream:
                 spec = yaml.safe_load(stream)
             assert "datasets" in spec
@@ -164,12 +168,12 @@ class WebDataset(DataPipeline, FluidInterface):
                     handler=handler,
                     verbose=verbose,
                     cache_size=cache_size,
-                    cache_dir=cache_dir, ))
+                    cache_dir=cache_dir,
+                ))
 
 
 class FluidWrapper(DataPipeline, FluidInterface):
     """Small fluid-interface wrapper for DataPipeline."""
-
     def __init__(self, initial):
         super().__init__()
         self.append(initial)

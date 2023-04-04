@@ -223,7 +223,6 @@ class ErrorCalculator():
     :param sym_blank: <blank>
     :return:
     """
-
     def __init__(self,
                  char_list,
                  sym_space,

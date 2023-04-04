@@ -23,7 +23,6 @@ class SpeechSegment(AudioSegment):
     Args:
         AudioSegment (AudioSegment): Audio Segment
     """
-
     def __init__(self,
                  samples,
                  sample_rate,

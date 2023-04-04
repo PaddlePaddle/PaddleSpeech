@@ -24,26 +24,37 @@ def exist_or_not(i, match_pos):
 def get_parser():
     parser = argparse.ArgumentParser(
         description="convert raw text to tokenized text",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "--nchar",
         "-n",
         default=1,
         type=int,
         help="number of characters to split, i.e., \
-                        aabb -> a a b b with -n 1 and aa bb with -n 2", )
-    parser.add_argument(
-        "--skip-ncols", "-s", default=0, type=int, help="skip first n columns")
-    parser.add_argument(
-        "--space", default="<space>", type=str, help="space symbol")
+                        aabb -> a a b b with -n 1 and aa bb with -n 2",
+    )
+    parser.add_argument("--skip-ncols",
+                        "-s",
+                        default=0,
+                        type=int,
+                        help="skip first n columns")
+    parser.add_argument("--space",
+                        default="<space>",
+                        type=str,
+                        help="space symbol")
     parser.add_argument(
         "--non-lang-syms",
         "-l",
         default=None,
         type=str,
-        help="list of non-linguistic symobles, e.g., <NOISE> etc.", )
-    parser.add_argument(
-        "text", type=str, default=False, nargs="?", help="input text")
+        help="list of non-linguistic symobles, e.g., <NOISE> etc.",
+    )
+    parser.add_argument("text",
+                        type=str,
+                        default=False,
+                        nargs="?",
+                        help="input text")
     parser.add_argument(
         "--trans_type",
         "-t",
@@ -55,7 +66,8 @@ def get_parser():
                         read from SI1279.WRD file -> "bricks are an alternative"
                         Else if trans_type is phn,
                         read from SI1279.PHN file -> "sil b r ih sil k s aa r er n aa l
-                        sil t er n ih sil t ih v sil" """, )
+                        sil t er n ih sil t ih v sil" """,
+    )
     return parser
 
 
@@ -72,11 +84,11 @@ def main():
     if args.text:
         f = codecs.open(args.text, encoding="utf-8")
     else:
-        f = codecs.getreader("utf-8")(sys.stdin
-                                      if is_python2 else sys.stdin.buffer)
+        f = codecs.getreader("utf-8")(
+            sys.stdin if is_python2 else sys.stdin.buffer)
 
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout
-                                           if is_python2 else sys.stdout.buffer)
+    sys.stdout = codecs.getwriter("utf-8")(
+        sys.stdout if is_python2 else sys.stdout.buffer)
     line = f.readline()
     n = args.nchar
     while line:

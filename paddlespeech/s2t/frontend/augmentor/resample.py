@@ -26,7 +26,6 @@ class ResampleAugmentor(AugmentorBase):
     :param new_sample_rate: New sample rate in Hz.
     :type new_sample_rate: int
     """
-
     def __init__(self, rng, new_sample_rate):
         self._new_sample_rate = new_sample_rate
         self._rng = rng

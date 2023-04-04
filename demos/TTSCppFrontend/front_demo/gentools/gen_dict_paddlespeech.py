@@ -58,13 +58,14 @@ def gen_word2phone_dict(frontend,
 
 def main():
     parser = argparse.ArgumentParser(description="Generate dictionary")
-    parser.add_argument(
-        "--config", type=str, default="./config.ini", help="config file.")
-    parser.add_argument(
-        "--am_type",
-        type=str,
-        default="fastspeech2",
-        help="fastspeech2 or speedyspeech")
+    parser.add_argument("--config",
+                        type=str,
+                        default="./config.ini",
+                        help="config file.")
+    parser.add_argument("--am_type",
+                        type=str,
+                        default="fastspeech2",
+                        help="fastspeech2 or speedyspeech")
     args = parser.parse_args()
 
     # Read config
@@ -81,27 +82,24 @@ def main():
         frontend = Frontend(phone_vocab_path=phone2id_dict_file)
         print("frontend done!")
 
-        gen_word2phone_dict(
-            frontend,
-            jieba_words_dict_file,
-            word2phone_dict_file,
-            get_tone=False)
+        gen_word2phone_dict(frontend,
+                            jieba_words_dict_file,
+                            word2phone_dict_file,
+                            get_tone=False)
 
     elif (am_type == "speedyspeech"):
         phone2id_dict_file = cf.get(am_type, "phone2id_dict")
         tone2id_dict_file = cf.get(am_type, "tone2id_dict")
         word2phone_dict_file = cf.get(am_type, "word2phone_dict")
 
-        frontend = Frontend(
-            phone_vocab_path=phone2id_dict_file,
-            tone_vocab_path=tone2id_dict_file)
+        frontend = Frontend(phone_vocab_path=phone2id_dict_file,
+                            tone_vocab_path=tone2id_dict_file)
         print("frontend done!")
 
-        gen_word2phone_dict(
-            frontend,
-            jieba_words_dict_file,
-            word2phone_dict_file,
-            get_tone=True)
+        gen_word2phone_dict(frontend,
+                            jieba_words_dict_file,
+                            word2phone_dict_file,
+                            get_tone=True)
 
     else:
         print("Please set correct am type, fastspeech2 or speedyspeech.")

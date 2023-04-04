@@ -65,17 +65,16 @@ logger = Log(__name__).getlog()
 
 class U2BaseModel(ASRInterface, nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
-
     def __init__(self,
                  vocab_size: int,
                  encoder: TransformerEncoder,
                  decoder: TransformerDecoder,
                  ctc: CTCDecoderBase,
-                 ctc_weight: float=0.5,
-                 ignore_id: int=IGNORE_ID,
-                 reverse_weight: float=0.0,
-                 lsm_weight: float=0.0,
-                 length_normalized_loss: bool=False,
+                 ctc_weight: float = 0.5,
+                 ignore_id: int = IGNORE_ID,
+                 reverse_weight: float = 0.0,
+                 lsm_weight: float = 0.0,
+                 length_normalized_loss: bool = False,
                  **kwargs):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
 
@@ -96,16 +95,17 @@ class U2BaseModel(ASRInterface, nn.Layer):
             size=vocab_size,
             padding_idx=ignore_id,
             smoothing=lsm_weight,
-            normalize_length=length_normalized_loss, )
+            normalize_length=length_normalized_loss,
+        )
 
     def forward(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-    ) -> Tuple[Optional[paddle.Tensor], Optional[paddle.Tensor], Optional[
-            paddle.Tensor]]:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+    ) -> Tuple[Optional[paddle.Tensor], Optional[paddle.Tensor],
+               Optional[paddle.Tensor]]:
         """Frontend + Encoder + Decoder + Calc loss
         Args:
             speech: (Batch, Length, ...)
@@ -154,10 +154,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             loss = self.ctc_weight * loss_ctc + (1 - self.ctc_weight) * loss_att
         return loss, loss_att, loss_ctc
 
-    def _calc_att_loss(self,
-                       encoder_out: paddle.Tensor,
-                       encoder_mask: paddle.Tensor,
-                       ys_pad: paddle.Tensor,
+    def _calc_att_loss(self, encoder_out: paddle.Tensor,
+                       encoder_mask: paddle.Tensor, ys_pad: paddle.Tensor,
                        ys_pad_lens: paddle.Tensor,
                        reverse_weight: float) -> Tuple[paddle.Tensor, float]:
         """Calc attention loss.
@@ -180,9 +178,10 @@ class U2BaseModel(ASRInterface, nn.Layer):
         r_ys_in_pad, r_ys_out_pad = add_sos_eos(r_ys_pad, self.sos, self.eos,
                                                 self.ignore_id)
         # 1. Forward decoder
-        decoder_out, r_decoder_out, _ = self.decoder(
-            encoder_out, encoder_mask, ys_in_pad, ys_in_lens, r_ys_in_pad,
-            reverse_weight)
+        decoder_out, r_decoder_out, _ = self.decoder(encoder_out, encoder_mask,
+                                                     ys_in_pad, ys_in_lens,
+                                                     r_ys_in_pad,
+                                                     reverse_weight)
 
         # 2. Compute attention loss
         loss_att = self.criterion_att(decoder_out, ys_out_pad)
@@ -193,16 +192,17 @@ class U2BaseModel(ASRInterface, nn.Layer):
         acc_att = th_accuracy(
             decoder_out.view(-1, self.vocab_size),
             ys_out_pad,
-            ignore_label=self.ignore_id, )
+            ignore_label=self.ignore_id,
+        )
         return loss_att, acc_att
 
     def _forward_encoder(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False,
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Encoder pass.
 
@@ -236,13 +236,14 @@ class U2BaseModel(ASRInterface, nn.Layer):
         return encoder_out, encoder_mask
 
     def recognize(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            beam_size: int=10,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False, ) -> paddle.Tensor:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        beam_size: int = 10,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
+    ) -> paddle.Tensor:
         """ Apply beam search on attention decoder
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -278,11 +279,11 @@ class U2BaseModel(ASRInterface, nn.Layer):
             1, beam_size, 1, 1).view(running_size, 1,
                                      maxlen)  # (B*N, 1, max_len)
 
-        hyps = paddle.ones(
-            [running_size, 1], dtype=paddle.long).fill_(self.sos)  # (B*N, 1)
+        hyps = paddle.ones([running_size, 1],
+                           dtype=paddle.long).fill_(self.sos)  # (B*N, 1)
         # log scale score
-        scores = paddle.to_tensor(
-            [0.0] + [-float('inf')] * (beam_size - 1), dtype=paddle.float)
+        scores = paddle.to_tensor([0.0] + [-float('inf')] * (beam_size - 1),
+                                  dtype=paddle.float)
         scores = scores.to(device).repeat(batch_size).unsqueeze(1).to(
             device)  # (B*N, 1)
         end_flag = paddle.zeros_like(scores, dtype=paddle.bool)  # (B*N, 1)
@@ -297,8 +298,9 @@ class U2BaseModel(ASRInterface, nn.Layer):
             hyps_mask = subsequent_mask(i).unsqueeze(0).repeat(
                 running_size, 1, 1).to(device)  # (B*N, i, i)
             # logp: (B*N, vocab)
-            logp, cache = self.decoder.forward_one_step(
-                encoder_out, encoder_mask, hyps, hyps_mask, cache)
+            logp, cache = self.decoder.forward_one_step(encoder_out,
+                                                        encoder_mask, hyps,
+                                                        hyps_mask, cache)
             # 2.2 First beam prune: select topk best prob at current time
             top_k_logp, top_k_index = logp.topk(beam_size)  # (B*N, N)
             top_k_logp = mask_finished_scores(top_k_logp, end_flag)
@@ -320,14 +322,15 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 -1)  # (B*N)
 
             # 2.5 Update best hyps
-            best_k_pred = paddle.index_select(
-                top_k_index.view(-1), index=best_k_index, axis=0)  # (B*N)
+            best_k_pred = paddle.index_select(top_k_index.view(-1),
+                                              index=best_k_index,
+                                              axis=0)  # (B*N)
             best_hyps_index = best_k_index // beam_size
-            last_best_k_hyps = paddle.index_select(
-                hyps, index=best_hyps_index, axis=0)  # (B*N, i)
-            hyps = paddle.cat(
-                (last_best_k_hyps, best_k_pred.view(-1, 1)),
-                dim=1)  # (B*N, i+1)
+            last_best_k_hyps = paddle.index_select(hyps,
+                                                   index=best_hyps_index,
+                                                   axis=0)  # (B*N, i)
+            hyps = paddle.cat((last_best_k_hyps, best_k_pred.view(-1, 1)),
+                              dim=1)  # (B*N, i+1)
 
             # 2.6 Update end flag
             end_flag = paddle.equal(hyps[:, -1], self.eos).view(-1, 1)
@@ -343,12 +346,13 @@ class U2BaseModel(ASRInterface, nn.Layer):
         return best_hyps
 
     def ctc_greedy_search(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False, ) -> List[List[int]]:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
+    ) -> List[List[int]]:
         """ Apply CTC greedy search
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -389,14 +393,15 @@ class U2BaseModel(ASRInterface, nn.Layer):
         return hyps
 
     def _ctc_prefix_beam_search(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            beam_size: int,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False,
-            blank_id: int=0, ) -> Tuple[List[Tuple[int, float]], paddle.Tensor]:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        beam_size: int,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
+        blank_id: int = 0,
+    ) -> Tuple[List[Tuple[int, float]], paddle.Tensor]:
         """ CTC prefix beam search inner implementation
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -466,23 +471,23 @@ class U2BaseModel(ASRInterface, nn.Layer):
                         next_hyps[n_prefix] = (n_pb, n_pnb)
 
             # 2.2 Second beam prune
-            next_hyps = sorted(
-                next_hyps.items(),
-                key=lambda x: log_add(list(x[1])),
-                reverse=True)
+            next_hyps = sorted(next_hyps.items(),
+                               key=lambda x: log_add(list(x[1])),
+                               reverse=True)
             cur_hyps = next_hyps[:beam_size]
 
         hyps = [(y[0], log_add([y[1][0], y[1][1]])) for y in cur_hyps]
         return hyps, encoder_out
 
     def ctc_prefix_beam_search(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            beam_size: int,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False, ) -> List[int]:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        beam_size: int,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
+    ) -> List[int]:
         """ Apply CTC prefix beam search
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -498,20 +503,21 @@ class U2BaseModel(ASRInterface, nn.Layer):
         Returns:
             List[int]: CTC prefix beam search nbest results
         """
-        hyps, _ = self._ctc_prefix_beam_search(
-            speech, speech_lengths, beam_size, decoding_chunk_size,
-            num_decoding_left_chunks, simulate_streaming)
+        hyps, _ = self._ctc_prefix_beam_search(speech, speech_lengths,
+                                               beam_size, decoding_chunk_size,
+                                               num_decoding_left_chunks,
+                                               simulate_streaming)
         return hyps[0][0]
 
     def attention_rescoring(self,
                             speech: paddle.Tensor,
                             speech_lengths: paddle.Tensor,
                             beam_size: int,
-                            decoding_chunk_size: int=-1,
-                            num_decoding_left_chunks: int=-1,
-                            ctc_weight: float=0.0,
-                            simulate_streaming: bool=False,
-                            reverse_weight: float=0.0) -> List[int]:
+                            decoding_chunk_size: int = -1,
+                            num_decoding_left_chunks: int = -1,
+                            ctc_weight: float = 0.0,
+                            simulate_streaming: bool = False,
+                            reverse_weight: float = 0.0) -> List[int]:
         """ Apply attention rescoring decoding, CTC prefix beam search
             is applied first to get nbest, then we resoring the nbest on
             attention decoder with corresponding encoder out
@@ -552,13 +558,14 @@ class U2BaseModel(ASRInterface, nn.Layer):
             # Prevent the hyp is empty
             if len(hyp_content) == 0:
                 hyp_content = (self.ctc.blank_id, )
-            hyp_content = paddle.to_tensor(
-                hyp_content, place=device, dtype=paddle.long)
+            hyp_content = paddle.to_tensor(hyp_content,
+                                           place=device,
+                                           dtype=paddle.long)
             hyp_list.append(hyp_content)
         hyps_pad = pad_sequence(hyp_list, True, self.ignore_id)
-        hyps_lens = paddle.to_tensor(
-            [len(hyp[0]) for hyp in hyps], place=device,
-            dtype=paddle.long)  # (beam_size,)
+        hyps_lens = paddle.to_tensor([len(hyp[0]) for hyp in hyps],
+                                     place=device,
+                                     dtype=paddle.long)  # (beam_size,)
         hyps_pad, _ = add_sos_eos(hyps_pad, self.sos, self.eos, self.ignore_id)
         hyps_lens = hyps_lens + 1  # Add <sos> at begining
         logger.debug(
@@ -647,12 +654,12 @@ class U2BaseModel(ASRInterface, nn.Layer):
 
     # @jit.to_static
     def forward_encoder_chunk(
-            self,
-            xs: paddle.Tensor,
-            offset: int,
-            required_cache_size: int,
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+        self,
+        xs: paddle.Tensor,
+        offset: int,
+        required_cache_size: int,
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -704,7 +711,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
                                   hyps: paddle.Tensor,
                                   hyps_lens: paddle.Tensor,
                                   encoder_out: paddle.Tensor,
-                                  reverse_weight: float=0.0) -> paddle.Tensor:
+                                  reverse_weight: float = 0.0) -> paddle.Tensor:
         """ Export interface for c++ call, forward decoder with multiple
             hypothesis from ctc prefix beam search and one encoder output
         Args:
@@ -720,8 +727,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
         assert hyps_lens.shape[0] == num_hyps
         encoder_out = encoder_out.repeat(num_hyps, 1, 1)
         # (B, 1, T)
-        encoder_mask = paddle.ones(
-            [num_hyps, 1, encoder_out.shape[1]], dtype=paddle.bool)
+        encoder_mask = paddle.ones([num_hyps, 1, encoder_out.shape[1]],
+                                   dtype=paddle.bool)
 
         # input for right to left decoder
         # this hyps_lens has count <sos> token, we need minus it.
@@ -733,8 +740,9 @@ class U2BaseModel(ASRInterface, nn.Layer):
 
         r_hyps = st_reverse_pad_list(r_hyps, r_hyps_lens, self.sos, self.eos)
 
-        decoder_out, r_decoder_out, _ = self.decoder(
-            encoder_out, encoder_mask, hyps, hyps_lens, r_hyps, reverse_weight)
+        decoder_out, r_decoder_out, _ = self.decoder(encoder_out, encoder_mask,
+                                                     hyps, hyps_lens, r_hyps,
+                                                     reverse_weight)
         decoder_out = paddle.nn.functional.log_softmax(decoder_out, axis=-1)
         r_decoder_out = paddle.nn.functional.log_softmax(r_decoder_out, axis=-1)
         return decoder_out, r_decoder_out
@@ -746,11 +754,11 @@ class U2BaseModel(ASRInterface, nn.Layer):
                text_feature: Dict[str, int],
                decoding_method: str,
                beam_size: int,
-               ctc_weight: float=0.0,
-               decoding_chunk_size: int=-1,
-               num_decoding_left_chunks: int=-1,
-               simulate_streaming: bool=False,
-               reverse_weight: float=0.0):
+               ctc_weight: float = 0.0,
+               decoding_chunk_size: int = -1,
+               num_decoding_left_chunks: int = -1,
+               simulate_streaming: bool = False,
+               reverse_weight: float = 0.0):
         """u2 decoding.
 
         Args:
@@ -778,8 +786,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
             List[List[int]]: transcripts.
         """
         batch_size = feats.shape[0]
-        if decoding_method in ['ctc_prefix_beam_search',
-                               'attention_rescoring'] and batch_size > 1:
+        if decoding_method in ['ctc_prefix_beam_search', 'attention_rescoring'
+                               ] and batch_size > 1:
             logger.error(
                 f'decoding mode {decoding_method} must be running with batch_size == 1'
             )
@@ -837,8 +845,8 @@ class U2BaseModel(ASRInterface, nn.Layer):
 class U2DecodeModel(U2BaseModel):
     def scorers(self):
         """Scorers."""
-        return dict(
-            decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
+        return dict(decoder=self.decoder,
+                    ctc=CTCPrefixScorer(self.ctc, self.eos))
 
     def encode(self, x):
         """Encode acoustic features.
@@ -861,12 +869,11 @@ class U2Model(U2DecodeModel):
         with DefaultInitializerContext(init_type):
             vocab_size, encoder, decoder, ctc = U2Model._init_from_config(
                 configs)
-        super().__init__(
-            vocab_size=vocab_size,
-            encoder=encoder,
-            decoder=decoder,
-            ctc=ctc,
-            **model_conf)
+        super().__init__(vocab_size=vocab_size,
+                         encoder=encoder,
+                         decoder=decoder,
+                         ctc=ctc,
+                         **model_conf)
 
     @classmethod
     def _init_from_config(cls, configs: dict):
@@ -885,9 +892,8 @@ class U2Model(U2DecodeModel):
         if 'cmvn_file' in configs and configs['cmvn_file']:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
-            global_cmvn = GlobalCMVN(
-                paddle.to_tensor(mean, dtype=paddle.float),
-                paddle.to_tensor(istd, dtype=paddle.float))
+            global_cmvn = GlobalCMVN(paddle.to_tensor(mean, dtype=paddle.float),
+                                     paddle.to_tensor(istd, dtype=paddle.float))
         else:
             global_cmvn = None
 
@@ -901,14 +907,17 @@ class U2Model(U2DecodeModel):
         encoder_type = configs.get('encoder', 'transformer')
         logger.debug(f"U2 Encoder type: {encoder_type}")
         if encoder_type == 'transformer':
-            encoder = TransformerEncoder(
-                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+            encoder = TransformerEncoder(input_dim,
+                                         global_cmvn=global_cmvn,
+                                         **configs['encoder_conf'])
         elif encoder_type == 'conformer':
-            encoder = ConformerEncoder(
-                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+            encoder = ConformerEncoder(input_dim,
+                                       global_cmvn=global_cmvn,
+                                       **configs['encoder_conf'])
         elif encoder_type == 'squeezeformer':
-            encoder = SqueezeformerEncoder(
-                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+            encoder = SqueezeformerEncoder(input_dim,
+                                           global_cmvn=global_cmvn,
+                                           **configs['encoder_conf'])
         else:
             raise ValueError(f"not support encoder type:{encoder_type}")
 
@@ -916,14 +925,12 @@ class U2Model(U2DecodeModel):
         decoder_type = configs.get('decoder', 'transformer')
         logger.debug(f"U2 Decoder type: {decoder_type}")
         if decoder_type == 'transformer':
-            decoder = TransformerDecoder(vocab_size,
-                                         encoder.output_size(),
+            decoder = TransformerDecoder(vocab_size, encoder.output_size(),
                                          **configs['decoder_conf'])
         elif decoder_type == 'bitransformer':
             assert 0.0 < configs['model_conf']['reverse_weight'] < 1.0
             assert configs['decoder_conf']['r_num_blocks'] > 0
-            decoder = BiTransformerDecoder(vocab_size,
-                                           encoder.output_size(),
+            decoder = BiTransformerDecoder(vocab_size, encoder.output_size(),
                                            **configs['decoder_conf'])
         else:
             raise ValueError(f"not support decoder type:{decoder_type}")

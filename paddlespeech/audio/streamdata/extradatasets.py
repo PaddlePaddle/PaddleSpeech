@@ -19,7 +19,6 @@ class MockDataset(IterableDataset):
 
     A mock dataset for performance testing and unit testing.
     """
-
     def __init__(self, sample, length):
         """Create a mock dataset instance.
 
@@ -37,7 +36,6 @@ class MockDataset(IterableDataset):
 
 class repeatedly(IterableDataset, PipelineStage):
     """Repeatedly yield samples from a dataset."""
-
     def __init__(self, source, nepochs=None, nbatches=None, length=None):
         """Create an instance of Repeatedly.
 
@@ -53,7 +51,8 @@ class repeatedly(IterableDataset, PipelineStage):
         return utils.repeatedly(
             source,
             nepochs=self.nepochs,
-            nbatches=self.nbatches, )
+            nbatches=self.nbatches,
+        )
 
 
 class with_epoch(IterableDataset):
@@ -66,7 +65,6 @@ class with_epoch(IterableDataset):
     very large datasets.
 
     """
-
     def __init__(self, dataset, length):
         """Chop the dataset to the given length.
 
@@ -110,7 +108,6 @@ class with_epoch(IterableDataset):
 
 class with_length(IterableDataset, PipelineStage):
     """Repeatedly yield samples from a dataset."""
-
     def __init__(self, dataset, length):
         """Create an instance of Repeatedly.
 

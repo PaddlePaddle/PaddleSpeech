@@ -49,15 +49,18 @@ def text_client(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--text',
-        type=str,
-        default="今天的天气真不错啊你下午有空吗我想约你一起去吃饭",
-        help='A sentence to be synthesized')
-    parser.add_argument(
-        '--output', type=str, default="./punc_text", help='Punc text file')
-    parser.add_argument(
-        "--server", type=str, help="server ip", default="127.0.0.1")
+    parser.add_argument('--text',
+                        type=str,
+                        default="今天的天气真不错啊你下午有空吗我想约你一起去吃饭",
+                        help='A sentence to be synthesized')
+    parser.add_argument('--output',
+                        type=str,
+                        default="./punc_text",
+                        help='Punc text file')
+    parser.add_argument("--server",
+                        type=str,
+                        help="server ip",
+                        default="127.0.0.1")
     parser.add_argument("--port", type=int, help="server port", default=8090)
     args = parser.parse_args()
 

@@ -10,9 +10,9 @@ from .syn_utils import run_frontend
 
 
 # Paddle-Lite
-def get_lite_predictor(model_dir: Optional[os.PathLike]=None,
-                       model_file: Optional[os.PathLike]=None,
-                       cpu_threads: int=1):
+def get_lite_predictor(model_dir: Optional[os.PathLike] = None,
+                       model_file: Optional[os.PathLike] = None,
+                       cpu_threads: int = 1):
     config = MobileConfig()
     config.set_model_from_file(str(Path(model_dir) / model_file))
     predictor = create_paddle_predictor(config)
@@ -23,11 +23,11 @@ def get_lite_am_output(input: str,
                        am_predictor,
                        am: str,
                        frontend: object,
-                       lang: str='zh',
-                       merge_sentences: bool=True,
-                       speaker_dict: Optional[os.PathLike]=None,
-                       spk_id: int=0,
-                       add_blank: bool=False):
+                       lang: str = 'zh',
+                       merge_sentences: bool = True,
+                       speaker_dict: Optional[os.PathLike] = None,
+                       spk_id: int = 0,
+                       add_blank: bool = False):
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     get_spk_id = False
@@ -44,7 +44,8 @@ def get_lite_am_output(input: str,
         merge_sentences=merge_sentences,
         get_tone_ids=get_tone_ids,
         lang=lang,
-        add_blank=add_blank, )
+        add_blank=add_blank,
+    )
 
     if get_tone_ids:
         tone_ids = frontend_dict['tone_ids']
@@ -89,23 +90,24 @@ def get_lite_streaming_am_output(input: str,
                                  am_decoder_predictor,
                                  am_postnet_predictor,
                                  frontend,
-                                 lang: str='zh',
-                                 merge_sentences: bool=True):
+                                 lang: str = 'zh',
+                                 merge_sentences: bool = True):
     get_tone_ids = False
-    frontend_dict = run_frontend(
-        frontend=frontend,
-        text=input,
-        merge_sentences=merge_sentences,
-        get_tone_ids=get_tone_ids,
-        lang=lang)
+    frontend_dict = run_frontend(frontend=frontend,
+                                 text=input,
+                                 merge_sentences=merge_sentences,
+                                 get_tone_ids=get_tone_ids,
+                                 lang=lang)
     phone_ids = frontend_dict['phone_ids']
     phones = phone_ids[0].numpy()
     am_encoder_infer_output = get_lite_am_sublayer_output(
         am_encoder_infer_predictor, input=phones)
     am_decoder_output = get_lite_am_sublayer_output(
         am_decoder_predictor, input=am_encoder_infer_output)
-    am_postnet_output = get_lite_am_sublayer_output(
-        am_postnet_predictor, input=np.transpose(am_decoder_output, (0, 2, 1)))
+    am_postnet_output = get_lite_am_sublayer_output(am_postnet_predictor,
+                                                    input=np.transpose(
+                                                        am_decoder_output,
+                                                        (0, 2, 1)))
     am_output_data = am_decoder_output + np.transpose(am_postnet_output,
                                                       (0, 2, 1))
     normalized_mel = am_output_data[0]

@@ -45,15 +45,15 @@ class LightweightConvolution(nn.Layer):
             Use bias term or not.
 
     """
-
     def __init__(
-            self,
-            wshare,
-            n_feat,
-            dropout_rate,
-            kernel_size,
-            use_kernel_mask=False,
-            use_bias=False, ):
+        self,
+        wshare,
+        n_feat,
+        dropout_rate,
+        kernel_size,
+        use_kernel_mask=False,
+        use_bias=False,
+    ):
         """Construct Lightweight Convolution layer."""
         super().__init__()
 
@@ -71,9 +71,9 @@ class LightweightConvolution(nn.Layer):
 
         # lightconv related
         self.uniform_ = nn.initializer.Uniform()
-        self.weight = paddle.to_tensor(
-            numpy.random.uniform(0, 1, size=[self.wshare, 1, kernel_size]),
-            dtype="float32")
+        self.weight = paddle.to_tensor(numpy.random.uniform(
+            0, 1, size=[self.wshare, 1, kernel_size]),
+                                       dtype="float32")
         self.uniform_(self.weight)
         self.weight = paddle.create_parameter(
             shape=self.weight.shape,
@@ -90,8 +90,8 @@ class LightweightConvolution(nn.Layer):
         # mask of kernel
         kernel_mask0 = paddle.zeros([self.wshare, int(kernel_size / 2)])
         kernel_mask1 = paddle.ones([self.wshare, int(kernel_size / 2 + 1)])
-        self.kernel_mask = paddle.concat(
-            (kernel_mask1, kernel_mask0), axis=-1).unsqueeze(1)
+        self.kernel_mask = paddle.concat((kernel_mask1, kernel_mask0),
+                                         axis=-1).unsqueeze(1)
 
     def forward(self, query, key, value, mask):
         """Forward of 'Lightweight Convolution'.
@@ -127,15 +127,15 @@ class LightweightConvolution(nn.Layer):
         # lightconv
         # B x C x T
         x = x.transpose([0, 2, 1]).reshape([-1, H, T])
-        weight = F.dropout(
-            self.weight, self.dropout_rate, training=self.training)
+        weight = F.dropout(self.weight,
+                           self.dropout_rate,
+                           training=self.training)
         if self.use_kernel_mask:
             weight = masked_fill(weight, self.kernel_mask == 0.0, float("-inf"))
             # weight = weight.masked_fill(self.kernel_mask == 0.0, float("-inf"))
         weight = F.softmax(weight, axis=-1)
-        x = F.conv1d(
-            x, weight, padding=self.padding_size,
-            groups=self.wshare).reshape([B, C, T])
+        x = F.conv1d(x, weight, padding=self.padding_size,
+                     groups=self.wshare).reshape([B, C, T])
         if self.use_bias:
             x = x + self.bias.reshape([1, -1, 1])
         # B x T x C

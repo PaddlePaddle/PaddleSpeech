@@ -44,57 +44,57 @@ class VITSGenerator(nn.Layer):
     .. _`Conditional Variational Autoencoder with Adversarial Learning for End-to-End
         Text-to-Speech`: https://arxiv.org/abs/2006.04558
     """
-
     def __init__(
-            self,
-            vocabs: int,
-            aux_channels: int=513,
-            hidden_channels: int=192,
-            spks: Optional[int]=None,
-            langs: Optional[int]=None,
-            spk_embed_dim: Optional[int]=None,
-            global_channels: int=-1,
-            segment_size: int=32,
-            text_encoder_attention_heads: int=2,
-            text_encoder_ffn_expand: int=4,
-            text_encoder_blocks: int=6,
-            text_encoder_positionwise_layer_type: str="conv1d",
-            text_encoder_positionwise_conv_kernel_size: int=1,
-            text_encoder_positional_encoding_layer_type: str="rel_pos",
-            text_encoder_self_attention_layer_type: str="rel_selfattn",
-            text_encoder_activation_type: str="swish",
-            text_encoder_normalize_before: bool=True,
-            text_encoder_dropout_rate: float=0.1,
-            text_encoder_positional_dropout_rate: float=0.0,
-            text_encoder_attention_dropout_rate: float=0.0,
-            text_encoder_conformer_kernel_size: int=7,
-            use_macaron_style_in_text_encoder: bool=True,
-            use_conformer_conv_in_text_encoder: bool=True,
-            decoder_kernel_size: int=7,
-            decoder_channels: int=512,
-            decoder_upsample_scales: List[int]=[8, 8, 2, 2],
-            decoder_upsample_kernel_sizes: List[int]=[16, 16, 4, 4],
-            decoder_resblock_kernel_sizes: List[int]=[3, 7, 11],
-            decoder_resblock_dilations: List[List[int]]=[[1, 3, 5], [1, 3, 5],
-                                                         [1, 3, 5]],
-            use_weight_norm_in_decoder: bool=True,
-            posterior_encoder_kernel_size: int=5,
-            posterior_encoder_layers: int=16,
-            posterior_encoder_stacks: int=1,
-            posterior_encoder_base_dilation: int=1,
-            posterior_encoder_dropout_rate: float=0.0,
-            use_weight_norm_in_posterior_encoder: bool=True,
-            flow_flows: int=4,
-            flow_kernel_size: int=5,
-            flow_base_dilation: int=1,
-            flow_layers: int=4,
-            flow_dropout_rate: float=0.0,
-            use_weight_norm_in_flow: bool=True,
-            use_only_mean_in_flow: bool=True,
-            stochastic_duration_predictor_kernel_size: int=3,
-            stochastic_duration_predictor_dropout_rate: float=0.5,
-            stochastic_duration_predictor_flows: int=4,
-            stochastic_duration_predictor_dds_conv_layers: int=3, ):
+        self,
+        vocabs: int,
+        aux_channels: int = 513,
+        hidden_channels: int = 192,
+        spks: Optional[int] = None,
+        langs: Optional[int] = None,
+        spk_embed_dim: Optional[int] = None,
+        global_channels: int = -1,
+        segment_size: int = 32,
+        text_encoder_attention_heads: int = 2,
+        text_encoder_ffn_expand: int = 4,
+        text_encoder_blocks: int = 6,
+        text_encoder_positionwise_layer_type: str = "conv1d",
+        text_encoder_positionwise_conv_kernel_size: int = 1,
+        text_encoder_positional_encoding_layer_type: str = "rel_pos",
+        text_encoder_self_attention_layer_type: str = "rel_selfattn",
+        text_encoder_activation_type: str = "swish",
+        text_encoder_normalize_before: bool = True,
+        text_encoder_dropout_rate: float = 0.1,
+        text_encoder_positional_dropout_rate: float = 0.0,
+        text_encoder_attention_dropout_rate: float = 0.0,
+        text_encoder_conformer_kernel_size: int = 7,
+        use_macaron_style_in_text_encoder: bool = True,
+        use_conformer_conv_in_text_encoder: bool = True,
+        decoder_kernel_size: int = 7,
+        decoder_channels: int = 512,
+        decoder_upsample_scales: List[int] = [8, 8, 2, 2],
+        decoder_upsample_kernel_sizes: List[int] = [16, 16, 4, 4],
+        decoder_resblock_kernel_sizes: List[int] = [3, 7, 11],
+        decoder_resblock_dilations: List[List[int]] = [[1, 3, 5], [1, 3, 5],
+                                                       [1, 3, 5]],
+        use_weight_norm_in_decoder: bool = True,
+        posterior_encoder_kernel_size: int = 5,
+        posterior_encoder_layers: int = 16,
+        posterior_encoder_stacks: int = 1,
+        posterior_encoder_base_dilation: int = 1,
+        posterior_encoder_dropout_rate: float = 0.0,
+        use_weight_norm_in_posterior_encoder: bool = True,
+        flow_flows: int = 4,
+        flow_kernel_size: int = 5,
+        flow_base_dilation: int = 1,
+        flow_layers: int = 4,
+        flow_dropout_rate: float = 0.0,
+        use_weight_norm_in_flow: bool = True,
+        use_only_mean_in_flow: bool = True,
+        stochastic_duration_predictor_kernel_size: int = 3,
+        stochastic_duration_predictor_dropout_rate: float = 0.5,
+        stochastic_duration_predictor_flows: int = 4,
+        stochastic_duration_predictor_dds_conv_layers: int = 3,
+    ):
         """Initialize VITS generator module.
         Args:
             vocabs (int):
@@ -205,8 +205,10 @@ class VITSGenerator(nn.Layer):
             linear_units=hidden_channels * text_encoder_ffn_expand,
             blocks=text_encoder_blocks,
             positionwise_layer_type=text_encoder_positionwise_layer_type,
-            positionwise_conv_kernel_size=text_encoder_positionwise_conv_kernel_size,
-            positional_encoding_layer_type=text_encoder_positional_encoding_layer_type,
+            positionwise_conv_kernel_size=
+            text_encoder_positionwise_conv_kernel_size,
+            positional_encoding_layer_type=
+            text_encoder_positional_encoding_layer_type,
             self_attention_layer_type=text_encoder_self_attention_layer_type,
             activation_type=text_encoder_activation_type,
             normalize_before=text_encoder_normalize_before,
@@ -215,7 +217,8 @@ class VITSGenerator(nn.Layer):
             attention_dropout_rate=text_encoder_attention_dropout_rate,
             conformer_kernel_size=text_encoder_conformer_kernel_size,
             use_macaron_style=use_macaron_style_in_text_encoder,
-            use_conformer_conv=use_conformer_conv_in_text_encoder, )
+            use_conformer_conv=use_conformer_conv_in_text_encoder,
+        )
         self.decoder = HiFiGANGenerator(
             in_channels=hidden_channels,
             out_channels=1,
@@ -226,7 +229,8 @@ class VITSGenerator(nn.Layer):
             upsample_kernel_sizes=decoder_upsample_kernel_sizes,
             resblock_kernel_sizes=decoder_resblock_kernel_sizes,
             resblock_dilations=decoder_resblock_dilations,
-            use_weight_norm=use_weight_norm_in_decoder, )
+            use_weight_norm=use_weight_norm_in_decoder,
+        )
         self.posterior_encoder = PosteriorEncoder(
             in_channels=aux_channels,
             out_channels=hidden_channels,
@@ -237,7 +241,8 @@ class VITSGenerator(nn.Layer):
             base_dilation=posterior_encoder_base_dilation,
             global_channels=global_channels,
             dropout_rate=posterior_encoder_dropout_rate,
-            use_weight_norm=use_weight_norm_in_posterior_encoder, )
+            use_weight_norm=use_weight_norm_in_posterior_encoder,
+        )
         self.flow = ResidualAffineCouplingBlock(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
@@ -248,7 +253,8 @@ class VITSGenerator(nn.Layer):
             global_channels=global_channels,
             dropout_rate=flow_dropout_rate,
             use_weight_norm=use_weight_norm_in_flow,
-            use_only_mean=use_only_mean_in_flow, )
+            use_only_mean=use_only_mean_in_flow,
+        )
         # TODO: Add deterministic version as an option
         self.duration_predictor = StochasticDurationPredictor(
             channels=hidden_channels,
@@ -256,7 +262,8 @@ class VITSGenerator(nn.Layer):
             dropout_rate=stochastic_duration_predictor_dropout_rate,
             flows=stochastic_duration_predictor_flows,
             dds_conv_layers=stochastic_duration_predictor_dds_conv_layers,
-            global_channels=global_channels, )
+            global_channels=global_channels,
+        )
 
         self.upsample_factor = int(np.prod(decoder_upsample_scales))
         self.spks = None
@@ -282,21 +289,22 @@ class VITSGenerator(nn.Layer):
         self.pad1d = nn.Pad1D(
             padding=[1, 0],
             mode='constant',
-            data_format='NLC', )
+            data_format='NLC',
+        )
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            feats: paddle.Tensor,
-            feats_lengths: paddle.Tensor,
-            sids: Optional[paddle.Tensor]=None,
-            spembs: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None,
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        feats: paddle.Tensor,
+        feats_lengths: paddle.Tensor,
+        sids: Optional[paddle.Tensor] = None,
+        spembs: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor,
-               paddle.Tensor, paddle.Tensor,
-               Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor,
-                     paddle.Tensor, paddle.Tensor, ], ]:
+               paddle.Tensor, paddle.Tensor, Tuple[
+                   paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor,
+                   paddle.Tensor, paddle.Tensor, ], ]:
         """Calculate forward propagation.
         Args:
             text (Tensor):
@@ -358,8 +366,9 @@ class VITSGenerator(nn.Layer):
                 g = g + g_
 
         # forward posterior encoder
-        z, m_q, logs_q, y_mask = self.posterior_encoder(
-            feats, feats_lengths, g=g)
+        z, m_q, logs_q, y_mask = self.posterior_encoder(feats,
+                                                        feats_lengths,
+                                                        g=g)
 
         # forward flow
         # (B, H, T_feats)
@@ -375,30 +384,35 @@ class VITSGenerator(nn.Layer):
             neg_x_ent_1 = paddle.sum(
                 tmp1,
                 [1],
-                keepdim=True, )
+                keepdim=True,
+            )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
             neg_x_ent_2 = paddle.matmul(
                 -0.5 * (z_p**2).transpose([0, 2, 1]),
-                s_p_sq_r, )
+                s_p_sq_r,
+            )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
             neg_x_ent_3 = paddle.matmul(
                 z_p.transpose([0, 2, 1]),
-                (m_p * s_p_sq_r), )
+                (m_p * s_p_sq_r),
+            )
             # (B, 1, T_text)
             tmp2 = -0.5 * (m_p**2) * s_p_sq_r
             neg_x_ent_4 = paddle.sum(
                 tmp2,
                 [1],
-                keepdim=True, )
+                keepdim=True,
+            )
             # (B, T_feats, T_text)
             neg_x_ent = neg_x_ent_1 + neg_x_ent_2 + neg_x_ent_3 + neg_x_ent_4
             # (B, 1, T_feats, T_text)
-            attn_mask = paddle.unsqueeze(x_mask, 2) * paddle.unsqueeze(y_mask,
-                                                                       -1)
+            attn_mask = paddle.unsqueeze(x_mask, 2) * paddle.unsqueeze(
+                y_mask, -1)
             # monotonic attention weight: (B, 1, T_feats, T_text)
             attn = (self.maximum_path(
                 neg_x_ent,
-                attn_mask.squeeze(1), ).unsqueeze(1).detach())
+                attn_mask.squeeze(1),
+            ).unsqueeze(1).detach())
 
         # forward duration predictor
         # (B, 1, T_text)
@@ -417,29 +431,37 @@ class VITSGenerator(nn.Layer):
         z_segments, z_start_idxs = get_random_segments(
             z,
             feats_lengths,
-            self.segment_size, )
+            self.segment_size,
+        )
 
         # forward decoder with random segments
         wav = self.decoder(z_segments, g=g)
 
-        return (wav, dur_nll, attn, z_start_idxs, x_mask, y_mask,
-                (z, z_p, m_p, logs_p, m_q, logs_q), )
+        return (
+            wav,
+            dur_nll,
+            attn,
+            z_start_idxs,
+            x_mask,
+            y_mask,
+            (z, z_p, m_p, logs_p, m_q, logs_q),
+        )
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            feats: Optional[paddle.Tensor]=None,
-            feats_lengths: Optional[paddle.Tensor]=None,
-            sids: Optional[paddle.Tensor]=None,
-            spembs: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None,
-            dur: Optional[paddle.Tensor]=None,
-            noise_scale: float=0.667,
-            noise_scale_dur: float=0.8,
-            alpha: float=1.0,
-            max_len: Optional[int]=None,
-            use_teacher_forcing: bool=False,
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        feats: Optional[paddle.Tensor] = None,
+        feats_lengths: Optional[paddle.Tensor] = None,
+        sids: Optional[paddle.Tensor] = None,
+        spembs: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+        dur: Optional[paddle.Tensor] = None,
+        noise_scale: float = 0.667,
+        noise_scale_dur: float = 0.8,
+        alpha: float = 1.0,
+        max_len: Optional[int] = None,
+        use_teacher_forcing: bool = False,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Run inference.
         Args:
@@ -501,8 +523,9 @@ class VITSGenerator(nn.Layer):
 
         if use_teacher_forcing:
             # forward posterior encoder
-            z, m_q, logs_q, y_mask = self.posterior_encoder(
-                feats, feats_lengths, g=g)
+            z, m_q, logs_q, y_mask = self.posterior_encoder(feats,
+                                                            feats_lengths,
+                                                            g=g)
 
             # forward flow
             # (B, H, T_feats)
@@ -516,30 +539,35 @@ class VITSGenerator(nn.Layer):
             neg_x_ent_1 = paddle.sum(
                 tmp3,
                 [1],
-                keepdim=True, )
+                keepdim=True,
+            )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
             neg_x_ent_2 = paddle.matmul(
                 -0.5 * (z_p**2).transpose([0, 2, 1]),
-                s_p_sq_r, )
+                s_p_sq_r,
+            )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
             neg_x_ent_3 = paddle.matmul(
                 z_p.transpose([0, 2, 1]),
-                (m_p * s_p_sq_r), )
+                (m_p * s_p_sq_r),
+            )
             # (B, 1, T_text)
             tmp4 = -0.5 * (m_p**2) * s_p_sq_r
             neg_x_ent_4 = paddle.sum(
                 tmp4,
                 [1],
-                keepdim=True, )
+                keepdim=True,
+            )
             # (B, T_feats, T_text)
             neg_x_ent = neg_x_ent_1 + neg_x_ent_2 + neg_x_ent_3 + neg_x_ent_4
             # (B, 1, T_feats, T_text)
-            attn_mask = paddle.unsqueeze(x_mask, 2) * paddle.unsqueeze(y_mask,
-                                                                       -1)
+            attn_mask = paddle.unsqueeze(x_mask, 2) * paddle.unsqueeze(
+                y_mask, -1)
             # monotonic attention weight: (B, 1, T_feats, T_text)
             attn = self.maximum_path(
                 neg_x_ent,
-                attn_mask.squeeze(1), ).unsqueeze(1)
+                attn_mask.squeeze(1),
+            ).unsqueeze(1)
             # (B, 1, T_text)
             dur = attn.sum(2)
 
@@ -553,11 +581,12 @@ class VITSGenerator(nn.Layer):
                     x_mask,
                     g=g,
                     inverse=True,
-                    noise_scale=noise_scale_dur, )
+                    noise_scale=noise_scale_dur,
+                )
                 w = paddle.exp(logw) * x_mask * alpha
                 dur = paddle.ceil(w)
-            y_lengths = paddle.cast(
-                paddle.clip(paddle.sum(dur, [1, 2]), min=1), dtype='int64')
+            y_lengths = paddle.cast(paddle.clip(paddle.sum(dur, [1, 2]), min=1),
+                                    dtype='int64')
             y_mask = make_non_pad_mask(y_lengths).unsqueeze(1)
             tmp_a = paddle.cast(paddle.unsqueeze(x_mask, 2), dtype='int64')
             tmp_b = paddle.cast(paddle.unsqueeze(y_mask, -1), dtype='int64')
@@ -568,11 +597,13 @@ class VITSGenerator(nn.Layer):
             # (B, T_feats, T_text) x (B, T_text, H) -> (B, H, T_feats)
             m_p = paddle.matmul(
                 attn.squeeze(1),
-                m_p.transpose([0, 2, 1]), ).transpose([0, 2, 1])
+                m_p.transpose([0, 2, 1]),
+            ).transpose([0, 2, 1])
             # (B, T_feats, T_text) x (B, T_text, H) -> (B, H, T_feats)
             logs_p = paddle.matmul(
                 attn.squeeze(1),
-                logs_p.transpose([0, 2, 1]), ).transpose([0, 2, 1])
+                logs_p.transpose([0, 2, 1]),
+            ).transpose([0, 2, 1])
 
             # decoder
             z_p = m_p + paddle.randn(
@@ -583,14 +614,15 @@ class VITSGenerator(nn.Layer):
         return wav.squeeze(1), attn.squeeze(1), dur.squeeze(1)
 
     def voice_conversion(
-            self,
-            feats: paddle.Tensor=None,
-            feats_lengths: paddle.Tensor=None,
-            sids_src: Optional[paddle.Tensor]=None,
-            sids_tgt: Optional[paddle.Tensor]=None,
-            spembs_src: Optional[paddle.Tensor]=None,
-            spembs_tgt: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None, ) -> paddle.Tensor:
+        self,
+        feats: paddle.Tensor = None,
+        feats_lengths: paddle.Tensor = None,
+        sids_src: Optional[paddle.Tensor] = None,
+        sids_tgt: Optional[paddle.Tensor] = None,
+        spembs_src: Optional[paddle.Tensor] = None,
+        spembs_tgt: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+    ) -> paddle.Tensor:
         """Run voice conversion.
         Args:
             feats (Tensor):
@@ -616,23 +648,23 @@ class VITSGenerator(nn.Layer):
         g_tgt = None
         if self.spks is not None:
             # (B, global_channels, 1)
-            g_src = self.global_emb(
-                paddle.reshape(sids_src, [-1])).unsqueeze(-1)
-            g_tgt = self.global_emb(
-                paddle.reshape(sids_tgt, [-1])).unsqueeze(-1)
+            g_src = self.global_emb(paddle.reshape(sids_src,
+                                                   [-1])).unsqueeze(-1)
+            g_tgt = self.global_emb(paddle.reshape(sids_tgt,
+                                                   [-1])).unsqueeze(-1)
 
         if self.spk_embed_dim is not None:
             # (B, global_channels, 1)
-            g_src_ = self.spemb_proj(
-                F.normalize(spembs_src.unsqueeze(0))).unsqueeze(-1)
+            g_src_ = self.spemb_proj(F.normalize(
+                spembs_src.unsqueeze(0))).unsqueeze(-1)
             if g_src is None:
                 g_src = g_src_
             else:
                 g_src = g_src + g_src_
 
             # (B, global_channels, 1)
-            g_tgt_ = self.spemb_proj(
-                F.normalize(spembs_tgt.unsqueeze(0))).unsqueeze(-1)
+            g_tgt_ = self.spemb_proj(F.normalize(
+                spembs_tgt.unsqueeze(0))).unsqueeze(-1)
             if g_tgt is None:
                 g_tgt = g_tgt_
             else:
@@ -653,8 +685,9 @@ class VITSGenerator(nn.Layer):
                 g_tgt = g_tgt + g_
 
         # forward posterior encoder
-        z, m_q, logs_q, y_mask = self.posterior_encoder(
-            feats, feats_lengths, g=g_src)
+        z, m_q, logs_q, y_mask = self.posterior_encoder(feats,
+                                                        feats_lengths,
+                                                        g=g_src)
 
         # forward flow
         # (B, H, T_feats)

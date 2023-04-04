@@ -23,27 +23,27 @@ from paddlespeech.t2s.models.vits.wavenet.residual_block import ResidualBlock
 
 class WaveNet(nn.Layer):
     """WaveNet with global conditioning."""
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            kernel_size: int=3,
-            layers: int=30,
-            stacks: int=3,
-            base_dilation: int=2,
-            residual_channels: int=64,
-            aux_channels: int=-1,
-            gate_channels: int=128,
-            skip_channels: int=64,
-            global_channels: int=-1,
-            dropout_rate: float=0.0,
-            bias: bool=True,
-            use_weight_norm: bool=True,
-            use_first_conv: bool=False,
-            use_last_conv: bool=False,
-            scale_residual: bool=False,
-            scale_skip_connect: bool=False, ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        kernel_size: int = 3,
+        layers: int = 30,
+        stacks: int = 3,
+        base_dilation: int = 2,
+        residual_channels: int = 64,
+        aux_channels: int = -1,
+        gate_channels: int = 128,
+        skip_channels: int = 64,
+        global_channels: int = -1,
+        dropout_rate: float = 0.0,
+        bias: bool = True,
+        use_weight_norm: bool = True,
+        use_first_conv: bool = False,
+        use_last_conv: bool = False,
+        scale_residual: bool = False,
+        scale_skip_connect: bool = False,
+    ):
         """Initialize WaveNet module.
 
         Args:
@@ -100,8 +100,10 @@ class WaveNet(nn.Layer):
 
         # define first convolution
         if self.use_first_conv:
-            self.first_conv = nn.Conv1D(
-                in_channels, residual_channels, kernel_size=1, bias_attr=True)
+            self.first_conv = nn.Conv1D(in_channels,
+                                        residual_channels,
+                                        kernel_size=1,
+                                        bias_attr=True)
 
         # define residual blocks
         self.conv_layers = nn.LayerList()
@@ -117,19 +119,23 @@ class WaveNet(nn.Layer):
                 dilation=dilation,
                 dropout_rate=dropout_rate,
                 bias=bias,
-                scale_residual=scale_residual, )
+                scale_residual=scale_residual,
+            )
             self.conv_layers.append(conv)
 
         # define output layers
         if self.use_last_conv:
             self.last_conv = nn.Sequential(
                 nn.ReLU(),
-                nn.Conv1D(
-                    skip_channels, skip_channels, kernel_size=1,
-                    bias_attr=True),
+                nn.Conv1D(skip_channels,
+                          skip_channels,
+                          kernel_size=1,
+                          bias_attr=True),
                 nn.ReLU(),
-                nn.Conv1D(
-                    skip_channels, out_channels, kernel_size=1, bias_attr=True),
+                nn.Conv1D(skip_channels,
+                          out_channels,
+                          kernel_size=1,
+                          bias_attr=True),
             )
 
         # apply weight norm
@@ -137,11 +143,12 @@ class WaveNet(nn.Layer):
             self.apply_weight_norm()
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_mask: Optional[paddle.Tensor]=None,
-            c: Optional[paddle.Tensor]=None,
-            g: Optional[paddle.Tensor]=None, ) -> paddle.Tensor:
+        self,
+        x: paddle.Tensor,
+        x_mask: Optional[paddle.Tensor] = None,
+        c: Optional[paddle.Tensor] = None,
+        g: Optional[paddle.Tensor] = None,
+    ) -> paddle.Tensor:
         """Calculate forward propagation.
 
         Args:

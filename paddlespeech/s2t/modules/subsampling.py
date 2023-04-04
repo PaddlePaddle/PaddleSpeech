@@ -34,7 +34,7 @@ __all__ = [
 
 
 class BaseSubsampling(nn.Layer):
-    def __init__(self, pos_enc_class: nn.Layer=PositionalEncoding):
+    def __init__(self, pos_enc_class: nn.Layer = PositionalEncoding):
         super().__init__()
         self.pos_enc = pos_enc_class
         # window size = (1 + right_context) + (chunk_size -1) * subsampling_rate
@@ -48,12 +48,11 @@ class BaseSubsampling(nn.Layer):
 
 class LinearNoSubsampling(BaseSubsampling):
     """Linear transform the input without subsampling."""
-
     def __init__(self,
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: nn.Layer=PositionalEncoding):
+                 pos_enc_class: nn.Layer = PositionalEncoding):
         """Construct an linear object.
         Args:
             idim (int): Input dimension.
@@ -66,12 +65,17 @@ class LinearNoSubsampling(BaseSubsampling):
             Linear(idim, odim),
             LayerNorm(odim, epsilon=1e-12),
             nn.Dropout(dropout_rate),
-            nn.ReLU(), )
+            nn.ReLU(),
+        )
         self.right_context = 0
         self.subsampling_rate = 1
 
-    def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
-                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            offset: int = 0
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Input x.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
@@ -96,12 +100,11 @@ class Conv2dSubsampling(BaseSubsampling):
 
 class Conv2dSubsampling4(Conv2dSubsampling):
     """Convolutional 2D subsampling (to 1/4 length)."""
-
     def __init__(self,
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: nn.Layer=PositionalEncoding):
+                 pos_enc_class: nn.Layer = PositionalEncoding):
         """Construct an Conv2dSubsampling4 object.
 
         Args:
@@ -114,7 +117,8 @@ class Conv2dSubsampling4(Conv2dSubsampling):
             Conv2D(1, odim, 3, 2),
             nn.ReLU(),
             Conv2D(odim, odim, 3, 2),
-            nn.ReLU(), )
+            nn.ReLU(),
+        )
         self.out = nn.Sequential(
             Linear(odim * (((idim - 1) // 2 - 1) // 2), odim))
         self.subsampling_rate = 4
@@ -123,8 +127,12 @@ class Conv2dSubsampling4(Conv2dSubsampling):
         # 6 = (3 - 1) * 1 + (3 - 1) * 2
         self.right_context = 6
 
-    def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
-                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            offset: int = 0
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Subsample x.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
@@ -147,12 +155,11 @@ class Conv2dSubsampling4(Conv2dSubsampling):
 
 class Conv2dSubsampling6(Conv2dSubsampling):
     """Convolutional 2D subsampling (to 1/6 length)."""
-
     def __init__(self,
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: nn.Layer=PositionalEncoding):
+                 pos_enc_class: nn.Layer = PositionalEncoding):
         """Construct an Conv2dSubsampling6 object.
 
         Args:
@@ -166,7 +173,8 @@ class Conv2dSubsampling6(Conv2dSubsampling):
             Conv2D(1, odim, 3, 2),
             nn.ReLU(),
             Conv2D(odim, odim, 5, 3),
-            nn.ReLU(), )
+            nn.ReLU(),
+        )
         # O = (I - F + Pstart + Pend) // S + 1
         # when Padding == 0, O = (I - F - S) // S
         self.linear = Linear(odim * (((idim - 1) // 2 - 2) // 3), odim)
@@ -176,8 +184,12 @@ class Conv2dSubsampling6(Conv2dSubsampling):
         self.subsampling_rate = 6
         self.right_context = 10
 
-    def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
-                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            offset: int = 0
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Subsample x.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
@@ -200,12 +212,11 @@ class Conv2dSubsampling6(Conv2dSubsampling):
 
 class Conv2dSubsampling8(Conv2dSubsampling):
     """Convolutional 2D subsampling (to 1/8 length)."""
-
     def __init__(self,
                  idim: int,
                  odim: int,
                  dropout_rate: float,
-                 pos_enc_class: nn.Layer=PositionalEncoding):
+                 pos_enc_class: nn.Layer = PositionalEncoding):
         """Construct an Conv2dSubsampling8 object.
 
         Args:
@@ -220,7 +231,8 @@ class Conv2dSubsampling8(Conv2dSubsampling):
             Conv2D(odim, odim, 3, 2),
             nn.ReLU(),
             Conv2D(odim, odim, 3, 2),
-            nn.ReLU(), )
+            nn.ReLU(),
+        )
         self.linear = Linear(odim * ((((idim - 1) // 2 - 1) // 2 - 1) // 2),
                              odim)
         self.subsampling_rate = 8
@@ -229,8 +241,12 @@ class Conv2dSubsampling8(Conv2dSubsampling):
         # 14 = (3 - 1) * 1 + (3 - 1) * 2 + (3 - 1) * 4
         self.right_context = 14
 
-    def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
-                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            offset: int = 0
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Subsample x.
         Args:
             x (paddle.Tensor): Input tensor (#batch, time, idim).
@@ -262,27 +278,27 @@ class DepthwiseConv2DSubsampling4(BaseSubsampling):
             input_size (int): filter bank dimension.
 
         """
-
     def __init__(self,
                  idim: int,
                  odim: int,
                  pos_enc_class: nn.Layer,
-                 dw_stride: bool=False,
-                 input_size: int=80,
-                 input_dropout_rate: float=0.1,
-                 init_weights: bool=True):
+                 dw_stride: bool = False,
+                 input_size: int = 80,
+                 input_dropout_rate: float = 0.1,
+                 init_weights: bool = True):
         super(DepthwiseConv2DSubsampling4, self).__init__()
         self.idim = idim
         self.odim = odim
-        self.pw_conv = Conv2D(
-            in_channels=idim, out_channels=odim, kernel_size=3, stride=2)
+        self.pw_conv = Conv2D(in_channels=idim,
+                              out_channels=odim,
+                              kernel_size=3,
+                              stride=2)
         self.act1 = nn.ReLU()
-        self.dw_conv = Conv2D(
-            in_channels=odim,
-            out_channels=odim,
-            kernel_size=3,
-            stride=2,
-            groups=odim if dw_stride else 1)
+        self.dw_conv = Conv2D(in_channels=odim,
+                              out_channels=odim,
+                              kernel_size=3,
+                              stride=2,
+                              groups=odim if dw_stride else 1)
         self.act2 = nn.ReLU()
         self.pos_enc = pos_enc_class
         self.input_proj = nn.Sequential(
@@ -290,19 +306,23 @@ class DepthwiseConv2DSubsampling4(BaseSubsampling):
             nn.Dropout(p=input_dropout_rate))
         if init_weights:
             linear_max = (odim * input_size / 4)**-0.5
-            self.input_proj.state_dict()[
-                '0.weight'] = paddle.nn.initializer.Uniform(
-                    low=-linear_max, high=linear_max)
-            self.input_proj.state_dict()[
-                '0.bias'] = paddle.nn.initializer.Uniform(
-                    low=-linear_max, high=linear_max)
+            self.input_proj.state_dict(
+            )['0.weight'] = paddle.nn.initializer.Uniform(low=-linear_max,
+                                                          high=linear_max)
+            self.input_proj.state_dict(
+            )['0.bias'] = paddle.nn.initializer.Uniform(low=-linear_max,
+                                                        high=linear_max)
 
         self.subsampling_rate = 4
         # 6 = (3 - 1) * 1 + (3 - 1) * 2
         self.right_context = 6
 
-    def forward(self, x: paddle.Tensor, x_mask: paddle.Tensor, offset: int=0
-                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self,
+            x: paddle.Tensor,
+            x_mask: paddle.Tensor,
+            offset: int = 0
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         x = x.unsqueeze(1)  # (b, c=1, t, f)
         x = self.pw_conv(x)
         x = self.act1(x)

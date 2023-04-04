@@ -27,7 +27,6 @@ class Vocab(object):
         start_symbol (str, optional): Symbol for start. Defaults to "<s>"
         end_symbol (str, optional): Symbol for end. Defaults to "</s>"
     """
-
     def __init__(self,
                  symbols: Iterable[str],
                  padding_symbol="<pad>",

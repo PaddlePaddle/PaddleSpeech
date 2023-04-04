@@ -82,8 +82,8 @@ def maximum_path_each_numba(path, value, t_y, t_x, max_neg_val=-np.inf):
 
     for y in range(t_y - 1, -1, -1):
         path[y, index] = 1
-        if index != 0 and (index == y or
-                           value[y - 1, index] < value[y - 1, index - 1]):
+        if index != 0 and (index == y
+                           or value[y - 1, index] < value[y - 1, index - 1]):
             index = index - 1
 
 

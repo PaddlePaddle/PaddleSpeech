@@ -24,8 +24,7 @@ from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 
-def load_label_and_score(keyword_index: int,
-                         ds: paddle.io.Dataset,
+def load_label_and_score(keyword_index: int, ds: paddle.io.Dataset,
                          score_file: os.PathLike):
     score_table = {}  # {utt_id: scores_over_frames}
     with open(score_file, 'r', encoding='utf8') as fin:
@@ -55,28 +54,27 @@ def load_label_and_score(keyword_index: int,
 
 if __name__ == '__main__':
     parser = default_argument_parser()
-    parser.add_argument(
-        '--keyword_index', type=int, default=0, help='keyword index')
-    parser.add_argument(
-        '--step',
-        type=float,
-        default=0.01,
-        help='threshold step of trigger score')
+    parser.add_argument('--keyword_index',
+                        type=int,
+                        default=0,
+                        help='keyword index')
+    parser.add_argument('--step',
+                        type=float,
+                        default=0.01,
+                        help='threshold step of trigger score')
     parser.add_argument(
         '--window_shift',
         type=int,
         default=50,
         help='window_shift is used to skip the frames after triggered')
-    parser.add_argument(
-        "--score_file",
-        type=str,
-        required=True,
-        help='output file of trigger scores')
-    parser.add_argument(
-        '--stats_file',
-        type=str,
-        default='./stats.0.txt',
-        help='output file of detection error tradeoff')
+    parser.add_argument("--score_file",
+                        type=str,
+                        required=True,
+                        help='output file of trigger scores')
+    parser.add_argument('--stats_file',
+                        type=str,
+                        default='./stats.0.txt',
+                        help='output file of detection error tradeoff')
     args = parser.parse_args()
 
     # https://yaml.org/type/float.html
@@ -93,7 +91,8 @@ if __name__ == '__main__':
         sample_rate=config['sample_rate'],
         frame_shift=config['frame_shift'],
         frame_length=config['frame_length'],
-        n_mels=config['n_mels'], )
+        n_mels=config['n_mels'],
+    )
 
     keyword_table, filler_table, filler_duration = load_label_and_score(
         args.keyword_index, test_ds, args.score_file)
@@ -126,8 +125,9 @@ if __name__ == '__main__':
             if filler_duration != 0:
                 false_alarm_per_hour = num_false_alarm / \
                     (filler_duration / 3600.0)
-            fout.write('{:.6f} {:.6f} {:.6f}\n'.format(
-                threshold, false_alarm_per_hour, false_reject_rate))
+            fout.write('{:.6f} {:.6f} {:.6f}\n'.format(threshold,
+                                                       false_alarm_per_hour,
+                                                       false_reject_rate))
             threshold += args.step
             pbar.update(1)
 

@@ -53,16 +53,16 @@ class LoadInputsAndTargets():
     :param: dict preprocess_args: Set some optional arguments for preprocessing
     :param: Optional[dict] preprocess_args: Used for tts mode only
     """
-
     def __init__(
-            self,
-            mode="asr",
-            preprocess_conf=None,
-            load_input=True,
-            load_output=True,
-            sort_in_input_length=True,
-            preprocess_args=None,
-            keep_all_data_on_mem=False, ):
+        self,
+        mode="asr",
+        preprocess_conf=None,
+        load_input=True,
+        load_output=True,
+        sort_in_input_length=True,
+        preprocess_args=None,
+        keep_all_data_on_mem=False,
+    ):
         self._loaders = {}
 
         if mode not in ["asr"]:
@@ -117,9 +117,9 @@ class LoadInputsAndTargets():
                     #  [{"feat": "some/path.h5:F01_050C0101_PED_REAL",
                     #    "filetype": "hdf5",
                     #    "name": "input1", ...}], ...}
-                    x = self._get_from_loader(
-                        filepath=inp["feat"],
-                        filetype=inp.get("filetype", "mat"))
+                    x = self._get_from_loader(filepath=inp["feat"],
+                                              filetype=inp.get(
+                                                  "filetype", "mat"))
                     x_feats_dict.setdefault(inp["name"], []).append(x)
 
             if self.load_output:
@@ -127,17 +127,17 @@ class LoadInputsAndTargets():
                     if "tokenid" in inp:
                         # ======= Legacy format for output =======
                         # {"output": [{"tokenid": "1 2 3 4"}])
-                        x = np.fromiter(
-                            map(int, inp["tokenid"].split()), dtype=np.int64)
+                        x = np.fromiter(map(int, inp["tokenid"].split()),
+                                        dtype=np.int64)
                     else:
                         # ======= New format =======
                         # {"input":
                         #  [{"feat": "some/path.h5:F01_050C0101_PED_REAL",
                         #    "filetype": "hdf5",
                         #    "name": "target1", ...}], ...}
-                        x = self._get_from_loader(
-                            filepath=inp["feat"],
-                            filetype=inp.get("filetype", "mat"))
+                        x = self._get_from_loader(filepath=inp["feat"],
+                                                  filetype=inp.get(
+                                                      "filetype", "mat"))
 
                     y_feats_dict.setdefault(inp["name"], []).append(x)
 
@@ -193,8 +193,8 @@ class LoadInputsAndTargets():
 
         if self.sort_in_input_length:
             # sort in input lengths based on the first input
-            nonzero_sorted_idx = sorted(
-                nonzero_idx, key=lambda i: -len(xs[0][i]))
+            nonzero_sorted_idx = sorted(nonzero_idx,
+                                        key=lambda i: -len(xs[0][i]))
         else:
             nonzero_sorted_idx = nonzero_idx
 
@@ -214,12 +214,12 @@ class LoadInputsAndTargets():
 
             # Keeping x_name and y_name, e.g. input1, for future extension
             return_batch = OrderedDict([
-                * [(x_name, x) for x_name, x in zip(x_names, xs)],
-                * [(y_name, y) for y_name, y in zip(y_names, ys)],
+                *[(x_name, x) for x_name, x in zip(x_names, xs)],
+                *[(y_name, y) for y_name, y in zip(y_names, ys)],
             ])
         else:
-            return_batch = OrderedDict(
-                [(x_name, x) for x_name, x in zip(x_names, xs)])
+            return_batch = OrderedDict([(x_name, x)
+                                        for x_name, x in zip(x_names, xs)])
         return return_batch, uttid_list
 
     def _get_from_loader(self, filepath, filetype):
@@ -341,7 +341,6 @@ class SoundHDF5File():
     :param: str dtype:
 
     """
-
     def __init__(self,
                  filepath,
                  mode="r+",
@@ -372,8 +371,10 @@ class SoundHDF5File():
         f = io.BytesIO()
         array, rate = data
         soundfile.write(f, array, rate, format=self.format)
-        self.file.create_dataset(
-            name, shape=shape, data=np.void(f.getvalue()), **kwds)
+        self.file.create_dataset(name,
+                                 shape=shape,
+                                 data=np.void(f.getvalue()),
+                                 **kwds)
 
     def __setitem__(self, name, data):
         self.create_dataset(name, data=data)

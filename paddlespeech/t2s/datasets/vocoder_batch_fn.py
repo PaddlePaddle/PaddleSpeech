@@ -22,12 +22,12 @@ from paddlespeech.t2s.audio.codec import label_2_float
 class Clip(object):
     """Collate functor for training vocoders.
     """
-
     def __init__(
-            self,
-            batch_max_steps=20480,
-            hop_size=256,
-            aux_context_window=0, ):
+        self,
+        batch_max_steps=20480,
+        hop_size=256,
+        aux_context_window=0,
+    ):
         """Initialize customized collater for DataLoader.
         Args:
 
@@ -86,10 +86,10 @@ class Clip(object):
             [c[start:end] for c, start, end in zip(cs, c_starts, c_ends)])
 
         # convert each batch to tensor, assume that each item in batch has the same length
-        y_batch = paddle.to_tensor(
-            y_batch, dtype=paddle.float32).unsqueeze(1)  # (B, 1, T)
-        c_batch = paddle.to_tensor(
-            c_batch, dtype=paddle.float32).transpose([0, 2, 1])  # (B, C, T')
+        y_batch = paddle.to_tensor(y_batch, dtype=paddle.float32).unsqueeze(
+            1)  # (B, 1, T)
+        c_batch = paddle.to_tensor(c_batch, dtype=paddle.float32).transpose(
+            [0, 2, 1])  # (B, C, T')
 
         return y_batch, c_batch
 
@@ -115,12 +115,12 @@ class Clip(object):
 
 class WaveRNNClip(Clip):
     def __init__(self,
-                 mode: str='RAW',
-                 batch_max_steps: int=4500,
-                 hop_size: int=300,
-                 aux_context_window: int=2,
-                 bits: int=9,
-                 mu_law: bool=True):
+                 mode: str = 'RAW',
+                 batch_max_steps: int = 4500,
+                 hop_size: int = 300,
+                 aux_context_window: int = 2,
+                 bits: int = 9,
+                 mu_law: bool = True):
         self.mode = mode
         self.mel_win = batch_max_steps // hop_size + 2 * aux_context_window
         self.batch_max_steps = batch_max_steps
@@ -221,7 +221,6 @@ class WaveRNNClip(Clip):
 class Clip_static(Clip):
     """Collate functor for training vocoders.
     """
-
     def __call__(self, batch):
         """Convert into batch tensors.
 

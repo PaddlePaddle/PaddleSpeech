@@ -42,11 +42,7 @@ from paddlespeech.t2s.training.trainer import Trainer
 
 
 class TrainArgs():
-    def __init__(self,
-                 ngpu,
-                 config_file,
-                 dump_dir: Path,
-                 output_dir: Path,
+    def __init__(self, ngpu, config_file, dump_dir: Path, output_dir: Path,
                  frozen_layers: List[str]):
         # config: fastspeech2 config file.
         self.config = str(config_file)
@@ -122,37 +118,36 @@ def train_sp(args, config):
     train_dataset = DataTable(
         data=train_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
         data=dev_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
 
     # collate function and dataloader
     train_batch_size = min(len(train_metadata), config.batch_size)
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=train_batch_size,
-        shuffle=True,
-        drop_last=True)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=train_batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
 
     print("samplers done!")
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=collate_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=collate_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        shuffle=False,
-        drop_last=False,
-        batch_size=config.batch_size,
-        collate_fn=collate_fn,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                shuffle=False,
+                                drop_last=False,
+                                batch_size=config.batch_size,
+                                collate_fn=collate_fn,
+                                num_workers=config.num_workers)
     print("dataloaders done!")
 
     with open(args.phones_dict, "r") as f:
@@ -161,8 +156,10 @@ def train_sp(args, config):
     print("vocab_size:", vocab_size)
 
     odim = config.n_mels
-    model = FastSpeech2(
-        idim=vocab_size, odim=odim, spk_num=spk_num, **config["model"])
+    model = FastSpeech2(idim=vocab_size,
+                        odim=odim,
+                        spk_num=spk_num,
+                        **config["model"])
 
     # freeze layer
     if args.frozen_layers != []:
@@ -182,23 +179,24 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
-    updater = FastSpeech2Updater(
-        model=model,
-        optimizer=optimizer,
-        dataloader=train_dataloader,
-        output_dir=output_dir,
-        **config["updater"])
+    updater = FastSpeech2Updater(model=model,
+                                 optimizer=optimizer,
+                                 dataloader=train_dataloader,
+                                 output_dir=output_dir,
+                                 **config["updater"])
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
-    evaluator = FastSpeech2Evaluator(
-        model, dev_dataloader, output_dir=output_dir, **config["updater"])
+    evaluator = FastSpeech2Evaluator(model,
+                                     dev_dataloader,
+                                     output_dir=output_dir,
+                                     **config["updater"])
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))
         trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(1, 'epoch'))
     trainer.run()
 
 
@@ -213,27 +211,26 @@ if __name__ == '__main__':
         default="./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0",
         help="Path to pretrained model")
 
-    parser.add_argument(
-        "--dump_dir",
-        type=str,
-        default="./dump",
-        help="directory to save feature files and metadata.")
+    parser.add_argument("--dump_dir",
+                        type=str,
+                        default="./dump",
+                        help="directory to save feature files and metadata.")
 
-    parser.add_argument(
-        "--output_dir",
-        type=str,
-        default="./exp/default/",
-        help="directory to save finetune model.")
+    parser.add_argument("--output_dir",
+                        type=str,
+                        default="./exp/default/",
+                        help="directory to save finetune model.")
 
-    parser.add_argument(
-        "--ngpu", type=int, default=2, help="if ngpu=0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=2,
+                        help="if ngpu=0, use cpu.")
 
     parser.add_argument("--epoch", type=int, default=100, help="finetune epoch")
-    parser.add_argument(
-        "--finetune_config",
-        type=str,
-        default="./finetune.yaml",
-        help="Path to finetune config file")
+    parser.add_argument("--finetune_config",
+                        type=str,
+                        default="./finetune.yaml",
+                        help="Path to finetune config file")
 
     args = parser.parse_args()
 

@@ -100,8 +100,8 @@ class ToneSandhi():
             finals[-1] = finals[-1][:-1] + "5"
         # 个做量词
         elif (ge_idx >= 1 and
-              (word[ge_idx - 1].isnumeric() or
-               word[ge_idx - 1] in "几有两半多各整每做是")) or word == '个':
+              (word[ge_idx - 1].isnumeric()
+               or word[ge_idx - 1] in "几有两半多各整每做是")) or word == '个':
             finals[ge_idx] = finals[ge_idx][:-1] + "5"
         else:
             if word in self.must_neural_tone_words or word[
@@ -236,8 +236,8 @@ class ToneSandhi():
         new_seg = []
         # function 1
         for i, (word, pos) in enumerate(seg):
-            if i - 1 >= 0 and word == "一" and i + 1 < len(seg) and seg[i - 1][
-                    0] == seg[i + 1][0] and seg[i - 1][1] == "v":
+            if i - 1 >= 0 and word == "一" and i + 1 < len(seg) and seg[
+                    i - 1][0] == seg[i + 1][0] and seg[i - 1][1] == "v":
                 if i - 1 < len(new_seg):
                     new_seg[i -
                             1][0] = new_seg[i - 1][0] + "一" + new_seg[i - 1][0]
@@ -245,8 +245,8 @@ class ToneSandhi():
                     new_seg.append([word, pos])
                     new_seg.append([seg[i + 1][0], pos])
             else:
-                if i - 2 >= 0 and seg[i - 1][0] == "一" and seg[i - 2][
-                        0] == word and pos == "v":
+                if i - 2 >= 0 and seg[i - 1][0] == "一" and seg[
+                        i - 2][0] == word and pos == "v":
                     continue
                 else:
                     new_seg.append([word, pos])
@@ -265,9 +265,9 @@ class ToneSandhi():
             self, seg: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
         new_seg = []
         sub_finals_list = [
-            lazy_pinyin(
-                word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
-            for (word, pos) in seg
+            lazy_pinyin(word,
+                        neutral_tone_with_five=True,
+                        style=Style.FINALS_TONE3) for (word, pos) in seg
         ]
         assert len(sub_finals_list) == len(seg)
         merge_last = [False] * len(seg)
@@ -295,9 +295,9 @@ class ToneSandhi():
             self, seg: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
         new_seg = []
         sub_finals_list = [
-            lazy_pinyin(
-                word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
-            for (word, pos) in seg
+            lazy_pinyin(word,
+                        neutral_tone_with_five=True,
+                        style=Style.FINALS_TONE3) for (word, pos) in seg
         ]
         assert len(sub_finals_list) == len(seg)
         merge_last = [False] * len(seg)

@@ -17,7 +17,8 @@ def get_parser():
         "--log-dir",
         type=str,
         default=None,
-        help="path to logging directory", )
+        help="path to logging directory",
+    )
     return parser
 
 
@@ -43,8 +44,10 @@ def main():
                     start_times += [parser.parse(x.split("|")[0])]
                 elif "total log probability:" in x:
                     end_times += [parser.parse(x.split("|")[0])]
-        assert len(audio_durations) == len(end_times), (len(audio_durations),
-                                                        len(end_times), )
+        assert len(audio_durations) == len(end_times), (
+            len(audio_durations),
+            len(end_times),
+        )
         assert len(start_times) == len(end_times), (len(start_times),
                                                     len(end_times))
 

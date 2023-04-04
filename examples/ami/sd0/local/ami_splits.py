@@ -38,7 +38,8 @@ def get_AMI_split(split_option):
     if split_option not in ALLOWED_OPTIONS:
         print(
             f'Invalid split "{split_option}" requested!\nValid split_options are: ',
-            ALLOWED_OPTIONS, )
+            ALLOWED_OPTIONS,
+        )
         return
 
     if split_option == "scenario_only":

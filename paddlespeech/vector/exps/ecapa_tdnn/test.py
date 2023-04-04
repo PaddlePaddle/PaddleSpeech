@@ -99,18 +99,20 @@ def compute_verification_scores(id2embedding, train_cohort, config):
                     enroll_emb, repeat_times=[train_cohort.shape[0], 1])
                 score_e_c = cos_sim_func(enroll_rep, train_cohort)
                 if "cohort_size" in config:
-                    score_e_c, _ = paddle.topk(
-                        score_e_c, k=config.cohort_size, axis=0)
+                    score_e_c, _ = paddle.topk(score_e_c,
+                                               k=config.cohort_size,
+                                               axis=0)
                 mean_e_c = paddle.mean(score_e_c, axis=0)
                 std_e_c = paddle.std(score_e_c, axis=0)
 
                 # Getting norm stats for test impostors
-                test_rep = paddle.tile(
-                    test_emb, repeat_times=[train_cohort.shape[0], 1])
+                test_rep = paddle.tile(test_emb,
+                                       repeat_times=[train_cohort.shape[0], 1])
                 score_t_c = cos_sim_func(test_rep, train_cohort)
                 if "cohort_size" in config:
-                    score_t_c, _ = paddle.topk(
-                        score_t_c, k=config.cohort_size, axis=0)
+                    score_t_c, _ = paddle.topk(score_t_c,
+                                               k=config.cohort_size,
+                                               axis=0)
                 mean_t_c = paddle.mean(score_t_c, axis=0)
                 std_t_c = paddle.std(score_t_c, axis=0)
 
@@ -151,8 +153,8 @@ def main(args, config):
     #         because the checkpoint dict name has the SpeakerIdetification prefix
     #         so we need to create the SpeakerIdetification instance
     #         but we acutally use the backbone model to extact the audio embedding
-    model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=config.num_speakers)
+    model = SpeakerIdetification(backbone=ecapa_tdnn,
+                                 num_class=config.num_speakers)
 
     # stage3: load the pre-trained model
     #         generally, we get the last model from the epoch
@@ -168,37 +170,42 @@ def main(args, config):
     # stage4: construct the enroll and test dataloader
     #         Now, wo think the enroll dataset is in the {args.data_dir}/vox/csv/enroll.csv,
     #         and the test dataset is in the {args.data_dir}/vox/csv/test.csv
-    enroll_dataset = CSVDataset(
-        os.path.join(args.data_dir, "vox/csv/enroll.csv"),
-        feat_type='melspectrogram',
-        random_chunk=False,
-        n_mels=config.n_mels,
-        window_size=config.window_size,
-        hop_length=config.hop_size)
-    enroll_sampler = BatchSampler(
-        enroll_dataset, batch_size=config.batch_size, shuffle=False)
-    enroll_loader = DataLoader(enroll_dataset,
-                    batch_sampler=enroll_sampler,
-                    collate_fn=lambda x: batch_feature_normalize(
-                                x, mean_norm=True, std_norm=False),
-                    num_workers=config.num_workers,
-                    return_list=True,)
+    enroll_dataset = CSVDataset(os.path.join(args.data_dir,
+                                             "vox/csv/enroll.csv"),
+                                feat_type='melspectrogram',
+                                random_chunk=False,
+                                n_mels=config.n_mels,
+                                window_size=config.window_size,
+                                hop_length=config.hop_size)
+    enroll_sampler = BatchSampler(enroll_dataset,
+                                  batch_size=config.batch_size,
+                                  shuffle=False)
+    enroll_loader = DataLoader(
+        enroll_dataset,
+        batch_sampler=enroll_sampler,
+        collate_fn=lambda x: batch_feature_normalize(
+            x, mean_norm=True, std_norm=False),
+        num_workers=config.num_workers,
+        return_list=True,
+    )
 
-    test_dataset = CSVDataset(
-        os.path.join(args.data_dir, "vox/csv/test.csv"),
-        feat_type='melspectrogram',
-        random_chunk=False,
-        n_mels=config.n_mels,
-        window_size=config.window_size,
-        hop_length=config.hop_size)
-    test_sampler = BatchSampler(
-        test_dataset, batch_size=config.batch_size, shuffle=False)
-    test_loader = DataLoader(test_dataset,
-                            batch_sampler=test_sampler,
-                            collate_fn=lambda x: batch_feature_normalize(
-                                x, mean_norm=True, std_norm=False),
-                            num_workers=config.num_workers,
-                            return_list=True,)
+    test_dataset = CSVDataset(os.path.join(args.data_dir, "vox/csv/test.csv"),
+                              feat_type='melspectrogram',
+                              random_chunk=False,
+                              n_mels=config.n_mels,
+                              window_size=config.window_size,
+                              hop_length=config.hop_size)
+    test_sampler = BatchSampler(test_dataset,
+                                batch_size=config.batch_size,
+                                shuffle=False)
+    test_loader = DataLoader(
+        test_dataset,
+        batch_sampler=test_sampler,
+        collate_fn=lambda x: batch_feature_normalize(
+            x, mean_norm=True, std_norm=False),
+        num_workers=config.num_workers,
+        return_list=True,
+    )
     # stage5: we must set the model to eval mode
     model.eval()
 
@@ -216,22 +223,25 @@ def main(args, config):
     #          and we select the config.n_train_snts utterance to as the final imposters dataset
     if "score_norm" in config:
         logger.info(f"we will do score norm: {config.score_norm}")
-        train_dataset = CSVDataset(
-            os.path.join(args.data_dir, "vox/csv/train.csv"),
-            feat_type='melspectrogram',
-            n_train_snts=config.n_train_snts,
-            random_chunk=False,
-            n_mels=config.n_mels,
-            window_size=config.window_size,
-            hop_length=config.hop_size)
-        train_sampler = BatchSampler(
-            train_dataset, batch_size=config.batch_size, shuffle=False)
-        train_loader = DataLoader(train_dataset,
-                            batch_sampler=train_sampler,
-                            collate_fn=lambda x: batch_feature_normalize(
-                                x, mean_norm=True, std_norm=False),
-                            num_workers=config.num_workers,
-                            return_list=True,)
+        train_dataset = CSVDataset(os.path.join(args.data_dir,
+                                                "vox/csv/train.csv"),
+                                   feat_type='melspectrogram',
+                                   n_train_snts=config.n_train_snts,
+                                   random_chunk=False,
+                                   n_mels=config.n_mels,
+                                   window_size=config.window_size,
+                                   hop_length=config.hop_size)
+        train_sampler = BatchSampler(train_dataset,
+                                     batch_size=config.batch_size,
+                                     shuffle=False)
+        train_loader = DataLoader(
+            train_dataset,
+            batch_sampler=train_sampler,
+            collate_fn=lambda x: batch_feature_normalize(
+                x, mean_norm=True, std_norm=False),
+            num_workers=config.num_workers,
+            return_list=True,
+        )
 
     # stage 8: Compute embeddings of audios in enrol and test dataset from model.
     id2embedding = {}

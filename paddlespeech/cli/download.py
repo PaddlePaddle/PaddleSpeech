@@ -105,8 +105,8 @@ def get_path_from_url(url,
                 time.sleep(1)
 
     if ParallelEnv().current_endpoint in unique_endpoints:
-        if decompress and (tarfile.is_tarfile(fullpath) or
-                           zipfile.is_zipfile(fullpath)):
+        if decompress and (tarfile.is_tarfile(fullpath)
+                           or zipfile.is_zipfile(fullpath)):
             fullpath = _decompress(fullpath)
 
     return fullpath
@@ -152,8 +152,10 @@ def _wget_download(url, fullname):
     # –user-agent
     command = 'wget -O {} -t {} {}'.format(tmp_fullname, DOWNLOAD_RETRY_LIMIT,
                                            url)
-    subprc = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subprc = subprocess.Popen(command,
+                              shell=True,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
     _ = subprc.communicate()
 
     if subprc.returncode != 0:

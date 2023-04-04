@@ -131,7 +131,7 @@ default_config_dict = {
 }
 
 
-def load_config(config_path: os.PathLike, use_default: bool=False):
+def load_config(config_path: os.PathLike, use_default: bool = False):
     config = _load_config(config_path)
     if use_default:
         for attr, val in default_config_dict.items():

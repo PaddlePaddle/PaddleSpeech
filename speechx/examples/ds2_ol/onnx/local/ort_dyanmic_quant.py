@@ -10,11 +10,10 @@ def quantize_onnx_model(onnx_model_path,
                         nodes_to_exclude=[]):
     print("Starting quantization...")
 
-    quantize_dynamic(
-        onnx_model_path,
-        quantized_model_path,
-        weight_type=QuantType.QInt8,
-        nodes_to_exclude=nodes_to_exclude)
+    quantize_dynamic(onnx_model_path,
+                     quantized_model_path,
+                     weight_type=QuantType.QInt8,
+                     nodes_to_exclude=nodes_to_exclude)
 
     print(f"Quantized model saved to: {quantized_model_path}")
 
@@ -25,18 +24,21 @@ def main():
         "--model-in",
         type=str,
         required=True,
-        help="ONNX model", )
+        help="ONNX model",
+    )
     parser.add_argument(
         "--model-out",
         type=str,
         required=True,
         default='model.quant.onnx',
-        help="ONNX model", )
+        help="ONNX model",
+    )
     parser.add_argument(
         "--nodes-to-exclude",
         type=str,
         required=True,
-        help="nodes to exclude. e.g. conv,linear.", )
+        help="nodes to exclude. e.g. conv,linear.",
+    )
 
     args = parser.parse_args()
 

@@ -48,16 +48,16 @@ class DecoderLayer(nn.Layer):
             True: x -> x + linear(concat(x, att(x)))
             False: x -> x + att(x)
     """
-
     def __init__(
-            self,
-            size: int,
-            self_attn: nn.Layer,
-            src_attn: nn.Layer,
-            feed_forward: nn.Layer,
-            dropout_rate: float,
-            normalize_before: bool=True,
-            concat_after: bool=False, ):
+        self,
+        size: int,
+        self_attn: nn.Layer,
+        src_attn: nn.Layer,
+        feed_forward: nn.Layer,
+        dropout_rate: float,
+        normalize_before: bool = True,
+        concat_after: bool = False,
+    ):
         """Construct an DecoderLayer object."""
         super().__init__()
         self.size = size
@@ -74,12 +74,12 @@ class DecoderLayer(nn.Layer):
         self.concat_linear2 = Linear(size + size, size)
 
     def forward(
-            self,
-            tgt: paddle.Tensor,
-            tgt_mask: paddle.Tensor,
-            memory: paddle.Tensor,
-            memory_mask: paddle.Tensor,
-            cache: Optional[paddle.Tensor]=None
+        self,
+        tgt: paddle.Tensor,
+        tgt_mask: paddle.Tensor,
+        memory: paddle.Tensor,
+        memory_mask: paddle.Tensor,
+        cache: Optional[paddle.Tensor] = None
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute decoded features.
         Args:

@@ -42,8 +42,8 @@ def time_warp(x, max_time_warp=80, inplace=False, mode="PIL"):
             return x
         # NOTE: randrange(a, b) emits a, a + 1, ..., b - 1
         center = random.randrange(window, t - window)
-        warped = random.randrange(center - window, center +
-                                  window) + 1  # 1 ... t - 1
+        warped = random.randrange(center - window,
+                                  center + window) + 1  # 1 ... t - 1
 
         left = Image.fromarray(x[:center]).resize((x.shape[1], warped),
                                                   Image.BICUBIC)
@@ -160,15 +160,16 @@ class TimeMask(FuncTrans):
 
 
 def spec_augment(
-        x,
-        resize_mode="PIL",
-        max_time_warp=80,
-        max_freq_width=27,
-        n_freq_mask=2,
-        max_time_width=100,
-        n_time_mask=2,
-        inplace=True,
-        replace_with_zero=True, ):
+    x,
+    resize_mode="PIL",
+    max_time_warp=80,
+    max_freq_width=27,
+    n_freq_mask=2,
+    max_time_width=100,
+    n_time_mask=2,
+    inplace=True,
+    replace_with_zero=True,
+):
     """spec agument
 
     apply random time warping and time/freq masking
@@ -194,13 +195,15 @@ def spec_augment(
         max_freq_width,
         n_freq_mask,
         inplace=inplace,
-        replace_with_zero=replace_with_zero, )
+        replace_with_zero=replace_with_zero,
+    )
     x = time_mask(
         x,
         max_time_width,
         n_time_mask,
         inplace=inplace,
-        replace_with_zero=replace_with_zero, )
+        replace_with_zero=replace_with_zero,
+    )
     return x
 
 

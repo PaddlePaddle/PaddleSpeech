@@ -24,7 +24,6 @@ class MultiprocessHandler(logging.FileHandler):
     """
     A handler class which writes formatted logging records to disk files
     """
-
     def __init__(self,
                  filename,
                  when='D',

@@ -59,92 +59,92 @@ class FastSpeech2(nn.Layer):
     Returns:
 
     """
-
     def __init__(
-            self,
-            # network structure related
-            idim: int,
-            odim: int,
-            adim: int=384,
-            aheads: int=4,
-            elayers: int=6,
-            eunits: int=1536,
-            dlayers: int=6,
-            dunits: int=1536,
-            postnet_layers: int=5,
-            postnet_chans: int=512,
-            postnet_filts: int=5,
-            postnet_dropout_rate: float=0.5,
-            positionwise_layer_type: str="conv1d",
-            positionwise_conv_kernel_size: int=1,
-            use_scaled_pos_enc: bool=True,
-            use_batch_norm: bool=True,
-            encoder_normalize_before: bool=True,
-            decoder_normalize_before: bool=True,
-            encoder_concat_after: bool=False,
-            decoder_concat_after: bool=False,
-            reduction_factor: int=1,
-            encoder_type: str="transformer",
-            decoder_type: str="transformer",
-            # for transformer
-            transformer_enc_dropout_rate: float=0.1,
-            transformer_enc_positional_dropout_rate: float=0.1,
-            transformer_enc_attn_dropout_rate: float=0.1,
-            transformer_dec_dropout_rate: float=0.1,
-            transformer_dec_positional_dropout_rate: float=0.1,
-            transformer_dec_attn_dropout_rate: float=0.1,
-            transformer_activation_type: str="relu",
-            # for conformer
-            conformer_pos_enc_layer_type: str="rel_pos",
-            conformer_self_attn_layer_type: str="rel_selfattn",
-            conformer_activation_type: str="swish",
-            use_macaron_style_in_conformer: bool=True,
-            use_cnn_in_conformer: bool=True,
-            zero_triu: bool=False,
-            conformer_enc_kernel_size: int=7,
-            conformer_dec_kernel_size: int=31,
-            # for CNN Decoder
-            cnn_dec_dropout_rate: float=0.2,
-            cnn_postnet_dropout_rate: float=0.2,
-            cnn_postnet_resblock_kernel_sizes: List[int]=[256, 256],
-            cnn_postnet_kernel_size: int=5,
-            cnn_decoder_embedding_dim: int=256,
-            # duration predictor
-            duration_predictor_layers: int=2,
-            duration_predictor_chans: int=384,
-            duration_predictor_kernel_size: int=3,
-            duration_predictor_dropout_rate: float=0.1,
-            # energy predictor
-            energy_predictor_layers: int=2,
-            energy_predictor_chans: int=384,
-            energy_predictor_kernel_size: int=3,
-            energy_predictor_dropout: float=0.5,
-            energy_embed_kernel_size: int=9,
-            energy_embed_dropout: float=0.5,
-            stop_gradient_from_energy_predictor: bool=False,
-            # pitch predictor
-            pitch_predictor_layers: int=2,
-            pitch_predictor_chans: int=384,
-            pitch_predictor_kernel_size: int=3,
-            pitch_predictor_dropout: float=0.5,
-            pitch_embed_kernel_size: int=9,
-            pitch_embed_dropout: float=0.5,
-            stop_gradient_from_pitch_predictor: bool=False,
-            # spk emb
-            spk_num: int=None,
-            spk_embed_dim: int=None,
-            spk_embed_integration_type: str="add",
-            # tone emb
-            tone_num: int=None,
-            tone_embed_dim: int=None,
-            tone_embed_integration_type: str="add",
-            # training related
-            init_type: str="xavier_uniform",
-            init_enc_alpha: float=1.0,
-            init_dec_alpha: float=1.0,
-            # speaker classifier
-            enable_speaker_classifier: bool=False,
-            hidden_sc_dim: int=256, ):
+        self,
+        # network structure related
+        idim: int,
+        odim: int,
+        adim: int = 384,
+        aheads: int = 4,
+        elayers: int = 6,
+        eunits: int = 1536,
+        dlayers: int = 6,
+        dunits: int = 1536,
+        postnet_layers: int = 5,
+        postnet_chans: int = 512,
+        postnet_filts: int = 5,
+        postnet_dropout_rate: float = 0.5,
+        positionwise_layer_type: str = "conv1d",
+        positionwise_conv_kernel_size: int = 1,
+        use_scaled_pos_enc: bool = True,
+        use_batch_norm: bool = True,
+        encoder_normalize_before: bool = True,
+        decoder_normalize_before: bool = True,
+        encoder_concat_after: bool = False,
+        decoder_concat_after: bool = False,
+        reduction_factor: int = 1,
+        encoder_type: str = "transformer",
+        decoder_type: str = "transformer",
+        # for transformer
+        transformer_enc_dropout_rate: float = 0.1,
+        transformer_enc_positional_dropout_rate: float = 0.1,
+        transformer_enc_attn_dropout_rate: float = 0.1,
+        transformer_dec_dropout_rate: float = 0.1,
+        transformer_dec_positional_dropout_rate: float = 0.1,
+        transformer_dec_attn_dropout_rate: float = 0.1,
+        transformer_activation_type: str = "relu",
+        # for conformer
+        conformer_pos_enc_layer_type: str = "rel_pos",
+        conformer_self_attn_layer_type: str = "rel_selfattn",
+        conformer_activation_type: str = "swish",
+        use_macaron_style_in_conformer: bool = True,
+        use_cnn_in_conformer: bool = True,
+        zero_triu: bool = False,
+        conformer_enc_kernel_size: int = 7,
+        conformer_dec_kernel_size: int = 31,
+        # for CNN Decoder
+        cnn_dec_dropout_rate: float = 0.2,
+        cnn_postnet_dropout_rate: float = 0.2,
+        cnn_postnet_resblock_kernel_sizes: List[int] = [256, 256],
+        cnn_postnet_kernel_size: int = 5,
+        cnn_decoder_embedding_dim: int = 256,
+        # duration predictor
+        duration_predictor_layers: int = 2,
+        duration_predictor_chans: int = 384,
+        duration_predictor_kernel_size: int = 3,
+        duration_predictor_dropout_rate: float = 0.1,
+        # energy predictor
+        energy_predictor_layers: int = 2,
+        energy_predictor_chans: int = 384,
+        energy_predictor_kernel_size: int = 3,
+        energy_predictor_dropout: float = 0.5,
+        energy_embed_kernel_size: int = 9,
+        energy_embed_dropout: float = 0.5,
+        stop_gradient_from_energy_predictor: bool = False,
+        # pitch predictor
+        pitch_predictor_layers: int = 2,
+        pitch_predictor_chans: int = 384,
+        pitch_predictor_kernel_size: int = 3,
+        pitch_predictor_dropout: float = 0.5,
+        pitch_embed_kernel_size: int = 9,
+        pitch_embed_dropout: float = 0.5,
+        stop_gradient_from_pitch_predictor: bool = False,
+        # spk emb
+        spk_num: int = None,
+        spk_embed_dim: int = None,
+        spk_embed_integration_type: str = "add",
+        # tone emb
+        tone_num: int = None,
+        tone_embed_dim: int = None,
+        tone_embed_integration_type: str = "add",
+        # training related
+        init_type: str = "xavier_uniform",
+        init_enc_alpha: float = 1.0,
+        init_dec_alpha: float = 1.0,
+        # speaker classifier
+        enable_speaker_classifier: bool = False,
+        hidden_sc_dim: int = 256,
+    ):
         """Initialize FastSpeech2 module.
         Args:
             idim (int): 
@@ -327,10 +327,9 @@ class FastSpeech2(nn.Layer):
         transformer_pos_enc_layer_type = "scaled_abs_pos" if self.use_scaled_pos_enc else "abs_pos"
 
         # define encoder
-        encoder_input_layer = nn.Embedding(
-            num_embeddings=idim,
-            embedding_dim=adim,
-            padding_idx=self.padding_idx)
+        encoder_input_layer = nn.Embedding(num_embeddings=idim,
+                                           embedding_dim=adim,
+                                           padding_idx=self.padding_idx)
 
         if encoder_type == "transformer":
             self.encoder = TransformerEncoder(
@@ -370,7 +369,8 @@ class FastSpeech2(nn.Layer):
                 activation_type=conformer_activation_type,
                 use_cnn_module=use_cnn_in_conformer,
                 cnn_module_kernel=conformer_enc_kernel_size,
-                zero_triu=zero_triu, )
+                zero_triu=zero_triu,
+            )
         else:
             raise ValueError(f"{encoder_type} is not supported.")
 
@@ -401,7 +401,8 @@ class FastSpeech2(nn.Layer):
             n_layers=duration_predictor_layers,
             n_chans=duration_predictor_chans,
             kernel_size=duration_predictor_kernel_size,
-            dropout_rate=duration_predictor_dropout_rate, )
+            dropout_rate=duration_predictor_dropout_rate,
+        )
 
         # define pitch predictor
         self.pitch_predictor = VariancePredictor(
@@ -409,15 +410,18 @@ class FastSpeech2(nn.Layer):
             n_layers=pitch_predictor_layers,
             n_chans=pitch_predictor_chans,
             kernel_size=pitch_predictor_kernel_size,
-            dropout_rate=pitch_predictor_dropout, )
+            dropout_rate=pitch_predictor_dropout,
+        )
         #  We use continuous pitch + FastPitch style avg
         self.pitch_embed = nn.Sequential(
             nn.Conv1D(
                 in_channels=1,
                 out_channels=adim,
                 kernel_size=pitch_embed_kernel_size,
-                padding=(pitch_embed_kernel_size - 1) // 2, ),
-            nn.Dropout(pitch_embed_dropout), )
+                padding=(pitch_embed_kernel_size - 1) // 2,
+            ),
+            nn.Dropout(pitch_embed_dropout),
+        )
 
         # define energy predictor
         self.energy_predictor = VariancePredictor(
@@ -425,15 +429,18 @@ class FastSpeech2(nn.Layer):
             n_layers=energy_predictor_layers,
             n_chans=energy_predictor_chans,
             kernel_size=energy_predictor_kernel_size,
-            dropout_rate=energy_predictor_dropout, )
+            dropout_rate=energy_predictor_dropout,
+        )
         # We use continuous enegy + FastPitch style avg
         self.energy_embed = nn.Sequential(
             nn.Conv1D(
                 in_channels=1,
                 out_channels=adim,
                 kernel_size=energy_embed_kernel_size,
-                padding=(energy_embed_kernel_size - 1) // 2, ),
-            nn.Dropout(energy_embed_dropout), )
+                padding=(energy_embed_kernel_size - 1) // 2,
+            ),
+            nn.Dropout(energy_embed_dropout),
+        )
 
         # define length regulator
         self.length_regulator = LengthRegulator()
@@ -458,7 +465,8 @@ class FastSpeech2(nn.Layer):
                 concat_after=decoder_concat_after,
                 positionwise_layer_type=positionwise_layer_type,
                 positionwise_conv_kernel_size=positionwise_conv_kernel_size,
-                activation_type=conformer_activation_type, )
+                activation_type=conformer_activation_type,
+            )
         elif decoder_type == "conformer":
             self.decoder = ConformerEncoder(
                 idim=0,
@@ -479,7 +487,8 @@ class FastSpeech2(nn.Layer):
                 selfattention_layer_type=conformer_self_attn_layer_type,
                 activation_type=conformer_activation_type,
                 use_cnn_module=use_cnn_in_conformer,
-                cnn_module_kernel=conformer_dec_kernel_size, )
+                cnn_module_kernel=conformer_dec_kernel_size,
+            )
         elif decoder_type == 'cnndecoder':
             self.decoder = CNNDecoder(
                 emb_dim=adim,
@@ -508,26 +517,28 @@ class FastSpeech2(nn.Layer):
                 n_chans=postnet_chans,
                 n_filts=postnet_filts,
                 use_batch_norm=use_batch_norm,
-                dropout_rate=postnet_dropout_rate, ))
+                dropout_rate=postnet_dropout_rate,
+            ))
 
         nn.initializer.set_global_initializer(None)
 
         self._reset_parameters(
             init_enc_alpha=init_enc_alpha,
-            init_dec_alpha=init_dec_alpha, )
+            init_dec_alpha=init_dec_alpha,
+        )
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            durations: paddle.Tensor,
-            pitch: paddle.Tensor,
-            energy: paddle.Tensor,
-            tone_id: paddle.Tensor=None,
-            spk_emb: paddle.Tensor=None,
-            spk_id: paddle.Tensor=None
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        durations: paddle.Tensor,
+        pitch: paddle.Tensor,
+        energy: paddle.Tensor,
+        tone_id: paddle.Tensor = None,
+        spk_emb: paddle.Tensor = None,
+        spk_id: paddle.Tensor = None
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -592,13 +603,13 @@ class FastSpeech2(nn.Layer):
     def _forward(self,
                  xs: paddle.Tensor,
                  ilens: paddle.Tensor,
-                 olens: paddle.Tensor=None,
-                 ds: paddle.Tensor=None,
-                 ps: paddle.Tensor=None,
-                 es: paddle.Tensor=None,
-                 is_inference: bool=False,
+                 olens: paddle.Tensor = None,
+                 ds: paddle.Tensor = None,
+                 ps: paddle.Tensor = None,
+                 es: paddle.Tensor = None,
+                 is_inference: bool = False,
                  return_after_enc=False,
-                 alpha: float=1.0,
+                 alpha: float = 1.0,
                  spk_emb=None,
                  spk_id=None,
                  tone_id=None) -> Sequence[paddle.Tensor]:
@@ -708,12 +719,12 @@ class FastSpeech2(nn.Layer):
         return before_outs, after_outs, d_outs, p_outs, e_outs, spk_logits
 
     def encoder_infer(
-            self,
-            text: paddle.Tensor,
-            spk_id=None,
-            alpha: float=1.0,
-            spk_emb=None,
-            tone_id=None,
+        self,
+        text: paddle.Tensor,
+        spk_id=None,
+        alpha: float = 1.0,
+        spk_emb=None,
+        tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
@@ -730,28 +741,27 @@ class FastSpeech2(nn.Layer):
 
         # (1, L, odim)
         # use *_ to avoid bug in dygraph to static graph
-        hs, *_ = self._forward(
-            xs,
-            ilens,
-            is_inference=True,
-            return_after_enc=True,
-            alpha=alpha,
-            spk_emb=spk_emb,
-            spk_id=spk_id,
-            tone_id=tone_id)
+        hs, *_ = self._forward(xs,
+                               ilens,
+                               is_inference=True,
+                               return_after_enc=True,
+                               alpha=alpha,
+                               spk_emb=spk_emb,
+                               spk_id=spk_id,
+                               tone_id=tone_id)
         return hs
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            durations: paddle.Tensor=None,
-            pitch: paddle.Tensor=None,
-            energy: paddle.Tensor=None,
-            alpha: float=1.0,
-            use_teacher_forcing: bool=False,
-            spk_emb=None,
-            spk_id=None,
-            tone_id=None,
+        self,
+        text: paddle.Tensor,
+        durations: paddle.Tensor = None,
+        pitch: paddle.Tensor = None,
+        energy: paddle.Tensor = None,
+        alpha: float = 1.0,
+        use_teacher_forcing: bool = False,
+        spk_emb=None,
+        spk_id=None,
+        tone_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.
 
@@ -952,16 +962,16 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
 
     def forward(self,
                 text: paddle.Tensor,
-                durations: Union[paddle.Tensor, np.ndarray]=None,
-                durations_scale: Union[int, float]=None,
-                durations_bias: Union[int, float]=None,
-                pitch: Union[paddle.Tensor, np.ndarray]=None,
-                pitch_scale: Union[int, float]=None,
-                pitch_bias: Union[int, float]=None,
-                energy: Union[paddle.Tensor, np.ndarray]=None,
-                energy_scale: Union[int, float]=None,
-                energy_bias: Union[int, float]=None,
-                robot: bool=False,
+                durations: Union[paddle.Tensor, np.ndarray] = None,
+                durations_scale: Union[int, float] = None,
+                durations_bias: Union[int, float] = None,
+                pitch: Union[paddle.Tensor, np.ndarray] = None,
+                pitch_scale: Union[int, float] = None,
+                pitch_bias: Union[int, float] = None,
+                energy: Union[paddle.Tensor, np.ndarray] = None,
+                energy_scale: Union[int, float] = None,
+                energy_bias: Union[int, float] = None,
+                robot: bool = False,
                 spk_emb=None,
                 spk_id=None):
         """
@@ -1066,9 +1076,9 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
 
 class FastSpeech2Loss(nn.Layer):
     """Loss function module for FastSpeech2."""
-
-    def __init__(self, use_masking: bool=True,
-                 use_weighted_masking: bool=False):
+    def __init__(self,
+                 use_masking: bool = True,
+                 use_weighted_masking: bool = False):
         """Initialize feed-forward Transformer loss module.
         Args:
             use_masking (bool): 
@@ -1091,20 +1101,20 @@ class FastSpeech2Loss(nn.Layer):
         self.ce_criterion = nn.CrossEntropyLoss()
 
     def forward(
-            self,
-            after_outs: paddle.Tensor,
-            before_outs: paddle.Tensor,
-            d_outs: paddle.Tensor,
-            p_outs: paddle.Tensor,
-            e_outs: paddle.Tensor,
-            ys: paddle.Tensor,
-            ds: paddle.Tensor,
-            ps: paddle.Tensor,
-            es: paddle.Tensor,
-            ilens: paddle.Tensor,
-            olens: paddle.Tensor,
-            spk_logits: paddle.Tensor=None,
-            spk_ids: paddle.Tensor=None,
+        self,
+        after_outs: paddle.Tensor,
+        before_outs: paddle.Tensor,
+        d_outs: paddle.Tensor,
+        p_outs: paddle.Tensor,
+        e_outs: paddle.Tensor,
+        ys: paddle.Tensor,
+        ds: paddle.Tensor,
+        ps: paddle.Tensor,
+        es: paddle.Tensor,
+        ilens: paddle.Tensor,
+        olens: paddle.Tensor,
+        spk_logits: paddle.Tensor = None,
+        spk_ids: paddle.Tensor = None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor,
                paddle.Tensor, ]:
         """Calculate forward propagation.
@@ -1158,10 +1168,10 @@ class FastSpeech2Loss(nn.Layer):
                 duration_masks.broadcast_to(d_outs.shape))
             ds = ds.masked_select(duration_masks.broadcast_to(ds.shape))
             pitch_masks = make_non_pad_mask(ilens).unsqueeze(-1)
-            p_outs = p_outs.masked_select(
-                pitch_masks.broadcast_to(p_outs.shape))
-            e_outs = e_outs.masked_select(
-                pitch_masks.broadcast_to(e_outs.shape))
+            p_outs = p_outs.masked_select(pitch_masks.broadcast_to(
+                p_outs.shape))
+            e_outs = e_outs.masked_select(pitch_masks.broadcast_to(
+                e_outs.shape))
             ps = ps.masked_select(pitch_masks.broadcast_to(ps.shape))
             es = es.masked_select(pitch_masks.broadcast_to(es.shape))
 
@@ -1190,8 +1200,7 @@ class FastSpeech2Loss(nn.Layer):
         if self.use_weighted_masking:
             out_masks = make_non_pad_mask(olens).unsqueeze(-1)
             out_weights = out_masks.cast(dtype=paddle.float32) / out_masks.cast(
-                dtype=paddle.float32).sum(
-                    axis=1, keepdim=True)
+                dtype=paddle.float32).sum(axis=1, keepdim=True)
             out_weights /= ys.shape[0] * ys.shape[2]
             duration_masks = make_non_pad_mask(ilens)
             duration_weights = (duration_masks.cast(dtype=paddle.float32) /
@@ -1204,8 +1213,8 @@ class FastSpeech2Loss(nn.Layer):
             l1_loss = l1_loss.multiply(out_weights)
             l1_loss = l1_loss.masked_select(
                 out_masks.broadcast_to(l1_loss.shape)).sum()
-            duration_loss = (duration_loss.multiply(duration_weights)
-                             .masked_select(duration_masks).sum())
+            duration_loss = (duration_loss.multiply(
+                duration_weights).masked_select(duration_masks).sum())
             pitch_masks = duration_masks.unsqueeze(-1)
             pitch_weights = duration_weights.unsqueeze(-1)
             pitch_loss = pitch_loss.multiply(pitch_weights)

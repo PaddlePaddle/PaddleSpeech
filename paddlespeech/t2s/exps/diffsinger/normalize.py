@@ -29,7 +29,8 @@ from paddlespeech.t2s.utils import str2bool
 def main():
     """Run preprocessing process."""
     parser = argparse.ArgumentParser(
-        description="Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
+        description=
+        "Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
     )
     parser.add_argument(
         "--metadata",
@@ -38,32 +39,34 @@ def main():
         help="directory including feature files to be normalized. "
         "you need to specify either *-scp or rootdir.")
 
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump normalized feature files.")
-    parser.add_argument(
-        "--speech-stats",
-        type=str,
-        required=True,
-        help="speech statistics file.")
-    parser.add_argument(
-        "--pitch-stats", type=str, required=True, help="pitch statistics file.")
-    parser.add_argument(
-        "--energy-stats",
-        type=str,
-        required=True,
-        help="energy statistics file.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        "--norm-feats",
-        type=str2bool,
-        default=False,
-        help="whether to norm features")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump normalized feature files.")
+    parser.add_argument("--speech-stats",
+                        type=str,
+                        required=True,
+                        help="speech statistics file.")
+    parser.add_argument("--pitch-stats",
+                        type=str,
+                        required=True,
+                        help="pitch statistics file.")
+    parser.add_argument("--energy-stats",
+                        type=str,
+                        required=True,
+                        help="energy statistics file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument("--norm-feats",
+                        type=str2bool,
+                        default=False,
+                        help="whether to norm features")
 
     args = parser.parse_args()
 
@@ -75,13 +78,12 @@ def main():
     # get dataset
     with jsonlines.open(args.metadata, 'r') as reader:
         metadata = list(reader)
-    dataset = DataTable(
-        metadata,
-        converters={
-            "speech": np.load,
-            "pitch": np.load,
-            "energy": np.load,
-        })
+    dataset = DataTable(metadata,
+                        converters={
+                            "speech": np.load,
+                            "pitch": np.load,
+                            "energy": np.load,
+                        })
     logging.info(f"The number of files = {len(dataset)}.")
 
     # restore scaler
@@ -90,10 +92,10 @@ def main():
         speech_scaler.mean_ = np.load(args.speech_stats)[0]
         speech_scaler.scale_ = np.load(args.speech_stats)[1]
     else:
-        speech_scaler.mean_ = np.zeros(
-            np.load(args.speech_stats)[0].shape, dtype="float32")
-        speech_scaler.scale_ = np.ones(
-            np.load(args.speech_stats)[1].shape, dtype="float32")
+        speech_scaler.mean_ = np.zeros(np.load(args.speech_stats)[0].shape,
+                                       dtype="float32")
+        speech_scaler.scale_ = np.ones(np.load(args.speech_stats)[1].shape,
+                                       dtype="float32")
     speech_scaler.n_features_in_ = speech_scaler.mean_.shape[0]
 
     pitch_scaler = StandardScaler()
@@ -101,10 +103,10 @@ def main():
         pitch_scaler.mean_ = np.load(args.pitch_stats)[0]
         pitch_scaler.scale_ = np.load(args.pitch_stats)[1]
     else:
-        pitch_scaler.mean_ = np.zeros(
-            np.load(args.pitch_stats)[0].shape, dtype="float32")
-        pitch_scaler.scale_ = np.ones(
-            np.load(args.pitch_stats)[1].shape, dtype="float32")
+        pitch_scaler.mean_ = np.zeros(np.load(args.pitch_stats)[0].shape,
+                                      dtype="float32")
+        pitch_scaler.scale_ = np.ones(np.load(args.pitch_stats)[1].shape,
+                                      dtype="float32")
     pitch_scaler.n_features_in_ = pitch_scaler.mean_.shape[0]
 
     energy_scaler = StandardScaler()
@@ -112,10 +114,10 @@ def main():
         energy_scaler.mean_ = np.load(args.energy_stats)[0]
         energy_scaler.scale_ = np.load(args.energy_stats)[1]
     else:
-        energy_scaler.mean_ = np.zeros(
-            np.load(args.energy_stats)[0].shape, dtype="float32")
-        energy_scaler.scale_ = np.ones(
-            np.load(args.energy_stats)[1].shape, dtype="float32")
+        energy_scaler.mean_ = np.zeros(np.load(args.energy_stats)[0].shape,
+                                       dtype="float32")
+        energy_scaler.scale_ = np.ones(np.load(args.energy_stats)[1].shape,
+                                       dtype="float32")
     energy_scaler.n_features_in_ = energy_scaler.mean_.shape[0]
 
     vocab_phones = {}

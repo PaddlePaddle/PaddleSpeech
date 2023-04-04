@@ -16,7 +16,6 @@
 
 class LimitTrigger():
     """A Predicate to decide whether to stop."""
-
     def __init__(self, limit: int, unit: str):
         if unit not in ("iteration", "epoch"):
             raise ValueError("unit should be 'iteration' or 'epoch'")

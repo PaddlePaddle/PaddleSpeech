@@ -19,10 +19,11 @@ from typeguard import check_argument_types
 
 class SpeakerClassifier(nn.Layer):
     def __init__(
-            self,
-            idim: int,
-            hidden_sc_dim: int,
-            spk_num: int, ):
+        self,
+        idim: int,
+        hidden_sc_dim: int,
+        spk_num: int,
+    ):
         assert check_argument_types()
         super().__init__()
         # store hyperparameters
@@ -30,9 +31,8 @@ class SpeakerClassifier(nn.Layer):
         self.hidden_sc_dim = hidden_sc_dim
         self.spk_num = spk_num
 
-        self.model = nn.Sequential(
-            nn.Linear(self.idim, self.hidden_sc_dim),
-            nn.Linear(self.hidden_sc_dim, self.spk_num))
+        self.model = nn.Sequential(nn.Linear(self.idim, self.hidden_sc_dim),
+                                   nn.Linear(self.hidden_sc_dim, self.spk_num))
 
     def parse_outputs(self, out, text_lengths):
         mask = paddle.arange(out.shape[1]).expand(

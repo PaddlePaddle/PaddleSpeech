@@ -6,16 +6,19 @@ from onnx import version_converter
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__doc__)
-    parser.add_argument(
-        "--model-file", type=str, required=True, help='path/to/the/model.onnx.')
-    parser.add_argument(
-        "--save-model",
-        type=str,
-        required=True,
-        help='path/to/saved/model.onnx.')
+    parser.add_argument("--model-file",
+                        type=str,
+                        required=True,
+                        help='path/to/the/model.onnx.')
+    parser.add_argument("--save-model",
+                        type=str,
+                        required=True,
+                        help='path/to/saved/model.onnx.')
     # Models must be opset10 or higher to be quantized.
-    parser.add_argument(
-        "--target-opset", type=int, default=11, help='path/to/the/model.onnx.')
+    parser.add_argument("--target-opset",
+                        type=int,
+                        default=11,
+                        help='path/to/the/model.onnx.')
 
     args = parser.parse_args()
 

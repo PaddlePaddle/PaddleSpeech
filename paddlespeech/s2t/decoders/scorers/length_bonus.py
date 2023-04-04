@@ -24,7 +24,6 @@ from .scorer_interface import BatchScorerInterface
 
 class LengthBonus(BatchScorerInterface):
     """Length bonus in beam search."""
-
     def __init__(self, n_vocab: int):
         """Initialize class.
 
@@ -48,12 +47,10 @@ class LengthBonus(BatchScorerInterface):
                 and None
 
         """
-        return paddle.to_tensor(
-            [1.0], place=x.place, dtype=x.dtype).expand(self.n), None
+        return paddle.to_tensor([1.0], place=x.place,
+                                dtype=x.dtype).expand(self.n), None
 
-    def batch_score(self,
-                    ys: paddle.Tensor,
-                    states: List[Any],
+    def batch_score(self, ys: paddle.Tensor, states: List[Any],
                     xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch.
 
@@ -69,5 +66,8 @@ class LengthBonus(BatchScorerInterface):
                 and next state list for ys.
 
         """
-        return (paddle.to_tensor([1.0], place=xs.place, dtype=xs.dtype).expand(
-            ys.shape[0], self.n), None, )
+        return (
+            paddle.to_tensor([1.0], place=xs.place,
+                             dtype=xs.dtype).expand(ys.shape[0], self.n),
+            None,
+        )

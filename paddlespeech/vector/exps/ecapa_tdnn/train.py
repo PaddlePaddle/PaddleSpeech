@@ -60,12 +60,14 @@ def main(args, config):
 
     # stage2: data prepare, such vox1 and vox2 data, and augment noise data and pipline
     # note: some operations must be done in rank==0
-    train_dataset = CSVDataset(
-        csv_path=os.path.join(args.data_dir, "vox/csv/train.csv"),
-        label2id_path=os.path.join(args.data_dir, "vox/meta/label2id.txt"))
-    dev_dataset = CSVDataset(
-        csv_path=os.path.join(args.data_dir, "vox/csv/dev.csv"),
-        label2id_path=os.path.join(args.data_dir, "vox/meta/label2id.txt"))
+    train_dataset = CSVDataset(csv_path=os.path.join(args.data_dir,
+                                                     "vox/csv/train.csv"),
+                               label2id_path=os.path.join(
+                                   args.data_dir, "vox/meta/label2id.txt"))
+    dev_dataset = CSVDataset(csv_path=os.path.join(args.data_dir,
+                                                   "vox/csv/dev.csv"),
+                             label2id_path=os.path.join(
+                                 args.data_dir, "vox/meta/label2id.txt"))
 
     # we will build the augment pipeline process list
     if config.augment:
@@ -78,18 +80,17 @@ def main(args, config):
     ecapa_tdnn = EcapaTdnn(**config.model)
 
     # stage4: build the speaker verification train instance with backbone model
-    model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=config.num_speakers)
+    model = SpeakerIdetification(backbone=ecapa_tdnn,
+                                 num_class=config.num_speakers)
 
     # stage5: build the optimizer, we now only construct the AdamW optimizer
     #         140000 is single gpu steps
     #         so, in multi-gpu mode, wo reduce the step_size to 140000//nranks to enable CyclicLRScheduler
-    lr_schedule = CyclicLRScheduler(
-        base_lr=config.learning_rate,
-        max_lr=config.max_lr,
-        step_size=config.step_size // nranks)
-    optimizer = paddle.optimizer.AdamW(
-        learning_rate=lr_schedule, parameters=model.parameters())
+    lr_schedule = CyclicLRScheduler(base_lr=config.learning_rate,
+                                    max_lr=config.max_lr,
+                                    step_size=config.step_size // nranks)
+    optimizer = paddle.optimizer.AdamW(learning_rate=lr_schedule,
+                                       parameters=model.parameters())
 
     # stage6: build the loss function, we now only support LogSoftmaxWrapper
     criterion = LogSoftmaxWrapper(
@@ -125,18 +126,18 @@ def main(args, config):
             pass
 
     # stage8: we build the batch sampler for paddle.DataLoader
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=False)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=False)
     train_loader = DataLoader(
         train_dataset,
         batch_sampler=train_sampler,
         num_workers=config.num_workers,
         collate_fn=waveform_collate_fn,
         return_list=True,
-        use_buffer_reader=True, )
+        use_buffer_reader=True,
+    )
 
     # stage9: start to train
     #         we will comment the training process
@@ -179,18 +180,17 @@ def main(args, config):
             # stage 9-3: extract the audio feats,such fbank, mfcc, spectrogram
             feats = []
             for waveform in waveforms.numpy():
-                feat = melspectrogram(
-                    x=waveform,
-                    sr=config.sr,
-                    n_mels=config.n_mels,
-                    window_size=config.window_size,
-                    hop_length=config.hop_size)
+                feat = melspectrogram(x=waveform,
+                                      sr=config.sr,
+                                      n_mels=config.n_mels,
+                                      window_size=config.window_size,
+                                      hop_length=config.hop_size)
                 feats.append(feat)
             feats = paddle.to_tensor(np.asarray(feats))
 
             # stage 9-4: feature normalize, which help converge and imporve the performance
-            feats = feature_normalize(
-                feats, mean_norm=True, std_norm=False)  # Features normalization
+            feats = feature_normalize(feats, mean_norm=True,
+                                      std_norm=False)  # Features normalization
             train_feat_cost += time.time() - feat_start
 
             # stage 9-5: model forward, such ecapa-tdnn, x-vector
@@ -256,17 +256,17 @@ def main(args, config):
                 continue  # Resume trainning on other process
 
             # stage 9-12: construct the valid dataset dataloader
-            dev_sampler = BatchSampler(
-                dev_dataset,
-                batch_size=config.batch_size,
-                shuffle=False,
-                drop_last=False)
+            dev_sampler = BatchSampler(dev_dataset,
+                                       batch_size=config.batch_size,
+                                       shuffle=False,
+                                       drop_last=False)
             dev_loader = DataLoader(
                 dev_dataset,
                 batch_sampler=dev_sampler,
                 collate_fn=waveform_collate_fn,
                 num_workers=config.num_workers,
-                return_list=True, )
+                return_list=True,
+            )
 
             # set the model to eval mode
             model.eval()
@@ -281,17 +281,17 @@ def main(args, config):
 
                     feats = []
                     for waveform in waveforms.numpy():
-                        feat = melspectrogram(
-                            x=waveform,
-                            sr=config.sr,
-                            n_mels=config.n_mels,
-                            window_size=config.window_size,
-                            hop_length=config.hop_size)
+                        feat = melspectrogram(x=waveform,
+                                              sr=config.sr,
+                                              n_mels=config.n_mels,
+                                              window_size=config.window_size,
+                                              hop_length=config.hop_size)
                         feats.append(feat)
 
                     feats = paddle.to_tensor(np.asarray(feats))
-                    feats = feature_normalize(
-                        feats, mean_norm=True, std_norm=False)
+                    feats = feature_normalize(feats,
+                                              mean_norm=True,
+                                              std_norm=False)
                     logits = model(feats)
 
                     preds = paddle.argmax(logits, axis=1)

@@ -31,25 +31,25 @@ from paddlespeech.t2s.modules.residual_stack import ResidualStack
 
 class MelGANGenerator(nn.Layer):
     """MelGAN generator module."""
-
     def __init__(
-            self,
-            in_channels: int=80,
-            out_channels: int=1,
-            kernel_size: int=7,
-            channels: int=512,
-            bias: bool=True,
-            upsample_scales: List[int]=[8, 8, 2, 2],
-            stack_kernel_size: int=3,
-            stacks: int=3,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
-            pad: str="Pad1D",
-            pad_params: Dict[str, Any]={"mode": "reflect"},
-            use_final_nonlinear_activation: bool=True,
-            use_weight_norm: bool=True,
-            use_causal_conv: bool=False,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 80,
+        out_channels: int = 1,
+        kernel_size: int = 7,
+        channels: int = 512,
+        bias: bool = True,
+        upsample_scales: List[int] = [8, 8, 2, 2],
+        stack_kernel_size: int = 3,
+        stacks: int = 3,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.2},
+        pad: str = "Pad1D",
+        pad_params: Dict[str, Any] = {"mode": "reflect"},
+        use_final_nonlinear_activation: bool = True,
+        use_weight_norm: bool = True,
+        use_causal_conv: bool = False,
+        init_type: str = "xavier_uniform",
+    ):
         """Initialize MelGANGenerator module.
 
         Args:
@@ -99,8 +99,8 @@ class MelGANGenerator(nn.Layer):
         assert channels >= np.prod(upsample_scales)
         assert channels % (2**len(upsample_scales)) == 0
         if not use_causal_conv:
-            assert (kernel_size - 1
-                    ) % 2 == 0, "Not support even number kernel size."
+            assert (kernel_size -
+                    1) % 2 == 0, "Not support even number kernel size."
 
         layers = []
         if not use_causal_conv:
@@ -116,7 +116,8 @@ class MelGANGenerator(nn.Layer):
                     kernel_size,
                     bias=bias,
                     pad=pad,
-                    pad_params=pad_params, ),
+                    pad_params=pad_params,
+                ),
             ]
 
         for i, upsample_scale in enumerate(upsample_scales):
@@ -134,7 +135,8 @@ class MelGANGenerator(nn.Layer):
                         stride=upsample_scale,
                         padding=upsample_scale // 2 + upsample_scale % 2,
                         output_padding=upsample_scale % 2,
-                        bias_attr=bias, )
+                        bias_attr=bias,
+                    )
                 ]
             else:
                 layers += [
@@ -143,7 +145,8 @@ class MelGANGenerator(nn.Layer):
                         channels // (2**(i + 1)),
                         upsample_scale * 2,
                         stride=upsample_scale,
-                        bias=bias, )
+                        bias=bias,
+                    )
                 ]
 
             # add residual stack
@@ -158,7 +161,8 @@ class MelGANGenerator(nn.Layer):
                         nonlinear_activation_params=nonlinear_activation_params,
                         pad=pad,
                         pad_params=pad_params,
-                        use_causal_conv=use_causal_conv, )
+                        use_causal_conv=use_causal_conv,
+                    )
                 ]
 
         # add final layer
@@ -168,11 +172,10 @@ class MelGANGenerator(nn.Layer):
         if not use_causal_conv:
             layers += [
                 getattr(nn, pad)((kernel_size - 1) // 2, **pad_params),
-                nn.Conv1D(
-                    channels // (2**(i + 1)),
-                    out_channels,
-                    kernel_size,
-                    bias_attr=bias),
+                nn.Conv1D(channels // (2**(i + 1)),
+                          out_channels,
+                          kernel_size,
+                          bias_attr=bias),
             ]
         else:
             layers += [
@@ -182,7 +185,8 @@ class MelGANGenerator(nn.Layer):
                     kernel_size,
                     bias=bias,
                     pad=pad,
-                    pad_params=pad_params, ),
+                    pad_params=pad_params,
+                ),
             ]
         if use_final_nonlinear_activation:
             layers += [nn.Tanh()]
@@ -220,7 +224,6 @@ class MelGANGenerator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -231,7 +234,6 @@ class MelGANGenerator(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 nn.utils.remove_weight_norm(layer)
@@ -277,21 +279,21 @@ class MelGANGenerator(nn.Layer):
 
 class MelGANDiscriminator(nn.Layer):
     """MelGAN discriminator module."""
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            kernel_sizes: List[int]=[5, 3],
-            channels: int=16,
-            max_downsample_channels: int=1024,
-            bias: bool=True,
-            downsample_scales: List[int]=[4, 4, 4, 4],
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
-            pad: str="Pad1D",
-            pad_params: Dict[str, Any]={"mode": "reflect"},
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        kernel_sizes: List[int] = [5, 3],
+        channels: int = 16,
+        max_downsample_channels: int = 1024,
+        bias: bool = True,
+        downsample_scales: List[int] = [4, 4, 4, 4],
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.2},
+        pad: str = "Pad1D",
+        pad_params: Dict[str, Any] = {"mode": "reflect"},
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize MelGAN discriminator module.
 
         Args:
@@ -339,15 +341,15 @@ class MelGANDiscriminator(nn.Layer):
         # add first layer
         self.layers.append(
             nn.Sequential(
-                getattr(nn, pad)((np.prod(kernel_sizes) - 1) // 2, **
-                                 pad_params),
-                nn.Conv1D(
-                    in_channels,
-                    channels,
-                    int(np.prod(kernel_sizes)),
-                    bias_attr=bias),
-                get_activation(nonlinear_activation, **
-                               nonlinear_activation_params), ))
+                getattr(nn, pad)((np.prod(kernel_sizes) - 1) // 2,
+                                 **pad_params),
+                nn.Conv1D(in_channels,
+                          channels,
+                          int(np.prod(kernel_sizes)),
+                          bias_attr=bias),
+                get_activation(nonlinear_activation,
+                               **nonlinear_activation_params),
+            ))
 
         # add downsample layers
         in_chs = channels
@@ -362,9 +364,11 @@ class MelGANDiscriminator(nn.Layer):
                         stride=downsample_scale,
                         padding=downsample_scale * 5,
                         groups=in_chs // 4,
-                        bias_attr=bias, ),
-                    get_activation(nonlinear_activation, **
-                                   nonlinear_activation_params), ))
+                        bias_attr=bias,
+                    ),
+                    get_activation(nonlinear_activation,
+                                   **nonlinear_activation_params),
+                ))
             in_chs = out_chs
 
         # add final layers
@@ -376,16 +380,19 @@ class MelGANDiscriminator(nn.Layer):
                     out_chs,
                     kernel_sizes[0],
                     padding=(kernel_sizes[0] - 1) // 2,
-                    bias_attr=bias, ),
-                get_activation(nonlinear_activation, **
-                               nonlinear_activation_params), ))
+                    bias_attr=bias,
+                ),
+                get_activation(nonlinear_activation,
+                               **nonlinear_activation_params),
+            ))
         self.layers.append(
             nn.Conv1D(
                 out_chs,
                 out_channels,
                 kernel_sizes[1],
                 padding=(kernel_sizes[1] - 1) // 2,
-                bias_attr=bias, ), )
+                bias_attr=bias,
+            ), )
 
     def forward(self, x):
         """Calculate forward propagation.
@@ -405,31 +412,31 @@ class MelGANDiscriminator(nn.Layer):
 
 class MelGANMultiScaleDiscriminator(nn.Layer):
     """MelGAN multi-scale discriminator module."""
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            scales: int=3,
-            downsample_pooling: str="AvgPool1D",
-            # follow the official implementation setting
-            downsample_pooling_params: Dict[str, Any]={
-                "kernel_size": 4,
-                "stride": 2,
-                "padding": 1,
-                "exclusive": True,
-            },
-            kernel_sizes: List[int]=[5, 3],
-            channels: int=16,
-            max_downsample_channels: int=1024,
-            bias: bool=True,
-            downsample_scales: List[int]=[4, 4, 4, 4],
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
-            pad: str="Pad1D",
-            pad_params: Dict[str, Any]={"mode": "reflect"},
-            use_weight_norm: bool=True,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        scales: int = 3,
+        downsample_pooling: str = "AvgPool1D",
+        # follow the official implementation setting
+        downsample_pooling_params: Dict[str, Any] = {
+            "kernel_size": 4,
+            "stride": 2,
+            "padding": 1,
+            "exclusive": True,
+        },
+        kernel_sizes: List[int] = [5, 3],
+        channels: int = 16,
+        max_downsample_channels: int = 1024,
+        bias: bool = True,
+        downsample_scales: List[int] = [4, 4, 4, 4],
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.2},
+        pad: str = "Pad1D",
+        pad_params: Dict[str, Any] = {"mode": "reflect"},
+        use_weight_norm: bool = True,
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize MelGAN multi-scale discriminator module.
 
         Args:
@@ -490,9 +497,10 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
                     nonlinear_activation=nonlinear_activation,
                     nonlinear_activation_params=nonlinear_activation_params,
                     pad=pad,
-                    pad_params=pad_params, ))
-        self.pooling = getattr(nn, downsample_pooling)(
-            **downsample_pooling_params)
+                    pad_params=pad_params,
+                ))
+        self.pooling = getattr(nn,
+                               downsample_pooling)(**downsample_pooling_params)
 
         nn.initializer.set_global_initializer(None)
 
@@ -522,7 +530,6 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -533,7 +540,6 @@ class MelGANMultiScaleDiscriminator(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 nn.utils.remove_weight_norm(layer)

@@ -24,8 +24,8 @@ def summary(layer: nn.Layer):
         print("{}|{}|{}".format(name, param.shape, np.prod(param.shape)))
         num_elements += np.prod(param.shape)
         num_params += 1
-    print("layer has {} parameters, {} elements.".format(num_params,
-                                                         num_elements))
+    print("layer has {} parameters, {} elements.".format(
+        num_params, num_elements))
 
 
 def gradient_norm(layer: nn.Layer):

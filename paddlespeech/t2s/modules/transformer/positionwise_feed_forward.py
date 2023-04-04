@@ -28,7 +28,6 @@ class PositionwiseFeedForward(nn.Layer):
         dropout_rate (float): 
             Dropout rate.
     """
-
     def __init__(self,
                  idim,
                  hidden_units,

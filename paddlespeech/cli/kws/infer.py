@@ -33,18 +33,16 @@ __all__ = ['KWSExecutor']
 class KWSExecutor(BaseExecutor):
     def __init__(self):
         super().__init__(task='kws')
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.kws', add_help=True)
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Audio file to keyword spotting.')
-        self.parser.add_argument(
-            '--threshold',
-            type=float,
-            default=0.8,
-            help='Score threshold for keyword spotting.')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.kws',
+                                              add_help=True)
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to keyword spotting.')
+        self.parser.add_argument('--threshold',
+                                 type=float,
+                                 default=0.8,
+                                 help='Score threshold for keyword spotting.')
         self.parser.add_argument(
             '--model',
             type=str,
@@ -59,21 +57,19 @@ class KWSExecutor(BaseExecutor):
             type=str,
             default=None,
             help='Config of kws task. Use deault config when it is None.')
-        self.parser.add_argument(
-            '--ckpt_path',
-            type=str,
-            default=None,
-            help='Checkpoint file of model.')
+        self.parser.add_argument('--ckpt_path',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of model.')
         self.parser.add_argument(
             '--device',
             type=str,
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -81,9 +77,9 @@ class KWSExecutor(BaseExecutor):
             help='Increase logger verbosity of current task.')
 
     def _init_from_path(self,
-                        model_type: str='mdtc_heysnips',
-                        cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        model_type: str = 'mdtc_heysnips',
+                        cfg_path: Optional[os.PathLike] = None,
+                        ckpt_path: Optional[os.PathLike] = None):
         """
             Init model and other resources from a specific path.
         """
@@ -119,19 +115,20 @@ class KWSExecutor(BaseExecutor):
             in_channels=config['in_channels'],
             res_channels=config['res_channels'],
             kernel_size=config['kernel_size'],
-            causal=True, )
-        self.model = model_class(
-            backbone=backbone, num_keywords=config['num_keywords'])
+            causal=True,
+        )
+        self.model = model_class(backbone=backbone,
+                                 num_keywords=config['num_keywords'])
         model_dict = paddle.load(self.ckpt_path)
         self.model.set_state_dict(model_dict)
         self.model.eval()
 
         self.feature_extractor = lambda x: kaldi_fbank(
-            x, sr=config['sample_rate'],
+            x,
+            sr=config['sample_rate'],
             frame_shift=config['frame_shift'],
             frame_length=config['frame_length'],
-            n_mels=config['n_mels']
-        )
+            n_mels=config['n_mels'])
 
     def preprocess(self, audio_file: Union[str, os.PathLike]):
         """
@@ -201,11 +198,11 @@ class KWSExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 threshold: float=0.8,
-                 model: str='mdtc_heysnips',
-                 config: Optional[os.PathLike]=None,
-                 ckpt_path: Optional[os.PathLike]=None,
-                 device: str=paddle.get_device()):
+                 threshold: float = 0.8,
+                 model: str = 'mdtc_heysnips',
+                 config: Optional[os.PathLike] = None,
+                 ckpt_path: Optional[os.PathLike] = None,
+                 device: str = paddle.get_device()):
         """
             Python API to call an executor.
         """

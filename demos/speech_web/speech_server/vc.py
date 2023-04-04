@@ -24,13 +24,12 @@ from paddlespeech.server.utils.audio_process import float2pcm
 # 解析配置
 parser = argparse.ArgumentParser(prog='PaddleSpeechDemo', add_help=True)
 
-parser.add_argument(
-    "--port",
-    action="store",
-    type=int,
-    help="port of the app",
-    default=8010,
-    required=False)
+parser.add_argument("--port",
+                    action="store",
+                    type=int,
+                    help="port of the app",
+                    default=8010,
+                    required=False)
 
 args = parser.parse_args()
 port = args.port
@@ -166,8 +165,8 @@ async def saveFiles(files, SavePath):
             if 'blob' in file.filename:
                 out_file_path = os.path.join(
                     SavePath,
-                    datetime.datetime.strftime(datetime.datetime.now(),
-                                               '%H%M') + randName(3) + ".wav")
+                    datetime.datetime.strftime(datetime.datetime.now(), '%H%M')
+                    + randName(3) + ".wav")
             else:
                 out_file_path = os.path.join(SavePath, file.filename)
 
@@ -226,8 +225,8 @@ async def VcUpload(files: List[UploadFile]):
             if 'blob' in file.filename:
                 out_file_path = os.path.join(
                     VC_UPLOAD_PATH,
-                    datetime.datetime.strftime(datetime.datetime.now(),
-                                               '%H%M') + randName(3) + ".wav")
+                    datetime.datetime.strftime(datetime.datetime.now(), '%H%M')
+                    + randName(3) + ".wav")
             else:
                 out_file_path = os.path.join(VC_UPLOAD_PATH, file.filename)
 
@@ -281,13 +280,15 @@ async def VcCloneG2P(base: VcBaseText):
             if base.func == 'ge2e':
                 wavName = base.wavName
                 wavPath = os.path.join(VC_OUT_PATH, wavName)
-                wavPath = vc_model.vc(
-                    text=base.text, input_wav=base.wavPath, out_wav=wavPath)
+                wavPath = vc_model.vc(text=base.text,
+                                      input_wav=base.wavPath,
+                                      out_wav=wavPath)
             else:
                 wavName = base.wavName
                 wavPath = os.path.join(VC_OUT_PATH, wavName)
-                wavPath = vc_model_tdnn.vc(
-                    text=base.text, input_wav=base.wavPath, out_wav=wavPath)
+                wavPath = vc_model_tdnn.vc(text=base.text,
+                                           input_wav=base.wavPath,
+                                           out_wav=wavPath)
             if wavPath:
                 res = {"wavName": wavName, "wavPath": wavPath}
                 return SuccessRequest(result=res)
@@ -422,8 +423,8 @@ async def SATUpload(files: List[UploadFile]):
             if 'blob' in file.filename:
                 out_file_path = os.path.join(
                     SAT_UPLOAD_PATH,
-                    datetime.datetime.strftime(datetime.datetime.now(),
-                                               '%H%M') + randName(3) + ".wav")
+                    datetime.datetime.strftime(datetime.datetime.now(), '%H%M')
+                    + randName(3) + ".wav")
             else:
                 out_file_path = os.path.join(SAT_UPLOAD_PATH, file.filename)
 
@@ -513,9 +514,8 @@ async def FTModel(base: VcBaseFTModel):
     data_base = data_path.split(os.sep)[-1]
     exp_dir = os.path.join(FT_EXP_BASE_PATH, data_base)
     try:
-        exp_dir = ft_model.finetune(
-            input_dir=os.path.realpath(data_path),
-            exp_dir=os.path.realpath(exp_dir))
+        exp_dir = ft_model.finetune(input_dir=os.path.realpath(data_path),
+                                    exp_dir=os.path.realpath(exp_dir))
         if exp_dir:
             return SuccessRequest(result=exp_dir)
         else:

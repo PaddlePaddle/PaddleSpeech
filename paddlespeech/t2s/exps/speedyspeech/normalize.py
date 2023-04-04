@@ -29,7 +29,8 @@ from paddlespeech.t2s.utils import str2bool
 def main():
     """Run preprocessing process."""
     parser = argparse.ArgumentParser(
-        description="Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
+        description=
+        "Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
     )
     parser.add_argument(
         "--metadata",
@@ -37,25 +38,31 @@ def main():
         required=True,
         help="directory including feature files to be normalized. "
         "you need to specify either *-scp or rootdir.")
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump normalized feature files.")
-    parser.add_argument(
-        "--stats", type=str, required=True, help="statistics file.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones-dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump normalized feature files.")
+    parser.add_argument("--stats",
+                        type=str,
+                        required=True,
+                        help="statistics file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones-dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
 
-    parser.add_argument(
-        "--use-relative-path",
-        type=str2bool,
-        default=False,
-        help="whether use relative path in metadata")
+    parser.add_argument("--use-relative-path",
+                        type=str2bool,
+                        default=False,
+                        help="whether use relative path in metadata")
     args = parser.parse_args()
 
     dumpdir = Path(args.dumpdir).expanduser()
@@ -72,10 +79,9 @@ def main():
         for item in metadata:
             item["feats"] = str(metadata_dir / item["feats"])
 
-    dataset = DataTable(
-        metadata, converters={
-            'feats': np.load,
-        })
+    dataset = DataTable(metadata, converters={
+        'feats': np.load,
+    })
     logging.info(f"The number of files = {len(dataset)}.")
 
     # restore scaler

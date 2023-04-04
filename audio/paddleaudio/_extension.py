@@ -9,8 +9,8 @@ from pathlib import Path
 from ._internal import module_utils as _mod_utils  # noqa: F401
 
 # Query `hasattr` only once.
-_SET_GLOBAL_FLAGS = hasattr(sys, 'getdlopenflags') and hasattr(sys,
-                                                               'setdlopenflags')
+_SET_GLOBAL_FLAGS = hasattr(sys, 'getdlopenflags') and hasattr(
+    sys, 'setdlopenflags')
 
 
 @contextlib.contextmanager
@@ -139,7 +139,8 @@ def _init_ffmpeg():
 def _init_extension():
     if not _mod_utils.is_module_available("paddleaudio._paddleaudio"):
         warnings.warn(
-            "paddleaudio C++ extension is not available. sox_io, sox_effect, kaldi raw feature is not supported!!!")
+            "paddleaudio C++ extension is not available. sox_io, sox_effect, kaldi raw feature is not supported!!!"
+        )
         return
 
     _load_lib("libpaddleaudio")
@@ -149,7 +150,8 @@ def _init_extension():
         from paddleaudio import _paddleaudio  # noqa
     except Exception:
         warnings.warn(
-            "paddleaudio C++ extension is not available. sox_io, sox_effect, kaldi raw feature is not supported!!!")
+            "paddleaudio C++ extension is not available. sox_io, sox_effect, kaldi raw feature is not supported!!!"
+        )
         return
 
     # Because this part is executed as part of `import torchaudio`, we ignore the

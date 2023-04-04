@@ -66,9 +66,10 @@ def note2midi(notes: List[str]) -> List[str]:
 
 
 def time2frame(
-        times: List[float],
-        sample_rate: int=24000,
-        n_shift: int=128, ) -> List[int]:
+    times: List[float],
+    sample_rate: int = 24000,
+    n_shift: int = 128,
+) -> List[int]:
     """Convert the phoneme duration of time(s) into frames
 
     Args:
@@ -90,10 +91,11 @@ def time2frame(
 
 
 def get_sentences_svs(
-        file_name,
-        dataset: str='opencpop',
-        sample_rate: int=24000,
-        n_shift: int=128, ):
+    file_name,
+    dataset: str = 'opencpop',
+    sample_rate: int = 24000,
+    n_shift: int = 128,
+):
     '''
     read label file
     Args:
@@ -115,13 +117,15 @@ def get_sentences_svs(
             ph = line_list[2].split()
             midi = note2midi(line_list[3].split())
             midi_dur = line_list[4].split()
-            ph_dur = time2frame([float(t) for t in line_list[5].split()], sample_rate=sample_rate, n_shift=n_shift)
+            ph_dur = time2frame([float(t) for t in line_list[5].split()],
+                                sample_rate=sample_rate,
+                                n_shift=n_shift)
             is_slur = line_list[6].split()
             assert len(ph) == len(midi) == len(midi_dur) == len(is_slur)
-            sentence[utt] = (ph, [int(i) for i in ph_dur],
-                             [int(i) for i in midi],
-                             [float(i) for i in midi_dur],
-                             [int(i) for i in is_slur], text, "opencpop")
+            sentence[utt] = (ph, [int(i)
+                                  for i in ph_dur], [int(i) for i in midi],
+                             [float(i) for i in midi_dur
+                              ], [int(i) for i in is_slur], text, "opencpop")
     else:
         print("dataset should in {opencpop} now!")
 

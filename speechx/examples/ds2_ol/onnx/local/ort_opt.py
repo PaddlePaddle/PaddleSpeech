@@ -10,17 +10,19 @@ import onnxruntime as ort
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--model_in', required=True, type=str, help='Path to onnx model.')
-    parser.add_argument(
-        '--opt_level',
-        required=True,
-        type=int,
-        default=0,
-        choices=[0, 1, 2],
-        help='Path to onnx model.')
-    parser.add_argument(
-        '--model_out', required=True, help='path to save the optimized model.')
+    parser.add_argument('--model_in',
+                        required=True,
+                        type=str,
+                        help='Path to onnx model.')
+    parser.add_argument('--opt_level',
+                        required=True,
+                        type=int,
+                        default=0,
+                        choices=[0, 1, 2],
+                        help='Path to onnx model.')
+    parser.add_argument('--model_out',
+                        required=True,
+                        help='path to save the optimized model.')
     parser.add_argument('--debug', default=False, help='output debug info.')
     return parser.parse_args()
 

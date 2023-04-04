@@ -33,8 +33,8 @@ def check_phone(label_file: Union[str, Path],
                 pronunciation_phones: Dict[str, str],
                 mfa_phones: List[str],
                 am_phones: List[str],
-                oov_record: str="./oov_info.txt",
-                lang: str="zh"):
+                oov_record: str = "./oov_info.txt",
+                lang: str = "zh"):
     """Check whether the phoneme corresponding to the audio text content 
     is in the phoneme list of the pretrained mfa model to ensure that the alignment is normal.
     Check whether the phoneme corresponding to the audio text content 
@@ -134,8 +134,8 @@ def get_am_phone(am_phone_file: Union[str, Path]):
 def get_check_result(label_file: Union[str, Path],
                      am_phone_file: Union[str, Path],
                      input_dir: Union[str, Path],
-                     newdir_name: str="newdir",
-                     lang: str="zh"):
+                     newdir_name: str = "newdir",
+                     lang: str = "zh"):
     """Check if there is any audio in the input that contains the oov word according to label_file.
        Copy audio that does not contain oov word to input_dir / newdir_name.
        Generate label file and save to input_dir / newdir_name.
@@ -190,11 +190,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
 
-    parser.add_argument(
-        "--input_dir",
-        type=str,
-        default="./input/csmsc_mini",
-        help="directory containing audio and label file")
+    parser.add_argument("--input_dir",
+                        type=str,
+                        default="./input/csmsc_mini",
+                        help="directory containing audio and label file")
 
     parser.add_argument(
         "--pretrained_model_dir",
@@ -202,18 +201,16 @@ if __name__ == '__main__':
         default="./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0",
         help="Path to pretrained model")
 
-    parser.add_argument(
-        "--newdir_name",
-        type=str,
-        default="newdir",
-        help="directory name saved after checking oov")
+    parser.add_argument("--newdir_name",
+                        type=str,
+                        default="newdir",
+                        help="directory name saved after checking oov")
 
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        choices=['zh', 'en'],
-        help='Choose input audio language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        choices=['zh', 'en'],
+                        help='Choose input audio language. zh or en')
 
     args = parser.parse_args()
 
@@ -232,9 +229,8 @@ if __name__ == '__main__':
     am_phone_file = pretrained_model_dir / "phone_id_map.txt"
     label_file = input_dir / "labels.txt"
 
-    get_check_result(
-        label_file=label_file,
-        am_phone_file=am_phone_file,
-        input_dir=input_dir,
-        newdir_name=args.newdir_name,
-        lang=args.lang)
+    get_check_result(label_file=label_file,
+                     am_phone_file=am_phone_file,
+                     input_dir=input_dir,
+                     newdir_name=args.newdir_name,
+                     lang=args.lang)

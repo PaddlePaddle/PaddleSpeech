@@ -128,10 +128,11 @@ def main():
 
     tasks = [
         (URL_TRAIN_CLEAN, MD5_TRAIN_CLEAN,
-         os.path.join(args.target_dir, "train-clean"),
-         args.manifest_prefix + ".train-clean"),
-        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(
-            args.target_dir, "dev-clean"), args.manifest_prefix + ".dev-clean"),
+         os.path.join(args.target_dir,
+                      "train-clean"), args.manifest_prefix + ".train-clean"),
+        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(args.target_dir,
+                                                    "dev-clean"),
+         args.manifest_prefix + ".dev-clean"),
     ]
 
     with Pool(2) as pool:

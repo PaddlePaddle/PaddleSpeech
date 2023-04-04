@@ -32,40 +32,39 @@ from starlette.middleware.cors import CORSMiddleware
 from ..executor import BaseExecutor
 from ..util import cli_server_register
 from ..util import stats_wrapper
+
 warnings.filterwarnings("ignore")
 
 __all__ = ['ServerExecutor', 'ServerStatsExecutor']
 
-app = FastAPI(
-    title="PaddleSpeech Serving API", description="Api", version="0.0.1")
+app = FastAPI(title="PaddleSpeech Serving API",
+              description="Api",
+              version="0.0.1")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"])
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["*"],
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 
-@cli_server_register(
-    name='paddlespeech_server.start', description='Start the service')
+@cli_server_register(name='paddlespeech_server.start',
+                     description='Start the service')
 class ServerExecutor(BaseExecutor):
     def __init__(self):
         super(ServerExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_server.start', add_help=True)
-        self.parser.add_argument(
-            "--config_file",
-            action="store",
-            help="yaml file of the app",
-            default=None,
-            required=True)
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_server.start',
+                                              add_help=True)
+        self.parser.add_argument("--config_file",
+                                 action="store",
+                                 help="yaml file of the app",
+                                 default=None,
+                                 required=True)
 
-        self.parser.add_argument(
-            "--log_file",
-            action="store",
-            help="log file",
-            default="./log/paddlespeech.log")
+        self.parser.add_argument("--log_file",
+                                 action="store",
+                                 help="log file",
+                                 default="./log/paddlespeech.log")
 
     def init(self, config) -> bool:
         """system initialization
@@ -107,8 +106,8 @@ class ServerExecutor(BaseExecutor):
 
     @stats_wrapper
     def __call__(self,
-                 config_file: str="./conf/application.yaml",
-                 log_file: str="./log/paddlespeech.log"):
+                 config_file: str = "./conf/application.yaml",
+                 log_file: str = "./log/paddlespeech.log"):
         """
         Python API to call an executor.
         """
@@ -124,8 +123,8 @@ class ServerStatsExecutor():
     def __init__(self):
         super(ServerStatsExecutor, self).__init__()
 
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_server.stats', add_help=True)
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_server.stats',
+                                              add_help=True)
         self.parser.add_argument(
             '--task',
             type=str,
@@ -180,8 +179,8 @@ class ServerStatsExecutor():
 
             if len(dynamic_pretrained_models) > 0:
                 logger.info(
-                    "Here is the table of {} pretrained models supported in the service.".
-                    format(self.task.upper()))
+                    "Here is the table of {} pretrained models supported in the service."
+                    .format(self.task.upper()))
                 self.show_support_models(dynamic_pretrained_models)
 
             # Static models
@@ -189,14 +188,14 @@ class ServerStatsExecutor():
                 task=self.task, model_format='static').pretrained_models
             if len(static_pretrained_models) > 0:
                 logger.info(
-                    "Here is the table of {} static pretrained models supported in the service.".
-                    format(self.task.upper()))
+                    "Here is the table of {} static pretrained models supported in the service."
+                    .format(self.task.upper()))
                 self.show_support_models(static_pretrained_models)
 
             return True
 
         except BaseException:
             logger.error(
-                "Failed to get the table of {} pretrained models supported in the service.".
-                format(self.task.upper()))
+                "Failed to get the table of {} pretrained models supported in the service."
+                .format(self.task.upper()))
             return False

@@ -104,7 +104,7 @@ def compute_delay(receive_time_list, chunk_duration_list):
     return delay_time_list
 
 
-def count_engine(logfile: str="./nohup.out"):
+def count_engine(logfile: str = "./nohup.out"):
     """For inference on the statistical engine side
     Args:
         logfile (str, optional): server log. Defaults to "./nohup.out".
@@ -125,8 +125,8 @@ def count_engine(logfile: str="./nohup.out"):
                 duration = float(line.splie(" ")[-2])
                 duration_list.append(duration)
 
-    assert (len(first_response_list) == len(final_response_list) and
-            len(final_response_list) == len(duration_list))
+    assert (len(first_response_list) == len(final_response_list)
+            and len(final_response_list) == len(duration_list))
 
     avg_first_response = sum(first_response_list) / len(first_response_list)
     avg_final_response = sum(final_response_list) / len(final_response_list)

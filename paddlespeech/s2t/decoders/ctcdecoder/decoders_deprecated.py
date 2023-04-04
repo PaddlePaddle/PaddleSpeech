@@ -141,8 +141,8 @@ def ctc_beam_search_decoder(probs_seq,
                 c, prob_c = prob_idx[index][0], prob_idx[index][1]
 
                 if c == blank_id:
-                    probs_b_cur[l] += prob_c * (
-                        probs_b_prev[l] + probs_nb_prev[l])
+                    probs_b_cur[l] += prob_c * (probs_b_prev[l] +
+                                                probs_nb_prev[l])
                 else:
                     last_char = l[-1]
                     new_char = vocabulary[c]
@@ -162,19 +162,20 @@ def ctc_beam_search_decoder(probs_seq,
                         probs_nb_cur[l_plus] += score * prob_c * (
                             probs_b_prev[l] + probs_nb_prev[l])
                     else:
-                        probs_nb_cur[l_plus] += prob_c * (
-                            probs_b_prev[l] + probs_nb_prev[l])
+                        probs_nb_cur[l_plus] += prob_c * (probs_b_prev[l] +
+                                                          probs_nb_prev[l])
                     # add l_plus into prefix_set_next
-                    prefix_set_next[l_plus] = probs_nb_cur[
-                        l_plus] + probs_b_cur[l_plus]
+                    prefix_set_next[
+                        l_plus] = probs_nb_cur[l_plus] + probs_b_cur[l_plus]
             # add l into prefix_set_next
             prefix_set_next[l] = probs_b_cur[l] + probs_nb_cur[l]
         # update probs
         probs_b_prev, probs_nb_prev = probs_b_cur, probs_nb_cur
 
         # store top beam_size prefixes
-        prefix_set_prev = sorted(
-            prefix_set_next.items(), key=lambda asd: asd[1], reverse=True)
+        prefix_set_prev = sorted(prefix_set_next.items(),
+                                 key=lambda asd: asd[1],
+                                 reverse=True)
         if beam_size < len(prefix_set_prev):
             prefix_set_prev = prefix_set_prev[:beam_size]
         prefix_set_prev = dict(prefix_set_prev)

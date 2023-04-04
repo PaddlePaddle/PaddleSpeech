@@ -21,11 +21,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
 
-    parser.add_argument(
-        "--mfa_dir",
-        type=str,
-        default="./mfa_result",
-        help="directory to save aligned files")
+    parser.add_argument("--mfa_dir",
+                        type=str,
+                        default="./mfa_result",
+                        help="directory to save aligned files")
 
     args = parser.parse_args()
 

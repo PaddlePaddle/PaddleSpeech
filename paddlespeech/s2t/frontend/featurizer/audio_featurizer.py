@@ -46,11 +46,10 @@ class AudioFeaturizer():
     :param target_dB: Target audio decibels for normalization.
     :type target_dB: float
     """
-
     def __init__(self,
-                 spectrum_type: str='linear',
-                 feat_dim: int=None,
-                 delta_delta: bool=False,
+                 spectrum_type: str = 'linear',
+                 feat_dim: int = None,
+                 delta_delta: bool = False,
                  stride_ms=10.0,
                  window_ms=20.0,
                  n_fft=None,
@@ -92,10 +91,10 @@ class AudioFeaturizer():
         :raises ValueError: If audio sample rate is not supported.
         """
         # upsampling or downsampling
-        if ((audio_segment.sample_rate > self._target_sample_rate and
-             allow_downsampling) or
-            (audio_segment.sample_rate < self._target_sample_rate and
-             allow_upsampling)):
+        if ((audio_segment.sample_rate > self._target_sample_rate
+             and allow_downsampling)
+                or (audio_segment.sample_rate < self._target_sample_rate
+                    and allow_upsampling)):
             audio_segment.resample(self._target_sample_rate)
         if audio_segment.sample_rate != self._target_sample_rate:
             raise ValueError("Audio sample rate is not supported. "
@@ -136,34 +135,31 @@ class AudioFeaturizer():
         sample_rate = audio_segment.sample_rate
         if self._spectrum_type == 'linear':
             samples = audio_segment.samples
-            return self._compute_linear_specgram(
-                samples,
-                sample_rate,
-                stride_ms=self._stride_ms,
-                window_ms=self._window_ms,
-                max_freq=self._max_freq)
+            return self._compute_linear_specgram(samples,
+                                                 sample_rate,
+                                                 stride_ms=self._stride_ms,
+                                                 window_ms=self._window_ms,
+                                                 max_freq=self._max_freq)
         elif self._spectrum_type == 'mfcc':
             samples = audio_segment.to('int16')
-            return self._compute_mfcc(
-                samples,
-                sample_rate,
-                feat_dim=self._feat_dim,
-                stride_ms=self._stride_ms,
-                window_ms=self._window_ms,
-                max_freq=self._max_freq,
-                dither=self._dither,
-                delta_delta=self._delta_delta)
+            return self._compute_mfcc(samples,
+                                      sample_rate,
+                                      feat_dim=self._feat_dim,
+                                      stride_ms=self._stride_ms,
+                                      window_ms=self._window_ms,
+                                      max_freq=self._max_freq,
+                                      dither=self._dither,
+                                      delta_delta=self._delta_delta)
         elif self._spectrum_type == 'fbank':
             samples = audio_segment.to('int16')
-            return self._compute_fbank(
-                samples,
-                sample_rate,
-                feat_dim=self._feat_dim,
-                stride_ms=self._stride_ms,
-                window_ms=self._window_ms,
-                max_freq=self._max_freq,
-                dither=self._dither,
-                delta_delta=self._delta_delta)
+            return self._compute_fbank(samples,
+                                       sample_rate,
+                                       feat_dim=self._feat_dim,
+                                       stride_ms=self._stride_ms,
+                                       window_ms=self._window_ms,
+                                       max_freq=self._max_freq,
+                                       dither=self._dither,
+                                       delta_delta=self._delta_delta)
         else:
             raise ValueError("Unknown spectrum_type %s. "
                              "Supported values: linear." % self._spectrum_type)
@@ -175,10 +171,11 @@ class AudioFeaturizer():
         samples = samples[:len(samples) - truncate_size]
         nshape = (window_size, (len(samples) - window_size) // stride_size + 1)
         nstrides = (samples.strides[0], samples.strides[0] * stride_size)
-        windows = np.lib.stride_tricks.as_strided(
-            samples, shape=nshape, strides=nstrides)
-        assert np.all(
-            windows[:, 1] == samples[stride_size:(stride_size + window_size)])
+        windows = np.lib.stride_tricks.as_strided(samples,
+                                                  shape=nshape,
+                                                  strides=nstrides)
+        assert np.all(windows[:, 1] == samples[stride_size:(stride_size +
+                                                            window_size)])
         # window weighting, squared Fast Fourier Transform (fft), scaling
         weighting = np.hanning(window_size)[:, None]
         # https://numpy.org/doc/stable/reference/generated/numpy.fft.rfft.html
@@ -226,11 +223,10 @@ class AudioFeaturizer():
                              "window size.")
         stride_size = int(0.001 * sample_rate * stride_ms)
         window_size = int(0.001 * sample_rate * window_ms)
-        specgram, freqs = self._specgram_real(
-            samples,
-            window_size=window_size,
-            stride_size=stride_size,
-            sample_rate=sample_rate)
+        specgram, freqs = self._specgram_real(samples,
+                                              window_size=window_size,
+                                              stride_size=stride_size,
+                                              sample_rate=sample_rate)
         ind = np.where(freqs <= max_freq)[0][-1] + 1
         # (freq, time)
         spec = np.log(specgram[:ind, :] + eps)
@@ -290,22 +286,21 @@ class AudioFeaturizer():
                              "window size.")
         # compute the 13 cepstral coefficients, and the first one is replaced
         # by log(frame energy), (T, D)
-        mfcc_feat = mfcc(
-            signal=samples,
-            samplerate=sample_rate,
-            winlen=0.001 * window_ms,
-            winstep=0.001 * stride_ms,
-            numcep=feat_dim,
-            nfilt=23,
-            nfft=512,
-            lowfreq=20,
-            highfreq=max_freq,
-            dither=dither,
-            remove_dc_offset=True,
-            preemph=0.97,
-            ceplifter=22,
-            useEnergy=True,
-            winfunc='povey')
+        mfcc_feat = mfcc(signal=samples,
+                         samplerate=sample_rate,
+                         winlen=0.001 * window_ms,
+                         winstep=0.001 * stride_ms,
+                         numcep=feat_dim,
+                         nfilt=23,
+                         nfft=512,
+                         lowfreq=20,
+                         highfreq=max_freq,
+                         dither=dither,
+                         remove_dc_offset=True,
+                         preemph=0.97,
+                         ceplifter=22,
+                         useEnergy=True,
+                         winfunc='povey')
         if delta_delta:
             mfcc_feat = self._concat_delta_delta(mfcc_feat)
         return mfcc_feat
@@ -346,8 +341,8 @@ class AudioFeaturizer():
             raise ValueError("Stride size must not be greater than "
                              "window size.")
         # (T, D)
-        waveform = paddle.to_tensor(
-            np.expand_dims(samples, 0), dtype=paddle.float32)
+        waveform = paddle.to_tensor(np.expand_dims(samples, 0),
+                                    dtype=paddle.float32)
         mat = kaldi.fbank(
             waveform,
             n_mels=feat_dim,

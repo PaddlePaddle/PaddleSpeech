@@ -40,18 +40,18 @@ def ort_predict(args):
     fs = 24000 if am_dataset != 'ljspeech' else 22050
 
     # am
-    am_sess = get_sess(
-        model_path=str(Path(args.inference_dir) / (args.am + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    am_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.am + '.onnx')),
+                       device=args.device,
+                       cpu_threads=args.cpu_threads,
+                       use_trt=args.use_trt)
 
     # vocoder
-    voc_sess = get_sess(
-        model_path=str(Path(args.inference_dir) / (args.voc + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    voc_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.voc + '.onnx')),
+                        device=args.device,
+                        cpu_threads=args.cpu_threads,
+                        use_trt=args.use_trt)
 
     # am warmup
     for T in [27, 38, 54]:
@@ -91,10 +91,9 @@ def ort_predict(args):
             T += t.elapse
             speed = len(wav[0]) / t.elapse
             rtf = fs / speed
-        sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            np.array(wav)[0],
-            samplerate=fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 np.array(wav)[0],
+                 samplerate=fs)
         print(
             f"{utt_id}, mel: {mel.shape}, wave: {len(wav[0])}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
@@ -104,12 +103,11 @@ def ort_predict(args):
 def parse_args():
     parser = argparse.ArgumentParser(description="Infernce with onnxruntime.")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=['fastspeech2_csmsc', 'speedyspeech_csmsc'],
-        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=['fastspeech2_csmsc', 'speedyspeech_csmsc'],
+                        help='Choose acoustic model type of tts task.')
 
     # voc
     parser.add_argument(
@@ -119,8 +117,9 @@ def parse_args():
         choices=['hifigan_csmsc', 'mb_melgan_csmsc', 'pwgan_csmsc'],
         help='Choose vocoder type of tts task.')
     # other
-    parser.add_argument(
-        "--inference_dir", type=str, help="dir to save inference models")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir")
 
@@ -129,13 +128,15 @@ def parse_args():
         "--use_trt",
         type=str2bool,
         default=False,
-        help="Whether to use inference engin TensorRT.", )
+        help="Whether to use inference engin TensorRT.",
+    )
 
     parser.add_argument(
         "--device",
         default="gpu",
         choices=["gpu", "cpu"],
-        help="Device selected for inference.", )
+        help="Device selected for inference.",
+    )
     parser.add_argument('--cpu_threads', type=int, default=1)
 
     args, _ = parser.parse_known_args()

@@ -46,16 +46,16 @@ class DecoderLayer(nn.Layer):
             if False, no additional linear will be applied. i.e. x -> x + att(x)
 
     """
-
     def __init__(
-            self,
-            size,
-            self_attn,
-            src_attn,
-            feed_forward,
-            dropout_rate,
-            normalize_before=True,
-            concat_after=False, ):
+        self,
+        size,
+        self_attn,
+        src_attn,
+        feed_forward,
+        dropout_rate,
+        normalize_before=True,
+        concat_after=False,
+    ):
         """Construct an DecoderLayer object."""
         super().__init__()
         self.size = size

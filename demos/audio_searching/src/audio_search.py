@@ -33,12 +33,11 @@ from starlette.requests import Request
 from starlette.responses import FileResponse
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"])
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["*"],
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 MILVUS_CLI = MilvusHelper()
 MYSQL_CLI = MySQLHelper()
@@ -90,8 +89,8 @@ async def load_audios(item: Item):
 
 @app.post('/audio/search')
 async def search_audio(request: Request,
-                       table_name: str=None,
-                       audio: UploadFile=File(...)):
+                       table_name: str = None,
+                       audio: UploadFile = File(...)):
     # Search the uploaded audio in Milvus/MySQL
     try:
         # Save the upload data to server.
@@ -119,7 +118,7 @@ async def search_audio(request: Request,
 @app.post('/audio/search/local')
 async def search_local_audio(request: Request,
                              query_audio_path: str,
-                             table_name: str=None):
+                             table_name: str = None):
     # Search the uploaded audio in Milvus/MySQL
     try:
         host = request.headers['host']
@@ -140,7 +139,7 @@ async def search_local_audio(request: Request,
 
 
 @app.get('/audio/count')
-async def count_audio(table_name: str=None):
+async def count_audio(table_name: str = None):
     # Returns the total number of vectors in the system
     try:
         num = do_count(table_name, MILVUS_CLI)
@@ -152,7 +151,7 @@ async def count_audio(table_name: str=None):
 
 
 @app.post('/audio/drop')
-async def drop_tables(table_name: str=None):
+async def drop_tables(table_name: str = None):
     # Delete the collection of Milvus and MySQL
     try:
         status = do_drop(table_name, MILVUS_CLI, MYSQL_CLI)

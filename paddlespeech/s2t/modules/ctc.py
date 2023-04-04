@@ -52,10 +52,10 @@ class CTCDecoderBase(nn.Layer):
                  odim,
                  enc_n_units,
                  blank_id=0,
-                 dropout_rate: float=0.0,
-                 reduction: Union[str, bool]=True,
-                 batch_average: bool=True,
-                 grad_norm_type: Union[str, None]=None):
+                 dropout_rate: float = 0.0,
+                 reduction: Union[str, bool] = True,
+                 batch_average: bool = True,
+                 grad_norm_type: Union[str, None] = None):
         """CTC decoder
 
         Args:
@@ -77,11 +77,10 @@ class CTCDecoderBase(nn.Layer):
             reduction_type = "sum" if reduction else "none"
         else:
             reduction_type = reduction
-        self.criterion = CTCLoss(
-            blank=self.blank_id,
-            reduction=reduction_type,
-            batch_average=batch_average,
-            grad_norm_type=grad_norm_type)
+        self.criterion = CTCLoss(blank=self.blank_id,
+                                 reduction=reduction_type,
+                                 batch_average=batch_average,
+                                 grad_norm_type=grad_norm_type)
 
     def forward(self, hs_pad, hlens, ys_pad, ys_lens):
         """Calculate CTC loss.
@@ -98,7 +97,7 @@ class CTCDecoderBase(nn.Layer):
         loss = self.criterion(logits, ys_pad, hlens, ys_lens)
         return loss
 
-    def softmax(self, eouts: paddle.Tensor, temperature: float=1.0):
+    def softmax(self, eouts: paddle.Tensor, temperature: float = 1.0):
         """Get CTC probabilities.
         Args:
             eouts (FloatTensor): `[B, T, enc_units]`
@@ -108,8 +107,9 @@ class CTCDecoderBase(nn.Layer):
         self.probs = F.softmax(self.ctc_lo(eouts) / temperature, axis=2)
         return self.probs
 
-    def log_softmax(self, hs_pad: paddle.Tensor,
-                    temperature: float=1.0) -> paddle.Tensor:
+    def log_softmax(self,
+                    hs_pad: paddle.Tensor,
+                    temperature: float = 1.0) -> paddle.Tensor:
         """log_softmax of frame activations
         Args:
             Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -162,8 +162,9 @@ class CTCDecoder(CTCDecoderBase):
         """
         results = []
         for i, probs in enumerate(probs_split):
-            output_transcription = ctc_greedy_decoding(
-                probs_seq=probs, vocabulary=vocab_list, blank_id=self.blank_id)
+            output_transcription = ctc_greedy_decoding(probs_seq=probs,
+                                                       vocabulary=vocab_list,
+                                                       blank_id=self.blank_id)
             results.append(output_transcription)
         return results
 
@@ -196,17 +197,18 @@ class CTCDecoder(CTCDecoderBase):
             lm_dict_size = self._ext_scorer.get_dict_size()
             logger.info("language model: "
                         "is_character_based = %d," % lm_char_based +
-                        " max_order = %d," % lm_max_order + " dict_size = %d" %
-                        lm_dict_size)
+                        " max_order = %d," % lm_max_order +
+                        " dict_size = %d" % lm_dict_size)
             logger.info("end initializing scorer")
         else:
             self._ext_scorer = None
             logger.info("no language model provided, "
                         "decoding by pure beam search without scorer.")
 
-    def _decode_batch_beam_search_offline(
-            self, probs_split, beam_alpha, beam_beta, beam_size, cutoff_prob,
-            cutoff_top_n, vocab_list, num_processes):
+    def _decode_batch_beam_search_offline(self, probs_split, beam_alpha,
+                                          beam_beta, beam_size, cutoff_prob,
+                                          cutoff_top_n, vocab_list,
+                                          num_processes):
         """
         This function will be deprecated in future.
         Decode by beam search for a batch of probs matrix input.
@@ -462,9 +464,10 @@ class CTCDecoder(CTCDecoderBase):
         if self.beam_search_decoder is None:
             raise Exception(
                 "You need to initialize the beam_search_decoder firstly")
-        self.beam_search_decoder.reset_state(
-            self.batch_size, self.beam_size, self.num_processes,
-            self.cutoff_prob, self.cutoff_top_n)
+        self.beam_search_decoder.reset_state(self.batch_size, self.beam_size,
+                                             self.num_processes,
+                                             self.cutoff_prob,
+                                             self.cutoff_top_n)
 
     def del_decoder(self):
         """

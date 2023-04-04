@@ -32,19 +32,19 @@ from paddlespeech.t2s.modules.nets_utils import make_pad_mask
 class FastSpeech2MIDI(FastSpeech2):
     """The Fastspeech2 module of DiffSinger.
     """
-
     def __init__(
-            self,
-            # fastspeech2 network structure related
-            idim: int,
-            odim: int,
-            fastspeech2_params: Dict[str, Any],
-            # note emb
-            note_num: int=300,
-            # is_slur emb
-            is_slur_num: int=2,
-            use_energy_pred: bool=False,
-            use_postnet: bool=False, ):
+        self,
+        # fastspeech2 network structure related
+        idim: int,
+        odim: int,
+        fastspeech2_params: Dict[str, Any],
+        # note emb
+        note_num: int = 300,
+        # is_slur emb
+        is_slur_num: int = 2,
+        use_energy_pred: bool = False,
+        use_postnet: bool = False,
+    ):
         """Initialize FastSpeech2 module for svs.
         Args:
             fastspeech2_params (Dict):
@@ -81,19 +81,19 @@ class FastSpeech2MIDI(FastSpeech2):
             padding_idx=self.padding_idx)
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            durations: paddle.Tensor,
-            pitch: paddle.Tensor,
-            energy: paddle.Tensor,
-            spk_emb: paddle.Tensor=None,
-            spk_id: paddle.Tensor=None,
+        self,
+        text: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        durations: paddle.Tensor,
+        pitch: paddle.Tensor,
+        energy: paddle.Tensor,
+        spk_emb: paddle.Tensor = None,
+        spk_id: paddle.Tensor = None,
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -152,7 +152,8 @@ class FastSpeech2MIDI(FastSpeech2):
             es=es,
             is_inference=False,
             spk_emb=spk_emb,
-            spk_id=spk_id, )
+            spk_id=spk_id,
+        )
         # modify mod part of groundtruth
         if self.reduction_factor > 1:
             olens = olens - olens % self.reduction_factor
@@ -162,22 +163,23 @@ class FastSpeech2MIDI(FastSpeech2):
         return before_outs, after_outs, d_outs, p_outs, e_outs, ys, olens, spk_logits
 
     def _forward(
-            self,
-            xs: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            ilens: paddle.Tensor,
-            olens: paddle.Tensor=None,
-            ds: paddle.Tensor=None,
-            ps: paddle.Tensor=None,
-            es: paddle.Tensor=None,
-            is_inference: bool=False,
-            is_train_diffusion: bool=False,
-            return_after_enc=False,
-            alpha: float=1.0,
-            spk_emb=None,
-            spk_id=None, ) -> Sequence[paddle.Tensor]:
+        self,
+        xs: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        ilens: paddle.Tensor,
+        olens: paddle.Tensor = None,
+        ds: paddle.Tensor = None,
+        ps: paddle.Tensor = None,
+        es: paddle.Tensor = None,
+        is_inference: bool = False,
+        is_train_diffusion: bool = False,
+        return_after_enc=False,
+        alpha: float = 1.0,
+        spk_emb=None,
+        spk_id=None,
+    ) -> Sequence[paddle.Tensor]:
 
         before_outs = after_outs = d_outs = p_outs = e_outs = spk_logits = None
         # forward encoder
@@ -192,7 +194,8 @@ class FastSpeech2MIDI(FastSpeech2):
             masks=masks,
             note_emb=note_emb,
             note_dur_emb=note_dur_emb,
-            is_slur_emb=is_slur_emb, )
+            is_slur_emb=is_slur_emb,
+        )
 
         if self.spk_num and self.enable_speaker_classifier and not is_inference:
             hs_for_spk_cls = self.grad_reverse(hs)
@@ -225,8 +228,8 @@ class FastSpeech2MIDI(FastSpeech2):
             hs += p_embs
             if self.use_energy_pred:
                 e_outs = self.energy_predictor(hs.detach(), pitch_masks)
-                e_embs = self.energy_embed(
-                    e_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
+                e_embs = self.energy_embed(e_outs.transpose(
+                    (0, 2, 1))).transpose((0, 2, 1))
                 hs += e_embs
 
         elif is_inference:
@@ -258,8 +261,8 @@ class FastSpeech2MIDI(FastSpeech2):
                         e_outs = self.energy_predictor(hs.detach(), pitch_masks)
                     else:
                         e_outs = self.energy_predictor(hs, pitch_masks)
-                e_embs = self.energy_embed(
-                    e_outs.transpose((0, 2, 1))).transpose((0, 2, 1))
+                e_embs = self.energy_embed(e_outs.transpose(
+                    (0, 2, 1))).transpose((0, 2, 1))
                 hs += e_embs
 
         # training
@@ -320,14 +323,14 @@ class FastSpeech2MIDI(FastSpeech2):
         return before_outs, after_outs, d_outs, p_outs, e_outs, spk_logits
 
     def encoder_infer(
-            self,
-            text: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            alpha: float=1.0,
-            spk_emb=None,
-            spk_id=None,
+        self,
+        text: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        alpha: float = 1.0,
+        spk_emb=None,
+        spk_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         xs = paddle.cast(text, 'int64').unsqueeze(0)
         note = paddle.cast(note, 'int64').unsqueeze(0)
@@ -351,24 +354,26 @@ class FastSpeech2MIDI(FastSpeech2):
             return_after_enc=True,
             alpha=alpha,
             spk_emb=spk_emb,
-            spk_id=spk_id, )
+            spk_id=spk_id,
+        )
         return hs
 
     # get encoder output for diffusion training
     def encoder_infer_batch(
-            self,
-            text: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            ds: paddle.Tensor=None,
-            ps: paddle.Tensor=None,
-            es: paddle.Tensor=None,
-            alpha: float=1.0,
-            spk_emb=None,
-            spk_id=None, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        self,
+        text: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        ds: paddle.Tensor = None,
+        ps: paddle.Tensor = None,
+        es: paddle.Tensor = None,
+        alpha: float = 1.0,
+        spk_emb=None,
+        spk_id=None,
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
 
         xs = paddle.cast(text, 'int64')
         note = paddle.cast(note, 'int64')
@@ -396,22 +401,23 @@ class FastSpeech2MIDI(FastSpeech2):
             is_train_diffusion=True,
             alpha=alpha,
             spk_emb=spk_emb,
-            spk_id=spk_id, )
+            spk_id=spk_id,
+        )
         return hs, h_masks
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            durations: paddle.Tensor=None,
-            pitch: paddle.Tensor=None,
-            energy: paddle.Tensor=None,
-            alpha: float=1.0,
-            use_teacher_forcing: bool=False,
-            spk_emb=None,
-            spk_id=None,
+        self,
+        text: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        durations: paddle.Tensor = None,
+        pitch: paddle.Tensor = None,
+        energy: paddle.Tensor = None,
+        alpha: float = 1.0,
+        use_teacher_forcing: bool = False,
+        spk_emb=None,
+        spk_id=None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.
 
@@ -484,7 +490,8 @@ class FastSpeech2MIDI(FastSpeech2):
                 is_inference=True,
                 alpha=alpha,
                 spk_emb=spk_emb,
-                spk_id=spk_id, )
+                spk_id=spk_id,
+            )
 
         if e_outs is None:
             e_outs = [None]
@@ -494,9 +501,9 @@ class FastSpeech2MIDI(FastSpeech2):
 
 class FastSpeech2MIDILoss(FastSpeech2Loss):
     """Loss function module for DiffSinger."""
-
-    def __init__(self, use_masking: bool=True,
-                 use_weighted_masking: bool=False):
+    def __init__(self,
+                 use_masking: bool = True,
+                 use_weighted_masking: bool = False):
         """Initialize feed-forward Transformer loss module.
         Args:
             use_masking (bool): 
@@ -508,20 +515,20 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
         super().__init__(use_masking, use_weighted_masking)
 
     def forward(
-            self,
-            after_outs: paddle.Tensor,
-            before_outs: paddle.Tensor,
-            d_outs: paddle.Tensor,
-            p_outs: paddle.Tensor,
-            e_outs: paddle.Tensor,
-            ys: paddle.Tensor,
-            ds: paddle.Tensor,
-            ps: paddle.Tensor,
-            es: paddle.Tensor,
-            ilens: paddle.Tensor,
-            olens: paddle.Tensor,
-            spk_logits: paddle.Tensor=None,
-            spk_ids: paddle.Tensor=None,
+        self,
+        after_outs: paddle.Tensor,
+        before_outs: paddle.Tensor,
+        d_outs: paddle.Tensor,
+        p_outs: paddle.Tensor,
+        e_outs: paddle.Tensor,
+        ys: paddle.Tensor,
+        ds: paddle.Tensor,
+        ps: paddle.Tensor,
+        es: paddle.Tensor,
+        ilens: paddle.Tensor,
+        olens: paddle.Tensor,
+        spk_logits: paddle.Tensor = None,
+        spk_ids: paddle.Tensor = None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor,
                paddle.Tensor, ]:
         """Calculate forward propagation.
@@ -582,8 +589,8 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
                 duration_masks.broadcast_to(d_outs.shape))
             ds = ds.masked_select(duration_masks.broadcast_to(ds.shape))
             pitch_masks = out_masks
-            p_outs = p_outs.masked_select(
-                pitch_masks.broadcast_to(p_outs.shape))
+            p_outs = p_outs.masked_select(pitch_masks.broadcast_to(
+                p_outs.shape))
             ps = ps.masked_select(pitch_masks.broadcast_to(ps.shape))
             if e_outs is not None:
                 e_outs = e_outs.masked_select(
@@ -602,8 +609,8 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
 
         # calculate loss
         l1_loss = self.l1_criterion(before_outs, ys)
-        ssim_loss = 1.0 - ssim(
-            before_outs_ssim.unsqueeze(1), ys_ssim.unsqueeze(1))
+        ssim_loss = 1.0 - ssim(before_outs_ssim.unsqueeze(1),
+                               ys_ssim.unsqueeze(1))
         if not paddle.equal_all(after_outs, before_outs):
             l1_loss += self.l1_criterion(after_outs, ys)
             ssim_loss += (
@@ -623,8 +630,7 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
         if self.use_weighted_masking:
             out_masks = make_non_pad_mask(olens).unsqueeze(-1)
             out_weights = out_masks.cast(dtype=paddle.float32) / out_masks.cast(
-                dtype=paddle.float32).sum(
-                    axis=1, keepdim=True)
+                dtype=paddle.float32).sum(axis=1, keepdim=True)
             out_weights /= ys.shape[0] * ys.shape[2]
             duration_masks = make_non_pad_mask(ilens)
             duration_weights = (duration_masks.cast(dtype=paddle.float32) /
@@ -639,8 +645,8 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
             ssim_loss = ssim_loss.multiply(out_weights)
             ssim_loss = ssim_loss.masked_select(
                 out_masks.broadcast_to(ssim_loss.shape)).sum()
-            duration_loss = (duration_loss.multiply(duration_weights)
-                             .masked_select(duration_masks).sum())
+            duration_loss = (duration_loss.multiply(
+                duration_weights).masked_select(duration_masks).sum())
             pitch_masks = out_masks
             pitch_weights = out_weights
             pitch_loss = pitch_loss.multiply(pitch_weights)

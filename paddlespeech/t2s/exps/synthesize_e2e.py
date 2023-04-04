@@ -46,12 +46,11 @@ def evaluate(args):
     print(voc_config)
 
     # frontend
-    frontend = get_frontend(
-        lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict,
-        pinyin_phone=args.pinyin_phone,
-        use_rhy=args.use_rhy)
+    frontend = get_frontend(lang=args.lang,
+                            phones_dict=args.phones_dict,
+                            tones_dict=args.tones_dict,
+                            pinyin_phone=args.pinyin_phone,
+                            use_rhy=args.use_rhy)
     print("frontend done!")
 
     # acoustic model
@@ -65,30 +64,28 @@ def evaluate(args):
         phones_dict=args.phones_dict,
         tones_dict=args.tones_dict,
         speaker_dict=args.speaker_dict,
-        speech_stretchs=args.speech_stretchs, )
+        speech_stretchs=args.speech_stretchs,
+    )
     print("acoustic model done!")
 
     # vocoder
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
     print("voc done!")
 
     # whether dygraph to static
     if args.inference_dir:
         # acoustic model
-        am_inference = am_to_static(
-            am_inference=am_inference,
-            am=args.am,
-            inference_dir=args.inference_dir,
-            speaker_dict=args.speaker_dict)
+        am_inference = am_to_static(am_inference=am_inference,
+                                    am=args.am,
+                                    inference_dir=args.inference_dir,
+                                    speaker_dict=args.speaker_dict)
         # vocoder
-        voc_inference = voc_to_static(
-            voc_inference=voc_inference,
-            voc=args.voc,
-            inference_dir=args.inference_dir)
+        voc_inference = voc_to_static(voc_inference=voc_inference,
+                                      voc=args.voc,
+                                      inference_dir=args.inference_dir)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -116,13 +113,12 @@ def evaluate(args):
             else:
                 text = sentence
                 svs_input = None
-            frontend_dict = run_frontend(
-                frontend=frontend,
-                text=text,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids,
-                lang=args.lang,
-                svs_input=svs_input)
+            frontend_dict = run_frontend(frontend=frontend,
+                                         text=text,
+                                         merge_sentences=merge_sentences,
+                                         get_tone_ids=get_tone_ids,
+                                         lang=args.lang,
+                                         svs_input=svs_input)
             phone_ids = frontend_dict['phone_ids']
             with paddle.no_grad():
                 flags = 0
@@ -154,7 +150,8 @@ def evaluate(args):
                             text=part_phone_ids,
                             note=part_note_ids,
                             note_dur=part_note_durs,
-                            is_slur=part_is_slurs, )
+                            is_slur=part_is_slurs,
+                        )
                     # vocoder
                     wav = voc_inference(mel)
                     if flags == 0:
@@ -170,8 +167,9 @@ def evaluate(args):
         print(
             f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
-        sf.write(
-            str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 wav,
+                 samplerate=am_config.fs)
         print(f"{utt_id} done!")
     print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
@@ -181,109 +179,118 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Synthesize with acoustic model & vocoder")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=[
-            'speedyspeech_csmsc',
-            'speedyspeech_aishell3',
-            'fastspeech2_csmsc',
-            'fastspeech2_ljspeech',
-            'fastspeech2_aishell3',
-            'fastspeech2_vctk',
-            'tacotron2_csmsc',
-            'tacotron2_ljspeech',
-            'fastspeech2_mix',
-            'fastspeech2_canton',
-            'fastspeech2_male-zh',
-            'fastspeech2_male-en',
-            'fastspeech2_male-mix',
-            'diffsinger_opencpop',
-        ],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        '--am_config', type=str, default=None, help='Config of acoustic model.')
-    parser.add_argument(
-        '--am_ckpt',
-        type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=[
+                            'speedyspeech_csmsc',
+                            'speedyspeech_aishell3',
+                            'fastspeech2_csmsc',
+                            'fastspeech2_ljspeech',
+                            'fastspeech2_aishell3',
+                            'fastspeech2_vctk',
+                            'tacotron2_csmsc',
+                            'tacotron2_ljspeech',
+                            'fastspeech2_mix',
+                            'fastspeech2_canton',
+                            'fastspeech2_male-zh',
+                            'fastspeech2_male-en',
+                            'fastspeech2_male-mix',
+                            'diffsinger_opencpop',
+                        ],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am_config',
+                        type=str,
+                        default=None,
+                        help='Config of acoustic model.')
+    parser.add_argument('--am_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of acoustic model.')
     parser.add_argument(
         "--am_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument('--spk_id',
+                        type=int,
+                        default=0,
+                        help='spk id for multi speaker acoustic model')
     # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=[
-            'pwgan_csmsc',
-            'pwgan_ljspeech',
-            'pwgan_aishell3',
-            'pwgan_vctk',
-            'mb_melgan_csmsc',
-            'style_melgan_csmsc',
-            'hifigan_csmsc',
-            'hifigan_ljspeech',
-            'hifigan_aishell3',
-            'hifigan_vctk',
-            'wavernn_csmsc',
-            'pwgan_male',
-            'hifigan_male',
-            'pwgan_opencpop',
-            'hifigan_opencpop',
-        ],
-        help='Choose vocoder type of tts task.')
-    parser.add_argument(
-        '--voc_config', type=str, default=None, help='Config of voc.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=[
+                            'pwgan_csmsc',
+                            'pwgan_ljspeech',
+                            'pwgan_aishell3',
+                            'pwgan_vctk',
+                            'mb_melgan_csmsc',
+                            'style_melgan_csmsc',
+                            'hifigan_csmsc',
+                            'hifigan_ljspeech',
+                            'hifigan_aishell3',
+                            'hifigan_vctk',
+                            'wavernn_csmsc',
+                            'pwgan_male',
+                            'hifigan_male',
+                            'pwgan_opencpop',
+                            'hifigan_opencpop',
+                        ],
+                        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc_config',
+                        type=str,
+                        default=None,
+                        help='Config of voc.')
+    parser.add_argument('--voc_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of voc.')
     parser.add_argument(
         "--voc_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training voc."
     )
     # other
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        choices=['zh', 'en', 'mix', 'canton', 'sing'],
-        help='Choose model language. zh or en or mix')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        choices=['zh', 'en', 'mix', 'canton', 'sing'],
+                        help='Choose model language. zh or en or mix')
 
-    parser.add_argument(
-        "--inference_dir",
-        type=str,
-        default=None,
-        help="dir to save inference models")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        default=None,
+                        help="dir to save inference models")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--use_rhy",
-        type=str2bool,
-        default=False,
-        help="run rhythm frontend or not")
+    parser.add_argument("--use_rhy",
+                        type=str2bool,
+                        default=False,
+                        help="run rhythm frontend or not")
     parser.add_argument(
         "--pinyin_phone",
         type=str,
@@ -293,7 +300,8 @@ def parse_args():
         "--speech_stretchs",
         type=str,
         default=None,
-        help="The min and max values of the mel spectrum, using on diffusion of diffsinger."
+        help=
+        "The min and max values of the mel spectrum, using on diffusion of diffsinger."
     )
 
     args = parser.parse_args()

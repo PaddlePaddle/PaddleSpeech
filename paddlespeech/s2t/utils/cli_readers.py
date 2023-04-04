@@ -24,10 +24,11 @@ from paddlespeech.s2t.io.reader import SoundHDF5File
 
 
 def file_reader_helper(
-        rspecifier: str,
-        filetype: str="mat",
-        return_shape: bool=False,
-        segments: str=None, ):
+    rspecifier: str,
+    filetype: str = "mat",
+    return_shape: bool = False,
+    segments: str = None,
+):
     """Read uttid and array in kaldi style
 
     This function might be a bit confusing as "ark" is used
@@ -57,8 +58,9 @@ def file_reader_helper(
 
     """
     if filetype == "mat":
-        return KaldiReader(
-            rspecifier, return_shape=return_shape, segments=segments)
+        return KaldiReader(rspecifier,
+                           return_shape=return_shape,
+                           segments=segments)
     elif filetype == "hdf5":
         return HDF5Reader(rspecifier, return_shape=return_shape)
     elif filetype == "sound.hdf5":
@@ -76,8 +78,8 @@ class KaldiReader:
         self.segments = segments
 
     def __iter__(self):
-        with kaldiio.ReadHelper(
-                self.rspecifier, segments=self.segments) as reader:
+        with kaldiio.ReadHelper(self.rspecifier,
+                                segments=self.segments) as reader:
             for key, array in reader:
                 if self.return_shape:
                     array = array.shape
@@ -87,8 +89,9 @@ class KaldiReader:
 class HDF5Reader:
     def __init__(self, rspecifier, return_shape=False):
         if ":" not in rspecifier:
-            raise ValueError('Give "rspecifier" such as "ark:some.ark: {}"'.
-                             format(self.rspecifier))
+            raise ValueError(
+                'Give "rspecifier" such as "ark:some.ark: {}"'.format(
+                    self.rspecifier))
         self.rspecifier = rspecifier
         self.ark_or_scp, self.filepath = self.rspecifier.split(":", 1)
         if self.ark_or_scp not in ["ark", "scp"]:
@@ -122,8 +125,9 @@ class HDF5Reader:
                     try:
                         data = hdf5_file[h5_key]
                     except Exception:
-                        logging.error("Error when loading {} with key={}".
-                                      format(path, h5_key))
+                        logging.error(
+                            "Error when loading {} with key={}".format(
+                                path, h5_key))
                         raise
 
                     if self.return_shape:
@@ -155,8 +159,9 @@ class HDF5Reader:
 class SoundHDF5Reader:
     def __init__(self, rspecifier, return_shape=False):
         if ":" not in rspecifier:
-            raise ValueError('Give "rspecifier" such as "ark:some.ark: {}"'.
-                             format(rspecifier))
+            raise ValueError(
+                'Give "rspecifier" such as "ark:some.ark: {}"'.format(
+                    rspecifier))
         self.ark_or_scp, self.filepath = rspecifier.split(":", 1)
         if self.ark_or_scp not in ["ark", "scp"]:
             raise ValueError(f"Must be scp or ark: {self.ark_or_scp}")
@@ -188,8 +193,9 @@ class SoundHDF5Reader:
                     try:
                         data = hdf5_file[h5_key]
                     except Exception:
-                        logging.error("Error when loading {} with key={}".
-                                      format(path, h5_key))
+                        logging.error(
+                            "Error when loading {} with key={}".format(
+                                path, h5_key))
                         raise
 
                     # Change Tuple[ndarray, int] -> Tuple[int, ndarray]
@@ -221,8 +227,9 @@ class SoundHDF5Reader:
 class SoundReader:
     def __init__(self, rspecifier, return_shape=False):
         if ":" not in rspecifier:
-            raise ValueError('Give "rspecifier" such as "scp:some.scp: {}"'.
-                             format(rspecifier))
+            raise ValueError(
+                'Give "rspecifier" such as "scp:some.scp: {}"'.format(
+                    rspecifier))
         self.ark_or_scp, self.filepath = rspecifier.split(":", 1)
         if self.ark_or_scp != "scp":
             raise ValueError('Only supporting "scp" for sound file: {}'.format(

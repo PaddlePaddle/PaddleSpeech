@@ -35,7 +35,6 @@ __all__ = ["MultiHeadedAttention", "RelPositionMultiHeadedAttention"]
 
 class MultiHeadedAttention(nn.Layer):
     """Multi-Head Attention layer."""
-
     def __init__(self, n_head: int, n_feat: int, dropout_rate: float):
         """Construct an MultiHeadedAttention object.
         Args:
@@ -55,11 +54,9 @@ class MultiHeadedAttention(nn.Layer):
         self.linear_out = Linear(n_feat, n_feat)
         self.dropout = nn.Dropout(p=dropout_rate)
 
-    def forward_qkv(self,
-                    query: paddle.Tensor,
-                    key: paddle.Tensor,
-                    value: paddle.Tensor
-                    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward_qkv(
+        self, query: paddle.Tensor, key: paddle.Tensor, value: paddle.Tensor
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Transform query, key and value.
         Args:
             query (paddle.Tensor): Query tensor (#batch, time1, size).
@@ -86,10 +83,10 @@ class MultiHeadedAttention(nn.Layer):
         return q, k, v
 
     def forward_attention(
-            self,
-            value: paddle.Tensor,
-            scores: paddle.Tensor,
-            mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool)
+        self,
+        value: paddle.Tensor,
+        scores: paddle.Tensor,
+        mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool)
     ) -> paddle.Tensor:
         """Compute attention context vector.
         Args:
@@ -116,28 +113,29 @@ class MultiHeadedAttention(nn.Layer):
             # for last chunk, time2 might be larger than scores.size(-1)
             mask = mask[:, :, :, :scores.shape[-1]]
             scores = scores.masked_fill(mask, -float('inf'))
-            attn = paddle.softmax(
-                scores, axis=-1).masked_fill(mask,
-                                             0.0)  # (batch, head, time1, time2)
+            attn = paddle.softmax(scores, axis=-1).masked_fill(
+                mask, 0.0)  # (batch, head, time1, time2)
         else:
-            attn = paddle.softmax(
-                scores, axis=-1)  # (batch, head, time1, time2)
+            attn = paddle.softmax(scores,
+                                  axis=-1)  # (batch, head, time1, time2)
 
         p_attn = self.dropout(attn)
         x = paddle.matmul(p_attn, value)  # (batch, head, time1, d_k)
-        x = x.transpose([0, 2, 1, 3]).view(n_batch, -1, self.h *
-                                           self.d_k)  # (batch, time1, d_model)
+        x = x.transpose([0, 2, 1,
+                         3]).view(n_batch, -1,
+                                  self.h * self.d_k)  # (batch, time1, d_model)
 
         return self.linear_out(x)  # (batch, time1, d_model)
 
-    def forward(self,
-                query: paddle.Tensor,
-                key: paddle.Tensor,
-                value: paddle.Tensor,
-                mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-                pos_emb: paddle.Tensor=paddle.empty([0]),
-                cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
-                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    def forward(
+        self,
+        query: paddle.Tensor,
+        key: paddle.Tensor,
+        value: paddle.Tensor,
+        mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+        pos_emb: paddle.Tensor = paddle.empty([0]),
+        cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute scaled dot product attention.
        Args:
             query (paddle.Tensor): Query tensor (#batch, time1, size).
@@ -199,7 +197,6 @@ class MultiHeadedAttention(nn.Layer):
 
 class RelPositionMultiHeadedAttention(MultiHeadedAttention):
     """Multi-Head Attention layer with relative position encoding."""
-
     def __init__(self,
                  n_head,
                  n_feat,
@@ -243,16 +240,16 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         input_max = (self.h * self.d_k)**-0.5
         self.linear_q._param_attr = paddle.nn.initializer.Uniform(
             low=-input_max, high=input_max)
-        self.linear_q._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
+        self.linear_q._bias_attr = paddle.nn.initializer.Uniform(low=-input_max,
+                                                                 high=input_max)
         self.linear_k._param_attr = paddle.nn.initializer.Uniform(
             low=-input_max, high=input_max)
-        self.linear_k._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
+        self.linear_k._bias_attr = paddle.nn.initializer.Uniform(low=-input_max,
+                                                                 high=input_max)
         self.linear_v._param_attr = paddle.nn.initializer.Uniform(
             low=-input_max, high=input_max)
-        self.linear_v._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
+        self.linear_v._bias_attr = paddle.nn.initializer.Uniform(low=-input_max,
+                                                                 high=input_max)
         self.linear_pos._param_attr = paddle.nn.initializer.Uniform(
             low=-input_max, high=input_max)
         self.linear_pos._bias_attr = paddle.nn.initializer.Uniform(
@@ -262,7 +259,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         self.linear_out._bias_attr = paddle.nn.initializer.Uniform(
             low=-input_max, high=input_max)
 
-    def rel_shift(self, x, zero_triu: bool=False):
+    def rel_shift(self, x, zero_triu: bool = False):
         """Compute relative positinal encoding.
         Args:
             x (paddle.Tensor): Input tensor (batch, head, time1, time1).
@@ -271,8 +268,8 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         Returns:
             paddle.Tensor: Output tensor. (batch, head, time1, time1)
         """
-        zero_pad = paddle.zeros(
-            (x.shape[0], x.shape[1], x.shape[2], 1), dtype=x.dtype)
+        zero_pad = paddle.zeros((x.shape[0], x.shape[1], x.shape[2], 1),
+                                dtype=x.dtype)
         x_padded = paddle.cat([zero_pad, x], dim=-1)
 
         x_padded = x_padded.view(x.shape[0], x.shape[1], x.shape[3] + 1,
@@ -285,14 +282,15 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
 
         return x
 
-    def forward(self,
-                query: paddle.Tensor,
-                key: paddle.Tensor,
-                value: paddle.Tensor,
-                mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-                pos_emb: paddle.Tensor=paddle.empty([0]),
-                cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
-                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    def forward(
+        self,
+        query: paddle.Tensor,
+        key: paddle.Tensor,
+        value: paddle.Tensor,
+        mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+        pos_emb: paddle.Tensor = paddle.empty([0]),
+        cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
         Args:
             query (paddle.Tensor): Query tensor (#batch, time1, size).

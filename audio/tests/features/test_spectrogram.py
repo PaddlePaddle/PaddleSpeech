@@ -31,8 +31,9 @@ class TestSpectrogram(FeatTest):
         ps_res = ps_spect(self.waveform.T).squeeze(1).T  # Magnitude
 
         x = paddle.to_tensor(self.waveform)
-        pa_spect = paddle.audio.features.Spectrogram(
-            self.n_fft, self.hop_length, power=1.0)
+        pa_spect = paddle.audio.features.Spectrogram(self.n_fft,
+                                                     self.hop_length,
+                                                     power=1.0)
         pa_res = pa_spect(x).squeeze(0).numpy()
 
         np.testing.assert_array_almost_equal(ps_res, pa_res, decimal=5)

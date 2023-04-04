@@ -61,12 +61,10 @@ def insert_after_character(lst, item):
 
 class Polyphonic():
     def __init__(self):
-        with open(
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    'polyphonic.yaml'),
-                'r',
-                encoding='utf-8') as polyphonic_file:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               'polyphonic.yaml'),
+                  'r',
+                  encoding='utf-8') as polyphonic_file:
             # 解析yaml
             polyphonic_dict = yaml.load(polyphonic_file, Loader=yaml.FullLoader)
         self.polyphonic_words = polyphonic_dict["polyphonic"]
@@ -116,8 +114,8 @@ class Frontend():
         self.g2p_model = g2p_model
         if self.g2p_model == "g2pM":
             self.g2pM_model = G2pM()
-            self.pinyin2phone = generate_lexicon(
-                with_tone=True, with_erhua=False)
+            self.pinyin2phone = generate_lexicon(with_tone=True,
+                                                 with_erhua=False)
         elif self.g2p_model == "g2pW":
             # use pypinyin as backup for non polyphonic characters in g2pW
             self._init_pypinyin()
@@ -125,8 +123,8 @@ class Frontend():
             self.g2pM_model = G2pM()
             self.g2pW_model = G2PWOnnxConverter(
                 style='pinyin', enable_non_tradional_chinese=True)
-            self.pinyin2phone = generate_lexicon(
-                with_tone=True, with_erhua=False)
+            self.pinyin2phone = generate_lexicon(with_tone=True,
+                                                 with_erhua=False)
 
         else:
             self._init_pypinyin()
@@ -164,10 +162,12 @@ class Frontend():
         initials = []
         finals = []
         if self.g2p_model == "pypinyin":
-            orig_initials = lazy_pinyin(
-                word, neutral_tone_with_five=True, style=Style.INITIALS)
-            orig_finals = lazy_pinyin(
-                word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
+            orig_initials = lazy_pinyin(word,
+                                        neutral_tone_with_five=True,
+                                        style=Style.INITIALS)
+            orig_finals = lazy_pinyin(word,
+                                      neutral_tone_with_five=True,
+                                      style=Style.FINALS_TONE3)
             for c, v in zip(orig_initials, orig_finals):
                 if re.match(r'i\d', v):
                     if c in ['z', 'c', 's']:
@@ -197,8 +197,8 @@ class Frontend():
     # if merge_sentences, merge all sentences into one phone sequence
     def _g2p(self,
              sentences: List[str],
-             merge_sentences: bool=True,
-             with_erhua: bool=True) -> List[List[str]]:
+             merge_sentences: bool = True,
+             with_erhua: bool = True) -> List[List[str]]:
         segments = sentences
         phones_list = []
         for seg in segments:
@@ -225,8 +225,8 @@ class Frontend():
                     pinyins = self.g2pM_model(seg, tone=True, char_split=False)
                 if self.use_rhy:
                     rhy_text = self.rhy_predictor.get_prediction(seg)
-                    final_py = self.rhy_predictor.pinyin_align(pinyins,
-                                                               rhy_text)
+                    final_py = self.rhy_predictor.pinyin_align(
+                        pinyins, rhy_text)
                     pinyins = final_py
                 pre_word_length = 0
                 for word, pos in seg_cut:
@@ -258,8 +258,8 @@ class Frontend():
                             sub_initials.append(pinyin)
                             sub_finals.append(pinyin)
                     pre_word_length = now_word_length
-                    sub_finals = self.tone_modifier.modified_tone(word, pos,
-                                                                  sub_finals)
+                    sub_finals = self.tone_modifier.modified_tone(
+                        word, pos, sub_finals)
                     if with_erhua:
                         sub_initials, sub_finals = self._merge_erhua(
                             sub_initials, sub_finals, word, pos)
@@ -271,8 +271,8 @@ class Frontend():
                     if pos == 'eng':
                         continue
                     sub_initials, sub_finals = self._get_initials_finals(word)
-                    sub_finals = self.tone_modifier.modified_tone(word, pos,
-                                                                  sub_finals)
+                    sub_finals = self.tone_modifier.modified_tone(
+                        word, pos, sub_finals)
                     if with_erhua:
                         sub_initials, sub_finals = self._merge_erhua(
                             sub_initials, sub_finals, word, pos)
@@ -312,7 +312,7 @@ class Frontend():
     def _g2p_assign(self,
                     words: List[str],
                     pinyin_spec: List[str],
-                    merge_sentences: bool=True) -> List[List[str]]:
+                    merge_sentences: bool = True) -> List[List[str]]:
         phones_list = []
         initials = []
         finals = []
@@ -361,17 +361,14 @@ class Frontend():
             phones_list.append(merge_list)
         return phones_list
 
-    def _merge_erhua(self,
-                     initials: List[str],
-                     finals: List[str],
-                     word: str,
+    def _merge_erhua(self, initials: List[str], finals: List[str], word: str,
                      pos: str) -> List[List[str]]:
         # fix er1
         for i, phn in enumerate(finals):
             if i == len(finals) - 1 and word[i] == "儿" and phn == 'er1':
                 finals[i] = 'er2'
-        if word not in self.must_erhua and (word in self.not_erhua or
-                                            pos in {"a", "j", "nr"}):
+        if word not in self.must_erhua and (word in self.not_erhua
+                                            or pos in {"a", "j", "nr"}):
             return initials, finals
         # "……" 等情况直接返回
         if len(finals) != len(word):
@@ -405,8 +402,9 @@ class Frontend():
         tone_ids = [self.vocab_tones[item] for item in tones]
         return np.array(tone_ids, np.int64)
 
-    def _get_phone_tone(self, phonemes: List[str],
-                        get_tone_ids: bool=False) -> List[List[str]]:
+    def _get_phone_tone(self,
+                        phonemes: List[str],
+                        get_tone_ids: bool = False) -> List[List[str]]:
         phones = []
         tones = []
         if get_tone_ids and self.vocab_tones:
@@ -447,13 +445,14 @@ class Frontend():
 
     def get_phonemes(self,
                      sentence: str,
-                     merge_sentences: bool=True,
-                     with_erhua: bool=True,
-                     robot: bool=False,
-                     print_info: bool=False) -> List[List[str]]:
+                     merge_sentences: bool = True,
+                     with_erhua: bool = True,
+                     robot: bool = False,
+                     print_info: bool = False) -> List[List[str]]:
         sentences = self.text_normalizer.normalize(sentence)
-        phonemes = self._g2p(
-            sentences, merge_sentences=merge_sentences, with_erhua=with_erhua)
+        phonemes = self._g2p(sentences,
+                             merge_sentences=merge_sentences,
+                             with_erhua=with_erhua)
         # change all tones to `1`
         if robot:
             new_phonemes = []
@@ -479,24 +478,24 @@ class Frontend():
     #@an added for ssml pinyin
     def get_phonemes_ssml(self,
                           ssml_inputs: list,
-                          merge_sentences: bool=True,
-                          with_erhua: bool=True,
-                          robot: bool=False,
-                          print_info: bool=False) -> List[List[str]]:
+                          merge_sentences: bool = True,
+                          with_erhua: bool = True,
+                          robot: bool = False,
+                          print_info: bool = False) -> List[List[str]]:
         all_phonemes = []
         for word_pinyin_item in ssml_inputs:
             phonemes = []
             sentence, pinyin_spec = itemgetter(0, 1)(word_pinyin_item)
             sentences = self.text_normalizer.normalize(sentence)
             if len(pinyin_spec) == 0:
-                phonemes = self._g2p(
-                    sentences,
-                    merge_sentences=merge_sentences,
-                    with_erhua=with_erhua)
+                phonemes = self._g2p(sentences,
+                                     merge_sentences=merge_sentences,
+                                     with_erhua=with_erhua)
             else:
                 # phonemes should be pinyin_spec
-                phonemes = self._g2p_assign(
-                    sentences, pinyin_spec, merge_sentences=merge_sentences)
+                phonemes = self._g2p_assign(sentences,
+                                            pinyin_spec,
+                                            merge_sentences=merge_sentences)
 
             all_phonemes = all_phonemes + phonemes
 
@@ -529,19 +528,18 @@ class Frontend():
 
     def get_input_ids(self,
                       sentence: str,
-                      merge_sentences: bool=True,
-                      get_tone_ids: bool=False,
-                      robot: bool=False,
-                      print_info: bool=False,
-                      add_blank: bool=False,
-                      blank_token: str="<pad>",
-                      to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+                      merge_sentences: bool = True,
+                      get_tone_ids: bool = False,
+                      robot: bool = False,
+                      print_info: bool = False,
+                      add_blank: bool = False,
+                      blank_token: str = "<pad>",
+                      to_tensor: bool = True) -> Dict[str, List[paddle.Tensor]]:
 
-        phonemes = self.get_phonemes(
-            sentence,
-            merge_sentences=merge_sentences,
-            print_info=print_info,
-            robot=robot)
+        phonemes = self.get_phonemes(sentence,
+                                     merge_sentences=merge_sentences,
+                                     print_info=print_info,
+                                     robot=robot)
         if self.use_rhy:
             phonemes = self.add_sp_if_no(phonemes)
         result = {}
@@ -551,8 +549,8 @@ class Frontend():
         temp_tone_ids = []
 
         for part_phonemes in phonemes:
-            phones, tones = self._get_phone_tone(
-                part_phonemes, get_tone_ids=get_tone_ids)
+            phones, tones = self._get_phone_tone(part_phonemes,
+                                                 get_tone_ids=get_tone_ids)
             if add_blank:
                 phones = insert_after_character(phones, blank_token)
             if tones:
@@ -576,20 +574,19 @@ class Frontend():
     def get_input_ids_ssml(
             self,
             sentence: str,
-            merge_sentences: bool=True,
-            get_tone_ids: bool=False,
-            robot: bool=False,
-            print_info: bool=False,
-            add_blank: bool=False,
-            blank_token: str="<pad>",
-            to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+            merge_sentences: bool = True,
+            get_tone_ids: bool = False,
+            robot: bool = False,
+            print_info: bool = False,
+            add_blank: bool = False,
+            blank_token: str = "<pad>",
+            to_tensor: bool = True) -> Dict[str, List[paddle.Tensor]]:
 
         l_inputs = MixTextProcessor.get_pinyin_split(sentence)
-        phonemes = self.get_phonemes_ssml(
-            l_inputs,
-            merge_sentences=merge_sentences,
-            print_info=print_info,
-            robot=robot)
+        phonemes = self.get_phonemes_ssml(l_inputs,
+                                          merge_sentences=merge_sentences,
+                                          print_info=print_info,
+                                          robot=robot)
         result = {}
         phones = []
         tones = []
@@ -597,8 +594,8 @@ class Frontend():
         temp_tone_ids = []
 
         for part_phonemes in phonemes:
-            phones, tones = self._get_phone_tone(
-                part_phonemes, get_tone_ids=get_tone_ids)
+            phones, tones = self._get_phone_tone(part_phonemes,
+                                                 get_tone_ids=get_tone_ids)
             if add_blank:
                 phones = insert_after_character(phones, blank_token)
             if tones:

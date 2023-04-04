@@ -52,8 +52,7 @@ class JSONDataset(Dataset):
     """
     dataset from json file.
     """
-
-    def __init__(self, json_file: str, feat_type: str='raw', **kwargs):
+    def __init__(self, json_file: str, feat_type: str = 'raw', **kwargs):
         """
         Ags:
             json_file (:obj:`str`): Data prep JSON file.
@@ -84,9 +83,8 @@ class JSONDataset(Dataset):
             stop = sub_seg["stop"]
             rec_id = str(key).rsplit("_", 2)[0]
             data.append(
-                meta_info(
-                    str(key),
-                    float(duration), wav, int(start), int(stop), str(rec_id)))
+                meta_info(str(key), float(duration), wav, int(start), int(stop),
+                          str(rec_id)))
         return data
 
     def _convert_to_record(self, idx: int):
@@ -101,8 +99,8 @@ class JSONDataset(Dataset):
         waveform = waveform[record['start']:record['stop']]
 
         feat_func = feat_funcs[self.feat_type]
-        feat = feat_func(
-            waveform, sr=sr, **self.feat_config) if feat_func else waveform
+        feat = feat_func(waveform, sr=sr, **
+                         self.feat_config) if feat_func else waveform
 
         record.update({'feat': feat})
 

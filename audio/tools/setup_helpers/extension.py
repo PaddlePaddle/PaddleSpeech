@@ -40,6 +40,7 @@ _BUILD_KALDI = False if platform.system() == "Windows" else _get_build(
 _PADDLESPEECH_CUDA_ARCH_LIST = os.environ.get("PADDLESPEECH_CUDA_ARCH_LIST",
                                               None)
 
+
 def get_ext_modules():
     if platform.system() == "Windows":
         return []
@@ -111,7 +112,8 @@ class CMakeBuild(build_ext):
             cmake_args += [f"-DCMAKE_CUDA_ARCHITECTURES={';'.join(_arches)}"]
 
         # Default to Ninja
-        if "CMAKE_GENERATOR" not in os.environ or platform.system() == "Windows":
+        if "CMAKE_GENERATOR" not in os.environ or platform.system(
+        ) == "Windows":
             cmake_args += ["-GNinja"]
 
         if platform.system() == "Windows":
@@ -138,11 +140,11 @@ class CMakeBuild(build_ext):
 
         print(
             f"cmake {_ROOT_DIR} {' '.join(cmake_args)}, cwd={self.build_temp}")
-        subprocess.check_call(
-            ["cmake", str(_ROOT_DIR)] + cmake_args, cwd=self.build_temp)
+        subprocess.check_call(["cmake", str(_ROOT_DIR)] + cmake_args,
+                              cwd=self.build_temp)
         print(f"cmake --build . {' '.join(build_args)}, cwd={self.build_temp}")
-        subprocess.check_call(
-            ["cmake", "--build", "."] + build_args, cwd=self.build_temp)
+        subprocess.check_call(["cmake", "--build", "."] + build_args,
+                              cwd=self.build_temp)
 
     def get_ext_filename(self, fullname):
         ext_filename = super().get_ext_filename(fullname)

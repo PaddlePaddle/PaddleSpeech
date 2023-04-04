@@ -57,16 +57,14 @@ def get_avg_wer(raw_dict, ref_dict, frontend, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="g2p example.")
-    parser.add_argument(
-        "--input-dir",
-        default="data/g2p",
-        type=str,
-        help="directory to preprocessed test data.")
-    parser.add_argument(
-        "--output-dir",
-        default="exp/g2p",
-        type=str,
-        help="directory to save g2p results.")
+    parser.add_argument("--input-dir",
+                        default="data/g2p",
+                        type=str,
+                        help="directory to preprocessed test data.")
+    parser.add_argument("--output-dir",
+                        default="exp/g2p",
+                        type=str,
+                        help="directory to save g2p results.")
 
     args = parser.parse_args()
     input_dir = Path(args.input_dir).expanduser()

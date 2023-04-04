@@ -18,8 +18,7 @@ from paddle import nn
 
 class GLU(nn.Layer):
     """Gated Linear Units (GLU) Layer"""
-
-    def __init__(self, dim: int=-1):
+    def __init__(self, dim: int = -1):
         super().__init__()
         self.dim = dim
 

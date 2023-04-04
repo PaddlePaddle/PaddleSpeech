@@ -35,18 +35,18 @@ def main():
         required=True,
         help="directory including feature files to be normalized. "
         "you need to specify either *-scp or rootdir.")
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump normalized feature files.")
-    parser.add_argument(
-        "--stats", type=str, required=True, help="statistics file.")
-    parser.add_argument(
-        "--skip-wav-copy",
-        default=False,
-        action="store_true",
-        help="whether to skip the copy of wav files.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump normalized feature files.")
+    parser.add_argument("--stats",
+                        type=str,
+                        required=True,
+                        help="statistics file.")
+    parser.add_argument("--skip-wav-copy",
+                        default=False,
+                        action="store_true",
+                        help="whether to skip the copy of wav files.")
 
     args = parser.parse_args()
 
@@ -58,14 +58,13 @@ def main():
     # get dataset
     with jsonlines.open(args.metadata, 'r') as reader:
         metadata = list(reader)
-    dataset = DataTable(
-        metadata,
-        fields=["utt_id", "wave", "feats"],
-        converters={
-            'utt_id': None,
-            'wave': None if args.skip_wav_copy else np.load,
-            'feats': np.load,
-        })
+    dataset = DataTable(metadata,
+                        fields=["utt_id", "wave", "feats"],
+                        converters={
+                            'utt_id': None,
+                            'wave': None if args.skip_wav_copy else np.load,
+                            'feats': np.load,
+                        })
     logging.info(f"The number of files = {len(dataset)}.")
 
     # restore scaler

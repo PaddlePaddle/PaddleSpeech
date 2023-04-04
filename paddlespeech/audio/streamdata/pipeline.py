@@ -19,14 +19,14 @@ def add_length_method(obj):
     Combined = type(
         obj.__class__.__name__ + "_Length",
         (obj.__class__, IterableDataset),
-        {"__len__": length}, )
+        {"__len__": length},
+    )
     obj.__class__ = Combined
     return obj
 
 
 class DataPipeline(IterableDataset, PipelineStage):
     """A pipeline starting with an IterableDataset and a series of filters."""
-
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.pipeline = []

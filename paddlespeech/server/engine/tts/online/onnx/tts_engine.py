@@ -40,27 +40,28 @@ class TTSServerExecutor(TTSExecutor):
         self.task_resource = CommonTaskResource(task='tts', model_format='onnx')
 
     def _init_from_path(
-            self,
-            am: str='fastspeech2_csmsc_onnx',
-            am_ckpt: Optional[list]=None,
-            am_stat: Optional[os.PathLike]=None,
-            phones_dict: Optional[os.PathLike]=None,
-            tones_dict: Optional[os.PathLike]=None,
-            speaker_dict: Optional[os.PathLike]=None,
-            am_sample_rate: int=24000,
-            am_sess_conf: dict=None,
-            voc: str='mb_melgan_csmsc_onnx',
-            voc_ckpt: Optional[os.PathLike]=None,
-            voc_sample_rate: int=24000,
-            voc_sess_conf: dict=None,
-            lang: str='zh', ):
+        self,
+        am: str = 'fastspeech2_csmsc_onnx',
+        am_ckpt: Optional[list] = None,
+        am_stat: Optional[os.PathLike] = None,
+        phones_dict: Optional[os.PathLike] = None,
+        tones_dict: Optional[os.PathLike] = None,
+        speaker_dict: Optional[os.PathLike] = None,
+        am_sample_rate: int = 24000,
+        am_sess_conf: dict = None,
+        voc: str = 'mb_melgan_csmsc_onnx',
+        voc_ckpt: Optional[os.PathLike] = None,
+        voc_sample_rate: int = 24000,
+        voc_sess_conf: dict = None,
+        lang: str = 'zh',
+    ):
         """
         Init model and other resources from a specific path.
         """
 
         if (hasattr(self, 'am_sess') or
-            (hasattr(self, 'am_encoder_infer_sess') and
-             hasattr(self, 'am_decoder_sess') and hasattr(
+            (hasattr(self, 'am_encoder_infer_sess')
+             and hasattr(self, 'am_decoder_sess') and hasattr(
                  self, 'am_postnet_sess'))) and hasattr(self, 'voc_inference'):
             logger.debug('Models had been initialized.')
             return
@@ -162,9 +163,8 @@ class TTSServerExecutor(TTSExecutor):
         # frontend
         self.tones_dict = None
         if lang == 'zh':
-            self.frontend = Frontend(
-                phone_vocab_path=self.phones_dict,
-                tone_vocab_path=self.tones_dict)
+            self.frontend = Frontend(phone_vocab_path=self.phones_dict,
+                                     tone_vocab_path=self.tones_dict)
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
@@ -177,7 +177,6 @@ class TTSEngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self, name=None):
         """Initialize TTS server engine
         """
@@ -197,11 +196,11 @@ class TTSEngine(BaseEngine):
         self.voc_upsample = self.config.voc_upsample
 
         assert (
-            self.config.am == "fastspeech2_csmsc_onnx" or
-            self.config.am == "fastspeech2_cnndecoder_csmsc_onnx"
+            self.config.am == "fastspeech2_csmsc_onnx"
+            or self.config.am == "fastspeech2_cnndecoder_csmsc_onnx"
         ) and (
-            self.config.voc == "hifigan_csmsc_onnx" or
-            self.config.voc == "mb_melgan_csmsc_onnx"
+            self.config.voc == "hifigan_csmsc_onnx"
+            or self.config.voc == "mb_melgan_csmsc_onnx"
         ), 'Please check config, am support: fastspeech2, voc support: hifigan_csmsc-zh or mb_melgan_csmsc.'
 
         assert (
@@ -300,11 +299,12 @@ class PaddleTTSConnectionHandler:
 
     @paddle.no_grad()
     def infer(
-            self,
-            text: str,
-            lang: str='zh',
-            am: str='fastspeech2_csmsc_onnx',
-            spk_id: int=0, ):
+        self,
+        text: str,
+        lang: str = 'zh',
+        am: str = 'fastspeech2_csmsc_onnx',
+        spk_id: int = 0,
+    ):
         """
         Model inference and result stored in self.output.
         """
@@ -403,13 +403,13 @@ class PaddleTTSConnectionHandler:
                     if i == 0:
                         mel_streaming = sub_mel
                     else:
-                        mel_streaming = np.concatenate(
-                            (mel_streaming, sub_mel), axis=0)
+                        mel_streaming = np.concatenate((mel_streaming, sub_mel),
+                                                       axis=0)
 
                     # streaming voc
                     # 当流式AM推理的mel帧数大于流式voc推理的chunk size，开始进行流式voc 推理
-                    while (mel_streaming.shape[0] >= end and
-                           voc_chunk_id < voc_chunk_num):
+                    while (mel_streaming.shape[0] >= end
+                           and voc_chunk_id < voc_chunk_num):
                         if first_flag == 1:
                             first_am_et = time.time()
                             self.first_am_infer = first_am_et - frontend_et
@@ -417,9 +417,10 @@ class PaddleTTSConnectionHandler:
 
                         sub_wav = self.executor.voc_sess.run(
                             output_names=None, input_feed={'logmel': voc_chunk})
-                        sub_wav = self.depadding(
-                            sub_wav[0], voc_chunk_num, voc_chunk_id,
-                            self.voc_block, self.voc_pad, self.voc_upsample)
+                        sub_wav = self.depadding(sub_wav[0], voc_chunk_num,
+                                                 voc_chunk_id, self.voc_block,
+                                                 self.voc_pad,
+                                                 self.voc_upsample)
                         if first_flag == 1:
                             first_voc_et = time.time()
                             self.first_voc_infer = first_voc_et - first_am_et
@@ -442,7 +443,7 @@ class PaddleTTSConnectionHandler:
 
         self.final_response_time = time.time() - frontend_st
 
-    def run(self, sentence: str, spk_id: int=0):
+    def run(self, sentence: str, spk_id: int = 0):
         """ run include inference and postprocess.
 
         Args:
@@ -458,7 +459,8 @@ class PaddleTTSConnectionHandler:
                 text=sentence,
                 lang=self.config.lang,
                 am=self.config.am,
-                spk_id=spk_id, ):
+                spk_id=spk_id,
+        ):
 
             # wav type: <class 'numpy.ndarray'>  float32, convert to pcm (base64)
             wav = float2pcm(wav)  # float32 to int16

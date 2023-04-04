@@ -19,7 +19,6 @@ class DefaultInitializerContext(object):
         with DefaultInitializerContext("kaiming_uniform"):
             code for setup_model
     """
-
     def __init__(self, init_type=None):
         self.init_type = init_type
 

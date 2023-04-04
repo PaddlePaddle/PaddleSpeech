@@ -59,106 +59,107 @@ class VITS(nn.Layer):
     .. _`Conditional Variational Autoencoder with Adversarial Learning for End-to-End
         Text-to-Speech`: https://arxiv.org/abs/2006.04558
     """
-
     def __init__(
-            self,
-            # generator related
-            idim: int,
-            odim: int,
-            sampling_rate: int=22050,
-            generator_type: str="vits_generator",
-            generator_params: Dict[str, Any]={
-                "hidden_channels": 192,
-                "spks": None,
-                "langs": None,
-                "spk_embed_dim": None,
-                "global_channels": -1,
-                "segment_size": 32,
-                "text_encoder_attention_heads": 2,
-                "text_encoder_ffn_expand": 4,
-                "text_encoder_blocks": 6,
-                "text_encoder_positionwise_layer_type": "conv1d",
-                "text_encoder_positionwise_conv_kernel_size": 1,
-                "text_encoder_positional_encoding_layer_type": "rel_pos",
-                "text_encoder_self_attention_layer_type": "rel_selfattn",
-                "text_encoder_activation_type": "swish",
-                "text_encoder_normalize_before": True,
-                "text_encoder_dropout_rate": 0.1,
-                "text_encoder_positional_dropout_rate": 0.0,
-                "text_encoder_attention_dropout_rate": 0.0,
-                "text_encoder_conformer_kernel_size": 7,
-                "use_macaron_style_in_text_encoder": True,
-                "use_conformer_conv_in_text_encoder": True,
-                "decoder_kernel_size": 7,
-                "decoder_channels": 512,
-                "decoder_upsample_scales": [8, 8, 2, 2],
-                "decoder_upsample_kernel_sizes": [16, 16, 4, 4],
-                "decoder_resblock_kernel_sizes": [3, 7, 11],
-                "decoder_resblock_dilations": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
-                "use_weight_norm_in_decoder": True,
-                "posterior_encoder_kernel_size": 5,
-                "posterior_encoder_layers": 16,
-                "posterior_encoder_stacks": 1,
-                "posterior_encoder_base_dilation": 1,
-                "posterior_encoder_dropout_rate": 0.0,
-                "use_weight_norm_in_posterior_encoder": True,
-                "flow_flows": 4,
-                "flow_kernel_size": 5,
-                "flow_base_dilation": 1,
-                "flow_layers": 4,
-                "flow_dropout_rate": 0.0,
-                "use_weight_norm_in_flow": True,
-                "use_only_mean_in_flow": True,
-                "stochastic_duration_predictor_kernel_size": 3,
-                "stochastic_duration_predictor_dropout_rate": 0.5,
-                "stochastic_duration_predictor_flows": 4,
-                "stochastic_duration_predictor_dds_conv_layers": 3,
+        self,
+        # generator related
+        idim: int,
+        odim: int,
+        sampling_rate: int = 22050,
+        generator_type: str = "vits_generator",
+        generator_params: Dict[str, Any] = {
+            "hidden_channels": 192,
+            "spks": None,
+            "langs": None,
+            "spk_embed_dim": None,
+            "global_channels": -1,
+            "segment_size": 32,
+            "text_encoder_attention_heads": 2,
+            "text_encoder_ffn_expand": 4,
+            "text_encoder_blocks": 6,
+            "text_encoder_positionwise_layer_type": "conv1d",
+            "text_encoder_positionwise_conv_kernel_size": 1,
+            "text_encoder_positional_encoding_layer_type": "rel_pos",
+            "text_encoder_self_attention_layer_type": "rel_selfattn",
+            "text_encoder_activation_type": "swish",
+            "text_encoder_normalize_before": True,
+            "text_encoder_dropout_rate": 0.1,
+            "text_encoder_positional_dropout_rate": 0.0,
+            "text_encoder_attention_dropout_rate": 0.0,
+            "text_encoder_conformer_kernel_size": 7,
+            "use_macaron_style_in_text_encoder": True,
+            "use_conformer_conv_in_text_encoder": True,
+            "decoder_kernel_size": 7,
+            "decoder_channels": 512,
+            "decoder_upsample_scales": [8, 8, 2, 2],
+            "decoder_upsample_kernel_sizes": [16, 16, 4, 4],
+            "decoder_resblock_kernel_sizes": [3, 7, 11],
+            "decoder_resblock_dilations": [[1, 3, 5], [1, 3, 5], [1, 3, 5]],
+            "use_weight_norm_in_decoder": True,
+            "posterior_encoder_kernel_size": 5,
+            "posterior_encoder_layers": 16,
+            "posterior_encoder_stacks": 1,
+            "posterior_encoder_base_dilation": 1,
+            "posterior_encoder_dropout_rate": 0.0,
+            "use_weight_norm_in_posterior_encoder": True,
+            "flow_flows": 4,
+            "flow_kernel_size": 5,
+            "flow_base_dilation": 1,
+            "flow_layers": 4,
+            "flow_dropout_rate": 0.0,
+            "use_weight_norm_in_flow": True,
+            "use_only_mean_in_flow": True,
+            "stochastic_duration_predictor_kernel_size": 3,
+            "stochastic_duration_predictor_dropout_rate": 0.5,
+            "stochastic_duration_predictor_flows": 4,
+            "stochastic_duration_predictor_dds_conv_layers": 3,
+        },
+        # discriminator related
+        discriminator_type:
+        str = "hifigan_multi_scale_multi_period_discriminator",
+        discriminator_params: Dict[str, Any] = {
+            "scales": 1,
+            "scale_downsample_pooling": "AvgPool1D",
+            "scale_downsample_pooling_params": {
+                "kernel_size": 4,
+                "stride": 2,
+                "padding": 2,
             },
-            # discriminator related
-            discriminator_type: str="hifigan_multi_scale_multi_period_discriminator",
-            discriminator_params: Dict[str, Any]={
-                "scales": 1,
-                "scale_downsample_pooling": "AvgPool1D",
-                "scale_downsample_pooling_params": {
-                    "kernel_size": 4,
-                    "stride": 2,
-                    "padding": 2,
+            "scale_discriminator_params": {
+                "in_channels": 1,
+                "out_channels": 1,
+                "kernel_sizes": [15, 41, 5, 3],
+                "channels": 128,
+                "max_downsample_channels": 1024,
+                "max_groups": 16,
+                "bias": True,
+                "downsample_scales": [2, 2, 4, 4, 1],
+                "nonlinear_activation": "leakyrelu",
+                "nonlinear_activation_params": {
+                    "negative_slope": 0.1
                 },
-                "scale_discriminator_params": {
-                    "in_channels": 1,
-                    "out_channels": 1,
-                    "kernel_sizes": [15, 41, 5, 3],
-                    "channels": 128,
-                    "max_downsample_channels": 1024,
-                    "max_groups": 16,
-                    "bias": True,
-                    "downsample_scales": [2, 2, 4, 4, 1],
-                    "nonlinear_activation": "leakyrelu",
-                    "nonlinear_activation_params": {
-                        "negative_slope": 0.1
-                    },
-                    "use_weight_norm": True,
-                    "use_spectral_norm": False,
-                },
-                "follow_official_norm": False,
-                "periods": [2, 3, 5, 7, 11],
-                "period_discriminator_params": {
-                    "in_channels": 1,
-                    "out_channels": 1,
-                    "kernel_sizes": [5, 3],
-                    "channels": 32,
-                    "downsample_scales": [3, 3, 3, 3, 1],
-                    "max_downsample_channels": 1024,
-                    "bias": True,
-                    "nonlinear_activation": "leakyrelu",
-                    "nonlinear_activation_params": {
-                        "negative_slope": 0.1
-                    },
-                    "use_weight_norm": True,
-                    "use_spectral_norm": False,
-                },
+                "use_weight_norm": True,
+                "use_spectral_norm": False,
             },
-            cache_generator_outputs: bool=True, ):
+            "follow_official_norm": False,
+            "periods": [2, 3, 5, 7, 11],
+            "period_discriminator_params": {
+                "in_channels": 1,
+                "out_channels": 1,
+                "kernel_sizes": [5, 3],
+                "channels": 32,
+                "downsample_scales": [3, 3, 3, 3, 1],
+                "max_downsample_channels": 1024,
+                "bias": True,
+                "nonlinear_activation": "leakyrelu",
+                "nonlinear_activation_params": {
+                    "negative_slope": 0.1
+                },
+                "use_weight_norm": True,
+                "use_spectral_norm": False,
+            },
+        },
+        cache_generator_outputs: bool = True,
+    ):
         """Initialize VITS module.
         Args:
             idim (int):
@@ -192,11 +193,9 @@ class VITS(nn.Layer):
             #   where idim represents #vocabularies and odim represents
             #   the input acoustic feature dimension.
             generator_params.update(vocabs=idim, aux_channels=odim)
-        self.generator = generator_class(
-            **generator_params, )
+        self.generator = generator_class(**generator_params, )
         discriminator_class = AVAILABLE_DISCRIMINATORS[discriminator_type]
-        self.discriminator = discriminator_class(
-            **discriminator_params, )
+        self.discriminator = discriminator_class(**discriminator_params, )
 
         # cache
         self.cache_generator_outputs = cache_generator_outputs
@@ -219,15 +218,16 @@ class VITS(nn.Layer):
         self.generator.text_encoder.reset_parameters()
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            feats: paddle.Tensor,
-            feats_lengths: paddle.Tensor,
-            sids: Optional[paddle.Tensor]=None,
-            spembs: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None,
-            forward_generator: bool=True, ) -> Dict[str, Any]:
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        feats: paddle.Tensor,
+        feats_lengths: paddle.Tensor,
+        sids: Optional[paddle.Tensor] = None,
+        spembs: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+        forward_generator: bool = True,
+    ) -> Dict[str, Any]:
         """Perform generator forward.
         Args:
             text (Tensor):
@@ -257,7 +257,8 @@ class VITS(nn.Layer):
                 feats_lengths=feats_lengths,
                 sids=sids,
                 spembs=spembs,
-                lids=lids, )
+                lids=lids,
+            )
         else:
             return self._forward_discrminator(
                 text=text,
@@ -266,17 +267,19 @@ class VITS(nn.Layer):
                 feats_lengths=feats_lengths,
                 sids=sids,
                 spembs=spembs,
-                lids=lids, )
+                lids=lids,
+            )
 
     def _forward_generator(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            feats: paddle.Tensor,
-            feats_lengths: paddle.Tensor,
-            sids: Optional[paddle.Tensor]=None,
-            spembs: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None, ) -> Dict[str, Any]:
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        feats: paddle.Tensor,
+        feats_lengths: paddle.Tensor,
+        sids: Optional[paddle.Tensor] = None,
+        spembs: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+    ) -> Dict[str, Any]:
         """Perform generator forward.
         Args:
             text (Tensor):
@@ -310,7 +313,8 @@ class VITS(nn.Layer):
                 feats_lengths=feats_lengths,
                 sids=sids,
                 spembs=spembs,
-                lids=lids, )
+                lids=lids,
+            )
         else:
             outs = self._cache
 
@@ -321,14 +325,15 @@ class VITS(nn.Layer):
         return outs
 
     def _forward_discrminator(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            feats: paddle.Tensor,
-            feats_lengths: paddle.Tensor,
-            sids: Optional[paddle.Tensor]=None,
-            spembs: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None, ) -> Dict[str, Any]:
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        feats: paddle.Tensor,
+        feats_lengths: paddle.Tensor,
+        sids: Optional[paddle.Tensor] = None,
+        spembs: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+    ) -> Dict[str, Any]:
         """Perform discriminator forward.
         Args:
             text (Tensor):
@@ -362,7 +367,8 @@ class VITS(nn.Layer):
                 feats_lengths=feats_lengths,
                 sids=sids,
                 spembs=spembs,
-                lids=lids, )
+                lids=lids,
+            )
         else:
             outs = self._cache
 
@@ -373,18 +379,19 @@ class VITS(nn.Layer):
         return outs
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            feats: Optional[paddle.Tensor]=None,
-            sids: Optional[paddle.Tensor]=None,
-            spembs: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None,
-            durations: Optional[paddle.Tensor]=None,
-            noise_scale: float=0.667,
-            noise_scale_dur: float=0.8,
-            alpha: float=1.0,
-            max_len: Optional[int]=None,
-            use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
+        self,
+        text: paddle.Tensor,
+        feats: Optional[paddle.Tensor] = None,
+        sids: Optional[paddle.Tensor] = None,
+        spembs: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+        durations: Optional[paddle.Tensor] = None,
+        noise_scale: float = 0.667,
+        noise_scale_dur: float = 0.8,
+        alpha: float = 1.0,
+        max_len: Optional[int] = None,
+        use_teacher_forcing: bool = False,
+    ) -> Dict[str, paddle.Tensor]:
         """Run inference.
         Args:
             text (Tensor):
@@ -439,7 +446,8 @@ class VITS(nn.Layer):
                 spembs=spembs,
                 lids=lids,
                 max_len=max_len,
-                use_teacher_forcing=use_teacher_forcing, )
+                use_teacher_forcing=use_teacher_forcing,
+            )
         else:
             wav, att_w, dur = self.generator.inference(
                 text=text,
@@ -451,18 +459,21 @@ class VITS(nn.Layer):
                 noise_scale=noise_scale,
                 noise_scale_dur=noise_scale_dur,
                 alpha=alpha,
-                max_len=max_len, )
-        return dict(
-            wav=paddle.reshape(wav, [-1]), att_w=att_w[0], duration=dur[0])
+                max_len=max_len,
+            )
+        return dict(wav=paddle.reshape(wav, [-1]),
+                    att_w=att_w[0],
+                    duration=dur[0])
 
     def voice_conversion(
-            self,
-            feats: paddle.Tensor,
-            sids_src: Optional[paddle.Tensor]=None,
-            sids_tgt: Optional[paddle.Tensor]=None,
-            spembs_src: Optional[paddle.Tensor]=None,
-            spembs_tgt: Optional[paddle.Tensor]=None,
-            lids: Optional[paddle.Tensor]=None, ) -> paddle.Tensor:
+        self,
+        feats: paddle.Tensor,
+        sids_src: Optional[paddle.Tensor] = None,
+        sids_tgt: Optional[paddle.Tensor] = None,
+        spembs_src: Optional[paddle.Tensor] = None,
+        spembs_tgt: Optional[paddle.Tensor] = None,
+        lids: Optional[paddle.Tensor] = None,
+    ) -> paddle.Tensor:
         """Run voice conversion.
         Args:
             feats (Tensor):
@@ -498,14 +509,16 @@ class VITS(nn.Layer):
             sids_tgt,
             spembs_src,
             spembs_tgt,
-            lids, )
+            lids,
+        )
 
         return dict(wav=paddle.reshape(wav, [-1]))
 
     def reset_parameters(self):
         def _reset_parameters(module):
-            if isinstance(module,
-                        (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D, nn.Conv2DTranspose)):
+            if isinstance(
+                    module,
+                (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D, nn.Conv2DTranspose)):
                 kaiming_uniform_(module.weight, a=math.sqrt(5))
                 if module.bias is not None:
                     fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
@@ -513,8 +526,9 @@ class VITS(nn.Layer):
                         bound = 1 / math.sqrt(fan_in)
                         uniform_(module.bias, -bound, bound)
 
-            if isinstance(module,
-                          (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
+            if isinstance(
+                    module,
+                (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
                 ones_(module.weight)
                 zeros_(module.bias)
 
@@ -533,13 +547,13 @@ class VITS(nn.Layer):
 
         self.apply(_reset_parameters)
 
+
 class VITSInference(nn.Layer):
     def __init__(self, model):
         super().__init__()
         self.acoustic_model = model
 
     def forward(self, text, sids=None):
-        out = self.acoustic_model.inference(
-            text, sids=sids)
+        out = self.acoustic_model.inference(text, sids=sids)
         wav = out['wav']
         return wav

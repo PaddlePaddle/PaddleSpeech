@@ -63,8 +63,8 @@ def test_full_scores_chars():
     words = ['<s>'] + list(sentence) + ['</s>']
     for i, (prob, length,
             oov) in enumerate(model.full_scores(sentence_char_split)):
-        print('{0} {1}: {2}'.format(prob, length, ' '.join(words[i + 2 - length:
-                                                                 i + 2])))
+        print('{0} {1}: {2}'.format(prob, length,
+                                    ' '.join(words[i + 2 - length:i + 2])))
         if oov:
             print('\t"{0}" is an OOV'.format(words[i + 1]))
 
@@ -85,8 +85,8 @@ def test_full_scores_words():
     words = ['<s>'] + sentence_word_split.split() + ['</s>']
     for i, (prob, length,
             oov) in enumerate(model.full_scores(sentence_word_split)):
-        print('{0} {1}: {2}'.format(prob, length, ' '.join(words[i + 2 - length:
-                                                                 i + 2])))
+        print('{0} {1}: {2}'.format(prob, length,
+                                    ' '.join(words[i + 2 - length:i + 2])))
         if oov:
             print('\t"{0}" is an OOV'.format(words[i + 1]))
 

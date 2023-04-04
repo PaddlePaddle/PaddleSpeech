@@ -91,8 +91,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 spk_id = message["spk_id"]
 
                 # run
-                wav_generator = connection_handler.run(
-                    sentence=text, spk_id=spk_id)
+                wav_generator = connection_handler.run(sentence=text,
+                                                       spk_id=spk_id)
 
                 while True:
                     try:

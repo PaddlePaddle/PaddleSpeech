@@ -26,7 +26,6 @@ class ImpulseResponseAugmentor(AugmentorBase):
     :param impulse_manifest_path: Manifest path for impulse audio data.
     :type impulse_manifest_path: str
     """
-
     def __init__(self, rng, impulse_manifest_path):
         self._rng = rng
         with jsonlines.open(impulse_manifest_path, 'r') as reader:
@@ -46,7 +45,8 @@ class ImpulseResponseAugmentor(AugmentorBase):
         :param audio_segment: Audio segment to add effects to.
         :type audio_segment: AudioSegmenet|SpeechSegment
         """
-        impulse_json = self._rng.choice(
-            self._impulse_manifest, 1, replace=False)[0]
+        impulse_json = self._rng.choice(self._impulse_manifest,
+                                        1,
+                                        replace=False)[0]
         impulse_segment = AudioSegment.from_file(impulse_json['audio_filepath'])
         audio_segment.convolve(impulse_segment, allow_resample=True)

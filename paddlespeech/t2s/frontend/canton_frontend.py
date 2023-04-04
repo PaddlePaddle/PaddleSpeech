@@ -57,8 +57,9 @@ class CantonFrontend():
                 self.vocab_phones[phn] = int(id)
 
     # if merge_sentences, merge all sentences into one phone sequence
-    def _g2p(self, sentences: List[str],
-             merge_sentences: bool=True) -> List[List[str]]:
+    def _g2p(self,
+             sentences: List[str],
+             merge_sentences: bool = True) -> List[List[str]]:
         phones_list = []
         for sentence in sentences:
             phones_str = ToJyutping.get_jyutping_text(sentence)
@@ -76,8 +77,8 @@ class CantonFrontend():
 
     def get_phonemes(self,
                      sentence: str,
-                     merge_sentences: bool=True,
-                     print_info: bool=False) -> List[List[str]]:
+                     merge_sentences: bool = True,
+                     print_info: bool = False) -> List[List[str]]:
         sentences = self.text_normalizer.normalize(sentence)
         phonemes = self._g2p(sentences, merge_sentences=merge_sentences)
         if print_info:
@@ -92,12 +93,13 @@ class CantonFrontend():
 
     def get_input_ids(self,
                       sentence: str,
-                      merge_sentences: bool=True,
-                      print_info: bool=False,
-                      to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+                      merge_sentences: bool = True,
+                      print_info: bool = False,
+                      to_tensor: bool = True) -> Dict[str, List[paddle.Tensor]]:
 
-        phonemes = self.get_phonemes(
-            sentence, merge_sentences=merge_sentences, print_info=print_info)
+        phonemes = self.get_phonemes(sentence,
+                                     merge_sentences=merge_sentences,
+                                     print_info=print_info)
         result = {}
         temp_phone_ids = []
 

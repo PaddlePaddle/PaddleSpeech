@@ -43,44 +43,44 @@ class Tacotron2(nn.Layer):
        https://arxiv.org/abs/1712.05884
 
     """
-
     def __init__(
-            self,
-            # network structure related
-            idim: int,
-            odim: int,
-            embed_dim: int=512,
-            elayers: int=1,
-            eunits: int=512,
-            econv_layers: int=3,
-            econv_chans: int=512,
-            econv_filts: int=5,
-            atype: str="location",
-            adim: int=512,
-            aconv_chans: int=32,
-            aconv_filts: int=15,
-            cumulate_att_w: bool=True,
-            dlayers: int=2,
-            dunits: int=1024,
-            prenet_layers: int=2,
-            prenet_units: int=256,
-            postnet_layers: int=5,
-            postnet_chans: int=512,
-            postnet_filts: int=5,
-            output_activation: str=None,
-            use_batch_norm: bool=True,
-            use_concate: bool=True,
-            use_residual: bool=False,
-            reduction_factor: int=1,
-            # extra embedding related
-            spk_num: Optional[int]=None,
-            lang_num: Optional[int]=None,
-            spk_embed_dim: Optional[int]=None,
-            spk_embed_integration_type: str="concat",
-            dropout_rate: float=0.5,
-            zoneout_rate: float=0.1,
-            # training related
-            init_type: str="xavier_uniform", ):
+        self,
+        # network structure related
+        idim: int,
+        odim: int,
+        embed_dim: int = 512,
+        elayers: int = 1,
+        eunits: int = 512,
+        econv_layers: int = 3,
+        econv_chans: int = 512,
+        econv_filts: int = 5,
+        atype: str = "location",
+        adim: int = 512,
+        aconv_chans: int = 32,
+        aconv_filts: int = 15,
+        cumulate_att_w: bool = True,
+        dlayers: int = 2,
+        dunits: int = 1024,
+        prenet_layers: int = 2,
+        prenet_units: int = 256,
+        postnet_layers: int = 5,
+        postnet_chans: int = 512,
+        postnet_filts: int = 5,
+        output_activation: str = None,
+        use_batch_norm: bool = True,
+        use_concate: bool = True,
+        use_residual: bool = False,
+        reduction_factor: int = 1,
+        # extra embedding related
+        spk_num: Optional[int] = None,
+        lang_num: Optional[int] = None,
+        spk_embed_dim: Optional[int] = None,
+        spk_embed_integration_type: str = "concat",
+        dropout_rate: float = 0.5,
+        zoneout_rate: float = 0.1,
+        # training related
+        init_type: str = "xavier_uniform",
+    ):
         """Initialize Tacotron2 module.
         Args:
             idim (int): 
@@ -183,7 +183,8 @@ class Tacotron2(nn.Layer):
             use_batch_norm=use_batch_norm,
             use_residual=use_residual,
             dropout_rate=dropout_rate,
-            padding_idx=padding_idx, )
+            padding_idx=padding_idx,
+        )
 
         self.spk_num = None
         if spk_num is not None and spk_num > 1:
@@ -242,19 +243,20 @@ class Tacotron2(nn.Layer):
             use_concate=use_concate,
             dropout_rate=dropout_rate,
             zoneout_rate=zoneout_rate,
-            reduction_factor=reduction_factor, )
+            reduction_factor=reduction_factor,
+        )
 
         nn.initializer.set_global_initializer(None)
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            spk_emb: Optional[paddle.Tensor]=None,
-            spk_id: Optional[paddle.Tensor]=None,
-            lang_id: Optional[paddle.Tensor]=None
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        spk_emb: Optional[paddle.Tensor] = None,
+        spk_id: Optional[paddle.Tensor] = None,
+        lang_id: Optional[paddle.Tensor] = None
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -311,7 +313,8 @@ class Tacotron2(nn.Layer):
             olens=olens,
             spk_emb=spk_emb,
             spk_id=spk_id,
-            lang_id=lang_id, )
+            lang_id=lang_id,
+        )
 
         # modify mod part of groundtruth
         if self.reduction_factor > 1:
@@ -329,14 +332,14 @@ class Tacotron2(nn.Layer):
         return after_outs, before_outs, logits, ys, stop_labels, olens, att_ws, olens_in
 
     def _forward(
-            self,
-            xs: paddle.Tensor,
-            ilens: paddle.Tensor,
-            ys: paddle.Tensor,
-            olens: paddle.Tensor,
-            spk_emb: paddle.Tensor,
-            spk_id: paddle.Tensor,
-            lang_id: paddle.Tensor,
+        self,
+        xs: paddle.Tensor,
+        ilens: paddle.Tensor,
+        ys: paddle.Tensor,
+        olens: paddle.Tensor,
+        spk_emb: paddle.Tensor,
+        spk_id: paddle.Tensor,
+        lang_id: paddle.Tensor,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
 
         hs, hlens = self.enc(xs, ilens)
@@ -352,19 +355,20 @@ class Tacotron2(nn.Layer):
         return self.dec(hs, hlens, ys)
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            speech: Optional[paddle.Tensor]=None,
-            spk_emb: Optional[paddle.Tensor]=None,
-            spk_id: Optional[paddle.Tensor]=None,
-            lang_id: Optional[paddle.Tensor]=None,
-            threshold: float=0.5,
-            minlenratio: float=0.0,
-            maxlenratio: float=10.0,
-            use_att_constraint: bool=False,
-            backward_window: int=1,
-            forward_window: int=3,
-            use_teacher_forcing: bool=False, ) -> Dict[str, paddle.Tensor]:
+        self,
+        text: paddle.Tensor,
+        speech: Optional[paddle.Tensor] = None,
+        spk_emb: Optional[paddle.Tensor] = None,
+        spk_id: Optional[paddle.Tensor] = None,
+        lang_id: Optional[paddle.Tensor] = None,
+        threshold: float = 0.5,
+        minlenratio: float = 0.0,
+        maxlenratio: float = 10.0,
+        use_att_constraint: bool = False,
+        backward_window: int = 1,
+        forward_window: int = 3,
+        use_teacher_forcing: bool = False,
+    ) -> Dict[str, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.
 
         Args:
@@ -422,7 +426,8 @@ class Tacotron2(nn.Layer):
                 olens=olens,
                 spk_emb=spk_emb,
                 spk_id=spk_id,
-                lang_id=lang_id, )
+                lang_id=lang_id,
+            )
 
             return dict(feat_gen=outs[0], att_w=att_ws[0])
 
@@ -445,12 +450,12 @@ class Tacotron2(nn.Layer):
             maxlenratio=maxlenratio,
             use_att_constraint=use_att_constraint,
             backward_window=backward_window,
-            forward_window=forward_window, )
+            forward_window=forward_window,
+        )
 
         return dict(feat_gen=out, prob=prob, att_w=att_w)
 
-    def _integrate_with_spk_embed(self,
-                                  hs: paddle.Tensor,
+    def _integrate_with_spk_embed(self, hs: paddle.Tensor,
                                   spk_emb: paddle.Tensor) -> paddle.Tensor:
         """Integrate speaker embedding with hidden states.
 
@@ -485,8 +490,9 @@ class Tacotron2Inference(nn.Layer):
         self.acoustic_model = model
 
     def forward(self, text, spk_id=None, spk_emb=None):
-        out = self.acoustic_model.inference(
-            text, spk_id=spk_id, spk_emb=spk_emb)
+        out = self.acoustic_model.inference(text,
+                                            spk_id=spk_id,
+                                            spk_emb=spk_emb)
         normalized_mel = out["feat_gen"]
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel

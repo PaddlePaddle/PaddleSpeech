@@ -52,8 +52,8 @@ def help():
     return response
 
 
-@router.post(
-    "/paddlespeech/cls", response_model=Union[CLSResponse, ErrorResponse])
+@router.post("/paddlespeech/cls",
+             response_model=Union[CLSResponse, ErrorResponse])
 def cls(request_body: CLSRequest):
     """cls api 
 

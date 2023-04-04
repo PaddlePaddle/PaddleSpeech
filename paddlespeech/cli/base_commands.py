@@ -52,9 +52,8 @@ class HelpCommand:
         return True
 
 
-@cli_register(
-    name='paddlespeech.version',
-    description='Show version and commit id of current package.')
+@cli_register(name='paddlespeech.version',
+              description='Show version and commit id of current package.')
 class VersionCommand:
     def execute(self, argv: List[str]) -> bool:
         try:
@@ -90,23 +89,21 @@ model_name_format = {
 }
 
 
-@cli_register(
-    name='paddlespeech.stats',
-    description='Get speech tasks support models list.')
+@cli_register(name='paddlespeech.stats',
+              description='Get speech tasks support models list.')
 class StatsCommand:
     def __init__(self):
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.stats', add_help=True)
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.stats',
+                                              add_help=True)
         self.task_choices = [
             'asr', 'cls', 'st', 'text', 'tts', 'vector', 'kws', 'ssl', 'whisper'
         ]
-        self.parser.add_argument(
-            '--task',
-            type=str,
-            default='asr',
-            choices=self.task_choices,
-            help='Choose speech task.',
-            required=True)
+        self.parser.add_argument('--task',
+                                 type=str,
+                                 default='asr',
+                                 choices=self.task_choices,
+                                 help='Choose speech task.',
+                                 required=True)
 
     def show_support_models(self, pretrained_models: dict):
         fields = model_name_format[self.task].split("-")
@@ -133,8 +130,8 @@ class StatsCommand:
         parser_args = self.parser.parse_args(argv)
         self.task = parser_args.task
         if self.task not in self.task_choices:
-            print("Please input correct speech task, choices = " + str(
-                self.task_choices))
+            print("Please input correct speech task, choices = " +
+                  str(self.task_choices))
             return
 
         pretrained_models = CommonTaskResource(task=self.task).pretrained_models
@@ -169,7 +166,6 @@ _commands = {
 }
 
 for com, info in _commands.items():
-    explicit_command_register(
-        name='paddlespeech.{}'.format(com),
-        description=info[0],
-        cls='paddlespeech.cli.{}.{}'.format(com, info[1]))
+    explicit_command_register(name='paddlespeech.{}'.format(com),
+                              description=info[0],
+                              cls='paddlespeech.cli.{}.{}'.format(com, info[1]))

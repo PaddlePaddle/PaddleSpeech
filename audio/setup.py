@@ -57,10 +57,9 @@ requirements = {
 
 def check_call(cmd: str, shell=False, executable=None):
     try:
-        sp.check_call(
-            cmd.split(),
-            shell=shell,
-            executable="/bin/bash" if shell else executable)
+        sp.check_call(cmd.split(),
+                      shell=shell,
+                      executable="/bin/bash" if shell else executable)
     except sp.CalledProcessError as e:
         print(
             f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
@@ -108,9 +107,8 @@ def pushd(new_dir):
 
 
 def read(*names, **kwargs):
-    with io.open(
-            os.path.join(os.path.dirname(__file__), *names),
-            encoding=kwargs.get("encoding", "utf8")) as fp:
+    with io.open(os.path.join(os.path.dirname(__file__), *names),
+                 encoding=kwargs.get("encoding", "utf8")) as fp:
         return fp.read()
 
 
@@ -285,7 +283,8 @@ def main():
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
-        ], )
+        ],
+    )
 
     setup(**setup_info)
     _rm_version()

@@ -36,8 +36,8 @@ class VPR:
                 if len(vc.shape) == 1:
                     vc = np.expand_dims(vc, axis=0)
                 # 构建数据库
-                self.index_ip.add_with_ids(vc, np.array(
-                    (idx, )).astype('int64'))
+                self.index_ip.add_with_ids(vc,
+                                           np.array((idx, )).astype('int64'))
             logging.info("faiss 构建完毕")
 
     def faiss_enroll(self, idx, vc):

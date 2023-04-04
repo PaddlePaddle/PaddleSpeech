@@ -23,14 +23,12 @@ from paddlespeech.t2s.datasets.batch import batch_wav
 
 class LJSpeech(Dataset):
     """A simple dataset adaptor for the processed ljspeech dataset."""
-
     def __init__(self, root):
         self.root = Path(root).expanduser()
-        meta_data = pandas.read_csv(
-            str(self.root / "metadata.csv"),
-            sep="\t",
-            header=None,
-            names=["fname", "frames", "samples"])
+        meta_data = pandas.read_csv(str(self.root / "metadata.csv"),
+                                    sep="\t",
+                                    header=None,
+                                    names=["fname", "frames", "samples"])
 
         records = []
         for row in meta_data.itertuples():
@@ -51,7 +49,6 @@ class LJSpeech(Dataset):
 
 class LJSpeechCollector(object):
     """A simple callable to batch LJSpeech examples."""
-
     def __init__(self, padding_value=0.):
         self.padding_value = padding_value
 

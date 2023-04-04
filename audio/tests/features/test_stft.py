@@ -34,8 +34,10 @@ class TestStft(FeatTest):
 
         x = paddle.to_tensor(self.waveform)
         window = get_window(self.window_str, self.n_fft, dtype=x.dtype)
-        pd_res = paddle.signal.stft(
-            x, self.n_fft, self.hop_length, window=window).squeeze(0).numpy()
+        pd_res = paddle.signal.stft(x,
+                                    self.n_fft,
+                                    self.hop_length,
+                                    window=window).squeeze(0).numpy()
 
         np.testing.assert_array_almost_equal(ps_res, pd_res, decimal=5)
 

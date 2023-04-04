@@ -47,7 +47,6 @@ def register_optimizer(cls):
 @register_optimizer
 class Noam(paddle.optimizer.Adam):
     """Seem to: espnet/nets/pytorch_backend/transformer/optimizer.py """
-
     def __init__(self,
                  learning_rate=0,
                  beta1=0.9,
@@ -59,17 +58,16 @@ class Noam(paddle.optimizer.Adam):
                  lazy_mode=False,
                  multi_precision=False,
                  name=None):
-        super().__init__(
-            learning_rate=learning_rate,
-            beta1=beta1,
-            beta2=beta2,
-            epsilon=epsilon,
-            parameters=parameters,
-            weight_decay=weight_decay,
-            grad_clip=grad_clip,
-            lazy_mode=lazy_mode,
-            multi_precision=multi_precision,
-            name=name)
+        super().__init__(learning_rate=learning_rate,
+                         beta1=beta1,
+                         beta2=beta2,
+                         epsilon=epsilon,
+                         parameters=parameters,
+                         weight_decay=weight_decay,
+                         grad_clip=grad_clip,
+                         lazy_mode=lazy_mode,
+                         multi_precision=multi_precision,
+                         name=name)
 
     def __repr__(self):
         echo = f"<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}> "

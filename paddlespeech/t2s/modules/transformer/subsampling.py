@@ -32,7 +32,6 @@ class Conv2dSubsampling(nn.Layer):
         pos_enc (nn.Layer): 
             Custom position encoding layer.
     """
-
     def __init__(self, idim, odim, dropout_rate, pos_enc=None):
         """Construct an Conv2dSubsampling object."""
         super().__init__()
@@ -40,11 +39,13 @@ class Conv2dSubsampling(nn.Layer):
             nn.Conv2D(1, odim, 3, 2),
             nn.ReLU(),
             nn.Conv2D(odim, odim, 3, 2),
-            nn.ReLU(), )
+            nn.ReLU(),
+        )
         self.out = nn.Sequential(
             nn.Linear(odim * (((idim - 1) // 2 - 1) // 2), odim),
-            pos_enc if pos_enc is not None else
-            PositionalEncoding(odim, dropout_rate), )
+            pos_enc if pos_enc is not None else PositionalEncoding(
+                odim, dropout_rate),
+        )
 
     def forward(self, x, x_mask):
         """Subsample x.

@@ -51,11 +51,12 @@ def rectify(arr):
 
 
 def DER(
-        ref_rttm,
-        sys_rttm,
-        ignore_overlap=False,
-        collar=0.25,
-        individual_file_scores=False, ):
+    ref_rttm,
+    sys_rttm,
+    ignore_overlap=False,
+    collar=0.25,
+    individual_file_scores=False,
+):
     """Computes Missed Speaker percentage (MS), False Alarm (FA),
     Speaker Error Rate (SER), and Diarization Error Rate (DER).
 
@@ -142,8 +143,8 @@ def DER(
             [float(m) for m in ERROR_SPEAKER_TIME.findall(stdout)])
 
         with np.errstate(invalid="ignore", divide="ignore"):
-            tot_error_times = (
-                miss_speaker_times + fa_speaker_times + error_speaker_times)
+            tot_error_times = (miss_speaker_times + fa_speaker_times +
+                               error_speaker_times)
             miss_speaker_frac = miss_speaker_times / scored_speaker_times
             fa_speaker_frac = fa_speaker_times / scored_speaker_times
             sers_frac = error_speaker_times / scored_speaker_times
@@ -165,21 +166,20 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
         description='Compute Diarization Error Rate')
-    parser.add_argument(
-        '--ref_rttm',
-        required=True,
-        help='the path of reference/groundtruth RTTM file')
-    parser.add_argument(
-        '--sys_rttm',
-        required=True,
-        help='the path of the system generated RTTM file')
-    parser.add_argument(
-        '--individual_file',
-        default=False,
-        type=strtobool,
-        help='if True, returns scores for each file in order')
-    parser.add_argument(
-        '--collar', default=0.25, type=float, help='forgiveness collar')
+    parser.add_argument('--ref_rttm',
+                        required=True,
+                        help='the path of reference/groundtruth RTTM file')
+    parser.add_argument('--sys_rttm',
+                        required=True,
+                        help='the path of the system generated RTTM file')
+    parser.add_argument('--individual_file',
+                        default=False,
+                        type=strtobool,
+                        help='if True, returns scores for each file in order')
+    parser.add_argument('--collar',
+                        default=0.25,
+                        type=float,
+                        help='forgiveness collar')
     parser.add_argument(
         '--ignore_overlap',
         default=False,

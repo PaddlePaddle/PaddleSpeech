@@ -24,8 +24,8 @@ def get_audio_embedding(path):
     Use vpr_inference to generate embedding of audio
     """
     try:
-        embedding = vector_executor(
-            audio_file=path, model='ecapatdnn_voxceleb12')
+        embedding = vector_executor(audio_file=path,
+                                    model='ecapatdnn_voxceleb12')
         embedding = embedding / np.linalg.norm(embedding)
         embedding = embedding.tolist()
         return embedding

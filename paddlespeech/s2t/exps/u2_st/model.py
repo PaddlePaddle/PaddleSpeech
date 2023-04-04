@@ -77,8 +77,8 @@ class U2STTrainer(Trainer):
             # Disable gradient synchronizations across DDP processes.
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
-            context = self.model.no_sync if (hasattr(self.model, "no_sync") and
-                                             self.parallel) else nullcontext
+            context = self.model.no_sync if (hasattr(self.model, "no_sync")
+                                             and self.parallel) else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.
@@ -114,8 +114,9 @@ class U2STTrainer(Trainer):
                 losses_np_v = losses_np.copy()
                 losses_np_v.update({"lr": self.lr_scheduler()})
                 for key, val in losses_np_v.items():
-                    self.visualizer.add_scalar(
-                        tag="train/" + key, value=val, step=self.iteration - 1)
+                    self.visualizer.add_scalar(tag="train/" + key,
+                                               value=val,
+                                               step=self.iteration - 1)
 
     @paddle.no_grad()
     def valid(self):
@@ -231,13 +232,15 @@ class U2STTrainer(Trainer):
                 else:
                     cv_loss = total_loss / num_seen_utts
 
-            logger.info(
-                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            logger.info('Epoch {} Val info val_loss {}'.format(
+                self.epoch, cv_loss))
             if self.visualizer:
-                self.visualizer.add_scalar(
-                    tag='eval/cv_loss', value=cv_loss, step=self.epoch)
-                self.visualizer.add_scalar(
-                    tag='eval/lr', value=self.lr_scheduler(), step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/cv_loss',
+                                           value=cv_loss,
+                                           step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/lr',
+                                           value=self.lr_scheduler(),
+                                           step=self.epoch)
 
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             self.new_epoch()
@@ -257,8 +260,8 @@ class U2STTrainer(Trainer):
                 'valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
-                                                                self.args)
+            self.test_loader = DataLoaderFactory.get_dataloader(
+                'test', config, self.args)
             logger.info("Setup test Dataloader!")
 
     def setup_model(self):
@@ -297,9 +300,10 @@ class U2STTrainer(Trainer):
                                                     scheduler_args)
 
         def optimizer_args(
-                config,
-                parameters,
-                lr_scheduler=None, ):
+            config,
+            parameters,
+            lr_scheduler=None,
+        ):
             train_config = config
             optim_type = train_config.optim
             optim_conf = train_config.optim_conf
@@ -308,8 +312,8 @@ class U2STTrainer(Trainer):
             return {
                 "grad_clip": train_config.global_grad_clip,
                 "weight_decay": optim_conf.weight_decay,
-                "learning_rate": lr_scheduler
-                if lr_scheduler else optim_conf.lr,
+                "learning_rate":
+                lr_scheduler if lr_scheduler else optim_conf.lr,
                 "parameters": parameters,
                 "epsilon": 1e-9 if optim_type == 'noam' else None,
                 "beta1": 0.9 if optim_type == 'noam' else None,
@@ -428,8 +432,9 @@ class U2STTester(U2STTrainer):
         num_time = 0.0
         with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
-                metrics = self.compute_translation_metrics(
-                    *batch, bleu_func=bleu_func, fout=fout)
+                metrics = self.compute_translation_metrics(*batch,
+                                                           bleu_func=bleu_func,
+                                                           fout=fout)
                 hyps += metrics['hyps']
                 refs += metrics['refs']
                 bleu = metrics['bleu']

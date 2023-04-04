@@ -51,22 +51,22 @@ class WaveNetDenoiser(nn.Layer):
         use_weight_norm (bool, optional): 
             Whether to use weight norm in all convolutions, by default False
     """
-
     def __init__(
-            self,
-            in_channels: int=80,
-            out_channels: int=80,
-            kernel_size: int=3,
-            layers: int=20,
-            stacks: int=5,
-            residual_channels: int=256,
-            gate_channels: int=512,
-            skip_channels: int=256,
-            aux_channels: int=256,
-            dropout: float=0.,
-            bias: bool=True,
-            use_weight_norm: bool=False,
-            init_type: str="kaiming_normal", ):
+        self,
+        in_channels: int = 80,
+        out_channels: int = 80,
+        kernel_size: int = 3,
+        layers: int = 20,
+        stacks: int = 5,
+        residual_channels: int = 256,
+        gate_channels: int = 512,
+        skip_channels: int = 256,
+        aux_channels: int = 256,
+        dropout: float = 0.,
+        bias: bool = True,
+        use_weight_norm: bool = False,
+        init_type: str = "kaiming_normal",
+    ):
         super().__init__()
 
         # initialize parameters
@@ -83,44 +83,42 @@ class WaveNetDenoiser(nn.Layer):
         layers_per_stack = layers // stacks
 
         self.first_t_emb = nn.Sequential(
-            Timesteps(
-                residual_channels,
-                flip_sin_to_cos=False,
-                downscale_freq_shift=1),
-            nn.Linear(residual_channels, residual_channels * 4),
-            nn.Mish(), nn.Linear(residual_channels * 4, residual_channels))
+            Timesteps(residual_channels,
+                      flip_sin_to_cos=False,
+                      downscale_freq_shift=1),
+            nn.Linear(residual_channels, residual_channels * 4), nn.Mish(),
+            nn.Linear(residual_channels * 4, residual_channels))
         self.t_emb_layers = nn.LayerList([
             nn.Linear(residual_channels, residual_channels)
             for _ in range(layers)
         ])
 
-        self.first_conv = nn.Conv1D(
-            in_channels, residual_channels, 1, bias_attr=True)
+        self.first_conv = nn.Conv1D(in_channels,
+                                    residual_channels,
+                                    1,
+                                    bias_attr=True)
         self.first_act = nn.ReLU()
 
         self.conv_layers = nn.LayerList()
         for layer in range(layers):
             dilation = 2**(layer % layers_per_stack)
-            conv = WaveNetResidualBlock(
-                kernel_size=kernel_size,
-                residual_channels=residual_channels,
-                gate_channels=gate_channels,
-                skip_channels=skip_channels,
-                aux_channels=aux_channels,
-                dilation=dilation,
-                dropout=dropout,
-                bias=bias)
+            conv = WaveNetResidualBlock(kernel_size=kernel_size,
+                                        residual_channels=residual_channels,
+                                        gate_channels=gate_channels,
+                                        skip_channels=skip_channels,
+                                        aux_channels=aux_channels,
+                                        dilation=dilation,
+                                        dropout=dropout,
+                                        bias=bias)
             self.conv_layers.append(conv)
 
         final_conv = nn.Conv1D(skip_channels, out_channels, 1, bias_attr=True)
         nn.initializer.Constant(0.0)(final_conv.weight)
-        self.last_conv_layers = nn.Sequential(nn.ReLU(),
-                                              nn.Conv1D(
-                                                  skip_channels,
-                                                  skip_channels,
-                                                  1,
-                                                  bias_attr=True),
-                                              nn.ReLU(), final_conv)
+        self.last_conv_layers = nn.Sequential(
+            nn.ReLU(), nn.Conv1D(skip_channels,
+                                 skip_channels,
+                                 1,
+                                 bias_attr=True), nn.ReLU(), final_conv)
 
         if use_weight_norm:
             self.apply_weight_norm()
@@ -164,7 +162,6 @@ class WaveNetDenoiser(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D)):
                 nn.utils.weight_norm(layer)
@@ -175,7 +172,6 @@ class WaveNetDenoiser(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 nn.utils.remove_weight_norm(layer)

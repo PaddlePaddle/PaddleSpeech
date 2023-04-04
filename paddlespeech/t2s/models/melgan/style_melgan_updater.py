@@ -26,6 +26,7 @@ from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
 from paddlespeech.t2s.training.updaters.standard_updater import UpdaterState
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -40,11 +41,11 @@ class StyleMelGANUpdater(StandardUpdater):
                  criterions: Dict[str, Layer],
                  schedulers: Dict[str, LRScheduler],
                  dataloader: DataLoader,
-                 generator_train_start_steps: int=0,
-                 discriminator_train_start_steps: int=100000,
-                 lambda_adv: float=1.0,
-                 lambda_aux: float=1.0,
-                 output_dir: Path=None):
+                 generator_train_start_steps: int = 0,
+                 discriminator_train_start_steps: int = 100000,
+                 lambda_adv: float = 1.0,
+                 lambda_aux: float = 1.0,
+                 output_dir: Path = None):
         self.models = models
         self.generator: Layer = models['generator']
         self.discriminator: Layer = models['discriminator']
@@ -153,9 +154,9 @@ class StyleMelGANEvaluator(StandardEvaluator):
                  models: Dict[str, Layer],
                  criterions: Dict[str, Layer],
                  dataloader: DataLoader,
-                 lambda_adv: float=1.0,
-                 lambda_aux: float=1.0,
-                 output_dir: Path=None):
+                 lambda_adv: float = 1.0,
+                 lambda_aux: float = 1.0,
+                 output_dir: Path = None):
         self.models = models
         self.generator = models['generator']
         self.discriminator = models['discriminator']

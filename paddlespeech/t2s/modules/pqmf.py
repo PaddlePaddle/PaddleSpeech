@@ -62,7 +62,6 @@ class PQMF(nn.Layer):
     .. _`Near-perfect-reconstruction pseudo-QMF banks`:
         https://ieeexplore.ieee.org/document/258122
     """
-
     def __init__(self, subbands=4, taps=62, cutoff_ratio=0.142, beta=9.0):
         """Initilize PQMF module.
         The cutoff_ratio and beta parameters are optimized for #subbands = 4.
@@ -84,22 +83,24 @@ class PQMF(nn.Layer):
         h_analysis = np.zeros((subbands, len(h_proto)))
         h_synthesis = np.zeros((subbands, len(h_proto)))
         for k in range(subbands):
-            h_analysis[k] = (
-                2 * h_proto * np.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
-                    np.arange(taps + 1) - (taps / 2)) + (-1)**k * np.pi / 4))
-            h_synthesis[k] = (
-                2 * h_proto * np.cos((2 * k + 1) * (np.pi / (2 * subbands)) * (
-                    np.arange(taps + 1) - (taps / 2)) - (-1)**k * np.pi / 4))
+            h_analysis[k] = (2 * h_proto *
+                             np.cos((2 * k + 1) * (np.pi / (2 * subbands)) *
+                                    (np.arange(taps + 1) -
+                                     (taps / 2)) + (-1)**k * np.pi / 4))
+            h_synthesis[k] = (2 * h_proto *
+                              np.cos((2 * k + 1) * (np.pi / (2 * subbands)) *
+                                     (np.arange(taps + 1) -
+                                      (taps / 2)) - (-1)**k * np.pi / 4))
 
         # convert to tensor
-        self.analysis_filter = paddle.to_tensor(
-            h_analysis, dtype="float32").unsqueeze(1)
-        self.synthesis_filter = paddle.to_tensor(
-            h_synthesis, dtype="float32").unsqueeze(0)
+        self.analysis_filter = paddle.to_tensor(h_analysis,
+                                                dtype="float32").unsqueeze(1)
+        self.synthesis_filter = paddle.to_tensor(h_synthesis,
+                                                 dtype="float32").unsqueeze(0)
 
         # filter for downsampling & upsampling
-        updown_filter = paddle.zeros(
-            (subbands, subbands, subbands), dtype="float32")
+        updown_filter = paddle.zeros((subbands, subbands, subbands),
+                                     dtype="float32")
         for k in range(subbands):
             updown_filter[k, k, 0] = 1.0
         self.updown_filter = updown_filter
@@ -126,8 +127,9 @@ class PQMF(nn.Layer):
         Returns:
             Tensor: Output tensor (B, 1, T).
         """
-        x = F.conv1d_transpose(
-            x, self.updown_filter * self.subbands, stride=self.subbands)
+        x = F.conv1d_transpose(x,
+                               self.updown_filter * self.subbands,
+                               stride=self.subbands)
 
         return F.conv1d(self.pad_fn(x), self.synthesis_filter)
 

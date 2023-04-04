@@ -19,7 +19,6 @@ from paddlespeech.server.utils.errors import ErrorMsg
 class ServerBaseException(Exception):
     """ Server Base exception
     """
-
     def __init__(self, error_code, msg=None):
         #if msg:
         #log.error(msg)

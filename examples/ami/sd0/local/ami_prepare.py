@@ -35,17 +35,18 @@ SAMPLERATE = 16000
 
 
 def prepare_ami(
-        data_folder,
-        manual_annot_folder,
-        save_folder,
-        ref_rttm_dir,
-        meta_data_dir,
-        split_type="full_corpus_asr",
-        skip_TNO=True,
-        mic_type="Mix-Headset",
-        vad_type="oracle",
-        max_subseg_dur=3.0,
-        overlap=1.5, ):
+    data_folder,
+    manual_annot_folder,
+    save_folder,
+    ref_rttm_dir,
+    meta_data_dir,
+    split_type="full_corpus_asr",
+    skip_TNO=True,
+    mic_type="Mix-Headset",
+    vad_type="oracle",
+    max_subseg_dur=3.0,
+    overlap=1.5,
+):
     """
     Prepares reference RTTM and JSON files for the AMI dataset.
 
@@ -142,7 +143,8 @@ def prepare_ami(
                 data_folder,
                 manual_annot_folder,
                 i,
-                skip_TNO, )
+                skip_TNO,
+            )
         if i == "dev":
             prepare_segs_for_RTTM(
                 dev_set,
@@ -150,7 +152,8 @@ def prepare_ami(
                 data_folder,
                 manual_annot_folder,
                 i,
-                skip_TNO, )
+                skip_TNO,
+            )
         if i == "eval":
             prepare_segs_for_RTTM(
                 eval_set,
@@ -158,7 +161,8 @@ def prepare_ami(
                 data_folder,
                 manual_annot_folder,
                 i,
-                skip_TNO, )
+                skip_TNO,
+            )
 
     # Create meta_files for splits
     meta_data_dir = meta_data_dir
@@ -175,7 +179,8 @@ def prepare_ami(
             meta_filename_prefix,
             max_subseg_dur,
             overlap,
-            mic_type, )
+            mic_type,
+        )
 
     save_opt_file = os.path.join(save_folder, opt_file)
     save_pkl(conf, save_opt_file)
@@ -204,15 +209,19 @@ def get_RTTM_per_rec(segs, spkrs_list, rec_id):
                 % (row[0], row[1]))
             msg2 = (
                 "Excluding this incorrect row from the RTTM : %s, %s, %s, %s" %
-                (rec_id, row[0], str(round(float(row[1]) - float(row[0]), 4)),
-                 str(row[2]), ))
+                (
+                    rec_id,
+                    row[0],
+                    str(round(float(row[1]) - float(row[0]), 4)),
+                    str(row[2]),
+                ))
             logger.info(msg1)
             logger.info(msg2)
             continue
 
-        line = ("SPEAKER " + rec_id + " 0 " + str(round(float(row[0]), 4)) + " "
-                + str(round(float(row[1]) - float(row[0]), 4)) + " <NA> <NA> " +
-                str(row[2]) + " <NA> <NA>")
+        line = ("SPEAKER " + rec_id + " 0 " + str(round(float(row[0]), 4)) +
+                " " + str(round(float(row[1]) - float(row[0]), 4)) +
+                " <NA> <NA> " + str(row[2]) + " <NA> <NA>")
         rttm.append(line)
 
     return rttm
@@ -226,10 +235,10 @@ def prepare_segs_for_RTTM(list_ids, out_rttm_file, audio_dir, annot_dir,
     for main_meet_id in list_ids:
 
         # Skip TNO meetings from dev and eval sets
-        if (main_meet_id.startswith("TS") and split_type != "train" and
-                skip_TNO is True):
-            msg = ("Skipping TNO meeting in AMI " + str(split_type) + " set : "
-                   + str(main_meet_id))
+        if (main_meet_id.startswith("TS") and split_type != "train"
+                and skip_TNO is True):
+            msg = ("Skipping TNO meeting in AMI " + str(split_type) +
+                   " set : " + str(main_meet_id))
             logger.info(msg)
             continue
 
@@ -452,8 +461,8 @@ def prepare_metadata(rttm_file, save_dir, data_dir, filename, max_subseg_dur,
             }
         else:
             # Single mic audio
-            wav_file_path = (data_dir + "/" + rec_id + "/audio/" + rec_id + "."
-                             + mic_type + ".wav")
+            wav_file_path = (data_dir + "/" + rec_id + "/audio/" + rec_id +
+                             "." + mic_type + ".wav")
 
             # Note: key "file" without 's' is used for single-mic
             json_dict[subsegment_ID] = {
@@ -521,29 +530,26 @@ if __name__ == '__main__':
         '--manual_annot_folder',
         required=True,
         help='Directory where the manual annotations are stored')
-    parser.add_argument(
-        '--save_folder', required=True, help='The save directory in results')
-    parser.add_argument(
-        '--ref_rttm_dir',
-        required=True,
-        help='Directory to store reference RTTM files')
-    parser.add_argument(
-        '--meta_data_dir',
-        required=True,
-        help='Directory to store the meta data (json) files')
+    parser.add_argument('--save_folder',
+                        required=True,
+                        help='The save directory in results')
+    parser.add_argument('--ref_rttm_dir',
+                        required=True,
+                        help='Directory to store reference RTTM files')
+    parser.add_argument('--meta_data_dir',
+                        required=True,
+                        help='Directory to store the meta data (json) files')
     parser.add_argument(
         '--split_type',
         default="full_corpus_asr",
         help='Standard dataset split. See ami_splits.py for more information')
-    parser.add_argument(
-        '--skip_TNO',
-        default=True,
-        type=strtobool,
-        help='Skips TNO meeting recordings if True')
-    parser.add_argument(
-        '--mic_type',
-        default="Mix-Headset",
-        help='Type of microphone to be used')
+    parser.add_argument('--skip_TNO',
+                        default=True,
+                        type=strtobool,
+                        help='Skips TNO meeting recordings if True')
+    parser.add_argument('--mic_type',
+                        default="Mix-Headset",
+                        help='Type of microphone to be used')
     parser.add_argument(
         '--vad_type',
         default="oracle",
@@ -552,7 +558,8 @@ if __name__ == '__main__':
         '--max_subseg_dur',
         default=3.0,
         type=float,
-        help='Duration in seconds of a subsegments to be prepared from larger segments'
+        help=
+        'Duration in seconds of a subsegments to be prepared from larger segments'
     )
     parser.add_argument(
         '--overlap',

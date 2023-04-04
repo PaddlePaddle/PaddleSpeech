@@ -61,7 +61,8 @@ def evaluate(args):
     test_dataset = DataTable(
         data=test_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
@@ -93,8 +94,9 @@ def evaluate(args):
                     spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
                 elif "spk_id" in datum:
                     spk_id = paddle.to_tensor(datum["spk_id"])
-                out = vits.inference(
-                    text=phone_ids, sids=spk_id, spembs=spk_emb)
+                out = vits.inference(text=phone_ids,
+                                     sids=spk_id,
+                                     spembs=spk_emb)
             wav = out["wav"]
             wav = wav.numpy()
             N += wav.size
@@ -113,22 +115,31 @@ def parse_args():
     # parse args and config
     parser = argparse.ArgumentParser(description="Synthesize with VITS")
     # model
-    parser.add_argument(
-        '--config', type=str, default=None, help='Config of VITS.')
-    parser.add_argument(
-        '--ckpt', type=str, default=None, help='Checkpoint file of VITS.')
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        "--voice-cloning",
-        type=str2bool,
-        default=False,
-        help="whether training voice cloning model.")
+    parser.add_argument('--config',
+                        type=str,
+                        default=None,
+                        help='Config of VITS.')
+    parser.add_argument('--ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of VITS.')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument("--voice-cloning",
+                        type=str2bool,
+                        default=False,
+                        help="whether training voice cloning model.")
     # other
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
 

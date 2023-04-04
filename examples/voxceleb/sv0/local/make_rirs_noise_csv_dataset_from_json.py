@@ -33,7 +33,7 @@ logger = Log(__name__).getlog()
 def get_chunks_list(wav_file: str,
                     split_chunks: bool,
                     base_path: str,
-                    chunk_duration: float=3.0) -> List[List[str]]:
+                    chunk_duration: float = 3.0) -> List[List[str]]:
     """Get the single audio file info 
 
     Args:
@@ -73,7 +73,7 @@ def get_chunks_list(wav_file: str,
 def generate_csv(wav_files,
                  output_file: str,
                  base_path: str,
-                 split_chunks: bool=True):
+                 split_chunks: bool = True):
     """Prepare the csv file according the wav files
 
     Args:
@@ -87,15 +87,18 @@ def generate_csv(wav_files,
     csv_lines = []
     for item in tqdm.tqdm(wav_files):
         csv_lines.extend(
-            get_chunks_list(
-                item, base_path=base_path, split_chunks=split_chunks))
+            get_chunks_list(item,
+                            base_path=base_path,
+                            split_chunks=split_chunks))
 
     if not os.path.exists(os.path.dirname(output_file)):
         os.makedirs(os.path.dirname(output_file))
 
     with open(output_file, mode="w") as csv_f:
-        csv_writer = csv.writer(
-            csv_f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csv_writer = csv.writer(csv_f,
+                                delimiter=",",
+                                quotechar='"',
+                                quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(header)
         for line in csv_lines:
             csv_writer.writerow(line)
@@ -132,30 +135,29 @@ def prepare_data(args, config):
 
     csv_path = os.path.join(args.data_dir, 'csv')
     logger.info(f"csv path: {csv_path}")
-    generate_csv(
-        rir_files, os.path.join(csv_path, 'rir.csv'), base_path=base_path)
-    generate_csv(
-        noise_files, os.path.join(csv_path, 'noise.csv'), base_path=base_path)
+    generate_csv(rir_files,
+                 os.path.join(csv_path, 'rir.csv'),
+                 base_path=base_path)
+    generate_csv(noise_files,
+                 os.path.join(csv_path, 'noise.csv'),
+                 base_path=base_path)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--noise_dir",
-        default=None,
-        required=True,
-        help="The noise dataset dataset directory.")
-    parser.add_argument(
-        "--data_dir",
-        default=None,
-        required=True,
-        help="The target directory stores the csv files")
-    parser.add_argument(
-        "--config",
-        default=None,
-        required=True,
-        type=str,
-        help="configuration file")
+    parser.add_argument("--noise_dir",
+                        default=None,
+                        required=True,
+                        help="The noise dataset dataset directory.")
+    parser.add_argument("--data_dir",
+                        default=None,
+                        required=True,
+                        help="The target directory stores the csv files")
+    parser.add_argument("--config",
+                        default=None,
+                        required=True,
+                        type=str,
+                        help="configuration file")
     args = parser.parse_args()
 
     # parse the yaml config file

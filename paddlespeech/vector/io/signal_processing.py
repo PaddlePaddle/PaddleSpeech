@@ -56,12 +56,13 @@ def dB_to_amplitude(SNR):
 
 
 def convolve1d(
-        waveform,
-        kernel,
-        padding=0,
-        pad_type="constant",
-        stride=1,
-        groups=1, ):
+    waveform,
+    kernel,
+    padding=0,
+    pad_type="constant",
+    stride=1,
+    groups=1,
+):
     if len(waveform.shape) != 3:
         raise ValueError("Convolve1D expects a 3-dimensional tensor")
 
@@ -71,7 +72,8 @@ def convolve1d(
             x=waveform,
             pad=padding,
             mode=pad_type,
-            data_format='NLC', )
+            data_format='NLC',
+        )
 
     # Move time dimension last, which pad and fft and conv expect.
     # (N, L, C) -> (N, C, L)
@@ -83,7 +85,8 @@ def convolve1d(
         weight=kernel,
         stride=stride,
         groups=groups,
-        padding=padding if not isinstance(padding, list) else 0, )
+        padding=padding if not isinstance(padding, list) else 0,
+    )
 
     # Return time dimension to the second dimension.
     return convolved.transpose([0, 2, 1])
@@ -106,7 +109,9 @@ def notch_filter(notch_freq, filter_width=101, notch_width=0.05):
 
         # The zero is at the middle index
         res = paddle.concat(
-            [_sinc(x[:pad]), paddle.ones([1]), _sinc(x[pad + 1:])])
+            [_sinc(x[:pad]),
+             paddle.ones([1]),
+             _sinc(x[pad + 1:])])
         return res
 
     # Compute a low-pass filter with cutoff frequency notch_freq.
@@ -164,7 +169,8 @@ def reverberate(waveforms,
     waveforms = convolve1d(
         waveform=waveforms,
         kernel=rir_waveform,
-        padding=[rir_waveform.shape[1] - 1, 0], )
+        padding=[rir_waveform.shape[1] - 1, 0],
+    )
 
     # Rescale to the peak amplitude of the clean waveform
     waveforms = rescale(waveforms, waveforms.shape[1], orig_amplitude,

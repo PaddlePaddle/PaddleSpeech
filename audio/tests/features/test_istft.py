@@ -37,10 +37,13 @@ class TestIstft(FeatTest):
         ps_istft = IStft(self.hop_length)
         ps_res = ps_istft(ps_res.T)
 
-        window = get_window(
-            self.window_str, self.n_fft, dtype=self.waveform.dtype)
-        pd_res = paddle.signal.istft(
-            x, self.n_fft, self.hop_length, window=window)
+        window = get_window(self.window_str,
+                            self.n_fft,
+                            dtype=self.waveform.dtype)
+        pd_res = paddle.signal.istft(x,
+                                     self.n_fft,
+                                     self.hop_length,
+                                     window=window)
 
         np.testing.assert_array_almost_equal(ps_res, pd_res, decimal=5)
 

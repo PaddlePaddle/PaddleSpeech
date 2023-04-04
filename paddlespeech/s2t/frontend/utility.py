@@ -72,7 +72,8 @@ def read_manifest(
         max_output_len=float('inf'),
         min_output_len=0.0,
         max_output_input_ratio=float('inf'),
-        min_output_input_ratio=0.0, ):
+        min_output_input_ratio=0.0,
+):
     """Load and parse manifest file.
 
     Args:
@@ -233,7 +234,7 @@ def gain_db_to_ratio(gain_db: float):
     return math.pow(10.0, gain_db / 20.0)
 
 
-def normalize_audio(sample_data: np.ndarray, dbfs: float=-3.0103):
+def normalize_audio(sample_data: np.ndarray, dbfs: float = -3.0103):
     """Nomalize audio to dBFS.
 
     Args:

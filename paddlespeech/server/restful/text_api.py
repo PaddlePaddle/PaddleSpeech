@@ -25,6 +25,7 @@ from paddlespeech.server.restful.response import TextResponse
 from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.errors import failed_response
 from paddlespeech.server.utils.exception import ServerBaseException
+
 router = APIRouter()
 
 
@@ -48,8 +49,8 @@ def help():
     return response
 
 
-@router.post(
-    "/paddlespeech/text", response_model=Union[TextResponse, ErrorResponse])
+@router.post("/paddlespeech/text",
+             response_model=Union[TextResponse, ErrorResponse])
 def asr(request_body: TextRequest):
     """asr api 
 

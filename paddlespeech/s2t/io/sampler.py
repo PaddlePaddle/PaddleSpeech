@@ -51,7 +51,7 @@ def _batch_shuffle(indices, batch_size, epoch, clipped=False):
     """
     rng = np.random.RandomState(epoch)
     shift_len = rng.randint(0, batch_size - 1)
-    batch_indices = list(zip(* [iter(indices[shift_len:])] * batch_size))
+    batch_indices = list(zip(*[iter(indices[shift_len:])] * batch_size))
     rng.shuffle(batch_indices)
     batch_indices = [item for batch in batch_indices for item in batch]
     assert clipped is False
@@ -114,11 +114,10 @@ class SortagradDistributedBatchSampler(DistributedBatchSampler):
                     # using `batch_size * nrank`, or will cause instability loss and nan or inf grad,
                     # since diff batch examlpe length in batches case instability loss in diff rank,
                     # e.g. rank0 maxlength 20, rank3 maxlength 1000
-                    indices = _batch_shuffle(
-                        indices,
-                        self.batch_size * self.nranks,
-                        self.epoch,
-                        clipped=False)
+                    indices = _batch_shuffle(indices,
+                                             self.batch_size * self.nranks,
+                                             self.epoch,
+                                             clipped=False)
                 elif self._shuffle_method == "instance_shuffle":
                     np.random.RandomState(self.epoch).shuffle(indices)
                 else:
@@ -142,8 +141,9 @@ class SortagradDistributedBatchSampler(DistributedBatchSampler):
 
             indices = indices[len(indices) - last_batch_size:]
             subsampled_indices.extend(
-                indices[self.local_rank * last_local_batch_size:(
-                    self.local_rank + 1) * last_local_batch_size])
+                indices[self.local_rank *
+                        last_local_batch_size:(self.local_rank + 1) *
+                        last_local_batch_size])
             return subsampled_indices
 
         if self.nranks > 1:
@@ -218,8 +218,10 @@ class SortagradBatchSampler(BatchSampler):
             else:
                 logger.info(f'dataset shuffle! epoch {self.epoch}')
                 if self._shuffle_method == "batch_shuffle":
-                    indices = _batch_shuffle(
-                        indices, self.batch_size, self.epoch, clipped=False)
+                    indices = _batch_shuffle(indices,
+                                             self.batch_size,
+                                             self.epoch,
+                                             clipped=False)
                 elif self._shuffle_method == "instance_shuffle":
                     np.random.RandomState(self.epoch).shuffle(indices)
                 else:

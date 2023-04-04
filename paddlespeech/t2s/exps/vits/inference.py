@@ -29,61 +29,64 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Paddle Infernce with acoustic model & vocoder.")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='vits_csmsc',
-        choices=['vits_csmsc', 'vits_aishell3'],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
+    parser.add_argument('--am',
+                        type=str,
+                        default='vits_csmsc',
+                        choices=['vits_csmsc', 'vits_aishell3'],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument('--spk_id',
+                        type=int,
+                        default=0,
+                        help='spk id for multi speaker acoustic model')
     # other
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en or mix')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en or mix')
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
-    parser.add_argument(
-        "--add-blank",
-        type=str2bool,
-        default=True,
-        help="whether to add blank between phones")
-    parser.add_argument(
-        "--inference_dir", type=str, help="dir to save inference models")
+    parser.add_argument("--add-blank",
+                        type=str2bool,
+                        default=True,
+                        help="whether to add blank between phones")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
     parser.add_argument(
         "--use_trt",
         type=str2bool,
         default=False,
-        help="whether to use TensorRT or not in GPU", )
+        help="whether to use TensorRT or not in GPU",
+    )
     parser.add_argument(
         "--use_mkldnn",
         type=str2bool,
         default=False,
-        help="whether to use MKLDNN or not in CPU.", )
-    parser.add_argument(
-        "--precision",
-        type=str,
-        default='fp32',
-        choices=['fp32', 'fp16', 'bf16', 'int8'],
-        help="mode of running")
+        help="whether to use MKLDNN or not in CPU.",
+    )
+    parser.add_argument("--precision",
+                        type=str,
+                        default='fp32',
+                        choices=['fp32', 'fp16', 'bf16', 'int8'],
+                        help="mode of running")
     parser.add_argument(
         "--device",
         default="gpu",
         choices=["gpu", "cpu"],
-        help="Device selected for inference.", )
+        help="Device selected for inference.",
+    )
     parser.add_argument('--cpu_threads', type=int, default=1)
 
     args, _ = parser.parse_known_args()
@@ -100,15 +103,14 @@ def main():
     frontend = get_frontend(lang=args.lang, phones_dict=args.phones_dict)
 
     # am_predictor
-    am_predictor = get_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.am + ".pdmodel",
-        params_file=args.am + ".pdiparams",
-        device=args.device,
-        use_trt=args.use_trt,
-        use_mkldnn=args.use_mkldnn,
-        cpu_threads=args.cpu_threads,
-        precision=args.precision)
+    am_predictor = get_predictor(model_dir=args.inference_dir,
+                                 model_file=args.am + ".pdmodel",
+                                 params_file=args.am + ".pdiparams",
+                                 device=args.device,
+                                 use_trt=args.use_trt,
+                                 use_mkldnn=args.use_mkldnn,
+                                 cpu_threads=args.cpu_threads,
+                                 precision=args.precision)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
@@ -124,16 +126,15 @@ def main():
     # warmup
     for utt_id, sentence in sentences[:3]:
         with timer() as t:
-            wav = get_am_output(
-                input=sentence,
-                am_predictor=am_predictor,
-                am=args.am,
-                frontend=frontend,
-                lang=args.lang,
-                merge_sentences=merge_sentences,
-                speaker_dict=args.speaker_dict,
-                spk_id=args.spk_id,
-                add_blank=add_blank)
+            wav = get_am_output(input=sentence,
+                                am_predictor=am_predictor,
+                                am=args.am,
+                                frontend=frontend,
+                                lang=args.lang,
+                                merge_sentences=merge_sentences,
+                                speaker_dict=args.speaker_dict,
+                                spk_id=args.spk_id,
+                                add_blank=add_blank)
         speed = wav.size / t.elapse
         rtf = fs / speed
         print(
@@ -146,16 +147,15 @@ def main():
     T = 0
     for utt_id, sentence in sentences:
         with timer() as t:
-            wav = get_am_output(
-                input=sentence,
-                am_predictor=am_predictor,
-                am=args.am,
-                frontend=frontend,
-                lang=args.lang,
-                merge_sentences=merge_sentences,
-                speaker_dict=args.speaker_dict,
-                spk_id=args.spk_id,
-                add_blank=add_blank)
+            wav = get_am_output(input=sentence,
+                                am_predictor=am_predictor,
+                                am=args.am,
+                                frontend=frontend,
+                                lang=args.lang,
+                                merge_sentences=merge_sentences,
+                                speaker_dict=args.speaker_dict,
+                                spk_id=args.spk_id,
+                                add_blank=add_blank)
 
         N += wav.size
         T += t.elapse

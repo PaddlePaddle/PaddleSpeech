@@ -29,6 +29,7 @@ from paddlespeech.server.restful.response import VectorScoreResponse
 from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.errors import failed_response
 from paddlespeech.server.utils.exception import ServerBaseException
+
 router = APIRouter()
 
 
@@ -50,8 +51,8 @@ def help():
     return response
 
 
-@router.post(
-    "/paddlespeech/vector", response_model=Union[VectorResponse, ErrorResponse])
+@router.post("/paddlespeech/vector",
+             response_model=Union[VectorResponse, ErrorResponse])
 def vector(request_body: VectorRequest):
     """vector api 
 
@@ -104,9 +105,8 @@ def vector(request_body: VectorRequest):
     return response
 
 
-@router.post(
-    "/paddlespeech/vector/score",
-    response_model=Union[VectorScoreResponse, ErrorResponse])
+@router.post("/paddlespeech/vector/score",
+             response_model=Union[VectorScoreResponse, ErrorResponse])
 def score(request_body: VectorScoreRequest):
     """vector api 
 

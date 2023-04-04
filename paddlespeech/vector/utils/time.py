@@ -17,7 +17,6 @@ import time
 
 class Timer(object):
     '''Calculate runing speed and estimated time of arrival(ETA)'''
-
     def __init__(self, total_step: int):
         self.total_step = total_step
         self.last_start_step = 0

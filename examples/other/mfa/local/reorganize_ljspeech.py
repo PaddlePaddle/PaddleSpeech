@@ -49,8 +49,8 @@ def write_lab(root_dir: Union[str, Path], output_dir: Union[str, Path]):
                 wf.write(raw_text + '\n')
 
 
-def reorganize_ljspeech(root_dir: Union[str, Path],
-                        output_dir: Union[str, Path]):
+def reorganize_ljspeech(root_dir: Union[str, Path], output_dir: Union[str,
+                                                                      Path]):
 
     link_wav(root_dir, output_dir)
     write_lab(root_dir, output_dir)
@@ -59,12 +59,12 @@ def reorganize_ljspeech(root_dir: Union[str, Path],
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorganize LJSpeech-1.1 dataset for MFA")
-    parser.add_argument(
-        "--root-dir", type=str, help="path to LJSpeech-1.1 dataset.")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        help="path to save outputs (audio and transcriptions)")
+    parser.add_argument("--root-dir",
+                        type=str,
+                        help="path to LJSpeech-1.1 dataset.")
+    parser.add_argument("--output-dir",
+                        type=str,
+                        help="path to save outputs (audio and transcriptions)")
     args = parser.parse_args()
     root_dir = Path(args.root_dir).expanduser()
     output_dir = Path(args.output_dir).expanduser()

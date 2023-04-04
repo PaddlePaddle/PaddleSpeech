@@ -34,28 +34,25 @@ class MySQLHelper():
     #   4. search by milvus ids
     #   5. delete table
     """
-
     def __init__(self):
-        self.conn = pymysql.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USER,
-            port=MYSQL_PORT,
-            password=MYSQL_PWD,
-            database=MYSQL_DB,
-            local_infile=True)
+        self.conn = pymysql.connect(host=MYSQL_HOST,
+                                    user=MYSQL_USER,
+                                    port=MYSQL_PORT,
+                                    password=MYSQL_PWD,
+                                    database=MYSQL_DB,
+                                    local_infile=True)
         self.cursor = self.conn.cursor()
 
     def test_connection(self):
         try:
             self.conn.ping()
         except Exception:
-            self.conn = pymysql.connect(
-                host=MYSQL_HOST,
-                user=MYSQL_USER,
-                port=MYSQL_PORT,
-                password=MYSQL_PWD,
-                database=MYSQL_DB,
-                local_infile=True)
+            self.conn = pymysql.connect(host=MYSQL_HOST,
+                                        user=MYSQL_USER,
+                                        port=MYSQL_PORT,
+                                        password=MYSQL_PWD,
+                                        database=MYSQL_DB,
+                                        local_infile=True)
             self.cursor = self.conn.cursor()
 
     def create_mysql_table(self, table_name):
@@ -184,7 +181,8 @@ class MySQLHelper():
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
             LOGGER.debug(
-                f"MYSQL search by spk id {spk_id} to get audio {results[0][0]}.")
+                f"MYSQL search by spk id {spk_id} to get audio {results[0][0]}."
+            )
             return results[0][0]
         except Exception as e:
             LOGGER.error(f"MYSQL ERROR: {e} with sql: {sql}")

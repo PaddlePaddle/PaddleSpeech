@@ -19,6 +19,7 @@ from pathlib import Path
 
 import paddle
 from paddle import distributed as dist
+
 world_size = dist.get_world_size()
 if world_size > 1:
     dist.init_parallel_env()
@@ -97,7 +98,6 @@ class Trainer():
     >>> else:
     >>>     main_sp(config, args)
     """
-
     def __init__(self, config, args):
         self.config = config
         self.args = args
@@ -126,9 +126,8 @@ class Trainer():
         else:
             raise Exception("invalid device")
 
-        self.checkpoint = Checkpoint(
-            kbest_n=self.config.checkpoint.kbest_n,
-            latest_n=self.config.checkpoint.latest_n)
+        self.checkpoint = Checkpoint(kbest_n=self.config.checkpoint.kbest_n,
+                                     latest_n=self.config.checkpoint.latest_n)
 
         # set random seed if needed
         if args.seed:
@@ -175,7 +174,7 @@ class Trainer():
         return self.args.ngpu > 1
 
     @mp_tools.rank_zero_only
-    def save(self, tag=None, infos: dict=None):
+    def save(self, tag=None, infos: dict = None):
         """Save checkpoint (model parameters and optimizer states).
 
         Args:
@@ -189,9 +188,9 @@ class Trainer():
             "epoch": self.epoch,
             "lr": self.optimizer.get_lr()
         })
-        self.checkpoint.save_parameters(self.checkpoint_dir, self.iteration
-                                        if tag is None else tag, self.model,
-                                        self.optimizer, infos)
+        self.checkpoint.save_parameters(self.checkpoint_dir,
+                                        self.iteration if tag is None else tag,
+                                        self.model, self.optimizer, infos)
 
     def resume_or_scratch(self):
         """Resume from latest checkpoint at checkpoints in the output
@@ -314,13 +313,15 @@ class Trainer():
                 else:
                     cv_loss = total_loss / num_seen_utts
 
-            logger.info(
-                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            logger.info('Epoch {} Val info val_loss {}'.format(
+                self.epoch, cv_loss))
             if self.visualizer:
-                self.visualizer.add_scalar(
-                    tag='eval/cv_loss', value=cv_loss, step=self.epoch)
-                self.visualizer.add_scalar(
-                    tag='eval/lr', value=self.lr_scheduler(), step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/cv_loss',
+                                           value=cv_loss,
+                                           step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/lr',
+                                           value=self.lr_scheduler(),
+                                           step=self.epoch)
 
             # step lr every epoch
             self.lr_scheduler.step()

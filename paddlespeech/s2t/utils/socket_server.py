@@ -59,7 +59,6 @@ def warm_up_test(audio_process_handler,
 
 class AsrTCPServer(socketserver.TCPServer):
     """The ASR TCP Server."""
-
     def __init__(self,
                  server_address,
                  RequestHandlerClass,
@@ -68,13 +67,14 @@ class AsrTCPServer(socketserver.TCPServer):
                  bind_and_activate=True):
         self.speech_save_dir = speech_save_dir
         self.audio_process_handler = audio_process_handler
-        socketserver.TCPServer.__init__(
-            self, server_address, RequestHandlerClass, bind_and_activate=True)
+        socketserver.TCPServer.__init__(self,
+                                        server_address,
+                                        RequestHandlerClass,
+                                        bind_and_activate=True)
 
 
 class AsrRequestHandler(socketserver.BaseRequestHandler):
     """The ASR request handler."""
-
     def handle(self):
         # receive data through TCP socket
         chunk = self.request.recv(1024)

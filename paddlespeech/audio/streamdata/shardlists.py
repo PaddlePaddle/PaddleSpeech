@@ -25,6 +25,7 @@ from . import utils
 from ..utils.log import Logger
 from .filters import pipelinefilter
 from .paddle_utils import IterableDataset
+
 logger = Logger(__name__)
 
 
@@ -41,7 +42,6 @@ def expand_urls(urls):
 
 class SimpleShardList(IterableDataset):
     """An iterable dataset yielding a list of urls."""
-
     def __init__(self, urls, seed=None):
         """Iterate through the list of shards.
 
@@ -109,8 +109,8 @@ def resampled_(src, n=sys.maxsize):
     rng = random.Random(seed)
     print("# resampled loading", file=sys.stderr)
     items = list(src)
-    print(
-        f"# resampled got {len(items)} samples, yielding {n}", file=sys.stderr)
+    print(f"# resampled got {len(items)} samples, yielding {n}",
+          file=sys.stderr)
     for i in range(n):
         yield rng.choice(items)
 
@@ -160,8 +160,8 @@ class MultiShardSample(IterableDataset):
         else:
             with open(fname) as stream:
                 spec = yaml.safe_load(stream)
-        assert set(spec.keys()).issubset(
-            set("prefix datasets buckets".split())), list(spec.keys())
+        assert set(spec.keys()).issubset(set(
+            "prefix datasets buckets".split())), list(spec.keys())
         prefix = expand(spec.get("prefix", ""))
         self.sources = []
         for ds in spec["datasets"]:
@@ -184,8 +184,8 @@ class MultiShardSample(IterableDataset):
                 urls = [urls]
             # urls = [u for url in urls for u in braceexpand.braceexpand(url)]
             urls = [
-                prefix + os.path.join(bucket, u)
-                for url in urls for u in braceexpand.braceexpand(expand(url))
+                prefix + os.path.join(bucket, u) for url in urls
+                for u in braceexpand.braceexpand(expand(url))
             ]
             resample = ds.get("resample", -1)
             nsample = ds.get("choose", -1)
@@ -195,8 +195,10 @@ class MultiShardSample(IterableDataset):
                 )
             if (nsample > 0) and (resample > 0):
                 raise ValueError("specify only one of perepoch or choose")
-            entry = MSSource(
-                name=name, urls=urls, perepoch=nsample, resample=resample)
+            entry = MSSource(name=name,
+                             urls=urls,
+                             perepoch=nsample,
+                             resample=resample)
             self.sources.append(entry)
             print(f"# {name} {len(urls)} {nsample}", file=sys.stderr)
 
@@ -236,13 +238,13 @@ def shardspec(spec):
 
 class ResampledShards(IterableDataset):
     """An iterable dataset yielding a list of urls."""
-
     def __init__(
-            self,
-            urls,
-            nshards=sys.maxsize,
-            worker_seed=None,
-            deterministic=False, ):
+        self,
+        urls,
+        nshards=sys.maxsize,
+        worker_seed=None,
+        deterministic=False,
+    ):
         """Sample shards from the shard list with replacement.
 
         :param urls: a list of URLs as a Python list or brace notation string
@@ -262,8 +264,8 @@ class ResampledShards(IterableDataset):
         if self.deterministic:
             seed = utils.make_seed(self.worker_seed(), self.epoch)
         else:
-            seed = utils.make_seed(self.worker_seed(), self.epoch,
-                                   os.getpid(), time.time_ns(), os.urandom(4))
+            seed = utils.make_seed(self.worker_seed(), self.epoch, os.getpid(),
+                                   time.time_ns(), os.urandom(4))
         if os.environ.get("WDS_SHOW_SEED", "0") == "1":
             print(f"# ResampledShards seed {seed}")
         self.rng = random.Random(seed)

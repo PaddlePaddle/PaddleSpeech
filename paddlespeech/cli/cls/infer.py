@@ -34,10 +34,12 @@ __all__ = ['CLSExecutor']
 class CLSExecutor(BaseExecutor):
     def __init__(self):
         super().__init__(task='cls')
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.cls', add_help=True)
-        self.parser.add_argument(
-            '--input', type=str, default=None, help='Audio file to classify.')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.cls',
+                                              add_help=True)
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to classify.')
         self.parser.add_argument(
             '--model',
             type=str,
@@ -52,16 +54,14 @@ class CLSExecutor(BaseExecutor):
             type=str,
             default=None,
             help='Config of cls task. Use deault config when it is None.')
-        self.parser.add_argument(
-            '--ckpt_path',
-            type=str,
-            default=None,
-            help='Checkpoint file of model.')
-        self.parser.add_argument(
-            '--label_file',
-            type=str,
-            default=None,
-            help='Label file of cls task.')
+        self.parser.add_argument('--ckpt_path',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of model.')
+        self.parser.add_argument('--label_file',
+                                 type=str,
+                                 default=None,
+                                 help='Label file of cls task.')
         self.parser.add_argument(
             '--topk',
             type=int,
@@ -72,11 +72,10 @@ class CLSExecutor(BaseExecutor):
             type=str,
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -84,10 +83,10 @@ class CLSExecutor(BaseExecutor):
             help='Increase logger verbosity of current task.')
 
     def _init_from_path(self,
-                        model_type: str='panns_cnn14',
-                        cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None,
-                        label_file: Optional[os.PathLike]=None):
+                        model_type: str = 'panns_cnn14',
+                        cfg_path: Optional[os.PathLike] = None,
+                        ckpt_path: Optional[os.PathLike] = None,
+                        label_file: Optional[os.PathLike] = None):
         """
             Init model and other resources from a specific path.
         """
@@ -136,11 +135,10 @@ class CLSExecutor(BaseExecutor):
         """
         feat_conf = self._conf['feature']
         logger.debug(feat_conf)
-        waveform, _ = load(
-            file=audio_file,
-            sr=feat_conf['sample_rate'],
-            mono=True,
-            dtype='float32')
+        waveform, _ = load(file=audio_file,
+                           sr=feat_conf['sample_rate'],
+                           mono=True,
+                           dtype='float32')
         if isinstance(audio_file, (str, os.PathLike)):
             logger.debug("Preprocessing audio_file:" + audio_file)
 
@@ -153,7 +151,8 @@ class CLSExecutor(BaseExecutor):
             win_length=feat_conf['window_length'],
             f_min=feat_conf['f_min'],
             f_max=feat_conf['f_max'],
-            n_mels=feat_conf['n_mels'], )
+            n_mels=feat_conf['n_mels'],
+        )
         feats = feature_extractor(
             paddle.to_tensor(paddle.to_tensor(waveform).unsqueeze(0)))
         self._inputs['feats'] = paddle.transpose(feats, [0, 2, 1]).unsqueeze(
@@ -224,12 +223,12 @@ class CLSExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='panns_cnn14',
-                 config: Optional[os.PathLike]=None,
-                 ckpt_path: Optional[os.PathLike]=None,
-                 label_file: Optional[os.PathLike]=None,
-                 topk: int=1,
-                 device: str=paddle.get_device()):
+                 model: str = 'panns_cnn14',
+                 config: Optional[os.PathLike] = None,
+                 ckpt_path: Optional[os.PathLike] = None,
+                 label_file: Optional[os.PathLike] = None,
+                 topk: int = 1,
+                 device: str = paddle.get_device()):
         """
             Python API to call an executor.
         """

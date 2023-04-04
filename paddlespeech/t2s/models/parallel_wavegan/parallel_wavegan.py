@@ -72,29 +72,29 @@ class PWGGenerator(nn.Layer):
         freq_axis_kernel_size (int, optional): 
             Kernel size along the frequency axis of the upsample network, by default 1
     """
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            kernel_size: int=3,
-            layers: int=30,
-            stacks: int=3,
-            residual_channels: int=64,
-            gate_channels: int=128,
-            skip_channels: int=64,
-            aux_channels: int=80,
-            aux_context_window: int=2,
-            dropout: float=0.,
-            bias: bool=True,
-            use_weight_norm: bool=True,
-            use_causal_conv: bool=False,
-            upsample_scales: List[int]=[4, 4, 4, 4],
-            nonlinear_activation: Optional[str]=None,
-            nonlinear_activation_params: Dict[str, Any]={},
-            interpolate_mode: str="nearest",
-            freq_axis_kernel_size: int=1,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        kernel_size: int = 3,
+        layers: int = 30,
+        stacks: int = 3,
+        residual_channels: int = 64,
+        gate_channels: int = 128,
+        skip_channels: int = 64,
+        aux_channels: int = 80,
+        aux_context_window: int = 2,
+        dropout: float = 0.,
+        bias: bool = True,
+        use_weight_norm: bool = True,
+        use_causal_conv: bool = False,
+        upsample_scales: List[int] = [4, 4, 4, 4],
+        nonlinear_activation: Optional[str] = None,
+        nonlinear_activation_params: Dict[str, Any] = {},
+        interpolate_mode: str = "nearest",
+        freq_axis_kernel_size: int = 1,
+        init_type: str = "xavier_uniform",
+    ):
         super().__init__()
 
         # initialize parameters
@@ -115,8 +115,10 @@ class PWGGenerator(nn.Layer):
         assert layers % stacks == 0
         layers_per_stack = layers // stacks
 
-        self.first_conv = nn.Conv1D(
-            in_channels, residual_channels, 1, bias_attr=True)
+        self.first_conv = nn.Conv1D(in_channels,
+                                    residual_channels,
+                                    1,
+                                    bias_attr=True)
         self.upsample_net = ConvInUpsampleNet(
             upsample_scales=upsample_scales,
             nonlinear_activation=nonlinear_activation,
@@ -131,30 +133,23 @@ class PWGGenerator(nn.Layer):
         self.conv_layers = nn.LayerList()
         for layer in range(layers):
             dilation = 2**(layer % layers_per_stack)
-            conv = ResidualBlock(
-                kernel_size=kernel_size,
-                residual_channels=residual_channels,
-                gate_channels=gate_channels,
-                skip_channels=skip_channels,
-                aux_channels=aux_channels,
-                dilation=dilation,
-                dropout=dropout,
-                bias=bias,
-                use_causal_conv=use_causal_conv)
+            conv = ResidualBlock(kernel_size=kernel_size,
+                                 residual_channels=residual_channels,
+                                 gate_channels=gate_channels,
+                                 skip_channels=skip_channels,
+                                 aux_channels=aux_channels,
+                                 dilation=dilation,
+                                 dropout=dropout,
+                                 bias=bias,
+                                 use_causal_conv=use_causal_conv)
             self.conv_layers.append(conv)
 
-        self.last_conv_layers = nn.Sequential(nn.ReLU(),
-                                              nn.Conv1D(
-                                                  skip_channels,
-                                                  skip_channels,
-                                                  1,
-                                                  bias_attr=True),
-                                              nn.ReLU(),
-                                              nn.Conv1D(
-                                                  skip_channels,
-                                                  out_channels,
-                                                  1,
-                                                  bias_attr=True))
+        self.last_conv_layers = nn.Sequential(
+            nn.ReLU(), nn.Conv1D(skip_channels,
+                                 skip_channels,
+                                 1,
+                                 bias_attr=True), nn.ReLU(),
+            nn.Conv1D(skip_channels, out_channels, 1, bias_attr=True))
 
         if use_weight_norm:
             self.apply_weight_norm()
@@ -189,7 +184,6 @@ class PWGGenerator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D)):
                 nn.utils.weight_norm(layer)
@@ -200,7 +194,6 @@ class PWGGenerator(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 nn.utils.remove_weight_norm(layer)
@@ -223,7 +216,8 @@ class PWGGenerator(nn.Layer):
         """
         # when to static, can not input x, see https://github.com/PaddlePaddle/Parakeet/pull/132/files
         x = paddle.randn(
-            [1, self.in_channels, paddle.shape(c)[0] * self.upsample_factor])
+            [1, self.in_channels,
+             paddle.shape(c)[0] * self.upsample_factor])
         c = paddle.transpose(c, [1, 0]).unsqueeze(0)  # pseudo batch
         c = nn.Pad1D(self.aux_context_window, mode='replicate')(c)
         out = self(x, c).squeeze(0).transpose([1, 0])
@@ -257,20 +251,20 @@ class PWGDiscriminator(nn.Layer):
         use_weight_norm (bool, optional): 
             Whether to use weight normalization at all convolutional sublayers, by default True
     """
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            kernel_size: int=3,
-            layers: int=10,
-            conv_channels: int=64,
-            dilation_factor: int=1,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
-            bias: bool=True,
-            use_weight_norm: bool=True,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        kernel_size: int = 3,
+        layers: int = 10,
+        conv_channels: int = 64,
+        dilation_factor: int = 1,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.2},
+        bias: bool = True,
+        use_weight_norm: bool = True,
+        init_type: str = "xavier_uniform",
+    ):
         super().__init__()
 
         # initialize parameters
@@ -290,24 +284,22 @@ class PWGDiscriminator(nn.Layer):
                 dilation = i if dilation_factor == 1 else dilation_factor**i
                 conv_in_channels = conv_channels
             padding = (kernel_size - 1) // 2 * dilation
-            conv_layer = nn.Conv1D(
-                conv_in_channels,
-                conv_channels,
-                kernel_size,
-                padding=padding,
-                dilation=dilation,
-                bias_attr=bias)
+            conv_layer = nn.Conv1D(conv_in_channels,
+                                   conv_channels,
+                                   kernel_size,
+                                   padding=padding,
+                                   dilation=dilation,
+                                   bias_attr=bias)
             nonlinear = get_activation(nonlinear_activation,
                                        **nonlinear_activation_params)
             conv_layers.append(conv_layer)
             conv_layers.append(nonlinear)
         padding = (kernel_size - 1) // 2
-        last_conv = nn.Conv1D(
-            conv_in_channels,
-            out_channels,
-            kernel_size,
-            padding=padding,
-            bias_attr=bias)
+        last_conv = nn.Conv1D(conv_in_channels,
+                              out_channels,
+                              kernel_size,
+                              padding=padding,
+                              bias_attr=bias)
         conv_layers.append(last_conv)
         self.conv_layers = nn.Sequential(*conv_layers)
 
@@ -377,24 +369,24 @@ class ResidualPWGDiscriminator(nn.Layer):
         nonlinear_activation_params (Dict[str, Any], optional): 
             Parameters to pass to the activation, by default {"negative_slope": 0.2}
     """
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            kernel_size: int=3,
-            layers: int=30,
-            stacks: int=3,
-            residual_channels: int=64,
-            gate_channels: int=128,
-            skip_channels: int=64,
-            dropout: float=0.,
-            bias: bool=True,
-            use_weight_norm: bool=True,
-            use_causal_conv: bool=False,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        kernel_size: int = 3,
+        layers: int = 30,
+        stacks: int = 3,
+        residual_channels: int = 64,
+        gate_channels: int = 128,
+        skip_channels: int = 64,
+        dropout: float = 0.,
+        bias: bool = True,
+        use_weight_norm: bool = True,
+        use_causal_conv: bool = False,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.2},
+        init_type: str = "xavier_uniform",
+    ):
         super().__init__()
 
         # initialize parameters

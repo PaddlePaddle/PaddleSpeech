@@ -23,12 +23,13 @@ def normalize_wav(tensor: paddle.Tensor) -> paddle.Tensor:
 
 
 def get_wav_data(
-        dtype: str,
-        num_channels: int,
-        *,
-        num_frames: Optional[int]=None,
-        normalize: bool=True,
-        channels_first: bool=True, ):
+    dtype: str,
+    num_channels: int,
+    *,
+    num_frames: Optional[int] = None,
+    normalize: bool = True,
+    channels_first: bool = True,
+):
     """Generate linear signal of the given dtype and num_channels
 
     Data range is
@@ -65,8 +66,10 @@ def get_wav_data(
     elif dtype == "float64":
         base = paddle.linspace(-1.0, 1.0, num_frames, dtype=dtype_)
     elif dtype == "int32":
-        base = paddle.linspace(
-            -2147483648, 2147483647, num_frames, dtype=dtype_)
+        base = paddle.linspace(-2147483648,
+                               2147483647,
+                               num_frames,
+                               dtype=dtype_)
     #elif dtype == "int16":
     #    base = paddle.linspace(-32768, 32767, num_frames, dtype=dtype_)
     #dtype_np = getattr(np, dtype)

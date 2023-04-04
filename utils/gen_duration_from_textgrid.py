@@ -61,7 +61,9 @@ def readtg(tg_path, sample_rate=24000, n_shift=300):
 # in MFA1.x, there are blank labels("") in the end, and maybe "sp" before it
 # in MFA2.x, there are  blank labels("") in the begin and the end, while no "sp" and "sil" anymore
 # we replace it with "sil"
-def gen_duration_from_textgrid(inputdir, output, sample_rate=24000,
+def gen_duration_from_textgrid(inputdir,
+                               output,
+                               sample_rate=24000,
                                n_shift=300):
     # key: utt_id, value: (speaker, phn_durs)
     durations_dict = {}
@@ -73,8 +75,10 @@ def gen_duration_from_textgrid(inputdir, output, sample_rate=24000,
             if file.endswith(".TextGrid"):
                 tg_path = subdir / file
                 name = file.split(".")[0]
-                durations_dict[name] = (speaker, readtg(
-                    tg_path, sample_rate=sample_rate, n_shift=n_shift))
+                durations_dict[name] = (speaker,
+                                        readtg(tg_path,
+                                               sample_rate=sample_rate,
+                                               n_shift=n_shift))
     with open(output, "w") as wf:
         for name in sorted(durations_dict.keys()):
             wf.write(name + "|" + durations_dict[name][0] + "|" +
@@ -85,20 +89,22 @@ def main():
     # parse config and args
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
-    parser.add_argument(
-        "--inputdir",
-        default=None,
-        type=str,
-        help="directory to alignment files.")
-    parser.add_argument(
-        "--output", type=str, required=True, help="output duration file.")
+    parser.add_argument("--inputdir",
+                        default=None,
+                        type=str,
+                        help="directory to alignment files.")
+    parser.add_argument("--output",
+                        type=str,
+                        required=True,
+                        help="output duration file.")
     parser.add_argument("--sample-rate", type=int, help="the sample of wavs.")
     parser.add_argument(
         "--n-shift",
         type=int,
         help="the n_shift of time_to_freames, also called hop_length.")
-    parser.add_argument(
-        "--config", type=str, help="config file with fs and n_shift.")
+    parser.add_argument("--config",
+                        type=str,
+                        help="config file with fs and n_shift.")
 
     args = parser.parse_args()
     with open(args.config) as f:

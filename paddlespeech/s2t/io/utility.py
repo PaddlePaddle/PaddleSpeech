@@ -24,13 +24,13 @@ logger = Log(__name__).getlog()
 
 
 def pad_list(sequences: List[np.ndarray],
-             padding_value: float=0.0) -> np.ndarray:
+             padding_value: float = 0.0) -> np.ndarray:
     return pad_sequence(sequences, True, padding_value)
 
 
 def pad_sequence(sequences: List[np.ndarray],
-                 batch_first: bool=True,
-                 padding_value: float=0.0) -> np.ndarray:
+                 batch_first: bool = True,
+                 padding_value: float = 0.0) -> np.ndarray:
     r"""Pad a list of variable length Tensors with ``padding_value``
 
     ``pad_sequence`` stacks a list of Tensors along a new dimension,

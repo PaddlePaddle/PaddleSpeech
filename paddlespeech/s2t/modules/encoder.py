@@ -59,22 +59,22 @@ __all__ = [
 class BaseEncoder(nn.Layer):
     def __init__(self,
                  input_size: int,
-                 output_size: int=256,
-                 attention_heads: int=4,
-                 linear_units: int=2048,
-                 num_blocks: int=6,
-                 dropout_rate: float=0.1,
-                 positional_dropout_rate: float=0.1,
-                 attention_dropout_rate: float=0.0,
-                 input_layer: str="conv2d",
-                 pos_enc_layer_type: str="abs_pos",
-                 normalize_before: bool=True,
-                 concat_after: bool=False,
-                 static_chunk_size: int=0,
-                 use_dynamic_chunk: bool=False,
-                 global_cmvn: paddle.nn.Layer=None,
-                 use_dynamic_left_chunk: bool=False,
-                 max_len: int=5000):
+                 output_size: int = 256,
+                 attention_heads: int = 4,
+                 linear_units: int = 2048,
+                 num_blocks: int = 6,
+                 dropout_rate: float = 0.1,
+                 positional_dropout_rate: float = 0.1,
+                 attention_dropout_rate: float = 0.0,
+                 input_layer: str = "conv2d",
+                 pos_enc_layer_type: str = "abs_pos",
+                 normalize_before: bool = True,
+                 concat_after: bool = False,
+                 static_chunk_size: int = 0,
+                 use_dynamic_chunk: bool = False,
+                 global_cmvn: paddle.nn.Layer = None,
+                 use_dynamic_left_chunk: bool = False,
+                 max_len: int = 5000):
         """
         Args:
             input_size (int): input dim, d_feature
@@ -136,10 +136,10 @@ class BaseEncoder(nn.Layer):
             idim=input_size,
             odim=output_size,
             dropout_rate=dropout_rate,
-            pos_enc_class=pos_enc_class(
-                d_model=output_size,
-                dropout_rate=positional_dropout_rate,
-                max_len=max_len), )
+            pos_enc_class=pos_enc_class(d_model=output_size,
+                                        dropout_rate=positional_dropout_rate,
+                                        max_len=max_len),
+        )
 
         self.normalize_before = normalize_before
         self.after_norm = LayerNorm(output_size, epsilon=1e-12)
@@ -151,11 +151,11 @@ class BaseEncoder(nn.Layer):
         return self._output_size
 
     def forward(
-            self,
-            xs: paddle.Tensor,
-            xs_lens: paddle.Tensor,
-            decoding_chunk_size: int=0,
-            num_decoding_left_chunks: int=-1,
+        self,
+        xs: paddle.Tensor,
+        xs_lens: paddle.Tensor,
+        decoding_chunk_size: int = 0,
+        num_decoding_left_chunks: int = -1,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Embed positions in tensor.
         Args:
@@ -178,10 +178,11 @@ class BaseEncoder(nn.Layer):
             xs = self.global_cmvn(xs)
         xs, pos_emb, masks = self.embed(xs, masks, offset=0)
         mask_pad = ~masks
-        chunk_masks = add_optional_chunk_mask(
-            xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
-            decoding_chunk_size, self.static_chunk_size,
-            num_decoding_left_chunks)
+        chunk_masks = add_optional_chunk_mask(xs, masks, self.use_dynamic_chunk,
+                                              self.use_dynamic_left_chunk,
+                                              decoding_chunk_size,
+                                              self.static_chunk_size,
+                                              num_decoding_left_chunks)
         for layer in self.encoders:
             xs, chunk_masks, _, _ = layer(xs, chunk_masks, pos_emb, mask_pad)
         if self.normalize_before:
@@ -192,13 +193,13 @@ class BaseEncoder(nn.Layer):
         return xs, masks
 
     def forward_chunk(
-            self,
-            xs: paddle.Tensor,
-            offset: int,
-            required_cache_size: int,
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            att_mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool)
+        self,
+        xs: paddle.Tensor,
+        offset: int,
+        required_cache_size: int,
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        att_mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool)
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Forward just one chunk
         Args:
@@ -238,8 +239,8 @@ class BaseEncoder(nn.Layer):
         attention_key_size = cache_t1 + chunk_size
 
         # only used when using `RelPositionMultiHeadedAttention`
-        pos_emb = self.embed.position_encoding(
-            offset=offset - cache_t1, size=attention_key_size)
+        pos_emb = self.embed.position_encoding(offset=offset - cache_t1,
+                                               size=attention_key_size)
 
         if required_cache_size < 0:
             next_cache_start = 0
@@ -264,7 +265,8 @@ class BaseEncoder(nn.Layer):
                 att_mask,
                 pos_emb,
                 att_cache=att_cache[i:i + 1],
-                cnn_cache=cnn_cache[i:i + 1], )
+                cnn_cache=cnn_cache[i:i + 1],
+            )
             # new_att_cache = (1, head, attention_key_size, d_k*2)
             # new_cnn_cache = (B=1, hidden-dim, cache_t2)
             r_att_cache.append(new_att_cache[:, :, next_cache_start:, :])
@@ -280,10 +282,10 @@ class BaseEncoder(nn.Layer):
         return xs, r_att_cache, r_cnn_cache
 
     def forward_chunk_by_chunk(
-            self,
-            xs: paddle.Tensor,
-            decoding_chunk_size: int,
-            num_decoding_left_chunks: int=-1,
+        self,
+        xs: paddle.Tensor,
+        decoding_chunk_size: int,
+        num_decoding_left_chunks: int = -1,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """ Forward input chunk by chunk with chunk_size like a streaming
             fashion
@@ -333,8 +335,10 @@ class BaseEncoder(nn.Layer):
             end = min(cur + decoding_window, num_frames)
             chunk_xs = xs[:, cur:end, :]
 
-            (y, att_cache, cnn_cache) = self.forward_chunk(
-                chunk_xs, offset, required_cache_size, att_cache, cnn_cache)
+            (y, att_cache,
+             cnn_cache) = self.forward_chunk(chunk_xs, offset,
+                                             required_cache_size, att_cache,
+                                             cnn_cache)
 
             outputs.append(y)
             offset += y.shape[1]
@@ -345,25 +349,25 @@ class BaseEncoder(nn.Layer):
 
 class TransformerEncoder(BaseEncoder):
     """Transformer encoder module."""
-
     def __init__(
-            self,
-            input_size: int,
-            output_size: int=256,
-            attention_heads: int=4,
-            linear_units: int=2048,
-            num_blocks: int=6,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.1,
-            attention_dropout_rate: float=0.0,
-            input_layer: str="conv2d",
-            pos_enc_layer_type: str="abs_pos",
-            normalize_before: bool=True,
-            concat_after: bool=False,
-            static_chunk_size: int=0,
-            use_dynamic_chunk: bool=False,
-            global_cmvn: nn.Layer=None,
-            use_dynamic_left_chunk: bool=False, ):
+        self,
+        input_size: int,
+        output_size: int = 256,
+        attention_heads: int = 4,
+        linear_units: int = 2048,
+        num_blocks: int = 6,
+        dropout_rate: float = 0.1,
+        positional_dropout_rate: float = 0.1,
+        attention_dropout_rate: float = 0.0,
+        input_layer: str = "conv2d",
+        pos_enc_layer_type: str = "abs_pos",
+        normalize_before: bool = True,
+        concat_after: bool = False,
+        static_chunk_size: int = 0,
+        use_dynamic_chunk: bool = False,
+        global_cmvn: nn.Layer = None,
+        use_dynamic_left_chunk: bool = False,
+    ):
         """ Construct TransformerEncoder
         See Encoder for the meaning of each parameter.
         """
@@ -387,10 +391,11 @@ class TransformerEncoder(BaseEncoder):
         ])
 
     def forward_one_step(
-            self,
-            xs: paddle.Tensor,
-            masks: paddle.Tensor,
-            cache=None, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        self,
+        xs: paddle.Tensor,
+        masks: paddle.Tensor,
+        cache=None,
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Encode input frame.
 
         Args:
@@ -420,33 +425,32 @@ class TransformerEncoder(BaseEncoder):
 
 class ConformerEncoder(BaseEncoder):
     """Conformer encoder module."""
-
     def __init__(self,
                  input_size: int,
-                 output_size: int=256,
-                 attention_heads: int=4,
-                 linear_units: int=2048,
-                 num_blocks: int=6,
-                 dropout_rate: float=0.1,
-                 positional_dropout_rate: float=0.1,
-                 attention_dropout_rate: float=0.0,
-                 input_layer: str="conv2d",
-                 pos_enc_layer_type: str="rel_pos",
-                 normalize_before: bool=True,
-                 concat_after: bool=False,
-                 static_chunk_size: int=0,
-                 use_dynamic_chunk: bool=False,
-                 global_cmvn: nn.Layer=None,
-                 use_dynamic_left_chunk: bool=False,
-                 positionwise_conv_kernel_size: int=1,
-                 macaron_style: bool=True,
-                 selfattention_layer_type: str="rel_selfattn",
-                 activation_type: str="swish",
-                 use_cnn_module: bool=True,
-                 cnn_module_kernel: int=15,
-                 causal: bool=False,
-                 cnn_module_norm: str="batch_norm",
-                 max_len: int=5000):
+                 output_size: int = 256,
+                 attention_heads: int = 4,
+                 linear_units: int = 2048,
+                 num_blocks: int = 6,
+                 dropout_rate: float = 0.1,
+                 positional_dropout_rate: float = 0.1,
+                 attention_dropout_rate: float = 0.0,
+                 input_layer: str = "conv2d",
+                 pos_enc_layer_type: str = "rel_pos",
+                 normalize_before: bool = True,
+                 concat_after: bool = False,
+                 static_chunk_size: int = 0,
+                 use_dynamic_chunk: bool = False,
+                 global_cmvn: nn.Layer = None,
+                 use_dynamic_left_chunk: bool = False,
+                 positionwise_conv_kernel_size: int = 1,
+                 macaron_style: bool = True,
+                 selfattention_layer_type: str = "rel_selfattn",
+                 activation_type: str = "swish",
+                 use_cnn_module: bool = True,
+                 cnn_module_kernel: int = 15,
+                 causal: bool = False,
+                 cnn_module_norm: str = "batch_norm",
+                 max_len: int = 5000):
         """Construct ConformerEncoder
         Args:
             input_size to use_dynamic_chunk, see in BaseEncoder
@@ -493,8 +497,8 @@ class ConformerEncoder(BaseEncoder):
                 feed_forward=positionwise_layer(*positionwise_layer_args),
                 feed_forward_macaron=positionwise_layer(
                     *positionwise_layer_args) if macaron_style else None,
-                conv_module=convolution_layer(*convolution_layer_args)
-                if use_cnn_module else None,
+                conv_module=convolution_layer(
+                    *convolution_layer_args) if use_cnn_module else None,
                 dropout_rate=dropout_rate,
                 normalize_before=normalize_before,
                 concat_after=concat_after) for _ in range(num_blocks)
@@ -504,32 +508,32 @@ class ConformerEncoder(BaseEncoder):
 class SqueezeformerEncoder(nn.Layer):
     def __init__(self,
                  input_size: int,
-                 encoder_dim: int=256,
-                 output_size: int=256,
-                 attention_heads: int=4,
-                 num_blocks: int=12,
-                 reduce_idx: Optional[Union[int, List[int]]]=5,
-                 recover_idx: Optional[Union[int, List[int]]]=11,
-                 feed_forward_expansion_factor: int=4,
-                 dw_stride: bool=False,
-                 input_dropout_rate: float=0.1,
-                 pos_enc_layer_type: str="rel_pos",
-                 time_reduction_layer_type: str="conv1d",
-                 feed_forward_dropout_rate: float=0.1,
-                 attention_dropout_rate: float=0.1,
-                 cnn_module_kernel: int=31,
-                 cnn_norm_type: str="layer_norm",
-                 dropout: float=0.1,
-                 causal: bool=False,
-                 adaptive_scale: bool=True,
-                 activation_type: str="swish",
-                 init_weights: bool=True,
-                 global_cmvn: paddle.nn.Layer=None,
-                 normalize_before: bool=False,
-                 use_dynamic_chunk: bool=False,
-                 concat_after: bool=False,
-                 static_chunk_size: int=0,
-                 use_dynamic_left_chunk: bool=False):
+                 encoder_dim: int = 256,
+                 output_size: int = 256,
+                 attention_heads: int = 4,
+                 num_blocks: int = 12,
+                 reduce_idx: Optional[Union[int, List[int]]] = 5,
+                 recover_idx: Optional[Union[int, List[int]]] = 11,
+                 feed_forward_expansion_factor: int = 4,
+                 dw_stride: bool = False,
+                 input_dropout_rate: float = 0.1,
+                 pos_enc_layer_type: str = "rel_pos",
+                 time_reduction_layer_type: str = "conv1d",
+                 feed_forward_dropout_rate: float = 0.1,
+                 attention_dropout_rate: float = 0.1,
+                 cnn_module_kernel: int = 31,
+                 cnn_norm_type: str = "layer_norm",
+                 dropout: float = 0.1,
+                 causal: bool = False,
+                 adaptive_scale: bool = True,
+                 activation_type: str = "swish",
+                 init_weights: bool = True,
+                 global_cmvn: paddle.nn.Layer = None,
+                 normalize_before: bool = False,
+                 use_dynamic_chunk: bool = False,
+                 concat_after: bool = False,
+                 static_chunk_size: int = 0,
+                 use_dynamic_left_chunk: bool = False):
         """Construct SqueezeformerEncoder
 
         Args:
@@ -592,9 +596,10 @@ class SqueezeformerEncoder(nn.Layer):
 
         # feed-forward module definition
         positionwise_layer = PositionwiseFeedForward
-        positionwise_layer_args = (
-            encoder_dim, encoder_dim * feed_forward_expansion_factor,
-            feed_forward_dropout_rate, activation, adaptive_scale, init_weights)
+        positionwise_layer_args = (encoder_dim,
+                                   encoder_dim * feed_forward_expansion_factor,
+                                   feed_forward_dropout_rate, activation,
+                                   adaptive_scale, init_weights)
 
         # convolution module definition
         convolution_layer = ConvolutionModule
@@ -603,8 +608,8 @@ class SqueezeformerEncoder(nn.Layer):
                                   init_weights)
 
         self.embed = DepthwiseConv2DSubsampling4(
-            1, encoder_dim,
-            RelPositionalEncoding(encoder_dim, dropout_rate=0.1), dw_stride,
+            1, encoder_dim, RelPositionalEncoding(encoder_dim,
+                                                  dropout_rate=0.1), dw_stride,
             input_size, input_dropout_rate, init_weights)
 
         self.preln = LayerNorm(encoder_dim)
@@ -644,11 +649,11 @@ class SqueezeformerEncoder(nn.Layer):
         return self._output_size
 
     def forward(
-            self,
-            xs: paddle.Tensor,
-            xs_lens: paddle.Tensor,
-            decoding_chunk_size: int=0,
-            num_decoding_left_chunks: int=-1,
+        self,
+        xs: paddle.Tensor,
+        xs_lens: paddle.Tensor,
+        decoding_chunk_size: int = 0,
+        num_decoding_left_chunks: int = -1,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Embed positions in tensor.
         Args:
@@ -671,10 +676,11 @@ class SqueezeformerEncoder(nn.Layer):
             xs = self.global_cmvn(xs)
         xs, pos_emb, masks = self.embed(xs, masks)
         mask_pad = masks
-        chunk_masks = add_optional_chunk_mask(
-            xs, masks, self.use_dynamic_chunk, self.use_dynamic_left_chunk,
-            decoding_chunk_size, self.static_chunk_size,
-            num_decoding_left_chunks)
+        chunk_masks = add_optional_chunk_mask(xs, masks, self.use_dynamic_chunk,
+                                              self.use_dynamic_left_chunk,
+                                              decoding_chunk_size,
+                                              self.static_chunk_size,
+                                              num_decoding_left_chunks)
         xs_lens = chunk_masks.squeeze(1).sum(1)
         xs = self.preln(xs)
         recover_activations: \
@@ -733,13 +739,13 @@ class SqueezeformerEncoder(nn.Layer):
             return int(2**(reduce_exp - recover_exp))
 
     def forward_chunk(
-            self,
-            xs: paddle.Tensor,
-            offset: int,
-            required_cache_size: int,
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            att_mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
+        self,
+        xs: paddle.Tensor,
+        offset: int,
+        required_cache_size: int,
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        att_mask: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Forward just one chunk
 
@@ -784,8 +790,8 @@ class SqueezeformerEncoder(nn.Layer):
         elayers, cache_t1 = att_cache.shape[0], att_cache.shape[2]
         chunk_size = xs.shape[1]
         attention_key_size = cache_t1 + chunk_size
-        pos_emb = self.embed.position_encoding(
-            offset=offset - cache_t1, size=attention_key_size)
+        pos_emb = self.embed.position_encoding(offset=offset - cache_t1,
+                                               size=attention_key_size)
         if required_cache_size < 0:
             next_cache_start = 0
         elif required_cache_size == 0:
@@ -832,16 +838,15 @@ class SqueezeformerEncoder(nn.Layer):
                     mask_pad = recover_mask_pad
 
             factor = self.calculate_downsampling_factor(i)
-            att_cache1 = att_cache[
-                i:i + 1][:, :, ::factor, :][:, :, :pos_emb.shape[1] - xs.shape[
-                    1], :]
+            att_cache1 = att_cache[i:i + 1][:, :, ::factor, :][:, :, :pos_emb.
+                                                               shape[1] -
+                                                               xs.shape[1], :]
             cnn_cache1 = cnn_cache[i] if cnn_cache.shape[0] > 0 else cnn_cache
-            xs, _, new_att_cache, new_cnn_cache = layer(
-                xs,
-                att_mask,
-                pos_emb,
-                att_cache=att_cache1,
-                cnn_cache=cnn_cache1)
+            xs, _, new_att_cache, new_cnn_cache = layer(xs,
+                                                        att_mask,
+                                                        pos_emb,
+                                                        att_cache=att_cache1,
+                                                        cnn_cache=cnn_cache1)
             # NOTE(xcsong): After layer.forward
             #   shape(new_att_cache) is (1, head, attention_key_size, d_k * 2),
             #   shape(new_cnn_cache) is (b=1, hidden-dim, cache_t2)

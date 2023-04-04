@@ -20,13 +20,14 @@ import paddle.nn.functional as F
 
 class DSDilatedConv1d(nn.Layer):
     def __init__(
-            self,
-            in_channels: int,
-            out_channels: int,
-            kernel_size: int,
-            dilation: int=1,
-            stride: int=1,
-            bias: bool=True, ):
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        dilation: int = 1,
+        stride: int = 1,
+        bias: bool = True,
+    ):
         super(DSDilatedConv1d, self).__init__()
         self.receptive_fields = dilation * (kernel_size - 1)
         self.conv = nn.Conv1D(
@@ -37,15 +38,15 @@ class DSDilatedConv1d(nn.Layer):
             dilation=dilation,
             stride=stride,
             groups=in_channels,
-            bias_attr=bias, )
+            bias_attr=bias,
+        )
         self.bn = nn.BatchNorm1D(in_channels)
-        self.pointwise = nn.Conv1D(
-            in_channels,
-            out_channels,
-            kernel_size=1,
-            padding=0,
-            dilation=1,
-            bias_attr=bias)
+        self.pointwise = nn.Conv1D(in_channels,
+                                   out_channels,
+                                   kernel_size=1,
+                                   padding=0,
+                                   dilation=1,
+                                   bias_attr=bias)
 
     def forward(self, inputs: paddle.Tensor):
         outputs = self.conv(inputs)
@@ -56,12 +57,13 @@ class DSDilatedConv1d(nn.Layer):
 
 class TCNBlock(nn.Layer):
     def __init__(
-            self,
-            in_channels: int,
-            res_channels: int,
-            kernel_size: int,
-            dilation: int,
-            causal: bool, ):
+        self,
+        in_channels: int,
+        res_channels: int,
+        kernel_size: int,
+        dilation: int,
+        causal: bool,
+    ):
         super(TCNBlock, self).__init__()
         self.in_channels = in_channels
         self.res_channels = res_channels
@@ -74,12 +76,14 @@ class TCNBlock(nn.Layer):
             in_channels=in_channels,
             out_channels=res_channels,
             kernel_size=kernel_size,
-            dilation=dilation, )
+            dilation=dilation,
+        )
         self.bn1 = nn.BatchNorm1D(res_channels)
         self.relu1 = nn.ReLU()
 
-        self.conv2 = nn.Conv1D(
-            in_channels=res_channels, out_channels=res_channels, kernel_size=1)
+        self.conv2 = nn.Conv1D(in_channels=res_channels,
+                               out_channels=res_channels,
+                               kernel_size=1)
         self.bn2 = nn.BatchNorm1D(res_channels)
         self.relu2 = nn.ReLU()
 
@@ -89,8 +93,8 @@ class TCNBlock(nn.Layer):
         if self.causal:
             inputs = inputs[:, :, self.receptive_fields:]
         else:
-            inputs = inputs[:, :, self.half_receptive_fields:
-                            -self.half_receptive_fields]
+            inputs = inputs[:, :, self.
+                            half_receptive_fields:-self.half_receptive_fields]
         if self.in_channels == self.res_channels:
             res_out = self.relu2(outputs + inputs)
         else:
@@ -100,13 +104,14 @@ class TCNBlock(nn.Layer):
 
 class TCNStack(nn.Layer):
     def __init__(
-            self,
-            in_channels: int,
-            stack_num: int,
-            stack_size: int,
-            res_channels: int,
-            kernel_size: int,
-            causal: bool, ):
+        self,
+        in_channels: int,
+        stack_num: int,
+        stack_size: int,
+        res_channels: int,
+        kernel_size: int,
+        causal: bool,
+    ):
         super(TCNStack, self).__init__()
         self.in_channels = in_channels
         self.stack_num = stack_num
@@ -141,7 +146,8 @@ class TCNStack(nn.Layer):
                 self.res_channels,
                 self.kernel_size,
                 dilations[0],
-                self.causal, ))
+                self.causal,
+            ))
         for dilation in dilations[1:]:
             res_blocks.append(
                 TCNBlock(
@@ -149,7 +155,8 @@ class TCNStack(nn.Layer):
                     self.res_channels,
                     self.kernel_size,
                     dilation,
-                    self.causal, ))
+                    self.causal,
+                ))
         return res_blocks
 
     def forward(self, inputs: paddle.Tensor):
@@ -159,19 +166,23 @@ class TCNStack(nn.Layer):
 
 class MDTC(nn.Layer):
     def __init__(
-            self,
-            stack_num: int,
-            stack_size: int,
-            in_channels: int,
-            res_channels: int,
-            kernel_size: int,
-            causal: bool=True, ):
+        self,
+        stack_num: int,
+        stack_size: int,
+        in_channels: int,
+        res_channels: int,
+        kernel_size: int,
+        causal: bool = True,
+    ):
         super(MDTC, self).__init__()
         assert kernel_size % 2 == 1
         self.kernel_size = kernel_size
         self.causal = causal
-        self.preprocessor = TCNBlock(
-            in_channels, res_channels, kernel_size, dilation=1, causal=causal)
+        self.preprocessor = TCNBlock(in_channels,
+                                     res_channels,
+                                     kernel_size,
+                                     dilation=1,
+                                     causal=causal)
         self.relu = nn.ReLU()
         self.blocks = nn.LayerList()
         self.receptive_fields = self.preprocessor.receptive_fields
@@ -192,7 +203,8 @@ class MDTC(nn.Layer):
                 x,
                 (0, 0, self.half_receptive_fields, self.half_receptive_fields,
                  0, 0),
-                'constant', )
+                'constant',
+            )
         outputs = outputs.transpose([0, 2, 1])
         outputs_list = []
         outputs = self.relu(self.preprocessor(outputs))
@@ -213,8 +225,8 @@ class MDTC(nn.Layer):
             else:
                 normalized_outputs.append(x)
 
-        outputs = paddle.zeros_like(
-            outputs_list[-1], dtype=outputs_list[-1].dtype)
+        outputs = paddle.zeros_like(outputs_list[-1],
+                                    dtype=outputs_list[-1].dtype)
         for x in normalized_outputs:
             outputs += x
         outputs = outputs.transpose([0, 2, 1])

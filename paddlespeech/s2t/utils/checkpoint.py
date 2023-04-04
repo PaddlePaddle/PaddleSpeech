@@ -32,7 +32,7 @@ __all__ = ["Checkpoint"]
 
 
 class Checkpoint():
-    def __init__(self, kbest_n: int=5, latest_n: int=1):
+    def __init__(self, kbest_n: int = 5, latest_n: int = 1):
         self.best_records: Mapping[Path, float] = {}
         self.latest_records = []
         self.kbest_n = kbest_n
@@ -43,8 +43,8 @@ class Checkpoint():
                         checkpoint_dir,
                         tag_or_iteration: Union[int, Text],
                         model: paddle.nn.Layer,
-                        optimizer: Optimizer=None,
-                        infos: dict=None,
+                        optimizer: Optimizer = None,
+                        infos: dict = None,
                         metric_type="val_loss"):
         """Save checkpoint in best_n and latest_n.
 
@@ -63,12 +63,14 @@ class Checkpoint():
 
         #save best
         if self._should_save_best(infos[metric_type]):
-            self._save_best_checkpoint_and_update(
-                infos[metric_type], checkpoint_dir, tag_or_iteration, model,
-                optimizer, infos)
+            self._save_best_checkpoint_and_update(infos[metric_type],
+                                                  checkpoint_dir,
+                                                  tag_or_iteration, model,
+                                                  optimizer, infos)
         #save latest
-        self._save_latest_checkpoint_and_update(
-            checkpoint_dir, tag_or_iteration, model, optimizer, infos)
+        self._save_latest_checkpoint_and_update(checkpoint_dir,
+                                                tag_or_iteration, model,
+                                                optimizer, infos)
 
         if isinstance(tag_or_iteration, int):
             self._save_checkpoint_record(checkpoint_dir, tag_or_iteration)
@@ -203,8 +205,9 @@ class Checkpoint():
                               optimizer, infos)
         self.best_records[tag_or_iteration] = metric
 
-    def _save_latest_checkpoint_and_update(
-            self, checkpoint_dir, tag_or_iteration, model, optimizer, infos):
+    def _save_latest_checkpoint_and_update(self, checkpoint_dir,
+                                           tag_or_iteration, model, optimizer,
+                                           infos):
         # remove the old
         if self._latest_full():
             to_del_fn = self.latest_records.pop(0)
@@ -264,8 +267,8 @@ class Checkpoint():
                          checkpoint_dir: str,
                          tag_or_iteration: Union[int, str],
                          model: paddle.nn.Layer,
-                         optimizer: Optimizer=None,
-                         infos: dict=None):
+                         optimizer: Optimizer = None,
+                         infos: dict = None):
         """Checkpoint the latest trained model parameters.
         Args:
             checkpoint_dir (str): the directory where checkpoint is saved.

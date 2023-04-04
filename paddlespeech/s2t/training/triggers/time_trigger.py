@@ -20,7 +20,6 @@ class TimeTrigger():
     Args:
         period (float): Interval time. It is given in seconds.
     """
-
     def __init__(self, period):
         self._period = period
         self._next_time = self._period

@@ -23,7 +23,6 @@ from .scorer_interface import BatchPartialScorerInterface
 
 class CTCPrefixScorer(BatchPartialScorerInterface):
     """Decoder interface wrapper for CTCPrefixScore."""
-
     def __init__(self, ctc: paddle.nn.Layer, eos: int):
         """Initialize class.
 
@@ -93,8 +92,9 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
         """
         prev_score, state = state
         presub_score, new_st = self.impl(y.cpu(), ids.cpu(), state)
-        tscore = paddle.to_tensor(
-            presub_score - prev_score, place=x.place, dtype=x.dtype)
+        tscore = paddle.to_tensor(presub_score - prev_score,
+                                  place=x.place,
+                                  dtype=x.dtype)
         return tscore, (presub_score, new_st)
 
     def batch_init_state(self, x: paddle.Tensor):
@@ -126,10 +126,12 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
                 and next state for ys
 
         """
-        batch_state = (
-            (paddle.stack([s[0] for s in state], axis=2),
-             paddle.stack([s[1] for s in state]), state[0][2], state[0][3], )
-            if state[0] is not None else None)
+        batch_state = ((
+            paddle.stack([s[0] for s in state], axis=2),
+            paddle.stack([s[1] for s in state]),
+            state[0][2],
+            state[0][3],
+        ) if state[0] is not None else None)
         return self.impl(y, batch_state, ids)
 
     def extend_prob(self, x: paddle.Tensor):

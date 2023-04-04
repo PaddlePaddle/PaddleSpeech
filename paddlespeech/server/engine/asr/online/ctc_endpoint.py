@@ -51,7 +51,6 @@ class OnlineCTCEndpoint:
     """
     [END-TO-END AUTOMATIC SPEECH RECOGNITION INTEGRATED WITH CTC-BASED VOICE ACTIVITY DETECTION](https://arxiv.org/pdf/2002.00551.pdf)
     """
-
     def __init__(self, opts: OnlineCTCEndpoingOpt):
         self.opts = opts
         logger.info(f"Endpont Opts: {opts}")
@@ -66,11 +65,8 @@ class OnlineCTCEndpoint:
         self.num_frames_decoded = 0
         self.trailing_silence_frames = 0
 
-    def rule_activated(self,
-                       rule: OnlineCTCEndpointRule,
-                       rule_name: str,
-                       decoding_something: bool,
-                       trailine_silence: int,
+    def rule_activated(self, rule: OnlineCTCEndpointRule, rule_name: str,
+                       decoding_something: bool, trailine_silence: int,
                        utterance_length: int) -> bool:
         ans = (
             decoding_something or (not rule.must_contain_nonsilence)
@@ -79,8 +75,7 @@ class OnlineCTCEndpoint:
             logger.info(f"Endpoint Rule: {rule_name} activated: {rule}")
         return ans
 
-    def endpoint_detected(self,
-                          ctc_log_probs: np.ndarray,
+    def endpoint_detected(self, ctc_log_probs: np.ndarray,
                           decoding_something: bool) -> bool:
         """detect endpoint.
 
@@ -104,8 +99,8 @@ class OnlineCTCEndpoint:
         assert self.frame_shift_in_ms > 0
 
         decoding_something = (
-            self.num_frames_decoded > self.trailing_silence_frames
-        ) and decoding_something
+            self.num_frames_decoded >
+            self.trailing_silence_frames) and decoding_something
         utterance_length = self.num_frames_decoded * self.frame_shift_in_ms
         trailing_silence = self.trailing_silence_frames * self.frame_shift_in_ms
 

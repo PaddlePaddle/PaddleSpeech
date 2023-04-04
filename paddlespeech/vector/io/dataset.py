@@ -19,6 +19,7 @@ from paddleaudio.backends import soundfile_load as load_audio
 from paddleaudio.compliance.librosa import melspectrogram
 
 from paddlespeech.s2t.utils.log import Log
+
 logger = Log(__name__).getlog()
 
 # the audio meta info in the vector CSVDataset
@@ -65,8 +66,8 @@ class CSVDataset(Dataset):
                  label2id_path=None,
                  config=None,
                  random_chunk=True,
-                 feat_type: str="raw",
-                 n_train_snts: int=-1,
+                 feat_type: str = "raw",
+                 n_train_snts: int = -1,
                  **kwargs):
         """Implement the CSV Dataset
 
@@ -110,9 +111,8 @@ class CSVDataset(Dataset):
                 audio_id, duration, wav, start, stop, spk_id = line.strip(
                 ).split(',')
                 data.append(
-                    meta_info(audio_id,
-                              float(duration), wav,
-                              int(start), int(stop), spk_id))
+                    meta_info(audio_id, float(duration), wav, int(start),
+                              int(stop), spk_id))
         if self.n_train_snts > 0:
             sample_num = min(self.n_train_snts, len(data))
             data = data[0:sample_num]
@@ -167,8 +167,8 @@ class CSVDataset(Dataset):
         assert self.feat_type in feat_funcs.keys(), \
             f"Unknown feat_type: {self.feat_type}, it must be one in {list(feat_funcs.keys())}"
         feat_func = feat_funcs[self.feat_type]
-        feat = feat_func(
-            waveform, sr=sr, **self.feat_config) if feat_func else waveform
+        feat = feat_func(waveform, sr=sr, **
+                         self.feat_config) if feat_func else waveform
 
         record.update({'feat': feat})
         if self.label2id:

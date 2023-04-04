@@ -67,8 +67,8 @@ class U2Trainer(Trainer):
             # Disable gradient synchronizations across DDP processes.
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
-            context = self.model.no_sync if (hasattr(self.model, "no_sync") and
-                                             self.parallel) else nullcontext
+            context = self.model.no_sync if (hasattr(self.model, "no_sync")
+                                             and self.parallel) else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.
@@ -98,8 +98,9 @@ class U2Trainer(Trainer):
                 losses_np_v = losses_np.copy()
                 losses_np_v.update({"lr": self.lr_scheduler()})
                 for key, val in losses_np_v.items():
-                    self.visualizer.add_scalar(
-                        tag="train/" + key, value=val, step=self.iteration - 1)
+                    self.visualizer.add_scalar(tag="train/" + key,
+                                               value=val,
+                                               step=self.iteration - 1)
 
     @paddle.no_grad()
     def valid(self):
@@ -192,13 +193,15 @@ class U2Trainer(Trainer):
                 else:
                     cv_loss = total_loss / num_seen_utts
 
-            logger.info(
-                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            logger.info('Epoch {} Val info val_loss {}'.format(
+                self.epoch, cv_loss))
             if self.visualizer:
-                self.visualizer.add_scalar(
-                    tag='eval/cv_loss', value=cv_loss, step=self.epoch)
-                self.visualizer.add_scalar(
-                    tag='eval/lr', value=self.lr_scheduler(), step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/cv_loss',
+                                           value=cv_loss,
+                                           step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/lr',
+                                           value=self.lr_scheduler(),
+                                           step=self.epoch)
 
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             self.new_epoch()
@@ -217,8 +220,8 @@ class U2Trainer(Trainer):
         else:
             config = self.config.clone()
             config['preprocess_config'] = None
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
-                                                                self.args)
+            self.test_loader = DataLoaderFactory.get_dataloader(
+                'test', config, self.args)
             config = self.config.clone()
             config['preprocess_config'] = None
             self.align_loader = DataLoaderFactory.get_dataloader(
@@ -252,9 +255,10 @@ class U2Trainer(Trainer):
 
         # opt
         def optimizer_args(
-                config,
-                parameters,
-                lr_scheduler=None, ):
+            config,
+            parameters,
+            lr_scheduler=None,
+        ):
             optim_conf = config.optim_conf
             return {
                 "grad_clip": optim_conf.global_grad_clip,
@@ -447,8 +451,8 @@ class U2Tester(U2Trainer):
 
     def setup_dict(self):
         # load dictionary for debug log
-        self.args.char_list = load_dict(self.args.dict_path,
-                                        "maskctc" in self.args.model_name)
+        self.args.char_list = load_dict(self.args.dict_path, "maskctc"
+                                        in self.args.model_name)
 
     def setup(self):
         super().setup()

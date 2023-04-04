@@ -46,7 +46,8 @@ class TestLibrosa(FeatTest):
             window=self.window_str,
             center=True,
             dtype=None,
-            pad_mode=self.pad_mode, )
+            pad_mode=self.pad_mode,
+        )
         x = paddle.to_tensor(self.waveform).unsqueeze(0)
         window = get_window(self.window_str, self.n_fft, dtype=x.dtype)
         feature_paddle = paddle.signal.stft(
@@ -58,10 +59,12 @@ class TestLibrosa(FeatTest):
             center=True,
             pad_mode=self.pad_mode,
             normalized=False,
-            onesided=True, ).squeeze(0)
+            onesided=True,
+        ).squeeze(0)
 
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_paddle, decimal=5)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_paddle,
+                                             decimal=5)
 
     def test_istft(self):
         if len(self.waveform.shape) == 2:  # (C, T)
@@ -76,7 +79,8 @@ class TestLibrosa(FeatTest):
             win_length=None,
             window=self.window_str,
             center=True,
-            pad_mode=self.pad_mode, )
+            pad_mode=self.pad_mode,
+        )
 
         feature_librosa = librosa.core.istft(
             stft_matrix=stft_matrix,
@@ -85,13 +89,13 @@ class TestLibrosa(FeatTest):
             window=self.window_str,
             center=True,
             dtype=None,
-            length=None, )
+            length=None,
+        )
 
         x = paddle.to_tensor(stft_matrix).unsqueeze(0)
-        window = get_window(
-            self.window_str,
-            self.n_fft,
-            dtype=paddle.to_tensor(self.waveform).dtype)
+        window = get_window(self.window_str,
+                            self.n_fft,
+                            dtype=paddle.to_tensor(self.waveform).dtype)
         feature_paddle = paddle.signal.istft(
             x=x,
             n_fft=self.n_fft,
@@ -102,10 +106,12 @@ class TestLibrosa(FeatTest):
             normalized=False,
             onesided=True,
             length=None,
-            return_complex=False, ).squeeze(0)
+            return_complex=False,
+        ).squeeze(0)
 
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_paddle, decimal=5)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_paddle,
+                                             decimal=5)
 
     def test_mel(self):
         feature_librosa = librosa.filters.mel(
@@ -116,7 +122,8 @@ class TestLibrosa(FeatTest):
             fmax=None,
             htk=False,
             norm='slaney',
-            dtype=self.waveform.dtype, )
+            dtype=self.waveform.dtype,
+        )
         feature_compliance = paddleaudio.compliance.librosa.compute_fbank_matrix(
             sr=self.sr,
             n_fft=self.n_fft,
@@ -125,7 +132,8 @@ class TestLibrosa(FeatTest):
             fmax=None,
             htk=False,
             norm='slaney',
-            dtype=self.waveform.dtype, )
+            dtype=self.waveform.dtype,
+        )
         x = paddle.to_tensor(self.waveform)
         feature_functional = paddleaudio.functional.compute_fbank_matrix(
             sr=self.sr,
@@ -135,7 +143,8 @@ class TestLibrosa(FeatTest):
             f_max=None,
             htk=False,
             norm='slaney',
-            dtype=x.dtype, )
+            dtype=x.dtype,
+        )
 
         np.testing.assert_array_almost_equal(feature_librosa,
                                              feature_compliance)
@@ -167,8 +176,8 @@ class TestLibrosa(FeatTest):
             to_db=False)
 
         # paddleaudio.features.layer
-        x = paddle.to_tensor(
-            self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
+        x = paddle.to_tensor(self.waveform, dtype=paddle.float64).unsqueeze(
+            0)  # Add batch dim.
         feature_extractor = paddle.audio.features.MelSpectrogram(
             sr=self.sr,
             n_fft=self.n_fft,
@@ -178,10 +187,12 @@ class TestLibrosa(FeatTest):
             dtype=x.dtype)
         feature_layer = feature_extractor(x).squeeze(0).numpy()
 
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_compliance, decimal=5)
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_layer, decimal=5)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_compliance,
+                                             decimal=5)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_layer,
+                                             decimal=5)
 
     def test_log_melspect(self):
         if len(self.waveform.shape) == 2:  # (C, T)
@@ -208,8 +219,8 @@ class TestLibrosa(FeatTest):
             fmin=self.fmin)
 
         # paddleaudio.features.layer
-        x = paddle.to_tensor(
-            self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
+        x = paddle.to_tensor(self.waveform, dtype=paddle.float64).unsqueeze(
+            0)  # Add batch dim.
         feature_extractor = paddle.audio.features.LogMelSpectrogram(
             sr=self.sr,
             n_fft=self.n_fft,
@@ -219,10 +230,12 @@ class TestLibrosa(FeatTest):
             dtype=x.dtype)
         feature_layer = feature_extractor(x).squeeze(0).numpy()
 
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_compliance, decimal=5)
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_layer, decimal=4)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_compliance,
+                                             decimal=5)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_layer,
+                                             decimal=4)
 
     def test_mfcc(self):
         if len(self.waveform.shape) == 2:  # (C, T)
@@ -230,18 +243,17 @@ class TestLibrosa(FeatTest):
                 0)  # 1D input for librosa.feature.melspectrogram
 
         # librosa:
-        feature_librosa = librosa.feature.mfcc(
-            y=self.waveform,
-            sr=self.sr,
-            S=None,
-            n_mfcc=self.n_mfcc,
-            dct_type=2,
-            norm='ortho',
-            lifter=0,
-            n_fft=self.n_fft,
-            hop_length=self.hop_length,
-            n_mels=self.n_mels,
-            fmin=self.fmin)
+        feature_librosa = librosa.feature.mfcc(y=self.waveform,
+                                               sr=self.sr,
+                                               S=None,
+                                               n_mfcc=self.n_mfcc,
+                                               dct_type=2,
+                                               norm='ortho',
+                                               lifter=0,
+                                               n_fft=self.n_fft,
+                                               hop_length=self.hop_length,
+                                               n_mels=self.n_mels,
+                                               fmin=self.fmin)
 
         # paddleaudio.compliance.librosa:
         feature_compliance = paddleaudio.compliance.librosa.mfcc(
@@ -258,8 +270,8 @@ class TestLibrosa(FeatTest):
             top_db=self.top_db)
 
         # paddle.audio.features.layer
-        x = paddle.to_tensor(
-            self.waveform, dtype=paddle.float64).unsqueeze(0)  # Add batch dim.
+        x = paddle.to_tensor(self.waveform, dtype=paddle.float64).unsqueeze(
+            0)  # Add batch dim.
         feature_extractor = paddle.audio.features.MFCC(
             sr=self.sr,
             n_mfcc=self.n_mfcc,
@@ -271,10 +283,12 @@ class TestLibrosa(FeatTest):
             dtype=x.dtype)
         feature_layer = feature_extractor(x).squeeze(0).numpy()
 
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_compliance, decimal=4)
-        np.testing.assert_array_almost_equal(
-            feature_librosa, feature_layer, decimal=4)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_compliance,
+                                             decimal=4)
+        np.testing.assert_array_almost_equal(feature_librosa,
+                                             feature_layer,
+                                             decimal=4)
 
 
 if __name__ == '__main__':

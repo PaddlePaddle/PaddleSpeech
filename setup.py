@@ -95,10 +95,9 @@ requirements = {
 
 def check_call(cmd: str, shell=False, executable=None):
     try:
-        sp.check_call(
-            cmd.split(),
-            shell=shell,
-            executable="/bin/bash" if shell else executable)
+        sp.check_call(cmd.split(),
+                      shell=shell,
+                      executable="/bin/bash" if shell else executable)
     except sp.CalledProcessError as e:
         print(
             f"{__file__}:{inspect.currentframe().f_lineno}: CMD: {cmd}, Error:",
@@ -131,9 +130,8 @@ def pushd(new_dir):
 
 
 def read(*names, **kwargs):
-    with io.open(
-            os.path.join(os.path.dirname(__file__), *names),
-            encoding=kwargs.get("encoding", "utf8")) as fp:
+    with io.open(os.path.join(os.path.dirname(__file__), *names),
+                 encoding=kwargs.get("encoding", "utf8")) as fp:
         return fp.read()
 
 
@@ -294,8 +292,8 @@ setup_info = dict(
     },
 
     # Package info
-    packages=find_packages(
-        include=['paddlespeech*'], exclude=['utils', 'third_party']),
+    packages=find_packages(include=['paddlespeech*'],
+                           exclude=['utils', 'third_party']),
     zip_safe=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',

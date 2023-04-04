@@ -53,7 +53,6 @@ class Summary():
     """Online summarization of a sequence of scalars.
     Summary computes the statistics of given scalars online.
     """
-
     def __init__(self):
         self._x = 0.0
         self._x2 = 0.0
@@ -95,7 +94,6 @@ class DictSummary():
     It only computes the statistics for scalar values and variables of scalar
     values in the dictionaries.
     """
-
     def __init__(self):
         self._summaries = defaultdict(Summary)
 

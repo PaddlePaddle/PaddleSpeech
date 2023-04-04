@@ -19,36 +19,36 @@ import configargparse
 def get_parser():
     """Get default arguments."""
     parser = configargparse.ArgumentParser(
-        description="The parser for caculating the perplexity of transformer language model ",
+        description=
+        "The parser for caculating the perplexity of transformer language model ",
         config_file_parser_class=configargparse.YAMLConfigFileParser,
-        formatter_class=configargparse.ArgumentDefaultsHelpFormatter, )
+        formatter_class=configargparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument(
-        "--rnnlm", type=str, default=None, help="RNNLM model file to read")
+    parser.add_argument("--rnnlm",
+                        type=str,
+                        default=None,
+                        help="RNNLM model file to read")
 
-    parser.add_argument(
-        "--rnnlm-conf",
-        type=str,
-        default=None,
-        help="RNNLM model config file to read")
+    parser.add_argument("--rnnlm-conf",
+                        type=str,
+                        default=None,
+                        help="RNNLM model config file to read")
 
-    parser.add_argument(
-        "--vocab_path",
-        type=str,
-        default=None,
-        help="vocab path to for token2id")
+    parser.add_argument("--vocab_path",
+                        type=str,
+                        default=None,
+                        help="vocab path to for token2id")
 
-    parser.add_argument(
-        "--bpeprefix",
-        type=str,
-        default=None,
-        help="The path of bpeprefix for loading")
+    parser.add_argument("--bpeprefix",
+                        type=str,
+                        default=None,
+                        help="The path of bpeprefix for loading")
 
-    parser.add_argument(
-        "--text_path",
-        type=str,
-        default=None,
-        help="The path of text file for testing ")
+    parser.add_argument("--text_path",
+                        type=str,
+                        default=None,
+                        help="The path of text file for testing ")
 
     parser.add_argument(
         "--ngpu",
@@ -60,13 +60,13 @@ def get_parser():
         "--dtype",
         choices=("float16", "float32", "float64"),
         default="float32",
-        help="Float precision (only available in --api v2)", )
+        help="Float precision (only available in --api v2)",
+    )
 
-    parser.add_argument(
-        "--output_dir",
-        type=str,
-        default=".",
-        help="The output directory to store the sentence PPL")
+    parser.add_argument("--output_dir",
+                        type=str,
+                        default=".",
+                        help="The output directory to store the sentence PPL")
 
     return parser
 

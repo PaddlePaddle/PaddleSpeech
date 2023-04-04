@@ -25,12 +25,13 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        '--json-file', type=str, default=None, help="espnet data json file.")
-    parser.add_argument(
-        '--manifest-file',
-        type=str,
-        default='maniefst.train',
-        help='manifest data json line file.')
+    parser.add_argument('--json-file',
+                        type=str,
+                        default=None,
+                        help="espnet data json file.")
+    parser.add_argument('--manifest-file',
+                        type=str,
+                        default='maniefst.train',
+                        help='manifest data json line file.')
     args = parser.parse_args()
     main(args)

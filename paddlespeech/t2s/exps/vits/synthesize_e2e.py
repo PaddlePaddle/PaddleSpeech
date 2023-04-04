@@ -71,11 +71,10 @@ def evaluate(args):
     vits_inference = VITSInference(vits)
     # whether dygraph to static
     if args.inference_dir:
-        vits_inference = am_to_static(
-            am_inference=vits_inference,
-            am=args.am,
-            inference_dir=args.inference_dir,
-            speaker_dict=args.speaker_dict)
+        vits_inference = am_to_static(am_inference=vits_inference,
+                                      am=args.am,
+                                      inference_dir=args.inference_dir,
+                                      speaker_dict=args.speaker_dict)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -103,8 +102,8 @@ def evaluate(args):
                 for i in range(len(phone_ids)):
                     part_phone_ids = phone_ids[i]
                     spk_id = None
-                    if am_dataset in {"aishell3",
-                                      "vctk"} and spk_num is not None:
+                    if am_dataset in {"aishell3", "vctk"
+                                      } and spk_num is not None:
                         spk_id = paddle.to_tensor(args.spk_id)
                         wav = vits_inference(part_phone_ids, spk_id)
                     else:
@@ -132,49 +131,54 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Synthesize with VITS")
 
     # model
-    parser.add_argument(
-        '--config', type=str, default=None, help='Config of VITS.')
-    parser.add_argument(
-        '--ckpt', type=str, default=None, help='Checkpoint file of VITS.')
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
+    parser.add_argument('--config',
+                        type=str,
+                        default=None,
+                        help='Config of VITS.')
+    parser.add_argument('--ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of VITS.')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument('--spk_id',
+                        type=int,
+                        default=0,
+                        help='spk id for multi speaker acoustic model')
     # other
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en')
 
-    parser.add_argument(
-        "--inference_dir",
-        type=str,
-        default=None,
-        help="dir to save inference models")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        default=None,
+                        help="dir to save inference models")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
 
-    parser.add_argument(
-        "--add-blank",
-        type=str2bool,
-        default=True,
-        help="whether to add blank between phones")
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='vits_csmsc',
-        help='Choose acoustic model type of tts task.')
+    parser.add_argument("--add-blank",
+                        type=str2bool,
+                        default=True,
+                        help="whether to add blank between phones")
+    parser.add_argument('--am',
+                        type=str,
+                        default='vits_csmsc',
+                        help='Choose acoustic model type of tts task.')
 
     args = parser.parse_args()
     return args

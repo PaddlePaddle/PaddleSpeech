@@ -120,12 +120,11 @@ class LabelSmoothingLoss(nn.Layer):
         ]
 
     """
-
     def __init__(self,
                  size: int,
                  padding_idx: int,
                  smoothing: float,
-                 normalize_length: bool=False):
+                 normalize_length: bool = False):
         """Label-smoothing loss.
 
         Args:

@@ -36,8 +36,9 @@ def _clean_text(text, punc_list):
 def preprocess(text, punc_list, tokenizer):
     clean_text = _clean_text(text, punc_list)
     assert len(clean_text) > 0, f'Invalid input string: {text}'
-    tokenized_input = tokenizer(
-        list(clean_text), return_length=True, is_split_into_words=True)
+    tokenized_input = tokenizer(list(clean_text),
+                                return_length=True,
+                                is_split_into_words=True)
     _inputs = dict()
     _inputs['input_ids'] = tokenized_input['input_ids']
     _inputs['seg_ids'] = tokenized_input['token_type_ids']
@@ -75,8 +76,8 @@ def test(args):
     seg_ids = paddle.to_tensor(_inputs['seg_ids']).unsqueeze(0)
     logits, _ = model(input_ids, seg_ids)
     preds = paddle.argmax(logits, axis=-1).squeeze(0)
-    tokens = tokenizer.convert_ids_to_tokens(
-        _inputs['input_ids'][1:seq_len - 1])
+    tokens = tokenizer.convert_ids_to_tokens(_inputs['input_ids'][1:seq_len -
+                                                                  1])
     labels = preds[1:seq_len - 1].tolist()
     assert len(tokens) == len(labels)
     # add 0 for non punc
@@ -96,8 +97,10 @@ def main():
     parser.add_argument("--config", type=str, help="ErnieLinear config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--text", type=str, help="raw text to be restored.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
 
     args = parser.parse_args()
 

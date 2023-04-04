@@ -64,43 +64,45 @@ def trans_ref(origin_ref, trans_ref=None, trans_ref_sclite=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog='format hyp file for compute CER/WER', add_help=True)
-    parser.add_argument(
-        '--origin_hyp', type=str, default=None, help='origin hyp file')
-    parser.add_argument(
-        '--trans_hyp',
-        type=str,
-        default=None,
-        help='hyp file for caculating CER/WER')
-    parser.add_argument(
-        '--trans_hyp_sclite',
-        type=str,
-        default=None,
-        help='hyp file for caculating CER/WER by sclite')
+    parser = argparse.ArgumentParser(prog='format hyp file for compute CER/WER',
+                                     add_help=True)
+    parser.add_argument('--origin_hyp',
+                        type=str,
+                        default=None,
+                        help='origin hyp file')
+    parser.add_argument('--trans_hyp',
+                        type=str,
+                        default=None,
+                        help='hyp file for caculating CER/WER')
+    parser.add_argument('--trans_hyp_sclite',
+                        type=str,
+                        default=None,
+                        help='hyp file for caculating CER/WER by sclite')
 
-    parser.add_argument(
-        '--origin_ref', type=str, default=None, help='origin ref file')
-    parser.add_argument(
-        '--trans_ref',
-        type=str,
-        default=None,
-        help='ref file for caculating CER/WER')
-    parser.add_argument(
-        '--trans_ref_sclite',
-        type=str,
-        default=None,
-        help='ref file for caculating CER/WER by sclite')
+    parser.add_argument('--origin_ref',
+                        type=str,
+                        default=None,
+                        help='origin ref file')
+    parser.add_argument('--trans_ref',
+                        type=str,
+                        default=None,
+                        help='ref file for caculating CER/WER')
+    parser.add_argument('--trans_ref_sclite',
+                        type=str,
+                        default=None,
+                        help='ref file for caculating CER/WER by sclite')
     parser_args = parser.parse_args()
 
     if parser_args.origin_hyp is not None:
         trans_hyp(
             origin_hyp=parser_args.origin_hyp,
             trans_hyp=parser_args.trans_hyp,
-            trans_hyp_sclite=parser_args.trans_hyp_sclite, )
+            trans_hyp_sclite=parser_args.trans_hyp_sclite,
+        )
 
     if parser_args.origin_ref is not None:
         trans_ref(
             origin_ref=parser_args.origin_ref,
             trans_ref=parser_args.trans_ref,
-            trans_ref_sclite=parser_args.trans_ref_sclite, )
+            trans_ref_sclite=parser_args.trans_ref_sclite,
+        )

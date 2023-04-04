@@ -44,13 +44,12 @@ def requires_module(*modules: str):
     return decorator
 
 
-def deprecated(direction: str, version: Optional[str]=None):
+def deprecated(direction: str, version: Optional[str] = None):
     """Decorator to add deprecation message
     Args:
         direction (str): Migration steps to be given to users.
         version (str or int): The version when the object will be removed
     """
-
     def decorator(func):
         @wraps(func)
         def wrapped(*args, **kwargs):
@@ -73,6 +72,7 @@ def is_kaldi_available():
     except Exception:
         return False
 
+
 def requires_kaldi():
     if is_kaldi_available():
 
@@ -85,7 +85,8 @@ def requires_kaldi():
             @wraps(func)
             def wrapped(*args, **kwargs):
                 raise RuntimeError(
-                    f"{func.__module__}.{func.__name__} requires libpaddleaudio build with kaldi")
+                    f"{func.__module__}.{func.__name__} requires libpaddleaudio build with kaldi"
+                )
 
             return wrapped
 
@@ -149,7 +150,8 @@ def requires_sox():
             @wraps(func)
             def wrapped(*args, **kwargs):
                 raise RuntimeError(
-                    f"{func.__module__}.{func.__name__} requires libpaddleaudio build with sox")
+                    f"{func.__module__}.{func.__name__} requires libpaddleaudio build with sox"
+                )
 
             return wrapped
 

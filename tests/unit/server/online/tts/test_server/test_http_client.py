@@ -52,26 +52,33 @@ if __name__ == "__main__":
         help="text to synthesize, a 'utt_id sentence' pair per line")
     parser.add_argument('--spk_id', type=int, default=0, help='Speaker id')
     parser.add_argument('--speed', type=float, default=1.0, help='Audio speed')
-    parser.add_argument(
-        '--volume', type=float, default=1.0, help='Audio volume')
+    parser.add_argument('--volume',
+                        type=float,
+                        default=1.0,
+                        help='Audio volume')
     parser.add_argument(
         '--sample_rate',
         type=int,
         default=0,
         help='Sampling rate, the default is the same as the model')
-    parser.add_argument(
-        "--server_ip", type=str, help="server ip", default="127.0.0.1")
+    parser.add_argument("--server_ip",
+                        type=str,
+                        help="server ip",
+                        default="127.0.0.1")
     parser.add_argument("--port", type=int, help="server port", default=8092)
-    parser.add_argument(
-        "--protocol",
-        type=str,
-        choices=['http', 'websocket'],
-        help="server protocol",
-        default="http")
-    parser.add_argument(
-        "--output_dir", type=str, default="./output", help="output dir")
-    parser.add_argument(
-        "--play", type=bool, help="whether to play audio", default=False)
+    parser.add_argument("--protocol",
+                        type=str,
+                        choices=['http', 'websocket'],
+                        help="server protocol",
+                        default="http")
+    parser.add_argument("--output_dir",
+                        type=str,
+                        default="./output",
+                        help="output dir")
+    parser.add_argument("--play",
+                        type=bool,
+                        help="whether to play audio",
+                        default=False)
 
     args = parser.parse_args()
 
@@ -111,8 +118,8 @@ if __name__ == "__main__":
 
         packet_count += len(receive_time_list)
 
-    assert (len(first_response_list) == len(final_response_list) and
-            len(final_response_list) == len(duration_list))
+    assert (len(first_response_list) == len(final_response_list)
+            and len(final_response_list) == len(duration_list))
 
     avg_first_response = sum(first_response_list) / len(first_response_list)
     avg_final_response = sum(final_response_list) / len(final_response_list)

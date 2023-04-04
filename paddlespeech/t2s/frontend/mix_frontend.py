@@ -29,8 +29,8 @@ class MixFrontend():
                  phone_vocab_path=None,
                  tone_vocab_path=None):
 
-        self.zh_frontend = Frontend(
-            phone_vocab_path=phone_vocab_path, tone_vocab_path=tone_vocab_path)
+        self.zh_frontend = Frontend(phone_vocab_path=phone_vocab_path,
+                                    tone_vocab_path=tone_vocab_path)
         self.en_frontend = English(phone_vocab_path=phone_vocab_path)
         self.sp_id = self.zh_frontend.vocab_phones["sp"]
         self.sp_id_numpy = np.array([self.sp_id])
@@ -43,8 +43,8 @@ class MixFrontend():
             return False
 
     def is_alphabet(self, char):
-        if (char >= '\u0041' and char <= '\u005a') or (char >= '\u0061' and
-                                                       char <= '\u007a'):
+        if (char >= '\u0041' and char <= '\u005a') or (char >= '\u0061'
+                                                       and char <= '\u007a'):
             return True
         else:
             return False
@@ -106,10 +106,10 @@ class MixFrontend():
 
     def get_input_ids(self,
                       sentence: str,
-                      merge_sentences: bool=False,
-                      get_tone_ids: bool=False,
-                      add_sp: bool=True,
-                      to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+                      merge_sentences: bool = False,
+                      get_tone_ids: bool = False,
+                      add_sp: bool = True,
+                      to_tensor: bool = True) -> Dict[str, List[paddle.Tensor]]:
         ''' 1. 添加SSML支持，先列出 文字 和 <say-as>标签内容，
                 然后添加到tmpSegments数组里
         '''

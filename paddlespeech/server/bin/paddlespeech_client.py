@@ -35,6 +35,7 @@ from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 from paddlespeech.server.utils.audio_process import wav2pcm
 from paddlespeech.server.utils.util import compute_delay
 from paddlespeech.server.utils.util import wav2base64
+
 warnings.filterwarnings("ignore")
 
 __all__ = [
@@ -43,25 +44,30 @@ __all__ = [
 ]
 
 
-@cli_client_register(
-    name='paddlespeech_client.tts', description='visit tts service')
+@cli_client_register(name='paddlespeech_client.tts',
+                     description='visit tts service')
 class TTSClientExecutor(BaseExecutor):
     def __init__(self):
         super(TTSClientExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.tts', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8090, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Text to be synthesized.',
-            required=True)
-        self.parser.add_argument(
-            '--spk_id', type=int, default=0, help='Speaker id')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_client.tts',
+                                              add_help=True)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8090,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Text to be synthesized.',
+                                 required=True)
+        self.parser.add_argument('--spk_id',
+                                 type=int,
+                                 default=0,
+                                 help='Speaker id')
         self.parser.add_argument(
             '--speed',
             type=float,
@@ -78,14 +84,16 @@ class TTSClientExecutor(BaseExecutor):
             default=0,
             choices=[0, 8000, 16000],
             help='Sampling rate, the default is the same as the model')
-        self.parser.add_argument(
-            '--output', type=str, default=None, help='Synthesized audio file')
+        self.parser.add_argument('--output',
+                                 type=str,
+                                 default=None,
+                                 help='Synthesized audio file')
 
     def postprocess(self, wav_base64: str, outfile: str) -> float:
         audio_data_byte = base64.b64decode(wav_base64)
         # from byte
-        samples, sample_rate = soundfile.read(
-            io.BytesIO(audio_data_byte), dtype='float32')
+        samples, sample_rate = soundfile.read(io.BytesIO(audio_data_byte),
+                                              dtype='float32')
 
         # transform audio
         if outfile.endswith(".wav"):
@@ -111,15 +119,14 @@ class TTSClientExecutor(BaseExecutor):
 
         try:
             time_start = time.time()
-            res = self(
-                input=input_,
-                server_ip=server_ip,
-                port=port,
-                spk_id=spk_id,
-                speed=speed,
-                volume=volume,
-                sample_rate=sample_rate,
-                output=output)
+            res = self(input=input_,
+                       server_ip=server_ip,
+                       port=port,
+                       spk_id=spk_id,
+                       speed=speed,
+                       volume=volume,
+                       sample_rate=sample_rate,
+                       output=output)
             time_end = time.time()
             time_consume = time_end - time_start
             response_dict = res.json()
@@ -136,13 +143,13 @@ class TTSClientExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  input: str,
-                 server_ip: str="127.0.0.1",
-                 port: int=8090,
-                 spk_id: int=0,
-                 speed: float=1.0,
-                 volume: float=1.0,
-                 sample_rate: int=0,
-                 output: str=None):
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8090,
+                 spk_id: int = 0,
+                 speed: float = 1.0,
+                 volume: float = 1.0,
+                 sample_rate: int = 0,
+                 output: str = None):
         """
         Python API to call an executor.
         """
@@ -164,39 +171,43 @@ class TTSClientExecutor(BaseExecutor):
         return res
 
 
-@cli_client_register(
-    name='paddlespeech_client.tts_online',
-    description='visit tts online service')
+@cli_client_register(name='paddlespeech_client.tts_online',
+                     description='visit tts online service')
 class TTSOnlineClientExecutor(BaseExecutor):
     def __init__(self):
         super(TTSOnlineClientExecutor, self).__init__()
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech_client.tts_online', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8092, help='server port')
-        self.parser.add_argument(
-            '--protocol',
-            type=str,
-            default="http",
-            choices=["http", "websocket"],
-            help='server protocol')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Text to be synthesized.',
-            required=True)
-        self.parser.add_argument(
-            '--spk_id', type=int, default=0, help='Speaker id')
-        self.parser.add_argument(
-            '--output',
-            type=str,
-            default=None,
-            help='Client saves synthesized audio')
-        self.parser.add_argument(
-            "--play", type=bool, help="whether to play audio", default=False)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8092,
+                                 help='server port')
+        self.parser.add_argument('--protocol',
+                                 type=str,
+                                 default="http",
+                                 choices=["http", "websocket"],
+                                 help='server protocol')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Text to be synthesized.',
+                                 required=True)
+        self.parser.add_argument('--spk_id',
+                                 type=int,
+                                 default=0,
+                                 help='Speaker id')
+        self.parser.add_argument('--output',
+                                 type=str,
+                                 default=None,
+                                 help='Client saves synthesized audio')
+        self.parser.add_argument("--play",
+                                 type=bool,
+                                 help="whether to play audio",
+                                 default=False)
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -209,14 +220,13 @@ class TTSOnlineClientExecutor(BaseExecutor):
         play = args.play
 
         try:
-            self(
-                input=input_,
-                server_ip=server_ip,
-                port=port,
-                protocol=protocol,
-                spk_id=spk_id,
-                output=output,
-                play=play)
+            self(input=input_,
+                 server_ip=server_ip,
+                 port=port,
+                 protocol=protocol,
+                 spk_id=spk_id,
+                 output=output,
+                 play=play)
             return True
         except Exception as e:
             logger.error("Failed to synthesized audio.")
@@ -226,12 +236,12 @@ class TTSOnlineClientExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  input: str,
-                 server_ip: str="127.0.0.1",
-                 port: int=8092,
-                 protocol: str="http",
-                 spk_id: int=0,
-                 output: str=None,
-                 play: bool=False):
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8092,
+                 protocol: str = "http",
+                 spk_id: int = 0,
+                 output: str = None,
+                 play: bool = False):
         """
         Python API to call an executor.
         """
@@ -278,48 +288,54 @@ class TTSOnlineClientExecutor(BaseExecutor):
             logger.info("The sentence has no delay in streaming synthesis.")
 
 
-@cli_client_register(
-    name='paddlespeech_client.asr', description='visit asr service')
+@cli_client_register(name='paddlespeech_client.asr',
+                     description='visit asr service')
 class ASRClientExecutor(BaseExecutor):
     def __init__(self):
         super(ASRClientExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.asr', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8090, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Audio file to be recognized',
-            required=True)
-        self.parser.add_argument(
-            '--protocol',
-            type=str,
-            default="http",
-            choices=["http", "websocket"],
-            help='server protocol')
-        self.parser.add_argument(
-            '--sample_rate', type=int, default=16000, help='audio sample rate')
-        self.parser.add_argument(
-            '--lang', type=str, default="zh_cn", help='language')
-        self.parser.add_argument(
-            '--audio_format', type=str, default="wav", help='audio format')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_client.asr',
+                                              add_help=True)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8090,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to be recognized',
+                                 required=True)
+        self.parser.add_argument('--protocol',
+                                 type=str,
+                                 default="http",
+                                 choices=["http", "websocket"],
+                                 help='server protocol')
+        self.parser.add_argument('--sample_rate',
+                                 type=int,
+                                 default=16000,
+                                 help='audio sample rate')
+        self.parser.add_argument('--lang',
+                                 type=str,
+                                 default="zh_cn",
+                                 help='language')
+        self.parser.add_argument('--audio_format',
+                                 type=str,
+                                 default="wav",
+                                 help='audio format')
 
-        self.parser.add_argument(
-            '--punc.server_ip',
-            type=str,
-            default=None,
-            dest="punc_server_ip",
-            help='Punctuation server ip')
-        self.parser.add_argument(
-            '--punc.port',
-            type=int,
-            default=8091,
-            dest="punc_server_port",
-            help='Punctuation server port')
+        self.parser.add_argument('--punc.server_ip',
+                                 type=str,
+                                 default=None,
+                                 dest="punc_server_ip",
+                                 help='Punctuation server ip')
+        self.parser.add_argument('--punc.port',
+                                 type=int,
+                                 default=8091,
+                                 dest="punc_server_port",
+                                 help='Punctuation server port')
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -333,16 +349,15 @@ class ASRClientExecutor(BaseExecutor):
 
         try:
             time_start = time.time()
-            res = self(
-                input=input_,
-                server_ip=server_ip,
-                port=port,
-                sample_rate=sample_rate,
-                lang=lang,
-                audio_format=audio_format,
-                protocol=protocol,
-                punc_server_ip=args.punc_server_ip,
-                punc_server_port=args.punc_server_port)
+            res = self(input=input_,
+                       server_ip=server_ip,
+                       port=port,
+                       sample_rate=sample_rate,
+                       lang=lang,
+                       audio_format=audio_format,
+                       protocol=protocol,
+                       punc_server_ip=args.punc_server_ip,
+                       punc_server_port=args.punc_server_port)
             time_end = time.time()
             logger.info(f"ASR result: {res}")
             logger.info("Response time %f s." % (time_end - time_start))
@@ -355,14 +370,14 @@ class ASRClientExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  input: str,
-                 server_ip: str="127.0.0.1",
-                 port: int=8090,
-                 sample_rate: int=16000,
-                 lang: str="zh_cn",
-                 audio_format: str="wav",
-                 protocol: str="http",
-                 punc_server_ip: str=None,
-                 punc_server_port: int=None):
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8090,
+                 sample_rate: int = 16000,
+                 lang: str = "zh_cn",
+                 audio_format: str = "wav",
+                 protocol: str = "http",
+                 punc_server_ip: str = None,
+                 punc_server_port: int = None):
         """Python API to call an executor.
 
         Args:
@@ -395,42 +410,48 @@ class ASRClientExecutor(BaseExecutor):
         return res
 
 
-@cli_client_register(
-    name='paddlespeech_client.asr_online',
-    description='visit asr online service')
+@cli_client_register(name='paddlespeech_client.asr_online',
+                     description='visit asr online service')
 class ASROnlineClientExecutor(BaseExecutor):
     def __init__(self):
         super(ASROnlineClientExecutor, self).__init__()
         self.parser = argparse.ArgumentParser(
             prog='paddlespeech_client.asr_online', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8091, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Audio file to be recognized',
-            required=True)
-        self.parser.add_argument(
-            '--sample_rate', type=int, default=16000, help='audio sample rate')
-        self.parser.add_argument(
-            '--lang', type=str, default="zh_cn", help='language')
-        self.parser.add_argument(
-            '--audio_format', type=str, default="wav", help='audio format')
-        self.parser.add_argument(
-            '--punc.server_ip',
-            type=str,
-            default=None,
-            dest="punc_server_ip",
-            help='Punctuation server ip')
-        self.parser.add_argument(
-            '--punc.port',
-            type=int,
-            default=8190,
-            dest="punc_server_port",
-            help='Punctuation server port')
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8091,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to be recognized',
+                                 required=True)
+        self.parser.add_argument('--sample_rate',
+                                 type=int,
+                                 default=16000,
+                                 help='audio sample rate')
+        self.parser.add_argument('--lang',
+                                 type=str,
+                                 default="zh_cn",
+                                 help='language')
+        self.parser.add_argument('--audio_format',
+                                 type=str,
+                                 default="wav",
+                                 help='audio format')
+        self.parser.add_argument('--punc.server_ip',
+                                 type=str,
+                                 default=None,
+                                 dest="punc_server_ip",
+                                 help='Punctuation server ip')
+        self.parser.add_argument('--punc.port',
+                                 type=int,
+                                 default=8190,
+                                 dest="punc_server_port",
+                                 help='Punctuation server port')
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -442,15 +463,14 @@ class ASROnlineClientExecutor(BaseExecutor):
         audio_format = args.audio_format
         try:
             time_start = time.time()
-            res = self(
-                input=input_,
-                server_ip=server_ip,
-                port=port,
-                sample_rate=sample_rate,
-                lang=lang,
-                audio_format=audio_format,
-                punc_server_ip=args.punc_server_ip,
-                punc_server_port=args.punc_server_port)
+            res = self(input=input_,
+                       server_ip=server_ip,
+                       port=port,
+                       sample_rate=sample_rate,
+                       lang=lang,
+                       audio_format=audio_format,
+                       punc_server_ip=args.punc_server_ip,
+                       punc_server_port=args.punc_server_port)
             time_end = time.time()
             logger.info(res)
             logger.info("Response time %f s." % (time_end - time_start))
@@ -463,13 +483,13 @@ class ASROnlineClientExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  input: str,
-                 server_ip: str="127.0.0.1",
-                 port: int=8091,
-                 sample_rate: int=16000,
-                 lang: str="zh_cn",
-                 audio_format: str="wav",
-                 punc_server_ip: str=None,
-                 punc_server_port: str=None):
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8091,
+                 sample_rate: int = 16000,
+                 lang: str = "zh_cn",
+                 audio_format: str = "wav",
+                 punc_server_ip: str = None,
+                 punc_server_port: str = None):
         """Python API to call asr online executor.
 
         Args:
@@ -487,11 +507,10 @@ class ASROnlineClientExecutor(BaseExecutor):
         """
 
         logger.info("asr websocket client start")
-        handler = ASRWsAudioHandler(
-            server_ip,
-            port,
-            punc_server_ip=punc_server_ip,
-            punc_server_port=punc_server_port)
+        handler = ASRWsAudioHandler(server_ip,
+                                    port,
+                                    punc_server_ip=punc_server_ip,
+                                    punc_server_port=punc_server_port)
         loop = asyncio.get_event_loop()
         res = loop.run_until_complete(handler.run(input))
         logger.info("asr websocket client finished")
@@ -499,23 +518,26 @@ class ASROnlineClientExecutor(BaseExecutor):
         return res['result']
 
 
-@cli_client_register(
-    name='paddlespeech_client.cls', description='visit cls service')
+@cli_client_register(name='paddlespeech_client.cls',
+                     description='visit cls service')
 class CLSClientExecutor(BaseExecutor):
     def __init__(self):
         super(CLSClientExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.cls', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8090, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Audio file to classify.',
-            required=True)
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_client.cls',
+                                              add_help=True)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8090,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to classify.',
+                                 required=True)
         self.parser.add_argument(
             '--topk',
             type=int,
@@ -544,9 +566,9 @@ class CLSClientExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  input: str,
-                 server_ip: str="127.0.0.1",
-                 port: int=8090,
-                 topk: int=1):
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8090,
+                 topk: int = 1):
         """
         Python API to call an executor.
         """
@@ -557,23 +579,26 @@ class CLSClientExecutor(BaseExecutor):
         return res
 
 
-@cli_client_register(
-    name='paddlespeech_client.text', description='visit the text service')
+@cli_client_register(name='paddlespeech_client.text',
+                     description='visit the text service')
 class TextClientExecutor(BaseExecutor):
     def __init__(self):
         super(TextClientExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.text', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8090, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='sentence to be process by text server.',
-            required=True)
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_client.text',
+                                              add_help=True)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8090,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='sentence to be process by text server.',
+                                 required=True)
 
     def execute(self, argv: List[str]) -> bool:
         """Execute the request from the argv.
@@ -601,7 +626,10 @@ class TextClientExecutor(BaseExecutor):
             return False
 
     @stats_wrapper
-    def __call__(self, input: str, server_ip: str="127.0.0.1", port: int=8090):
+    def __call__(self,
+                 input: str,
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8090):
         """
         Python API to call text executor.
 
@@ -625,32 +653,38 @@ class TextClientExecutor(BaseExecutor):
         return punc_text
 
 
-@cli_client_register(
-    name='paddlespeech_client.vector', description='visit the vector service')
+@cli_client_register(name='paddlespeech_client.vector',
+                     description='visit the vector service')
 class VectorClientExecutor(BaseExecutor):
     def __init__(self):
         super(VectorClientExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.vector', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8090, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='sentence to be process by text server.')
-        self.parser.add_argument(
-            '--task',
-            type=str,
-            default="spk",
-            choices=["spk", "score"],
-            help="The vector service task")
-        self.parser.add_argument(
-            "--enroll", type=str, default=None, help="The enroll audio")
-        self.parser.add_argument(
-            "--test", type=str, default=None, help="The test audio")
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_client.vector',
+                                              add_help=True)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8090,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='sentence to be process by text server.')
+        self.parser.add_argument('--task',
+                                 type=str,
+                                 default="spk",
+                                 choices=["spk", "score"],
+                                 help="The vector service task")
+        self.parser.add_argument("--enroll",
+                                 type=str,
+                                 default=None,
+                                 help="The enroll audio")
+        self.parser.add_argument("--test",
+                                 type=str,
+                                 default=None,
+                                 help="The test audio")
 
     def execute(self, argv: List[str]) -> bool:
         """Execute the request from the argv.
@@ -669,13 +703,12 @@ class VectorClientExecutor(BaseExecutor):
 
         try:
             time_start = time.time()
-            res = self(
-                input=input_,
-                server_ip=server_ip,
-                port=port,
-                enroll_audio=args.enroll,
-                test_audio=args.test,
-                task=task)
+            res = self(input=input_,
+                       server_ip=server_ip,
+                       port=port,
+                       enroll_audio=args.enroll,
+                       test_audio=args.test,
+                       task=task)
             time_end = time.time()
             logger.info(res.json())
             logger.info("Response time %f s." % (time_end - time_start))
@@ -688,12 +721,12 @@ class VectorClientExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  input: str,
-                 server_ip: str="127.0.0.1",
-                 port: int=8090,
-                 audio_format: str="wav",
-                 sample_rate: int=16000,
-                 enroll_audio: str=None,
-                 test_audio: str=None,
+                 server_ip: str = "127.0.0.1",
+                 port: int = 8090,
+                 audio_format: str = "wav",
+                 sample_rate: int = 16000,
+                 enroll_audio: str = None,
+                 test_audio: str = None,
                  task="spk"):
         """
         Python API to call text executor.
@@ -731,29 +764,38 @@ class VectorClientExecutor(BaseExecutor):
             logger.error(f"Sorry, we have not support such task {task}")
 
 
-@cli_client_register(
-    name='paddlespeech_client.acs', description='visit acs service')
+@cli_client_register(name='paddlespeech_client.acs',
+                     description='visit acs service')
 class ACSClientExecutor(BaseExecutor):
     def __init__(self):
         super(ACSClientExecutor, self).__init__()
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech_client.acs', add_help=True)
-        self.parser.add_argument(
-            '--server_ip', type=str, default='127.0.0.1', help='server ip')
-        self.parser.add_argument(
-            '--port', type=int, default=8090, help='server port')
-        self.parser.add_argument(
-            '--input',
-            type=str,
-            default=None,
-            help='Audio file to be recognized',
-            required=True)
-        self.parser.add_argument(
-            '--sample_rate', type=int, default=16000, help='audio sample rate')
-        self.parser.add_argument(
-            '--lang', type=str, default="zh_cn", help='language')
-        self.parser.add_argument(
-            '--audio_format', type=str, default="wav", help='audio format')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech_client.acs',
+                                              add_help=True)
+        self.parser.add_argument('--server_ip',
+                                 type=str,
+                                 default='127.0.0.1',
+                                 help='server ip')
+        self.parser.add_argument('--port',
+                                 type=int,
+                                 default=8090,
+                                 help='server port')
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to be recognized',
+                                 required=True)
+        self.parser.add_argument('--sample_rate',
+                                 type=int,
+                                 default=16000,
+                                 help='audio sample rate')
+        self.parser.add_argument('--lang',
+                                 type=str,
+                                 default="zh_cn",
+                                 help='language')
+        self.parser.add_argument('--audio_format',
+                                 type=str,
+                                 default="wav",
+                                 help='audio format')
 
     def execute(self, argv: List[str]) -> bool:
         args = self.parser.parse_args(argv)
@@ -772,7 +814,8 @@ class ACSClientExecutor(BaseExecutor):
                 port=port,
                 sample_rate=sample_rate,
                 lang=lang,
-                audio_format=audio_format, )
+                audio_format=audio_format,
+            )
             time_end = time.time()
             logger.info(f"ACS result: {res}")
             logger.info("Response time %f s." % (time_end - time_start))
@@ -784,13 +827,14 @@ class ACSClientExecutor(BaseExecutor):
 
     @stats_wrapper
     def __call__(
-            self,
-            input: str,
-            server_ip: str="127.0.0.1",
-            port: int=8090,
-            sample_rate: int=16000,
-            lang: str="zh_cn",
-            audio_format: str="wav", ):
+        self,
+        input: str,
+        server_ip: str = "127.0.0.1",
+        port: int = 8090,
+        sample_rate: int = 16000,
+        lang: str = "zh_cn",
+        audio_format: str = "wav",
+    ):
         """Python API to call an executor.
 
         Args:
@@ -807,8 +851,9 @@ class ACSClientExecutor(BaseExecutor):
         # we use the acs server to get the key word time stamp in audio text content
         logger.info("acs http client start")
         from paddlespeech.server.utils.audio_handler import ASRHttpHandler
-        handler = ASRHttpHandler(
-            server_ip=server_ip, port=port, endpoint="/paddlespeech/asr/search")
+        handler = ASRHttpHandler(server_ip=server_ip,
+                                 port=port,
+                                 endpoint="/paddlespeech/asr/search")
         res = handler.run(input, audio_format, sample_rate, lang)
         res = res['result']
         logger.info("acs http client finished")

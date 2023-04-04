@@ -113,9 +113,10 @@ def subsequent_mask(size: int) -> paddle.Tensor:
 
 
 def subsequent_chunk_mask(
-        size: int,
-        chunk_size: int,
-        num_left_chunks: int=-1, ) -> paddle.Tensor:
+    size: int,
+    chunk_size: int,
+    num_left_chunks: int = -1,
+) -> paddle.Tensor:
     """Create mask for subsequent steps (size, size) with chunk size,
        this is for streaming encoder
     Args:
@@ -144,12 +145,10 @@ def subsequent_chunk_mask(
     return ret
 
 
-def add_optional_chunk_mask(xs: paddle.Tensor,
-                            masks: paddle.Tensor,
+def add_optional_chunk_mask(xs: paddle.Tensor, masks: paddle.Tensor,
                             use_dynamic_chunk: bool,
                             use_dynamic_left_chunk: bool,
-                            decoding_chunk_size: int,
-                            static_chunk_size: int,
+                            decoding_chunk_size: int, static_chunk_size: int,
                             num_decoding_left_chunks: int):
     """ Apply optional mask for encoder.
     Args:
@@ -239,10 +238,10 @@ def mask_finished_scores(score: paddle.Tensor,
     beam_size = score.shape[-1]
     zero_mask = paddle.zeros_like(flag, dtype=paddle.bool)
     if beam_size > 1:
-        unfinished = paddle.concat(
-            (zero_mask, flag.tile([1, beam_size - 1])), axis=1)
-        finished = paddle.concat(
-            (flag, zero_mask.tile([1, beam_size - 1])), axis=1)
+        unfinished = paddle.concat((zero_mask, flag.tile([1, beam_size - 1])),
+                                   axis=1)
+        finished = paddle.concat((flag, zero_mask.tile([1, beam_size - 1])),
+                                 axis=1)
     else:
         unfinished = zero_mask
         finished = flag

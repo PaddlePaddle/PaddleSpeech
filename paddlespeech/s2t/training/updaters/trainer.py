@@ -41,9 +41,9 @@ class _ExtensionEntry():
 class Trainer():
     def __init__(self,
                  updater: UpdaterBase,
-                 stop_trigger: Callable=None,
-                 out: Union[str, Path]='result',
-                 extensions: List[Extension]=None):
+                 stop_trigger: Callable = None,
+                 out: Union[str, Path] = 'result',
+                 extensions: List[Extension] = None):
         self.updater = updater
         self.extensions = OrderedDict()
         self.stop_trigger = LimitTrigger(*stop_trigger)
@@ -93,8 +93,8 @@ class Trainer():
             modified_name = f"{name}_{ordinal}"
         extension.name = modified_name
 
-        self.extensions[modified_name] = _ExtensionEntry(extension, trigger,
-                                                         priority)
+        self.extensions[modified_name] = _ExtensionEntry(
+            extension, trigger, priority)
 
     def get_extension(self, name):
         """get extension by name."""

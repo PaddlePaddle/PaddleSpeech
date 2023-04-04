@@ -55,14 +55,18 @@ providers = ['CPUExecutionProvider']
 sess_options = ort.SessionOptions()
 
 # 创建session
-am_encoder_infer_sess = ort.InferenceSession(
-    onnx_am_encoder, providers=providers, sess_options=sess_options)
-am_decoder_sess = ort.InferenceSession(
-    onnx_am_decoder, providers=providers, sess_options=sess_options)
-am_postnet_sess = ort.InferenceSession(
-    onnx_am_postnet, providers=providers, sess_options=sess_options)
-voc_melgan_sess = ort.InferenceSession(
-    onnx_voc_melgan, providers=providers, sess_options=sess_options)
+am_encoder_infer_sess = ort.InferenceSession(onnx_am_encoder,
+                                             providers=providers,
+                                             sess_options=sess_options)
+am_decoder_sess = ort.InferenceSession(onnx_am_decoder,
+                                       providers=providers,
+                                       sess_options=sess_options)
+am_postnet_sess = ort.InferenceSession(onnx_am_postnet,
+                                       providers=providers,
+                                       sess_options=sess_options)
+voc_melgan_sess = ort.InferenceSession(onnx_voc_melgan,
+                                       providers=providers,
+                                       sess_options=sess_options)
 
 
 def depadding(data, chunk_num, chunk_id, block, pad, upsample):
@@ -84,15 +88,16 @@ def depadding(data, chunk_num, chunk_id, block, pad, upsample):
 
 
 def inference_stream(text):
-    input_ids = frontend.get_input_ids(
-        text, merge_sentences=False, get_tone_ids=False)
+    input_ids = frontend.get_input_ids(text,
+                                       merge_sentences=False,
+                                       get_tone_ids=False)
     phone_ids = input_ids["phone_ids"]
     for i in range(len(phone_ids)):
         part_phone_ids = phone_ids[i].numpy()
         voc_chunk_id = 0
 
-        orig_hs = am_encoder_infer_sess.run(
-            None, input_feed={'text': part_phone_ids})
+        orig_hs = am_encoder_infer_sess.run(None,
+                                            input_feed={'text': part_phone_ids})
         orig_hs = orig_hs[0]
 
         # streaming voc chunk info
@@ -125,12 +130,12 @@ def inference_stream(text):
 
             # streaming voc
             # 当流式AM推理的mel帧数大于流式voc推理的chunk size，开始进行流式voc 推理
-            while (mel_streaming.shape[0] >= end and
-                   voc_chunk_id < voc_chunk_num):
+            while (mel_streaming.shape[0] >= end
+                   and voc_chunk_id < voc_chunk_num):
                 voc_chunk = mel_streaming[start:end, :]
 
-                sub_wav = voc_melgan_sess.run(
-                    output_names=None, input_feed={'logmel': voc_chunk})
+                sub_wav = voc_melgan_sess.run(output_names=None,
+                                              input_feed={'logmel': voc_chunk})
                 sub_wav = depadding(sub_wav[0], voc_chunk_num, voc_chunk_id,
                                     voc_block, voc_pad, voc_upsample)
 

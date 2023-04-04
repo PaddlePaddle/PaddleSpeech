@@ -16,7 +16,6 @@
 
 class IntervalTrigger():
     """A Predicate to do something every N cycle."""
-
     def __init__(self, period: int, unit: str):
         if unit not in ("iteration", "epoch"):
             raise ValueError("unit should be 'iteration' or 'epoch'")

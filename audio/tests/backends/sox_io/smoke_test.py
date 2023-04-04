@@ -21,7 +21,6 @@ class SmokeTest(TempDirMixin, unittest.TestCase):
     This test suite should be able to run without any additional tools (such as sox command),
     however without such tools, the correctness of each function cannot be verified.
     """
-
     def run_smoke_test(self,
                        ext,
                        sample_rate,
@@ -33,12 +32,16 @@ class SmokeTest(TempDirMixin, unittest.TestCase):
         num_frames = sample_rate * duration
         #path = self.get_temp_path(f"test.{ext}")
         path = self.get_temp_path(f"test.{ext}")
-        original = get_wav_data(
-            dtype, num_channels, normalize=False, num_frames=num_frames)
+        original = get_wav_data(dtype,
+                                num_channels,
+                                normalize=False,
+                                num_frames=num_frames)
 
         # 1. run save
-        sox_io_backend.save(
-            path, original, sample_rate, compression=compression)
+        sox_io_backend.save(path,
+                            original,
+                            sample_rate,
+                            compression=compression)
         # 2. run info
         info = sox_io_backend.info(path)
         assert info.sample_rate == sample_rate
@@ -54,8 +57,10 @@ class SmokeTest(TempDirMixin, unittest.TestCase):
                 ["float32", "int32"],
                 #["float32", "int32", "int16", "uint8"],
                 [8000, 16000],
-                [1, 2], )),
-        name_func=name_func, )
+                [1, 2],
+            )),
+        name_func=name_func,
+    )
     def test_wav(self, dtype, sample_rate, num_channels):
         """Run smoke test on wav format"""
         self.run_smoke_test("wav", sample_rate, num_channels, dtype=dtype)
@@ -90,12 +95,16 @@ class SmokeTest(TempDirMixin, unittest.TestCase):
         list(itertools.product(
             [8000, 16000],
             [1, 2],
-            list(range(9)), )),
-        name_func=name_func, )
+            list(range(9)),
+        )),
+        name_func=name_func,
+    )
     def test_flac(self, sample_rate, num_channels, compression_level):
         """Run smoke test on flac format"""
-        self.run_smoke_test(
-            "flac", sample_rate, num_channels, compression=compression_level)
+        self.run_smoke_test("flac",
+                            sample_rate,
+                            num_channels,
+                            compression=compression_level)
 
 
 class SmokeTestFileObj(unittest.TestCase):
@@ -107,7 +116,6 @@ class SmokeTestFileObj(unittest.TestCase):
     This test suite should be able to run without any additional tools (such as sox command),
     however without such tools, the correctness of each function cannot be verified.
     """
-
     def run_smoke_test(self,
                        ext,
                        sample_rate,
@@ -117,13 +125,18 @@ class SmokeTestFileObj(unittest.TestCase):
                        dtype="float32"):
         duration = 1
         num_frames = sample_rate * duration
-        original = get_wav_data(
-            dtype, num_channels, normalize=False, num_frames=num_frames)
+        original = get_wav_data(dtype,
+                                num_channels,
+                                normalize=False,
+                                num_frames=num_frames)
 
         fileobj = io.BytesIO()
         # 1. run save
-        sox_io_backend.save(
-            fileobj, original, sample_rate, compression=compression, format=ext)
+        sox_io_backend.save(fileobj,
+                            original,
+                            sample_rate,
+                            compression=compression,
+                            format=ext)
         # 2. run info
         fileobj.seek(0)
         info = sox_io_backend.info(fileobj, format=ext)
@@ -139,8 +152,10 @@ class SmokeTestFileObj(unittest.TestCase):
         list(itertools.product(
             ["float32", "int32"],
             [8000, 16000],
-            [1, 2], )),
-        name_func=name_func, )
+            [1, 2],
+        )),
+        name_func=name_func,
+    )
     def test_wav(self, dtype, sample_rate, num_channels):
         """Run smoke test on wav format"""
         self.run_smoke_test("wav", sample_rate, num_channels, dtype=dtype)
@@ -176,12 +191,16 @@ class SmokeTestFileObj(unittest.TestCase):
         list(itertools.product(
             [8000, 16000],
             [1, 2],
-            list(range(9)), )),
-        name_func=name_func, )
+            list(range(9)),
+        )),
+        name_func=name_func,
+    )
     def test_flac(self, sample_rate, num_channels, compression_level):
         #"""Run smoke test on flac format"""
-        self.run_smoke_test(
-            "flac", sample_rate, num_channels, compression=compression_level)
+        self.run_smoke_test("flac",
+                            sample_rate,
+                            num_channels,
+                            compression=compression_level)
 
 
 if __name__ == '__main__':

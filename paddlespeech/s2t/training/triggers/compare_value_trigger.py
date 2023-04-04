@@ -25,7 +25,6 @@ class CompareValueTrigger():
         trigger (tuple(int, str)) : Trigger that decide the comparison interval.
 
     """
-
     def __init__(self, key, compare_fn, trigger=(1, "epoch")):
         self._key = key
         self._best_value = None

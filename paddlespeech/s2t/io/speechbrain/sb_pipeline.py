@@ -33,7 +33,8 @@ def dataio_prepare(hparams):
 
     train_data = dataset.DynamicItemDataset.from_csv(
         csv_path=hparams["train_data"],
-        replacements={"data_root": data_folder}, )
+        replacements={"data_root": data_folder},
+    )
 
     if hparams["sorting"] == "ascending":
         # we sort training data to speed up training and get better results.
@@ -42,8 +43,8 @@ def dataio_prepare(hparams):
         hparams["train_dataloader_opts"]["shuffle"] = False
 
     elif hparams["sorting"] == "descending":
-        train_data = train_data.filtered_sorted(
-            sort_key="duration", reverse=True)
+        train_data = train_data.filtered_sorted(sort_key="duration",
+                                                reverse=True)
         # when sorting do not shuffle in dataloader ! otherwise is pointless
         hparams["train_dataloader_opts"]["shuffle"] = False
 
@@ -56,12 +57,14 @@ def dataio_prepare(hparams):
 
     valid_data = dataset.DynamicItemDataset.from_csv(
         csv_path=hparams["valid_data"],
-        replacements={"data_root": data_folder}, )
+        replacements={"data_root": data_folder},
+    )
     valid_data = valid_data.filtered_sorted(sort_key="duration")
 
     test_data = dataset.DynamicItemDataset.from_csv(
         csv_path=hparams["test_data"],
-        replacements={"data_root": data_folder}, )
+        replacements={"data_root": data_folder},
+    )
     test_data = test_data.filtered_sorted(sort_key="duration")
 
     datasets = [train_data, valid_data, test_data]
@@ -94,7 +97,8 @@ def dataio_prepare(hparams):
     # 4. Set output:
     dataset.set_output_keys(
         datasets,
-        ["id", "sig", "wrd", "tokens"], )
+        ["id", "sig", "wrd", "tokens"],
+    )
 
     # 5. If Dynamic Batching is used, we instantiate the needed samplers.
     train_batch_sampler = None
@@ -111,7 +115,8 @@ def dataio_prepare(hparams):
             num_buckets=num_buckets,
             length_func=lambda x: x["duration"],
             shuffle=dynamic_hparams["shuffle_ex"],
-            batch_ordering=dynamic_hparams["batch_ordering"], )
+            batch_ordering=dynamic_hparams["batch_ordering"],
+        )
 
         valid_batch_sampler = DynamicBatchSampler(
             valid_data,
@@ -119,18 +124,31 @@ def dataio_prepare(hparams):
             num_buckets=num_buckets,
             length_func=lambda x: x["duration"],
             shuffle=dynamic_hparams["shuffle_ex"],
-            batch_ordering=dynamic_hparams["batch_ordering"], )
+            batch_ordering=dynamic_hparams["batch_ordering"],
+        )
 
-    return (train_data, valid_data, test_data, tokenizer, train_batch_sampler,
-            valid_batch_sampler, )
+    return (
+        train_data,
+        valid_data,
+        test_data,
+        tokenizer,
+        train_batch_sampler,
+        valid_batch_sampler,
+    )
 
 
 hparams_file = 'train_with_wav2vec.yaml'
 with open(hparams_file) as fin:
     hparams = load_hyperpyyaml(fin, None)
 
-(train_data, valid_data, test_data, tokenizer, train_bsampler,
- valid_bsampler, ) = dataio_prepare(hparams)
+(
+    train_data,
+    valid_data,
+    test_data,
+    tokenizer,
+    train_bsampler,
+    valid_bsampler,
+) = dataio_prepare(hparams)
 
 train_dataloader_opts = hparams["train_dataloader_opts"]
 valid_dataloader_opts = hparams["valid_dataloader_opts"]
@@ -149,7 +167,8 @@ train_set = make_dataloader(train_data, stage='train', **train_dataloader_opts)
 valid_set = make_dataloader(
     valid_data,
     stage='train',
-    **valid_dataloader_opts, )
+    **valid_dataloader_opts,
+)
 
 for batch in valid_set:
     print(batch)

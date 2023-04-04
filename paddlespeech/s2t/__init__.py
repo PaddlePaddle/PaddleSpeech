@@ -163,9 +163,8 @@ def broadcast_shape(shp1, shp2):
     return result[::-1]
 
 
-def masked_fill(xs: paddle.Tensor,
-                mask: paddle.Tensor,
-                value: Union[float, int]):
+def masked_fill(xs: paddle.Tensor, mask: paddle.Tensor, value: Union[float,
+                                                                     int]):
     # will be nan when value is `inf`.
     # mask = mask.astype(xs.dtype)
     # return xs * (1.0 - mask) + mask * value
@@ -188,8 +187,7 @@ if not hasattr(paddle.Tensor, 'masked_fill'):
     paddle.static.Variable.masked_fill = masked_fill
 
 
-def masked_fill_(xs: paddle.Tensor,
-                 mask: paddle.Tensor,
+def masked_fill_(xs: paddle.Tensor, mask: paddle.Tensor,
                  value: Union[float, int]) -> paddle.Tensor:
     assert is_broadcastable(xs.shape, mask.shape) is True
     bshape = paddle.broadcast_shape(xs.shape, mask.shape)
@@ -356,8 +354,7 @@ class LayerDict(paddle.nn.Layer):
                 x = self.activations[act](x)
                 return x
     """
-
-    def __init__(self, modules: Optional[Mapping[str, Layer]]=None) -> None:
+    def __init__(self, modules: Optional[Mapping[str, Layer]] = None) -> None:
         super(LayerDict, self).__init__()
         if modules is not None:
             self.update(modules)
@@ -424,8 +421,8 @@ class LayerDict(paddle.nn.Layer):
         """
         if not isinstance(modules, container_abcs.Iterable):
             raise TypeError("LayerDict.update should be called with an "
-                            "iterable of key/value pairs, but got " + type(
-                                modules).__name__)
+                            "iterable of key/value pairs, but got " +
+                            type(modules).__name__)
 
         if isinstance(modules,
                       (OrderedDict, LayerDict, container_abcs.Mapping)):
@@ -440,8 +437,8 @@ class LayerDict(paddle.nn.Layer):
                                     type(m).__name__)
                 if not len(m) == 2:
                     raise ValueError("LayerDict update sequence element "
-                                     "#" + str(j) + " has length " + str(
-                                         len(m)) + "; 2 is required")
+                                     "#" + str(j) + " has length " +
+                                     str(len(m)) + "; 2 is required")
                 # modules can be Mapping (what it's typed at), or a list: [(name1, module1), (name2, module2)]
                 # that's too cumbersome to type correctly with overloads, so we add an ignore here
                 self[m[0]] = m[1]  # type: ignore[assignment]

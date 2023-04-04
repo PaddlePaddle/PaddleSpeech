@@ -31,10 +31,9 @@ from paddlespeech.t2s.utils import str2bool
 def ort_predict(args):
 
     # frontend
-    frontend = get_frontend(
-        lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+    frontend = get_frontend(lang=args.lang,
+                            phones_dict=args.phones_dict,
+                            tones_dict=args.tones_dict)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -45,34 +44,30 @@ def ort_predict(args):
     fs = 24000 if am_dataset != 'ljspeech' else 22050
 
     # streaming acoustic model
-    am_encoder_infer_sess = get_sess(
-        model_path=str(
-            Path(args.inference_dir) /
-            (args.am + '_am_encoder_infer' + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
-    am_decoder_sess = get_sess(
-        model_path=str(
-            Path(args.inference_dir) / (args.am + '_am_decoder' + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    am_encoder_infer_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.am + '_am_encoder_infer' + '.onnx')),
+                                     device=args.device,
+                                     cpu_threads=args.cpu_threads,
+                                     use_trt=args.use_trt)
+    am_decoder_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.am + '_am_decoder' + '.onnx')),
+                               device=args.device,
+                               cpu_threads=args.cpu_threads,
+                               use_trt=args.use_trt)
 
-    am_postnet_sess = get_sess(
-        model_path=str(
-            Path(args.inference_dir) / (args.am + '_am_postnet' + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    am_postnet_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.am + '_am_postnet' + '.onnx')),
+                               device=args.device,
+                               cpu_threads=args.cpu_threads,
+                               use_trt=args.use_trt)
     am_mu, am_std = np.load(args.am_stat)
 
     # vocoder
-    voc_sess = get_sess(
-        model_path=str(Path(args.inference_dir) / (args.voc + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    voc_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.voc + '.onnx')),
+                        device=args.device,
+                        cpu_threads=args.cpu_threads,
+                        use_trt=args.use_trt)
 
     # frontend warmup
     # Loading model cost 0.5+ seconds
@@ -107,17 +102,16 @@ def ort_predict(args):
 
     for utt_id, sentence in sentences:
         with timer() as t:
-            frontend_dict = run_frontend(
-                frontend=frontend,
-                text=sentence,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids,
-                lang=args.lang)
+            frontend_dict = run_frontend(frontend=frontend,
+                                         text=sentence,
+                                         merge_sentences=merge_sentences,
+                                         get_tone_ids=get_tone_ids,
+                                         lang=args.lang)
             phone_ids = frontend_dict['phone_ids']
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0].numpy()
-            orig_hs = am_encoder_infer_sess.run(
-                None, input_feed={'text': phone_ids})
+            orig_hs = am_encoder_infer_sess.run(None,
+                                                input_feed={'text': phone_ids})
             if args.am_streaming:
                 hss = get_chunks(orig_hs[0], block_size, pad_size)
                 chunk_num = len(hss)
@@ -168,10 +162,9 @@ def ort_predict(args):
             T += t.elapse
             speed = len(wav[0]) / t.elapse
             rtf = fs / speed
-        sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            np.array(wav)[0],
-            samplerate=fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 np.array(wav)[0],
+                 samplerate=fs)
         print(
             f"{utt_id}, mel: {mel.shape}, wave: {len(wav[0])}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
@@ -181,22 +174,26 @@ def ort_predict(args):
 def parse_args():
     parser = argparse.ArgumentParser(description="Infernce with onnxruntime.")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=['fastspeech2_csmsc'],
-        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=['fastspeech2_csmsc'],
+                        help='Choose acoustic model type of tts task.')
     parser.add_argument(
         "--am_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
 
     # voc
     parser.add_argument(
@@ -206,43 +203,48 @@ def parse_args():
         choices=['hifigan_csmsc', 'mb_melgan_csmsc', 'pwgan_csmsc'],
         help='Choose vocoder type of tts task.')
     # other
-    parser.add_argument(
-        "--inference_dir", type=str, help="dir to save inference models")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
     parser.add_argument("--output_dir", type=str, help="output dir")
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en')
 
     # inference
     parser.add_argument(
         "--use_trt",
         type=str2bool,
         default=False,
-        help="Whether to use inference engin TensorRT.", )
+        help="Whether to use inference engin TensorRT.",
+    )
 
     parser.add_argument(
         "--device",
         default="gpu",
         choices=["gpu", "cpu"],
-        help="Device selected for inference.", )
+        help="Device selected for inference.",
+    )
     parser.add_argument('--cpu_threads', type=int, default=1)
 
     # streaming related
-    parser.add_argument(
-        "--am_streaming",
-        type=str2bool,
-        default=False,
-        help="whether use streaming acoustic model")
-    parser.add_argument(
-        "--block_size", type=int, default=42, help="block size of am streaming")
-    parser.add_argument(
-        "--pad_size", type=int, default=12, help="pad size of am streaming")
+    parser.add_argument("--am_streaming",
+                        type=str2bool,
+                        default=False,
+                        help="whether use streaming acoustic model")
+    parser.add_argument("--block_size",
+                        type=int,
+                        default=42,
+                        help="block size of am streaming")
+    parser.add_argument("--pad_size",
+                        type=int,
+                        default=12,
+                        help="pad size of am streaming")
 
     args, _ = parser.parse_known_args()
     return args

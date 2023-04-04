@@ -45,96 +45,89 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
         self.text_len = paddle.to_tensor(text_len, dtype='int64')
 
     def test_ds2_1(self):
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=False)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=3,
+                                       rnn_size=1024,
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=False)
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
     def test_ds2_2(self):
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=True)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=3,
+                                       rnn_size=1024,
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=True)
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
     def test_ds2_3(self):
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=False)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=3,
+                                       rnn_size=1024,
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=False)
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
     def test_ds2_4(self):
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=True)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=3,
+                                       rnn_size=1024,
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=True)
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
     def test_ds2_5(self):
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=False)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=3,
+                                       rnn_size=1024,
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=False)
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
     def test_ds2_6(self):
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=3,
-            rnn_size=1024,
-            rnn_direction='bidirect',
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=False)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=3,
+                                       rnn_size=1024,
+                                       rnn_direction='bidirect',
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=False)
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
     def test_ds2_7(self):
         use_gru = False
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=1,
-            rnn_size=1024,
-            rnn_direction='forward',
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=use_gru)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=1,
+                                       rnn_size=1024,
+                                       rnn_direction='forward',
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=use_gru)
         model.eval()
         paddle.device.set_device("cpu")
         de_ch_size = 8
@@ -156,16 +149,15 @@ class TestDeepSpeech2ModelOnline(unittest.TestCase):
 
     def test_ds2_8(self):
         use_gru = True
-        model = DeepSpeech2ModelOnline(
-            feat_size=self.feat_dim,
-            dict_size=10,
-            num_conv_layers=2,
-            num_rnn_layers=1,
-            rnn_size=1024,
-            rnn_direction='forward',
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=use_gru)
+        model = DeepSpeech2ModelOnline(feat_size=self.feat_dim,
+                                       dict_size=10,
+                                       num_conv_layers=2,
+                                       num_rnn_layers=1,
+                                       rnn_size=1024,
+                                       rnn_direction='forward',
+                                       num_fc_layers=2,
+                                       fc_layers_size_list=[512, 256],
+                                       use_gru=use_gru)
         model.eval()
         paddle.device.set_device("cpu")
         de_ch_size = 8
@@ -191,15 +183,14 @@ class TestDeepSpeech2StaticModelOnline(unittest.TestCase):
         export_prefix = "exp/deepspeech2_online/checkpoints/test_export"
         if not os.path.exists(os.path.dirname(export_prefix)):
             os.makedirs(os.path.dirname(export_prefix), mode=0o755)
-        infer_model = DeepSpeech2InferModelOnline(
-            feat_size=161,
-            dict_size=4233,
-            num_conv_layers=2,
-            num_rnn_layers=5,
-            rnn_size=1024,
-            num_fc_layers=0,
-            fc_layers_size_list=[-1],
-            use_gru=False)
+        infer_model = DeepSpeech2InferModelOnline(feat_size=161,
+                                                  dict_size=4233,
+                                                  num_conv_layers=2,
+                                                  num_rnn_layers=5,
+                                                  rnn_size=1024,
+                                                  num_fc_layers=0,
+                                                  fc_layers_size_list=[-1],
+                                                  use_gru=False)
         static_model = infer_model.export()
         paddle.jit.save(static_model, export_prefix)
 
@@ -211,8 +202,8 @@ class TestDeepSpeech2StaticModelOnline(unittest.TestCase):
     def setup_model(self, export_prefix):
         deepspeech_config = inference.Config(export_prefix + ".pdmodel",
                                              export_prefix + ".pdiparams")
-        if ('CUDA_VISIBLE_DEVICES' in os.environ.keys() and
-                os.environ['CUDA_VISIBLE_DEVICES'].strip() != ''):
+        if ('CUDA_VISIBLE_DEVICES' in os.environ.keys()
+                and os.environ['CUDA_VISIBLE_DEVICES'].strip() != ''):
             deepspeech_config.enable_use_gpu(100, 0)
             deepspeech_config.enable_memory_optim()
         deepspeech_predictor = inference.create_predictor(deepspeech_config)

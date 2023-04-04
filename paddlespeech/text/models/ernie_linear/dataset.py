@@ -23,8 +23,8 @@ class PuncDataset(Dataset):
     def __init__(self, train_path, vocab_path, punc_path, seq_len=100):
         self.seq_len = seq_len
 
-        self.word2id = self.load_vocab(
-            vocab_path, extra_word_list=['<UNK>', '<END>'])
+        self.word2id = self.load_vocab(vocab_path,
+                                       extra_word_list=['<UNK>', '<END>'])
         self.id2word = {v: k for k, v in self.word2id.items()}
         self.punc2id = self.load_vocab(punc_path, extra_word_list=[" "])
         self.id2punc = {k: v for (v, k) in self.punc2id.items()}
@@ -66,14 +66,14 @@ class PuncDataset(Dataset):
             punc = txt_seqs[count]
             if punc not in self.punc2id:
                 label.append(self.punc2id[" "])
-                input_data.append(
-                    self.word2id.get(token, self.word2id["<UNK>"]))
+                input_data.append(self.word2id.get(token,
+                                                   self.word2id["<UNK>"]))
                 input_r.append(token)
                 label_r.append(' ')
             else:
                 label.append(self.punc2id[punc])
-                input_data.append(
-                    self.word2id.get(token, self.word2id["<UNK>"]))
+                input_data.append(self.word2id.get(token,
+                                                   self.word2id["<UNK>"]))
                 input_r.append(token)
                 label_r.append(punc)
         if len(input_data) != len(label):
@@ -149,6 +149,6 @@ class PuncDatasetFromErnieTokenizer(Dataset):
         len_tmp = self.in_len * self.seq_len
         input_data = input_data[:len_tmp]
         label = label[:len_tmp]
-        self.input_data = np.array(
-            input_data, dtype='int64').reshape(-1, self.seq_len)
+        self.input_data = np.array(input_data,
+                                   dtype='int64').reshape(-1, self.seq_len)
         self.label = np.array(label, dtype='int64').reshape(-1, self.seq_len)

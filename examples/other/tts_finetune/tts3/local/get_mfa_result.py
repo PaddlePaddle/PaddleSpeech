@@ -27,9 +27,10 @@ os.environ['PATH'] = MFA_PATH + '/:' + os.environ['PATH']
 
 
 def get_mfa_result(
-        input_dir: Union[str, Path],
-        mfa_dir: Union[str, Path],
-        lang: str='en', ):
+    input_dir: Union[str, Path],
+    mfa_dir: Union[str, Path],
+    lang: str = 'en',
+):
     """get mfa result
 
     Args:
@@ -58,26 +59,24 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
 
-    parser.add_argument(
-        "--input_dir",
-        type=str,
-        default="./input/baker_mini/newdir",
-        help="directory containing audio and label file")
+    parser.add_argument("--input_dir",
+                        type=str,
+                        default="./input/baker_mini/newdir",
+                        help="directory containing audio and label file")
 
-    parser.add_argument(
-        "--mfa_dir",
-        type=str,
-        default="./mfa_result",
-        help="directory to save aligned files")
+    parser.add_argument("--mfa_dir",
+                        type=str,
+                        default="./mfa_result",
+                        help="directory to save aligned files")
 
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        choices=['zh', 'en'],
-        help='Choose input audio language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        choices=['zh', 'en'],
+                        help='Choose input audio language. zh or en')
 
     args = parser.parse_args()
 
-    get_mfa_result(
-        input_dir=args.input_dir, mfa_dir=args.mfa_dir, lang=args.lang)
+    get_mfa_result(input_dir=args.input_dir,
+                   mfa_dir=args.mfa_dir,
+                   lang=args.lang)

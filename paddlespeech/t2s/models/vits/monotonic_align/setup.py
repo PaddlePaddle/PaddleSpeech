@@ -20,7 +20,6 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 class build_ext(_build_ext):
     """Overwrite build_ext."""
-
     def finalize_options(self):
         """Prevent numpy from thinking it is still in its setup process."""
         _build_ext.finalize_options(self)
@@ -32,8 +31,10 @@ class build_ext(_build_ext):
 
 exts = [Extension(
     name="core",
-    sources=["core.pyx"], )]
+    sources=["core.pyx"],
+)]
 setup(
     name="monotonic_align",
     ext_modules=cythonize(exts, language_level=3),
-    cmdclass={"build_ext": build_ext}, )
+    cmdclass={"build_ext": build_ext},
+)

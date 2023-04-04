@@ -29,10 +29,9 @@ from paddlespeech.t2s.utils import str2bool
 def ort_predict(args):
 
     # frontend
-    frontend = get_frontend(
-        lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+    frontend = get_frontend(lang=args.lang,
+                            phones_dict=args.phones_dict,
+                            tones_dict=args.tones_dict)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -42,30 +41,29 @@ def ort_predict(args):
     am_dataset = args.am[args.am.rindex('_') + 1:]
     fs = 24000 if am_dataset != 'ljspeech' else 22050
 
-    am_sess = get_sess(
-        model_path=str(Path(args.inference_dir) / (args.am + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    am_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.am + '.onnx')),
+                       device=args.device,
+                       cpu_threads=args.cpu_threads,
+                       use_trt=args.use_trt)
 
     # vocoder
-    voc_sess = get_sess(
-        model_path=str(Path(args.inference_dir) / (args.voc + '.onnx')),
-        device=args.device,
-        cpu_threads=args.cpu_threads,
-        use_trt=args.use_trt)
+    voc_sess = get_sess(model_path=str(
+        Path(args.inference_dir) / (args.voc + '.onnx')),
+                        device=args.device,
+                        cpu_threads=args.cpu_threads,
+                        use_trt=args.use_trt)
 
     merge_sentences = True
 
     # frontend warmup
     # Loading model cost 0.5+ seconds
     if args.lang == 'zh':
-        frontend.get_input_ids(
-            "你好，欢迎使用飞桨框架进行深度学习研究！", merge_sentences=merge_sentences)
+        frontend.get_input_ids("你好，欢迎使用飞桨框架进行深度学习研究！",
+                               merge_sentences=merge_sentences)
     else:
-        frontend.get_input_ids(
-            "hello, thank you, thank you very much",
-            merge_sentences=merge_sentences)
+        frontend.get_input_ids("hello, thank you, thank you very much",
+                               merge_sentences=merge_sentences)
 
     # am warmup
     spk_id = [args.spk_id]
@@ -100,12 +98,11 @@ def ort_predict(args):
     am_input_feed = {}
     for utt_id, sentence in sentences:
         with timer() as t:
-            frontend_dict = run_frontend(
-                frontend=frontend,
-                text=sentence,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids,
-                lang=args.lang)
+            frontend_dict = run_frontend(frontend=frontend,
+                                         text=sentence,
+                                         merge_sentences=merge_sentences,
+                                         get_tone_ids=get_tone_ids,
+                                         lang=args.lang)
             phone_ids = frontend_dict['phone_ids']
             flags = 0
             for i in range(len(phone_ids)):
@@ -122,8 +119,8 @@ def ort_predict(args):
                     })
                 mel = am_sess.run(output_names=None, input_feed=am_input_feed)
                 mel = mel[0]
-                wav = voc_sess.run(
-                    output_names=None, input_feed={'logmel': mel})
+                wav = voc_sess.run(output_names=None,
+                                   input_feed={'logmel': mel})
                 wav = wav[0]
                 if flags == 0:
                     wav_all = wav
@@ -145,78 +142,81 @@ def ort_predict(args):
 def parse_args():
     parser = argparse.ArgumentParser(description="Infernce with onnxruntime.")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=[
-            'fastspeech2_csmsc',
-            'fastspeech2_aishell3',
-            'fastspeech2_ljspeech',
-            'fastspeech2_vctk',
-            'speedyspeech_csmsc',
-            'fastspeech2_mix',
-            'fastspeech2_male-zh',
-            'fastspeech2_male-en',
-            'fastspeech2_male-mix',
-            'fastspeech2_canton',
-        ],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=[
+                            'fastspeech2_csmsc',
+                            'fastspeech2_aishell3',
+                            'fastspeech2_ljspeech',
+                            'fastspeech2_vctk',
+                            'speedyspeech_csmsc',
+                            'fastspeech2_mix',
+                            'fastspeech2_male-zh',
+                            'fastspeech2_male-en',
+                            'fastspeech2_male-mix',
+                            'fastspeech2_canton',
+                        ],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
+    parser.add_argument('--spk_id',
+                        type=int,
+                        default=0,
+                        help='spk id for multi speaker acoustic model')
 
     # voc
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='hifigan_csmsc',
-        choices=[
-            'pwgan_csmsc',
-            'pwgan_aishell3',
-            'pwgan_ljspeech',
-            'pwgan_vctk',
-            'hifigan_csmsc',
-            'hifigan_aishell3',
-            'hifigan_ljspeech',
-            'hifigan_vctk',
-            'mb_melgan_csmsc',
-            'pwgan_male',
-            'hifigan_male',
-        ],
-        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='hifigan_csmsc',
+                        choices=[
+                            'pwgan_csmsc',
+                            'pwgan_aishell3',
+                            'pwgan_ljspeech',
+                            'pwgan_vctk',
+                            'hifigan_csmsc',
+                            'hifigan_aishell3',
+                            'hifigan_ljspeech',
+                            'hifigan_vctk',
+                            'mb_melgan_csmsc',
+                            'pwgan_male',
+                            'hifigan_male',
+                        ],
+                        help='Choose vocoder type of tts task.')
     # other
-    parser.add_argument(
-        "--inference_dir", type=str, help="dir to save inference models")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
     parser.add_argument("--output_dir", type=str, help="output dir")
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en')
 
     # inference
     parser.add_argument(
         "--use_trt",
         type=str2bool,
         default=False,
-        help="Whether to use inference engin TensorRT.", )
+        help="Whether to use inference engin TensorRT.",
+    )
 
     parser.add_argument(
         "--device",
         default="gpu",
         choices=["gpu", "cpu"],
-        help="Device selected for inference.", )
+        help="Device selected for inference.",
+    )
     parser.add_argument('--cpu_threads', type=int, default=1)
 
     args, _ = parser.parse_known_args()

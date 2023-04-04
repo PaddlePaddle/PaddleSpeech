@@ -70,8 +70,8 @@ class U2Trainer(Trainer):
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
             # When using cpu w/o DDP, model does not have `no_sync`
-            context = self.model.no_sync if (hasattr(self.model, "no_sync") and
-                                             self.parallel) else nullcontext
+            context = self.model.no_sync if (hasattr(self.model, "no_sync")
+                                             and self.parallel) else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.
@@ -100,8 +100,9 @@ class U2Trainer(Trainer):
                 losses_np_v = losses_np.copy()
                 losses_np_v.update({"lr": self.lr_scheduler()})
                 for key, val in losses_np_v.items():
-                    self.visualizer.add_scalar(
-                        tag='train/' + key, value=val, step=self.iteration - 1)
+                    self.visualizer.add_scalar(tag='train/' + key,
+                                               value=val,
+                                               step=self.iteration - 1)
 
     @paddle.no_grad()
     def valid(self):
@@ -211,13 +212,15 @@ class U2Trainer(Trainer):
                 else:
                     cv_loss = total_loss / num_seen_utts
 
-            logger.info(
-                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            logger.info('Epoch {} Val info val_loss {}'.format(
+                self.epoch, cv_loss))
             if self.visualizer:
-                self.visualizer.add_scalar(
-                    tag='eval/cv_loss', value=cv_loss, step=self.epoch)
-                self.visualizer.add_scalar(
-                    tag='eval/lr', value=self.lr_scheduler(), step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/cv_loss',
+                                           value=cv_loss,
+                                           step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/lr',
+                                           value=self.lr_scheduler(),
+                                           step=self.epoch)
 
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})
             self.new_epoch()
@@ -232,10 +235,10 @@ class U2Trainer(Trainer):
                 'valid', config, self.args)
             logger.info("Setup train/valid Dataloader!")
         else:
-            decode_batch_size = config.get('decode', dict()).get(
-                'decode_batch_size', 1)
-            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
-                                                                self.args)
+            decode_batch_size = config.get('decode',
+                                           dict()).get('decode_batch_size', 1)
+            self.test_loader = DataLoaderFactory.get_dataloader(
+                'test', config, self.args)
             self.align_loader = DataLoaderFactory.get_dataloader(
                 'align', config, self.args)
             logger.info("Setup test/align Dataloader!")
@@ -281,9 +284,10 @@ class U2Trainer(Trainer):
                                                     scheduler_args)
 
         def optimizer_args(
-                config,
-                parameters,
-                lr_scheduler=None, ):
+            config,
+            parameters,
+            lr_scheduler=None,
+        ):
             train_config = config
             optim_type = train_config.optim
             optim_conf = train_config.optim_conf
@@ -292,8 +296,8 @@ class U2Trainer(Trainer):
             return {
                 "grad_clip": train_config.global_grad_clip,
                 "weight_decay": optim_conf.weight_decay,
-                "learning_rate": lr_scheduler
-                if lr_scheduler else optim_conf.lr,
+                "learning_rate":
+                lr_scheduler if lr_scheduler else optim_conf.lr,
                 "parameters": parameters,
                 "epsilon": 1e-9 if optim_type == 'noam' else None,
                 "beta1": 0.9 if optim_type == 'noam' else None,
@@ -355,8 +359,9 @@ class U2Tester(U2Trainer):
             reverse_weight=reverse_weight)
         decode_time = time.time() - start_time
 
-        for utt, target, result, rec_tids in zip(
-                utts, target_transcripts, result_transcripts, result_tokenids):
+        for utt, target, result, rec_tids in zip(utts, target_transcripts,
+                                                 result_transcripts,
+                                                 result_tokenids):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -371,8 +376,9 @@ class U2Tester(U2Trainer):
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")
-            logger.info("One example error rate [%s] = %f" % (
-                decode_config.error_rate_type, error_rate_func(target, result)))
+            logger.info("One example error rate [%s] = %f" %
+                        (decode_config.error_rate_type,
+                         error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,
@@ -494,18 +500,18 @@ class U2Tester(U2Trainer):
         ######################### infer_model.forward_encoder_chunk ############
         input_spec = [
             # xs, (B, T, D)
-            paddle.static.InputSpec(
-                shape=[batch_size, None, feat_dim], dtype='float32'),
+            paddle.static.InputSpec(shape=[batch_size, None, feat_dim],
+                                    dtype='float32'),
             # offset, int, but need be tensor
             paddle.static.InputSpec(shape=[1], dtype='int32'),
             # required_cache_size, int
             num_left_chunks,
             # att_cache
-            paddle.static.InputSpec(
-                shape=[None, None, None, None], dtype='float32'),
+            paddle.static.InputSpec(shape=[None, None, None, None],
+                                    dtype='float32'),
             # cnn_cache
-            paddle.static.InputSpec(
-                shape=[None, None, None, None], dtype='float32')
+            paddle.static.InputSpec(shape=[None, None, None, None],
+                                    dtype='float32')
         ]
         infer_model.forward_encoder_chunk = paddle.jit.to_static(
             infer_model.forward_encoder_chunk, input_spec=input_spec)
@@ -513,8 +519,8 @@ class U2Tester(U2Trainer):
         ######################### infer_model.ctc_activation ########################
         input_spec = [
             # encoder_out, (B,T,D)
-            paddle.static.InputSpec(
-                shape=[batch_size, None, model_size], dtype='float32')
+            paddle.static.InputSpec(shape=[batch_size, None, model_size],
+                                    dtype='float32')
         ]
         infer_model.ctc_activation = paddle.jit.to_static(
             infer_model.ctc_activation, input_spec=input_spec)
@@ -527,8 +533,8 @@ class U2Tester(U2Trainer):
             # hyps_lens, (B,)
             paddle.static.InputSpec(shape=[None], dtype='int64'),
             # encoder_out, (B,T,D)
-            paddle.static.InputSpec(
-                shape=[batch_size, None, model_size], dtype='float32'),
+            paddle.static.InputSpec(shape=[batch_size, None, model_size],
+                                    dtype='float32'),
             reverse_weight
         ]
         infer_model.forward_attention_decoder = paddle.jit.to_static(
@@ -536,11 +542,10 @@ class U2Tester(U2Trainer):
 
         # jit save
         logger.info(f"export save: {self.args.export_path}")
-        paddle.jit.save(
-            infer_model,
-            self.args.export_path,
-            combine_params=True,
-            skip_forward=True)
+        paddle.jit.save(infer_model,
+                        self.args.export_path,
+                        combine_params=True,
+                        skip_forward=True)
 
         # test dy2static
         def flatten(out):

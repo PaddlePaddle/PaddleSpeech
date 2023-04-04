@@ -75,7 +75,8 @@ def train_sp(args, config):
         ],
         converters={
             "speech": np.load,
-        }, )
+        },
+    )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
@@ -88,30 +89,28 @@ def train_sp(args, config):
         ],
         converters={
             "speech": np.load,
-        }, )
+        },
+    )
 
     # collate function and dataloader
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=True)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
 
     print("samplers done!")
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=transformer_single_spk_batch_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=transformer_single_spk_batch_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        shuffle=False,
-        drop_last=False,
-        batch_size=config.batch_size,
-        collate_fn=transformer_single_spk_batch_fn,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                shuffle=False,
+                                drop_last=False,
+                                batch_size=config.batch_size,
+                                collate_fn=transformer_single_spk_batch_fn,
+                                num_workers=config.num_workers)
     print("dataloaders done!")
 
     with open(args.phones_dict, 'rt', encoding='utf-8') as f:
@@ -135,23 +134,24 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
-    updater = TransformerTTSUpdater(
-        model=model,
-        optimizer=optimizer,
-        dataloader=train_dataloader,
-        output_dir=output_dir,
-        **config["updater"])
+    updater = TransformerTTSUpdater(model=model,
+                                    optimizer=optimizer,
+                                    dataloader=train_dataloader,
+                                    output_dir=output_dir,
+                                    **config["updater"])
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
-    evaluator = TransformerTTSEvaluator(
-        model, dev_dataloader, output_dir=output_dir, **config["updater"])
+    evaluator = TransformerTTSEvaluator(model,
+                                        dev_dataloader,
+                                        output_dir=output_dir,
+                                        **config["updater"])
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))
         trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(1, 'epoch'))
     trainer.run()
 
 
@@ -159,15 +159,20 @@ def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(description="Train a TransformerTTS "
                                      "model with LJSpeech TTS dataset.")
-    parser.add_argument(
-        "--config", type=str, help="TransformerTTS config file.")
+    parser.add_argument("--config",
+                        type=str,
+                        help="TransformerTTS config file.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
 
     args = parser.parse_args()
 

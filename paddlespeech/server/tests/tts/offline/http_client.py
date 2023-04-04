@@ -50,8 +50,8 @@ def tts_client(args):
 
     audio_data_byte = base64.b64decode(wav_base64)
     # from byte
-    samples, sample_rate = soundfile.read(
-        io.BytesIO(audio_data_byte), dtype='float32')
+    samples, sample_rate = soundfile.read(io.BytesIO(audio_data_byte),
+                                          dtype='float32')
 
     # transform audio
     outfile = args.output
@@ -70,27 +70,29 @@ def tts_client(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--text',
-        type=str,
-        default="您好，欢迎使用语音合成服务。",
-        help='A sentence to be synthesized')
+    parser.add_argument('--text',
+                        type=str,
+                        default="您好，欢迎使用语音合成服务。",
+                        help='A sentence to be synthesized')
     parser.add_argument('--spk_id', type=int, default=0, help='Speaker id')
     parser.add_argument('--speed', type=float, default=1.0, help='Audio speed')
-    parser.add_argument(
-        '--volume', type=float, default=1.0, help='Audio volume')
+    parser.add_argument('--volume',
+                        type=float,
+                        default=1.0,
+                        help='Audio volume')
     parser.add_argument(
         '--sample_rate',
         type=int,
         default=0,
         help='Sampling rate, the default is the same as the model')
-    parser.add_argument(
-        '--output',
-        type=str,
-        default="./out.wav",
-        help='Synthesized audio file')
-    parser.add_argument(
-        "--server", type=str, help="server ip", default="127.0.0.1")
+    parser.add_argument('--output',
+                        type=str,
+                        default="./out.wav",
+                        help='Synthesized audio file')
+    parser.add_argument("--server",
+                        type=str,
+                        help="server ip",
+                        default="127.0.0.1")
     parser.add_argument("--port", type=int, help="server port", default=8090)
     args = parser.parse_args()
 

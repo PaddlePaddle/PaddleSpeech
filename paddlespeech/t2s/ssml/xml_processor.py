@@ -90,12 +90,13 @@ class MixTextProcessor():
             dom = DomXml(in_xml)
             tags = dom.get_text_and_sayas_tags()
             ctlist.extend(tags)
-            
+
             ctlist.append(after_xml)
             return ctlist
         else:
             ctlist.append(mixstr)
         return ctlist
+
 
 class DomXml():
     def __init__(self, xmlstr):
@@ -176,8 +177,8 @@ class DomXml():
         alltags = self.root.getElementsByTagName(tag_name)
         for x in alltags:
             if x.hasAttribute('pinyin'):  # pinyin
-                print(x.tagName, 'pinyin',
-                      x.getAttribute('pinyin'), x.firstChild.data)
+                print(x.tagName, 'pinyin', x.getAttribute('pinyin'),
+                      x.firstChild.data)
 
     def get_text_and_sayas_tags(self):
         '''返回 xml 内容的列表，包括所有文本内容和<say-as> tag'''

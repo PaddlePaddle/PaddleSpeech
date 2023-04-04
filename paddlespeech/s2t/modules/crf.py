@@ -35,13 +35,12 @@ class CRF(nn.Layer):
             will apply constraints for PAD transitions.
         batch_first (bool): Whether the first dimension represents the batch dimension.
     """
-
     def __init__(self,
                  nb_labels: int,
                  bos_tag_id: int,
                  eos_tag_id: int,
-                 pad_tag_id: int=None,
-                 batch_first: bool=True):
+                 pad_tag_id: int = None,
+                 batch_first: bool = True):
         super().__init__()
 
         self.nb_labels = nb_labels
@@ -78,7 +77,7 @@ class CRF(nn.Layer):
     def forward(self,
                 emissions: paddle.Tensor,
                 tags: paddle.Tensor,
-                mask: paddle.Tensor=None) -> paddle.Tensor:
+                mask: paddle.Tensor = None) -> paddle.Tensor:
         """Compute the negative log-likelihood. See `log_likelihood` method."""
         nll = -self.log_likelihood(emissions, tags, mask=mask)
         return nll
@@ -166,8 +165,8 @@ class CRF(nn.Layer):
         # TODO(Hui Zhang): not support fancy index.
         # last_tags = tags.gather(last_valid_idx.unsqueeze(1), axis=1).squeeze()
         batch_idx = paddle.arange(batch_size, dtype=last_valid_idx.dtype)
-        gather_last_valid_idx = paddle.stack(
-            [batch_idx, last_valid_idx], axis=-1)
+        gather_last_valid_idx = paddle.stack([batch_idx, last_valid_idx],
+                                             axis=-1)
         last_tags = tags.gather_nd(gather_last_valid_idx)
 
         # add the transition from BOS to the first tags for each batch
@@ -198,12 +197,12 @@ class CRF(nn.Layer):
 
             # calculate emission and transition scores as we did before
             # e_scores = emissions[:, i].gather(1, current_tags.unsqueeze(1)).squeeze()
-            gather_current_tags_idx = paddle.stack(
-                [batch_idx, current_tags], axis=-1)
+            gather_current_tags_idx = paddle.stack([batch_idx, current_tags],
+                                                   axis=-1)
             e_scores = emissions[:, i].gather_nd(gather_current_tags_idx)
             # t_scores = self.transitions[previous_tags, current_tags]
-            gather_transitions_idx = paddle.stack(
-                [previous_tags, current_tags], axis=-1)
+            gather_transitions_idx = paddle.stack([previous_tags, current_tags],
+                                                  axis=-1)
             t_scores = self.transitions.gather_nd(gather_transitions_idx)
 
             # apply the mask

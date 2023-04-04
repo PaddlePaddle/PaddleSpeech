@@ -39,7 +39,6 @@ class VanillaNN(containers.Sequential):
     >>> outputs.shape
     paddle.shape([10, 120, 512])
     """
-
     def __init__(self,
                  input_shape,
                  dnn_blocks=2,
@@ -61,12 +60,13 @@ class VanillaNN(containers.Sequential):
                 linear.Linear,
                 n_neurons=dnn_neurons,
                 bias_attr=None,
-                layer_name="linear", )
+                layer_name="linear",
+            )
             if normalization:
-                self.append(
-                    BatchNorm1d, input_size=dnn_neurons, layer_name='bn')
+                self.append(BatchNorm1d,
+                            input_size=dnn_neurons,
+                            layer_name='bn')
             if activation:
                 self.append(paddle.nn.LeakyReLU(), layer_name="act")
-            self.append(
-                paddle.nn.Dropout(p=dropout_rate[block_index]),
-                layer_name='dropout')
+            self.append(paddle.nn.Dropout(p=dropout_rate[block_index]),
+                        layer_name='dropout')

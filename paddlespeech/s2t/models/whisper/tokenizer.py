@@ -118,7 +118,8 @@ LANGUAGES = {
 
 # language code lookup by name, with a few language aliases
 TO_LANGUAGE_CODE = {
-    **{language: code for code, language in LANGUAGES.items()},
+    **{language: code
+       for code, language in LANGUAGES.items()},
     "burmese": "my",
     "valencian": "ca",
     "flemish": "nl",
@@ -144,9 +145,8 @@ class Tokenizer:
     def encode(self, text, **kwargs):
         return self.tokenizer.encode(text, **kwargs)
 
-    def decode(self,
-               token_ids: Union[int, List[int], np.ndarray, paddle.Tensor],
-               **kwargs):
+    def decode(self, token_ids: Union[int, List[int], np.ndarray,
+                                      paddle.Tensor], **kwargs):
         if len(token_ids) > 1:
             ids_list = []
             for ids in token_ids:
@@ -227,7 +227,8 @@ class Tokenizer:
         additional_tokens = dict(
             zip(
                 self.tokenizer.additional_special_tokens,
-                self.tokenizer.additional_special_tokens_ids, ))
+                self.tokenizer.additional_special_tokens_ids,
+            ))
         candidate = f"<|{self.language}|>"
         if candidate in additional_tokens:
             return additional_tokens[candidate]
@@ -240,7 +241,8 @@ class Tokenizer:
         result = []
         for token, token_id in zip(
                 self.tokenizer.additional_special_tokens,
-                self.tokenizer.additional_special_tokens_ids, ):
+                self.tokenizer.additional_special_tokens_ids,
+        ):
             if token.strip("<|>") in LANGUAGES:
                 result.append(token_id)
         return tuple(result)
@@ -302,14 +304,14 @@ class Tokenizer:
 
 
 @lru_cache(maxsize=None)
-def build_tokenizer(resource_path: str, name: str="gpt2"):
+def build_tokenizer(resource_path: str, name: str = "gpt2"):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     path = os.path.join(resource_path, "assets", name)
     tokenizer = GPTTokenizer.from_pretrained(path)
 
     specials = [
         "<|startoftranscript|>",
-        * [f"<|{lang}|>" for lang in LANGUAGES.keys()],
+        *[f"<|{lang}|>" for lang in LANGUAGES.keys()],
         "<|translate|>",
         "<|transcribe|>",
         "<|startoflm|>",
@@ -324,11 +326,12 @@ def build_tokenizer(resource_path: str, name: str="gpt2"):
 
 @lru_cache(maxsize=None)
 def get_tokenizer(
-        multilingual: bool,
-        resource_path: str,
-        *,
-        task: Optional[str]=None,  # Literal["transcribe", "translate", None]
-        language: Optional[str]=None, ) -> Tokenizer:
+    multilingual: bool,
+    resource_path: str,
+    *,
+    task: Optional[str] = None,  # Literal["transcribe", "translate", None]
+    language: Optional[str] = None,
+) -> Tokenizer:
     if language is not None:
         language = language.lower()
         if language not in LANGUAGES:
@@ -346,8 +349,8 @@ def get_tokenizer(
         task = None
         language = None
 
-    tokenizer = build_tokenizer(
-        resource_path=resource_path, name=tokenizer_name)
+    tokenizer = build_tokenizer(resource_path=resource_path,
+                                name=tokenizer_name)
     all_special_ids: List[int] = tokenizer.all_special_ids
     sot: int = all_special_ids[1]
     translate: int = all_special_ids[-6]
@@ -360,7 +363,6 @@ def get_tokenizer(
     if task is not None:
         sot_sequence.append(transcribe if task == "transcribe" else translate)
 
-    return Tokenizer(
-        tokenizer=tokenizer,
-        language=language,
-        sot_sequence=tuple(sot_sequence))
+    return Tokenizer(tokenizer=tokenizer,
+                     language=language,
+                     sot_sequence=tuple(sot_sequence))

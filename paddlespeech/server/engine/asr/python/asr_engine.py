@@ -36,7 +36,6 @@ class ASREngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         super(ASREngine, self).__init__()
 
@@ -67,13 +66,12 @@ class ASREngine(BaseEngine):
             logger.error(e)
             return False
 
-        self.executor._init_from_path(
-            model_type=self.config.model,
-            lang=self.config.lang,
-            sample_rate=self.config.sample_rate,
-            cfg_path=self.config.cfg_path,
-            decode_method=self.config.decode_method,
-            ckpt_path=self.config.ckpt_path)
+        self.executor._init_from_path(model_type=self.config.model,
+                                      lang=self.config.lang,
+                                      sample_rate=self.config.sample_rate,
+                                      cfg_path=self.config.cfg_path,
+                                      decode_method=self.config.decode_method,
+                                      ckpt_path=self.config.ckpt_path)
 
         logger.info("Initialize ASR server engine successfully on device: %s." %
                     (self.device))
@@ -104,9 +102,9 @@ class PaddleASRConnectionHandler(ASRServerExecutor):
             audio_data (bytes): base64.b64decode
         """
         try:
-            if self._check(
-                    io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
-                    self.asr_engine.config.force_yes):
+            if self._check(io.BytesIO(audio_data),
+                           self.asr_engine.config.sample_rate,
+                           self.asr_engine.config.force_yes):
                 logger.debug("start run asr engine")
                 self.preprocess(self.asr_engine.config.model,
                                 io.BytesIO(audio_data))

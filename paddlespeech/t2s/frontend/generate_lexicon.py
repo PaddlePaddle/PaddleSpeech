@@ -58,8 +58,9 @@ def rule(C, V, R, T):
         return None
 
     # 齐齿呼或者撮口呼不能和 f, g, k, h, zh, ch, sh, r, z, c, s
-    if (V not in ['ii', 'iii']) and V[0] in ['i', 'v'] and (
-            C in ['f', 'g', 'k', 'h', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's']):
+    if (V not in ['ii', 'iii']) and V[0] in ['i', 'v'] and (C in [
+            'f', 'g', 'k', 'h', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's'
+    ]):
         return None
 
     # 撮口呼只能和 j, q, x l, n 拼
@@ -74,19 +75,19 @@ def rule(C, V, R, T):
                 return None
 
     # j, q, x 只能和齐齿呼或者撮口呼拼
-    if (C in ['j', 'q', 'x']) and not (
-        (V not in ['ii', 'iii']) and V[0] in ['i', 'v']):
+    if (C in ['j', 'q', 'x'
+              ]) and not ((V not in ['ii', 'iii']) and V[0] in ['i', 'v']):
         return None
 
     # b, p ,m, f 不能和合口呼拼，除了 u 之外
     # bm p, m, f 不能和撮口呼拼
-    if (C in ['b', 'p', 'm', 'f']) and ((V[0] in ['u', 'v'] and V != "u") or
-                                        V == 'ong'):
+    if (C in ['b', 'p', 'm', 'f']) and ((V[0] in ['u', 'v'] and V != "u")
+                                        or V == 'ong'):
         return None
 
     # ua, uai, uang 不能和 d, t, n, l, r, z, c, s 拼
-    if V in ['ua', 'uai',
-             'uang'] and C in ['d', 't', 'n', 'l', 'r', 'z', 'c', 's']:
+    if V in ['ua', 'uai', 'uang'
+             ] and C in ['d', 't', 'n', 'l', 'r', 'z', 'c', 's']:
         return None
 
     # sh 和 ong 不能拼

@@ -23,7 +23,6 @@ class BaseEngine(metaclass=Singleton):
     """
         An base engine class
     """
-
     def __init__(self):
         self._inputs = dict()
         self._outputs = dict()

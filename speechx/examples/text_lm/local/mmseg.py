@@ -96,8 +96,8 @@ def loadDictChars(filepath):
         freq, word = line.split()
         word = word.strip()
         dictWord[word] = (len(word), int(freq))
-        maxWordLength = len(word) if maxWordLength < len(
-            word) else maxWordLength
+        maxWordLength = len(
+            word) if maxWordLength < len(word) else maxWordLength
     fsock.close()
 
 
@@ -107,8 +107,8 @@ def loadDictWords(filepath):
     for line in fsock.readlines():
         word = line.strip()
         dictWord[word] = (len(word), 0)
-        maxWordLength = len(word) if maxWordLength < len(
-            word) else maxWordLength
+        maxWordLength = len(
+            word) if maxWordLength < len(word) else maxWordLength
     fsock.close()
 
 

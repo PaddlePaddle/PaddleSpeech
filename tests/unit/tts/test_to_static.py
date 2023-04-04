@@ -40,11 +40,13 @@ def test_nested_sequential():
             super().__init__()
             group1 = nn.Sequential(
                 nn.Linear(2, 3),
-                nn.Sigmoid(), )
+                nn.Sigmoid(),
+            )
             group2 = nn.Sequential(
                 nn.Sequential(nn.Linear(3, 3)),
                 nn.Linear(3, 4),
-                nn.ReLU(), )
+                nn.ReLU(),
+            )
             self.layers = nn.Sequential(group1, group2)
 
         def forward(self, x):

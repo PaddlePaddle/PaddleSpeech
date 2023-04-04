@@ -26,6 +26,7 @@ from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
+
 logger = Log(__name__).getlog()
 
 
@@ -40,8 +41,8 @@ class Wav2vec2Infer():
             self.text_feature = AutoTokenizer.from_pretrained(
                 self.config.tokenizer)
         else:
-            self.text_feature = TextFeaturizer(
-                unit_type=config.unit_type, vocab=config.vocab_filepath)
+            self.text_feature = TextFeaturizer(unit_type=config.unit_type,
+                                               vocab=config.vocab_filepath)
 
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
 
@@ -63,8 +64,9 @@ class Wav2vec2Infer():
 
         with paddle.no_grad():
             # read
-            audio, _ = soundfile.read(
-                self.audio_file, dtype="int16", always_2d=True)
+            audio, _ = soundfile.read(self.audio_file,
+                                      dtype="int16",
+                                      always_2d=True)
             logger.info(f"audio shape: {audio.shape}")
             xs = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
             decode_config = self.config.decode
@@ -73,7 +75,8 @@ class Wav2vec2Infer():
                 text_feature=self.text_feature,
                 decoding_method=decode_config.decoding_method,
                 beam_size=decode_config.beam_size,
-                tokenizer=self.tokenizer, )
+                tokenizer=self.tokenizer,
+            )
             rsl = result_transcripts[0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {rsl}")
@@ -105,10 +108,12 @@ def main(config, args):
 if __name__ == "__main__":
     parser = default_argument_parser()
     # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
-    parser.add_argument(
-        "--audio_file", type=str, help="path of the input audio file")
+    parser.add_argument("--result_file",
+                        type=str,
+                        help="path of save the asr result")
+    parser.add_argument("--audio_file",
+                        type=str,
+                        help="path of the input audio file")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

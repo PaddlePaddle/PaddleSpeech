@@ -387,7 +387,6 @@ class ChineseChar(object):
     e.g. 简体 = '负', 繁体 = '負'
     转换时可转换为简体或繁体
     """
-
     def __init__(self, simplified, traditional):
         self.simplified = simplified
         self.traditional = traditional
@@ -406,7 +405,6 @@ class ChineseNumberUnit(ChineseChar):
     每个字符除繁简体外还有一个额外的大写字符
     e.g. '陆' 和 '陸'
     """
-
     def __init__(self, power, simplified, traditional, big_s, big_t):
         super(ChineseNumberUnit, self).__init__(simplified, traditional)
         self.power = power
@@ -424,43 +422,39 @@ class ChineseNumberUnit(ChineseChar):
                small_unit=False):
 
         if small_unit:
-            return ChineseNumberUnit(
-                power=index + 1,
-                simplified=value[0],
-                traditional=value[1],
-                big_s=value[1],
-                big_t=value[1])
+            return ChineseNumberUnit(power=index + 1,
+                                     simplified=value[0],
+                                     traditional=value[1],
+                                     big_s=value[1],
+                                     big_t=value[1])
         elif numbering_type == NUMBERING_TYPES[0]:
-            return ChineseNumberUnit(
-                power=index + 8,
-                simplified=value[0],
-                traditional=value[1],
-                big_s=value[0],
-                big_t=value[1])
+            return ChineseNumberUnit(power=index + 8,
+                                     simplified=value[0],
+                                     traditional=value[1],
+                                     big_s=value[0],
+                                     big_t=value[1])
         elif numbering_type == NUMBERING_TYPES[1]:
-            return ChineseNumberUnit(
-                power=(index + 2) * 4,
-                simplified=value[0],
-                traditional=value[1],
-                big_s=value[0],
-                big_t=value[1])
+            return ChineseNumberUnit(power=(index + 2) * 4,
+                                     simplified=value[0],
+                                     traditional=value[1],
+                                     big_s=value[0],
+                                     big_t=value[1])
         elif numbering_type == NUMBERING_TYPES[2]:
-            return ChineseNumberUnit(
-                power=pow(2, index + 3),
-                simplified=value[0],
-                traditional=value[1],
-                big_s=value[0],
-                big_t=value[1])
+            return ChineseNumberUnit(power=pow(2, index + 3),
+                                     simplified=value[0],
+                                     traditional=value[1],
+                                     big_s=value[0],
+                                     big_t=value[1])
         else:
-            raise ValueError('Counting type should be in {0} ({1} provided).'.
-                             format(NUMBERING_TYPES, numbering_type))
+            raise ValueError(
+                'Counting type should be in {0} ({1} provided).'.format(
+                    NUMBERING_TYPES, numbering_type))
 
 
 class ChineseNumberDigit(ChineseChar):
     """
     中文数字字符
     """
-
     def __init__(self,
                  value,
                  simplified,
@@ -488,7 +482,6 @@ class ChineseMath(ChineseChar):
     """
     中文数位字符
     """
-
     def __init__(self, simplified, traditional, symbol, expression=None):
         super(ChineseMath, self).__init__(simplified, traditional)
         self.symbol = symbol
@@ -514,7 +507,6 @@ class MathSymbol(object):
     negative = ['负', '負']
     point = ['点', '點']
     """
-
     def __init__(self, positive, negative, point):
         self.positive = positive
         self.negative = negative
@@ -707,9 +699,8 @@ def num2chn(number_string,
 
         # recursively record multiple digits
         else:
-            result_unit = next(
-                u for u in reversed(system.units)
-                if u.power < len(striped_string))
+            result_unit = next(u for u in reversed(system.units)
+                               if u.power < len(striped_string))
             result_string = value_string[:-result_unit.power]
             return get_value(result_string) + [result_unit] + get_value(
                 striped_string[-result_unit.power:])
@@ -724,8 +715,9 @@ def num2chn(number_string,
         int_string = int_dec[0]
         dec_string = int_dec[1]
     else:
-        raise ValueError("invalid input num string with more than one dot: {}".
-                         format(number_string))
+        raise ValueError(
+            "invalid input num string with more than one dot: {}".format(
+                number_string))
 
     if use_units and len(int_string) > 1:
         result_symbols = get_value(int_string)
@@ -740,8 +732,8 @@ def num2chn(number_string,
                     system.digits[2].big_s, system.digits[2].big_t)
         for i, v in enumerate(result_symbols):
             if isinstance(v, CND) and v.value == 2:
-                next_symbol = result_symbols[i + 1] if i < len(
-                    result_symbols) - 1 else None
+                next_symbol = result_symbols[
+                    i + 1] if i < len(result_symbols) - 1 else None
                 previous_symbol = result_symbols[i - 1] if i > 0 else None
                 if isinstance(next_symbol, CNU) and isinstance(
                         previous_symbol, (CNU, type(None))):
@@ -769,12 +761,12 @@ def num2chn(number_string,
     #     result = result.strip(getattr(system.digits[0], attr_name))
 
     if alt_zero:
-        result = result.replace(
-            getattr(system.digits[0], attr_name), system.digits[0].alt_s)
+        result = result.replace(getattr(system.digits[0], attr_name),
+                                system.digits[0].alt_s)
 
     if alt_one:
-        result = result.replace(
-            getattr(system.digits[1], attr_name), system.digits[1].alt_s)
+        result = result.replace(getattr(system.digits[1], attr_name),
+                                system.digits[1].alt_s)
 
     for i, p in enumerate(POINT):
         if result.startswith(p):
@@ -796,7 +788,6 @@ class Cardinal:
     """
     CARDINAL类
     """
-
     def __init__(self, cardinal=None, chntext=None):
         self.cardinal = cardinal
         self.chntext = chntext
@@ -812,7 +803,6 @@ class Digit:
     """
     DIGIT类
     """
-
     def __init__(self, digit=None, chntext=None):
         self.digit = digit
         self.chntext = chntext
@@ -828,7 +818,6 @@ class TelePhone:
     """
     TELEPHONE类
     """
-
     def __init__(self, telephone=None, raw_chntext=None, chntext=None):
         self.telephone = telephone
         self.raw_chntext = raw_chntext
@@ -864,7 +853,6 @@ class Fraction:
     """
     FRACTION类
     """
-
     def __init__(self, fraction=None, chntext=None):
         self.fraction = fraction
         self.chntext = chntext
@@ -882,7 +870,6 @@ class Date:
     """
     DATE类
     """
-
     def __init__(self, date=None, chntext=None):
         self.date = date
         self.chntext = chntext
@@ -940,7 +927,6 @@ class Money:
     """
     MONEY类
     """
-
     def __init__(self, money=None, chntext=None):
         self.money = money
         self.chntext = chntext
@@ -965,7 +951,6 @@ class Percentage:
     """
     PERCENTAGE类
     """
-
     def __init__(self, percentage=None, chntext=None):
         self.percentage = percentage
         self.chntext = chntext
@@ -1007,8 +992,8 @@ class NSWNormalizer:
         if matchers:
             #print('date')
             for matcher in matchers:
-                text = text.replace(
-                    matcher[0], Date(date=matcher[0]).date2chntext(), 1)
+                text = text.replace(matcher[0],
+                                    Date(date=matcher[0]).date2chntext(), 1)
 
         # 规范化金钱
         pattern = re.compile(r"\D+((\d+(\.\d+)?)[多余几]?" + CURRENCY_UNITS +
@@ -1017,8 +1002,8 @@ class NSWNormalizer:
         if matchers:
             #print('money')
             for matcher in matchers:
-                text = text.replace(
-                    matcher[0], Money(money=matcher[0]).money2chntext(), 1)
+                text = text.replace(matcher[0],
+                                    Money(money=matcher[0]).money2chntext(), 1)
 
         # 规范化固话/手机号码
         # 手机
@@ -1034,8 +1019,7 @@ class NSWNormalizer:
             for matcher in matchers:
                 text = text.replace(
                     matcher[0],
-                    TelePhone(telephone=matcher[0]).telephone2chntext(),
-                    1)
+                    TelePhone(telephone=matcher[0]).telephone2chntext(), 1)
         # 固话
         pattern = re.compile(r"\D((0(10|2[1-3]|[3-9]\d{2})-?)?[1-9]\d{6,7})\D")
         matchers = pattern.findall(text)
@@ -1045,8 +1029,7 @@ class NSWNormalizer:
                 text = text.replace(
                     matcher[0],
                     TelePhone(telephone=matcher[0]).telephone2chntext(
-                        fixed=True),
-                    1)
+                        fixed=True), 1)
 
         # 规范化分数
         pattern = re.compile(r"(\d+/\d+)")
@@ -1055,7 +1038,8 @@ class NSWNormalizer:
             #print('fraction')
             for matcher in matchers:
                 text = text.replace(
-                    matcher, Fraction(fraction=matcher).fraction2chntext(), 1)
+                    matcher,
+                    Fraction(fraction=matcher).fraction2chntext(), 1)
 
         # 规范化百分数
         text = text.replace('％', '%')
@@ -1066,8 +1050,7 @@ class NSWNormalizer:
             for matcher in matchers:
                 text = text.replace(
                     matcher[0],
-                    Percentage(percentage=matcher[0]).percentage2chntext(),
-                    1)
+                    Percentage(percentage=matcher[0]).percentage2chntext(), 1)
 
         # 规范化纯数+量词
         pattern = re.compile(r"(\d+(\.\d+)?)[多余几]?" + COM_QUANTIFIERS)
@@ -1077,8 +1060,7 @@ class NSWNormalizer:
             for matcher in matchers:
                 text = text.replace(
                     matcher[0],
-                    Cardinal(cardinal=matcher[0]).cardinal2chntext(),
-                    1)
+                    Cardinal(cardinal=matcher[0]).cardinal2chntext(), 1)
 
         # 规范化数字编号
         pattern = re.compile(r"(\d{4,32})")
@@ -1086,8 +1068,8 @@ class NSWNormalizer:
         if matchers:
             #print('digit')
             for matcher in matchers:
-                text = text.replace(
-                    matcher, Digit(digit=matcher).digit2chntext(), 1)
+                text = text.replace(matcher,
+                                    Digit(digit=matcher).digit2chntext(), 1)
 
         # 规范化纯数
         pattern = re.compile(r"(\d+(\.\d+)?)")
@@ -1097,8 +1079,7 @@ class NSWNormalizer:
             for matcher in matchers:
                 text = text.replace(
                     matcher[0],
-                    Cardinal(cardinal=matcher[0]).cardinal2chntext(),
-                    1)
+                    Cardinal(cardinal=matcher[0]).cardinal2chntext(), 1)
 
         self.norm_text = text
         self._particular()
@@ -1233,8 +1214,8 @@ def remove_symbols(text):
     ## Brute-force version: list all possible unicode ranges, but this list is not complete.
     #   text = re.sub('[\u0021-\u002f\u003a-\u0040\u005b-\u0060\u007b-\u007e\u00a1-\u00bf\u2000-\u206f\u2013-\u204a\u20a0-\u20bf\u2100-\u214f\u2150-\u218b\u2190-\u21ff\u2200-\u22ff\u2300-\u23ff\u2460-\u24ff\u2500-\u257f\u2580-\u259f\u25a0-\u25ff\u2600-\u26ff\u2e00-\u2e7f\u3000-\u303f\ufe50-\ufe6f\ufe30-\ufe4f\ufe10-\ufe1f\uff00-\uffef─◆╱]+','',text)
 
-    text = ''.join(
-        ch for ch in text if unicodedata.category(ch)[0] not in ['P', 'S'])
+    text = ''.join(ch for ch in text
+                   if unicodedata.category(ch)[0] not in ['P', 'S'])
     return text
 
 
@@ -1416,51 +1397,46 @@ def main(infile, outfile, args):
 
             ndone += 1
             if ndone % args.log_interval == 0:
-                print(
-                    f'text norm: {ndone} lines done.',
-                    file=sys.stderr,
-                    flush=True)
+                print(f'text norm: {ndone} lines done.',
+                      file=sys.stderr,
+                      flush=True)
 
-        print(
-            f'text norm: {ndone} lines done in total.',
-            file=sys.stderr,
-            flush=True)
+        print(f'text norm: {ndone} lines done in total.',
+              file=sys.stderr,
+              flush=True)
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--token_type', default=None, help='token type. [char|word]')
-    p.add_argument(
-        '--has_key',
-        default=False,
-        help="input text has Kaldi's key as first field.")
-    p.add_argument(
-        '--log_interval',
-        type=int,
-        default=10000,
-        help='log interval in number of processed lines')
-    p.add_argument(
-        '--to_banjiao',
-        action='store_true',
-        help='convert quanjiao chars to banjiao')
-    p.add_argument(
-        '--to_upper', action='store_true', help='convert to upper case')
-    p.add_argument(
-        '--to_lower', action='store_true', help='convert to lower case')
-    p.add_argument(
-        '--remove_fillers',
-        action='store_true',
-        help='remove filler chars such as "呃, 啊"')
-    p.add_argument(
-        '--remove_erhua',
-        action='store_true',
-        help='remove erhua chars such as "他女儿在那边儿 -> 他女儿在那边"')
-    p.add_argument(
-        '--check_chars',
-        action='store_true',
-        help='skip sentences containing illegal chars')
-    p.add_argument(
-        '--remove_space', action='store_true', help='remove whitespace')
+    p.add_argument('--has_key',
+                   default=False,
+                   help="input text has Kaldi's key as first field.")
+    p.add_argument('--log_interval',
+                   type=int,
+                   default=10000,
+                   help='log interval in number of processed lines')
+    p.add_argument('--to_banjiao',
+                   action='store_true',
+                   help='convert quanjiao chars to banjiao')
+    p.add_argument('--to_upper',
+                   action='store_true',
+                   help='convert to upper case')
+    p.add_argument('--to_lower',
+                   action='store_true',
+                   help='convert to lower case')
+    p.add_argument('--remove_fillers',
+                   action='store_true',
+                   help='remove filler chars such as "呃, 啊"')
+    p.add_argument('--remove_erhua',
+                   action='store_true',
+                   help='remove erhua chars such as "他女儿在那边儿 -> 他女儿在那边"')
+    p.add_argument('--check_chars',
+                   action='store_true',
+                   help='skip sentences containing illegal chars')
+    p.add_argument('--remove_space',
+                   action='store_true',
+                   help='remove whitespace')
 
     p.add_argument('ifile', help='input filename, assume utf-8 encoding')
     p.add_argument('ofile', help='output filename')

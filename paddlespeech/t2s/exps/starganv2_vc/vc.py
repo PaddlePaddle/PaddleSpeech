@@ -42,17 +42,16 @@ def get_mel_extractor():
     fmin = 0
     fmax = sr // 2
 
-    mel_extractor = LogMelFBank(
-        sr=sr,
-        n_fft=n_fft,
-        hop_length=hop_length,
-        win_length=win_length,
-        n_mels=n_mels,
-        fmin=fmin,
-        fmax=fmax,
-        norm=None,
-        htk=True,
-        power=2.0)
+    mel_extractor = LogMelFBank(sr=sr,
+                                n_fft=n_fft,
+                                hop_length=hop_length,
+                                win_length=win_length,
+                                n_mels=n_mels,
+                                fmin=fmin,
+                                fmax=fmax,
+                                norm=None,
+                                htk=True,
+                                power=2.0)
     return mel_extractor
 
 
@@ -152,15 +151,13 @@ def voice_conversion(args, uncompress_path):
     selected_speakers = [273, 259, 258, 243, 254, 244, 236, 233, 230, 228]
     for s in selected_speakers:
         k = s
-        speaker_dicts['p' + str(s)] = (
-            demo_dir + 'p' + str(k) + '/p' + str(k) + '_023.wav',
-            speakers.index(s))
+        speaker_dicts['p' + str(s)] = (demo_dir + 'p' + str(k) + '/p' + str(k) +
+                                       '_023.wav', speakers.index(s))
     mel_extractor = get_mel_extractor()
-    reference_embeddings = compute_style(
-        speaker_dicts=speaker_dicts,
-        mel_extractor=mel_extractor,
-        style_encoder=style_encoder,
-        mapping_network=mapping_network)
+    reference_embeddings = compute_style(speaker_dicts=speaker_dicts,
+                                         mel_extractor=mel_extractor,
+                                         style_encoder=style_encoder,
+                                         mapping_network=mapping_network)
 
     wave, sr = librosa.load(args.source_path, sr=24000)
     source = preprocess(wave=wave, mel_extractor=mel_extractor)
@@ -224,13 +221,14 @@ def parse_args():
         description="StarGANv2-VC Voice Conversion.")
     parser.add_argument("--source_path", type=str, help="source audio's path.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
-    parser.add_argument(
-        '--config_path',
-        type=str,
-        default=None,
-        help='Config of StarGANv2-VC model.')
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument('--config_path',
+                        type=str,
+                        default=None,
+                        help='Config of StarGANv2-VC model.')
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     args = parser.parse_args()
     return args
 

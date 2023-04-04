@@ -35,7 +35,8 @@ def get_minmax(spec, min_spec, max_spec):
 def main():
     """Run preprocessing process."""
     parser = argparse.ArgumentParser(
-        description="Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
+        description=
+        "Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
     )
     parser.add_argument(
         "--metadata",
@@ -44,21 +45,19 @@ def main():
         help="directory including feature files to be normalized. "
         "you need to specify either *-scp or rootdir.")
 
-    parser.add_argument(
-        "--speech-stretchs",
-        type=str,
-        required=True,
-        help="min max spec file. only computer on train data")
+    parser.add_argument("--speech-stretchs",
+                        type=str,
+                        required=True,
+                        help="min max spec file. only computer on train data")
 
     args = parser.parse_args()
 
     # get dataset
     with jsonlines.open(args.metadata, 'r') as reader:
         metadata = list(reader)
-    dataset = DataTable(
-        metadata, converters={
-            "speech": np.load,
-        })
+    dataset = DataTable(metadata, converters={
+        "speech": np.load,
+    })
     logging.info(f"The number of files = {len(dataset)}.")
 
     n_mel = 80
@@ -72,10 +71,9 @@ def main():
     # Using min_spec=-6.0 training effect is better so far
     min_spec = -6.0 * np.ones(shape=(n_mel), dtype=np.float32)
     min_max_spec = np.stack([min_spec, max_spec], axis=0)
-    np.save(
-        str(args.speech_stretchs),
-        min_max_spec.astype(np.float32),
-        allow_pickle=False)
+    np.save(str(args.speech_stretchs),
+            min_max_spec.astype(np.float32),
+            allow_pickle=False)
 
 
 if __name__ == "__main__":

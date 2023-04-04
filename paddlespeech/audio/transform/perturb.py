@@ -38,7 +38,6 @@ class SoundHDF5File():
     :param: str dtype:
 
     """
-
     def __init__(self,
                  filepath,
                  mode="r+",
@@ -69,8 +68,10 @@ class SoundHDF5File():
         f = io.BytesIO()
         array, rate = data
         soundfile.write(f, array, rate, format=self.format)
-        self.file.create_dataset(
-            name, shape=shape, data=np.void(f.getvalue()), **kwds)
+        self.file.create_dataset(name,
+                                 shape=shape,
+                                 data=np.void(f.getvalue()),
+                                 **kwds)
 
     def __setitem__(self, name, data):
         self.create_dataset(name, data=data)
@@ -126,15 +127,15 @@ class SpeedPerturbation():
         I recommmend to apply speed-perturb outside the training using sox.
 
     """
-
     def __init__(
-            self,
-            lower=0.9,
-            upper=1.1,
-            utt2ratio=None,
-            keep_length=True,
-            res_type="kaiser_best",
-            seed=None, ):
+        self,
+        lower=0.9,
+        upper=1.1,
+        utt2ratio=None,
+        keep_length=True,
+        res_type="kaiser_best",
+        seed=None,
+    ):
         self.res_type = res_type
         self.keep_length = keep_length
         self.state = numpy.random.RandomState(seed)
@@ -165,10 +166,12 @@ class SpeedPerturbation():
                 self.lower,
                 self.upper,
                 self.keep_length,
-                self.res_type, )
+                self.res_type,
+            )
         else:
-            return "{}({}, res_type={})".format(
-                self.__class__.__name__, self.utt2ratio_file, self.res_type)
+            return "{}({}, res_type={})".format(self.__class__.__name__,
+                                                self.utt2ratio_file,
+                                                self.res_type)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
@@ -181,8 +184,10 @@ class SpeedPerturbation():
 
         # Note1: resample requires the sampling-rate of input and output,
         #        but actually only the ratio is used.
-        y = librosa.resample(
-            x, orig_sr=ratio, target_sr=1, res_type=self.res_type)
+        y = librosa.resample(x,
+                             orig_sr=ratio,
+                             target_sr=1,
+                             res_type=self.res_type)
 
         if self.keep_length:
             diff = abs(len(x) - len(y))
@@ -191,11 +196,13 @@ class SpeedPerturbation():
                 y = y[diff // 2:-((diff + 1) // 2)]
             elif len(y) < len(x):
                 # Assume the time-axis is the first: (Time, Channel)
-                pad_width = [(diff // 2, (diff + 1) // 2)] + [
-                    (0, 0) for _ in range(y.ndim - 1)
-                ]
-                y = numpy.pad(
-                    y, pad_width=pad_width, constant_values=0, mode="constant")
+                pad_width = [(diff // 2,
+                              (diff + 1) // 2)] + [(0, 0)
+                                                   for _ in range(y.ndim - 1)]
+                y = numpy.pad(y,
+                              pad_width=pad_width,
+                              constant_values=0,
+                              mode="constant")
         return y
 
 
@@ -224,15 +231,15 @@ class SpeedPerturbationSox():
     If we use speed option like above, the pitch of audio also will be changed,
     but the tempo option does not change the pitch.
     """
-
     def __init__(
-            self,
-            lower=0.9,
-            upper=1.1,
-            utt2ratio=None,
-            keep_length=True,
-            sr=16000,
-            seed=None, ):
+        self,
+        lower=0.9,
+        upper=1.1,
+        utt2ratio=None,
+        keep_length=True,
+        sr=16000,
+        seed=None,
+    ):
         self.sr = sr
         self.keep_length = keep_length
         self.state = numpy.random.RandomState(seed)
@@ -307,11 +314,13 @@ class SpeedPerturbationSox():
                 y = y[diff // 2:-((diff + 1) // 2)]
             elif len(y) < len(x):
                 # Assume the time-axis is the first: (Time, Channel)
-                pad_width = [(diff // 2, (diff + 1) // 2)] + [
-                    (0, 0) for _ in range(y.ndim - 1)
-                ]
-                y = numpy.pad(
-                    y, pad_width=pad_width, constant_values=0, mode="constant")
+                pad_width = [(diff // 2,
+                              (diff + 1) // 2)] + [(0, 0)
+                                                   for _ in range(y.ndim - 1)]
+                y = numpy.pad(y,
+                              pad_width=pad_width,
+                              constant_values=0,
+                              mode="constant")
 
         if y.ndim == 2 and x.ndim == 1:
             # (T, C) -> (T)
@@ -332,7 +341,6 @@ class BandpassPerturbation():
          http://spandh.dcs.shef.ac.uk/chime_workshop/papers/CHiME_2018_paper_kanda.pdf)
 
     """
-
     def __init__(self, lower=0.0, upper=0.75, seed=None, axes=(-1, )):
         self.lower = lower
         self.upper = upper
@@ -395,8 +403,9 @@ class VolumePerturbation():
             return "{}(lower={}, upper={}, dbunit={})".format(
                 self.__class__.__name__, self.lower, self.upper, self.dbunit)
         else:
-            return '{}("{}", dbunit={})'.format(
-                self.__class__.__name__, self.utt2ratio_file, self.dbunit)
+            return '{}("{}", dbunit={})'.format(self.__class__.__name__,
+                                                self.utt2ratio_file,
+                                                self.dbunit)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
@@ -415,16 +424,16 @@ class VolumePerturbation():
 
 class NoiseInjection():
     """Add isotropic noise"""
-
     def __init__(
-            self,
-            utt2noise=None,
-            lower=-20,
-            upper=-5,
-            utt2ratio=None,
-            filetype="list",
-            dbunit=True,
-            seed=None, ):
+        self,
+        utt2noise=None,
+        lower=-20,
+        upper=-5,
+        utt2ratio=None,
+        filetype="list",
+        dbunit=True,
+        seed=None,
+    ):
         self.utt2noise_file = utt2noise
         self.utt2ratio_file = utt2ratio
         self.filetype = filetype
@@ -464,16 +473,18 @@ class NoiseInjection():
 
         if utt2noise is not None and utt2ratio is not None:
             if set(self.utt2ratio) != set(self.utt2noise):
-                raise RuntimeError("The uttids mismatch between {} and {}".
-                                   format(utt2ratio, utt2noise))
+                raise RuntimeError(
+                    "The uttids mismatch between {} and {}".format(
+                        utt2ratio, utt2noise))
 
     def __repr__(self):
         if self.utt2ratio is None:
             return "{}(lower={}, upper={}, dbunit={})".format(
                 self.__class__.__name__, self.lower, self.upper, self.dbunit)
         else:
-            return '{}("{}", dbunit={})'.format(
-                self.__class__.__name__, self.utt2ratio_file, self.dbunit)
+            return '{}("{}", dbunit={})'.format(self.__class__.__name__,
+                                                self.utt2ratio_file,
+                                                self.dbunit)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:
@@ -508,8 +519,9 @@ class NoiseInjection():
                 # Truncate noise
                 noise = noise[offset:-(diff - offset)]
             else:
-                noise = numpy.pad(
-                    noise, pad_width=[offset, diff - offset], mode="wrap")
+                noise = numpy.pad(noise,
+                                  pad_width=[offset, diff - offset],
+                                  mode="wrap")
 
         else:
             # Generate white noise
@@ -556,7 +568,7 @@ class RIRConvolve():
         if rir.ndim == 2:
             # FIXME(kamo): Use chainer.convolution_1d?
             # return [Time, Channel]
-            return numpy.stack(
-                [scipy.convolve(x, r, mode="same") for r in rir], axis=-1)
+            return numpy.stack([scipy.convolve(x, r, mode="same") for r in rir],
+                               axis=-1)
         else:
             return scipy.convolve(x, rir, mode="same")

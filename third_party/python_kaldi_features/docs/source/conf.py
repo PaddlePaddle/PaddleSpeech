@@ -14,15 +14,15 @@
 import sys, os
 
 import mock
- 
+
 MOCK_MODULES = ['numpy', 'scipy', 'scipy.fftpack']
 for mod_name in MOCK_MODULES:
-  sys.modules[mod_name] = mock.Mock()
+    sys.modules[mod_name] = mock.Mock()
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0,os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -91,7 +91,6 @@ pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
-
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -166,7 +165,6 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'python_speech_featuresdoc'
 
-
 # -- Options for LaTeX output --------------------------------------------------
 
 # The paper size ('letter' or 'a4').
@@ -178,8 +176,8 @@ htmlhelp_basename = 'python_speech_featuresdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'python_speech_features.tex', u'python\\_speech\\_features Documentation',
-   u'James Lyons', 'manual'),
+    ('index', 'python_speech_features.tex',
+     u'python\\_speech\\_features Documentation', u'James Lyons', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

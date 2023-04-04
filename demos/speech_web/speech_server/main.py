@@ -34,13 +34,12 @@ from paddlespeech.server.utils.audio_process import float2pcm
 # 解析配置
 parser = argparse.ArgumentParser(prog='PaddleSpeechDemo', add_help=True)
 
-parser.add_argument(
-    "--port",
-    action="store",
-    type=int,
-    help="port of the app",
-    default=8010,
-    required=False)
+parser.add_argument("--port",
+                    action="store",
+                    type=int,
+                    help="port of the app",
+                    default=8010,
+                    required=False)
 
 args = parser.parse_args()
 port = args.port
@@ -62,8 +61,10 @@ for path in base_sources:
 
 # 初始化
 app = FastAPI()
-chatbot = Robot(
-    asr_config, tts_config, asr_init_path, ie_model_path=ie_model_path)
+chatbot = Robot(asr_config,
+                tts_config,
+                asr_init_path,
+                ie_model_path=ie_model_path)
 manager = ConnectionManager()
 aumanager = AudioMannger(chatbot)
 aumanager.init()
@@ -75,7 +76,8 @@ tts_model(
     am='fastspeech2_mix',
     spk_id=174,
     voc='hifigan_csmsc',
-    lang='mix', )
+    lang='mix',
+)
 
 
 # 服务配置
@@ -346,13 +348,12 @@ async def text2speechOffline(tts_base: TtsBase):
             datetime.datetime.now(), '%Y%m%d%H%M%S') + randName() + ".wav"
         out_file_path = os.path.join(WAV_PATH, now_name)
         # 使用中英混合CLI
-        tts_model(
-            text=text,
-            output=out_file_path,
-            am='fastspeech2_mix',
-            spk_id=174,
-            voc='hifigan_csmsc',
-            lang='mix')
+        tts_model(text=text,
+                  output=out_file_path,
+                  am='fastspeech2_mix',
+                  spk_id=174,
+                  voc='hifigan_csmsc',
+                  lang='mix')
         with open(out_file_path, "rb") as f:
             data_bin = f.read()
         base_str = base64.b64encode(data_bin)
@@ -393,18 +394,17 @@ async def stream_ttsWS(websocket: WebSocket):
 ########################### VPR 服务 #################################
 #####################################################################
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"])
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["*"],
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 
 @app.post('/vpr/enroll')
-async def vpr_enroll(table_name: str=None,
-                     spk_id: str=Form(...),
-                     audio: UploadFile=File(...)):
+async def vpr_enroll(table_name: str = None,
+                     spk_id: str = Form(...),
+                     audio: UploadFile = File(...)):
     # Enroll the uploaded audio with spk-id into MySQL
     try:
         if not spk_id:
@@ -425,8 +425,8 @@ async def vpr_enroll(table_name: str=None,
 
 @app.post('/vpr/recog')
 async def vpr_recog(request: Request,
-                    table_name: str=None,
-                    audio: UploadFile=File(...)):
+                    table_name: str = None,
+                    audio: UploadFile = File(...)):
     # Voice print recognition online
     # try:
     # Save the upload data to server.
@@ -445,7 +445,7 @@ async def vpr_recog(request: Request,
 
 
 @app.post('/vpr/del')
-async def vpr_del(spk_id: dict=None):
+async def vpr_del(spk_id: dict = None):
     # Delete a record by spk_id in MySQL
     try:
         spk_id = spk_id['spk_id']

@@ -34,29 +34,34 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Paddle Infernce with acoustic model & vocoder.")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=['fastspeech2_csmsc'],
-        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=['fastspeech2_csmsc'],
+                        help='Choose acoustic model type of tts task.')
     parser.add_argument(
         "--am_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument('--spk_id',
+                        type=int,
+                        default=0,
+                        help='spk id for multi speaker acoustic model')
     # voc
     parser.add_argument(
         '--voc',
@@ -65,30 +70,33 @@ def parse_args():
         choices=['pwgan_csmsc', 'mb_melgan_csmsc', 'hifigan_csmsc'],
         help='Choose vocoder type of tts task.')
     # other
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en')
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
-    parser.add_argument(
-        "--inference_dir", type=str, help="dir to save inference models")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
 
     # streaming related
-    parser.add_argument(
-        "--am_streaming",
-        type=str2bool,
-        default=False,
-        help="whether use streaming acoustic model")
-    parser.add_argument(
-        "--block_size", type=int, default=42, help="block size of am streaming")
-    parser.add_argument(
-        "--pad_size", type=int, default=12, help="pad size of am streaming")
+    parser.add_argument("--am_streaming",
+                        type=str2bool,
+                        default=False,
+                        help="whether use streaming acoustic model")
+    parser.add_argument("--block_size",
+                        type=int,
+                        default=42,
+                        help="block size of am streaming")
+    parser.add_argument("--pad_size",
+                        type=int,
+                        default=12,
+                        help="pad size of am streaming")
 
     args, _ = parser.parse_known_args()
     return args
@@ -99,28 +107,27 @@ def main():
     args = parse_args()
 
     # frontend
-    frontend = get_frontend(
-        lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+    frontend = get_frontend(lang=args.lang,
+                            phones_dict=args.phones_dict,
+                            tones_dict=args.tones_dict)
 
     # am_predictor
     am_encoder_infer_predictor = get_lite_predictor(
         model_dir=args.inference_dir,
         model_file=args.am + "_am_encoder_infer" + "_x86.nb")
-    am_decoder_predictor = get_lite_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.am + "_am_decoder" + "_x86.nb")
-    am_postnet_predictor = get_lite_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.am + "_am_postnet" + "_x86.nb")
+    am_decoder_predictor = get_lite_predictor(model_dir=args.inference_dir,
+                                              model_file=args.am +
+                                              "_am_decoder" + "_x86.nb")
+    am_postnet_predictor = get_lite_predictor(model_dir=args.inference_dir,
+                                              model_file=args.am +
+                                              "_am_postnet" + "_x86.nb")
     am_mu, am_std = np.load(args.am_stat)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
     # voc_predictor
-    voc_predictor = get_lite_predictor(
-        model_dir=args.inference_dir, model_file=args.voc + "_x86.nb")
+    voc_predictor = get_lite_predictor(model_dir=args.inference_dir,
+                                       model_file=args.voc + "_x86.nb")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -140,7 +147,8 @@ def main():
                 am_postnet_predictor=am_postnet_predictor,
                 frontend=frontend,
                 lang=args.lang,
-                merge_sentences=merge_sentences, )
+                merge_sentences=merge_sentences,
+            )
             mel = denorm(normalized_mel, am_mu, am_std)
             wav = get_lite_voc_output(voc_predictor=voc_predictor, input=mel)
         speed = wav.size / t.elapse
@@ -159,17 +167,16 @@ def main():
     for utt_id, sentence in sentences:
         with timer() as t:
             # frontend
-            frontend_dict = run_frontend(
-                frontend=frontend,
-                text=sentence,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids,
-                lang=args.lang)
+            frontend_dict = run_frontend(frontend=frontend,
+                                         text=sentence,
+                                         merge_sentences=merge_sentences,
+                                         get_tone_ids=get_tone_ids,
+                                         lang=args.lang)
             phone_ids = frontend_dict['phone_ids']
             phones = phone_ids[0].numpy()
             # acoustic model
-            orig_hs = get_lite_am_sublayer_output(
-                am_encoder_infer_predictor, input=phones)
+            orig_hs = get_lite_am_sublayer_output(am_encoder_infer_predictor,
+                                                  input=phones)
 
             if args.am_streaming:
                 hss = get_chunks(orig_hs, block_size, pad_size)

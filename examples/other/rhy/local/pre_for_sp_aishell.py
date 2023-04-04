@@ -29,8 +29,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Train a Rhy prediction model.")
     parser.add_argument("--data", type=str, default="label_train-set.txt")
-    parser.add_argument(
-        "--processed_path", type=str, default="../data/rhy_predict")
+    parser.add_argument("--processed_path",
+                        type=str,
+                        default="../data/rhy_predict")
     args = parser.parse_args()
     os.makedirs(args.processed_path, exist_ok=True)
 

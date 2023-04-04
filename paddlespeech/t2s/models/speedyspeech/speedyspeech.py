@@ -23,10 +23,10 @@ from paddlespeech.t2s.modules.transformer.embedding import ScaledPositionalEncod
 
 class ResidualBlock(nn.Layer):
     def __init__(self,
-                 channels: int=128,
-                 kernel_size: int=3,
-                 dilation: int=3,
-                 n: int=2):
+                 channels: int = 128,
+                 kernel_size: int = 3,
+                 dilation: int = 3,
+                 n: int = 2):
         """SpeedySpeech encoder module.
         Args:
             channels (int, optional): 
@@ -54,7 +54,8 @@ class ResidualBlock(nn.Layer):
                     # make sure output T == input T
                     padding=((0, 0), (0, 0), (begin, end))),
                 nn.ReLU(),
-                nn.BatchNorm1D(channels), ) for _ in range(n)
+                nn.BatchNorm1D(channels),
+            ) for _ in range(n)
         ]
         self.blocks = nn.Sequential(*blocks)
 
@@ -73,11 +74,11 @@ class TextEmbedding(nn.Layer):
     def __init__(self,
                  vocab_size: int,
                  embedding_size: int,
-                 tone_vocab_size: int=None,
-                 tone_embedding_size: int=None,
-                 padding_idx: int=None,
-                 tone_padding_idx: int=None,
-                 concat: bool=False):
+                 tone_vocab_size: int = None,
+                 tone_embedding_size: int = None,
+                 padding_idx: int = None,
+                 tone_padding_idx: int = None,
+                 concat: bool = False):
         super().__init__()
         self.text_embedding = nn.Embedding(vocab_size, embedding_size,
                                            padding_idx)
@@ -87,11 +88,12 @@ class TextEmbedding(nn.Layer):
                 raise ValueError(
                     "embedding size != tone_embedding size, only conat is avaiable."
                 )
-            self.tone_embedding = nn.Embedding(
-                tone_vocab_size, tone_embedding_size, tone_padding_idx)
+            self.tone_embedding = nn.Embedding(tone_vocab_size,
+                                               tone_embedding_size,
+                                               tone_padding_idx)
         self.concat = concat
 
-    def forward(self, text: paddle.Tensor, tone: paddle.Tensor=None):
+    def forward(self, text: paddle.Tensor, tone: paddle.Tensor = None):
         """Calculate forward propagation.
         Args:
             text(Tensor(int64)): 
@@ -129,34 +131,32 @@ class SpeedySpeechEncoder(nn.Layer):
         spk_num (Optional[int]): 
             Number of speakers. 
     """
-
     def __init__(self,
                  vocab_size: int,
                  tone_size: int,
-                 hidden_size: int=128,
-                 kernel_size: int=3,
-                 dilations: List[int]=[1, 3, 9, 27, 1, 3, 9, 27, 1, 1],
+                 hidden_size: int = 128,
+                 kernel_size: int = 3,
+                 dilations: List[int] = [1, 3, 9, 27, 1, 3, 9, 27, 1, 1],
                  spk_num=None):
 
         super().__init__()
-        self.embedding = TextEmbedding(
-            vocab_size,
-            hidden_size,
-            tone_size,
-            padding_idx=0,
-            tone_padding_idx=0)
+        self.embedding = TextEmbedding(vocab_size,
+                                       hidden_size,
+                                       tone_size,
+                                       padding_idx=0,
+                                       tone_padding_idx=0)
 
         if spk_num:
-            self.spk_emb = nn.Embedding(
-                num_embeddings=spk_num,
-                embedding_dim=hidden_size,
-                padding_idx=0)
+            self.spk_emb = nn.Embedding(num_embeddings=spk_num,
+                                        embedding_dim=hidden_size,
+                                        padding_idx=0)
         else:
             self.spk_emb = None
 
         self.prenet = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(), )
+            nn.ReLU(),
+        )
         res_blocks = [
             ResidualBlock(hidden_size, kernel_size, d, n=2) for d in dilations
         ]
@@ -165,13 +165,14 @@ class SpeedySpeechEncoder(nn.Layer):
         self.postnet1 = nn.Sequential(nn.Linear(hidden_size, hidden_size))
         self.postnet2 = nn.Sequential(
             nn.ReLU(),
-            nn.BatchNorm1D(hidden_size), )
+            nn.BatchNorm1D(hidden_size),
+        )
         self.linear = nn.Linear(hidden_size, hidden_size)
 
     def forward(self,
                 text: paddle.Tensor,
                 tones: paddle.Tensor,
-                spk_id: paddle.Tensor=None):
+                spk_id: paddle.Tensor = None):
         """Encoder input sequence.
         Args:
             text(Tensor(int64)): 
@@ -197,12 +198,13 @@ class SpeedySpeechEncoder(nn.Layer):
 
 
 class DurationPredictor(nn.Layer):
-    def __init__(self, hidden_size: int=128):
+    def __init__(self, hidden_size: int = 128):
         super().__init__()
         self.layers = nn.Sequential(
             ResidualBlock(hidden_size, 4, 1, n=1),
             ResidualBlock(hidden_size, 3, 1, n=1),
-            ResidualBlock(hidden_size, 1, 1, n=1), )
+            ResidualBlock(hidden_size, 1, 1, n=1),
+        )
         self.linear = nn.Linear(hidden_size, 1)
 
     def forward(self, x: paddle.Tensor):
@@ -221,10 +223,10 @@ class DurationPredictor(nn.Layer):
 
 class SpeedySpeechDecoder(nn.Layer):
     def __init__(self,
-                 hidden_size: int=128,
-                 output_size: int=80,
-                 kernel_size: int=3,
-                 dilations: List[int]=[
+                 hidden_size: int = 128,
+                 output_size: int = 80,
+                 kernel_size: int = 3,
+                 dilations: List[int] = [
                      1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 1
                  ]):
         """SpeedySpeech decoder module.
@@ -268,19 +270,20 @@ class SpeedySpeech(nn.Layer):
     def __init__(
             self,
             vocab_size,
-            encoder_hidden_size: int=128,
-            encoder_kernel_size: int=3,
-            encoder_dilations: List[int]=[1, 3, 9, 27, 1, 3, 9, 27, 1, 1],
-            duration_predictor_hidden_size: int=128,
-            decoder_hidden_size: int=128,
-            decoder_output_size: int=80,
-            decoder_kernel_size: int=3,
-            decoder_dilations: List[
-                int]=[1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 1],
-            tone_size: int=None,
-            spk_num: int=None,
-            init_type: str="xavier_uniform",
-            positional_dropout_rate: int=0.1):
+            encoder_hidden_size: int = 128,
+            encoder_kernel_size: int = 3,
+            encoder_dilations: List[int] = [1, 3, 9, 27, 1, 3, 9, 27, 1, 1],
+            duration_predictor_hidden_size: int = 128,
+            decoder_hidden_size: int = 128,
+            decoder_output_size: int = 80,
+            decoder_kernel_size: int = 3,
+            decoder_dilations: List[int] = [
+                1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 3, 9, 27, 1, 1
+            ],
+            tone_size: int = None,
+            spk_num: int = None,
+            init_type: str = "xavier_uniform",
+            positional_dropout_rate: int = 0.1):
         """Initialize SpeedySpeech module.
         Args:
             vocab_size (int): 
@@ -335,7 +338,7 @@ class SpeedySpeech(nn.Layer):
                 text: paddle.Tensor,
                 tones: paddle.Tensor,
                 durations: paddle.Tensor,
-                spk_id: paddle.Tensor=None):
+                spk_id: paddle.Tensor = None):
         """Calculate forward propagation.
         Args:
             text(Tensor(int64)): 
@@ -371,9 +374,9 @@ class SpeedySpeech(nn.Layer):
 
     def inference(self,
                   text: paddle.Tensor,
-                  tones: paddle.Tensor=None,
-                  durations: paddle.Tensor=None,
-                  spk_id: paddle.Tensor=None):
+                  tones: paddle.Tensor = None,
+                  durations: paddle.Tensor = None,
+                  spk_id: paddle.Tensor = None):
         """Generate the sequence of features given the sequences of characters.
         Args:
             text(Tensor(int64)): 
@@ -404,8 +407,9 @@ class SpeedySpeech(nn.Layer):
             durations_to_expand = durations_to_expand.astype(paddle.int64)
         else:
             durations_to_expand = durations
-        encodings = self.length_regulator(
-            encodings, durations_to_expand, is_inference=True)
+        encodings = self.length_regulator(encodings,
+                                          durations_to_expand,
+                                          is_inference=True)
         encodings = self.position_enc(encodings)
         decoded = self.decoder(encodings)
         return decoded[0]
@@ -418,7 +422,9 @@ class SpeedySpeechInference(nn.Layer):
         self.acoustic_model = speedyspeech_model
 
     def forward(self, phones, tones, spk_id=None, durations=None):
-        normalized_mel = self.acoustic_model.inference(
-            phones, tones, durations=durations, spk_id=spk_id)
+        normalized_mel = self.acoustic_model.inference(phones,
+                                                       tones,
+                                                       durations=durations,
+                                                       spk_id=spk_id)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel

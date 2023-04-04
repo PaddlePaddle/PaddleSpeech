@@ -70,11 +70,10 @@ parser.add_argument(
     default=False,
     action="store_true",
     help="Download the voxceleb2 dataset. (default: %(default)s)")
-parser.add_argument(
-    "--generate",
-    default=False,
-    action="store_true",
-    help="Generate the manifest files. (default: %(default)s)")
+parser.add_argument("--generate",
+                    default=False,
+                    action="store_true",
+                    help="Generate the manifest files. (default: %(default)s)")
 
 args = parser.parse_args()
 
@@ -128,8 +127,8 @@ def create_manifest(data_dir, manifest_path_prefix):
             f.write(line + "\n")
 
     manifest_dir = os.path.dirname(manifest_path_prefix)
-    meta_path = os.path.join(manifest_dir, "voxceleb2." +
-                             data_dir_name) + ".meta"
+    meta_path = os.path.join(manifest_dir,
+                             "voxceleb2." + data_dir_name) + ".meta"
     with codecs.open(meta_path, 'w', encoding='utf-8') as f:
         print(f"{total_num} utts", file=f)
         print(f"{len(speakers)} speakers", file=f)
@@ -164,10 +163,9 @@ def download_dataset(base_url, data_list, target_data, target_dir, dataset):
         print(f"start to download the vox2 zip package to {target_dir}")
         for zip_part in data_list.keys():
             download_url = " --no-check-certificate " + base_url + "/" + zip_part
-            download(
-                url=download_url,
-                md5sum=data_list[zip_part],
-                target_dir=target_dir)
+            download(url=download_url,
+                     md5sum=data_list[zip_part],
+                     target_dir=target_dir)
 
         # pack the all part to target zip file
         all_target_part, target_name, target_md5sum = target_data.split()
@@ -198,25 +196,23 @@ def main():
     # download and unpack the vox2-dev data
     print("download: {}".format(args.download))
     if args.download:
-        download_dataset(
-            base_url=BASE_URL,
-            data_list=DEV_LIST,
-            target_data=DEV_TARGET_DATA,
-            target_dir=args.target_dir,
-            dataset="dev")
+        download_dataset(base_url=BASE_URL,
+                         data_list=DEV_LIST,
+                         target_data=DEV_TARGET_DATA,
+                         target_dir=args.target_dir,
+                         dataset="dev")
 
-        download_dataset(
-            base_url=BASE_URL,
-            data_list=TEST_LIST,
-            target_data=TEST_TARGET_DATA,
-            target_dir=args.target_dir,
-            dataset="test")
+        download_dataset(base_url=BASE_URL,
+                         data_list=TEST_LIST,
+                         target_data=TEST_TARGET_DATA,
+                         target_dir=args.target_dir,
+                         dataset="test")
 
         print("VoxCeleb2 download is done!")
 
     if args.generate:
-        create_manifest(
-            args.target_dir, manifest_path_prefix=args.manifest_prefix)
+        create_manifest(args.target_dir,
+                        manifest_path_prefix=args.manifest_prefix)
 
 
 if __name__ == '__main__':

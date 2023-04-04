@@ -19,42 +19,48 @@ def get_parser():
         "If wspecifier provided: per-utterance by default, "
         "or per-speaker if"
         "spk2utt option provided; if wxfilename: global",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "--spk2utt",
         type=str,
         help="A text file of speaker to utterance-list map. "
         "(Don't give rspecifier format, such as "
-        '"ark:utt2spk")', )
-    parser.add_argument(
-        "--verbose", "-V", default=0, type=int, help="Verbose option")
+        '"ark:utt2spk")',
+    )
+    parser.add_argument("--verbose",
+                        "-V",
+                        default=0,
+                        type=int,
+                        help="Verbose option")
     parser.add_argument(
         "--in-filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "sound.hdf5", "sound"],
         help="Specify the file format for the rspecifier. "
-        '"mat" is the matrix format in kaldi', )
+        '"mat" is the matrix format in kaldi',
+    )
     parser.add_argument(
         "--out-filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "npy"],
         help="Specify the file format for the wspecifier. "
-        '"mat" is the matrix format in kaldi', )
+        '"mat" is the matrix format in kaldi',
+    )
     parser.add_argument(
         "--preprocess-conf",
         type=str,
         default=None,
-        help="The configuration file for the pre-processing", )
-    parser.add_argument(
-        "rspecifier",
-        type=str,
-        help="Read specifier for feats. e.g. ark:some.ark")
-    parser.add_argument(
-        "wspecifier_or_wxfilename",
-        type=str,
-        help="Write specifier. e.g. ark:some.ark")
+        help="The configuration file for the pre-processing",
+    )
+    parser.add_argument("rspecifier",
+                        type=str,
+                        help="Read specifier for feats. e.g. ark:some.ark")
+    parser.add_argument("wspecifier_or_wxfilename",
+                        type=str,
+                        help="Write specifier. e.g. ark:some.ark")
     return parser
 
 
@@ -163,9 +169,8 @@ def main():
 
     # Per utterance or speaker CMVN
     if is_wspecifier:
-        with file_writer_helper(
-                args.wspecifier_or_wxfilename,
-                filetype=args.out_filetype) as writer:
+        with file_writer_helper(args.wspecifier_or_wxfilename,
+                                filetype=args.out_filetype) as writer:
             for spk, mat in cmvn_stats.items():
                 writer[spk] = mat
 
@@ -178,8 +183,8 @@ def main():
             # Kaldi supports only matrix or vector
             kaldiio.save_mat(args.wspecifier_or_wxfilename, matrix)
         else:
-            raise RuntimeError(
-                "Not supporting: --out-filetype {}".format(args.out_filetype))
+            raise RuntimeError("Not supporting: --out-filetype {}".format(
+                args.out_filetype))
 
 
 if __name__ == "__main__":

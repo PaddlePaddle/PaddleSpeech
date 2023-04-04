@@ -58,15 +58,15 @@ class PaddedBatch:
         This stacks if it can, but doesn't error out if it cannot. 
         Default:True, usually does the right thing.
     """
-
     def __init__(
-            self,
-            examples,
-            padded_keys=None,
-            device_prep_keys=None,
-            padding_func=batch_pad_right,
-            padding_kwargs={},
-            nonpadded_stack=True, ):
+        self,
+        examples,
+        padded_keys=None,
+        device_prep_keys=None,
+        padding_func=batch_pad_right,
+        padding_kwargs={},
+        nonpadded_stack=True,
+    ):
         self.__length = len(examples)
         self.__keys = list(examples[0].keys())
         self.__padded_keys = []
@@ -77,8 +77,8 @@ class PaddedBatch:
             values = paddle.to_tensor(values)
 
             if (padded_keys is not None and key in padded_keys) or (
-                    padded_keys is None and
-                    isinstance(values[0], paddle.Tensor)):
+                    padded_keys is None
+                    and isinstance(values[0], paddle.Tensor)):
                 # Padding and PaddedData
                 self.__padded_keys.append(key)
                 padded = PaddedData(*padding_func(values, **padding_kwargs))
@@ -88,8 +88,8 @@ class PaddedBatch:
                     values = mod_default_collate(values)
                 setattr(self, key, values)
             if (device_prep_keys is not None and key in device_prep_keys) or (
-                    device_prep_keys is None and
-                    isinstance(values[0], paddle.Tensor)):
+                    device_prep_keys is None
+                    and isinstance(values[0], paddle.Tensor)):
                 self.__device_prep_keys.append(key)
 
     def __len__(self):

@@ -62,7 +62,6 @@ class ErrorCalculator():
     :param sym_pad: pad symbol
     :param report_bleu: report BLUE score if True
     """
-
     def __init__(self, char_list, sym_space, sym_pad, report_bleu=False):
         """Construct an ErrorCalculator object."""
         super().__init__()

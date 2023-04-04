@@ -43,15 +43,14 @@ parser.add_argument(
     default=DATA_HOME + "/VoxForge",
     type=str,
     help="Directory to save the dataset. (default: %(default)s)")
-parser.add_argument(
-    "--dialects",
-    default=[
-        'american', 'british', 'australian', 'european', 'irish', 'canadian',
-        'indian'
-    ],
-    nargs='+',
-    type=str,
-    help="Dialect types. (default: %(default)s)")
+parser.add_argument("--dialects",
+                    default=[
+                        'american', 'british', 'australian', 'european',
+                        'irish', 'canadian', 'indian'
+                    ],
+                    nargs='+',
+                    type=str,
+                    help="Dialect types. (default: %(default)s)")
 parser.add_argument(
     "--is_merge_dialect",
     default=True,
@@ -95,8 +94,10 @@ def select_dialects(target_dir, dialect_list):
         # filter files by dialect
         command = 'find %s -iwholename "*etc/readme*" -exec egrep -iHl \
             "pronunciation dialect.*%s" {} \;' % (audio_dir, dialect)
-        p = subprocess.Popen(
-            command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        p = subprocess.Popen(command,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             shell=True)
         output, err = p.communicate()
         dialect_dir = os.path.join(dialect_root_dir, dialect)
         if os.path.exists(dialect_dir):
@@ -169,8 +170,9 @@ def generate_manifest(data_dir, manifest_path):
             trans = trans.strip().replace('-', ' ')
             if not trans.isupper() or \
                 not trans.strip().replace(' ', '').replace("'", "").isalpha():
-                print("Transcript not normalized properly, skip processing %s."
-                      % u)
+                print(
+                    "Transcript not normalized properly, skip processing %s." %
+                    u)
                 continue
 
             audio_data, samplerate = soundfile.read(u)

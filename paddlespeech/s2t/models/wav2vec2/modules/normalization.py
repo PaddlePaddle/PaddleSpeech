@@ -49,15 +49,15 @@ class BatchNorm1d(nn.Layer):
     >>> output.shape
     Paddle.Shape([100, 10])
     """
-
     def __init__(
-            self,
-            input_shape=None,
-            input_size=None,
-            eps=1e-05,
-            momentum=0.9,
-            combine_batch_time=False,
-            skip_transpose=False, ):
+        self,
+        input_shape=None,
+        input_size=None,
+        eps=1e-05,
+        momentum=0.9,
+        combine_batch_time=False,
+        skip_transpose=False,
+    ):
         super().__init__()
         self.combine_batch_time = combine_batch_time
         self.skip_transpose = skip_transpose

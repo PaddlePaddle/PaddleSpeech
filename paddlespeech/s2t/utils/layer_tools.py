@@ -26,8 +26,8 @@ def summary(layer: nn.Layer, print_func=print):
     num_params = num_elements = 0
     for name, param in layer.state_dict().items():
         if print_func:
-            print_func(
-                "{} | {} | {}".format(name, param.shape, np.prod(param.shape)))
+            print_func("{} | {} | {}".format(name, param.shape,
+                                             np.prod(param.shape)))
         num_elements += np.prod(param.shape)
         num_params += 1
     if print_func:

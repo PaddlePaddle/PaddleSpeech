@@ -29,7 +29,6 @@ class Scorer(paddlespeech_ctcdecoders.Scorer):
     :param vocabulary: Vocabulary list.
     :type vocabulary: list
     """
-
     def __init__(self, alpha, beta, model_path, vocabulary):
         paddlespeech_ctcdecoders.Scorer.__init__(self, alpha, beta, model_path,
                                                  vocabulary)
@@ -47,8 +46,8 @@ def ctc_greedy_decoding(probs_seq, vocabulary, blank_id):
     :return: Decoding result string.
     :rtype: str
     """
-    result = paddlespeech_ctcdecoders.ctc_greedy_decoding(probs_seq.tolist(),
-                                                          vocabulary, blank_id)
+    result = paddlespeech_ctcdecoders.ctc_greedy_decoding(
+        probs_seq.tolist(), vocabulary, blank_id)
     return result
 
 
@@ -151,7 +150,6 @@ class CTCBeamSearchDecoder(paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch):
         param ext_scorer (Scorer): External scorer for partially decoded sentence, e.g. word count
                                 or language model.
     """
-
     def __init__(self, vocab_list, batch_size, beam_size, num_processes,
                  cutoff_prob, cutoff_top_n, _ext_scorer, blank_id):
         paddlespeech_ctcdecoders.CtcBeamSearchDecoderBatch.__init__(

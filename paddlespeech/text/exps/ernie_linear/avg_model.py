@@ -89,17 +89,20 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='average model')
     parser.add_argument('--dst_model', required=True, help='averaged model')
-    parser.add_argument(
-        '--ckpt_dir', required=True, help='ckpt model dir for average')
-    parser.add_argument(
-        '--val_best', action="store_true", help='averaged model')
-    parser.add_argument(
-        '--num', default=5, type=int, help='nums for averaged model')
-    parser.add_argument(
-        '--min_epoch',
-        default=0,
-        type=int,
-        help='min epoch used for averaging model')
+    parser.add_argument('--ckpt_dir',
+                        required=True,
+                        help='ckpt model dir for average')
+    parser.add_argument('--val_best',
+                        action="store_true",
+                        help='averaged model')
+    parser.add_argument('--num',
+                        default=5,
+                        type=int,
+                        help='nums for averaged model')
+    parser.add_argument('--min_epoch',
+                        default=0,
+                        type=int,
+                        help='min epoch used for averaging model')
     parser.add_argument(
         '--max_epoch',
         default=65536,  # Big enough

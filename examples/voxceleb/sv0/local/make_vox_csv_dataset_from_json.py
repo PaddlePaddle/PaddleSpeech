@@ -83,8 +83,10 @@ def prepare_csv(wav_files, output_file, config, split_chunks=True):
             ])
 
     with open(output_file, mode="w") as csv_f:
-        csv_writer = csv.writer(
-            csv_f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csv_writer = csv.writer(csv_f,
+                                delimiter=',',
+                                quotechar='"',
+                                quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(header)
         for line in csv_lines:
             csv_writer.writerow(line)
@@ -197,49 +199,47 @@ def prepare_data(args, config):
     logger.info("start to prepare the data csv file")
     enroll_files, test_files = get_enroll_test_list(
         [args.test], verification_file=config.verification_file)
-    prepare_csv(
-        enroll_files,
-        os.path.join(args.target_dir, "csv", "enroll.csv"),
-        config,
-        split_chunks=False)
-    prepare_csv(
-        test_files,
-        os.path.join(args.target_dir, "csv", "test.csv"),
-        config,
-        split_chunks=False)
+    prepare_csv(enroll_files,
+                os.path.join(args.target_dir, "csv", "enroll.csv"),
+                config,
+                split_chunks=False)
+    prepare_csv(test_files,
+                os.path.join(args.target_dir, "csv", "test.csv"),
+                config,
+                split_chunks=False)
 
     # stage 2: prepare the train and dev csv file
     #          we get the train dataset ratio as config.split_ratio
     #          and the remaining is dev dataset
     logger.info("start to prepare the data csv file")
-    train_files, dev_files = get_train_dev_list(
-        args.train, target_dir=args.target_dir, split_ratio=config.split_ratio)
-    prepare_csv(train_files,
-                os.path.join(args.target_dir, "csv", "train.csv"), config)
-    prepare_csv(dev_files,
-                os.path.join(args.target_dir, "csv", "dev.csv"), config)
+    train_files, dev_files = get_train_dev_list(args.train,
+                                                target_dir=args.target_dir,
+                                                split_ratio=config.split_ratio)
+    prepare_csv(train_files, os.path.join(args.target_dir, "csv", "train.csv"),
+                config)
+    prepare_csv(dev_files, os.path.join(args.target_dir, "csv", "dev.csv"),
+                config)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--train",
-        required=True,
-        nargs='+',
-        help="The jsonline files list for train.")
-    parser.add_argument(
-        "--test", required=True, help="The jsonline file for test")
+    parser.add_argument("--train",
+                        required=True,
+                        nargs='+',
+                        help="The jsonline files list for train.")
+    parser.add_argument("--test",
+                        required=True,
+                        help="The jsonline file for test")
     parser.add_argument(
         "--target_dir",
         default=None,
         required=True,
         help="The target directory stores the csv files and meta file.")
-    parser.add_argument(
-        "--config",
-        default=None,
-        required=True,
-        type=str,
-        help="configuration file")
+    parser.add_argument("--config",
+                        default=None,
+                        required=True,
+                        type=str,
+                        help="configuration file")
     args = parser.parse_args()
 
     # parse the yaml config file

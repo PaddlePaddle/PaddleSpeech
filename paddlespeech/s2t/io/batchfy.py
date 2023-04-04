@@ -24,16 +24,17 @@ logger = Log(__name__).getlog()
 
 
 def batchfy_by_seq(
-        sorted_data,
-        batch_size,
-        max_length_in,
-        max_length_out,
-        min_batch_size=1,
-        shortest_first=False,
-        ikey="input",
-        iaxis=0,
-        okey="output",
-        oaxis=0, ):
+    sorted_data,
+    batch_size,
+    max_length_in,
+    max_length_out,
+    min_batch_size=1,
+    shortest_first=False,
+    ikey="input",
+    iaxis=0,
+    okey="output",
+    oaxis=0,
+):
     """Make batch set from json dictionary
 
     :param List[(str, Dict[str, Any])] sorted_data: dictionary loaded from data.json
@@ -68,8 +69,8 @@ def batchfy_by_seq(
     while True:
         _, info = sorted_data[start]
         ilen = int(info[ikey][iaxis]["shape"][0])
-        olen = (int(info[okey][oaxis]["shape"][0]) if oaxis >= 0 else
-                max(map(lambda x: int(x["shape"][0]), info[okey])))
+        olen = (int(info[okey][oaxis]["shape"][0]) if oaxis >= 0 else max(
+            map(lambda x: int(x["shape"][0]), info[okey])))
         factor = max(int(ilen / max_length_in), int(olen / max_length_out))
         # change batchsize depending on the input and output length
         # if ilen = 1000 and max_length_in = 800
@@ -101,13 +102,14 @@ def batchfy_by_seq(
 
 
 def batchfy_by_bin(
-        sorted_data,
-        batch_bins,
-        num_batches=0,
-        min_batch_size=1,
-        shortest_first=False,
-        ikey="input",
-        okey="output", ):
+    sorted_data,
+    batch_bins,
+    num_batches=0,
+    min_batch_size=1,
+    shortest_first=False,
+    ikey="input",
+    okey="output",
+):
     """Make variably sized batch set, which maximizes
 
     the number of bins up to `batch_bins`.
@@ -176,22 +178,23 @@ def batchfy_by_bin(
         minibatches = minibatches[:num_batches]
     lengths = [len(x) for x in minibatches]
     logger.info(
-        str(len(minibatches)) + " batches containing from " + str(min(lengths))
-        + " to " + str(max(lengths)) + " samples " + "(avg " + str(
-            int(np.mean(lengths))) + " samples).")
+        str(len(minibatches)) + " batches containing from " +
+        str(min(lengths)) + " to " + str(max(lengths)) + " samples " + "(avg " +
+        str(int(np.mean(lengths))) + " samples).")
     return minibatches
 
 
 def batchfy_by_frame(
-        sorted_data,
-        max_frames_in,
-        max_frames_out,
-        max_frames_inout,
-        num_batches=0,
-        min_batch_size=1,
-        shortest_first=False,
-        ikey="input",
-        okey="output", ):
+    sorted_data,
+    max_frames_in,
+    max_frames_out,
+    max_frames_inout,
+    num_batches=0,
+    min_batch_size=1,
+    shortest_first=False,
+    ikey="input",
+    okey="output",
+):
     """Make variable batch set, which maximizes the number of frames to max_batch_frame.
 
     :param List[(str, Dict[str, Any])] sorteddata: dictionary loaded from data.json
@@ -271,9 +274,9 @@ def batchfy_by_frame(
         minibatches = minibatches[:num_batches]
     lengths = [len(x) for x in minibatches]
     logger.info(
-        str(len(minibatches)) + " batches containing from " + str(min(lengths))
-        + " to " + str(max(lengths)) + " samples" + "(avg " + str(
-            int(np.mean(lengths))) + " samples).")
+        str(len(minibatches)) + " batches containing from " +
+        str(min(lengths)) + " to " + str(max(lengths)) + " samples" + "(avg " +
+        str(int(np.mean(lengths))) + " samples).")
 
     return minibatches
 
@@ -319,21 +322,22 @@ BATCH_SORT_KEY_CHOICES = ["input", "output", "shuffle"]
 
 
 def make_batchset(
-        data,
-        batch_size=0,
-        max_length_in=float("inf"),
-        max_length_out=float("inf"),
-        num_batches=0,
-        min_batch_size=1,
-        shortest_first=False,
-        batch_sort_key="input",
-        count="auto",
-        batch_bins=0,
-        batch_frames_in=0,
-        batch_frames_out=0,
-        batch_frames_inout=0,
-        iaxis=0,
-        oaxis=0, ):
+    data,
+    batch_size=0,
+    max_length_in=float("inf"),
+    max_length_out=float("inf"),
+    num_batches=0,
+    min_batch_size=1,
+    shortest_first=False,
+    batch_sort_key="input",
+    count="auto",
+    batch_bins=0,
+    batch_frames_in=0,
+    batch_frames_out=0,
+    batch_frames_inout=0,
+    iaxis=0,
+    oaxis=0,
+):
     """Make batch set from json dictionary
 
     if utts have "category" value,
@@ -419,8 +423,10 @@ def make_batchset(
         # sort it by input lengths (long to short)
         sorted_data = sorted(
             d.items(),
-            key=lambda data: float(data[1][batch_sort_key][batch_sort_axis]["shape"][0]),
-            reverse=not shortest_first, )
+            key=lambda data: float(data[1][batch_sort_key][batch_sort_axis][
+                "shape"][0]),
+            reverse=not shortest_first,
+        )
         logger.info("# utts: " + str(len(sorted_data)))
 
         if count == "seq":
@@ -434,7 +440,8 @@ def make_batchset(
                 ikey=ikey,
                 iaxis=iaxis,
                 okey=okey,
-                oaxis=oaxis, )
+                oaxis=oaxis,
+            )
         if count == "bin":
             batches = batchfy_by_bin(
                 sorted_data,
@@ -442,7 +449,8 @@ def make_batchset(
                 min_batch_size=min_batch_size,
                 shortest_first=shortest_first,
                 ikey=ikey,
-                okey=okey, )
+                okey=okey,
+            )
         if count == "frame":
             batches = batchfy_by_frame(
                 sorted_data,
@@ -452,7 +460,8 @@ def make_batchset(
                 min_batch_size=min_batch_size,
                 shortest_first=shortest_first,
                 ikey=ikey,
-                okey=okey, )
+                okey=okey,
+            )
         batches_list.append(batches)
 
     if len(batches_list) == 1:

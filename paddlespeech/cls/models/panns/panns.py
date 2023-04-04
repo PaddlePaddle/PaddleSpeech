@@ -32,20 +32,18 @@ class ConvBlock(nn.Layer):
     def __init__(self, in_channels, out_channels):
         super(ConvBlock, self).__init__()
 
-        self.conv1 = nn.Conv2D(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            kernel_size=(3, 3),
-            stride=(1, 1),
-            padding=(1, 1),
-            bias_attr=False)
-        self.conv2 = nn.Conv2D(
-            in_channels=out_channels,
-            out_channels=out_channels,
-            kernel_size=(3, 3),
-            stride=(1, 1),
-            padding=(1, 1),
-            bias_attr=False)
+        self.conv1 = nn.Conv2D(in_channels=in_channels,
+                               out_channels=out_channels,
+                               kernel_size=(3, 3),
+                               stride=(1, 1),
+                               padding=(1, 1),
+                               bias_attr=False)
+        self.conv2 = nn.Conv2D(in_channels=out_channels,
+                               out_channels=out_channels,
+                               kernel_size=(3, 3),
+                               stride=(1, 1),
+                               padding=(1, 1),
+                               bias_attr=False)
         self.bn1 = nn.BatchNorm2D(out_channels)
         self.bn2 = nn.BatchNorm2D(out_channels)
 
@@ -63,9 +61,8 @@ class ConvBlock(nn.Layer):
         elif pool_type == 'avg':
             x = F.avg_pool2d(x, kernel_size=pool_size)
         elif pool_type == 'avg+max':
-            x = F.avg_pool2d(
-                x, kernel_size=pool_size) + F.max_pool2d(
-                    x, kernel_size=pool_size)
+            x = F.avg_pool2d(x, kernel_size=pool_size) + F.max_pool2d(
+                x, kernel_size=pool_size)
         else:
             raise Exception(
                 f'Pooling type of {pool_type} is not supported. It must be one of "max", "avg" and "avg+max".'
@@ -77,13 +74,12 @@ class ConvBlock5x5(nn.Layer):
     def __init__(self, in_channels, out_channels):
         super(ConvBlock5x5, self).__init__()
 
-        self.conv1 = nn.Conv2D(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            kernel_size=(5, 5),
-            stride=(1, 1),
-            padding=(2, 2),
-            bias_attr=False)
+        self.conv1 = nn.Conv2D(in_channels=in_channels,
+                               out_channels=out_channels,
+                               kernel_size=(5, 5),
+                               stride=(1, 1),
+                               padding=(2, 2),
+                               bias_attr=False)
         self.bn1 = nn.BatchNorm2D(out_channels)
 
     def forward(self, x, pool_size=(2, 2), pool_type='avg'):
@@ -96,9 +92,8 @@ class ConvBlock5x5(nn.Layer):
         elif pool_type == 'avg':
             x = F.avg_pool2d(x, kernel_size=pool_size)
         elif pool_type == 'avg+max':
-            x = F.avg_pool2d(
-                x, kernel_size=pool_size) + F.max_pool2d(
-                    x, kernel_size=pool_size)
+            x = F.avg_pool2d(x, kernel_size=pool_size) + F.max_pool2d(
+                x, kernel_size=pool_size)
         else:
             raise Exception(
                 f'Pooling type of {pool_type} is not supported. It must be one of "max", "avg" and "avg+max".'
@@ -117,7 +112,7 @@ class CNN14(nn.Layer):
     """
     emb_size = 2048
 
-    def __init__(self, extract_embedding: bool=True):
+    def __init__(self, extract_embedding: bool = True):
 
         super(CNN14, self).__init__()
         self.bn0 = nn.BatchNorm2D(64)
@@ -180,7 +175,7 @@ class CNN10(nn.Layer):
     """
     emb_size = 512
 
-    def __init__(self, extract_embedding: bool=True):
+    def __init__(self, extract_embedding: bool = True):
 
         super(CNN10, self).__init__()
         self.bn0 = nn.BatchNorm2D(64)
@@ -235,7 +230,7 @@ class CNN6(nn.Layer):
     """
     emb_size = 512
 
-    def __init__(self, extract_embedding: bool=True):
+    def __init__(self, extract_embedding: bool = True):
 
         super(CNN6, self).__init__()
         self.bn0 = nn.BatchNorm2D(64)
@@ -279,7 +274,7 @@ class CNN6(nn.Layer):
         return output
 
 
-def cnn14(pretrained: bool=False, extract_embedding: bool=True) -> CNN14:
+def cnn14(pretrained: bool = False, extract_embedding: bool = True) -> CNN14:
     model = CNN14(extract_embedding=extract_embedding)
     if pretrained:
         state_dict = load_state_dict_from_url(
@@ -289,7 +284,7 @@ def cnn14(pretrained: bool=False, extract_embedding: bool=True) -> CNN14:
     return model
 
 
-def cnn10(pretrained: bool=False, extract_embedding: bool=True) -> CNN10:
+def cnn10(pretrained: bool = False, extract_embedding: bool = True) -> CNN10:
     model = CNN10(extract_embedding=extract_embedding)
     if pretrained:
         state_dict = load_state_dict_from_url(
@@ -299,11 +294,11 @@ def cnn10(pretrained: bool=False, extract_embedding: bool=True) -> CNN10:
     return model
 
 
-def cnn6(pretrained: bool=False, extract_embedding: bool=True) -> CNN6:
+def cnn6(pretrained: bool = False, extract_embedding: bool = True) -> CNN6:
     model = CNN6(extract_embedding=extract_embedding)
     if pretrained:
-        state_dict = load_state_dict_from_url(
-            url=pretrained_model_urls['cnn6'],
-            path=os.path.join(MODEL_HOME, 'panns'))
+        state_dict = load_state_dict_from_url(url=pretrained_model_urls['cnn6'],
+                                              path=os.path.join(
+                                                  MODEL_HOME, 'panns'))
         model.set_state_dict(state_dict)
     return model

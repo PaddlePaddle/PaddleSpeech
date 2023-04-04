@@ -58,7 +58,6 @@ class Ndx:
     trialmask : 2D ndarray of bool.
         Rows correspond to the models and columns to the test segments. True, if the trial is of interest.
     """
-
     def __init__(self,
                  ndx_file_name="",
                  models=numpy.array([]),
@@ -96,8 +95,8 @@ class Ndx:
             modelset = numpy.unique(models)
             segset = numpy.unique(testsegs)
 
-            trialmask = numpy.zeros(
-                (modelset.shape[0], segset.shape[0]), dtype="bool")
+            trialmask = numpy.zeros((modelset.shape[0], segset.shape[0]),
+                                    dtype="bool")
             for m in range(modelset.shape[0]):
                 segs = testsegs[numpy.array(ismember(models, modelset[m]))]
                 trialmask[m, ] = ismember(segset, segs)  # noqa E231
@@ -155,12 +154,14 @@ class Ndx:
             print(
                 "Number of models reduced from %d to %d" %
                 self.modelset.shape[0],
-                outndx.modelset.shape[0], )
+                outndx.modelset.shape[0],
+            )
         if self.segset.shape[0] > outndx.segset.shape[0]:
             print(
                 "Number of test segments reduced from %d to %d",
                 self.segset.shape[0],
-                outndx.segset.shape[0], )
+                outndx.segset.shape[0],
+            )
         return outndx
 
     def validate(self):
@@ -176,8 +177,10 @@ class Ndx:
         ok &= self.segset.ndim == 1
         ok &= self.trialmask.ndim == 2
 
-        ok &= self.trialmask.shape == (self.modelset.shape[0],
-                                       self.segset.shape[0], )
+        ok &= self.trialmask.shape == (
+            self.modelset.shape[0],
+            self.segset.shape[0],
+        )
         return ok
 
 
@@ -200,7 +203,6 @@ class Scores:
     scoremat : 2D ndarray
         Scores matrix.
     """
-
     def __init__(self, scores_file_name=""):
         """ 
         Initialize a Scores object by loading information from a file HDF5 format.
@@ -236,13 +238,14 @@ class Scores:
 
 
 def fa_model_loop(
-        batch_start,
-        mini_batch_indices,
-        factor_analyser,
-        stat0,
-        stats,
-        e_h,
-        e_hh, ):
+    batch_start,
+    mini_batch_indices,
+    factor_analyser,
+    stat0,
+    stats,
+    e_h,
+    e_hh,
+):
     """
     A function for PLDA estimation.
 
@@ -268,18 +271,20 @@ def fa_model_loop(
         A = factor_analyser.F.T.dot(factor_analyser.F)
         inv_lambda_unique = dict()
         for sess in numpy.unique(stat0[:, 0]):
-            inv_lambda_unique[sess] = linalg.inv(sess * A + numpy.eye(A.shape[
-                0]))
+            inv_lambda_unique[sess] = linalg.inv(sess * A +
+                                                 numpy.eye(A.shape[0]))
 
     tmp = numpy.zeros(
         (factor_analyser.F.shape[1], factor_analyser.F.shape[1]),
-        dtype=numpy.float64, )
+        dtype=numpy.float64,
+    )
 
     for idx in mini_batch_indices:
         if factor_analyser.Sigma.ndim == 1:
             inv_lambda = linalg.inv(
-                numpy.eye(rank) + (factor_analyser.F.T * stat0[
-                    idx + batch_start, :]).dot(factor_analyser.F))
+                numpy.eye(rank) +
+                (factor_analyser.F.T *
+                 stat0[idx + batch_start, :]).dot(factor_analyser.F))
         else:
             inv_lambda = inv_lambda_unique[stat0[idx + batch_start, 0]]
 
@@ -315,15 +320,15 @@ class PLDA:
     Sigma : tensor
         Residual matrix.
     """
-
     def __init__(
-            self,
-            mean=None,
-            F=None,
-            Sigma=None,
-            rank_f=100,
-            nb_iter=10,
-            scaling_factor=1.0, ):
+        self,
+        mean=None,
+        F=None,
+        Sigma=None,
+        rank_f=100,
+        nb_iter=10,
+        scaling_factor=1.0,
+    ):
         self.mean = None
         self.F = None
         self.Sigma = None
@@ -339,9 +344,10 @@ class PLDA:
             self.Sigma = Sigma
 
     def plda(
-            self,
-            emb_meta=None,
-            output_file_name=None, ):
+        self,
+        emb_meta=None,
+        output_file_name=None,
+    ):
         """
         Trains PLDA model with no within class covariance matrix but full residual covariance matrix.
 
@@ -422,7 +428,8 @@ class PLDA:
                 stat0=_stat0,
                 stats=local_stat.stats,
                 e_h=e_h,
-                e_hh=e_hh, )
+                e_hh=e_hh,
+            )
 
             # Accumulate for minimum divergence step
             _R = numpy.sum(e_hh, axis=0) / session_per_model.shape[0]
@@ -440,15 +447,16 @@ class PLDA:
             self.F = self.F.dot(linalg.cholesky(_R))
 
     def scoring(
-            self,
-            enroll,
-            test,
-            ndx,
-            test_uncertainty=None,
-            Vtrans=None,
-            p_known=0.0,
-            scaling_factor=1.0,
-            check_missing=True, ):
+        self,
+        enroll,
+        test,
+        ndx,
+        test_uncertainty=None,
+        Vtrans=None,
+        p_known=0.0,
+        scaling_factor=1.0,
+        check_missing=True,
+    ):
         """
         Compute the PLDA scores between to sets of vectors. The list of
         trials to perform is given in an Ndx object. PLDA matrices have to be
@@ -506,11 +514,10 @@ class PLDA:
         Psi = Sigma_tot_inv.dot(Sigma_ac).dot(Tmp)
 
         # Compute the different parts of PLDA score
-        model_part = 0.5 * numpy.einsum("ij, ji->i",
-                                        enroll_ctr.stats.dot(Phi),
+        model_part = 0.5 * numpy.einsum("ij, ji->i", enroll_ctr.stats.dot(Phi),
                                         enroll_ctr.stats.T)
-        seg_part = 0.5 * numpy.einsum("ij, ji->i",
-                                      test_ctr.stats.dot(Phi), test_ctr.stats.T)
+        seg_part = 0.5 * numpy.einsum("ij, ji->i", test_ctr.stats.dot(Phi),
+                                      test_ctr.stats.T)
 
         # Compute verification scores
         score = Scores()  # noqa F821
@@ -532,8 +539,8 @@ class PLDA:
             for ii in range(N):
                 # open-set term
                 open_set_scores[ii, :] = score.scoremat[ii, :] - numpy.log(
-                    p_known * tmp[~(numpy.arange(N) == ii)].sum(axis=0) / (
-                        N - 1) + (1 - p_known))
+                    p_known * tmp[~(numpy.arange(N) == ii)].sum(axis=0) /
+                    (N - 1) + (1 - p_known))
             score.scoremat = open_set_scores
 
         return score
@@ -549,8 +556,9 @@ if __name__ == '__main__':
     sg = ['sg' + str(i) for i in range(N)]  # utt
     segset = numpy.array(sg, dtype="|O")
     stat0 = numpy.array([[1.0]] * N)
-    xvectors_stat = EmbeddingMeta(
-        modelset=modelset, segset=segset, stats=train_xv)
+    xvectors_stat = EmbeddingMeta(modelset=modelset,
+                                  segset=segset,
+                                  stats=train_xv)
     # Training PLDA model: M ~ (mean, F, Sigma)
     plda = PLDA(rank_f=5)
     plda.plda(xvectors_stat)

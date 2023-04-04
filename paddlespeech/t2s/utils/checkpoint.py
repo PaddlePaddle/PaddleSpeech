@@ -101,8 +101,8 @@ def load_parameters(model,
     params_path = checkpoint_path + ".pdparams"
     model_dict = paddle.load(params_path)
     model.set_state_dict(model_dict)
-    print("[checkpoint] Rank {}: loaded model from {}".format(local_rank,
-                                                              params_path))
+    print("[checkpoint] Rank {}: loaded model from {}".format(
+        local_rank, params_path))
 
     optimizer_path = checkpoint_path + ".pdopt"
     if optimizer and os.path.isfile(optimizer_path):

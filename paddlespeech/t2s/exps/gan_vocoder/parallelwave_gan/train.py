@@ -74,7 +74,8 @@ def train_sp(args, config):
         converters={
             "wave": np.load,
             "feats": np.load,
-        }, )
+        },
+    )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
@@ -83,19 +84,18 @@ def train_sp(args, config):
         converters={
             "wave": np.load,
             "feats": np.load,
-        }, )
+        },
+    )
 
     # collate function and dataloader
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=True)
-    dev_sampler = DistributedBatchSampler(
-        dev_dataset,
-        batch_size=config.batch_size,
-        shuffle=False,
-        drop_last=False)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
+    dev_sampler = DistributedBatchSampler(dev_dataset,
+                                          batch_size=config.batch_size,
+                                          shuffle=False,
+                                          drop_last=False)
     print("samplers done!")
 
     train_batch_fn = Clip(
@@ -103,17 +103,15 @@ def train_sp(args, config):
         hop_size=config.n_shift,
         aux_context_window=config.generator_params.aux_context_window)
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=train_batch_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=train_batch_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        batch_sampler=dev_sampler,
-        collate_fn=train_batch_fn,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                batch_sampler=dev_sampler,
+                                collate_fn=train_batch_fn,
+                                num_workers=config.num_workers)
     print("dataloaders done!")
 
     generator = PWGGenerator(**config["generator_params"])
@@ -129,18 +127,16 @@ def train_sp(args, config):
 
     lr_schedule_g = StepDecay(**config["generator_scheduler_params"])
     gradient_clip_g = nn.ClipGradByGlobalNorm(config["generator_grad_norm"])
-    optimizer_g = Adam(
-        learning_rate=lr_schedule_g,
-        grad_clip=gradient_clip_g,
-        parameters=generator.parameters(),
-        **config["generator_optimizer_params"])
+    optimizer_g = Adam(learning_rate=lr_schedule_g,
+                       grad_clip=gradient_clip_g,
+                       parameters=generator.parameters(),
+                       **config["generator_optimizer_params"])
     lr_schedule_d = StepDecay(**config["discriminator_scheduler_params"])
     gradient_clip_d = nn.ClipGradByGlobalNorm(config["discriminator_grad_norm"])
-    optimizer_d = Adam(
-        learning_rate=lr_schedule_d,
-        grad_clip=gradient_clip_d,
-        parameters=discriminator.parameters(),
-        **config["discriminator_optimizer_params"])
+    optimizer_d = Adam(learning_rate=lr_schedule_d,
+                       grad_clip=gradient_clip_d,
+                       parameters=discriminator.parameters(),
+                       **config["discriminator_optimizer_params"])
     print("optimizers done!")
 
     output_dir = Path(args.output_dir)
@@ -172,31 +168,28 @@ def train_sp(args, config):
         lambda_adv=config.lambda_adv,
         output_dir=output_dir)
 
-    evaluator = PWGEvaluator(
-        models={
-            "generator": generator,
-            "discriminator": discriminator,
-        },
-        criterions={
-            "stft": criterion_stft,
-            "mse": criterion_mse,
-        },
-        dataloader=dev_dataloader,
-        lambda_adv=config.lambda_adv,
-        output_dir=output_dir)
-    trainer = Trainer(
-        updater,
-        stop_trigger=(config.train_max_steps, "iteration"),
-        out=output_dir,
-        profiler_options=args.profiler_options)
+    evaluator = PWGEvaluator(models={
+        "generator": generator,
+        "discriminator": discriminator,
+    },
+                             criterions={
+                                 "stft": criterion_stft,
+                                 "mse": criterion_mse,
+                             },
+                             dataloader=dev_dataloader,
+                             lambda_adv=config.lambda_adv,
+                             output_dir=output_dir)
+    trainer = Trainer(updater,
+                      stop_trigger=(config.train_max_steps, "iteration"),
+                      out=output_dir,
+                      profiler_options=args.profiler_options)
 
     if dist.get_rank() == 0:
-        trainer.extend(
-            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+        trainer.extend(evaluator,
+                       trigger=(config.eval_interval_steps, 'iteration'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots),
-        trigger=(config.save_interval_steps, 'iteration'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()
@@ -207,32 +200,41 @@ def main():
 
     parser = argparse.ArgumentParser(
         description="Train a ParallelWaveGAN model.")
-    parser.add_argument(
-        "--config", type=str, help="ParallelWaveGAN config file.")
+    parser.add_argument("--config",
+                        type=str,
+                        help="ParallelWaveGAN config file.")
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     benchmark_group = parser.add_argument_group(
         'benchmark', 'arguments related to benchmark.')
-    benchmark_group.add_argument(
-        "--batch-size", type=int, default=8, help="batch size.")
-    benchmark_group.add_argument(
-        "--max-iter", type=int, default=400000, help="train max steps.")
+    benchmark_group.add_argument("--batch-size",
+                                 type=int,
+                                 default=8,
+                                 help="batch size.")
+    benchmark_group.add_argument("--max-iter",
+                                 type=int,
+                                 default=400000,
+                                 help="train max steps.")
 
     benchmark_group.add_argument(
         "--run-benchmark",
         type=str2bool,
         default=False,
-        help="runing benchmark or not, if True, use the --batch-size and --max-iter."
+        help=
+        "runing benchmark or not, if True, use the --batch-size and --max-iter."
     )
     benchmark_group.add_argument(
         "--profiler_options",
         type=str,
         default=None,
-        help="The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\"."
+        help=
+        "The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\"."
     )
 
     args = parser.parse_args()

@@ -53,11 +53,10 @@ class ErnieLinear(nn.Layer):
                 token_type_ids=None,
                 position_ids=None,
                 attention_mask=None):
-        y = self.ernie(
-            input_ids,
-            token_type_ids=token_type_ids,
-            attention_mask=attention_mask,
-            position_ids=position_ids)
+        y = self.ernie(input_ids,
+                       token_type_ids=token_type_ids,
+                       attention_mask=attention_mask,
+                       position_ids=position_ids)
 
         y = paddle.reshape(y, shape=[-1, self.num_classes])
         logits = self.softmax(y)

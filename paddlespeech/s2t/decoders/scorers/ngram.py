@@ -24,7 +24,6 @@ from .scorer_interface import PartialScorerInterface
 
 class Ngrambase(ABC):
     """Ngram base implemented through ScorerInterface."""
-
     def __init__(self, ngram_model, token_list):
         """Initialize Ngrambase.
 
@@ -71,7 +70,6 @@ class Ngrambase(ABC):
 
 class NgramFullScorer(Ngrambase, BatchScorerInterface):
     """Fullscorer for ngram."""
-
     def score(self, y, state, x):
         """Score interface for both full and partial scorer.
 
@@ -86,14 +84,12 @@ class NgramFullScorer(Ngrambase, BatchScorerInterface):
                 and next state list for ys.
 
         """
-        return self.score_partial_(y,
-                                   paddle.to_tensor(range(self.charlen)), state,
-                                   x)
+        return self.score_partial_(y, paddle.to_tensor(range(self.charlen)),
+                                   state, x)
 
 
 class NgramPartScorer(Ngrambase, PartialScorerInterface):
     """Partialscorer for ngram."""
-
     def score_partial(self, y, next_token, state, x):
         """Score interface for both full and partial scorer.
 

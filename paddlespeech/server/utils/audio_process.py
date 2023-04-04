@@ -143,7 +143,7 @@ def pcm2float(data):
     return data
 
 
-def save_audio(bytes_data, audio_path, sample_rate: int=24000) -> bool:
+def save_audio(bytes_data, audio_path, sample_rate: int = 24000) -> bool:
     """save byte to audio file.
 
     Args:
@@ -161,12 +161,11 @@ def save_audio(bytes_data, audio_path, sample_rate: int=24000) -> bool:
     elif audio_path.endswith("wav"):
         with open("./tmp.pcm", "wb") as f:
             f.write(bytes_data)
-        pcm2wav(
-            "./tmp.pcm",
-            audio_path,
-            channels=1,
-            bits=16,
-            sample_rate=sample_rate)
+        pcm2wav("./tmp.pcm",
+                audio_path,
+                channels=1,
+                bits=16,
+                sample_rate=sample_rate)
         os.remove("./tmp.pcm")
     else:
         logger.error("Only supports saved audio format is pcm or wav")

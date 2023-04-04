@@ -39,7 +39,7 @@ def process_sentence(config: Dict[str, Any],
                      sentences: Dict,
                      output_dir: Path,
                      mel_extractor=None,
-                     cut_sil: bool=True):
+                     cut_sil: bool = True):
     utt_id = fp.stem
     # for vctk
     if utt_id.endswith("_mic2"):
@@ -61,8 +61,9 @@ def process_sentence(config: Dict[str, Any],
         speaker = sentences[utt_id][2]
         d_cumsum = np.pad(np.array(durations).cumsum(0), (1, 0), 'constant')
         # little imprecise than use *.TextGrid directly
-        times = librosa.frames_to_time(
-            d_cumsum, sr=config.fs, hop_length=config.n_shift)
+        times = librosa.frames_to_time(d_cumsum,
+                                       sr=config.fs,
+                                       hop_length=config.n_shift)
         if cut_sil:
             start = 0
             end = d_cumsum[-1]
@@ -85,8 +86,8 @@ def process_sentence(config: Dict[str, Any],
         # adjust time to make num_samples == num_frames * hop_length
         num_frames = logmel.shape[0]
         if y.size < num_frames * config.n_shift:
-            y = np.pad(
-                y, (0, num_frames * config.n_shift - y.size), mode="reflect")
+            y = np.pad(y, (0, num_frames * config.n_shift - y.size),
+                       mode="reflect")
         else:
             y = y[:num_frames * config.n_shift]
         num_samples = y.shape[0]
@@ -112,19 +113,18 @@ def process_sentences(config,
                       sentences: Dict,
                       output_dir: Path,
                       mel_extractor=None,
-                      nprocs: int=1,
-                      cut_sil: bool=True):
+                      nprocs: int = 1,
+                      cut_sil: bool = True):
 
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
-            record = process_sentence(
-                config=config,
-                fp=fp,
-                sentences=sentences,
-                output_dir=output_dir,
-                mel_extractor=mel_extractor,
-                cut_sil=cut_sil)
+            record = process_sentence(config=config,
+                                      fp=fp,
+                                      sentences=sentences,
+                                      output_dir=output_dir,
+                                      mel_extractor=mel_extractor,
+                                      cut_sil=cut_sil)
             if record:
                 results.append(record)
     else:
@@ -160,24 +160,28 @@ def main():
         default="baker",
         type=str,
         help="name of dataset, should in {baker, aishell3, ljspeech, vctk} now")
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump feature files.")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump feature files.")
     parser.add_argument("--config", type=str, help="vocoder config file.")
-    parser.add_argument(
-        "--num-cpu", type=int, default=1, help="number of process.")
-    parser.add_argument(
-        "--dur-file", default=None, type=str, help="path to durations.txt.")
+    parser.add_argument("--num-cpu",
+                        type=int,
+                        default=1,
+                        help="number of process.")
+    parser.add_argument("--dur-file",
+                        default=None,
+                        type=str,
+                        help="path to durations.txt.")
 
-    parser.add_argument(
-        "--cut-sil",
-        type=str2bool,
-        default=True,
-        help="whether cut sil in the edge of audio")
+    parser.add_argument("--cut-sil",
+                        type=str2bool,
+                        default=True,
+                        help="whether cut sil in the edge of audio")
     args = parser.parse_args()
 
     rootdir = Path(args.rootdir).expanduser()
@@ -198,7 +202,8 @@ def main():
             dur_file,
             dataset=args.dataset,
             sample_rate=config.fs,
-            n_shift=config.n_shift, )
+            n_shift=config.n_shift,
+        )
     else:
         sentences, speaker_set = get_phn_dur(dur_file)
         merge_silence(sentences)
@@ -285,44 +290,40 @@ def main():
     test_dump_dir = dumpdir / "test" / "raw"
     test_dump_dir.mkdir(parents=True, exist_ok=True)
 
-    mel_extractor = LogMelFBank(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window,
-        n_mels=config.n_mels,
-        fmin=config.fmin,
-        fmax=config.fmax)
+    mel_extractor = LogMelFBank(sr=config.fs,
+                                n_fft=config.n_fft,
+                                hop_length=config.n_shift,
+                                win_length=config.win_length,
+                                window=config.window,
+                                n_mels=config.n_mels,
+                                fmin=config.fmin,
+                                fmax=config.fmax)
 
     # process for the 3 sections
     if train_wav_files:
-        process_sentences(
-            config=config,
-            fps=train_wav_files,
-            sentences=sentences,
-            output_dir=train_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil)
+        process_sentences(config=config,
+                          fps=train_wav_files,
+                          sentences=sentences,
+                          output_dir=train_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil)
     if dev_wav_files:
-        process_sentences(
-            config=config,
-            fps=dev_wav_files,
-            sentences=sentences,
-            output_dir=dev_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil)
+        process_sentences(config=config,
+                          fps=dev_wav_files,
+                          sentences=sentences,
+                          output_dir=dev_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil)
     if test_wav_files:
-        process_sentences(
-            config=config,
-            fps=test_wav_files,
-            sentences=sentences,
-            output_dir=test_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil)
+        process_sentences(config=config,
+                          fps=test_wav_files,
+                          sentences=sentences,
+                          output_dir=test_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil)
 
 
 if __name__ == "__main__":

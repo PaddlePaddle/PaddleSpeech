@@ -34,21 +34,23 @@ logger.setLevel(logging.INFO)
 
 class FastSpeech2Updater(StandardUpdater):
     def __init__(
-            self,
-            model: Layer,
-            optimizer: Optimizer,
-            dataloader: DataLoader,
-            init_state=None,
-            use_masking: bool=False,
-            spk_loss_scale: float=0.02,
-            use_weighted_masking: bool=False,
-            output_dir: Path=None,
-            enable_spk_cls: bool=False, ):
+        self,
+        model: Layer,
+        optimizer: Optimizer,
+        dataloader: DataLoader,
+        init_state=None,
+        use_masking: bool = False,
+        spk_loss_scale: float = 0.02,
+        use_weighted_masking: bool = False,
+        output_dir: Path = None,
+        enable_spk_cls: bool = False,
+    ):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         self.criterion = FastSpeech2Loss(
             use_masking=use_masking,
-            use_weighted_masking=use_weighted_masking, )
+            use_weighted_masking=use_weighted_masking,
+        )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -107,7 +109,8 @@ class FastSpeech2Updater(StandardUpdater):
             ilens=batch["text_lengths"],
             olens=olens,
             spk_logits=spk_logits,
-            spk_ids=spk_id, )
+            spk_ids=spk_id,
+        )
 
         scaled_speaker_loss = self.spk_loss_scale * speaker_loss
         loss = l1_loss + duration_loss + pitch_loss + energy_loss + scaled_speaker_loss
@@ -143,11 +146,11 @@ class FastSpeech2Evaluator(StandardEvaluator):
     def __init__(self,
                  model: Layer,
                  dataloader: DataLoader,
-                 use_masking: bool=False,
-                 use_weighted_masking: bool=False,
-                 spk_loss_scale: float=0.02,
-                 output_dir: Path=None,
-                 enable_spk_cls: bool=False):
+                 use_masking: bool = False,
+                 use_weighted_masking: bool = False,
+                 spk_loss_scale: float = 0.02,
+                 output_dir: Path = None,
+                 enable_spk_cls: bool = False):
         super().__init__(model, dataloader)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
@@ -209,7 +212,8 @@ class FastSpeech2Evaluator(StandardEvaluator):
             ilens=batch["text_lengths"],
             olens=olens,
             spk_logits=spk_logits,
-            spk_ids=spk_id, )
+            spk_ids=spk_id,
+        )
 
         scaled_speaker_loss = self.spk_loss_scale * speaker_loss
         loss = l1_loss + duration_loss + pitch_loss + energy_loss + scaled_speaker_loss

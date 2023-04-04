@@ -35,8 +35,8 @@ class ServerBaseCommand:
         return help().execute(argv)
 
 
-@cli_server_register(
-    name='paddlespeech_server.help', description='Show help for commands.')
+@cli_server_register(name='paddlespeech_server.help',
+                     description='Show help for commands.')
 class ServerHelpCommand:
     def execute(self, argv: List[str]) -> bool:
         msg = 'Usage:\n'
@@ -62,8 +62,8 @@ class ClientBaseCommand:
         return help().execute(argv)
 
 
-@cli_client_register(
-    name='paddlespeech_client.help', description='Show help for commands.')
+@cli_client_register(name='paddlespeech_client.help',
+                     description='Show help for commands.')
 class ClientHelpCommand:
     def execute(self, argv: List[str]) -> bool:
         msg = 'Usage:\n'

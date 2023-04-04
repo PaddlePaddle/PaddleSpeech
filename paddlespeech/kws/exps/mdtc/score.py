@@ -25,16 +25,14 @@ from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 if __name__ == '__main__':
     parser = default_argument_parser()
-    parser.add_argument(
-        "--ckpt",
-        type=str,
-        required=True,
-        help='model checkpoint for evaluation.')
-    parser.add_argument(
-        "--score_file",
-        type=str,
-        default='./scores.txt',
-        help='output file of trigger scores')
+    parser.add_argument("--ckpt",
+                        type=str,
+                        required=True,
+                        help='model checkpoint for evaluation.')
+    parser.add_argument("--score_file",
+                        type=str,
+                        default='./scores.txt',
+                        help='output file of trigger scores')
     args = parser.parse_args()
 
     # https://yaml.org/type/float.html
@@ -51,16 +49,19 @@ if __name__ == '__main__':
         sample_rate=config['sample_rate'],
         frame_shift=config['frame_shift'],
         frame_length=config['frame_length'],
-        n_mels=config['n_mels'], )
-    test_sampler = paddle.io.BatchSampler(
-        test_ds, batch_size=config['batch_size'], drop_last=False)
+        n_mels=config['n_mels'],
+    )
+    test_sampler = paddle.io.BatchSampler(test_ds,
+                                          batch_size=config['batch_size'],
+                                          drop_last=False)
     test_loader = paddle.io.DataLoader(
         test_ds,
         batch_sampler=test_sampler,
         num_workers=config['num_workers'],
         return_list=True,
         use_buffer_reader=True,
-        collate_fn=collate_features, )
+        collate_fn=collate_features,
+    )
 
     # Model
     backbone_class = dynamic_import(config['backbone'])
@@ -69,7 +70,8 @@ if __name__ == '__main__':
         stack_size=config['stack_size'],
         in_channels=config['in_channels'],
         res_channels=config['res_channels'],
-        kernel_size=config['kernel_size'], )
+        kernel_size=config['kernel_size'],
+    )
     model = KWSModel(backbone=backbone, num_keywords=config['num_keywords'])
     model.set_state_dict(paddle.load(args.ckpt))
     model.eval()

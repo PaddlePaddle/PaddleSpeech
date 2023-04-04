@@ -71,7 +71,7 @@ def resample_and_save(source, target, sr=16000):
 
 
 def reorganize_baker(root_dir: Union[str, Path],
-                     output_dir: Union[str, Path]=None,
+                     output_dir: Union[str, Path] = None,
                      resample_audio=False,
                      rhy_dur=False):
     root_dir = Path(root_dir).expanduser()
@@ -105,8 +105,8 @@ def reorganize_baker(root_dir: Union[str, Path],
         for wav_path in tqdm(wav_paths, desc="copying"):
             shutil.copyfile(wav_path, output_dir / wav_path.name)
 
-    for sentence_id, transcript in tqdm(
-            transcriptions.items(), desc="transcription process"):
+    for sentence_id, transcript in tqdm(transcriptions.items(),
+                                        desc="transcription process"):
         with open(output_dir / (sentence_id + ".lab"), 'wt') as f:
             f.write(transcript)
             f.write('\n')
@@ -119,8 +119,9 @@ def insert_rhy(sentence_first, sentence_second):
     sentence_first = sentence_first.translate(str.maketrans(repalce_dict))
     rhy_idx = [substr.start() for substr in re.finditer(sub, sentence_first)]
     re_rhy_idx = []
-    sentence_first_ = sentence_first.replace("#1", "").replace(
-        "#2", "").replace("#3", "").replace("#4", "")
+    sentence_first_ = sentence_first.replace("#1",
+                                             "").replace("#2", "").replace(
+                                                 "#3", "").replace("#4", "")
     sentence_seconds = sentence_second.split(" ")
     for i, w in enumerate(rhy_idx):
         re_rhy_idx.append(w - i * 2)
@@ -129,8 +130,8 @@ def insert_rhy(sentence_first, sentence_second):
     for sentence_s in (sentence_seconds):
         return_words.append(sentence_s)
         if i < len(re_rhy_idx) and len(return_words) - i == re_rhy_idx[i]:
-            return_words.append("sp" + sentence_first[rhy_idx[i] + 1:rhy_idx[i]
-                                                      + 2])
+            return_words.append("sp" +
+                                sentence_first[rhy_idx[i] + 1:rhy_idx[i] + 2])
             i = i + 1
     return return_words
 
@@ -157,17 +158,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorganize Baker dataset for MFA")
     parser.add_argument("--root-dir", type=str, help="path to baker dataset.")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        help="path to save outputs (audio and transcriptions)")
-    parser.add_argument(
-        "--resample-audio",
-        action="store_true",
-        help="To resample audio files or just copy them")
+    parser.add_argument("--output-dir",
+                        type=str,
+                        help="path to save outputs (audio and transcriptions)")
+    parser.add_argument("--resample-audio",
+                        action="store_true",
+                        help="To resample audio files or just copy them")
     parser.add_argument(
         "--rhy-with-duration",
-        action="store_true", )
+        action="store_true",
+    )
     args = parser.parse_args()
 
     if args.rhy_with_duration:

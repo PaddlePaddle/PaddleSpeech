@@ -28,21 +28,25 @@ if __name__ == "__main__":
     parser.add_argument(
         "--datasets_root",
         type=Path,
-        help="Path to the directory containing your LibriSpeech, LibriTTS and VoxCeleb datasets."
+        help=
+        "Path to the directory containing your LibriSpeech, LibriTTS and VoxCeleb datasets."
     )
-    parser.add_argument(
-        "--output_dir", type=Path, help="Path to save processed dataset.")
+    parser.add_argument("--output_dir",
+                        type=Path,
+                        help="Path to save processed dataset.")
     parser.add_argument(
         "--dataset_names",
         type=str,
         default="librispeech_other,voxceleb1,voxceleb2",
-        help="comma-separated list of names of the datasets you want to preprocess. only "
+        help=
+        "comma-separated list of names of the datasets you want to preprocess. only "
         "the train set of these datastes will be used. Possible names: librispeech_other, "
         "voxceleb1, voxceleb2, aidatatang_200zh, magicdata.")
     parser.add_argument(
         "--skip_existing",
         action="store_true",
-        help="Whether to skip ouput files with the same name. Useful if this script was interrupted."
+        help=
+        "Whether to skip ouput files with the same name. Useful if this script was interrupted."
     )
     parser.add_argument(
         "--no_trim",
@@ -87,7 +91,8 @@ if __name__ == "__main__":
         n_mels=c.n_mels,
         partial_n_frames=c.partial_n_frames,
         min_pad_coverage=c.min_pad_coverage,
-        partial_overlap_ratio=c.min_pad_coverage, )
+        partial_overlap_ratio=c.min_pad_coverage,
+    )
 
     preprocess_func = {
         "librispeech_other": process_librispeech,

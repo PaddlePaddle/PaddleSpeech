@@ -51,8 +51,8 @@ def insert_after_character(lst, item):
 
 
 def add_blank(phones: List[str],
-              filed: str="character",
-              blank_token: str="<pad>"):
+              filed: str = "character",
+              blank_token: str = "<pad>"):
     if filed == "phone":
         """
         add blank after phones
@@ -73,7 +73,8 @@ def add_blank(phones: List[str],
 def main():
     """Run preprocessing process."""
     parser = argparse.ArgumentParser(
-        description="Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
+        description=
+        "Normalize dumped raw features (See detail in parallel_wavegan/bin/normalize.py)."
     )
     parser.add_argument(
         "--metadata",
@@ -82,31 +83,31 @@ def main():
         help="directory including feature files to be normalized. "
         "you need to specify either *-scp or rootdir.")
 
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump normalized feature files.")
-    parser.add_argument(
-        "--feats-stats",
-        type=str,
-        required=True,
-        help="speech statistics file.")
-    parser.add_argument(
-        "--skip-wav-copy",
-        default=False,
-        action="store_true",
-        help="whether to skip the copy of wav files.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump normalized feature files.")
+    parser.add_argument("--feats-stats",
+                        type=str,
+                        required=True,
+                        help="speech statistics file.")
+    parser.add_argument("--skip-wav-copy",
+                        default=False,
+                        action="store_true",
+                        help="whether to skip the copy of wav files.")
 
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        "--add-blank",
-        type=str2bool,
-        default=True,
-        help="whether to add blank between phones")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument("--add-blank",
+                        type=str2bool,
+                        default=True,
+                        help="whether to add blank between phones")
 
     args = parser.parse_args()
 
@@ -118,12 +119,11 @@ def main():
     # get dataset
     with jsonlines.open(args.metadata, 'r') as reader:
         metadata = list(reader)
-    dataset = DataTable(
-        metadata,
-        converters={
-            "feats": np.load,
-            "wave": None if args.skip_wav_copy else np.load,
-        })
+    dataset = DataTable(metadata,
+                        converters={
+                            "feats": np.load,
+                            "wave": None if args.skip_wav_copy else np.load,
+                        })
     logging.info(f"The number of files = {len(dataset)}.")
 
     # restore scaler

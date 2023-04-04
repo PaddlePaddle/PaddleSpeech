@@ -52,8 +52,7 @@ def get_dict(dictfile: str):
 
 
 # 获取需要被 mask 的 mel 帧的范围
-def get_span_bdy(mfa_start: List[float],
-                 mfa_end: List[float],
+def get_span_bdy(mfa_start: List[float], mfa_end: List[float],
                  span_to_repl: List[List[int]]):
     if span_to_repl[0] >= len(mfa_start):
         span_bdy = [mfa_end[-1], mfa_end[-1]]
@@ -64,8 +63,7 @@ def get_span_bdy(mfa_start: List[float],
 
 # mfa 获得的 duration 和 fs2 的 duration_predictor 获取的 duration 可能不同
 # 此处获得一个缩放比例, 用于预测值和真实值之间的缩放
-def get_dur_adj_factor(orig_dur: List[int],
-                       pred_dur: List[int],
+def get_dur_adj_factor(orig_dur: List[int], pred_dur: List[int],
                        phns: List[str]):
     length = 0
     factor_list = []
@@ -110,8 +108,9 @@ def read_2col_text(path: Union[Path, str]) -> Dict[str, str]:
     return data
 
 
-def load_num_sequence_text(path: Union[Path, str], loader_type: str="csv_int"
-                           ) -> Dict[str, List[Union[float, int]]]:
+def load_num_sequence_text(
+        path: Union[Path, str],
+        loader_type: str = "csv_int") -> Dict[str, List[Union[float, int]]]:
     """Read a text file indicating sequences of number
 
     Examples:
@@ -165,18 +164,20 @@ def get_voc_out(mel):
     args = parse_args()
     with open(args.voc_config) as f:
         voc_config = CfgNode(yaml.safe_load(f))
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
 
     with paddle.no_grad():
         wav = voc_inference(mel)
     return np.squeeze(wav)
 
 
-def eval_durs(phns, target_lang: str='zh', fs: int=24000, n_shift: int=300):
+def eval_durs(phns,
+              target_lang: str = 'zh',
+              fs: int = 24000,
+              n_shift: int = 300):
 
     if target_lang == 'en':
         am = "fastspeech2_ljspeech"
@@ -196,13 +197,12 @@ def eval_durs(phns, target_lang: str='zh', fs: int=24000, n_shift: int=300):
     with open(am_config) as f:
         am_config = CfgNode(yaml.safe_load(f))
 
-    am_inference, am = get_am_inference(
-        am=am,
-        am_config=am_config,
-        am_ckpt=am_ckpt,
-        am_stat=am_stat,
-        phones_dict=phones_dict,
-        return_am=True)
+    am_inference, am = get_am_inference(am=am,
+                                        am_config=am_config,
+                                        am_ckpt=am_ckpt,
+                                        am_stat=am_stat,
+                                        phones_dict=phones_dict,
+                                        return_am=True)
 
     vocab_phones = {}
     with open(phones_dict, "r") as f:

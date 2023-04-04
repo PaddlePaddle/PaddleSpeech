@@ -67,8 +67,9 @@ class PaddleTextConnectionHandler:
             clean_text = self.text_engine.executor._clean_text(text)
             assert len(clean_text) > 0, f'Invalid input string: {text}'
 
-            tokenized_input = self.tokenizer(
-                list(clean_text), return_length=True, is_split_into_words=True)
+            tokenized_input = self.tokenizer(list(clean_text),
+                                             return_length=True,
+                                             is_split_into_words=True)
 
             self._inputs['input_ids'] = tokenized_input['input_ids']
             self._inputs['seg_ids'] = tokenized_input['token_type_ids']
@@ -101,8 +102,8 @@ class PaddleTextConnectionHandler:
             seq_len = self._inputs['seq_len']
             preds = self._outputs['preds']
 
-            tokens = self.tokenizer.convert_ids_to_tokens(
-                input_ids[1:seq_len - 1])
+            tokens = self.tokenizer.convert_ids_to_tokens(input_ids[1:seq_len -
+                                                                    1])
             labels = preds[1:seq_len - 1].tolist()
             assert len(tokens) == len(labels)
 
@@ -164,22 +165,21 @@ class TextEngine(BaseEngine):
 
         self.executor = TextServerExecutor()
         if 'fast' in config.model_type:
-            self.executor._init_from_path_new(
-                task=config.task,
-                model_type=config.model_type,
-                lang=config.lang,
-                cfg_path=config.cfg_path,
-                ckpt_path=config.ckpt_path,
-                vocab_file=config.vocab_file)
+            self.executor._init_from_path_new(task=config.task,
+                                              model_type=config.model_type,
+                                              lang=config.lang,
+                                              cfg_path=config.cfg_path,
+                                              ckpt_path=config.ckpt_path,
+                                              vocab_file=config.vocab_file)
         else:
-            self.executor._init_from_path(
-                task=config.task,
-                model_type=config.model_type,
-                lang=config.lang,
-                cfg_path=config.cfg_path,
-                ckpt_path=config.ckpt_path,
-                vocab_file=config.vocab_file)
+            self.executor._init_from_path(task=config.task,
+                                          model_type=config.model_type,
+                                          lang=config.lang,
+                                          cfg_path=config.cfg_path,
+                                          ckpt_path=config.ckpt_path,
+                                          vocab_file=config.vocab_file)
         logger.info("Using model: %s." % (config.model_type))
-        logger.info("Initialize Text server engine successfully on device: %s."
-                    % (self.device))
+        logger.info(
+            "Initialize Text server engine successfully on device: %s." %
+            (self.device))
         return True

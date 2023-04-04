@@ -33,8 +33,9 @@ model_version = '1.0'
 
 class RhyPredictor():
     def __init__(
-            self,
-            model_dir: os.PathLike=MODEL_HOME, ):
+        self,
+        model_dir: os.PathLike = MODEL_HOME,
+    ):
         uncompress_path = download_and_decompress(
             rhy_frontend_models['rhy_e2e'][model_version], model_dir)
         with open(os.path.join(uncompress_path, 'rhy_default.yaml')) as f:
@@ -62,8 +63,9 @@ class RhyPredictor():
     def preprocess(self, text, tokenizer):
         clean_text = self._clean_text(text)
         assert len(clean_text) > 0, f'Invalid input string: {text}'
-        tokenized_input = tokenizer(
-            list(clean_text), return_length=True, is_split_into_words=True)
+        tokenized_input = tokenizer(list(clean_text),
+                                    return_length=True,
+                                    is_split_into_words=True)
         _inputs = dict()
         _inputs['input_ids'] = tokenized_input['input_ids']
         _inputs['seg_ids'] = tokenized_input['token_type_ids']

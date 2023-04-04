@@ -31,7 +31,6 @@ class OnlineBayesianNormalizationAugmentor(AugmentorBase):
                           seconds before applying online normalization.
     :type starup_delay: float.
     """
-
     def __init__(self,
                  rng,
                  target_db,

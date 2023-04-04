@@ -25,7 +25,6 @@ class ShiftPerturbAugmentor(AugmentorBase):
     :param max_shift_ms: Maximal shift in milliseconds.
     :type max_shift_ms: float
     """
-
     def __init__(self, rng, min_shift_ms, max_shift_ms):
         self._min_shift_ms = min_shift_ms
         self._max_shift_ms = max_shift_ms

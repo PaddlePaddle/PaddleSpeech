@@ -29,21 +29,21 @@ class Encoder(nn.Layer):
        https://arxiv.org/abs/1712.05884
 
     """
-
     def __init__(
-            self,
-            idim,
-            input_layer="embed",
-            embed_dim=512,
-            elayers=1,
-            eunits=512,
-            econv_layers=3,
-            econv_chans=512,
-            econv_filts=5,
-            use_batch_norm=True,
-            use_residual=False,
-            dropout_rate=0.5,
-            padding_idx=0, ):
+        self,
+        idim,
+        input_layer="embed",
+        embed_dim=512,
+        elayers=1,
+        eunits=512,
+        econv_layers=3,
+        econv_chans=512,
+        econv_filts=5,
+        use_batch_norm=True,
+        use_residual=False,
+        dropout_rate=0.5,
+        padding_idx=0,
+    ):
         """Initialize Tacotron2 encoder module.
         Args:
             idim (int): 
@@ -97,10 +97,12 @@ class Encoder(nn.Layer):
                                 econv_filts,
                                 stride=1,
                                 padding=(econv_filts - 1) // 2,
-                                bias_attr=False, ),
+                                bias_attr=False,
+                            ),
                             nn.BatchNorm1D(econv_chans),
                             nn.ReLU(),
-                            nn.Dropout(dropout_rate), ))
+                            nn.Dropout(dropout_rate),
+                        ))
                 else:
                     self.convs += [
                         nn.Sequential(
@@ -110,23 +112,24 @@ class Encoder(nn.Layer):
                                 econv_filts,
                                 stride=1,
                                 padding=(econv_filts - 1) // 2,
-                                bias_attr=False, ),
+                                bias_attr=False,
+                            ),
                             nn.ReLU(),
-                            nn.Dropout(dropout_rate), )
+                            nn.Dropout(dropout_rate),
+                        )
                     ]
         else:
             self.convs = None
         if elayers > 0:
             iunits = econv_chans if econv_layers != 0 else embed_dim
             # batch_first=True, bidirectional=True
-            self.blstm = nn.LSTM(
-                iunits,
-                eunits // 2,
-                elayers,
-                time_major=False,
-                direction='bidirectional',
-                bias_ih_attr=True,
-                bias_hh_attr=True)
+            self.blstm = nn.LSTM(iunits,
+                                 eunits // 2,
+                                 elayers,
+                                 time_major=False,
+                                 direction='bidirectional',
+                                 bias_ih_attr=True,
+                                 bias_hh_attr=True)
             self.blstm.flatten_parameters()
         else:
             self.blstm = None

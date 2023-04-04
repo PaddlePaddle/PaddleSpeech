@@ -26,12 +26,11 @@ from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler
 
 def main(args):
     logger.info("asr websocket client start")
-    handler = ASRWsAudioHandler(
-        args.server_ip,
-        args.port,
-        endpoint=args.endpoint,
-        punc_server_ip=args.punc_server_ip,
-        punc_server_port=args.punc_server_port)
+    handler = ASRWsAudioHandler(args.server_ip,
+                                args.port,
+                                endpoint=args.endpoint,
+                                punc_server_ip=args.punc_server_ip,
+                                punc_server_port=args.punc_server_port)
     loop = asyncio.get_event_loop()
 
     # support to process single audio file
@@ -56,33 +55,33 @@ def main(args):
 if __name__ == "__main__":
     logger.info("Start to do streaming asr client")
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--server_ip', type=str, default='127.0.0.1', help='server ip')
+    parser.add_argument('--server_ip',
+                        type=str,
+                        default='127.0.0.1',
+                        help='server ip')
     parser.add_argument('--port', type=int, default=8090, help='server port')
-    parser.add_argument(
-        '--punc.server_ip',
-        type=str,
-        default=None,
-        dest="punc_server_ip",
-        help='Punctuation server ip')
-    parser.add_argument(
-        '--punc.port',
-        type=int,
-        default=8091,
-        dest="punc_server_port",
-        help='Punctuation server port')
-    parser.add_argument(
-        "--endpoint",
-        type=str,
-        default="/paddlespeech/asr/streaming",
-        help="ASR websocket endpoint")
-    parser.add_argument(
-        "--wavfile",
-        action="store",
-        help="wav file path ",
-        default="./16_audio.wav")
-    parser.add_argument(
-        "--wavscp", type=str, default=None, help="The batch audios dict text")
+    parser.add_argument('--punc.server_ip',
+                        type=str,
+                        default=None,
+                        dest="punc_server_ip",
+                        help='Punctuation server ip')
+    parser.add_argument('--punc.port',
+                        type=int,
+                        default=8091,
+                        dest="punc_server_port",
+                        help='Punctuation server port')
+    parser.add_argument("--endpoint",
+                        type=str,
+                        default="/paddlespeech/asr/streaming",
+                        help="ASR websocket endpoint")
+    parser.add_argument("--wavfile",
+                        action="store",
+                        help="wav file path ",
+                        default="./16_audio.wav")
+    parser.add_argument("--wavscp",
+                        type=str,
+                        default=None,
+                        help="The batch audios dict text")
     args = parser.parse_args()
 
     main(args)

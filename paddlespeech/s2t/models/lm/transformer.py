@@ -33,16 +33,16 @@ logger = Log(__name__).getlog()
 class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
     def __init__(self,
                  n_vocab: int,
-                 pos_enc: str=None,
-                 embed_unit: int=128,
-                 att_unit: int=256,
-                 head: int=2,
-                 unit: int=1024,
-                 layer: int=4,
-                 dropout_rate: float=0.5,
-                 emb_dropout_rate: float=0.0,
-                 att_dropout_rate: float=0.0,
-                 tie_weights: bool=False,
+                 pos_enc: str = None,
+                 embed_unit: int = 128,
+                 att_unit: int = 256,
+                 head: int = 2,
+                 unit: int = 1024,
+                 layer: int = 4,
+                 dropout_rate: float = 0.5,
+                 emb_dropout_rate: float = 0.0,
+                 att_dropout_rate: float = 0.0,
+                 tie_weights: bool = False,
                  **kwargs):
         nn.Layer.__init__(self)
 
@@ -93,8 +93,9 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         m = subsequent_mask(paddle.shape(ys_mask)[-1]).unsqueeze(0)
         return ys_mask.unsqueeze(-2) & m
 
-    def forward(self, x: paddle.Tensor, t: paddle.Tensor
-                ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    def forward(
+            self, x: paddle.Tensor, t: paddle.Tensor
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute LM loss value from buffer sequences.
 
         Args:
@@ -121,8 +122,10 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             emb = self.embed(x)
         h, _ = self.encoder(emb, xlen)
         y = self.decoder(h)
-        loss = F.cross_entropy(
-            y.view(-1, paddle.shape(y)[-1]), t.view(-1), reduction="none")
+        loss = F.cross_entropy(y.view(-1,
+                                      paddle.shape(y)[-1]),
+                               t.view(-1),
+                               reduction="none")
         mask = xm.to(loss.dtype)
         logp = loss * mask.view(-1)
         nll = logp.view(batch_size, -1).sum(-1)
@@ -154,16 +157,15 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         else:
             emb = self.embed(y)
 
-        h, _, cache = self.encoder.forward_one_step(
-            emb, self._target_mask(y), cache=state)
+        h, _, cache = self.encoder.forward_one_step(emb,
+                                                    self._target_mask(y),
+                                                    cache=state)
         h = self.decoder(h[:, -1])
         logp = F.log_softmax(h).squeeze(0)
         return logp, cache
 
     # batch beam search API (see BatchScorerInterface)
-    def batch_score(self,
-                    ys: paddle.Tensor,
-                    states: List[Any],
+    def batch_score(self, ys: paddle.Tensor, states: List[Any],
                     xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 
@@ -197,8 +199,9 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
             emb = self.embed(ys)
 
         # batch decoding
-        h, _, states = self.encoder.forward_one_step(
-            emb, self._target_mask(ys), cache=batch_state)
+        h, _, states = self.encoder.forward_one_step(emb,
+                                                     self._target_mask(ys),
+                                                     cache=batch_state)
         h = self.decoder(h[:, -1])
         logp = F.log_softmax(h)
 
@@ -217,7 +220,8 @@ if __name__ == "__main__":
         head=8,
         unit=2048,
         layer=16,
-        dropout_rate=0.5, )
+        dropout_rate=0.5,
+    )
 
     #     n_vocab: int,
     # pos_enc: str=None,

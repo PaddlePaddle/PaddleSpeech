@@ -51,10 +51,11 @@ def write_dict_into_file(ppl_dict, name):
 
 
 def cacu_perplexity(
-        lm_model,
-        lm_config,
-        args,
-        log_base=None, ):
+    lm_model,
+    lm_config,
+    args,
+    log_base=None,
+):
     unit_type = lm_config.data.unit_type
     batch_size = lm_config.decoding.batch_size
     num_workers = lm_config.decoding.num_workers
@@ -65,15 +66,13 @@ def cacu_perplexity(
     ppl_dict = {}
     len_dict = {}
     text_dataset = TextDataset.from_file(text_file_path)
-    collate_fn_text = TextCollatorSpm(
-        unit_type=unit_type,
-        vocab_filepath=args.vocab_path,
-        spm_model_prefix=args.bpeprefix)
-    train_loader = DataLoader(
-        text_dataset,
-        batch_size=batch_size,
-        collate_fn=collate_fn_text,
-        num_workers=num_workers)
+    collate_fn_text = TextCollatorSpm(unit_type=unit_type,
+                                      vocab_filepath=args.vocab_path,
+                                      spm_model_prefix=args.bpeprefix)
+    train_loader = DataLoader(text_dataset,
+                              batch_size=batch_size,
+                              collate_fn=collate_fn_text,
+                              num_workers=num_workers)
 
     logger.info("start caculating PPL......")
     for i, (keys, ys_input_pad, ys_output_pad,

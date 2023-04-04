@@ -25,12 +25,13 @@ from paddlespeech.s2t.utils.cli_utils import assert_scipy_wav_style
 
 
 def file_writer_helper(
-        wspecifier: str,
-        filetype: str="mat",
-        write_num_frames: str=None,
-        compress: bool=False,
-        compression_method: int=2,
-        pcm_format: str="wav", ):
+    wspecifier: str,
+    filetype: str = "mat",
+    write_num_frames: str = None,
+    compress: bool = False,
+    compression_method: int = 2,
+    pcm_format: str = "wav",
+):
     """Write matrices in kaldi style
 
     Args:
@@ -74,20 +75,20 @@ def file_writer_helper(
             wspecifier,
             write_num_frames=write_num_frames,
             compress=compress,
-            compression_method=compression_method, )
+            compression_method=compression_method,
+        )
     elif filetype == "hdf5":
-        return HDF5Writer(
-            wspecifier, write_num_frames=write_num_frames, compress=compress)
+        return HDF5Writer(wspecifier,
+                          write_num_frames=write_num_frames,
+                          compress=compress)
     elif filetype == "sound.hdf5":
-        return SoundHDF5Writer(
-            wspecifier,
-            write_num_frames=write_num_frames,
-            pcm_format=pcm_format)
+        return SoundHDF5Writer(wspecifier,
+                               write_num_frames=write_num_frames,
+                               pcm_format=pcm_format)
     elif filetype == "sound":
-        return SoundWriter(
-            wspecifier,
-            write_num_frames=write_num_frames,
-            pcm_format=pcm_format)
+        return SoundWriter(wspecifier,
+                           write_num_frames=write_num_frames,
+                           pcm_format=pcm_format)
     else:
         raise NotImplementedError(f"filetype={filetype}")
 
@@ -190,7 +191,6 @@ class HDF5Writer(BaseWriter):
         >>> with HDF5Writer('ark:out.h5', compress=True) as f:
         ...     f['key'] = array
     """
-
     def __init__(self, wspecifier, write_num_frames=None, compress=False):
         spec_dict = parse_wspecifier(wspecifier)
         self.filename = spec_dict["ark"]
@@ -226,13 +226,13 @@ class SoundHDF5Writer(BaseWriter):
         >>> with SoundHDF5Writer('ark:out.h5') as f:
         ...     f['key'] = fs, array
     """
-
     def __init__(self, wspecifier, write_num_frames=None, pcm_format="wav"):
         self.pcm_format = pcm_format
         spec_dict = parse_wspecifier(wspecifier)
         self.filename = spec_dict["ark"]
-        self.writer = SoundHDF5File(
-            spec_dict["ark"], "w", format=self.pcm_format)
+        self.writer = SoundHDF5File(spec_dict["ark"],
+                                    "w",
+                                    format=self.pcm_format)
         if "scp" in spec_dict:
             self.writer_scp = open(spec_dict["scp"], "w", encoding="utf-8")
         else:
@@ -263,7 +263,6 @@ class SoundWriter(BaseWriter):
         >>> with SoundWriter('ark,scp:outdir,out.scp') as f:
         ...     f['key'] = fs, array
     """
-
     def __init__(self, wspecifier, write_num_frames=None, pcm_format="wav"):
         self.pcm_format = pcm_format
         spec_dict = parse_wspecifier(wspecifier)

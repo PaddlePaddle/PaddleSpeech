@@ -50,19 +50,22 @@ if __name__ == "__main__":
         type=str,
         default='u2_kaldi',
         help='model name, e.g: deepspeech2, u2, u2_kaldi, u2_st')
-    parser.add_argument(
-        '--run-mode',
-        type=str,
-        default='test',
-        help='run mode, e.g. test, align, export')
-    parser.add_argument(
-        '--dict-path', type=str, default=None, help='dict path.')
+    parser.add_argument('--run-mode',
+                        type=str,
+                        default='test',
+                        help='run mode, e.g. test, align, export')
+    parser.add_argument('--dict-path',
+                        type=str,
+                        default=None,
+                        help='dict path.')
     # save asr result to
-    parser.add_argument(
-        "--result-file", type=str, help="path of save the asr result")
+    parser.add_argument("--result-file",
+                        type=str,
+                        help="path of save the asr result")
     # save jit model to
-    parser.add_argument(
-        "--export-path", type=str, help="path of the jit model to save")
+    parser.add_argument("--export-path",
+                        type=str,
+                        help="path of the jit model to save")
     args = parser.parse_args()
     print_arguments(args, globals())
 

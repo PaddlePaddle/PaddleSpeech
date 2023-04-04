@@ -67,8 +67,11 @@ class U2Updater(StandardUpdater):
                  init_state=None,
                  accum_grad=1,
                  **kwargs):
-        super().__init__(
-            model, optimizer, scheduler, dataloader, init_state=init_state)
+        super().__init__(model,
+                         optimizer,
+                         scheduler,
+                         dataloader,
+                         init_state=init_state)
         self.accum_grad = accum_grad
         self.forward_count = 0
         self.msg = ""

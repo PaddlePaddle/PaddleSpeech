@@ -93,32 +93,31 @@ class BaseEncoder(nn.Layer):
             signature.)
         encoder_type (str): "transformer", or "conformer".
     """
-
     def __init__(self,
                  idim: int,
-                 attention_dim: int=256,
-                 attention_heads: int=4,
-                 linear_units: int=2048,
-                 num_blocks: int=6,
-                 dropout_rate: float=0.1,
-                 positional_dropout_rate: float=0.1,
-                 attention_dropout_rate: float=0.0,
-                 input_layer: str="conv2d",
-                 normalize_before: bool=True,
-                 concat_after: bool=False,
-                 positionwise_layer_type: str="linear",
-                 positionwise_conv_kernel_size: int=1,
-                 macaron_style: bool=False,
-                 pos_enc_layer_type: str="abs_pos",
-                 selfattention_layer_type: str="selfattn",
-                 activation_type: str="swish",
-                 use_cnn_module: bool=False,
-                 zero_triu: bool=False,
-                 cnn_module_kernel: int=31,
-                 padding_idx: int=-1,
-                 stochastic_depth_rate: float=0.0,
-                 intermediate_layers: Union[List[int], None]=None,
-                 encoder_type: str="transformer"):
+                 attention_dim: int = 256,
+                 attention_heads: int = 4,
+                 linear_units: int = 2048,
+                 num_blocks: int = 6,
+                 dropout_rate: float = 0.1,
+                 positional_dropout_rate: float = 0.1,
+                 attention_dropout_rate: float = 0.0,
+                 input_layer: str = "conv2d",
+                 normalize_before: bool = True,
+                 concat_after: bool = False,
+                 positionwise_layer_type: str = "linear",
+                 positionwise_conv_kernel_size: int = 1,
+                 macaron_style: bool = False,
+                 pos_enc_layer_type: str = "abs_pos",
+                 selfattention_layer_type: str = "selfattn",
+                 activation_type: str = "swish",
+                 use_cnn_module: bool = False,
+                 zero_triu: bool = False,
+                 cnn_module_kernel: int = 31,
+                 padding_idx: int = -1,
+                 stochastic_depth_rate: float = 0.0,
+                 intermediate_layers: Union[List[int], None] = None,
+                 encoder_type: str = "transformer"):
         """Construct an Base Encoder object."""
         super().__init__()
         activation = get_activation(activation_type)
@@ -164,7 +163,9 @@ class BaseEncoder(nn.Layer):
                     positionwise_layer(*positionwise_layer_args),
                     dropout_rate,
                     normalize_before,
-                    concat_after, ), )
+                    concat_after,
+                ),
+            )
 
         elif self.encoder_type == "conformer":
             self.encoders = repeat(
@@ -173,12 +174,16 @@ class BaseEncoder(nn.Layer):
                     attention_dim,
                     encoder_selfattn_layer(*encoder_selfattn_layer_args),
                     positionwise_layer(*positionwise_layer_args),
-                    positionwise_layer(*positionwise_layer_args) if macaron_style else None,
-                    convolution_layer(*convolution_layer_args) if use_cnn_module else None,
+                    positionwise_layer(*positionwise_layer_args)
+                    if macaron_style else None,
+                    convolution_layer(*convolution_layer_args)
+                    if use_cnn_module else None,
                     dropout_rate,
                     normalize_before,
                     concat_after,
-                    stochastic_depth_rate * float(1 + lnum) / num_blocks, ), )
+                    stochastic_depth_rate * float(1 + lnum) / num_blocks,
+                ),
+            )
             self.intermediate_layers = intermediate_layers
         else:
             raise NotImplementedError("Support only linear or conv1d.")
@@ -187,12 +192,12 @@ class BaseEncoder(nn.Layer):
             self.after_norm = LayerNorm(attention_dim)
 
     def get_positionwise_layer(self,
-                               positionwise_layer_type: str="linear",
-                               attention_dim: int=256,
-                               linear_units: int=2048,
-                               dropout_rate: float=0.1,
-                               positionwise_conv_kernel_size: int=1,
-                               activation: nn.Layer=nn.ReLU()):
+                               positionwise_layer_type: str = "linear",
+                               attention_dim: int = 256,
+                               linear_units: int = 2048,
+                               dropout_rate: float = 0.1,
+                               positionwise_conv_kernel_size: int = 1,
+                               activation: nn.Layer = nn.ReLU()):
         """Define positionwise layer."""
         if positionwise_layer_type == "linear":
             positionwise_layer = PositionwiseFeedForward
@@ -200,42 +205,55 @@ class BaseEncoder(nn.Layer):
                                        dropout_rate, activation)
         elif positionwise_layer_type == "conv1d":
             positionwise_layer = MultiLayeredConv1d
-            positionwise_layer_args = (attention_dim, linear_units,
-                                       positionwise_conv_kernel_size,
-                                       dropout_rate, )
+            positionwise_layer_args = (
+                attention_dim,
+                linear_units,
+                positionwise_conv_kernel_size,
+                dropout_rate,
+            )
         elif positionwise_layer_type == "conv1d-linear":
             positionwise_layer = Conv1dLinear
-            positionwise_layer_args = (attention_dim, linear_units,
-                                       positionwise_conv_kernel_size,
-                                       dropout_rate, )
+            positionwise_layer_args = (
+                attention_dim,
+                linear_units,
+                positionwise_conv_kernel_size,
+                dropout_rate,
+            )
         else:
             raise NotImplementedError("Support only linear or conv1d.")
         return positionwise_layer, positionwise_layer_args
 
     def get_encoder_selfattn_layer(self,
-                                   selfattention_layer_type: str="selfattn",
-                                   attention_heads: int=4,
-                                   attention_dim: int=256,
-                                   attention_dropout_rate: float=0.0,
-                                   zero_triu: bool=False,
-                                   pos_enc_layer_type: str="abs_pos"):
+                                   selfattention_layer_type: str = "selfattn",
+                                   attention_heads: int = 4,
+                                   attention_dim: int = 256,
+                                   attention_dropout_rate: float = 0.0,
+                                   zero_triu: bool = False,
+                                   pos_enc_layer_type: str = "abs_pos"):
         if selfattention_layer_type == "selfattn":
             encoder_selfattn_layer = MultiHeadedAttention
-            encoder_selfattn_layer_args = (attention_heads, attention_dim,
-                                           attention_dropout_rate, )
+            encoder_selfattn_layer_args = (
+                attention_heads,
+                attention_dim,
+                attention_dropout_rate,
+            )
         elif selfattention_layer_type == "rel_selfattn":
             assert pos_enc_layer_type == "rel_pos"
             encoder_selfattn_layer = RelPositionMultiHeadedAttention
-            encoder_selfattn_layer_args = (attention_heads, attention_dim,
-                                           attention_dropout_rate, zero_triu, )
+            encoder_selfattn_layer_args = (
+                attention_heads,
+                attention_dim,
+                attention_dropout_rate,
+                zero_triu,
+            )
         else:
             raise ValueError("unknown encoder_attn_layer: " +
                              selfattention_layer_type)
         return encoder_selfattn_layer, encoder_selfattn_layer_args
 
     def get_pos_enc_class(self,
-                          pos_enc_layer_type: str="abs_pos",
-                          selfattention_layer_type: str="selfattn"):
+                          pos_enc_layer_type: str = "abs_pos",
+                          selfattention_layer_type: str = "selfattn"):
         if pos_enc_layer_type == "abs_pos":
             pos_enc_class = PositionalEncoding
         elif pos_enc_layer_type == "scaled_abs_pos":
@@ -250,11 +268,11 @@ class BaseEncoder(nn.Layer):
     def get_embed(self,
                   idim,
                   input_layer="conv2d",
-                  attention_dim: int=256,
+                  attention_dim: int = 256,
                   pos_enc_class=PositionalEncoding,
-                  dropout_rate: int=0.1,
-                  positional_dropout_rate: int=0.1,
-                  padding_idx: int=-1):
+                  dropout_rate: int = 0.1,
+                  positional_dropout_rate: int = 0.1,
+                  padding_idx: int = -1):
 
         if input_layer == "linear":
             embed = nn.Sequential(
@@ -262,22 +280,26 @@ class BaseEncoder(nn.Layer):
                 nn.LayerNorm(attention_dim),
                 nn.Dropout(dropout_rate),
                 nn.ReLU(),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer == "conv2d":
             embed = Conv2dSubsampling(
                 idim,
                 attention_dim,
                 dropout_rate,
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
             self.conv_subsampling_factor = 4
         elif input_layer == "embed":
             embed = nn.Sequential(
                 nn.Embedding(idim, attention_dim, padding_idx=padding_idx),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif isinstance(input_layer, nn.Layer):
             embed = nn.Sequential(
                 input_layer,
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer is None:
             embed = nn.Sequential(
                 pos_enc_class(attention_dim, positional_dropout_rate))
@@ -350,26 +372,26 @@ class TransformerEncoder(BaseEncoder):
         padding_idx (int): 
             Padding idx for input_layer=embed.
     """
-
     def __init__(
-            self,
-            idim,
-            attention_dim: int=256,
-            attention_heads: int=4,
-            linear_units: int=2048,
-            num_blocks: int=6,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.1,
-            attention_dropout_rate: float=0.0,
-            input_layer: str="conv2d",
-            pos_enc_layer_type: str="abs_pos",
-            normalize_before: bool=True,
-            concat_after: bool=False,
-            positionwise_layer_type: str="linear",
-            positionwise_conv_kernel_size: int=1,
-            selfattention_layer_type: str="selfattn",
-            activation_type: str="relu",
-            padding_idx: int=-1, ):
+        self,
+        idim,
+        attention_dim: int = 256,
+        attention_heads: int = 4,
+        linear_units: int = 2048,
+        num_blocks: int = 6,
+        dropout_rate: float = 0.1,
+        positional_dropout_rate: float = 0.1,
+        attention_dropout_rate: float = 0.0,
+        input_layer: str = "conv2d",
+        pos_enc_layer_type: str = "abs_pos",
+        normalize_before: bool = True,
+        concat_after: bool = False,
+        positionwise_layer_type: str = "linear",
+        positionwise_conv_kernel_size: int = 1,
+        selfattention_layer_type: str = "selfattn",
+        activation_type: str = "relu",
+        padding_idx: int = -1,
+    ):
         """Construct an Transformer Encoder object."""
         super().__init__(
             idim,
@@ -394,10 +416,10 @@ class TransformerEncoder(BaseEncoder):
     def forward(self,
                 xs: paddle.Tensor,
                 masks: paddle.Tensor,
-                note_emb: paddle.Tensor=None,
-                note_dur_emb: paddle.Tensor=None,
-                is_slur_emb: paddle.Tensor=None,
-                scale: int=16):
+                note_emb: paddle.Tensor = None,
+                note_dur_emb: paddle.Tensor = None,
+                is_slur_emb: paddle.Tensor = None,
+                scale: int = 16):
         """Encoder input sequence.
 
         Args:
@@ -513,32 +535,32 @@ class ConformerEncoder(BaseEncoder):
             indices of intermediate CTC layer. indices start from 1.
             if not None, intermediate outputs are returned (which changes return type signature.)
     """
-
     def __init__(
-            self,
-            idim: int,
-            attention_dim: int=256,
-            attention_heads: int=4,
-            linear_units: int=2048,
-            num_blocks: int=6,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.1,
-            attention_dropout_rate: float=0.0,
-            input_layer: str="conv2d",
-            normalize_before: bool=True,
-            concat_after: bool=False,
-            positionwise_layer_type: str="linear",
-            positionwise_conv_kernel_size: int=1,
-            macaron_style: bool=False,
-            pos_enc_layer_type: str="rel_pos",
-            selfattention_layer_type: str="rel_selfattn",
-            activation_type: str="swish",
-            use_cnn_module: bool=False,
-            zero_triu: bool=False,
-            cnn_module_kernel: int=31,
-            padding_idx: int=-1,
-            stochastic_depth_rate: float=0.0,
-            intermediate_layers: Union[List[int], None]=None, ):
+        self,
+        idim: int,
+        attention_dim: int = 256,
+        attention_heads: int = 4,
+        linear_units: int = 2048,
+        num_blocks: int = 6,
+        dropout_rate: float = 0.1,
+        positional_dropout_rate: float = 0.1,
+        attention_dropout_rate: float = 0.0,
+        input_layer: str = "conv2d",
+        normalize_before: bool = True,
+        concat_after: bool = False,
+        positionwise_layer_type: str = "linear",
+        positionwise_conv_kernel_size: int = 1,
+        macaron_style: bool = False,
+        pos_enc_layer_type: str = "rel_pos",
+        selfattention_layer_type: str = "rel_selfattn",
+        activation_type: str = "swish",
+        use_cnn_module: bool = False,
+        zero_triu: bool = False,
+        cnn_module_kernel: int = 31,
+        padding_idx: int = -1,
+        stochastic_depth_rate: float = 0.0,
+        intermediate_layers: Union[List[int], None] = None,
+    ):
         """Construct an Conformer Encoder object."""
         super().__init__(
             idim=idim,
@@ -592,8 +614,8 @@ class ConformerEncoder(BaseEncoder):
             for layer_idx, encoder_layer in enumerate(self.encoders):
                 xs, masks = encoder_layer(xs, masks)
 
-                if (self.intermediate_layers is not None and
-                        layer_idx + 1 in self.intermediate_layers):
+                if (self.intermediate_layers is not None
+                        and layer_idx + 1 in self.intermediate_layers):
                     # intermediate branches also require normalization.
                     encoder_output = xs
                     if isinstance(encoder_output, tuple):
@@ -617,19 +639,18 @@ class Conv1dResidualBlock(nn.Layer):
     """
     Special module for simplified version of Encoder class.
     """
-
     def __init__(self,
-                 idim: int=256,
-                 odim: int=256,
-                 kernel_size: int=5,
-                 dropout_rate: float=0.2):
+                 idim: int = 256,
+                 odim: int = 256,
+                 kernel_size: int = 5,
+                 dropout_rate: float = 0.2):
         super().__init__()
         self.main_block = nn.Sequential(
-            nn.Conv1D(
-                idim, odim, kernel_size=kernel_size, padding=kernel_size // 2),
-            nn.ReLU(),
-            nn.BatchNorm1D(odim),
-            nn.Dropout(p=dropout_rate))
+            nn.Conv1D(idim,
+                      odim,
+                      kernel_size=kernel_size,
+                      padding=kernel_size // 2), nn.ReLU(),
+            nn.BatchNorm1D(odim), nn.Dropout(p=dropout_rate))
         self.conv1d_residual = nn.Conv1D(idim, odim, kernel_size=1)
 
     def forward(self, xs):
@@ -649,14 +670,14 @@ class CNNDecoder(nn.Layer):
     """
     Much simplified decoder than the original one with Prenet.
     """
-
     def __init__(
-            self,
-            emb_dim: int=256,
-            odim: int=80,
-            kernel_size: int=5,
-            dropout_rate: float=0.2,
-            resblock_kernel_sizes: List[int]=[256, 256], ):
+        self,
+        emb_dim: int = 256,
+        odim: int = 80,
+        kernel_size: int = 5,
+        dropout_rate: float = 0.2,
+        resblock_kernel_sizes: List[int] = [256, 256],
+    ):
 
         super().__init__()
 
@@ -670,11 +691,12 @@ class CNNDecoder(nn.Layer):
                 idim=in_channels,
                 odim=out_channels,
                 kernel_size=kernel_size,
-                dropout_rate=dropout_rate, )
-            for in_channels, out_channels in zip(in_sizes, out_sizes)
+                dropout_rate=dropout_rate,
+            ) for in_channels, out_channels in zip(in_sizes, out_sizes)
         ])
-        self.conv1d = nn.Conv1D(
-            in_channels=out_sizes[-1], out_channels=odim, kernel_size=1)
+        self.conv1d = nn.Conv1D(in_channels=out_sizes[-1],
+                                out_channels=odim,
+                                kernel_size=1)
 
     def forward(self, xs, masks=None):
         """Encode input sequence.
@@ -706,24 +728,25 @@ class CNNDecoder(nn.Layer):
 
 class CNNPostnet(nn.Layer):
     def __init__(
-            self,
-            odim: int=80,
-            kernel_size: int=5,
-            dropout_rate: float=0.2,
-            resblock_kernel_sizes: List[int]=[256, 256], ):
+        self,
+        odim: int = 80,
+        kernel_size: int = 5,
+        dropout_rate: float = 0.2,
+        resblock_kernel_sizes: List[int] = [256, 256],
+    ):
         super().__init__()
         out_sizes = resblock_kernel_sizes
         in_sizes = [odim] + out_sizes[:-1]
         self.residual_blocks = nn.LayerList([
-            Conv1dResidualBlock(
-                idim=in_channels,
-                odim=out_channels,
-                kernel_size=kernel_size,
-                dropout_rate=dropout_rate)
+            Conv1dResidualBlock(idim=in_channels,
+                                odim=out_channels,
+                                kernel_size=kernel_size,
+                                dropout_rate=dropout_rate)
             for in_channels, out_channels in zip(in_sizes, out_sizes)
         ])
-        self.conv1d = nn.Conv1D(
-            in_channels=out_sizes[-1], out_channels=odim, kernel_size=1)
+        self.conv1d = nn.Conv1D(in_channels=out_sizes[-1],
+                                out_channels=odim,
+                                kernel_size=1)
 
     def forward(self, xs, masks=None):
         """Encode input sequence.

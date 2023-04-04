@@ -47,7 +47,8 @@ if __name__ == '__main__':
         sample_rate=config['sample_rate'],
         frame_shift=config['frame_shift'],
         frame_length=config['frame_length'],
-        n_mels=config['n_mels'], )
+        n_mels=config['n_mels'],
+    )
     dev_ds = ds_class(
         data_dir=config['data_dir'],
         mode='dev',
@@ -55,7 +56,8 @@ if __name__ == '__main__':
         sample_rate=config['sample_rate'],
         frame_shift=config['frame_shift'],
         frame_length=config['frame_length'],
-        n_mels=config['n_mels'], )
+        n_mels=config['n_mels'],
+    )
 
     train_sampler = paddle.io.DistributedBatchSampler(
         train_ds,
@@ -68,7 +70,8 @@ if __name__ == '__main__':
         num_workers=config['num_workers'],
         return_list=True,
         use_buffer_reader=True,
-        collate_fn=collate_features, )
+        collate_fn=collate_features,
+    )
 
     # Model
     backbone_class = dynamic_import(config['backbone'])
@@ -77,15 +80,15 @@ if __name__ == '__main__':
         stack_size=config['stack_size'],
         in_channels=config['in_channels'],
         res_channels=config['res_channels'],
-        kernel_size=config['kernel_size'], )
+        kernel_size=config['kernel_size'],
+    )
     model = KWSModel(backbone=backbone, num_keywords=config['num_keywords'])
     model = paddle.DataParallel(model)
     clip = paddle.nn.ClipGradByGlobalNorm(config['grad_clip'])
-    optimizer = paddle.optimizer.Adam(
-        learning_rate=config['learning_rate'],
-        weight_decay=config['weight_decay'],
-        parameters=model.parameters(),
-        grad_clip=clip)
+    optimizer = paddle.optimizer.Adam(learning_rate=config['learning_rate'],
+                                      weight_decay=config['weight_decay'],
+                                      parameters=model.parameters(),
+                                      grad_clip=clip)
     criterion = max_pooling_loss
 
     steps_per_epoch = len(train_sampler)
@@ -148,7 +151,8 @@ if __name__ == '__main__':
                 num_workers=config['num_workers'],
                 return_list=True,
                 use_buffer_reader=True,
-                collate_fn=collate_features, )
+                collate_fn=collate_features,
+            )
 
             model.eval()
             num_corrects = 0

@@ -45,15 +45,18 @@ def _train_loader_specifics(self, dataset, loader_kwargs):
                 sampler,
                 rank=self.rank,
                 drop_last=drop_last,
-                shuffle=shuffle, )
+                shuffle=shuffle,
+            )
 
             # with DistributedSamplerWrapper, one must disable shuffling for dataloader
             loader_kwargs["shuffle"] = False
             loader_kwargs["sampler"] = self.train_sampler
         elif loader_kwargs.get("batch_sampler") is None:
             # no sampler and batch-sampler
-            self.train_sampler = DistributedSampler(
-                dataset, rank=self.rank, shuffle=True, drop_last=drop_last)
+            self.train_sampler = DistributedSampler(dataset,
+                                                    rank=self.rank,
+                                                    shuffle=True,
+                                                    drop_last=drop_last)
 
             # with DistributedSamplerWrapper, one must disable shuffling for dataloader
             loader_kwargs["shuffle"] = False
@@ -62,7 +65,8 @@ def _train_loader_specifics(self, dataset, loader_kwargs):
             self.train_sampler = DistributedSamplerWrapper(
                 loader_kwargs.get("batch_sampler", None),
                 rank=self.rank,
-                shuffle=True, )
+                shuffle=True,
+            )
             loader_kwargs["batch_sampler"] = self.train_sampler
     elif self.distributed_launch and isinstance(dataset, IterableDataset):
         logger.warning("Cannot automatically solve distributed sampling "

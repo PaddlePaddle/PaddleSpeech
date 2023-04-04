@@ -41,14 +41,14 @@ class VITSUpdater(StandardUpdater):
                  criterions: Dict[str, Layer],
                  schedulers: Dict[str, LRScheduler],
                  dataloader: DataLoader,
-                 generator_train_start_steps: int=0,
-                 discriminator_train_start_steps: int=100000,
-                 lambda_adv: float=1.0,
-                 lambda_mel: float=45.0,
-                 lambda_feat_match: float=2.0,
-                 lambda_dur: float=1.0,
-                 lambda_kl: float=1.0,
-                 generator_first: bool=False,
+                 generator_train_start_steps: int = 0,
+                 discriminator_train_start_steps: int = 100000,
+                 lambda_adv: float = 1.0,
+                 lambda_mel: float = 45.0,
+                 lambda_feat_match: float = 2.0,
+                 lambda_dur: float = 1.0,
+                 lambda_kl: float = 1.0,
+                 generator_first: bool = False,
                  output_dir=None):
         # it is designed to hold multiple models
         # 因为输入的是单模型，但是没有用到父类的 init(), 所以需要重新写这部分
@@ -106,14 +106,13 @@ class VITSUpdater(StandardUpdater):
         for turn in self.turns:
             speech = batch["speech"]
             speech = speech.unsqueeze(1)
-            outs = self.model(
-                text=batch["text"],
-                text_lengths=batch["text_lengths"],
-                feats=batch["feats"],
-                feats_lengths=batch["feats_lengths"],
-                sids=batch.get("spk_id", None),
-                spembs=batch.get("spk_emb", None),
-                forward_generator=turn == "generator")
+            outs = self.model(text=batch["text"],
+                              text_lengths=batch["text_lengths"],
+                              feats=batch["feats"],
+                              feats_lengths=batch["feats_lengths"],
+                              sids=batch.get("spk_id", None),
+                              spembs=batch.get("spk_emb", None),
+                              forward_generator=turn == "generator")
             # Generator
             if turn == "generator":
                 # parse outputs
@@ -124,7 +123,8 @@ class VITSUpdater(StandardUpdater):
                     start_idxs=start_idxs *
                     self.model.generator.upsample_factor,
                     segment_size=self.model.generator.segment_size *
-                    self.model.generator.upsample_factor, )
+                    self.model.generator.upsample_factor,
+                )
 
                 # calculate discriminator outputs
                 p_hat = self.model.discriminator(speech_hat_)
@@ -181,7 +181,8 @@ class VITSUpdater(StandardUpdater):
                     start_idxs=start_idxs *
                     self.model.generator.upsample_factor,
                     segment_size=self.model.generator.segment_size *
-                    self.model.generator.upsample_factor, )
+                    self.model.generator.upsample_factor,
+                )
 
                 # calculate discriminator outputs
                 p_hat = self.model.discriminator(speech_hat_.detach())
@@ -217,12 +218,12 @@ class VITSEvaluator(StandardEvaluator):
                  model,
                  criterions: Dict[str, Layer],
                  dataloader: DataLoader,
-                 lambda_adv: float=1.0,
-                 lambda_mel: float=45.0,
-                 lambda_feat_match: float=2.0,
-                 lambda_dur: float=1.0,
-                 lambda_kl: float=1.0,
-                 generator_first: bool=False,
+                 lambda_adv: float = 1.0,
+                 lambda_mel: float = 45.0,
+                 lambda_feat_match: float = 2.0,
+                 lambda_dur: float = 1.0,
+                 lambda_kl: float = 1.0,
+                 generator_first: bool = False,
                  output_dir=None):
         # 因为输入的是单模型，但是没有用到父类的 init(), 所以需要重新写这部分
         models = {"main": model}
@@ -265,14 +266,13 @@ class VITSEvaluator(StandardEvaluator):
         for turn in self.turns:
             speech = batch["speech"]
             speech = speech.unsqueeze(1)
-            outs = self.model(
-                text=batch["text"],
-                text_lengths=batch["text_lengths"],
-                feats=batch["feats"],
-                feats_lengths=batch["feats_lengths"],
-                sids=batch.get("spk_id", None),
-                spembs=batch.get("spk_emb", None),
-                forward_generator=turn == "generator")
+            outs = self.model(text=batch["text"],
+                              text_lengths=batch["text_lengths"],
+                              feats=batch["feats"],
+                              feats_lengths=batch["feats_lengths"],
+                              sids=batch.get("spk_id", None),
+                              spembs=batch.get("spk_emb", None),
+                              forward_generator=turn == "generator")
             # Generator
             if turn == "generator":
                 # parse outputs
@@ -283,7 +283,8 @@ class VITSEvaluator(StandardEvaluator):
                     start_idxs=start_idxs *
                     self.model.generator.upsample_factor,
                     segment_size=self.model.generator.segment_size *
-                    self.model.generator.upsample_factor, )
+                    self.model.generator.upsample_factor,
+                )
 
                 # calculate discriminator outputs
                 p_hat = self.model.discriminator(speech_hat_)
@@ -333,7 +334,8 @@ class VITSEvaluator(StandardEvaluator):
                     start_idxs=start_idxs *
                     self.model.generator.upsample_factor,
                     segment_size=self.model.generator.segment_size *
-                    self.model.generator.upsample_factor, )
+                    self.model.generator.upsample_factor,
+                )
 
                 # calculate discriminator outputs
                 p_hat = self.model.discriminator(speech_hat_.detach())

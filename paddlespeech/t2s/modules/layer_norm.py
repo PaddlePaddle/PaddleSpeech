@@ -24,7 +24,6 @@ class LayerNorm(nn.LayerNorm):
         dim (int): 
             Dimension to be normalized.
     """
-
     def __init__(self, nout, dim=-1):
         """Construct an LayerNorm object."""
         super().__init__(nout)

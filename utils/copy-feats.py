@@ -14,50 +14,56 @@ from paddlespeech.s2t.utils.cli_writers import file_writer_helper
 def get_parser():
     parser = argparse.ArgumentParser(
         description="copy feature with preprocessing",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument(
-        "--verbose", "-V", default=0, type=int, help="Verbose option")
+    parser.add_argument("--verbose",
+                        "-V",
+                        default=0,
+                        type=int,
+                        help="Verbose option")
     parser.add_argument(
         "--in-filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "sound.hdf5", "sound"],
         help="Specify the file format for the rspecifier. "
-        '"mat" is the matrix format in kaldi', )
+        '"mat" is the matrix format in kaldi',
+    )
     parser.add_argument(
         "--out-filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "sound.hdf5", "sound"],
         help="Specify the file format for the wspecifier. "
-        '"mat" is the matrix format in kaldi', )
-    parser.add_argument(
-        "--write-num-frames",
-        type=str,
-        help="Specify wspecifer for utt2num_frames")
-    parser.add_argument(
-        "--compress",
-        type=strtobool,
-        default=False,
-        help="Save in compressed format")
+        '"mat" is the matrix format in kaldi',
+    )
+    parser.add_argument("--write-num-frames",
+                        type=str,
+                        help="Specify wspecifer for utt2num_frames")
+    parser.add_argument("--compress",
+                        type=strtobool,
+                        default=False,
+                        help="Save in compressed format")
     parser.add_argument(
         "--compression-method",
         type=int,
         default=2,
         help="Specify the method(if mat) or "
-        "gzip-level(if hdf5)", )
+        "gzip-level(if hdf5)",
+    )
     parser.add_argument(
         "--preprocess-conf",
         type=str,
         default=None,
-        help="The configuration file for the pre-processing", )
-    parser.add_argument(
-        "rspecifier",
-        type=str,
-        help="Read specifier for feats. e.g. ark:some.ark")
-    parser.add_argument(
-        "wspecifier", type=str, help="Write specifier. e.g. ark:some.ark")
+        help="The configuration file for the pre-processing",
+    )
+    parser.add_argument("rspecifier",
+                        type=str,
+                        help="Read specifier for feats. e.g. ark:some.ark")
+    parser.add_argument("wspecifier",
+                        type=str,
+                        help="Write specifier. e.g. ark:some.ark")
     return parser
 
 
@@ -84,7 +90,8 @@ def main():
             filetype=args.out_filetype,
             write_num_frames=args.write_num_frames,
             compress=args.compress,
-            compression_method=args.compression_method, ) as writer:
+            compression_method=args.compression_method,
+    ) as writer:
         for utt, mat in file_reader_helper(args.rspecifier, args.in_filetype):
             if is_scipy_wav_style(mat):
                 # If data is sound file, then got as Tuple[int, ndarray]

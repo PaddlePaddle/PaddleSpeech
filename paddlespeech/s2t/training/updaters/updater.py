@@ -51,7 +51,6 @@ class UpdaterBase():
     don't want to be messed up with other auxiliary code.
     So the best practice is to define a model and define a updater for it.
     """
-
     def __init__(self, init_state=None):
         # init state
         if init_state is None:

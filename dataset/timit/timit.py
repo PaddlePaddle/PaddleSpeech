@@ -165,8 +165,8 @@ def create_manifest(data_dir, manifest_path_prefix):
             phone_path = audio_path.with_suffix('.PHN')
             word_path = audio_path.with_suffix('.WRD')
 
-            audio_data, samplerate = soundfile.read(
-                str(audio_path), dtype='int16')
+            audio_data, samplerate = soundfile.read(str(audio_path),
+                                                    dtype='int16')
             duration = float(len(audio_data) / samplerate)
             word_text = read_txt(text_path)
             phone_text = read_algin(phone_path)

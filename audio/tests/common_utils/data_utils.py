@@ -32,8 +32,9 @@ def load_effects_params(*paths):
 
 
 def convert_tensor_encoding(
-        tensor: paddle.tensor,
-        dtype: paddle.dtype, ):
+    tensor: paddle.tensor,
+    dtype: paddle.dtype,
+):
     """Convert input tensor with values between -1 and 1 to integer encoding
     Args:
         tensor: input tensor, assumed between -1 and 1
@@ -98,14 +99,15 @@ def convert_tensor_encoding(
 
 
 def get_sinusoid(
-        *,
-        frequency: float=300,
-        sample_rate: int=16000,
-        duration: float=1,  # seconds
-        n_channels: int=1,
-        dtype: str="float32",
-        device: str="cpu",
-        channels_first: bool=True, ):
+    *,
+    frequency: float = 300,
+    sample_rate: int = 16000,
+    duration: float = 1,  # seconds
+    n_channels: int = 1,
+    dtype: str = "float32",
+    device: str = "cpu",
+    channels_first: bool = True,
+):
     """Generate pseudo audio data with sine wave.
 
     Args:

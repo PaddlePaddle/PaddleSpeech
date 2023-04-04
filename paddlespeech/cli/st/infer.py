@@ -39,8 +39,7 @@ __all__ = ["STExecutor"]
 kaldi_bins = {
     "url":
     "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
-    "md5":
-    "c0682303b3f3393dbf6ed4c4e35a53eb",
+    "md5": "c0682303b3f3393dbf6ed4c4e35a53eb",
 }
 
 
@@ -49,10 +48,12 @@ class STExecutor(BaseExecutor):
         super().__init__(task='st')
         self.kaldi_bins = kaldi_bins
 
-        self.parser = argparse.ArgumentParser(
-            prog="paddlespeech.st", add_help=True)
-        self.parser.add_argument(
-            "--input", type=str, default=None, help="Audio file to translate.")
+        self.parser = argparse.ArgumentParser(prog="paddlespeech.st",
+                                              add_help=True)
+        self.parser.add_argument("--input",
+                                 type=str,
+                                 default=None,
+                                 help="Audio file to translate.")
         self.parser.add_argument(
             "--model",
             type=str,
@@ -62,16 +63,14 @@ class STExecutor(BaseExecutor):
                 for tag in self.task_resource.pretrained_models.keys()
             ],
             help="Choose model type of st task.")
-        self.parser.add_argument(
-            "--src_lang",
-            type=str,
-            default="en",
-            help="Choose model source language.")
-        self.parser.add_argument(
-            "--tgt_lang",
-            type=str,
-            default="zh",
-            help="Choose model target language.")
+        self.parser.add_argument("--src_lang",
+                                 type=str,
+                                 default="en",
+                                 help="Choose model source language.")
+        self.parser.add_argument("--tgt_lang",
+                                 type=str,
+                                 default="zh",
+                                 help="Choose model target language.")
         self.parser.add_argument(
             "--sample_rate",
             type=int,
@@ -83,21 +82,19 @@ class STExecutor(BaseExecutor):
             type=str,
             default=None,
             help="Config of st task. Use deault config when it is None.")
-        self.parser.add_argument(
-            "--ckpt_path",
-            type=str,
-            default=None,
-            help="Checkpoint file of model.")
+        self.parser.add_argument("--ckpt_path",
+                                 type=str,
+                                 default=None,
+                                 help="Checkpoint file of model.")
         self.parser.add_argument(
             "--device",
             type=str,
             default=paddle.get_device(),
             help="Choose device to execute model inference.")
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -119,11 +116,11 @@ class STExecutor(BaseExecutor):
         return decompressed_path
 
     def _init_from_path(self,
-                        model_type: str="fat_st_ted",
-                        src_lang: str="en",
-                        tgt_lang: str="zh",
-                        cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        model_type: str = "fat_st_ted",
+                        src_lang: str = "en",
+                        tgt_lang: str = "zh",
+                        cfg_path: Optional[os.PathLike] = None,
+                        ckpt_path: Optional[os.PathLike] = None):
         """
             Init model and other resources from a specific path.
         """
@@ -180,8 +177,9 @@ class STExecutor(BaseExecutor):
         self._set_kaldi_bins()
 
     def _check(self, audio_file: str, sample_rate: int):
-        _, audio_sample_rate = soundfile.read(
-            audio_file, dtype="int16", always_2d=True)
+        _, audio_sample_rate = soundfile.read(audio_file,
+                                              dtype="int16",
+                                              always_2d=True)
         if audio_sample_rate != sample_rate:
             raise Exception("invalid sample rate")
             sys.exit(-1)
@@ -203,31 +201,28 @@ class STExecutor(BaseExecutor):
                 "compute-fbank-feats", "--num-mel-bins=80", "--verbose=2",
                 "--sample-frequency=16000", "scp:-", "ark:-"
             ]
-            fbank_extract_process = subprocess.Popen(
-                fbank_extract_command,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+            fbank_extract_process = subprocess.Popen(fbank_extract_command,
+                                                     stdin=subprocess.PIPE,
+                                                     stdout=subprocess.PIPE,
+                                                     stderr=subprocess.PIPE)
             fbank_extract_process.stdin.write(
                 f"{utt_name} {wav_file}".encode("utf8"))
             fbank_extract_process.stdin.close()
-            fbank_feat = dict(
-                kaldiio.load_ark(fbank_extract_process.stdout))[utt_name]
+            fbank_feat = dict(kaldiio.load_ark(
+                fbank_extract_process.stdout))[utt_name]
 
             extract_command = ["compute-kaldi-pitch-feats", "scp:-", "ark:-"]
-            pitch_extract_process = subprocess.Popen(
-                extract_command,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+            pitch_extract_process = subprocess.Popen(extract_command,
+                                                     stdin=subprocess.PIPE,
+                                                     stdout=subprocess.PIPE,
+                                                     stderr=subprocess.PIPE)
             pitch_extract_process.stdin.write(
                 f"{utt_name} {wav_file}".encode("utf8"))
             process_command = ["process-kaldi-pitch-feats", "ark:", "ark:-"]
-            pitch_process = subprocess.Popen(
-                process_command,
-                stdin=pitch_extract_process.stdout,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+            pitch_process = subprocess.Popen(process_command,
+                                             stdin=pitch_extract_process.stdout,
+                                             stdout=subprocess.PIPE,
+                                             stderr=subprocess.PIPE)
             pitch_extract_process.stdin.close()
             pitch_feat = dict(kaldiio.load_ark(pitch_process.stdout))[utt_name]
             concated_feat = np.concatenate((fbank_feat, pitch_feat), axis=1)
@@ -239,16 +234,16 @@ class STExecutor(BaseExecutor):
                 "apply-cmvn", "--norm-vars=true", cmvn, f"scp:{raw_feat}.scp",
                 "ark:-"
             ]
-            cmvn_process = subprocess.Popen(
-                cmvn_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmvn_process = subprocess.Popen(cmvn_command,
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE)
             process_command = [
                 "copy-feats", "--compress=true", "ark:-", "ark:-"
             ]
-            process = subprocess.Popen(
-                process_command,
-                stdin=cmvn_process.stdout,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+            process = subprocess.Popen(process_command,
+                                       stdin=cmvn_process.stdout,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             norm_feat = dict(kaldiio.load_ark(process.stdout))[utt_name]
             self._inputs["audio"] = paddle.to_tensor(norm_feat).unsqueeze(0)
             self._inputs["audio_len"] = paddle.to_tensor(
@@ -329,13 +324,13 @@ class STExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='fat_st_ted',
-                 src_lang: str='en',
-                 tgt_lang: str='zh',
-                 sample_rate: int=16000,
-                 config: Optional[os.PathLike]=None,
-                 ckpt_path: Optional[os.PathLike]=None,
-                 device: str=paddle.get_device()):
+                 model: str = 'fat_st_ted',
+                 src_lang: str = 'en',
+                 tgt_lang: str = 'zh',
+                 sample_rate: int = 16000,
+                 config: Optional[os.PathLike] = None,
+                 ckpt_path: Optional[os.PathLike] = None,
+                 device: str = paddle.get_device()):
         """
             Python API to call an executor.
         """

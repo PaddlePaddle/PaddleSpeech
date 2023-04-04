@@ -74,18 +74,16 @@ def train_sp(args, config):
         train_path=config["train_path"], **config["data_params"])
     dev_dataset = DefinedDataset[config["dataset_type"]](
         train_path=config["dev_path"], **config["data_params"])
-    train_dataloader = DataLoader(
-        train_dataset,
-        shuffle=True,
-        num_workers=config.num_workers,
-        batch_size=config.batch_size)
+    train_dataloader = DataLoader(train_dataset,
+                                  shuffle=True,
+                                  num_workers=config.num_workers,
+                                  batch_size=config.batch_size)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        batch_size=config.batch_size,
-        shuffle=False,
-        drop_last=False,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                batch_size=config.batch_size,
+                                shuffle=False,
+                                drop_last=False,
+                                num_workers=config.num_workers)
 
     print("dataloaders done!")
 
@@ -101,11 +99,10 @@ def train_sp(args, config):
     print("criterions done!")
 
     lr_schedule = ExponentialDecay(**config["scheduler_params"])
-    optimizer = Adam(
-        learning_rate=lr_schedule,
-        parameters=model.parameters(),
-        weight_decay=paddle.regularizer.L2Decay(
-            config["optimizer_params"]["weight_decay"]))
+    optimizer = Adam(learning_rate=lr_schedule,
+                     parameters=model.parameters(),
+                     weight_decay=paddle.regularizer.L2Decay(
+                         config["optimizer_params"]["weight_decay"]))
 
     print("optimizer done!")
 
@@ -116,27 +113,25 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
-    updater = ErnieLinearUpdater(
-        model=model,
-        criterion=criterion,
-        scheduler=lr_schedule,
-        optimizer=optimizer,
-        dataloader=train_dataloader,
-        output_dir=output_dir)
+    updater = ErnieLinearUpdater(model=model,
+                                 criterion=criterion,
+                                 scheduler=lr_schedule,
+                                 optimizer=optimizer,
+                                 dataloader=train_dataloader,
+                                 output_dir=output_dir)
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
-    evaluator = ErnieLinearEvaluator(
-        model=model,
-        criterion=criterion,
-        dataloader=dev_dataloader,
-        output_dir=output_dir)
+    evaluator = ErnieLinearEvaluator(model=model,
+                                     criterion=criterion,
+                                     dataloader=dev_dataloader,
+                                     output_dir=output_dir)
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))
         trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(1, 'epoch'))
     trainer.run()
 
 
@@ -145,8 +140,10 @@ def main():
     parser = argparse.ArgumentParser(description="Train a ErnieLinear model.")
     parser.add_argument("--config", type=str, help="ErnieLinear config file.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
 
     args = parser.parse_args()
 

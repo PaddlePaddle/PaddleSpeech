@@ -29,22 +29,23 @@ def readWave(samples):
 
 class ASR:
     def __init__(
-            self,
-            config_path, ) -> None:
+        self,
+        config_path,
+    ) -> None:
         self.config = get_config(config_path)['asr_online']
         self.engine = ASREngine()
         self.engine.init(self.config)
         self.connection_handler = PaddleASRConnectionHanddler(self.engine)
 
     def offlineASR(self, samples, sample_rate=16000):
-        x_chunk, x_chunk_lens = self.engine.preprocess(
-            samples=samples, sample_rate=sample_rate)
+        x_chunk, x_chunk_lens = self.engine.preprocess(samples=samples,
+                                                       sample_rate=sample_rate)
         self.engine.run(x_chunk, x_chunk_lens)
         result = self.engine.postprocess()
         self.engine.reset()
         return result
 
-    def onlineASR(self, samples: bytes=None, is_finished=False):
+    def onlineASR(self, samples: bytes = None, is_finished=False):
         if not is_finished:
             # 流式开始
             self.connection_handler.extract_feat(samples)

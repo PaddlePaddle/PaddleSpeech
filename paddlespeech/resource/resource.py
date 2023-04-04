@@ -30,7 +30,7 @@ inference_mode_supported = ['online', 'offline']
 
 
 class CommonTaskResource:
-    def __init__(self, task: str, model_format: str='dynamic', **kwargs):
+    def __init__(self, task: str, model_format: str = 'dynamic', **kwargs):
         assert task in task_supported, 'Arg "task" must be one of {}.'.format(
             task_supported)
         assert model_format in model_format_supported, 'Arg "model_format" must be one of {}.'.format(
@@ -61,9 +61,9 @@ class CommonTaskResource:
 
     def set_task_model(self,
                        model_tag: str,
-                       model_type: int=0,
-                       skip_download: bool=False,
-                       version: Optional[str]=None):
+                       model_type: int = 0,
+                       skip_download: bool = False,
+                       version: Optional[str] = None):
         """Set model tag and version of current task.
 
         Args:
@@ -141,7 +141,7 @@ class CommonTaskResource:
         """
         return self.get_versions(model_tag)[-1]  # get latest version
 
-    def _get_model_dir(self, model_type: int=0) -> os.PathLike:
+    def _get_model_dir(self, model_type: int = 0) -> os.PathLike:
         """Get resource directory.
 
         Args:
@@ -166,8 +166,8 @@ class CommonTaskResource:
             Dict[str, str]: A dictionary with model tag and resources info.
         """
         try:
-            import_models = '{}_{}_pretrained_models'.format(self.task,
-                                                             self.model_format)
+            import_models = '{}_{}_pretrained_models'.format(
+                self.task, self.model_format)
             exec('from .pretrained_models import {}'.format(import_models))
             models = OrderedDict(locals()[import_models])
         except Exception as e:

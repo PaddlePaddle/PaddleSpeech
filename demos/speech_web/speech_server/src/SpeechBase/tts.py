@@ -54,8 +54,9 @@ class TTS:
         get_tone_ids = False
         merge_sentences = False
 
-        input_ids = self.frontend.get_input_ids(
-            text, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
+        input_ids = self.frontend.get_input_ids(text,
+                                                merge_sentences=merge_sentences,
+                                                get_tone_ids=get_tone_ids)
         phone_ids = input_ids["phone_ids"]
         wav_list = []
         for i in range(len(phone_ids)):
@@ -74,8 +75,9 @@ class TTS:
             normalized_mel = am_output_data[0][0]
             mel = denorm(normalized_mel, self.engine.executor.am_mu,
                          self.engine.executor.am_std)
-            wav = self.engine.executor.voc_sess.run(
-                output_names=None, input_feed={'logmel': mel})[0]
+            wav = self.engine.executor.voc_sess.run(output_names=None,
+                                                    input_feed={'logmel':
+                                                                mel})[0]
             wav_list.append(wav)
         wavs = np.concatenate(wav_list)
         return wavs
@@ -86,8 +88,9 @@ class TTS:
         merge_sentences = False
 
         # front
-        input_ids = self.frontend.get_input_ids(
-            text, merge_sentences=merge_sentences, get_tone_ids=get_tone_ids)
+        input_ids = self.frontend.get_input_ids(text,
+                                                merge_sentences=merge_sentences,
+                                                get_tone_ids=get_tone_ids)
         phone_ids = input_ids["phone_ids"]
 
         for i in range(len(phone_ids)):
@@ -108,9 +111,10 @@ class TTS:
                 for i, mel_chunk in enumerate(mel_chunks):
                     sub_wav = self.executor.voc_sess.run(
                         output_names=None, input_feed={'logmel': mel_chunk})
-                    sub_wav = self.depadding(
-                        sub_wav[0], voc_chunk_num, i, self.config.voc_block,
-                        self.config.voc_pad, self.config.voc_upsample)
+                    sub_wav = self.depadding(sub_wav[0], voc_chunk_num, i,
+                                             self.config.voc_block,
+                                             self.config.voc_pad,
+                                             self.config.voc_upsample)
 
                     yield self.after_process(sub_wav)
 
@@ -152,27 +156,29 @@ class TTS:
                     if i == 0:
                         mel_streaming = sub_mel
                     else:
-                        mel_streaming = np.concatenate(
-                            (mel_streaming, sub_mel), axis=0)
+                        mel_streaming = np.concatenate((mel_streaming, sub_mel),
+                                                       axis=0)
 
                     # streaming voc
                     # 当流式AM推理的mel帧数大于流式voc推理的chunk size，开始进行流式voc 推理
-                    while (mel_streaming.shape[0] >= end and
-                           voc_chunk_id < voc_chunk_num):
+                    while (mel_streaming.shape[0] >= end
+                           and voc_chunk_id < voc_chunk_num):
                         voc_chunk = mel_streaming[start:end, :]
 
                         sub_wav = self.executor.voc_sess.run(
                             output_names=None, input_feed={'logmel': voc_chunk})
-                        sub_wav = self.depadding(
-                            sub_wav[0], voc_chunk_num, voc_chunk_id,
-                            self.config.voc_block, self.config.voc_pad,
-                            self.config.voc_upsample)
+                        sub_wav = self.depadding(sub_wav[0], voc_chunk_num,
+                                                 voc_chunk_id,
+                                                 self.config.voc_block,
+                                                 self.config.voc_pad,
+                                                 self.config.voc_upsample)
 
                         yield self.after_process(sub_wav)
 
                         voc_chunk_id += 1
-                        start = max(0, voc_chunk_id * self.config.voc_block -
-                                    self.config.voc_pad)
+                        start = max(
+                            0, voc_chunk_id * self.config.voc_block -
+                            self.config.voc_pad)
                         end = min((voc_chunk_id + 1) * self.config.voc_block +
                                   self.config.voc_pad, mel_len)
 
@@ -182,11 +188,10 @@ class TTS:
                 )
 
     def streamTTSBytes(self, text):
-        for wav in self.engine.executor.infer(
-                text=text,
-                lang=self.engine.config.lang,
-                am=self.engine.config.am,
-                spk_id=0):
+        for wav in self.engine.executor.infer(text=text,
+                                              lang=self.engine.config.lang,
+                                              am=self.engine.config.am,
+                                              spk_id=0):
             wav = float2pcm(wav)  # float32 to int16
             wav_bytes = wav.tobytes()  # to bytes
             yield wav_bytes

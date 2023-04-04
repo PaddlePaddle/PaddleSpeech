@@ -22,12 +22,13 @@ def _fail_info_fileobj(fileobj, format: Optional[str]) -> AudioInfo:
 
 # Note: need to comply TorchScript syntax -- need annotation and no f-string
 def _fail_load(
-        filepath: str,
-        frame_offset: int=0,
-        num_frames: int=-1,
-        normalize: bool=True,
-        channels_first: bool=True,
-        format: Optional[str]=None, ) -> Tuple[Tensor, int]:
+    filepath: str,
+    frame_offset: int = 0,
+    num_frames: int = -1,
+    normalize: bool = True,
+    channels_first: bool = True,
+    format: Optional[str] = None,
+) -> Tuple[Tensor, int]:
     raise RuntimeError("Failed to load audio from {}".format(filepath))
 
 
@@ -43,12 +44,13 @@ _fallback_load_filebj = _fail_load_fileobj
 
 @_mod_utils.requires_sox()
 def load(
-        filepath: str,
-        frame_offset: int=0,
-        num_frames: int=-1,
-        normalize: bool=True,
-        channels_first: bool=True,
-        format: Optional[str]=None, ) -> Tuple[Tensor, int]:
+    filepath: str,
+    frame_offset: int = 0,
+    num_frames: int = -1,
+    normalize: bool = True,
+    channels_first: bool = True,
+    format: Optional[str] = None,
+) -> Tuple[Tensor, int]:
     if hasattr(filepath, "read"):
         ret = paddleaudio._paddleaudio.load_audio_fileobj(
             filepath, frame_offset, num_frames, normalize, channels_first,
@@ -70,30 +72,34 @@ def load(
 
 @_mod_utils.requires_sox()
 def save(
-        filepath: str,
-        src: Tensor,
-        sample_rate: int,
-        channels_first: bool=True,
-        compression: Optional[float]=None,
-        format: Optional[str]=None,
-        encoding: Optional[str]=None,
-        bits_per_sample: Optional[int]=None, ):
+    filepath: str,
+    src: Tensor,
+    sample_rate: int,
+    channels_first: bool = True,
+    compression: Optional[float] = None,
+    format: Optional[str] = None,
+    encoding: Optional[str] = None,
+    bits_per_sample: Optional[int] = None,
+):
     src_arr = src.numpy()
     if hasattr(filepath, "write"):
-        paddleaudio._paddleaudio.save_audio_fileobj(
-            filepath, src_arr, sample_rate, channels_first, compression, format,
-            encoding, bits_per_sample)
+        paddleaudio._paddleaudio.save_audio_fileobj(filepath, src_arr,
+                                                    sample_rate, channels_first,
+                                                    compression, format,
+                                                    encoding, bits_per_sample)
         return
     filepath = os.fspath(filepath)
-    paddleaudio._paddleaudio.sox_io_save_audio_file(
-        filepath, src_arr, sample_rate, channels_first, compression, format,
-        encoding, bits_per_sample)
+    paddleaudio._paddleaudio.sox_io_save_audio_file(filepath, src_arr,
+                                                    sample_rate, channels_first,
+                                                    compression, format,
+                                                    encoding, bits_per_sample)
 
 
 @_mod_utils.requires_sox()
 def info(
-        filepath: str,
-        format: Optional[str]=None, ) -> AudioInfo:
+    filepath: str,
+    format: Optional[str] = None,
+) -> AudioInfo:
     if hasattr(filepath, "read"):
         sinfo = paddleaudio._paddleaudio.get_info_fileobj(filepath, format)
         if sinfo is not None:

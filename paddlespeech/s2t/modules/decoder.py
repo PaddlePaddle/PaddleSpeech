@@ -35,6 +35,7 @@ from paddlespeech.s2t.modules.mask import make_xs_mask
 from paddlespeech.s2t.modules.mask import subsequent_mask
 from paddlespeech.s2t.modules.positionwise_feed_forward import PositionwiseFeedForward
 from paddlespeech.s2t.utils.log import Log
+
 logger = Log(__name__).getlog()
 
 __all__ = ["TransformerDecoder"]
@@ -60,22 +61,21 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             True: x -> x + linear(concat(x, att(x)))
             False: x -> x + att(x)
     """
-
     def __init__(self,
                  vocab_size: int,
                  encoder_output_size: int,
-                 attention_heads: int=4,
-                 linear_units: int=2048,
-                 num_blocks: int=6,
-                 dropout_rate: float=0.1,
-                 positional_dropout_rate: float=0.1,
-                 self_attention_dropout_rate: float=0.0,
-                 src_attention_dropout_rate: float=0.0,
-                 input_layer: str="embed",
-                 use_output_layer: bool=True,
-                 normalize_before: bool=True,
-                 concat_after: bool=False,
-                 max_len: int=5000):
+                 attention_heads: int = 4,
+                 linear_units: int = 2048,
+                 num_blocks: int = 6,
+                 dropout_rate: float = 0.1,
+                 positional_dropout_rate: float = 0.1,
+                 self_attention_dropout_rate: float = 0.0,
+                 src_attention_dropout_rate: float = 0.0,
+                 input_layer: str = "embed",
+                 use_output_layer: bool = True,
+                 normalize_before: bool = True,
+                 concat_after: bool = False,
+                 max_len: int = 5000):
 
         assert check_argument_types()
 
@@ -86,8 +86,10 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         if input_layer == "embed":
             self.embed = nn.Sequential(
                 Embedding(vocab_size, attention_dim),
-                PositionalEncoding(
-                    attention_dim, positional_dropout_rate, max_len=max_len), )
+                PositionalEncoding(attention_dim,
+                                   positional_dropout_rate,
+                                   max_len=max_len),
+            )
         else:
             raise ValueError(f"only 'embed' is supported: {input_layer}")
 
@@ -103,11 +105,13 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
                                                self_attention_dropout_rate),
                 src_attn=MultiHeadedAttention(attention_heads, attention_dim,
                                               src_attention_dropout_rate),
-                feed_forward=PositionwiseFeedForward(
-                    attention_dim, linear_units, dropout_rate),
+                feed_forward=PositionwiseFeedForward(attention_dim,
+                                                     linear_units,
+                                                     dropout_rate),
                 dropout_rate=dropout_rate,
                 normalize_before=normalize_before,
-                concat_after=concat_after, ) for _ in range(num_blocks)
+                concat_after=concat_after,
+            ) for _ in range(num_blocks)
         ])
 
     def forward(
@@ -116,8 +120,8 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             memory_mask: paddle.Tensor,
             ys_in_pad: paddle.Tensor,
             ys_in_lens: paddle.Tensor,
-            r_ys_in_pad: paddle.Tensor=paddle.empty([0]),
-            reverse_weight: float=0.0) -> Tuple[paddle.Tensor, paddle.Tensor]:
+            r_ys_in_pad: paddle.Tensor = paddle.empty([0]),
+            reverse_weight: float = 0.0) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Forward decoder.
         Args:
             memory: encoded memory, float32  (batch, maxlen_in, feat)
@@ -155,12 +159,12 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         return x, paddle.to_tensor(0.0), olens
 
     def forward_one_step(
-            self,
-            memory: paddle.Tensor,
-            memory_mask: paddle.Tensor,
-            tgt: paddle.Tensor,
-            tgt_mask: paddle.Tensor,
-            cache: Optional[List[paddle.Tensor]]=None,
+        self,
+        memory: paddle.Tensor,
+        memory_mask: paddle.Tensor,
+        tgt: paddle.Tensor,
+        tgt_mask: paddle.Tensor,
+        cache: Optional[List[paddle.Tensor]] = None,
     ) -> Tuple[paddle.Tensor, List[paddle.Tensor]]:
         """Forward one step.
             This is only used for decoding.
@@ -182,8 +186,11 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
                 c = None
             else:
                 c = cache[i]
-            x, tgt_mask, memory, memory_mask = decoder(
-                x, tgt_mask, memory, memory_mask, cache=c)
+            x, tgt_mask, memory, memory_mask = decoder(x,
+                                                       tgt_mask,
+                                                       memory,
+                                                       memory_mask,
+                                                       cache=c)
             new_cache.append(x)
         if self.normalize_before:
             y = self.after_norm(x[:, -1])
@@ -207,14 +214,15 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
                 f"{self.selfattention_layer_type} does not support cached decoding."
             )
             state = None
-        logp, state = self.forward_one_step(
-            x.unsqueeze(0), x_mask, ys.unsqueeze(0), ys_mask, cache=state)
+        logp, state = self.forward_one_step(x.unsqueeze(0),
+                                            x_mask,
+                                            ys.unsqueeze(0),
+                                            ys_mask,
+                                            cache=state)
         return logp.squeeze(0), state
 
     # batch beam search API (see BatchScorerInterface)
-    def batch_score(self,
-                    ys: paddle.Tensor,
-                    states: List[Any],
+    def batch_score(self, ys: paddle.Tensor, states: List[Any],
                     xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 
@@ -245,8 +253,11 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
         # batch decoding
         ys_mask = subsequent_mask(ys.shape[-1]).unsqueeze(0)  # (B,L,L)
         xs_mask = make_xs_mask(xs).unsqueeze(1)  # (B,1,T)
-        logp, states = self.forward_one_step(
-            xs, xs_mask, ys, ys_mask, cache=batch_state)
+        logp, states = self.forward_one_step(xs,
+                                             xs_mask,
+                                             ys,
+                                             ys_mask,
+                                             cache=batch_state)
 
         # transpose state of [layer, batch] into [batch, layer]
         state_list = [[states[i][b] for i in range(n_layers)]
@@ -275,23 +286,22 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
             True: x -> x + linear(concat(x, att(x)))
             False: x -> x + att(x)
     """
-
     def __init__(self,
                  vocab_size: int,
                  encoder_output_size: int,
-                 attention_heads: int=4,
-                 linear_units: int=2048,
-                 num_blocks: int=6,
-                 r_num_blocks: int=0,
-                 dropout_rate: float=0.1,
-                 positional_dropout_rate: float=0.1,
-                 self_attention_dropout_rate: float=0.0,
-                 src_attention_dropout_rate: float=0.0,
-                 input_layer: str="embed",
-                 use_output_layer: bool=True,
-                 normalize_before: bool=True,
-                 concat_after: bool=False,
-                 max_len: int=5000):
+                 attention_heads: int = 4,
+                 linear_units: int = 2048,
+                 num_blocks: int = 6,
+                 r_num_blocks: int = 0,
+                 dropout_rate: float = 0.1,
+                 positional_dropout_rate: float = 0.1,
+                 self_attention_dropout_rate: float = 0.0,
+                 src_attention_dropout_rate: float = 0.0,
+                 input_layer: str = "embed",
+                 use_output_layer: bool = True,
+                 normalize_before: bool = True,
+                 concat_after: bool = False,
+                 max_len: int = 5000):
 
         assert check_argument_types()
 
@@ -311,13 +321,13 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
             max_len)
 
     def forward(
-            self,
-            memory: paddle.Tensor,
-            memory_mask: paddle.Tensor,
-            ys_in_pad: paddle.Tensor,
-            ys_in_lens: paddle.Tensor,
-            r_ys_in_pad: paddle.Tensor,
-            reverse_weight: float=0.0,
+        self,
+        memory: paddle.Tensor,
+        memory_mask: paddle.Tensor,
+        ys_in_pad: paddle.Tensor,
+        ys_in_lens: paddle.Tensor,
+        r_ys_in_pad: paddle.Tensor,
+        reverse_weight: float = 0.0,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Forward decoder.
         Args:
@@ -346,12 +356,12 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
         return l_x, r_x, olens
 
     def forward_one_step(
-            self,
-            memory: paddle.Tensor,
-            memory_mask: paddle.Tensor,
-            tgt: paddle.Tensor,
-            tgt_mask: paddle.Tensor,
-            cache: Optional[List[paddle.Tensor]]=None,
+        self,
+        memory: paddle.Tensor,
+        memory_mask: paddle.Tensor,
+        tgt: paddle.Tensor,
+        tgt_mask: paddle.Tensor,
+        cache: Optional[List[paddle.Tensor]] = None,
     ) -> Tuple[paddle.Tensor, List[paddle.Tensor]]:
         """Forward one step.
             This is only used for decoding.

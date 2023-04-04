@@ -214,10 +214,10 @@ class TextFeaturizer():
         assert vocab_list is not None
         logger.debug(f"Vocab: {pformat(vocab_list)}")
 
-        id2token = dict(
-            [(idx, token) for (idx, token) in enumerate(vocab_list)])
-        token2id = dict(
-            [(token, idx) for (idx, token) in enumerate(vocab_list)])
+        id2token = dict([(idx, token)
+                         for (idx, token) in enumerate(vocab_list)])
+        token2id = dict([(token, idx)
+                         for (idx, token) in enumerate(vocab_list)])
 
         blank_id = vocab_list.index(BLANK) if BLANK in vocab_list else -1
         maskctc_id = vocab_list.index(MASKCTC) if MASKCTC in vocab_list else -1

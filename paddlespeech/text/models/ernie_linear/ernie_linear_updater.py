@@ -24,6 +24,7 @@ from sklearn.metrics import f1_score
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -70,8 +71,9 @@ class ErnieLinearUpdater(StandardUpdater):
         self.optimizer.step()
         self.scheduler.step()
 
-        F1_score = f1_score(
-            label.numpy().tolist(), pred.numpy().tolist(), average="macro")
+        F1_score = f1_score(label.numpy().tolist(),
+                            pred.numpy().tolist(),
+                            average="macro")
 
         report("train/loss", float(loss))
         losses_dict["loss"] = float(loss)
@@ -110,8 +112,9 @@ class ErnieLinearEvaluator(StandardEvaluator):
 
         loss = self.criterion(y, label)
 
-        F1_score = f1_score(
-            label.numpy().tolist(), pred.numpy().tolist(), average="macro")
+        F1_score = f1_score(label.numpy().tolist(),
+                            pred.numpy().tolist(),
+                            average="macro")
 
         report("eval/loss", float(loss))
         losses_dict["loss"] = float(loss)

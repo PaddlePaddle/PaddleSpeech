@@ -62,7 +62,8 @@ def prepare_aishell(data_folder, save_folder, skip_prep=False):
     with open(
             os.path.join(data_folder,
                          "data_aishell/transcript/aishell_transcript_v0.8.txt"),
-            "r", ) as f:
+            "r",
+    ) as f:
         lines = f.readlines()
         for line in lines:
             key = line.split()[0]
@@ -105,8 +106,10 @@ def prepare_aishell(data_folder, save_folder, skip_prep=False):
         csv_output = csv_output + entry
 
         with open(new_filename, mode="w") as csv_f:
-            csv_writer = csv.writer(
-                csv_f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            csv_writer = csv.writer(csv_f,
+                                    delimiter=",",
+                                    quotechar='"',
+                                    quoting=csv.QUOTE_MINIMAL)
             for line in csv_output:
                 csv_writer.writerow(line)
 

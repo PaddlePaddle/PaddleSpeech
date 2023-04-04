@@ -32,7 +32,6 @@ class BaseExecutor(ABC):
     """
         An abstract executor of paddlespeech tasks.
     """
-
     def __init__(self, task: str, **kwargs):
         self._inputs = OrderedDict()
         self._outputs = OrderedDict()
@@ -96,8 +95,9 @@ class BaseExecutor(ABC):
         """
         pass
 
-    def get_input_source(self, input_: Union[str, os.PathLike, None]
-                         ) -> Dict[str, Union[str, os.PathLike]]:
+    def get_input_source(
+        self, input_: Union[str, os.PathLike, None]
+    ) -> Dict[str, Union[str, os.PathLike]]:
         """
         Get task input source from command line input.
 
@@ -132,7 +132,7 @@ class BaseExecutor(ABC):
     def process_task_results(self,
                              input_: Union[str, os.PathLike, None],
                              results: Dict[str, os.PathLike],
-                             job_dump_result: bool=False):
+                             job_dump_result: bool = False):
         """
         Handling task results and redirect stdout if needed.
 
@@ -150,8 +150,7 @@ class BaseExecutor(ABC):
 
         print(raw_text, end='')  # Stdout
 
-        if self._is_job_input(
-                input_) and job_dump_result:  # Dump to *.job.done
+        if self._is_job_input(input_) and job_dump_result:  # Dump to *.job.done
             try:
                 job_output_file = os.path.abspath(input_) + '.done'
                 sys.stdout = open(job_output_file, 'w')
@@ -170,9 +169,9 @@ class BaseExecutor(ABC):
         Returns:
             bool: return `True` for job input, `False` otherwise.
         """
-        return input_ and os.path.isfile(input_) and (input_.endswith('.job') or
-                                                      input_.endswith('.txt') or
-                                                      input_.endswith('.scp'))
+        return input_ and os.path.isfile(input_) and (
+            input_.endswith('.job') or input_.endswith('.txt')
+            or input_.endswith('.scp'))
 
     def _get_job_contents(
             self, job_input: os.PathLike) -> Dict[str, Union[str, os.PathLike]]:

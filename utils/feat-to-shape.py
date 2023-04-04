@@ -12,32 +12,38 @@ from paddlespeech.s2t.utils.cli_utils import is_scipy_wav_style
 def get_parser():
     parser = argparse.ArgumentParser(
         description="convert feature to its shape",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
-    parser.add_argument(
-        "--verbose", "-V", default=0, type=int, help="Verbose option")
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("--verbose",
+                        "-V",
+                        default=0,
+                        type=int,
+                        help="Verbose option")
     parser.add_argument(
         "--filetype",
         type=str,
         default="mat",
         choices=["mat", "hdf5", "sound.hdf5", "sound"],
         help="Specify the file format for the rspecifier. "
-        '"mat" is the matrix format in kaldi', )
+        '"mat" is the matrix format in kaldi',
+    )
     parser.add_argument(
         "--preprocess-conf",
         type=str,
         default=None,
-        help="The configuration file for the pre-processing", )
-    parser.add_argument(
-        "rspecifier",
-        type=str,
-        help="Read specifier for feats. e.g. ark:some.ark")
+        help="The configuration file for the pre-processing",
+    )
+    parser.add_argument("rspecifier",
+                        type=str,
+                        help="Read specifier for feats. e.g. ark:some.ark")
     parser.add_argument(
         "out",
         nargs="?",
         type=argparse.FileType("w"),
         default=sys.stdout,
         help="The output filename. "
-        "If omitted, then output to sys.stdout", )
+        "If omitted, then output to sys.stdout",
+    )
     return parser
 
 
@@ -62,8 +68,9 @@ def main():
     # There are no necessary for matrix without preprocessing,
     # so change to file_reader_helper to return shape.
     # This make sense only with filetype="hdf5".
-    for utt, mat in file_reader_helper(
-            args.rspecifier, args.filetype, return_shape=preprocessing is None):
+    for utt, mat in file_reader_helper(args.rspecifier,
+                                       args.filetype,
+                                       return_shape=preprocessing is None):
         if preprocessing is not None:
             if is_scipy_wav_style(mat):
                 # If data is sound file, then got as Tuple[int, ndarray]

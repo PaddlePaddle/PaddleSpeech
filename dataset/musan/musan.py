@@ -70,13 +70,11 @@ def create_manifest(data_dir, manifest_path_prefix):
                 json_lines.append(
                     json.dumps(
                         {
-                            'utt':
-                            os.path.splitext(os.path.basename(audio_path))[0],
-                            'feat':
-                            audio_path,
+                            'utt': os.path.splitext(
+                                os.path.basename(audio_path))[0],
+                            'feat': audio_path,
                             'feat_shape': (duration, ),  #second
-                            'type':
-                            dtype,
+                            'type': dtype,
                         },
                         ensure_ascii=False))
         manifest_path = manifest_path_prefix + '.' + dtype
@@ -101,11 +99,10 @@ def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
-    prepare_dataset(
-        url=DATA_URL,
-        md5sum=MD5_DATA,
-        target_dir=args.target_dir,
-        manifest_path=args.manifest_prefix)
+    prepare_dataset(url=DATA_URL,
+                    md5sum=MD5_DATA,
+                    target_dir=args.target_dir,
+                    manifest_path=args.manifest_prefix)
 
 
 if __name__ == '__main__':

@@ -20,16 +20,21 @@ is_python2 = sys.version_info[0] == 2
 def get_parser():
     parser = argparse.ArgumentParser(
         description="add multiple json values to an input or output value",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument("jsons", type=str, nargs="+", help="json files")
     parser.add_argument(
         "-i",
         "--is-input",
         default=True,
         type=strtobool,
-        help="If true, add to input. If false, add to output", )
-    parser.add_argument(
-        "--verbose", "-V", default=0, type=int, help="Verbose option")
+        help="If true, add to input. If false, add to output",
+    )
+    parser.add_argument("--verbose",
+                        "-V",
+                        default=0,
+                        type=int,
+                        help="Verbose option")
     return parser
 
 
@@ -117,8 +122,10 @@ if __name__ == "__main__":
             out_add_dic = {}
             # add shape
             if "odim" in adddic and "olen" in adddic:
-                out_add_dic[
-                    "shape"] = [int(adddic["olen"]), int(adddic["odim"])]
+                out_add_dic["shape"] = [
+                    int(adddic["olen"]),
+                    int(adddic["odim"])
+                ]
             elif "odim" in adddic:
                 out_add_dic["shape"] = [int(adddic["odim"])]
             # add all other key value
@@ -140,13 +147,12 @@ if __name__ == "__main__":
 
     # ensure "ensure_ascii=False", which is a bug
     jsonstring = json.dumps(
-        {
-            "utts": new_dic
-        },
+        {"utts": new_dic},
         indent=4,
         ensure_ascii=False,
         sort_keys=True,
-        separators=(",", ": "), )
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout
-                                           if is_python2 else sys.stdout.buffer)
+        separators=(",", ": "),
+    )
+    sys.stdout = codecs.getwriter("utf-8")(
+        sys.stdout if is_python2 else sys.stdout.buffer)
     print(jsonstring)

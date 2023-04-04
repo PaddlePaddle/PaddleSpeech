@@ -52,8 +52,8 @@ def help():
     return response
 
 
-@router.post(
-    "/paddlespeech/tts", response_model=Union[TTSResponse, ErrorResponse])
+@router.post("/paddlespeech/tts",
+             response_model=Union[TTSResponse, ErrorResponse])
 def tts(request_body: TTSRequest):
     """tts api
 

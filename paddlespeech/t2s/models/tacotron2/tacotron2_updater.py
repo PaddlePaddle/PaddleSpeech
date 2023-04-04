@@ -24,6 +24,7 @@ from paddlespeech.t2s.modules.losses import Tacotron2Loss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -37,14 +38,14 @@ class Tacotron2Updater(StandardUpdater):
                  optimizer: Optimizer,
                  dataloader: DataLoader,
                  init_state=None,
-                 use_masking: bool=True,
-                 use_weighted_masking: bool=False,
-                 bce_pos_weight: float=5.0,
-                 loss_type: str="L1+L2",
-                 use_guided_attn_loss: bool=True,
-                 guided_attn_loss_sigma: float=0.4,
-                 guided_attn_loss_lambda: float=1.0,
-                 output_dir: Path=None):
+                 use_masking: bool = True,
+                 use_weighted_masking: bool = False,
+                 bce_pos_weight: float = 5.0,
+                 loss_type: str = "L1+L2",
+                 use_guided_attn_loss: bool = True,
+                 guided_attn_loss_sigma: float = 0.4,
+                 guided_attn_loss_lambda: float = 1.0,
+                 output_dir: Path = None):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         self.loss_type = loss_type
@@ -53,11 +54,13 @@ class Tacotron2Updater(StandardUpdater):
         self.taco2_loss = Tacotron2Loss(
             use_masking=use_masking,
             use_weighted_masking=use_weighted_masking,
-            bce_pos_weight=bce_pos_weight, )
+            bce_pos_weight=bce_pos_weight,
+        )
         if self.use_guided_attn_loss:
             self.attn_loss = GuidedAttentionLoss(
                 sigma=guided_attn_loss_sigma,
-                alpha=guided_attn_loss_lambda, )
+                alpha=guided_attn_loss_lambda,
+            )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -83,13 +86,12 @@ class Tacotron2Updater(StandardUpdater):
             spk_emb=spk_emb)
 
         # calculate taco2 loss
-        l1_loss, mse_loss, bce_loss = self.taco2_loss(
-            after_outs=after_outs,
-            before_outs=before_outs,
-            logits=logits,
-            ys=ys,
-            stop_labels=stop_labels,
-            olens=olens)
+        l1_loss, mse_loss, bce_loss = self.taco2_loss(after_outs=after_outs,
+                                                      before_outs=before_outs,
+                                                      logits=logits,
+                                                      ys=ys,
+                                                      stop_labels=stop_labels,
+                                                      olens=olens)
 
         if self.loss_type == "L1+L2":
             loss = l1_loss + mse_loss + bce_loss
@@ -104,8 +106,9 @@ class Tacotron2Updater(StandardUpdater):
         if self.use_guided_attn_loss:
             # NOTE: length of output for auto-regressive
             # input will be changed when r > 1
-            attn_loss = self.attn_loss(
-                att_ws=att_ws, ilens=batch["text_lengths"] + 1, olens=olens_in)
+            attn_loss = self.attn_loss(att_ws=att_ws,
+                                       ilens=batch["text_lengths"] + 1,
+                                       olens=olens_in)
             loss = loss + attn_loss
 
         optimizer = self.optimizer
@@ -116,7 +119,7 @@ class Tacotron2Updater(StandardUpdater):
         if self.use_guided_attn_loss:
             report("train/attn_loss", float(attn_loss))
             losses_dict["attn_loss"] = float(attn_loss)
-        
+
         report("train/l1_loss", float(l1_loss))
         report("train/mse_loss", float(mse_loss))
         report("train/bce_loss", float(bce_loss))
@@ -134,13 +137,13 @@ class Tacotron2Evaluator(StandardEvaluator):
     def __init__(self,
                  model: Layer,
                  dataloader: DataLoader,
-                 use_masking: bool=True,
-                 use_weighted_masking: bool=False,
-                 bce_pos_weight: float=5.0,
-                 loss_type: str="L1+L2",
-                 use_guided_attn_loss: bool=True,
-                 guided_attn_loss_sigma: float=0.4,
-                 guided_attn_loss_lambda: float=1.0,
+                 use_masking: bool = True,
+                 use_weighted_masking: bool = False,
+                 bce_pos_weight: float = 5.0,
+                 loss_type: str = "L1+L2",
+                 use_guided_attn_loss: bool = True,
+                 guided_attn_loss_sigma: float = 0.4,
+                 guided_attn_loss_lambda: float = 1.0,
                  output_dir=None):
         super().__init__(model, dataloader)
 
@@ -150,11 +153,13 @@ class Tacotron2Evaluator(StandardEvaluator):
         self.taco2_loss = Tacotron2Loss(
             use_masking=use_masking,
             use_weighted_masking=use_weighted_masking,
-            bce_pos_weight=bce_pos_weight, )
+            bce_pos_weight=bce_pos_weight,
+        )
         if self.use_guided_attn_loss:
             self.attn_loss = GuidedAttentionLoss(
                 sigma=guided_attn_loss_sigma,
-                alpha=guided_attn_loss_lambda, )
+                alpha=guided_attn_loss_lambda,
+            )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -180,13 +185,12 @@ class Tacotron2Evaluator(StandardEvaluator):
             spk_emb=spk_emb)
 
         # calculate taco2 loss
-        l1_loss, mse_loss, bce_loss = self.taco2_loss(
-            after_outs=after_outs,
-            before_outs=before_outs,
-            logits=logits,
-            ys=ys,
-            stop_labels=stop_labels,
-            olens=olens)
+        l1_loss, mse_loss, bce_loss = self.taco2_loss(after_outs=after_outs,
+                                                      before_outs=before_outs,
+                                                      logits=logits,
+                                                      ys=ys,
+                                                      stop_labels=stop_labels,
+                                                      olens=olens)
 
         if self.loss_type == "L1+L2":
             loss = l1_loss + mse_loss + bce_loss
@@ -201,10 +205,11 @@ class Tacotron2Evaluator(StandardEvaluator):
         if self.use_guided_attn_loss:
             # NOTE: length of output for auto-regressive
             # input will be changed when r > 1
-            attn_loss = self.attn_loss(
-                att_ws=att_ws, ilens=batch["text_lengths"] + 1, olens=olens_in)
+            attn_loss = self.attn_loss(att_ws=att_ws,
+                                       ilens=batch["text_lengths"] + 1,
+                                       olens=olens_in)
             loss = loss + attn_loss
-        
+
         if self.use_guided_attn_loss:
             report("eval/attn_loss", float(attn_loss))
             losses_dict["attn_loss"] = float(attn_loss)

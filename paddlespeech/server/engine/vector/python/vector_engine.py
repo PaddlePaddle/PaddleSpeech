@@ -34,7 +34,8 @@ class PaddleVectorConnectionHandler:
         """
         super().__init__()
         logger.debug(
-            "Create PaddleVectorConnectionHandler to process the vector request")
+            "Create PaddleVectorConnectionHandler to process the vector request"
+        )
         self.vector_engine = vector_engine
         self.executor = self.vector_engine.executor
         self.task = self.vector_engine.executor.task
@@ -95,7 +96,7 @@ class PaddleVectorConnectionHandler:
         return score
 
     @paddle.no_grad()
-    def extract_audio_embedding(self, audio: str, sample_rate: int=16000):
+    def extract_audio_embedding(self, audio: str, sample_rate: int = 16000):
         """extract the audio embedding
 
         Args:
@@ -117,12 +118,11 @@ class PaddleVectorConnectionHandler:
         # stage 2: get the audio feat
         # Note: Now we only support fbank feature
         try:
-            feats = melspectrogram(
-                x=waveform,
-                sr=self.config.sr,
-                n_mels=self.config.n_mels,
-                window_size=self.config.window_size,
-                hop_length=self.config.hop_size)
+            feats = melspectrogram(x=waveform,
+                                   sr=self.config.sr,
+                                   n_mels=self.config.n_mels,
+                                   window_size=self.config.window_size,
+                                   hop_length=self.config.hop_size)
             logger.debug(f"extract the audio feats, shape is: {feats.shape}")
         except Exception as e:
             logger.error(f"feats occurs exception {e}")
@@ -186,17 +186,17 @@ class VectorEngine(BaseEngine):
             logger.error(
                 "Set device failed, please check if device is already used and the parameter 'device' in the yaml file"
             )
-            logger.error("Initialize Vector server engine Failed on device: %s."
-                         % (self.device))
+            logger.error(
+                "Initialize Vector server engine Failed on device: %s." %
+                (self.device))
             return False
 
         self.executor = VectorServerExecutor()
 
-        self.executor._init_from_path(
-            model_type=config.model_type,
-            cfg_path=config.cfg_path,
-            ckpt_path=config.ckpt_path,
-            task=config.task)
+        self.executor._init_from_path(model_type=config.model_type,
+                                      cfg_path=config.cfg_path,
+                                      ckpt_path=config.ckpt_path,
+                                      task=config.task)
 
         logger.info(
             "Initialize Vector server engine successfully on device: %s." %

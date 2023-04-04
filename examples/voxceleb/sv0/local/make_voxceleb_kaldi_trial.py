@@ -26,13 +26,12 @@ parser.add_argument(
     "--voxceleb_trial",
     default="voxceleb1_test_v2",
     type=str,
-    help="VoxCeleb trial file. Default we use the kaldi trial voxceleb1_test_v2.txt"
-)
-parser.add_argument(
-    "--trial",
-    default="data/test/trial",
-    type=str,
-    help="Kaldi format trial file")
+    help=
+    "VoxCeleb trial file. Default we use the kaldi trial voxceleb1_test_v2.txt")
+parser.add_argument("--trial",
+                    default="data/test/trial",
+                    type=str,
+                    help="Kaldi format trial file")
 args = parser.parse_args()
 
 

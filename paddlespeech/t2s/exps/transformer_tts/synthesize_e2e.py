@@ -51,8 +51,9 @@ def evaluate(args, acoustic_model_config, vocoder_config):
         phone_id_map[phn] = int(id)
     print("vocab_size:", vocab_size)
     odim = acoustic_model_config.n_mels
-    model = TransformerTTS(
-        idim=vocab_size, odim=odim, **acoustic_model_config["model"])
+    model = TransformerTTS(idim=vocab_size,
+                           odim=odim,
+                           **acoustic_model_config["model"])
 
     model.set_state_dict(
         paddle.load(args.transformer_tts_checkpoint)["main_params"])
@@ -96,10 +97,9 @@ def evaluate(args, acoustic_model_config, vocoder_config):
             # wavflow's output shape is (B, T)
             wav = vocoder.infer(mel)[0]
 
-        sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            wav.numpy(),
-            samplerate=acoustic_model_config.fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 wav.numpy(),
+                 samplerate=acoustic_model_config.fs)
         print(f"{utt_id} done!")
 
 
@@ -107,36 +107,38 @@ def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(
         description="Synthesize with transformer tts & waveflow.")
-    parser.add_argument(
-        "--transformer-tts-config",
-        type=str,
-        help="transformer tts config file.")
-    parser.add_argument(
-        "--transformer-tts-checkpoint",
-        type=str,
-        help="transformer tts checkpoint to load.")
+    parser.add_argument("--transformer-tts-config",
+                        type=str,
+                        help="transformer tts config file.")
+    parser.add_argument("--transformer-tts-checkpoint",
+                        type=str,
+                        help="transformer tts checkpoint to load.")
     parser.add_argument(
         "--transformer-tts-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training transformer tts."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training transformer tts."
     )
-    parser.add_argument(
-        "--waveflow-config", type=str, help="waveflow config file.")
+    parser.add_argument("--waveflow-config",
+                        type=str,
+                        help="waveflow config file.")
     # not normalize when training waveflow
-    parser.add_argument(
-        "--waveflow-checkpoint", type=str, help="waveflow checkpoint to load.")
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
+    parser.add_argument("--waveflow-checkpoint",
+                        type=str,
+                        help="waveflow checkpoint to load.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phone_id_map.txt",
+                        help="phone vocabulary file.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 

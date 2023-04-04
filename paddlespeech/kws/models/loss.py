@@ -34,7 +34,7 @@ def fill_mask_elements(condition: paddle.Tensor, value: float,
 def max_pooling_loss(logits: paddle.Tensor,
                      target: paddle.Tensor,
                      lengths: paddle.Tensor,
-                     min_duration: int=0):
+                     min_duration: int = 0):
 
     mask = padding_mask(lengths)
     num_utts = logits.shape[0]

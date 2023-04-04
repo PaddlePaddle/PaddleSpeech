@@ -59,8 +59,9 @@ class MaskInputLayer(nn.Layer):
             default_initializer=paddle.nn.initializer.Assign(
                 paddle.normal(shape=(1, 1, out_features))))
 
-    def forward(self, input: paddle.Tensor,
-                masked_pos: paddle.Tensor=None) -> paddle.Tensor:
+    def forward(self,
+                input: paddle.Tensor,
+                masked_pos: paddle.Tensor = None) -> paddle.Tensor:
         masked_pos = paddle.expand_as(paddle.unsqueeze(masked_pos, -1), input)
         masked_input = masked_fill(input, masked_pos, 0) + masked_fill(
             paddle.expand_as(self.mask_feature, input), ~masked_pos, 0)
@@ -120,34 +121,33 @@ class MLMEncoder(nn.Layer):
             Maximum probability to skip the encoder layer.
 
     """
-
     def __init__(self,
                  idim: int,
-                 vocab_size: int=0,
-                 pre_speech_layer: int=0,
-                 attention_dim: int=256,
-                 attention_heads: int=4,
-                 linear_units: int=2048,
-                 num_blocks: int=6,
-                 dropout_rate: float=0.1,
-                 positional_dropout_rate: float=0.1,
-                 attention_dropout_rate: float=0.0,
-                 input_layer: str="conv2d",
-                 normalize_before: bool=True,
-                 concat_after: bool=False,
-                 positionwise_layer_type: str="linear",
-                 positionwise_conv_kernel_size: int=1,
-                 macaron_style: bool=False,
-                 pos_enc_layer_type: str="abs_pos",
+                 vocab_size: int = 0,
+                 pre_speech_layer: int = 0,
+                 attention_dim: int = 256,
+                 attention_heads: int = 4,
+                 linear_units: int = 2048,
+                 num_blocks: int = 6,
+                 dropout_rate: float = 0.1,
+                 positional_dropout_rate: float = 0.1,
+                 attention_dropout_rate: float = 0.0,
+                 input_layer: str = "conv2d",
+                 normalize_before: bool = True,
+                 concat_after: bool = False,
+                 positionwise_layer_type: str = "linear",
+                 positionwise_conv_kernel_size: int = 1,
+                 macaron_style: bool = False,
+                 pos_enc_layer_type: str = "abs_pos",
                  pos_enc_class=None,
-                 selfattention_layer_type: str="selfattn",
-                 activation_type: str="swish",
-                 use_cnn_module: bool=False,
-                 zero_triu: bool=False,
-                 cnn_module_kernel: int=31,
-                 padding_idx: int=-1,
-                 stochastic_depth_rate: float=0.0,
-                 text_masking: bool=False):
+                 selfattention_layer_type: str = "selfattn",
+                 activation_type: str = "swish",
+                 use_cnn_module: bool = False,
+                 zero_triu: bool = False,
+                 cnn_module_kernel: int = 31,
+                 padding_idx: int = -1,
+                 stochastic_depth_rate: float = 0.0,
+                 text_masking: bool = False):
         """Construct an Encoder object."""
         super().__init__()
         self._output_size = attention_dim
@@ -175,47 +175,50 @@ class MLMEncoder(nn.Layer):
                 nn.LayerNorm(attention_dim),
                 nn.Dropout(dropout_rate),
                 nn.ReLU(),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer == "conv2d":
             self.embed = Conv2dSubsampling(
                 idim,
                 attention_dim,
                 dropout_rate,
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
             self.conv_subsampling_factor = 4
         elif input_layer == "embed":
             self.embed = nn.Sequential(
                 nn.Embedding(idim, attention_dim, padding_idx=padding_idx),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer == "mlm":
             self.segment_emb = None
             self.speech_embed = mySequential(
-                MaskInputLayer(idim),
-                nn.Linear(idim, attention_dim),
-                nn.LayerNorm(attention_dim),
-                nn.ReLU(),
+                MaskInputLayer(idim), nn.Linear(idim, attention_dim),
+                nn.LayerNorm(attention_dim), nn.ReLU(),
                 pos_enc_class(attention_dim, positional_dropout_rate))
             self.text_embed = nn.Sequential(
-                nn.Embedding(
-                    vocab_size, attention_dim, padding_idx=padding_idx),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                nn.Embedding(vocab_size, attention_dim,
+                             padding_idx=padding_idx),
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer == "sega_mlm":
-            self.segment_emb = nn.Embedding(
-                500, attention_dim, padding_idx=padding_idx)
+            self.segment_emb = nn.Embedding(500,
+                                            attention_dim,
+                                            padding_idx=padding_idx)
             self.speech_embed = mySequential(
-                MaskInputLayer(idim),
-                nn.Linear(idim, attention_dim),
-                nn.LayerNorm(attention_dim),
-                nn.ReLU(),
+                MaskInputLayer(idim), nn.Linear(idim, attention_dim),
+                nn.LayerNorm(attention_dim), nn.ReLU(),
                 pos_enc_class(attention_dim, positional_dropout_rate))
             self.text_embed = nn.Sequential(
-                nn.Embedding(
-                    vocab_size, attention_dim, padding_idx=padding_idx),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                nn.Embedding(vocab_size, attention_dim,
+                             padding_idx=padding_idx),
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif isinstance(input_layer, nn.Layer):
             self.embed = nn.Sequential(
                 input_layer,
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer is None:
             self.embed = nn.Sequential(
                 pos_enc_class(attention_dim, positional_dropout_rate))
@@ -226,18 +229,28 @@ class MLMEncoder(nn.Layer):
         # self-attention module definition
         if selfattention_layer_type == "selfattn":
             encoder_selfattn_layer = MultiHeadedAttention
-            encoder_selfattn_layer_args = (attention_heads, attention_dim,
-                                           attention_dropout_rate, )
+            encoder_selfattn_layer_args = (
+                attention_heads,
+                attention_dim,
+                attention_dropout_rate,
+            )
         elif selfattention_layer_type == "legacy_rel_selfattn":
             assert pos_enc_layer_type == "legacy_rel_pos"
             encoder_selfattn_layer = LegacyRelPositionMultiHeadedAttention
-            encoder_selfattn_layer_args = (attention_heads, attention_dim,
-                                           attention_dropout_rate, )
+            encoder_selfattn_layer_args = (
+                attention_heads,
+                attention_dim,
+                attention_dropout_rate,
+            )
         elif selfattention_layer_type == "rel_selfattn":
             assert pos_enc_layer_type == "rel_pos"
             encoder_selfattn_layer = RelPositionMultiHeadedAttention
-            encoder_selfattn_layer_args = (attention_heads, attention_dim,
-                                           attention_dropout_rate, zero_triu, )
+            encoder_selfattn_layer_args = (
+                attention_heads,
+                attention_dim,
+                attention_dropout_rate,
+                zero_triu,
+            )
         else:
             raise ValueError("unknown encoder_attn_layer: " +
                              selfattention_layer_type)
@@ -245,18 +258,28 @@ class MLMEncoder(nn.Layer):
         # feed-forward module definition
         if positionwise_layer_type == "linear":
             positionwise_layer = PositionwiseFeedForward
-            positionwise_layer_args = (attention_dim, linear_units,
-                                       dropout_rate, activation, )
+            positionwise_layer_args = (
+                attention_dim,
+                linear_units,
+                dropout_rate,
+                activation,
+            )
         elif positionwise_layer_type == "conv1d":
             positionwise_layer = MultiLayeredConv1d
-            positionwise_layer_args = (attention_dim, linear_units,
-                                       positionwise_conv_kernel_size,
-                                       dropout_rate, )
+            positionwise_layer_args = (
+                attention_dim,
+                linear_units,
+                positionwise_conv_kernel_size,
+                dropout_rate,
+            )
         elif positionwise_layer_type == "conv1d-linear":
             positionwise_layer = Conv1dLinear
-            positionwise_layer_args = (attention_dim, linear_units,
-                                       positionwise_conv_kernel_size,
-                                       dropout_rate, )
+            positionwise_layer_args = (
+                attention_dim,
+                linear_units,
+                positionwise_conv_kernel_size,
+                dropout_rate,
+            )
         else:
             raise NotImplementedError("Support only linear or conv1d.")
 
@@ -270,12 +293,16 @@ class MLMEncoder(nn.Layer):
                 attention_dim,
                 encoder_selfattn_layer(*encoder_selfattn_layer_args),
                 positionwise_layer(*positionwise_layer_args),
-                positionwise_layer(*positionwise_layer_args) if macaron_style else None,
-                convolution_layer(*convolution_layer_args) if use_cnn_module else None,
+                positionwise_layer(*positionwise_layer_args)
+                if macaron_style else None,
+                convolution_layer(*convolution_layer_args)
+                if use_cnn_module else None,
                 dropout_rate,
                 normalize_before,
                 concat_after,
-                stochastic_depth_rate * float(1 + lnum) / num_blocks, ), )
+                stochastic_depth_rate * float(1 + lnum) / num_blocks,
+            ),
+        )
         self.pre_speech_layer = pre_speech_layer
         self.pre_speech_encoders = repeat(
             self.pre_speech_layer,
@@ -283,12 +310,15 @@ class MLMEncoder(nn.Layer):
                 attention_dim,
                 encoder_selfattn_layer(*encoder_selfattn_layer_args),
                 positionwise_layer(*positionwise_layer_args),
-                positionwise_layer(*positionwise_layer_args) if macaron_style else None,
-                convolution_layer(*convolution_layer_args) if use_cnn_module else None,
+                positionwise_layer(*positionwise_layer_args)
+                if macaron_style else None,
+                convolution_layer(*convolution_layer_args)
+                if use_cnn_module else None,
                 dropout_rate,
                 normalize_before,
                 concat_after,
-                stochastic_depth_rate * float(1 + lnum) / self.pre_speech_layer, ),
+                stochastic_depth_rate * float(1 + lnum) / self.pre_speech_layer,
+            ),
         )
         if self.normalize_before:
             self.after_norm = LayerNorm(attention_dim)
@@ -297,10 +327,10 @@ class MLMEncoder(nn.Layer):
                 speech: paddle.Tensor,
                 text: paddle.Tensor,
                 masked_pos: paddle.Tensor,
-                speech_mask: paddle.Tensor=None,
-                text_mask: paddle.Tensor=None,
-                speech_seg_pos: paddle.Tensor=None,
-                text_seg_pos: paddle.Tensor=None):
+                speech_mask: paddle.Tensor = None,
+                text_mask: paddle.Tensor = None,
+                speech_seg_pos: paddle.Tensor = None,
+                text_seg_pos: paddle.Tensor = None):
         """Encode input sequence.
 
         """
@@ -371,10 +401,10 @@ class MLM(nn.Layer):
                  odim: int,
                  encoder: nn.Layer,
                  decoder: Optional[nn.Layer],
-                 postnet_layers: int=0,
-                 postnet_chans: int=0,
-                 postnet_filts: int=0,
-                 text_masking: bool=False):
+                 postnet_layers: int = 0,
+                 postnet_chans: int = 0,
+                 postnet_filts: int = 0,
+                 text_masking: bool = False):
 
         super().__init__()
         self.odim = odim
@@ -382,9 +412,9 @@ class MLM(nn.Layer):
         self.decoder = decoder
         self.vocab_size = encoder.text_embed[0]._num_embeddings
 
-        if self.decoder is None or not (hasattr(self.decoder,
-                                                'output_layer') and
-                                        self.decoder.output_layer is not None):
+        if self.decoder is None or not (hasattr(self.decoder, 'output_layer')
+                                        and self.decoder.output_layer
+                                        is not None):
             self.sfc = nn.Linear(self.encoder._output_size, odim)
         else:
             self.sfc = None
@@ -403,19 +433,21 @@ class MLM(nn.Layer):
             n_chans=postnet_chans,
             n_filts=postnet_filts,
             use_batch_norm=True,
-            dropout_rate=0.5, ))
+            dropout_rate=0.5,
+        ))
 
     def inference(
-            self,
-            speech: paddle.Tensor,
-            text: paddle.Tensor,
-            masked_pos: paddle.Tensor,
-            speech_mask: paddle.Tensor,
-            text_mask: paddle.Tensor,
-            speech_seg_pos: paddle.Tensor,
-            text_seg_pos: paddle.Tensor,
-            span_bdy: List[int],
-            use_teacher_forcing: bool=True, ) -> List[paddle.Tensor]:
+        self,
+        speech: paddle.Tensor,
+        text: paddle.Tensor,
+        masked_pos: paddle.Tensor,
+        speech_mask: paddle.Tensor,
+        text_mask: paddle.Tensor,
+        speech_seg_pos: paddle.Tensor,
+        text_seg_pos: paddle.Tensor,
+        span_bdy: List[int],
+        use_teacher_forcing: bool = True,
+    ) -> List[paddle.Tensor]:
         '''
         Args:
             speech (paddle.Tensor): 
@@ -443,14 +475,13 @@ class MLM(nn.Layer):
 
         z_cache = None
         if use_teacher_forcing:
-            before_outs, zs, *_ = self.forward(
-                speech=speech,
-                text=text,
-                masked_pos=masked_pos,
-                speech_mask=speech_mask,
-                text_mask=text_mask,
-                speech_seg_pos=speech_seg_pos,
-                text_seg_pos=text_seg_pos)
+            before_outs, zs, *_ = self.forward(speech=speech,
+                                               text=text,
+                                               masked_pos=masked_pos,
+                                               speech_mask=speech_mask,
+                                               text_mask=text_mask,
+                                               speech_seg_pos=speech_seg_pos,
+                                               text_seg_pos=text_seg_pos)
             if zs is None:
                 zs = before_outs
 
@@ -463,24 +494,19 @@ class MLM(nn.Layer):
 
 
 class MLMEncAsDecoder(MLM):
-    def forward(self,
-                speech: paddle.Tensor,
-                text: paddle.Tensor,
-                masked_pos: paddle.Tensor,
-                speech_mask: paddle.Tensor,
-                text_mask: paddle.Tensor,
-                speech_seg_pos: paddle.Tensor,
+    def forward(self, speech: paddle.Tensor, text: paddle.Tensor,
+                masked_pos: paddle.Tensor, speech_mask: paddle.Tensor,
+                text_mask: paddle.Tensor, speech_seg_pos: paddle.Tensor,
                 text_seg_pos: paddle.Tensor):
         # feats: (Batch, Length, Dim)
         # -> encoder_out: (Batch, Length2, Dim2)
-        encoder_out, h_masks = self.encoder(
-            speech=speech,
-            text=text,
-            masked_pos=masked_pos,
-            speech_mask=speech_mask,
-            text_mask=text_mask,
-            speech_seg_pos=speech_seg_pos,
-            text_seg_pos=text_seg_pos)
+        encoder_out, h_masks = self.encoder(speech=speech,
+                                            text=text,
+                                            masked_pos=masked_pos,
+                                            speech_mask=speech_mask,
+                                            text_mask=text_mask,
+                                            speech_seg_pos=speech_seg_pos,
+                                            text_seg_pos=text_seg_pos)
         if self.decoder is not None:
             zs, _ = self.decoder(encoder_out, h_masks)
         else:
@@ -502,24 +528,19 @@ class MLMEncAsDecoder(MLM):
 
 
 class MLMDualMaksing(MLM):
-    def forward(self,
-                speech: paddle.Tensor,
-                text: paddle.Tensor,
-                masked_pos: paddle.Tensor,
-                speech_mask: paddle.Tensor,
-                text_mask: paddle.Tensor,
-                speech_seg_pos: paddle.Tensor,
+    def forward(self, speech: paddle.Tensor, text: paddle.Tensor,
+                masked_pos: paddle.Tensor, speech_mask: paddle.Tensor,
+                text_mask: paddle.Tensor, speech_seg_pos: paddle.Tensor,
                 text_seg_pos: paddle.Tensor):
         # feats: (Batch, Length, Dim)
         # -> encoder_out: (Batch, Length2, Dim2)
-        encoder_out, h_masks = self.encoder(
-            speech=speech,
-            text=text,
-            masked_pos=masked_pos,
-            speech_mask=speech_mask,
-            text_mask=text_mask,
-            speech_seg_pos=speech_seg_pos,
-            text_seg_pos=text_seg_pos)
+        encoder_out, h_masks = self.encoder(speech=speech,
+                                            text=text,
+                                            masked_pos=masked_pos,
+                                            speech_mask=speech_mask,
+                                            text_mask=text_mask,
+                                            speech_seg_pos=speech_seg_pos,
+                                            text_seg_pos=text_seg_pos)
         if self.decoder is not None:
             zs, _ = self.decoder(encoder_out, h_masks)
         else:
@@ -547,51 +568,52 @@ class MLMDualMaksing(MLM):
 
 class ErnieSAT(nn.Layer):
     def __init__(
-            self,
-            # network structure related
-            idim: int,
-            odim: int,
-            postnet_layers: int=5,
-            postnet_filts: int=5,
-            postnet_chans: int=256,
-            use_scaled_pos_enc: bool=False,
-            encoder_type: str='conformer',
-            decoder_type: str='conformer',
-            enc_input_layer: str='sega_mlm',
-            enc_pre_speech_layer: int=0,
-            enc_cnn_module_kernel: int=7,
-            enc_attention_dim: int=384,
-            enc_attention_heads: int=2,
-            enc_linear_units: int=1536,
-            enc_num_blocks: int=4,
-            enc_dropout_rate: float=0.2,
-            enc_positional_dropout_rate: float=0.2,
-            enc_attention_dropout_rate: float=0.2,
-            enc_normalize_before: bool=True,
-            enc_macaron_style: bool=True,
-            enc_use_cnn_module: bool=True,
-            enc_selfattention_layer_type: str='legacy_rel_selfattn',
-            enc_activation_type: str='swish',
-            enc_pos_enc_layer_type: str='legacy_rel_pos',
-            enc_positionwise_layer_type: str='conv1d',
-            enc_positionwise_conv_kernel_size: int=3,
-            text_masking: bool=False,
-            dec_cnn_module_kernel: int=31,
-            dec_attention_dim: int=384,
-            dec_attention_heads: int=2,
-            dec_linear_units: int=1536,
-            dec_num_blocks: int=4,
-            dec_dropout_rate: float=0.2,
-            dec_positional_dropout_rate: float=0.2,
-            dec_attention_dropout_rate: float=0.2,
-            dec_macaron_style: bool=True,
-            dec_use_cnn_module: bool=True,
-            dec_selfattention_layer_type: str='legacy_rel_selfattn',
-            dec_activation_type: str='swish',
-            dec_pos_enc_layer_type: str='legacy_rel_pos',
-            dec_positionwise_layer_type: str='conv1d',
-            dec_positionwise_conv_kernel_size: int=3,
-            init_type: str="xavier_uniform", ):
+        self,
+        # network structure related
+        idim: int,
+        odim: int,
+        postnet_layers: int = 5,
+        postnet_filts: int = 5,
+        postnet_chans: int = 256,
+        use_scaled_pos_enc: bool = False,
+        encoder_type: str = 'conformer',
+        decoder_type: str = 'conformer',
+        enc_input_layer: str = 'sega_mlm',
+        enc_pre_speech_layer: int = 0,
+        enc_cnn_module_kernel: int = 7,
+        enc_attention_dim: int = 384,
+        enc_attention_heads: int = 2,
+        enc_linear_units: int = 1536,
+        enc_num_blocks: int = 4,
+        enc_dropout_rate: float = 0.2,
+        enc_positional_dropout_rate: float = 0.2,
+        enc_attention_dropout_rate: float = 0.2,
+        enc_normalize_before: bool = True,
+        enc_macaron_style: bool = True,
+        enc_use_cnn_module: bool = True,
+        enc_selfattention_layer_type: str = 'legacy_rel_selfattn',
+        enc_activation_type: str = 'swish',
+        enc_pos_enc_layer_type: str = 'legacy_rel_pos',
+        enc_positionwise_layer_type: str = 'conv1d',
+        enc_positionwise_conv_kernel_size: int = 3,
+        text_masking: bool = False,
+        dec_cnn_module_kernel: int = 31,
+        dec_attention_dim: int = 384,
+        dec_attention_heads: int = 2,
+        dec_linear_units: int = 1536,
+        dec_num_blocks: int = 4,
+        dec_dropout_rate: float = 0.2,
+        dec_positional_dropout_rate: float = 0.2,
+        dec_attention_dropout_rate: float = 0.2,
+        dec_macaron_style: bool = True,
+        dec_use_cnn_module: bool = True,
+        dec_selfattention_layer_type: str = 'legacy_rel_selfattn',
+        dec_activation_type: str = 'swish',
+        dec_pos_enc_layer_type: str = 'legacy_rel_pos',
+        dec_positionwise_layer_type: str = 'conv1d',
+        dec_positionwise_conv_kernel_size: int = 3,
+        init_type: str = "xavier_uniform",
+    ):
         super().__init__()
         # store hyperparameters
         self.odim = odim
@@ -653,55 +675,49 @@ class ErnieSAT(nn.Layer):
 
         model_class = MLMDualMaksing if text_masking else MLMEncAsDecoder
 
-        self.model = model_class(
-            odim=odim,
-            encoder=encoder,
-            decoder=decoder,
-            postnet_layers=postnet_layers,
-            postnet_filts=postnet_filts,
-            postnet_chans=postnet_chans,
-            text_masking=text_masking)
+        self.model = model_class(odim=odim,
+                                 encoder=encoder,
+                                 decoder=decoder,
+                                 postnet_layers=postnet_layers,
+                                 postnet_filts=postnet_filts,
+                                 postnet_chans=postnet_chans,
+                                 text_masking=text_masking)
 
         nn.initializer.set_global_initializer(None)
 
-    def forward(self,
-                speech: paddle.Tensor,
-                text: paddle.Tensor,
-                masked_pos: paddle.Tensor,
-                speech_mask: paddle.Tensor,
-                text_mask: paddle.Tensor,
-                speech_seg_pos: paddle.Tensor,
+    def forward(self, speech: paddle.Tensor, text: paddle.Tensor,
+                masked_pos: paddle.Tensor, speech_mask: paddle.Tensor,
+                text_mask: paddle.Tensor, speech_seg_pos: paddle.Tensor,
                 text_seg_pos: paddle.Tensor):
-        return self.model(
-            speech=speech,
-            text=text,
-            masked_pos=masked_pos,
-            speech_mask=speech_mask,
-            text_mask=text_mask,
-            speech_seg_pos=speech_seg_pos,
-            text_seg_pos=text_seg_pos)
+        return self.model(speech=speech,
+                          text=text,
+                          masked_pos=masked_pos,
+                          speech_mask=speech_mask,
+                          text_mask=text_mask,
+                          speech_seg_pos=speech_seg_pos,
+                          text_seg_pos=text_seg_pos)
 
     def inference(
-            self,
-            speech: paddle.Tensor,
-            text: paddle.Tensor,
-            masked_pos: paddle.Tensor,
-            speech_mask: paddle.Tensor,
-            text_mask: paddle.Tensor,
-            speech_seg_pos: paddle.Tensor,
-            text_seg_pos: paddle.Tensor,
-            span_bdy: List[int],
-            use_teacher_forcing: bool=True, ) -> Dict[str, paddle.Tensor]:
-        return self.model.inference(
-            speech=speech,
-            text=text,
-            masked_pos=masked_pos,
-            speech_mask=speech_mask,
-            text_mask=text_mask,
-            speech_seg_pos=speech_seg_pos,
-            text_seg_pos=text_seg_pos,
-            span_bdy=span_bdy,
-            use_teacher_forcing=use_teacher_forcing)
+        self,
+        speech: paddle.Tensor,
+        text: paddle.Tensor,
+        masked_pos: paddle.Tensor,
+        speech_mask: paddle.Tensor,
+        text_mask: paddle.Tensor,
+        speech_seg_pos: paddle.Tensor,
+        text_seg_pos: paddle.Tensor,
+        span_bdy: List[int],
+        use_teacher_forcing: bool = True,
+    ) -> Dict[str, paddle.Tensor]:
+        return self.model.inference(speech=speech,
+                                    text=text,
+                                    masked_pos=masked_pos,
+                                    speech_mask=speech_mask,
+                                    text_mask=text_mask,
+                                    speech_seg_pos=speech_seg_pos,
+                                    text_seg_pos=text_seg_pos,
+                                    span_bdy=span_bdy,
+                                    use_teacher_forcing=use_teacher_forcing)
 
 
 class ErnieSATInference(nn.Layer):
@@ -711,16 +727,17 @@ class ErnieSATInference(nn.Layer):
         self.acoustic_model = model
 
     def forward(
-            self,
-            speech: paddle.Tensor,
-            text: paddle.Tensor,
-            masked_pos: paddle.Tensor,
-            speech_mask: paddle.Tensor,
-            text_mask: paddle.Tensor,
-            speech_seg_pos: paddle.Tensor,
-            text_seg_pos: paddle.Tensor,
-            span_bdy: List[int],
-            use_teacher_forcing: bool=True, ):
+        self,
+        speech: paddle.Tensor,
+        text: paddle.Tensor,
+        masked_pos: paddle.Tensor,
+        speech_mask: paddle.Tensor,
+        text_mask: paddle.Tensor,
+        speech_seg_pos: paddle.Tensor,
+        text_seg_pos: paddle.Tensor,
+        span_bdy: List[int],
+        use_teacher_forcing: bool = True,
+    ):
         outs = self.acoustic_model.inference(
             speech=speech,
             text=text,

@@ -75,17 +75,17 @@ def reorganize_aishell3(root_dir: Union[str, Path],
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorganize AISHELL-3 dataset for MFA")
-    parser.add_argument(
-        "--root-dir", type=str, default="", help="path to AISHELL-3 dataset.")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        help="path to save outputs (audio and transcriptions)")
-    parser.add_argument(
-        "--script-type",
-        type=str,
-        default="pinyin",
-        help="type of lab ('word'/'pinyin')")
+    parser.add_argument("--root-dir",
+                        type=str,
+                        default="",
+                        help="path to AISHELL-3 dataset.")
+    parser.add_argument("--output-dir",
+                        type=str,
+                        help="path to save outputs (audio and transcriptions)")
+    parser.add_argument("--script-type",
+                        type=str,
+                        default="pinyin",
+                        help="type of lab ('word'/'pinyin')")
 
     args = parser.parse_args()
     root_dir = Path(args.root_dir).expanduser()

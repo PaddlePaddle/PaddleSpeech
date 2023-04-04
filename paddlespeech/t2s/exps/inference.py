@@ -30,90 +30,95 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Paddle Infernce with acoustic model & vocoder.")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=[
-            'speedyspeech_csmsc',
-            'fastspeech2_csmsc',
-            'fastspeech2_aishell3',
-            'fastspeech2_ljspeech',
-            'fastspeech2_vctk',
-            'tacotron2_csmsc',
-            'fastspeech2_mix',
-            'fastspeech2_male-zh',
-            'fastspeech2_male-en',
-            'fastspeech2_male-mix',
-            'fastspeech2_canton',
-        ],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        '--spk_id',
-        type=int,
-        default=0,
-        help='spk id for multi speaker acoustic model')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=[
+                            'speedyspeech_csmsc',
+                            'fastspeech2_csmsc',
+                            'fastspeech2_aishell3',
+                            'fastspeech2_ljspeech',
+                            'fastspeech2_vctk',
+                            'tacotron2_csmsc',
+                            'fastspeech2_mix',
+                            'fastspeech2_male-zh',
+                            'fastspeech2_male-en',
+                            'fastspeech2_male-mix',
+                            'fastspeech2_canton',
+                        ],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument('--spk_id',
+                        type=int,
+                        default=0,
+                        help='spk id for multi speaker acoustic model')
     # voc
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=[
-            'pwgan_csmsc',
-            'pwgan_aishell3',
-            'pwgan_ljspeech',
-            'pwgan_vctk',
-            'mb_melgan_csmsc',
-            'hifigan_csmsc',
-            'hifigan_aishell3',
-            'hifigan_ljspeech',
-            'hifigan_vctk',
-            'wavernn_csmsc',
-            'pwgan_male',
-            'hifigan_male',
-        ],
-        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=[
+                            'pwgan_csmsc',
+                            'pwgan_aishell3',
+                            'pwgan_ljspeech',
+                            'pwgan_vctk',
+                            'mb_melgan_csmsc',
+                            'hifigan_csmsc',
+                            'hifigan_aishell3',
+                            'hifigan_ljspeech',
+                            'hifigan_vctk',
+                            'wavernn_csmsc',
+                            'pwgan_male',
+                            'hifigan_male',
+                        ],
+                        help='Choose vocoder type of tts task.')
     # other
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en or mix')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en or mix')
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
-    parser.add_argument(
-        "--inference_dir", type=str, help="dir to save inference models")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
     parser.add_argument(
         "--use_trt",
         type=str2bool,
         default=False,
-        help="whether to use TensorRT or not in GPU", )
+        help="whether to use TensorRT or not in GPU",
+    )
     parser.add_argument(
         "--use_mkldnn",
         type=str2bool,
         default=False,
-        help="whether to use MKLDNN or not in CPU.", )
-    parser.add_argument(
-        "--precision",
-        type=str,
-        default='fp32',
-        choices=['fp32', 'fp16', 'bf16', 'int8'],
-        help="mode of running")
+        help="whether to use MKLDNN or not in CPU.",
+    )
+    parser.add_argument("--precision",
+                        type=str,
+                        default='fp32',
+                        choices=['fp32', 'fp16', 'bf16', 'int8'],
+                        help="mode of running")
     parser.add_argument(
         "--device",
         default="gpu",
         choices=["gpu", "cpu"],
-        help="Device selected for inference.", )
+        help="Device selected for inference.",
+    )
     parser.add_argument('--cpu_threads', type=int, default=1)
 
     args, _ = parser.parse_known_args()
@@ -127,34 +132,31 @@ def main():
     paddle.set_device(args.device)
 
     # frontend
-    frontend = get_frontend(
-        lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+    frontend = get_frontend(lang=args.lang,
+                            phones_dict=args.phones_dict,
+                            tones_dict=args.tones_dict)
 
     # am_predictor
-    am_predictor = get_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.am + ".pdmodel",
-        params_file=args.am + ".pdiparams",
-        device=args.device,
-        use_trt=args.use_trt,
-        use_mkldnn=args.use_mkldnn,
-        cpu_threads=args.cpu_threads,
-        precision=args.precision)
+    am_predictor = get_predictor(model_dir=args.inference_dir,
+                                 model_file=args.am + ".pdmodel",
+                                 params_file=args.am + ".pdiparams",
+                                 device=args.device,
+                                 use_trt=args.use_trt,
+                                 use_mkldnn=args.use_mkldnn,
+                                 cpu_threads=args.cpu_threads,
+                                 precision=args.precision)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
     # voc_predictor
-    voc_predictor = get_predictor(
-        model_dir=args.inference_dir,
-        model_file=args.voc + ".pdmodel",
-        params_file=args.voc + ".pdiparams",
-        device=args.device,
-        use_trt=args.use_trt,
-        use_mkldnn=args.use_mkldnn,
-        cpu_threads=args.cpu_threads,
-        precision=args.precision)
+    voc_predictor = get_predictor(model_dir=args.inference_dir,
+                                  model_file=args.voc + ".pdmodel",
+                                  params_file=args.voc + ".pdiparams",
+                                  device=args.device,
+                                  use_trt=args.use_trt,
+                                  use_mkldnn=args.use_mkldnn,
+                                  cpu_threads=args.cpu_threads,
+                                  precision=args.precision)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -174,7 +176,8 @@ def main():
                 lang=args.lang,
                 merge_sentences=merge_sentences,
                 speaker_dict=args.speaker_dict,
-                spk_id=args.spk_id, )
+                spk_id=args.spk_id,
+            )
             wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
         speed = wav.size / t.elapse
         rtf = fs / speed
@@ -196,7 +199,8 @@ def main():
                 lang=args.lang,
                 merge_sentences=merge_sentences,
                 speaker_dict=args.speaker_dict,
-                spk_id=args.spk_id, )
+                spk_id=args.spk_id,
+            )
             wav = get_voc_output(voc_predictor=voc_predictor, input=mel)
 
         N += wav.size

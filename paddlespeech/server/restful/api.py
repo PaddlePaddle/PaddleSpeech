@@ -23,6 +23,7 @@ from paddlespeech.server.restful.cls_api import router as cls_router
 from paddlespeech.server.restful.text_api import router as text_router
 from paddlespeech.server.restful.tts_api import router as tts_router
 from paddlespeech.server.restful.vector_api import router as vec_router
+
 _router = APIRouter()
 
 

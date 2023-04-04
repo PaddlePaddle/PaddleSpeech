@@ -26,6 +26,7 @@ from paddlespeech.t2s.modules.losses import Tacotron2Loss as TransformerTTSLoss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -35,20 +36,21 @@ logger.setLevel(logging.INFO)
 
 class TransformerTTSUpdater(StandardUpdater):
     def __init__(
-            self,
-            model: Layer,
-            optimizer: Optimizer,
-            dataloader: DataLoader,
-            init_state=None,
-            use_masking: bool=False,
-            use_weighted_masking: bool=False,
-            output_dir: Path=None,
-            bce_pos_weight: float=5.0,
-            loss_type: str="L1",
-            use_guided_attn_loss: bool=True,
-            modules_applied_guided_attn: Sequence[str]=("encoder-decoder"),
-            guided_attn_loss_sigma: float=0.4,
-            guided_attn_loss_lambda: float=1.0, ):
+        self,
+        model: Layer,
+        optimizer: Optimizer,
+        dataloader: DataLoader,
+        init_state=None,
+        use_masking: bool = False,
+        use_weighted_masking: bool = False,
+        output_dir: Path = None,
+        bce_pos_weight: float = 5.0,
+        loss_type: str = "L1",
+        use_guided_attn_loss: bool = True,
+        modules_applied_guided_attn: Sequence[str] = ("encoder-decoder"),
+        guided_attn_loss_sigma: float = 0.4,
+        guided_attn_loss_lambda: float = 1.0,
+    ):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         self.loss_type = loss_type
@@ -63,7 +65,8 @@ class TransformerTTSUpdater(StandardUpdater):
         if self.use_guided_attn_loss:
             self.attn_criterion = GuidedMultiHeadAttentionLoss(
                 sigma=guided_attn_loss_sigma,
-                alpha=guided_attn_loss_lambda, )
+                alpha=guided_attn_loss_lambda,
+            )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -79,15 +82,15 @@ class TransformerTTSUpdater(StandardUpdater):
             text=batch["text"],
             text_lengths=batch["text_lengths"],
             speech=batch["speech"],
-            speech_lengths=batch["speech_lengths"], )
+            speech_lengths=batch["speech_lengths"],
+        )
 
-        l1_loss, l2_loss, bce_loss = self.criterion(
-            after_outs=after_outs,
-            before_outs=before_outs,
-            logits=logits,
-            ys=ys,
-            stop_labels=stop_labels,
-            olens=olens)
+        l1_loss, l2_loss, bce_loss = self.criterion(after_outs=after_outs,
+                                                    before_outs=before_outs,
+                                                    logits=logits,
+                                                    ys=ys,
+                                                    stop_labels=stop_labels,
+                                                    olens=olens)
 
         report("train/bce_loss", float(bce_loss))
         report("train/l1_loss", float(l1_loss))
@@ -140,8 +143,9 @@ class TransformerTTSUpdater(StandardUpdater):
                         break
                 # (B, H*L, T_out, T_out)
                 att_ws = paddle.concat(att_ws, axis=1)
-                dec_attn_loss = self.attn_criterion(
-                    att_ws=att_ws, ilens=olens_in, olens=olens_in)
+                dec_attn_loss = self.attn_criterion(att_ws=att_ws,
+                                                    ilens=olens_in,
+                                                    olens=olens_in)
                 report("train/dec_attn_loss", float(dec_attn_loss))
                 losses_dict["dec_attn_loss"] = float(dec_attn_loss)
                 loss = loss + dec_attn_loss
@@ -188,19 +192,20 @@ class TransformerTTSUpdater(StandardUpdater):
 
 class TransformerTTSEvaluator(StandardEvaluator):
     def __init__(
-            self,
-            model: Layer,
-            dataloader: DataLoader,
-            init_state=None,
-            use_masking: bool=False,
-            use_weighted_masking: bool=False,
-            output_dir: Path=None,
-            bce_pos_weight: float=5.0,
-            loss_type: str="L1",
-            use_guided_attn_loss: bool=True,
-            modules_applied_guided_attn: Sequence[str]=("encoder-decoder"),
-            guided_attn_loss_sigma: float=0.4,
-            guided_attn_loss_lambda: float=1.0, ):
+        self,
+        model: Layer,
+        dataloader: DataLoader,
+        init_state=None,
+        use_masking: bool = False,
+        use_weighted_masking: bool = False,
+        output_dir: Path = None,
+        bce_pos_weight: float = 5.0,
+        loss_type: str = "L1",
+        use_guided_attn_loss: bool = True,
+        modules_applied_guided_attn: Sequence[str] = ("encoder-decoder"),
+        guided_attn_loss_sigma: float = 0.4,
+        guided_attn_loss_lambda: float = 1.0,
+    ):
         super().__init__(model, dataloader)
 
         self.loss_type = loss_type
@@ -215,7 +220,8 @@ class TransformerTTSEvaluator(StandardEvaluator):
         if self.use_guided_attn_loss:
             self.attn_criterion = GuidedMultiHeadAttentionLoss(
                 sigma=guided_attn_loss_sigma,
-                alpha=guided_attn_loss_lambda, )
+                alpha=guided_attn_loss_lambda,
+            )
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))
@@ -232,13 +238,12 @@ class TransformerTTSEvaluator(StandardEvaluator):
             speech=batch["speech"],
             speech_lengths=batch["speech_lengths"])
 
-        l1_loss, l2_loss, bce_loss = self.criterion(
-            after_outs=after_outs,
-            before_outs=before_outs,
-            logits=logits,
-            ys=ys,
-            stop_labels=stop_labels,
-            olens=olens)
+        l1_loss, l2_loss, bce_loss = self.criterion(after_outs=after_outs,
+                                                    before_outs=before_outs,
+                                                    logits=logits,
+                                                    ys=ys,
+                                                    stop_labels=stop_labels,
+                                                    olens=olens)
 
         report("eval/bce_loss", float(bce_loss))
         report("eval/l1_loss", float(l1_loss))
@@ -291,8 +296,9 @@ class TransformerTTSEvaluator(StandardEvaluator):
                         break
                 # (B, H*L, T_out, T_out)
                 att_ws = paddle.concat(att_ws, axis=1)
-                dec_attn_loss = self.attn_criterion(
-                    att_ws=att_ws, ilens=olens_in, olens=olens_in)
+                dec_attn_loss = self.attn_criterion(att_ws=att_ws,
+                                                    ilens=olens_in,
+                                                    olens=olens_in)
                 report("eval/dec_attn_loss", float(dec_attn_loss))
                 losses_dict["dec_attn_loss"] = float(dec_attn_loss)
                 loss = loss + dec_attn_loss

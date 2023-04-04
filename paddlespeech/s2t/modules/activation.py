@@ -35,8 +35,7 @@ def brelu(x, t_min=0.0, t_max=24.0, name=None):
 
 class GLU(nn.Layer):
     """Gated Linear Units (GLU) Layer"""
-
-    def __init__(self, dim: int=-1):
+    def __init__(self, dim: int = -1):
         super().__init__()
         self.dim = dim
 
@@ -46,7 +45,6 @@ class GLU(nn.Layer):
 
 class LinearGLUBlock(nn.Layer):
     """A linear Gated Linear Units (GLU) block."""
-
     def __init__(self, idim: int):
         """ GLU.
         Args:
@@ -60,7 +58,11 @@ class LinearGLUBlock(nn.Layer):
 
 
 class ConvGLUBlock(nn.Layer):
-    def __init__(self, kernel_size, in_ch, out_ch, bottlececk_dim=0,
+    def __init__(self,
+                 kernel_size,
+                 in_ch,
+                 out_ch,
+                 bottlececk_dim=0,
                  dropout=0.):
         """A convolutional Gated Linear Units (GLU) block.
 
@@ -76,53 +78,48 @@ class ConvGLUBlock(nn.Layer):
 
         self.conv_residual = None
         if in_ch != out_ch:
-            self.conv_residual = nn.utils.weight_norm(
-                Conv2D(
-                    in_channels=in_ch, out_channels=out_ch, kernel_size=(1, 1)),
-                name='weight',
-                dim=0)
+            self.conv_residual = nn.utils.weight_norm(Conv2D(
+                in_channels=in_ch, out_channels=out_ch, kernel_size=(1, 1)),
+                                                      name='weight',
+                                                      dim=0)
             self.dropout_residual = nn.Dropout(p=dropout)
 
         self.pad_left = nn.Pad2d((0, 0, kernel_size - 1, 0), 0)
 
         layers = OrderedDict()
         if bottlececk_dim == 0:
-            layers['conv'] = nn.utils.weight_norm(
-                Conv2D(
-                    in_channels=in_ch,
-                    out_channels=out_ch * 2,
-                    kernel_size=(kernel_size, 1)),
-                name='weight',
-                dim=0)
+            layers['conv'] = nn.utils.weight_norm(Conv2D(
+                in_channels=in_ch,
+                out_channels=out_ch * 2,
+                kernel_size=(kernel_size, 1)),
+                                                  name='weight',
+                                                  dim=0)
             # TODO(hirofumi0810): padding?
             layers['dropout'] = nn.Dropout(p=dropout)
             layers['glu'] = GLU()
 
         elif bottlececk_dim > 0:
-            layers['conv_in'] = nn.utils.weight_norm(
-                nn.Conv2D(
-                    in_channels=in_ch,
-                    out_channels=bottlececk_dim,
-                    kernel_size=(1, 1)),
-                name='weight',
-                dim=0)
+            layers['conv_in'] = nn.utils.weight_norm(nn.Conv2D(
+                in_channels=in_ch,
+                out_channels=bottlececk_dim,
+                kernel_size=(1, 1)),
+                                                     name='weight',
+                                                     dim=0)
             layers['dropout_in'] = nn.Dropout(p=dropout)
-            layers['conv_bottleneck'] = nn.utils.weight_norm(
-                Conv2D(
-                    in_channels=bottlececk_dim,
-                    out_channels=bottlececk_dim,
-                    kernel_size=(kernel_size, 1)),
-                name='weight',
-                dim=0)
+            layers['conv_bottleneck'] = nn.utils.weight_norm(Conv2D(
+                in_channels=bottlececk_dim,
+                out_channels=bottlececk_dim,
+                kernel_size=(kernel_size, 1)),
+                                                             name='weight',
+                                                             dim=0)
             layers['dropout'] = nn.Dropout(p=dropout)
             layers['glu'] = GLU()
-            layers['conv_out'] = nn.utils.weight_norm(
-                Conv2D(
-                    in_channels=bottlececk_dim,
-                    out_channels=out_ch * 2,
-                    kernel_size=(1, 1)),
-                name='weight',
-                dim=0)
+            layers['conv_out'] = nn.utils.weight_norm(Conv2D(
+                in_channels=bottlececk_dim,
+                out_channels=out_ch * 2,
+                kernel_size=(1, 1)),
+                                                      name='weight',
+                                                      dim=0)
             layers['dropout_out'] = nn.Dropout(p=dropout)
 
         self.layers = nn.Sequential(layers)

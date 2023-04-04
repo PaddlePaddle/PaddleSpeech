@@ -24,28 +24,27 @@ from paddlespeech.t2s.frontend.zh_frontend import Frontend
 def main():
     parser = argparse.ArgumentParser(
         description="Paddle Infernce with speedyspeech & parallel wavegan.")
-    parser.add_argument(
-        "--inference-dir", type=str, help="dir to save inference models")
+    parser.add_argument("--inference-dir",
+                        type=str,
+                        help="dir to save inference models")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
     parser.add_argument("--output-dir", type=str, help="output dir")
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phones.txt",
-        help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones-dict",
-        type=str,
-        default="tones.txt",
-        help="tone vocabulary file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phones.txt",
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones-dict",
+                        type=str,
+                        default="tones.txt",
+                        help="tone vocabulary file.")
 
     args, _ = parser.parse_known_args()
 
-    frontend = Frontend(
-        phone_vocab_path=args.phones_dict, tone_vocab_path=args.tones_dict)
+    frontend = Frontend(phone_vocab_path=args.phones_dict,
+                        tone_vocab_path=args.tones_dict)
     print("frontend done!")
 
     speedyspeech_config = inference.Config(
@@ -74,8 +73,9 @@ def main():
             sentences.append((utt_id, sentence))
 
     for utt_id, sentence in sentences:
-        input_ids = frontend.get_input_ids(
-            sentence, merge_sentences=True, get_tone_ids=True)
+        input_ids = frontend.get_input_ids(sentence,
+                                           merge_sentences=True,
+                                           get_tone_ids=True)
         phone_ids = input_ids["phone_ids"]
         tone_ids = input_ids["tone_ids"]
         phones = phone_ids[0].numpy()

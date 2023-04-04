@@ -83,7 +83,7 @@ class Wav2vec2ASR(nn.Layer):
                text_feature: Dict[str, int],
                decoding_method: str,
                beam_size: int,
-               tokenizer: str=None,
+               tokenizer: str = None,
                sb_pipeline=False):
         batch_size = feats.shape[0]
 
@@ -133,8 +133,8 @@ class Wav2vec2ASR(nn.Layer):
                 res_tokenids = [hyp]
             else:
                 if sb_pipeline is True:
-                    hyp = self.ctc_prefix_beam_search(
-                        feats.unsqueeze(-1), beam_size)
+                    hyp = self.ctc_prefix_beam_search(feats.unsqueeze(-1),
+                                                      beam_size)
                 else:
                     hyp = self.ctc_prefix_beam_search(feats, beam_size)
                 res = []
@@ -192,10 +192,11 @@ class Wav2vec2ASR(nn.Layer):
         return hyps
 
     def _ctc_prefix_beam_search(
-            self,
-            wav,
-            beam_size,
-            blank_id: int=0, ) -> Tuple[List[Tuple[int, float]], paddle.Tensor]:
+        self,
+        wav,
+        beam_size,
+        blank_id: int = 0,
+    ) -> Tuple[List[Tuple[int, float]], paddle.Tensor]:
         """ CTC prefix beam search inner implementation
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -265,10 +266,9 @@ class Wav2vec2ASR(nn.Layer):
                         next_hyps[n_prefix] = (n_pb, n_pnb)
 
             # 2.2 Second beam prune
-            next_hyps = sorted(
-                next_hyps.items(),
-                key=lambda x: log_add(list(x[1])),
-                reverse=True)
+            next_hyps = sorted(next_hyps.items(),
+                               key=lambda x: log_add(list(x[1])),
+                               reverse=True)
             cur_hyps = next_hyps[:beam_size]
 
         hyps = [(y[0], log_add([y[1][0], y[1][1]])) for y in cur_hyps]
@@ -296,7 +296,6 @@ class Wav2vec2ASR(nn.Layer):
 
 class Wav2vec2Base(nn.Layer):
     """Wav2vec2 model"""
-
     def __init__(self, config: dict):
         super().__init__()
         wav2vec2_config = Wav2Vec2ConfigPure(config)

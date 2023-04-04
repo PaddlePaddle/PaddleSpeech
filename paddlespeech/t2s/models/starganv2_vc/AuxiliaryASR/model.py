@@ -27,42 +27,40 @@ from paddlespeech.utils.initialize import uniform_
 
 class ASRCNN(nn.Layer):
     def __init__(
-            self,
-            input_dim: int=80,
-            hidden_dim: int=256,
-            n_token: int=35,
-            n_layers: int=6,
-            token_embedding_dim: int=256, ):
+        self,
+        input_dim: int = 80,
+        hidden_dim: int = 256,
+        n_token: int = 35,
+        n_layers: int = 6,
+        token_embedding_dim: int = 256,
+    ):
         super().__init__()
         self.n_token = n_token
         self.n_down = 1
         self.to_mfcc = MFCC()
-        self.init_cnn = ConvNorm(
-            in_channels=input_dim // 2,
-            out_channels=hidden_dim,
-            kernel_size=7,
-            padding=3,
-            stride=2)
-        self.cnns = nn.Sequential(* [
-            nn.Sequential(
-                ConvBlock(hidden_dim),
-                nn.GroupNorm(num_groups=1, num_channels=hidden_dim))
+        self.init_cnn = ConvNorm(in_channels=input_dim // 2,
+                                 out_channels=hidden_dim,
+                                 kernel_size=7,
+                                 padding=3,
+                                 stride=2)
+        self.cnns = nn.Sequential(*[
+            nn.Sequential(ConvBlock(hidden_dim),
+                          nn.GroupNorm(num_groups=1, num_channels=hidden_dim))
             for n in range(n_layers)
         ])
-        self.projection = ConvNorm(
-            in_channels=hidden_dim, out_channels=hidden_dim // 2)
+        self.projection = ConvNorm(in_channels=hidden_dim,
+                                   out_channels=hidden_dim // 2)
         self.ctc_linear = nn.Sequential(
-            LinearNorm(in_dim=hidden_dim // 2, out_dim=hidden_dim),
-            nn.ReLU(), LinearNorm(in_dim=hidden_dim, out_dim=n_token))
-        self.asr_s2s = ASRS2S(
-            embedding_dim=token_embedding_dim,
-            hidden_dim=hidden_dim // 2,
-            n_token=n_token)
+            LinearNorm(in_dim=hidden_dim // 2, out_dim=hidden_dim), nn.ReLU(),
+            LinearNorm(in_dim=hidden_dim, out_dim=n_token))
+        self.asr_s2s = ASRS2S(embedding_dim=token_embedding_dim,
+                              hidden_dim=hidden_dim // 2,
+                              n_token=n_token)
 
     def forward(self,
                 x: paddle.Tensor,
-                src_key_padding_mask: paddle.Tensor=None,
-                text_input: paddle.Tensor=None):
+                src_key_padding_mask: paddle.Tensor = None,
+                text_input: paddle.Tensor = None):
         x = self.to_mfcc(x)
         x = self.init_cnn(x)
         x = self.cnns(x)
@@ -91,7 +89,7 @@ class ASRCNN(nn.Layer):
         mask = paddle.greater_than(mask + 1, lengths.unsqueeze(1))
         return mask
 
-    def get_future_mask(self, out_length: int, unmask_future_steps: int=0):
+    def get_future_mask(self, out_length: int, unmask_future_steps: int = 0):
         """
         Args:
             out_length (int):
@@ -111,11 +109,11 @@ class ASRCNN(nn.Layer):
 
 class ASRS2S(nn.Layer):
     def __init__(self,
-                 embedding_dim: int=256,
-                 hidden_dim: int=512,
-                 n_location_filters: int=32,
-                 location_kernel_size: int=63,
-                 n_token: int=40):
+                 embedding_dim: int = 256,
+                 hidden_dim: int = 512,
+                 n_location_filters: int = 32,
+                 location_kernel_size: int = 63,
+                 n_token: int = 40):
         super().__init__()
         self.embedding = nn.Embedding(n_token, embedding_dim)
         val_range = math.sqrt(6 / hidden_dim)
@@ -137,8 +135,7 @@ class ASRS2S(nn.Layer):
         self.sos = 1
         self.eos = 2
 
-    def initialize_decoder_states(self,
-                                  memory: paddle.Tensor,
+    def initialize_decoder_states(self, memory: paddle.Tensor,
                                   mask: paddle.Tensor):
         """
         moemory.shape = (B, L, H) = (Batchsize, Maxtimestep, Hiddendim)
@@ -158,9 +155,7 @@ class ASRS2S(nn.Layer):
         self.unk_index = 3
         self.random_mask = 0.1
 
-    def forward(self,
-                memory: paddle.Tensor,
-                memory_mask: paddle.Tensor,
+    def forward(self, memory: paddle.Tensor, memory_mask: paddle.Tensor,
                 text_input: paddle.Tensor):
         """
         moemory.shape = (B, L, H) = (Batchsize, Maxtimestep, Hiddendim)
@@ -171,18 +166,16 @@ class ASRS2S(nn.Layer):
         # text random mask
         random_mask = (paddle.rand(text_input.shape) < self.random_mask)
         _text_input = text_input.clone()
-        _text_input[:] = paddle.where(
-            condition=random_mask,
-            x=paddle.full(
-                shape=_text_input.shape,
-                fill_value=self.unk_index,
-                dtype=_text_input.dtype),
-            y=_text_input)
+        _text_input[:] = paddle.where(condition=random_mask,
+                                      x=paddle.full(shape=_text_input.shape,
+                                                    fill_value=self.unk_index,
+                                                    dtype=_text_input.dtype),
+                                      y=_text_input)
         decoder_inputs = self.embedding(_text_input).transpose(
             [1, 0, 2])  # -> [T, B, channel]
         start_embedding = self.embedding(
-            paddle.to_tensor(
-                [self.sos] * decoder_inputs.shape[1], dtype=paddle.long))
+            paddle.to_tensor([self.sos] * decoder_inputs.shape[1],
+                             dtype=paddle.long))
         decoder_inputs = paddle.concat(
             (start_embedding.unsqueeze(0), decoder_inputs), axis=0)
 
@@ -225,9 +218,7 @@ class ASRS2S(nn.Layer):
 
         return hidden, logit, self.attention_weights
 
-    def parse_decoder_outputs(self,
-                              hidden: paddle.Tensor,
-                              logit: paddle.Tensor,
+    def parse_decoder_outputs(self, hidden: paddle.Tensor, logit: paddle.Tensor,
                               alignments: paddle.Tensor):
         # -> [B, T_out + 1, max_time]
         alignments = paddle.stack(alignments).transpose([1, 0, 2])

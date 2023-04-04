@@ -36,11 +36,14 @@ def detect_oov(corpus_dir, lexicon_path, transcription_pattern="*.lab"):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="detect oov in a corpus given a lexicon")
-    parser.add_argument(
-        "corpus_dir", type=str, help="corpus dir for MFA alignment.")
+    parser.add_argument("corpus_dir",
+                        type=str,
+                        help="corpus dir for MFA alignment.")
     parser.add_argument("lexicon_path", type=str, help="dictionary to use.")
-    parser.add_argument(
-        "--pattern", type=str, default="*.lab", help="dictionary to use.")
+    parser.add_argument("--pattern",
+                        type=str,
+                        default="*.lab",
+                        help="dictionary to use.")
     args = parser.parse_args()
     print(args)
 

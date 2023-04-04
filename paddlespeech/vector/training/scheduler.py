@@ -16,9 +16,9 @@ from paddle.optimizer.lr import LRScheduler
 
 class CyclicLRScheduler(LRScheduler):
     def __init__(self,
-                 base_lr: float=1e-8,
-                 max_lr: float=1e-3,
-                 step_size: int=10000):
+                 base_lr: float = 1e-8,
+                 max_lr: float = 1e-3,
+                 step_size: int = 10000):
 
         super(CyclicLRScheduler, self).__init__()
 

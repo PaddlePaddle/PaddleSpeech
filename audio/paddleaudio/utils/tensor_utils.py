@@ -39,8 +39,8 @@ def has_tensor(val):
 
 
 def pad_sequence(sequences: List[paddle.Tensor],
-                 batch_first: bool=False,
-                 padding_value: float=0.0) -> paddle.Tensor:
+                 batch_first: bool = False,
+                 padding_value: float = 0.0) -> paddle.Tensor:
     r"""Pad a list of variable length Tensors with ``padding_value``
 
     ``pad_sequence`` stacks a list of Tensors along a new dimension,
@@ -166,8 +166,7 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
     return ys_in, ys_out
 
 
-def th_accuracy(pad_outputs: paddle.Tensor,
-                pad_targets: paddle.Tensor,
+def th_accuracy(pad_outputs: paddle.Tensor, pad_targets: paddle.Tensor,
                 ignore_label: int) -> float:
     """Calculate accuracy.
     Args:

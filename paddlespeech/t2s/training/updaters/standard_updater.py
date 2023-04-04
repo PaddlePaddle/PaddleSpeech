@@ -34,12 +34,11 @@ class StandardUpdater(UpdaterBase):
     """An example of over-simplification. Things may not be that simple, but
     you can subclass it to fit your need.
     """
-
     def __init__(self,
                  model: Layer,
                  optimizer: Optimizer,
                  dataloader: DataLoader,
-                 init_state: Optional[UpdaterState]=None):
+                 init_state: Optional[UpdaterState] = None):
         # it is designed to hold multiple models
         models = {"main": model}
         self.models: Dict[str, Layer] = models

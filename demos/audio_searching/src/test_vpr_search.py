@@ -75,7 +75,8 @@ def test_data(spk: str):
     """
     response = client.get(
         "/vpr/data",
-        json={"spk_id": spk}, )
+        json={"spk_id": spk},
+    )
     assert response.status_code == 200
 
 
@@ -85,7 +86,8 @@ def test_del(spk: str):
     """
     response = client.post(
         "/vpr/del",
-        json={"spk_id": spk}, )
+        json={"spk_id": spk},
+    )
     assert response.status_code == 200
 
 

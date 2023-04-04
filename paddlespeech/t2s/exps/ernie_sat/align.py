@@ -35,7 +35,10 @@ def _get_max_idx(dic):
     return sorted([int(key.split('_')[0]) for key in dic.keys()])[-1]
 
 
-def _readtg(tg_path: str, lang: str='en', fs: int=24000, n_shift: int=300):
+def _readtg(tg_path: str,
+            lang: str = 'en',
+            fs: int = 24000,
+            n_shift: int = 300):
     alignment = textgrid.openTextgrid(tg_path, includeEmptyIntervals=True)
     phones = []
     ends = []
@@ -101,9 +104,9 @@ def _readtg(tg_path: str, lang: str='en', fs: int=24000, n_shift: int=300):
 
 def alignment(wav_path: str,
               text: str,
-              fs: int=24000,
+              fs: int = 24000,
               lang='en',
-              n_shift: int=300):
+              n_shift: int = 300):
     wav_name = os.path.basename(wav_path)
     utt = wav_name.split('.')[0]
     # prepare data for MFA
@@ -203,18 +206,21 @@ def words2phns(text: str, lang='en'):
 
 
 def get_phns_spans(wav_path: str,
-                   old_str: str='',
-                   new_str: str='',
-                   source_lang: str='en',
-                   target_lang: str='en',
-                   fs: int=24000,
-                   n_shift: int=300):
+                   old_str: str = '',
+                   new_str: str = '',
+                   source_lang: str = 'en',
+                   target_lang: str = 'en',
+                   fs: int = 24000,
+                   n_shift: int = 300):
     is_append = (old_str == new_str[:len(old_str)])
     old_phns, mfa_start, mfa_end = [], [], []
     # source
     lang = source_lang
-    phn, dur, w2p = alignment(
-        wav_path=wav_path, text=old_str, lang=lang, fs=fs, n_shift=n_shift)
+    phn, dur, w2p = alignment(wav_path=wav_path,
+                              text=old_str,
+                              lang=lang,
+                              fs=fs,
+                              n_shift=n_shift)
 
     new_d_cumsum = np.pad(np.array(dur).cumsum(0), (1, 0), 'constant').tolist()
     mfa_start = new_d_cumsum[:-1]
@@ -347,11 +353,10 @@ if __name__ == '__main__':
     print("---------------------------------")
     # 这里可以用我们的中文前端得到 pinyin 序列
     text_zh = "卡尔普陪外孙玩滑梯。"
-    text_zh = pypinyin.lazy_pinyin(
-        text_zh,
-        neutral_tone_with_five=True,
-        style=pypinyin.Style.TONE3,
-        tone_sandhi=True)
+    text_zh = pypinyin.lazy_pinyin(text_zh,
+                                   neutral_tone_with_five=True,
+                                   style=pypinyin.Style.TONE3,
+                                   tone_sandhi=True)
     text_zh = " ".join(text_zh)
     phn, dur, word2phns = alignment("source/000001.wav", text_zh, lang='zh')
     print(phn, dur)

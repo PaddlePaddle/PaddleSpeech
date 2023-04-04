@@ -1,5 +1,6 @@
 # Token form https://github.com/pytorch/audio/blob/main/torchaudio/backend/common.py with modification.
 
+
 class AudioInfo:
     """return of info function.
 
@@ -28,7 +29,6 @@ class AudioInfo:
             * ``HTK``: Single channel 16-bit PCM
             * ``UNKNOWN`` : None of above
     """
-
     def __init__(
         self,
         sample_rate: int,
@@ -44,12 +44,10 @@ class AudioInfo:
         self.encoding = encoding
 
     def __str__(self):
-        return (
-            f"AudioMetaData("
-            f"sample_rate={self.sample_rate}, "
-            f"num_frames={self.num_frames}, "
-            f"num_channels={self.num_channels}, "
-            f"bits_per_sample={self.bits_per_sample}, "
-            f"encoding={self.encoding}"
-            f")"
-        )
+        return (f"AudioMetaData("
+                f"sample_rate={self.sample_rate}, "
+                f"num_frames={self.num_frames}, "
+                f"num_channels={self.num_channels}, "
+                f"bits_per_sample={self.bits_per_sample}, "
+                f"encoding={self.encoding}"
+                f")")

@@ -30,7 +30,6 @@ class NoisePerturbAugmentor(AugmentorBase):
     :param noise_manifest_path: Manifest path for noise audio data.
     :type noise_manifest_path: str
     """
-
     def __init__(self, rng, min_snr_dB, max_snr_dB, noise_manifest_path):
         self._min_snr_dB = min_snr_dB
         self._max_snr_dB = max_snr_dB
@@ -62,5 +61,7 @@ class NoisePerturbAugmentor(AugmentorBase):
         noise_segment = AudioSegment.slice_from_file(
             noise_json['audio_filepath'], start=start, end=end)
         snr_dB = self._rng.uniform(self._min_snr_dB, self._max_snr_dB)
-        audio_segment.add_noise(
-            noise_segment, snr_dB, allow_downsampling=True, rng=self._rng)
+        audio_segment.add_noise(noise_segment,
+                                snr_dB,
+                                allow_downsampling=True,
+                                rng=self._rng)

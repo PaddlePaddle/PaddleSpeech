@@ -17,7 +17,7 @@ from paddlespeech.cli.log import logger
 from paddlespeech.server.engine.engine_pool import get_engine_pool
 
 
-def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
+def warm_up(engine_and_type: str, warm_up_time: int = 3) -> bool:
     engine_pool = get_engine_pool()
 
     if "tts" in engine_and_type:
@@ -62,10 +62,9 @@ def warm_up(engine_and_type: str, warm_up_time: int=3) -> bool:
 
                 else:
                     st = time.time()
-                    connection_handler.infer(
-                        text=sentence,
-                        lang=tts_engine.lang,
-                        am=tts_engine.config.am)
+                    connection_handler.infer(text=sentence,
+                                             lang=tts_engine.lang,
+                                             am=tts_engine.config.am)
                     et = time.time()
                     logger.debug(
                         f"The response time of the {i} warm up: {et - st} s")

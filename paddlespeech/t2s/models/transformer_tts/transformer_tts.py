@@ -168,64 +168,64 @@ class TransformerTTS(nn.Layer):
         num_layers_applied_guided_attn (int, optional): 
             Number of layers to apply guided attention loss.
     """
-
     def __init__(
-            self,
-            # network structure related
-            idim: int,
-            odim: int,
-            embed_dim: int=512,
-            eprenet_conv_layers: int=3,
-            eprenet_conv_chans: int=256,
-            eprenet_conv_filts: int=5,
-            dprenet_layers: int=2,
-            dprenet_units: int=256,
-            elayers: int=6,
-            eunits: int=1024,
-            adim: int=512,
-            aheads: int=4,
-            dlayers: int=6,
-            dunits: int=1024,
-            postnet_layers: int=5,
-            postnet_chans: int=256,
-            postnet_filts: int=5,
-            positionwise_layer_type: str="conv1d",
-            positionwise_conv_kernel_size: int=1,
-            use_scaled_pos_enc: bool=True,
-            use_batch_norm: bool=True,
-            encoder_normalize_before: bool=True,
-            decoder_normalize_before: bool=True,
-            encoder_concat_after: bool=False,
-            decoder_concat_after: bool=False,
-            reduction_factor: int=1,
-            spk_embed_dim: int=None,
-            spk_embed_integration_type: str="add",
-            use_gst: bool=False,
-            gst_tokens: int=10,
-            gst_heads: int=4,
-            gst_conv_layers: int=6,
-            gst_conv_chans_list: Sequence[int]=(32, 32, 64, 64, 128, 128),
-            gst_conv_kernel_size: int=3,
-            gst_conv_stride: int=2,
-            gst_gru_layers: int=1,
-            gst_gru_units: int=128,
-            # training related
-            transformer_enc_dropout_rate: float=0.1,
-            transformer_enc_positional_dropout_rate: float=0.1,
-            transformer_enc_attn_dropout_rate: float=0.1,
-            transformer_dec_dropout_rate: float=0.1,
-            transformer_dec_positional_dropout_rate: float=0.1,
-            transformer_dec_attn_dropout_rate: float=0.1,
-            transformer_enc_dec_attn_dropout_rate: float=0.1,
-            eprenet_dropout_rate: float=0.5,
-            dprenet_dropout_rate: float=0.5,
-            postnet_dropout_rate: float=0.5,
-            init_type: str="xavier_uniform",
-            init_enc_alpha: float=1.0,
-            init_dec_alpha: float=1.0,
-            use_guided_attn_loss: bool=True,
-            num_heads_applied_guided_attn: int=2,
-            num_layers_applied_guided_attn: int=2, ):
+        self,
+        # network structure related
+        idim: int,
+        odim: int,
+        embed_dim: int = 512,
+        eprenet_conv_layers: int = 3,
+        eprenet_conv_chans: int = 256,
+        eprenet_conv_filts: int = 5,
+        dprenet_layers: int = 2,
+        dprenet_units: int = 256,
+        elayers: int = 6,
+        eunits: int = 1024,
+        adim: int = 512,
+        aheads: int = 4,
+        dlayers: int = 6,
+        dunits: int = 1024,
+        postnet_layers: int = 5,
+        postnet_chans: int = 256,
+        postnet_filts: int = 5,
+        positionwise_layer_type: str = "conv1d",
+        positionwise_conv_kernel_size: int = 1,
+        use_scaled_pos_enc: bool = True,
+        use_batch_norm: bool = True,
+        encoder_normalize_before: bool = True,
+        decoder_normalize_before: bool = True,
+        encoder_concat_after: bool = False,
+        decoder_concat_after: bool = False,
+        reduction_factor: int = 1,
+        spk_embed_dim: int = None,
+        spk_embed_integration_type: str = "add",
+        use_gst: bool = False,
+        gst_tokens: int = 10,
+        gst_heads: int = 4,
+        gst_conv_layers: int = 6,
+        gst_conv_chans_list: Sequence[int] = (32, 32, 64, 64, 128, 128),
+        gst_conv_kernel_size: int = 3,
+        gst_conv_stride: int = 2,
+        gst_gru_layers: int = 1,
+        gst_gru_units: int = 128,
+        # training related
+        transformer_enc_dropout_rate: float = 0.1,
+        transformer_enc_positional_dropout_rate: float = 0.1,
+        transformer_enc_attn_dropout_rate: float = 0.1,
+        transformer_dec_dropout_rate: float = 0.1,
+        transformer_dec_positional_dropout_rate: float = 0.1,
+        transformer_dec_attn_dropout_rate: float = 0.1,
+        transformer_enc_dec_attn_dropout_rate: float = 0.1,
+        eprenet_dropout_rate: float = 0.5,
+        dprenet_dropout_rate: float = 0.5,
+        postnet_dropout_rate: float = 0.5,
+        init_type: str = "xavier_uniform",
+        init_enc_alpha: float = 1.0,
+        init_dec_alpha: float = 1.0,
+        use_guided_attn_loss: bool = True,
+        num_heads_applied_guided_attn: int = 2,
+        num_layers_applied_guided_attn: int = 2,
+    ):
         """Initialize Transformer module."""
         assert check_argument_types()
         super().__init__()
@@ -272,13 +272,14 @@ class TransformerTTS(nn.Layer):
                     econv_filts=eprenet_conv_filts,
                     use_batch_norm=use_batch_norm,
                     dropout_rate=eprenet_dropout_rate,
-                    padding_idx=self.padding_idx, ),
-                nn.Linear(eprenet_conv_chans, adim), )
+                    padding_idx=self.padding_idx,
+                ),
+                nn.Linear(eprenet_conv_chans, adim),
+            )
         else:
-            encoder_input_layer = nn.Embedding(
-                num_embeddings=idim,
-                embedding_dim=adim,
-                padding_idx=self.padding_idx)
+            encoder_input_layer = nn.Embedding(num_embeddings=idim,
+                                               embedding_dim=adim,
+                                               padding_idx=self.padding_idx)
         self.encoder = TransformerEncoder(
             idim=idim,
             attention_dim=adim,
@@ -293,7 +294,8 @@ class TransformerTTS(nn.Layer):
             normalize_before=encoder_normalize_before,
             concat_after=encoder_concat_after,
             positionwise_layer_type=positionwise_layer_type,
-            positionwise_conv_kernel_size=positionwise_conv_kernel_size, )
+            positionwise_conv_kernel_size=positionwise_conv_kernel_size,
+        )
 
         # define GST
         if self.use_gst:
@@ -307,7 +309,8 @@ class TransformerTTS(nn.Layer):
                 conv_kernel_size=gst_conv_kernel_size,
                 conv_stride=gst_conv_stride,
                 gru_layers=gst_gru_layers,
-                gru_units=gst_gru_units, )
+                gru_units=gst_gru_units,
+            )
 
         # define projection layer
         if self.spk_embed_dim is not None:
@@ -324,8 +327,10 @@ class TransformerTTS(nn.Layer):
                     idim=odim,
                     n_layers=dprenet_layers,
                     n_units=dprenet_units,
-                    dropout_rate=dprenet_dropout_rate, ),
-                nn.Linear(dprenet_units, adim), )
+                    dropout_rate=dprenet_dropout_rate,
+                ),
+                nn.Linear(dprenet_units, adim),
+            )
         else:
             decoder_input_layer = "linear"
         # get positional encoding class
@@ -345,7 +350,8 @@ class TransformerTTS(nn.Layer):
             use_output_layer=False,
             pos_enc_class=pos_enc_class,
             normalize_before=decoder_normalize_before,
-            concat_after=decoder_concat_after, )
+            concat_after=decoder_concat_after,
+        )
 
         # define final projection
         self.feat_out = nn.Linear(adim, odim * reduction_factor)
@@ -359,14 +365,16 @@ class TransformerTTS(nn.Layer):
             n_chans=postnet_chans,
             n_filts=postnet_filts,
             use_batch_norm=use_batch_norm,
-            dropout_rate=postnet_dropout_rate, ))
+            dropout_rate=postnet_dropout_rate,
+        ))
 
         # 闭合的 initialize() 中的 set_global_initializer 的作用域，防止其影响到 self._reset_parameters()
         nn.initializer.set_global_initializer(None)
 
         self._reset_parameters(
             init_enc_alpha=init_enc_alpha,
-            init_dec_alpha=init_dec_alpha, )
+            init_dec_alpha=init_dec_alpha,
+        )
 
     def _reset_parameters(self, init_enc_alpha: float, init_dec_alpha: float):
 
@@ -387,12 +395,12 @@ class TransformerTTS(nn.Layer):
                     init_dec_alpha))
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            spk_emb: paddle.Tensor=None,
+        self,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        spk_emb: paddle.Tensor = None,
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -455,12 +463,12 @@ class TransformerTTS(nn.Layer):
         return after_outs, before_outs, logits, ys, stop_labels, olens, olens_in, need_dict
 
     def _forward(
-            self,
-            xs: paddle.Tensor,
-            ilens: paddle.Tensor,
-            ys: paddle.Tensor,
-            olens: paddle.Tensor,
-            spk_emb: paddle.Tensor,
+        self,
+        xs: paddle.Tensor,
+        ilens: paddle.Tensor,
+        ys: paddle.Tensor,
+        olens: paddle.Tensor,
+        spk_emb: paddle.Tensor,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         # forward encoder
         x_masks = self._source_mask(ilens)
@@ -503,14 +511,14 @@ class TransformerTTS(nn.Layer):
         return after_outs, before_outs, logits
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            speech: paddle.Tensor=None,
-            spk_emb: paddle.Tensor=None,
-            threshold: float=0.5,
-            minlenratio: float=0.0,
-            maxlenratio: float=10.0,
-            use_teacher_forcing: bool=False,
+        self,
+        text: paddle.Tensor,
+        speech: paddle.Tensor = None,
+        spk_emb: paddle.Tensor = None,
+        threshold: float = 0.5,
+        minlenratio: float = 0.0,
+        maxlenratio: float = 10.0,
+        use_teacher_forcing: bool = False,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Generate the sequence of features given the sequences of characters.
 
@@ -533,8 +541,9 @@ class TransformerTTS(nn.Layer):
         y = speech
 
         # add eos at the last of sequence
-        text = numpy.pad(
-            text.numpy(), (0, 1), 'constant', constant_values=self.eos)
+        text = numpy.pad(text.numpy(), (0, 1),
+                         'constant',
+                         constant_values=self.eos)
         x = paddle.to_tensor(text, dtype='int64')
 
         # inference with teacher forcing
@@ -544,10 +553,12 @@ class TransformerTTS(nn.Layer):
             # get teacher forcing outputs
             xs, ys = x.unsqueeze(0), y.unsqueeze(0)
             spk_emb = None if spk_emb is None else spk_emb.unsqueeze(0)
-            ilens = paddle.to_tensor(
-                [xs.shape[1]], dtype=paddle.int64, place=xs.place)
-            olens = paddle.to_tensor(
-                [ys.shape[1]], dtype=paddle.int64, place=ys.place)
+            ilens = paddle.to_tensor([xs.shape[1]],
+                                     dtype=paddle.int64,
+                                     place=xs.place)
+            olens = paddle.to_tensor([ys.shape[1]],
+                                     dtype=paddle.int64,
+                                     place=ys.place)
             outs, *_ = self._forward(xs, ilens, ys, olens, spk_emb)
 
             # get attention weights
@@ -598,9 +609,8 @@ class TransformerTTS(nn.Layer):
             probs += [F.sigmoid(self.prob_out(z))[0]]  # [(r), ...]
 
             # update next inputs
-            ys = paddle.concat(
-                (ys, outs[-1][-1].reshape([1, 1, self.odim])),
-                axis=1)  # (1, idx + 1, odim)
+            ys = paddle.concat((ys, outs[-1][-1].reshape([1, 1, self.odim])),
+                               axis=1)  # (1, idx + 1, odim)
 
             # get attention weights
             att_ws_ = []
@@ -624,8 +634,8 @@ class TransformerTTS(nn.Layer):
                 if idx < minlen:
                     continue
                 # (L, odim) -> (1, L, odim) -> (1, odim, L)
-                outs = (paddle.concat(outs, axis=0).unsqueeze(0).transpose(
-                    [0, 2, 1]))
+                outs = (paddle.concat(outs,
+                                      axis=0).unsqueeze(0).transpose([0, 2, 1]))
                 if self.postnet is not None:
                     # (1, odim, L)
                     outs = outs + self.postnet(outs)
@@ -692,8 +702,7 @@ class TransformerTTS(nn.Layer):
         s_masks = subsequent_mask(y_masks.shape[-1]).unsqueeze(0)
         return paddle.logical_and(y_masks.unsqueeze(-2), s_masks)
 
-    def _integrate_with_spk_embed(self,
-                                  hs: paddle.Tensor,
+    def _integrate_with_spk_embed(self, hs: paddle.Tensor,
                                   spk_emb: paddle.Tensor) -> paddle.Tensor:
         """Integrate speaker embedding with hidden states.
 
@@ -711,8 +720,8 @@ class TransformerTTS(nn.Layer):
             hs = hs + spk_emb.unsqueeze(1)
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
-            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(-1, hs.shape[1],
-                                                               -1)
+            spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
+                -1, hs.shape[1], -1)
             hs = self.projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")

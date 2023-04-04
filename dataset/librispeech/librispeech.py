@@ -150,23 +150,24 @@ def main():
         args.target_dir = os.path.expanduser(args.target_dir)
 
     tasks = [
-        (URL_TEST_CLEAN, MD5_TEST_CLEAN, os.path.join(args.target_dir,
-                                                      "test-clean"),
-         args.manifest_prefix + ".test-clean"),
-        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(
-            args.target_dir, "dev-clean"), args.manifest_prefix + ".dev-clean"),
+        (URL_TEST_CLEAN, MD5_TEST_CLEAN,
+         os.path.join(args.target_dir,
+                      "test-clean"), args.manifest_prefix + ".test-clean"),
+        (URL_DEV_CLEAN, MD5_DEV_CLEAN, os.path.join(args.target_dir,
+                                                    "dev-clean"),
+         args.manifest_prefix + ".dev-clean"),
     ]
     if args.full_download:
         tasks.extend([
             (URL_TRAIN_CLEAN_100, MD5_TRAIN_CLEAN_100,
              os.path.join(args.target_dir, "train-clean-100"),
              args.manifest_prefix + ".train-clean-100"),
-            (URL_TEST_OTHER, MD5_TEST_OTHER, os.path.join(args.target_dir,
-                                                          "test-other"),
-             args.manifest_prefix + ".test-other"),
-            (URL_DEV_OTHER, MD5_DEV_OTHER, os.path.join(args.target_dir,
-                                                        "dev-other"),
-             args.manifest_prefix + ".dev-other"),
+            (URL_TEST_OTHER, MD5_TEST_OTHER,
+             os.path.join(args.target_dir,
+                          "test-other"), args.manifest_prefix + ".test-other"),
+            (URL_DEV_OTHER, MD5_DEV_OTHER,
+             os.path.join(args.target_dir,
+                          "dev-other"), args.manifest_prefix + ".dev-other"),
             (URL_TRAIN_CLEAN_360, MD5_TRAIN_CLEAN_360,
              os.path.join(args.target_dir, "train-clean-360"),
              args.manifest_prefix + ".train-clean-360"),

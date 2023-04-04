@@ -45,8 +45,8 @@ def segment_alignment(alignment: List[int], blank_id=0) -> List[List[int]]:
             align_segs[-1].extend(alignment[start:])
             break
         end += 1
-        while end < len(alignment) and alignment[end - 1] == alignment[
-                end]:  # repeat label
+        while end < len(alignment) and alignment[
+                end - 1] == alignment[end]:  # repeat label
             end += 1
         align_segs.append(alignment[start:end])
         start = end
@@ -101,7 +101,7 @@ def align_to_tierformat(align_segs: List[List[int]],
 def generate_textgrid(maxtime: float,
                       intervals: List[Text],
                       output: Text,
-                      name: Text='ali') -> None:
+                      name: Text = 'ali') -> None:
     """Create alignment textgrid file.
 
     Args:

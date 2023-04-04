@@ -24,9 +24,10 @@ def change_value(args):
                 target_value = target_value + "_onnx"
             y[engine_type][target_key] = target_value
         elif change_type == "protocol":
-            assert (target_key == "protocol" and (
-                target_value == "http" or target_value == "websocket"
-            )), "if change_type is protocol, target_key must be set protocol."
+            assert (
+                target_key == "protocol"
+                and (target_value == "http" or target_value == "websocket")
+            ), "if change_type is protocol, target_key must be set protocol."
             y[target_key] = target_value
         elif change_type == "engine_type":
             assert (
@@ -58,35 +59,32 @@ def change_value(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--config_file',
-        type=str,
-        default='./conf/application.yaml',
-        help='server yaml file.')
+    parser.add_argument('--config_file',
+                        type=str,
+                        default='./conf/application.yaml',
+                        help='server yaml file.')
     parser.add_argument(
         '--change_type',
         type=str,
         default="model",
         choices=["model", "protocol", "engine_type", "device"],
-        help='change protocol', )
-    parser.add_argument(
-        '--engine_type',
-        type=str,
-        default="tts_online",
-        help='engine type',
-        choices=["tts_online", "tts_online-onnx"])
-    parser.add_argument(
-        '--target_key',
-        type=str,
-        default=None,
-        help='Change key',
-        required=True)
-    parser.add_argument(
-        '--target_value',
-        type=str,
-        default=None,
-        help='target value',
-        required=True)
+        help='change protocol',
+    )
+    parser.add_argument('--engine_type',
+                        type=str,
+                        default="tts_online",
+                        help='engine type',
+                        choices=["tts_online", "tts_online-onnx"])
+    parser.add_argument('--target_key',
+                        type=str,
+                        default=None,
+                        help='Change key',
+                        required=True)
+    parser.add_argument('--target_value',
+                        type=str,
+                        default=None,
+                        help='target value',
+                        required=True)
 
     args = parser.parse_args()
 

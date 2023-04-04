@@ -68,17 +68,19 @@ class Transform(object):
 
         # Compute mel-spectrogram.
         # Turn center to False to prevent internal padding.
-        spectrogram = librosa.core.stft(
-            wav,
-            hop_length=hop_length,
-            win_length=win_length,
-            n_fft=n_fft,
-            center=False)
+        spectrogram = librosa.core.stft(wav,
+                                        hop_length=hop_length,
+                                        win_length=win_length,
+                                        n_fft=n_fft,
+                                        center=False)
         spectrogram_magnitude = np.abs(spectrogram)
 
         # Compute mel-spectrograms.
-        mel_filter_bank = librosa.filters.mel(
-            sr=sr, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax)
+        mel_filter_bank = librosa.filters.mel(sr=sr,
+                                              n_fft=n_fft,
+                                              n_mels=n_mels,
+                                              fmin=fmin,
+                                              fmax=fmax)
         mel_spectrogram = np.dot(mel_filter_bank, spectrogram_magnitude)
 
         # log scale mel_spectrogram.
@@ -119,8 +121,10 @@ def create_dataset(config, input_dir, output_dir):
         file_names.append((base_name, mel.shape[-1], audio.shape[-1]))
 
     meta_data = pd.DataFrame.from_records(file_names)
-    meta_data.to_csv(
-        str(output_dir / "metadata.csv"), sep="\t", index=None, header=None)
+    meta_data.to_csv(str(output_dir / "metadata.csv"),
+                     sep="\t",
+                     index=None,
+                     header=None)
     print("saved meta data in to {}".format(
         os.path.join(output_dir, "metadata.csv")))
 
@@ -129,19 +133,21 @@ def create_dataset(config, input_dir, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="create dataset")
-    parser.add_argument(
-        "--config",
-        type=str,
-        metavar="FILE",
-        help="extra config to overwrite the default config")
-    parser.add_argument(
-        "--input", type=str, help="path of the ljspeech dataset")
-    parser.add_argument(
-        "--output", type=str, help="path to save output dataset")
+    parser.add_argument("--config",
+                        type=str,
+                        metavar="FILE",
+                        help="extra config to overwrite the default config")
+    parser.add_argument("--input",
+                        type=str,
+                        help="path of the ljspeech dataset")
+    parser.add_argument("--output",
+                        type=str,
+                        help="path to save output dataset")
     parser.add_argument(
         "--opts",
         nargs=argparse.REMAINDER,
-        help="options to overwrite --config file and the default config, passing in KEY VALUE pairs"
+        help=
+        "options to overwrite --config file and the default config, passing in KEY VALUE pairs"
     )
 
     config = get_cfg_defaults()

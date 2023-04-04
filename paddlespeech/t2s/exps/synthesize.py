@@ -61,19 +61,18 @@ def evaluate(args):
         phones_dict=args.phones_dict,
         tones_dict=args.tones_dict,
         speaker_dict=args.speaker_dict,
-        speech_stretchs=args.speech_stretchs, )
-    test_dataset = get_test_dataset(
-        test_metadata=test_metadata,
-        am=args.am,
-        speaker_dict=args.speaker_dict,
-        voice_cloning=args.voice_cloning)
+        speech_stretchs=args.speech_stretchs,
+    )
+    test_dataset = get_test_dataset(test_metadata=test_metadata,
+                                    am=args.am,
+                                    speaker_dict=args.speaker_dict,
+                                    voice_cloning=args.voice_cloning)
 
     # vocoder
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -95,8 +94,9 @@ def evaluate(args):
                         spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
                     elif "spk_id" in datum:
                         spk_id = paddle.to_tensor(datum["spk_id"])
-                    mel = am_inference(
-                        phone_ids, spk_id=spk_id, spk_emb=spk_emb)
+                    mel = am_inference(phone_ids,
+                                       spk_id=spk_id,
+                                       spk_emb=spk_emb)
                 elif am_name == 'speedyspeech':
                     phone_ids = paddle.to_tensor(datum["phones"])
                     tone_ids = paddle.to_tensor(datum["tones"])
@@ -116,12 +116,11 @@ def evaluate(args):
                     # get_mel_fs2 = False, means mel from diffusion, get_mel_fs2 = True, means mel from fastspeech2.
                     get_mel_fs2 = False
                     # mel: [T, mel_bin]
-                    mel = am_inference(
-                        phone_ids,
-                        note=note,
-                        note_dur=note_dur,
-                        is_slur=is_slur,
-                        get_mel_fs2=get_mel_fs2)
+                    mel = am_inference(phone_ids,
+                                       note=note,
+                                       note_dur=note_dur,
+                                       is_slur=is_slur,
+                                       get_mel_fs2=get_mel_fs2)
                 # vocoder
                 wav = voc_inference(mel)
 
@@ -133,8 +132,9 @@ def evaluate(args):
         print(
             f"{utt_id}, mel: {mel.shape}, wave: {wav.size}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
-        sf.write(
-            str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 wav,
+                 samplerate=am_config.fs)
         print(f"{utt_id} done!")
     print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
@@ -144,89 +144,100 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Synthesize with acoustic model & vocoder")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=[
-            'speedyspeech_csmsc',
-            'fastspeech2_csmsc',
-            'fastspeech2_ljspeech',
-            'fastspeech2_aishell3',
-            'fastspeech2_vctk',
-            'tacotron2_csmsc',
-            'tacotron2_ljspeech',
-            'tacotron2_aishell3',
-            'fastspeech2_mix',
-            'fastspeech2_canton',
-            'diffsinger_opencpop',
-        ],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        '--am_config', type=str, default=None, help='Config of acoustic model.')
-    parser.add_argument(
-        '--am_ckpt',
-        type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=[
+                            'speedyspeech_csmsc',
+                            'fastspeech2_csmsc',
+                            'fastspeech2_ljspeech',
+                            'fastspeech2_aishell3',
+                            'fastspeech2_vctk',
+                            'tacotron2_csmsc',
+                            'tacotron2_ljspeech',
+                            'tacotron2_aishell3',
+                            'fastspeech2_mix',
+                            'fastspeech2_canton',
+                            'diffsinger_opencpop',
+                        ],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am_config',
+                        type=str,
+                        default=None,
+                        help='Config of acoustic model.')
+    parser.add_argument('--am_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of acoustic model.')
     parser.add_argument(
         "--am_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker_dict", type=str, default=None, help="speaker id map file.")
-    parser.add_argument(
-        "--voice-cloning",
-        type=str2bool,
-        default=False,
-        help="whether training voice cloning model.")
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
+    parser.add_argument("--speaker_dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
+    parser.add_argument("--voice-cloning",
+                        type=str2bool,
+                        default=False,
+                        help="whether training voice cloning model.")
     # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=[
-            'pwgan_csmsc',
-            'pwgan_ljspeech',
-            'pwgan_aishell3',
-            'pwgan_vctk',
-            'mb_melgan_csmsc',
-            'wavernn_csmsc',
-            'hifigan_csmsc',
-            'hifigan_ljspeech',
-            'hifigan_aishell3',
-            'hifigan_vctk',
-            'style_melgan_csmsc',
-            "pwgan_opencpop",
-            "hifigan_opencpop",
-        ],
-        help='Choose vocoder type of tts task.')
-    parser.add_argument(
-        '--voc_config', type=str, default=None, help='Config of voc.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=[
+                            'pwgan_csmsc',
+                            'pwgan_ljspeech',
+                            'pwgan_aishell3',
+                            'pwgan_vctk',
+                            'mb_melgan_csmsc',
+                            'wavernn_csmsc',
+                            'hifigan_csmsc',
+                            'hifigan_ljspeech',
+                            'hifigan_aishell3',
+                            'hifigan_vctk',
+                            'style_melgan_csmsc',
+                            "pwgan_opencpop",
+                            "hifigan_opencpop",
+                        ],
+                        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc_config',
+                        type=str,
+                        default=None,
+                        help='Config of voc.')
+    parser.add_argument('--voc_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of voc.')
     parser.add_argument(
         "--voc_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training voc."
     )
     # other
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--speech_stretchs",
-        type=str,
-        default=None,
-        help="The min and max values of the mel spectrum.")
+    parser.add_argument("--speech_stretchs",
+                        type=str,
+                        default=None,
+                        help="The min and max values of the mel spectrum.")
 
     args = parser.parse_args()
     return args

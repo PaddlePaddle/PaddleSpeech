@@ -21,7 +21,6 @@ class ExtendAction(argparse.Action):
     If you only have to support 3.8+ then defining it yourself is no longer required. 
     Usage of stdlib "extend" action is exactly the same way as this answer originally described:
     """
-
     def __call__(self, parser, namespace, values, option_string=None):
         items = getattr(namespace, self.dest) or []
         items.extend(values)
@@ -66,68 +65,71 @@ def default_argument_parser(parser=None):
         parser = argparse.ArgumentParser()
 
     parser.register('action', 'extend', ExtendAction)
-    parser.add_argument(
-        '--conf', type=open, action=LoadFromFile, help="config file.")
+    parser.add_argument('--conf',
+                        type=open,
+                        action=LoadFromFile,
+                        help="config file.")
 
-    train_group = parser.add_argument_group(
-        title='Train Options', description=None)
+    train_group = parser.add_argument_group(title='Train Options',
+                                            description=None)
     train_group.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="seed to use for paddle, np and random. None or 0 for random, else set seed."
+        help=
+        "seed to use for paddle, np and random. None or 0 for random, else set seed."
     )
-    train_group.add_argument(
-        "--ngpu",
-        type=int,
-        default=1,
-        help="number of parallel processes. 0 for cpu.")
-    train_group.add_argument(
-        '--nxpu',
-        type=int,
-        default=0,
-        choices=[0, 1],
-        help="if nxpu == 0 and ngpu == 0, use cpu.")
-    train_group.add_argument(
-        "--config", metavar="CONFIG_FILE", help="config file.")
-    train_group.add_argument(
-        "--output", metavar="CKPT_DIR", help="path to save checkpoint.")
-    train_group.add_argument(
-        "--checkpoint_path", type=str, help="path to load checkpoint")
+    train_group.add_argument("--ngpu",
+                             type=int,
+                             default=1,
+                             help="number of parallel processes. 0 for cpu.")
+    train_group.add_argument('--nxpu',
+                             type=int,
+                             default=0,
+                             choices=[0, 1],
+                             help="if nxpu == 0 and ngpu == 0, use cpu.")
+    train_group.add_argument("--config",
+                             metavar="CONFIG_FILE",
+                             help="config file.")
+    train_group.add_argument("--output",
+                             metavar="CKPT_DIR",
+                             help="path to save checkpoint.")
+    train_group.add_argument("--checkpoint_path",
+                             type=str,
+                             help="path to load checkpoint")
     train_group.add_argument(
         "--opts",
         action='extend',
         nargs=2,
         metavar=('key', 'val'),
         help="overwrite --config field, passing (KEY VALUE) pairs")
-    train_group.add_argument(
-        "--dump-config", metavar="FILE", help="dump config to `this` file.")
+    train_group.add_argument("--dump-config",
+                             metavar="FILE",
+                             help="dump config to `this` file.")
 
-    test_group = parser.add_argument_group(
-        title='Test Options', description=None)
+    test_group = parser.add_argument_group(title='Test Options',
+                                           description=None)
 
-    test_group.add_argument(
-        "--decode_cfg",
-        metavar="DECODE_CONFIG_FILE",
-        help="decode config file.")
+    test_group.add_argument("--decode_cfg",
+                            metavar="DECODE_CONFIG_FILE",
+                            help="decode config file.")
 
-    profile_group = parser.add_argument_group(
-        title='Benchmark Options', description=None)
+    profile_group = parser.add_argument_group(title='Benchmark Options',
+                                              description=None)
     profile_group.add_argument(
         '--profiler-options',
         type=str,
         default=None,
-        help='The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".'
+        help=
+        'The option of profiler, which should be in format \"key1=value1;key2=value2;key3=value3\".'
     )
-    profile_group.add_argument(
-        '--benchmark-batch-size',
-        type=int,
-        default=None,
-        help='batch size for benchmark.')
-    profile_group.add_argument(
-        '--benchmark-max-step',
-        type=int,
-        default=None,
-        help='max iteration for benchmark.')
+    profile_group.add_argument('--benchmark-batch-size',
+                               type=int,
+                               default=None,
+                               help='batch size for benchmark.')
+    profile_group.add_argument('--benchmark-max-step',
+                               type=int,
+                               default=None,
+                               help='max iteration for benchmark.')
 
     return parser

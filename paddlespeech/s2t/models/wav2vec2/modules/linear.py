@@ -47,14 +47,14 @@ class Linear(paddle.nn.Layer):
     >>> output.shape
     paddle.shape([10, 50, 100])
     """
-
     def __init__(
-            self,
-            n_neurons,
-            input_shape=None,
-            input_size=None,
-            bias_attr=None,
-            combine_dims=False, ):
+        self,
+        n_neurons,
+        input_shape=None,
+        input_size=None,
+        bias_attr=None,
+        combine_dims=False,
+    ):
         super().__init__()
         self.combine_dims = combine_dims
 

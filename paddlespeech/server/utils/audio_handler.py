@@ -253,7 +253,7 @@ class ASRHttpHandler:
 
 
 class TTSWsHandler:
-    def __init__(self, server="127.0.0.1", port=8092, play: bool=False):
+    def __init__(self, server="127.0.0.1", port=8092, play: bool = False):
         """PaddleSpeech Online TTS Server Client  audio handler
            Online tts server use the websocket protocal
         Args:
@@ -276,11 +276,10 @@ class TTSWsHandler:
             import pyaudio
             self.buffer = b''
             self.p = pyaudio.PyAudio()
-            self.stream = self.p.open(
-                format=self.p.get_format_from_width(2),
-                channels=1,
-                rate=self.sample_rate,
-                output=True)
+            self.stream = self.p.open(format=self.p.get_format_from_width(2),
+                                      channels=1,
+                                      rate=self.sample_rate,
+                                      output=True)
             self.mutex = threading.Lock()
             self.start_play = True
             self.t = threading.Thread(target=self.play_audio)
@@ -299,7 +298,7 @@ class TTSWsHandler:
             self.buffer = b''
             self.mutex.release()
 
-    async def run(self, text: str, spk_id=0, output: str=None):
+    async def run(self, text: str, spk_id=0, output: str = None):
         """Send a text to online server
 
         Args:
@@ -403,7 +402,7 @@ class TTSWsHandler:
 
 
 class TTSHttpHandler:
-    def __init__(self, server="127.0.0.1", port=8092, play: bool=False):
+    def __init__(self, server="127.0.0.1", port=8092, play: bool = False):
         """PaddleSpeech Online TTS Server Client  audio handler
            Online tts server use the websocket protocal
         Args:
@@ -429,11 +428,10 @@ class TTSHttpHandler:
             self.start_play = True
             self.max_fail = 50
 
-            self.stream = self.p.open(
-                format=self.p.get_format_from_width(2),
-                channels=1,
-                rate=self.sample_rate,
-                output=True)
+            self.stream = self.p.open(format=self.p.get_format_from_width(2),
+                                      channels=1,
+                                      rate=self.sample_rate,
+                                      output=True)
             self.mutex = threading.Lock()
             self.t = threading.Thread(target=self.play_audio)
 
@@ -451,7 +449,7 @@ class TTSHttpHandler:
             self.buffer = b''
             self.mutex.release()
 
-    def run(self, text: str, spk_id=0, output: str=None):
+    def run(self, text: str, spk_id=0, output: str = None):
         """Send a text to tts online server
 
         Args:

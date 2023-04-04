@@ -18,12 +18,13 @@ import paddle.nn.functional as F
 
 class SpeakerIdetification(nn.Layer):
     def __init__(
-            self,
-            backbone,
-            num_class,
-            lin_blocks=0,
-            lin_neurons=192,
-            dropout=0.1, ):
+        self,
+        backbone,
+        num_class,
+        lin_blocks=0,
+        lin_neurons=192,
+        dropout=0.1,
+    ):
         """The speaker identification model, which includes the speaker backbone network 
            and the a linear transform to speaker class num in training
 
@@ -57,7 +58,8 @@ class SpeakerIdetification(nn.Layer):
         self.weight = paddle.create_parameter(
             shape=(input_size, num_class),
             dtype='float32',
-            attr=paddle.ParamAttr(initializer=nn.initializer.XavierUniform()), )
+            attr=paddle.ParamAttr(initializer=nn.initializer.XavierUniform()),
+        )
 
     def forward(self, x, lengths=None):
         """Do the speaker identification model forwrd, 

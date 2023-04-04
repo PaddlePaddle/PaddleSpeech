@@ -30,45 +30,53 @@ def get_parser():
         description="Transcribe text from speech using "
         "a speech recognition model on one CPU or GPU",
         config_file_parser_class=configargparse.YAMLConfigFileParser,
-        formatter_class=configargparse.ArgumentDefaultsHelpFormatter, )
-    parser.add(
-        '--model-name',
-        type=str,
-        default='u2_kaldi',
-        help='model name, e.g: deepspeech2, u2, u2_kaldi, u2_st')
+        formatter_class=configargparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add('--model-name',
+               type=str,
+               default='u2_kaldi',
+               help='model name, e.g: deepspeech2, u2, u2_kaldi, u2_st')
     # general configuration
     parser.add("--config", is_config_file=True, help="Config file path")
     parser.add(
         "--config2",
         is_config_file=True,
-        help="Second config file path that overwrites the settings in `--config`",
+        help=
+        "Second config file path that overwrites the settings in `--config`",
     )
     parser.add(
         "--config3",
         is_config_file=True,
         help="Third config file path that overwrites the settings "
-        "in `--config` and `--config2`", )
+        "in `--config` and `--config2`",
+    )
 
     parser.add_argument("--ngpu", type=int, default=0, help="Number of GPUs")
     parser.add_argument(
         "--dtype",
         choices=("float16", "float32", "float64"),
         default="float32",
-        help="Float precision (only available in --api v2)", )
+        help="Float precision (only available in --api v2)",
+    )
     parser.add_argument("--debugmode", type=int, default=1, help="Debugmode")
     parser.add_argument("--seed", type=int, default=1, help="Random seed")
-    parser.add_argument(
-        "--verbose", "-V", type=int, default=2, help="Verbose option")
+    parser.add_argument("--verbose",
+                        "-V",
+                        type=int,
+                        default=2,
+                        help="Verbose option")
     parser.add_argument(
         "--batchsize",
         type=int,
         default=1,
-        help="Batch size for beam search (0: means no batch processing)", )
+        help="Batch size for beam search (0: means no batch processing)",
+    )
     parser.add_argument(
         "--preprocess-conf",
         type=str,
         default=None,
-        help="The configuration file for the pre-processing", )
+        help="The configuration file for the pre-processing",
+    )
     parser.add_argument(
         "--api",
         default="v2",
@@ -77,38 +85,45 @@ def get_parser():
         "v2: Experimental API. It supports any models that implements ScorerInterface.",
     )
     # task related
-    parser.add_argument(
-        "--recog-json", type=str, help="Filename of recognition data (json)")
+    parser.add_argument("--recog-json",
+                        type=str,
+                        help="Filename of recognition data (json)")
     parser.add_argument(
         "--result-label",
         type=str,
         required=True,
-        help="Filename of result label data (json)", )
+        help="Filename of result label data (json)",
+    )
     # model (parameter) related
-    parser.add_argument(
-        "--model",
-        type=str,
-        required=True,
-        help="Model file parameters to read")
-    parser.add_argument(
-        "--model-conf", type=str, default=None, help="Model config file")
+    parser.add_argument("--model",
+                        type=str,
+                        required=True,
+                        help="Model file parameters to read")
+    parser.add_argument("--model-conf",
+                        type=str,
+                        default=None,
+                        help="Model config file")
     parser.add_argument(
         "--num-spkrs",
         type=int,
         default=1,
         choices=[1, 2],
-        help="Number of speakers in the speech", )
-    parser.add_argument(
-        "--num-encs",
-        default=1,
-        type=int,
-        help="Number of encoders in the model.")
+        help="Number of speakers in the speech",
+    )
+    parser.add_argument("--num-encs",
+                        default=1,
+                        type=int,
+                        help="Number of encoders in the model.")
     # search related
-    parser.add_argument(
-        "--nbest", type=int, default=1, help="Output N-best hypotheses")
+    parser.add_argument("--nbest",
+                        type=int,
+                        default=1,
+                        help="Output N-best hypotheses")
     parser.add_argument("--beam-size", type=int, default=1, help="Beam size")
-    parser.add_argument(
-        "--penalty", type=float, default=0.0, help="Incertion penalty")
+    parser.add_argument("--penalty",
+                        type=float,
+                        default=0.0,
+                        help="Incertion penalty")
     parser.add_argument(
         "--maxlenratio",
         type=float,
@@ -117,23 +132,25 @@ def get_parser():
                         If maxlenratio=0.0 (default), it uses a end-detect function
                         to automatically find maximum hypothesis lengths.
                         If maxlenratio<0.0, its absolute value is interpreted
-                        as a constant max output length""", )
+                        as a constant max output length""",
+    )
     parser.add_argument(
         "--minlenratio",
         type=float,
         default=0.0,
-        help="Input length ratio to obtain min output length", )
-    parser.add_argument(
-        "--ctc-weight",
-        type=float,
-        default=0.0,
-        help="CTC weight in joint decoding")
+        help="Input length ratio to obtain min output length",
+    )
+    parser.add_argument("--ctc-weight",
+                        type=float,
+                        default=0.0,
+                        help="CTC weight in joint decoding")
     parser.add_argument(
         "--weights-ctc-dec",
         type=float,
         action="append",
         help="ctc weight assigned to each encoder during decoding."
-        "[in multi-encoder mode only]", )
+        "[in multi-encoder mode only]",
+    )
     parser.add_argument(
         "--ctc-window-margin",
         type=int,
@@ -141,7 +158,8 @@ def get_parser():
         help="""Use CTC window with margin parameter to accelerate
                         CTC/attention decoding especially on GPU. Smaller magin
                         makes decoding faster, but may increase search errors.
-                        If margin=0 (default), this function is disabled""", )
+                        If margin=0 (default), this function is disabled""",
+    )
     # transducer related
     parser.add_argument(
         "--search-type",
@@ -152,80 +170,95 @@ def get_parser():
         Can be either: default beam search ("default"),
         N-Step Constrained beam search ("nsc"), Time-Synchronous Decoding ("tsd"),
         Alignment-Length Synchronous Decoding ("alsd") or
-        modified Adaptive Expansion Search ("maes").""", )
+        modified Adaptive Expansion Search ("maes").""",
+    )
     parser.add_argument(
         "--nstep",
         type=int,
         default=1,
         help="""Number of expansion steps allowed in NSC beam search or mAES
-        (nstep > 0 for NSC and nstep > 1 for mAES).""", )
+        (nstep > 0 for NSC and nstep > 1 for mAES).""",
+    )
     parser.add_argument(
         "--prefix-alpha",
         type=int,
         default=2,
-        help="Length prefix difference allowed in NSC beam search or mAES.", )
+        help="Length prefix difference allowed in NSC beam search or mAES.",
+    )
     parser.add_argument(
         "--max-sym-exp",
         type=int,
         default=2,
-        help="Number of symbol expansions allowed in TSD.", )
+        help="Number of symbol expansions allowed in TSD.",
+    )
     parser.add_argument(
         "--u-max",
         type=int,
         default=400,
-        help="Length prefix difference allowed in ALSD.", )
+        help="Length prefix difference allowed in ALSD.",
+    )
     parser.add_argument(
         "--expansion-gamma",
         type=float,
         default=2.3,
-        help="Allowed logp difference for prune-by-value method in mAES.", )
+        help="Allowed logp difference for prune-by-value method in mAES.",
+    )
     parser.add_argument(
         "--expansion-beta",
         type=int,
         default=2,
         help="""Number of additional candidates for expanded hypotheses
-                selection in mAES.""", )
+                selection in mAES.""",
+    )
     parser.add_argument(
         "--score-norm",
         type=strtobool,
         nargs="?",
         default=True,
-        help="Normalize final hypotheses' score by length", )
+        help="Normalize final hypotheses' score by length",
+    )
     parser.add_argument(
         "--softmax-temperature",
         type=float,
         default=1.0,
-        help="Penalization term for softmax function.", )
+        help="Penalization term for softmax function.",
+    )
     # rnnlm related
-    parser.add_argument(
-        "--rnnlm", type=str, default=None, help="RNNLM model file to read")
-    parser.add_argument(
-        "--rnnlm-conf",
-        type=str,
-        default=None,
-        help="RNNLM model config file to read")
-    parser.add_argument(
-        "--word-rnnlm",
-        type=str,
-        default=None,
-        help="Word RNNLM model file to read")
+    parser.add_argument("--rnnlm",
+                        type=str,
+                        default=None,
+                        help="RNNLM model file to read")
+    parser.add_argument("--rnnlm-conf",
+                        type=str,
+                        default=None,
+                        help="RNNLM model config file to read")
+    parser.add_argument("--word-rnnlm",
+                        type=str,
+                        default=None,
+                        help="Word RNNLM model file to read")
     parser.add_argument(
         "--word-rnnlm-conf",
         type=str,
         default=None,
-        help="Word RNNLM model config file to read", )
-    parser.add_argument(
-        "--word-dict", type=str, default=None, help="Word list to read")
-    parser.add_argument(
-        "--lm-weight", type=float, default=0.1, help="RNNLM weight")
+        help="Word RNNLM model config file to read",
+    )
+    parser.add_argument("--word-dict",
+                        type=str,
+                        default=None,
+                        help="Word list to read")
+    parser.add_argument("--lm-weight",
+                        type=float,
+                        default=0.1,
+                        help="RNNLM weight")
     # ngram related
-    parser.add_argument(
-        "--ngram-model",
-        type=str,
-        default=None,
-        help="ngram model file to read")
-    parser.add_argument(
-        "--ngram-weight", type=float, default=0.1, help="ngram weight")
+    parser.add_argument("--ngram-model",
+                        type=str,
+                        default=None,
+                        help="ngram model file to read")
+    parser.add_argument("--ngram-weight",
+                        type=float,
+                        default=0.1,
+                        help="ngram weight")
     parser.add_argument(
         "--ngram-scorer",
         type=str,
@@ -243,18 +276,26 @@ def get_parser():
         default=None,
         choices=["window", "segment"],
         help="""Use streaming recognizer for inference.
-                        `--batchsize` must be set to 0 to enable this mode""", )
-    parser.add_argument(
-        "--streaming-window", type=int, default=10, help="Window size")
+                        `--batchsize` must be set to 0 to enable this mode""",
+    )
+    parser.add_argument("--streaming-window",
+                        type=int,
+                        default=10,
+                        help="Window size")
     parser.add_argument(
         "--streaming-min-blank-dur",
         type=int,
         default=10,
-        help="Minimum blank duration threshold", )
-    parser.add_argument(
-        "--streaming-onset-margin", type=int, default=1, help="Onset margin")
-    parser.add_argument(
-        "--streaming-offset-margin", type=int, default=1, help="Offset margin")
+        help="Minimum blank duration threshold",
+    )
+    parser.add_argument("--streaming-onset-margin",
+                        type=int,
+                        default=1,
+                        help="Onset margin")
+    parser.add_argument("--streaming-offset-margin",
+                        type=int,
+                        default=1,
+                        help="Offset margin")
     # non-autoregressive related
     # Mask CTC related. See https://arxiv.org/abs/2005.08700 for the detail.
     parser.add_argument(
@@ -262,43 +303,48 @@ def get_parser():
         type=int,
         default=10,
         help="Number of decoding iterations."
-        "For Mask CTC, set 0 to predict 1 mask/iter.", )
+        "For Mask CTC, set 0 to predict 1 mask/iter.",
+    )
     parser.add_argument(
         "--maskctc-probability-threshold",
         type=float,
         default=0.999,
-        help="Threshold probability for CTC output", )
+        help="Threshold probability for CTC output",
+    )
     # quantize model related
     parser.add_argument(
         "--quantize-config",
         nargs="*",
         help="Quantize config list. E.g.: --quantize-config=[Linear,LSTM,GRU]",
     )
-    parser.add_argument(
-        "--quantize-dtype",
-        type=str,
-        default="qint8",
-        help="Dtype dynamic quantize")
+    parser.add_argument("--quantize-dtype",
+                        type=str,
+                        default="qint8",
+                        help="Dtype dynamic quantize")
     parser.add_argument(
         "--quantize-asr-model",
         type=bool,
         default=False,
-        help="Quantize asr model", )
+        help="Quantize asr model",
+    )
     parser.add_argument(
         "--quantize-lm-model",
         type=bool,
         default=False,
-        help="Quantize lm model", )
+        help="Quantize lm model",
+    )
     return parser
 
 
 def main(args):
     """Run the main decoding function."""
     parser = get_parser()
-    parser.add_argument(
-        "--output", metavar="CKPT_DIR", help="path to save checkpoint.")
-    parser.add_argument(
-        "--checkpoint_path", type=str, help="path to load checkpoint")
+    parser.add_argument("--output",
+                        metavar="CKPT_DIR",
+                        help="path to save checkpoint.")
+    parser.add_argument("--checkpoint_path",
+                        type=str,
+                        help="path to load checkpoint")
     parser.add_argument("--dict-path", type=str, help="path to load checkpoint")
     args = parser.parse_args(args)
 
@@ -310,17 +356,20 @@ def main(args):
     if args.verbose == 1:
         logging.basicConfig(
             level=logging.INFO,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s",
+            format=
+            "%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s",
         )
     elif args.verbose == 2:
         logging.basicConfig(
             level=logging.DEBUG,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s",
+            format=
+            "%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s",
         )
     else:
         logging.basicConfig(
             level=logging.WARN,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s",
+            format=
+            "%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s",
         )
         logging.warning("Skip DEBUG/INFO messages")
     logging.info(args)

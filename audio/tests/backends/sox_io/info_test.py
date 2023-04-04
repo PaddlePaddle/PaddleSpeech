@@ -19,30 +19,30 @@ from common_utils import (
     get_wav_data,
     save_wav,
     TempDirMixin,
-    sox_utils, )
+    sox_utils,
+)
 
 #code is from:https://github.com/pytorch/audio/blob/main/torchaudio/test/torchaudio_unittest/backend/sox_io/info_test.py
 
 
 class TestInfo(TempDirMixin, unittest.TestCase):
     @parameterized.expand(
-        list(
-            itertools.product(
-                [
-                    "float32",
-                    "int32",
-                ],
-                [8000, 16000],
-                [1, 2], )), )
+        list(itertools.product(
+            [
+                "float32",
+                "int32",
+            ],
+            [8000, 16000],
+            [1, 2],
+        )), )
     def test_wav(self, dtype, sample_rate, num_channels):
         """`sox_io_backend.info` can check wav file correctly"""
         duration = 1
         path = self.get_temp_path("data.wav")
-        data = get_wav_data(
-            dtype,
-            num_channels,
-            normalize=False,
-            num_frames=duration * sample_rate)
+        data = get_wav_data(dtype,
+                            num_channels,
+                            normalize=False,
+                            num_frames=duration * sample_rate)
         save_wav(path, data, sample_rate)
         info = sox_io_backend.info(path)
         assert info.sample_rate == sample_rate
@@ -56,16 +56,16 @@ class TestInfo(TempDirMixin, unittest.TestCase):
             itertools.product(
                 ["float32", "int32"],
                 [8000, 16000],
-                [4, 8, 16, 32], )), )
+                [4, 8, 16, 32],
+            )), )
     def test_wav_multiple_channels(self, dtype, sample_rate, num_channels):
         """`sox_io_backend.info` can check wav file with channels more than 2 correctly"""
         duration = 1
         path = self.get_temp_path("data.wav")
-        data = get_wav_data(
-            dtype,
-            num_channels,
-            normalize=False,
-            num_frames=duration * sample_rate)
+        data = get_wav_data(dtype,
+                            num_channels,
+                            normalize=False,
+                            num_frames=duration * sample_rate)
         save_wav(path, data, sample_rate)
         info = sox_io_backend.info(path)
         assert info.sample_rate == sample_rate
@@ -79,13 +79,12 @@ class TestInfo(TempDirMixin, unittest.TestCase):
         num_channels = 1
         sample_rate = 8000
         path = self.get_temp_path("data.wav")
-        sox_utils.gen_audio_file(
-            path,
-            sample_rate=sample_rate,
-            num_channels=num_channels,
-            bit_depth=8,
-            encoding="u-law",
-            duration=duration)
+        sox_utils.gen_audio_file(path,
+                                 sample_rate=sample_rate,
+                                 num_channels=num_channels,
+                                 bit_depth=8,
+                                 encoding="u-law",
+                                 duration=duration)
         info = sox_io_backend.info(path)
         assert info.sample_rate == sample_rate
         assert info.num_frames == sample_rate * duration
@@ -99,13 +98,12 @@ class TestInfo(TempDirMixin, unittest.TestCase):
         num_channels = 1
         sample_rate = 8000
         path = self.get_temp_path("data.wav")
-        sox_utils.gen_audio_file(
-            path,
-            sample_rate=sample_rate,
-            num_channels=num_channels,
-            bit_depth=8,
-            encoding="a-law",
-            duration=duration)
+        sox_utils.gen_audio_file(path,
+                                 sample_rate=sample_rate,
+                                 num_channels=num_channels,
+                                 bit_depth=8,
+                                 encoding="a-law",
+                                 duration=duration)
         info = sox_io_backend.info(path)
         assert info.sample_rate == sample_rate
         assert info.num_frames == sample_rate * duration
@@ -156,7 +154,8 @@ class FileObjTestBase(TempDirMixin):
             encoding=sox_utils.get_encoding(dtype),
             bit_depth=bit_depth,
             duration=duration,
-            comment_file=comment_file, )
+            comment_file=comment_file,
+        )
         return path
 
     def _gen_comment_file(self, comments):
@@ -183,13 +182,12 @@ class TestFileObject(FileObjTestBase, unittest.TestCase):
                        num_frames,
                        *,
                        comments=None):
-        path = self._gen_file(
-            ext,
-            dtype,
-            sample_rate,
-            num_channels,
-            num_frames,
-            comments=comments)
+        path = self._gen_file(ext,
+                              dtype,
+                              sample_rate,
+                              num_channels,
+                              num_frames,
+                              comments=comments)
         format_ = ext if ext in ["mp3"] else None
         with open(path, "rb") as fileobj:
             return sox_io_backend.info(fileobj, format_)

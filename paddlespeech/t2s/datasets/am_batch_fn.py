@@ -22,45 +22,42 @@ from paddlespeech.t2s.modules.nets_utils import phones_text_masking
 
 
 # 因为要传参数，所以需要额外构建
-def build_erniesat_collate_fn(mlm_prob: float=0.8,
-                              mean_phn_span: int=8,
-                              seg_emb: bool=False,
-                              text_masking: bool=False):
+def build_erniesat_collate_fn(mlm_prob: float = 0.8,
+                              mean_phn_span: int = 8,
+                              seg_emb: bool = False,
+                              text_masking: bool = False):
 
-    return ErnieSATCollateFn(
-        mlm_prob=mlm_prob,
-        mean_phn_span=mean_phn_span,
-        seg_emb=seg_emb,
-        text_masking=text_masking)
+    return ErnieSATCollateFn(mlm_prob=mlm_prob,
+                             mean_phn_span=mean_phn_span,
+                             seg_emb=seg_emb,
+                             text_masking=text_masking)
 
 
 class ErnieSATCollateFn:
     """Functor class of common_collate_fn()"""
-
     def __init__(self,
-                 mlm_prob: float=0.8,
-                 mean_phn_span: int=8,
-                 seg_emb: bool=False,
-                 text_masking: bool=False):
+                 mlm_prob: float = 0.8,
+                 mean_phn_span: int = 8,
+                 seg_emb: bool = False,
+                 text_masking: bool = False):
         self.mlm_prob = mlm_prob
         self.mean_phn_span = mean_phn_span
         self.seg_emb = seg_emb
         self.text_masking = text_masking
 
     def __call__(self, exmaples):
-        return erniesat_batch_fn(
-            exmaples,
-            mlm_prob=self.mlm_prob,
-            mean_phn_span=self.mean_phn_span,
-            seg_emb=self.seg_emb,
-            text_masking=self.text_masking)
+        return erniesat_batch_fn(exmaples,
+                                 mlm_prob=self.mlm_prob,
+                                 mean_phn_span=self.mean_phn_span,
+                                 seg_emb=self.seg_emb,
+                                 text_masking=self.text_masking)
 
 
 def erniesat_batch_fn(examples,
-                      mlm_prob: float=0.8,
-                      mean_phn_span: int=8,
-                      seg_emb: bool=False,
-                      text_masking: bool=False):
+                      mlm_prob: float = 0.8,
+                      mean_phn_span: int = 8,
+                      seg_emb: bool = False,
+                      text_masking: bool = False):
     # fields = ["text", "text_lengths", "speech", "speech_lengths", "align_start", "align_end"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
@@ -100,10 +97,11 @@ def erniesat_batch_fn(examples,
     speech_pad = speech
     text_pad = text
 
-    text_mask = make_non_pad_mask(
-        text_lengths, text_pad, length_dim=1).unsqueeze(-2)
-    speech_mask = make_non_pad_mask(
-        speech_lengths, speech_pad[:, :, 0], length_dim=1).unsqueeze(-2)
+    text_mask = make_non_pad_mask(text_lengths, text_pad,
+                                  length_dim=1).unsqueeze(-2)
+    speech_mask = make_non_pad_mask(speech_lengths,
+                                    speech_pad[:, :, 0],
+                                    length_dim=1).unsqueeze(-2)
 
     # for training
     span_bdy = None
@@ -131,15 +129,14 @@ def erniesat_batch_fn(examples,
     # 训练纯中文和纯英文的 -> a3t 没有对 phoneme 做 mask, 只对语音 mask 了
     # a3t 和 ernie sat 的区别主要在于做 mask 的时候
     else:
-        masked_pos = phones_masking(
-            xs_pad=speech_pad,
-            src_mask=speech_mask,
-            align_start=align_start,
-            align_end=align_end,
-            align_start_lens=align_start_lengths,
-            mlm_prob=mlm_prob,
-            mean_phn_span=mean_phn_span,
-            span_bdy=span_bdy)
+        masked_pos = phones_masking(xs_pad=speech_pad,
+                                    src_mask=speech_mask,
+                                    align_start=align_start,
+                                    align_end=align_end,
+                                    align_start_lens=align_start_lengths,
+                                    mlm_prob=mlm_prob,
+                                    mean_phn_span=mean_phn_span,
+                                    span_bdy=span_bdy)
         text_masked_pos = paddle.zeros(paddle.shape(text_pad))
 
     speech_seg_pos, text_seg_pos = get_seg_pos(
@@ -418,7 +415,9 @@ def diffsinger_single_spk_batch_fn(examples):
     # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     note = [np.array(item["note"], dtype=np.int64) for item in examples]
-    note_dur = [np.array(item["note_dur"], dtype=np.float32) for item in examples]
+    note_dur = [
+        np.array(item["note_dur"], dtype=np.float32) for item in examples
+    ]
     is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
     pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
@@ -474,7 +473,9 @@ def diffsinger_multi_spk_batch_fn(examples):
     # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     note = [np.array(item["note"], dtype=np.int64) for item in examples]
-    note_dur = [np.array(item["note_dur"], dtype=np.float32) for item in examples]
+    note_dur = [
+        np.array(item["note_dur"], dtype=np.float32) for item in examples
+    ]
     is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
     pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]

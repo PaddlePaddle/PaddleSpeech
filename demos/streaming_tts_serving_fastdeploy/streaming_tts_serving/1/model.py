@@ -39,14 +39,18 @@ providers = ['CPUExecutionProvider']
 sess_options = ort.SessionOptions()
 
 # 创建session
-am_encoder_infer_sess = ort.InferenceSession(
-    onnx_am_encoder, providers=providers, sess_options=sess_options)
-am_decoder_sess = ort.InferenceSession(
-    onnx_am_decoder, providers=providers, sess_options=sess_options)
-am_postnet_sess = ort.InferenceSession(
-    onnx_am_postnet, providers=providers, sess_options=sess_options)
-voc_melgan_sess = ort.InferenceSession(
-    onnx_voc_melgan, providers=providers, sess_options=sess_options)
+am_encoder_infer_sess = ort.InferenceSession(onnx_am_encoder,
+                                             providers=providers,
+                                             sess_options=sess_options)
+am_decoder_sess = ort.InferenceSession(onnx_am_decoder,
+                                       providers=providers,
+                                       sess_options=sess_options)
+am_postnet_sess = ort.InferenceSession(onnx_am_postnet,
+                                       providers=providers,
+                                       sess_options=sess_options)
+voc_melgan_sess = ort.InferenceSession(onnx_voc_melgan,
+                                       providers=providers,
+                                       sess_options=sess_options)
 
 
 def depadding(data, chunk_num, chunk_id, block, pad, upsample):
@@ -71,7 +75,6 @@ class TritonPythonModel:
     """Your Python model must use the same class name. Every Python model
     that is created must have "TritonPythonModel" as the class name.
     """
-
     def initialize(self, args):
         """`initialize` is called only once when the model is being loaded.
         Implementing `initialize` function is optional. This function allows
@@ -144,8 +147,8 @@ class TritonPythonModel:
         # This model does not support batching, so 'request_count' should always
         # be 1.
         if len(requests) != 1:
-            raise pb_utils.TritonModelException("unsupported batch size " + len(
-                requests))
+            raise pb_utils.TritonModelException("unsupported batch size " +
+                                                len(requests))
 
         input_data = []
         for idx in range(len(self.input_names)):
@@ -158,9 +161,9 @@ class TritonPythonModel:
 
         # Start a separate thread to send the responses for the request. The
         # sending back the responses is delegated to this thread.
-        thread = threading.Thread(
-            target=self.response_thread,
-            args=(requests[0].get_response_sender(), text))
+        thread = threading.Thread(target=self.response_thread,
+                                  args=(requests[0].get_response_sender(),
+                                        text))
         thread.daemon = True
         with self.inflight_thread_count_lck:
             self.inflight_thread_count += 1
@@ -178,8 +181,9 @@ class TritonPythonModel:
         return None
 
     def response_thread(self, response_sender, text):
-        input_ids = frontend.get_input_ids(
-            text, merge_sentences=False, get_tone_ids=False)
+        input_ids = frontend.get_input_ids(text,
+                                           merge_sentences=False,
+                                           get_tone_ids=False)
         phone_ids = input_ids["phone_ids"]
         for i in range(len(phone_ids)):
             part_phone_ids = phone_ids[i].numpy()
@@ -199,8 +203,8 @@ class TritonPythonModel:
             hss = get_chunks(orig_hs, am_block, am_pad, "am")
             am_chunk_num = len(hss)
             for i, hs in enumerate(hss):
-                am_decoder_output = am_decoder_sess.run(
-                    None, input_feed={'xs': hs})
+                am_decoder_output = am_decoder_sess.run(None,
+                                                        input_feed={'xs': hs})
                 am_postnet_output = am_postnet_sess.run(
                     None,
                     input_feed={
@@ -217,13 +221,13 @@ class TritonPythonModel:
                 if i == 0:
                     mel_streaming = sub_mel
                 else:
-                    mel_streaming = np.concatenate(
-                        (mel_streaming, sub_mel), axis=0)
+                    mel_streaming = np.concatenate((mel_streaming, sub_mel),
+                                                   axis=0)
 
                 # streaming voc
                 # 当流式AM推理的mel帧数大于流式voc推理的chunk size，开始进行流式voc 推理
-                while (mel_streaming.shape[0] >= end and
-                       voc_chunk_id < voc_chunk_num):
+                while (mel_streaming.shape[0] >= end
+                       and voc_chunk_id < voc_chunk_num):
                     voc_chunk = mel_streaming[start:end, :]
 
                     sub_wav = voc_melgan_sess.run(
@@ -236,8 +240,8 @@ class TritonPythonModel:
                                                   output_np)
 
                     status = 0 if voc_chunk_id != (voc_chunk_num - 1) else 1
-                    output_status = np.array(
-                        [status], dtype=self.output_dtype[1])
+                    output_status = np.array([status],
+                                             dtype=self.output_dtype[1])
                     out_tensor2 = pb_utils.Tensor(self.output_names[1],
                                                   output_status)
 

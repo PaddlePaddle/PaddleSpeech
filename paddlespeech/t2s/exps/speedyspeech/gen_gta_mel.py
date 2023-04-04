@@ -52,8 +52,8 @@ def evaluate(args, speedyspeech_config):
     tone_size = len(tone_id)
     print("tone_size:", tone_size)
 
-    frontend = Frontend(
-        phone_vocab_path=args.phones_dict, tone_vocab_path=args.tones_dict)
+    frontend = Frontend(phone_vocab_path=args.phones_dict,
+                        tone_vocab_path=args.tones_dict)
 
     if args.speaker_dict:
         with open(args.speaker_dict, 'rt') as f:
@@ -62,11 +62,10 @@ def evaluate(args, speedyspeech_config):
     else:
         spk_num = None
 
-    model = SpeedySpeech(
-        vocab_size=vocab_size,
-        tone_size=tone_size,
-        **speedyspeech_config["model"],
-        spk_num=spk_num)
+    model = SpeedySpeech(vocab_size=vocab_size,
+                         tone_size=tone_size,
+                         **speedyspeech_config["model"],
+                         spk_num=spk_num)
 
     model.set_state_dict(
         paddle.load(args.speedyspeech_checkpoint)["main_params"])
@@ -167,8 +166,10 @@ def evaluate(args, speedyspeech_config):
         sub_output_dir.mkdir(parents=True, exist_ok=True)
 
         with paddle.no_grad():
-            mel = speedyspeech_inference(
-                phone_ids, tone_ids, durations=durations, spk_id=speaker_id)
+            mel = speedyspeech_inference(phone_ids,
+                                         tone_ids,
+                                         durations=durations,
+                                         spk_id=speaker_id)
         np.save(sub_output_dir / (utt_id + "_feats.npy"), mel)
 
 
@@ -181,44 +182,50 @@ def main():
         default="baker",
         type=str,
         help="name of dataset, should in {baker, ljspeech, vctk} now")
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
-    parser.add_argument(
-        "--speedyspeech-config", type=str, help="speedyspeech config file.")
-    parser.add_argument(
-        "--speedyspeech-checkpoint",
-        type=str,
-        help="speedyspeech checkpoint to load.")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
+    parser.add_argument("--speedyspeech-config",
+                        type=str,
+                        help="speedyspeech config file.")
+    parser.add_argument("--speedyspeech-checkpoint",
+                        type=str,
+                        help="speedyspeech checkpoint to load.")
     parser.add_argument(
         "--speedyspeech-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training speedyspeech."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training speedyspeech."
     )
 
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones-dict",
-        type=str,
-        default="tone_id_map.txt",
-        help="tone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phone_id_map.txt",
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones-dict",
+                        type=str,
+                        default="tone_id_map.txt",
+                        help="tone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
 
-    parser.add_argument(
-        "--dur-file", default=None, type=str, help="path to durations.txt.")
+    parser.add_argument("--dur-file",
+                        default=None,
+                        type=str,
+                        help="path to durations.txt.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
-    parser.add_argument(
-        "--cut-sil",
-        type=str2bool,
-        default=True,
-        help="whether cut sil in the edge of audio")
+    parser.add_argument("--cut-sil",
+                        type=str2bool,
+                        default=True,
+                        help="whether cut sil in the edge of audio")
 
     args = parser.parse_args()
 

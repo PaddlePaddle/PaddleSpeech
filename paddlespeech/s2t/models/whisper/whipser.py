@@ -27,6 +27,7 @@ from paddlespeech.s2t.models.whisper.tokenizer import get_tokenizer
 from paddlespeech.s2t.models.whisper.tokenizer import LANGUAGES
 from paddlespeech.s2t.models.whisper.tokenizer import Tokenizer
 from paddlespeech.s2t.utils.log import Log
+
 logger = Log(__name__).getlog()
 
 _MODELS = ["large"]
@@ -61,8 +62,8 @@ class LayerNorm(paddlespeech_nn.LayerNorm):
 
 class Linear(paddlespeech_nn.Linear):
     def forward(self, x: paddle.Tensor) -> paddle.Tensor:
-        return F.linear(x, self.weight, None
-                        if self.bias is None else self.bias)
+        return F.linear(x, self.weight,
+                        None if self.bias is None else self.bias)
 
 
 class Conv1d(paddlespeech_nn.Conv1D):
@@ -80,11 +81,12 @@ class MultiHeadAttention(nn.Layer):
         self.out = Linear(n_state, n_state, bias_attr=True)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            xa: Optional[paddle.Tensor]=None,
-            mask: Optional[paddle.Tensor]=None,
-            kv_cache: Optional[dict]=None, ):
+        self,
+        x: paddle.Tensor,
+        xa: Optional[paddle.Tensor] = None,
+        mask: Optional[paddle.Tensor] = None,
+        kv_cache: Optional[dict] = None,
+    ):
         q = self.query(x)
 
         if kv_cache is None or xa is None or self.key not in kv_cache:
@@ -104,15 +106,15 @@ class MultiHeadAttention(nn.Layer):
                       q: paddle.Tensor,
                       k: paddle.Tensor,
                       v: paddle.Tensor,
-                      mask: Optional[paddle.Tensor]=None):
+                      mask: Optional[paddle.Tensor] = None):
         n_batch, n_ctx, n_state = q.shape
         scale = (n_state // self.n_head)**-0.25
-        q = paddle.transpose(
-            q.view(*q.shape[:2], self.n_head, -1), (0, 2, 1, 3)) * scale
-        k = paddle.transpose(
-            k.view(*k.shape[:2], self.n_head, -1), (0, 2, 3, 1)) * scale
-        v = paddle.transpose(
-            v.view(*v.shape[:2], self.n_head, -1), (0, 2, 1, 3))
+        q = paddle.transpose(q.view(*q.shape[:2], self.n_head, -1),
+                             (0, 2, 1, 3)) * scale
+        k = paddle.transpose(k.view(*k.shape[:2], self.n_head, -1),
+                             (0, 2, 3, 1)) * scale
+        v = paddle.transpose(v.view(*v.shape[:2], self.n_head, -1),
+                             (0, 2, 1, 3))
 
         qk = q @ k
         if mask is not None:
@@ -123,7 +125,10 @@ class MultiHeadAttention(nn.Layer):
 
 
 class ResidualAttentionBlock(nn.Layer):
-    def __init__(self, n_state: int, n_head: int, cross_attention: bool=False):
+    def __init__(self,
+                 n_state: int,
+                 n_head: int,
+                 cross_attention: bool = False):
         super().__init__()
 
         self.attn = MultiHeadAttention(n_state, n_head)
@@ -134,17 +139,18 @@ class ResidualAttentionBlock(nn.Layer):
         self.cross_attn_ln = LayerNorm(n_state) if cross_attention else None
 
         n_mlp = n_state * 4
-        self.mlp = nn.Sequential(
-            Linear(n_state, n_mlp, bias_attr=True),
-            nn.GELU(), Linear(n_mlp, n_state, bias_attr=True))
+        self.mlp = nn.Sequential(Linear(n_state, n_mlp, bias_attr=True),
+                                 nn.GELU(),
+                                 Linear(n_mlp, n_state, bias_attr=True))
         self.mlp_ln = LayerNorm(n_state)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            xa: Optional[paddle.Tensor]=None,
-            mask: Optional[paddle.Tensor]=None,
-            kv_cache: Optional[dict]=None, ):
+        self,
+        x: paddle.Tensor,
+        xa: Optional[paddle.Tensor] = None,
+        mask: Optional[paddle.Tensor] = None,
+        kv_cache: Optional[dict] = None,
+    ):
         x = x + self.attn(self.attn_ln(x), mask=mask, kv_cache=kv_cache)
         if self.cross_attn:
             x = x + self.cross_attn(
@@ -157,33 +163,34 @@ def sinusoids(length, channels, max_timescale=10000):
     """Returns sinusoids for positional embedding"""
     assert channels % 2 == 0
     log_timescale_increment = np.log(max_timescale) / (channels // 2 - 1)
-    inv_timescales = paddle.exp(-log_timescale_increment * paddle.arange(
-        channels // 2, dtype=paddle.float32))
+    inv_timescales = paddle.exp(
+        -log_timescale_increment *
+        paddle.arange(channels // 2, dtype=paddle.float32))
     scaled_time = paddle.arange(
         length,
         dtype=paddle.float32)[:, np.newaxis] * inv_timescales[np.newaxis, :]
     return paddle.to_tensor(
-        paddle.concat(
-            [paddle.sin(scaled_time), paddle.cos(scaled_time)], axis=1))
+        paddle.concat([paddle.sin(scaled_time),
+                       paddle.cos(scaled_time)],
+                      axis=1))
 
 
 class AudioEncoder(nn.Layer):
-    def __init__(self,
-                 n_mels: int,
-                 n_ctx: int,
-                 n_state: int,
-                 n_head: int,
+    def __init__(self, n_mels: int, n_ctx: int, n_state: int, n_head: int,
                  n_layer: int):
         super().__init__()
-        self.conv1 = Conv1d(
-            n_mels, n_state, kernel_size=3, stride=1, padding=1, bias_attr=True)
-        self.conv2 = Conv1d(
-            n_state,
-            n_state,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias_attr=True)
+        self.conv1 = Conv1d(n_mels,
+                            n_state,
+                            kernel_size=3,
+                            stride=1,
+                            padding=1,
+                            bias_attr=True)
+        self.conv2 = Conv1d(n_state,
+                            n_state,
+                            kernel_size=3,
+                            stride=2,
+                            padding=1,
+                            bias_attr=True)
         self.register_buffer("positional_embedding", sinusoids(n_ctx, n_state))
 
         self.blocks: Iterable[ResidualAttentionBlock] = nn.LayerList(
@@ -211,11 +218,7 @@ class AudioEncoder(nn.Layer):
 
 
 class TextDecoder(nn.Layer):
-    def __init__(self,
-                 n_vocab: int,
-                 n_ctx: int,
-                 n_state: int,
-                 n_head: int,
+    def __init__(self, n_vocab: int, n_ctx: int, n_state: int, n_head: int,
                  n_layer: int):
         super().__init__()
 
@@ -229,15 +232,16 @@ class TextDecoder(nn.Layer):
         ])
         self.ln = LayerNorm(n_state)
 
-        mask = paddle.full(
-            shape=[n_ctx, n_state], fill_value=-np.inf, dtype='float32')
+        mask = paddle.full(shape=[n_ctx, n_state],
+                           fill_value=-np.inf,
+                           dtype='float32')
         mask = paddle.triu(mask, diagonal=1)
         self.register_buffer("mask", mask, persistable=False)
 
     def forward(self,
                 x: paddle.Tensor,
                 xa: paddle.Tensor,
-                kv_cache: Optional[dict]=None):
+                kv_cache: Optional[dict] = None):
         """
         x : paddle.LongTensor, shape = (batch_size, <= n_ctx)
             the text tokens
@@ -278,10 +282,10 @@ class DecodingOptions:
         float] = None  # "alpha" in Google NMT, None defaults to length norm
 
     # prompt, prefix, and token suppression
-    prompt: Optional[Union[str, List[
-        int]]] = None  # text or tokens for the previous context
-    prefix: Optional[Union[str, List[
-        int]]] = None  # text or tokens to prefix the current context
+    prompt: Optional[Union[
+        str, List[int]]] = None  # text or tokens for the previous context
+    prefix: Optional[Union[
+        str, List[int]]] = None  # text or tokens to prefix the current context
     suppress_blank: bool = True  # this will suppress blank outputs
 
     # list of tokens ids (or comma-separated token ids) to suppress
@@ -341,8 +345,9 @@ class WhisperInference(Inference):
             # only need to use the last token except in the first forward pass
             tokens = tokens[:, -1:]
 
-        return self.model.decoder(
-            tokens, audio_features, kv_cache=self.kv_cache)
+        return self.model.decoder(tokens,
+                                  audio_features,
+                                  kv_cache=self.kv_cache)
 
     def cleanup_caching(self):
         for hook in self.hooks:
@@ -362,7 +367,7 @@ def detect_language(
         model: "Whisper",
         mel: paddle.Tensor,
         resource_path: str,
-        tokenizer: Tokenizer=None) -> Tuple[paddle.Tensor, List[dict]]:
+        tokenizer: Tokenizer = None) -> Tuple[paddle.Tensor, List[dict]]:
     """
     Detect the spoken language in the audio, and return them as list of strings, along with the ids
     of the most probable language tokens and the probability distribution over all language tokens.
@@ -376,8 +381,8 @@ def detect_language(
         list of dictionaries containing the probability distribution over all languages.
     """
     if tokenizer is None:
-        tokenizer = get_tokenizer(
-            model.is_multilingual, resource_path=resource_path)
+        tokenizer = get_tokenizer(model.is_multilingual,
+                                  resource_path=resource_path)
     if tokenizer.language is None or tokenizer.language_token not in tokenizer.sot_sequence:
         raise ValueError(
             "This model doesn't have language tokens so it can't perform lang id"
@@ -416,18 +421,19 @@ def detect_language(
 
 
 def transcribe(
-        model: "Whisper",
-        mel: paddle.Tensor,
-        resource_path: str,
-        *,
-        verbose: Optional[bool]=None,
-        temperature: Union[float, Tuple[float, ...]]=(0.0, 0.2, 0.4, 0.6, 0.8,
-                                                      1.0),
-        compression_ratio_threshold: Optional[float]=2.4,
-        logprob_threshold: Optional[float]=-1.0,
-        no_speech_threshold: Optional[float]=0.6,
-        condition_on_previous_text: bool=True,
-        **decode_options, ):
+    model: "Whisper",
+    mel: paddle.Tensor,
+    resource_path: str,
+    *,
+    verbose: Optional[bool] = None,
+    temperature: Union[float, Tuple[float,
+                                    ...]] = (0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
+    compression_ratio_threshold: Optional[float] = 2.4,
+    logprob_threshold: Optional[float] = -1.0,
+    no_speech_threshold: Optional[float] = 0.6,
+    condition_on_previous_text: bool = True,
+    **decode_options,
+):
     """
     Transcribe an audio file using Whisper
 
@@ -475,8 +481,8 @@ def transcribe(
     if dtype == np.float32:
         decode_options["fp16"] = False
 
-    if decode_options.get(
-            "language") == 'None' or decode_options.get("language", None) is None:
+    if decode_options.get("language") == 'None' or decode_options.get(
+            "language", None) is None:
         if not model.is_multilingual:
             decode_options["language"] = "en"
         else:
@@ -494,15 +500,15 @@ def transcribe(
 
     language = decode_options["language"]
     task = decode_options.get("task", "transcribe")
-    tokenizer = get_tokenizer(
-        model.is_multilingual,
-        resource_path=resource_path,
-        language=language,
-        task=task)
+    tokenizer = get_tokenizer(model.is_multilingual,
+                              resource_path=resource_path,
+                              language=language,
+                              task=task)
 
     def decode_with_fallback(segment: paddle.Tensor) -> DecodingResult:
-        temperatures = [temperature] if isinstance(temperature, (
-            int, float)) else temperature
+        temperatures = [temperature] if isinstance(temperature,
+                                                   (int,
+                                                    float)) else temperature
         decode_result = None
 
         for t in temperatures:
@@ -532,8 +538,8 @@ def transcribe(
     seek = 0
     input_stride = utils.exact_div(
         N_FRAMES, model.dims.n_audio_ctx)  # mel frames per output token: 2
-    time_precision = (input_stride * HOP_LENGTH /
-                      SAMPLE_RATE)  # time per output token: 0.02 (seconds)
+    time_precision = (input_stride * HOP_LENGTH / SAMPLE_RATE
+                      )  # time per output token: 0.02 (seconds)
     all_tokens = []
     all_segments = []
     prompt_reset_since = 0
@@ -544,10 +550,7 @@ def transcribe(
                                           initial_prompt.strip()).input_ids
         all_tokens.extend(initial_prompt)
 
-    def add_segment(*,
-                    start: float,
-                    end: float,
-                    text_tokens: paddle.Tensor,
+    def add_segment(*, start: float, end: float, text_tokens: paddle.Tensor,
                     result: DecodingResult):
         text = tokenizer.decode(
             [token for token in text_tokens if token < tokenizer.eot])
@@ -575,9 +578,9 @@ def transcribe(
     num_frames = mel.shape[-1]
     previous_seek_value = seek
 
-    with tqdm.tqdm(
-            total=num_frames, unit='frames',
-            disable=verbose is not False) as pbar:
+    with tqdm.tqdm(total=num_frames,
+                   unit='frames',
+                   disable=verbose is not False) as pbar:
         while seek < num_frames:
             timestamp_offset = float(seek * HOP_LENGTH / SAMPLE_RATE)
             segment = pad_or_trim(mel[:, seek:], N_FRAMES)
@@ -602,8 +605,8 @@ def transcribe(
             timestamp_tokens: paddle.Tensor = tokens.greater_equal(
                 paddle.to_tensor(tokenizer.timestamp_begin))
 
-            consecutive = paddle.where(timestamp_tokens[:-1] & timestamp_tokens[
-                1:])[0]
+            consecutive = paddle.where(timestamp_tokens[:-1]
+                                       & timestamp_tokens[1:])[0]
             if len(
                     consecutive
             ) > 0:  # if the output contains two consecutive timestamp tokens
@@ -611,38 +614,40 @@ def transcribe(
                 last_slice = 0
                 for current_slice in consecutive:
                     sliced_tokens = tokens[last_slice:current_slice]
-                    start_timestamp_position = (
-                        sliced_tokens[0].item() - tokenizer.timestamp_begin)
-                    end_timestamp_position = (
-                        sliced_tokens[-1].item() - tokenizer.timestamp_begin)
+                    start_timestamp_position = (sliced_tokens[0].item() -
+                                                tokenizer.timestamp_begin)
+                    end_timestamp_position = (sliced_tokens[-1].item() -
+                                              tokenizer.timestamp_begin)
                     add_segment(
-                        start=timestamp_offset + start_timestamp_position *
-                        time_precision,
-                        end=timestamp_offset + end_timestamp_position *
-                        time_precision,
+                        start=timestamp_offset +
+                        start_timestamp_position * time_precision,
+                        end=timestamp_offset +
+                        end_timestamp_position * time_precision,
                         text_tokens=sliced_tokens[1:-1],
-                        result=result, )
+                        result=result,
+                    )
                     last_slice = current_slice
-                last_timestamp_position = (
-                    tokens[last_slice - 1].item() - tokenizer.timestamp_begin)
+                last_timestamp_position = (tokens[last_slice - 1].item() -
+                                           tokenizer.timestamp_begin)
                 seek += last_timestamp_position * input_stride
                 all_tokens.extend(tokens[:last_slice + 1].tolist())
             else:
                 duration = segment_duration
                 timestamps = tokens[timestamp_tokens.nonzero().flatten()]
-                if len(timestamps) > 0 and timestamps[
-                        -1].item() != tokenizer.timestamp_begin:
+                if len(timestamps) > 0 and timestamps[-1].item(
+                ) != tokenizer.timestamp_begin:
                     # no consecutive timestamps but it has a timestamp; use the last one.
                     # single timestamp at the end means no speech after the last timestamp.
-                    last_timestamp_position = timestamps[
-                        -1].item() - tokenizer.timestamp_begin
+                    last_timestamp_position = timestamps[-1].item(
+                    ) - tokenizer.timestamp_begin
                     duration = last_timestamp_position * time_precision
 
                 add_segment(
                     start=timestamp_offset,
                     end=timestamp_offset + duration,
                     text_tokens=tokens,
-                    result=result, )
+                    result=result,
+                )
 
                 seek += segment.shape[-1]
                 all_tokens.extend(tokens.tolist())
@@ -655,15 +660,13 @@ def transcribe(
             pbar.update(min(num_frames, seek) - previous_seek_value)
             previous_seek_value = seek
 
-    return dict(
-        text=tokenizer.decode(all_tokens[len(initial_prompt):]),
-        segments=all_segments,
-        language=language)
+    return dict(text=tokenizer.decode(all_tokens[len(initial_prompt):]),
+                segments=all_segments,
+                language=language)
 
 
 class SequenceRanker:
-    def rank(self,
-             tokens: List[List[paddle.Tensor]],
+    def rank(self, tokens: List[List[paddle.Tensor]],
              sum_logprobs: List[List[float]]) -> List[int]:
         """
         Given a list of groups of samples and their cumulative log probabilities,
@@ -677,12 +680,10 @@ class MaximumLikelihoodRanker(SequenceRanker):
     Select the sample with the highest log probabilities, penalized using either
     a simple length normalization or Google NMT paper's length penalty
     """
-
     def __init__(self, length_penalty: Optional[float]):
         self.length_penalty = length_penalty
 
-    def rank(self,
-             tokens: List[List[paddle.Tensor]],
+    def rank(self, tokens: List[List[paddle.Tensor]],
              sum_logprobs: List[List[float]]):
         def scores(logprobs, lengths):
             result = []
@@ -704,9 +705,7 @@ class TokenDecoder:
     def reset(self):
         """Initialize any stateful variables for decoding a new sequence"""
 
-    def update(self,
-               tokens: paddle.Tensor,
-               logits: paddle.Tensor,
+    def update(self, tokens: paddle.Tensor, logits: paddle.Tensor,
                sum_logprobs: paddle.Tensor) -> Tuple[paddle.Tensor, bool]:
         """Specify how to select the next token, based on the current trace and logits
 
@@ -733,7 +732,7 @@ class TokenDecoder:
         raise NotImplementedError
 
     def finalize(
-            self, tokens: paddle.Tensor, sum_logprobs: paddle.Tensor
+        self, tokens: paddle.Tensor, sum_logprobs: paddle.Tensor
     ) -> Tuple[Sequence[Sequence[paddle.Tensor]], List[List[float]]]:
         """Finalize search and return the final candidate sequences
 
@@ -762,9 +761,7 @@ class GreedyDecoder(TokenDecoder):
         self.temperature = temperature
         self.eot = eot
 
-    def update(self,
-               tokens: paddle.Tensor,
-               logits: paddle.Tensor,
+    def update(self, tokens: paddle.Tensor, logits: paddle.Tensor,
                sum_logprobs: paddle.Tensor) -> Tuple[paddle.Tensor, bool]:
         temperature = self.temperature
         if temperature == 0:
@@ -798,7 +795,7 @@ class BeamSearchDecoder(TokenDecoder):
                  beam_size: int,
                  eot: int,
                  inference: Inference,
-                 patience: Optional[float]=None):
+                 patience: Optional[float] = None):
         self.beam_size = beam_size
         self.eot = eot
         self.inference = inference
@@ -811,9 +808,7 @@ class BeamSearchDecoder(TokenDecoder):
     def reset(self):
         self.finished_sequences = None
 
-    def update(self,
-               tokens: paddle.Tensor,
-               logits: paddle.Tensor,
+    def update(self, tokens: paddle.Tensor, logits: paddle.Tensor,
                sum_logprobs: paddle.Tensor) -> Tuple[paddle.Tensor, bool]:
         if tokens.shape[0] % self.beam_size != 0:
             raise ValueError(f"{tokens.shape}[0] % {self.beam_size} != 0")
@@ -831,8 +826,8 @@ class BeamSearchDecoder(TokenDecoder):
             for j in range(self.beam_size):
                 idx = i * self.beam_size + j
                 prefix = tokens[idx].tolist()
-                logprob, token = paddle.topk(
-                    logprobs[idx], k=self.beam_size + 1)
+                logprob, token = paddle.topk(logprobs[idx],
+                                             k=self.beam_size + 1)
                 for logprob, token in zip(logprob, token):
                     new_logprob = (sum_logprobs[idx] + logprob).tolist()[0]
                     sequence = tuple(prefix + [token.tolist()[0]])
@@ -862,8 +857,9 @@ class BeamSearchDecoder(TokenDecoder):
         assert len(self.finished_sequences) == len(finished_sequences)
         for previously_finished, newly_finished in zip(self.finished_sequences,
                                                        finished_sequences):
-            for seq in sorted(
-                    newly_finished, key=newly_finished.get, reverse=True):
+            for seq in sorted(newly_finished,
+                              key=newly_finished.get,
+                              reverse=True):
                 if len(previously_finished) >= self.max_candidates:
                     break  # the candidate list is full
                 previously_finished[seq] = newly_finished[seq]
@@ -874,8 +870,7 @@ class BeamSearchDecoder(TokenDecoder):
             for sequences in self.finished_sequences)
         return tokens, completed
 
-    def finalize(self,
-                 preceding_tokens: paddle.Tensor,
+    def finalize(self, preceding_tokens: paddle.Tensor,
                  sum_logprobs: paddle.Tensor):
         # collect all finished sequences, including patience, and add unfinished ones if not enough
         sum_logprobs = sum_logprobs.cpu()
@@ -888,10 +883,9 @@ class BeamSearchDecoder(TokenDecoder):
                     if len(sequences) >= self.beam_size:
                         break
 
-        tokens: List[List[paddle.Tensor]] = [
-            [paddle.to_tensor(seq) for seq in sequences.keys()]
-            for sequences in self.finished_sequences
-        ]
+        tokens: List[List[paddle.Tensor]] = [[
+            paddle.to_tensor(seq) for seq in sequences.keys()
+        ] for sequences in self.finished_sequences]
         sum_logprobs: List[List[float]] = [
             list(sequences.values()) for sequences in self.finished_sequences
         ]
@@ -921,7 +915,8 @@ class SuppressBlank(LogitFilter):
 
     def apply(self, logits: paddle.Tensor, tokens: paddle.Tensor):
         if tokens.shape[1] == self.sample_begin:
-            logits[:, self.tokenizer.encode(" ").input_ids +
+            logits[:,
+                   self.tokenizer.encode(" ").input_ids +
                    [self.tokenizer.eot]] = -np.inf
 
 
@@ -934,9 +929,7 @@ class SuppressTokens(LogitFilter):
 
 
 class ApplyTimestampRules(LogitFilter):
-    def __init__(self,
-                 tokenizer: Tokenizer,
-                 sample_begin: int,
+    def __init__(self, tokenizer: Tokenizer, sample_begin: int,
                  max_initial_timestamp_index: Optional[int]):
         self.tokenizer = tokenizer
         self.sample_begin = sample_begin
@@ -950,10 +943,10 @@ class ApplyTimestampRules(LogitFilter):
         # timestamps have to appear in pairs, except directly before EOT; mask logits accordingly
         for k in range(tokens.shape[0]):
             seq = [t for t in tokens[k, self.sample_begin:].tolist()]
-            last_was_timestamp = len(seq) >= 1 and seq[
-                -1] >= self.tokenizer.timestamp_begin
-            penultimate_was_timestamp = len(seq) < 2 or seq[
-                -2] >= self.tokenizer.timestamp_begin
+            last_was_timestamp = len(
+                seq) >= 1 and seq[-1] >= self.tokenizer.timestamp_begin
+            penultimate_was_timestamp = len(
+                seq) < 2 or seq[-2] >= self.tokenizer.timestamp_begin
 
             if last_was_timestamp:
                 if penultimate_was_timestamp:  # has to be non-timestamp
@@ -984,18 +977,15 @@ class DecodingTask:
     decoder: TokenDecoder
     logit_filters: List[LogitFilter]
 
-    def __init__(self,
-                 model: "Whisper",
-                 options: DecodingOptions,
+    def __init__(self, model: "Whisper", options: DecodingOptions,
                  resource_path: str):
         self.model = model
 
         language = options.language or "en"
-        tokenizer = get_tokenizer(
-            model.is_multilingual,
-            resource_path=resource_path,
-            language=language,
-            task=options.task)
+        tokenizer = get_tokenizer(model.is_multilingual,
+                                  resource_path=resource_path,
+                                  language=language,
+                                  task=options.task)
         self.tokenizer: Tokenizer = tokenizer
         self.options: DecodingOptions = self._verify_options(options)
         self.resource_path: str = resource_path
@@ -1065,20 +1055,20 @@ class DecodingTask:
         prompt = self.options.prompt
 
         if prefix:
-            prefix_tokens = (
-                self.tokenizer.encode(" " + prefix.strip().input_ids)
-                if isinstance(prefix, str) else prefix)
+            prefix_tokens = (self.tokenizer.encode(" " +
+                                                   prefix.strip().input_ids)
+                             if isinstance(prefix, str) else prefix)
             if self.sample_len is not None:
                 max_prefix_len = self.n_ctx // 2 - self.sample_len
                 prefix_tokens = prefix_tokens[-max_prefix_len:]
             tokens = tokens + prefix_tokens
 
         if prompt:
-            prompt_tokens = (
-                self.tokenizer.encode(" " + prompt.strip().input_ids)
-                if isinstance(prompt, str) else prompt)
-            tokens = [self.tokenizer.sot_prev] + prompt_tokens[-(self.n_ctx // 2
-                                                                 - 1):] + tokens
+            prompt_tokens = (self.tokenizer.encode(" " +
+                                                   prompt.strip().input_ids)
+                             if isinstance(prompt, str) else prompt)
+            tokens = [self.tokenizer.sot_prev
+                      ] + prompt_tokens[-(self.n_ctx // 2 - 1):] + tokens
 
         return tuple(tokens)
 
@@ -1122,10 +1112,8 @@ class DecodingTask:
 
         return audio_features
 
-    def _detect_language(self,
-                         audio_features: paddle.Tensor,
-                         tokens: paddle.Tensor,
-                         resource_path: str):
+    def _detect_language(self, audio_features: paddle.Tensor,
+                         tokens: paddle.Tensor, resource_path: str):
         languages = [self.options.language] * audio_features.shape[0]
         lang_probs = None
 
@@ -1142,8 +1130,8 @@ class DecodingTask:
     def _main_loop(self, audio_features: paddle.Tensor, tokens: paddle.Tensor):
         assert audio_features.shape[0] == tokens.shape[0]
         n_batch = tokens.shape[0]
-        sum_logprobs: paddle.Tensor = paddle.zeros(
-            paddle.to_tensor(n_batch), dtype=paddle.float32)
+        sum_logprobs: paddle.Tensor = paddle.zeros(paddle.to_tensor(n_batch),
+                                                   dtype=paddle.float32)
         no_speech_probs = [np.nan] * n_batch
 
         try:
@@ -1151,10 +1139,9 @@ class DecodingTask:
                 logits = self.inference.logits(tokens, audio_features)
 
                 if i == 0 and self.tokenizer.no_speech is not None:  # save no_speech_probs
-                    probs_at_sot = F.softmax(
-                        logits[:, self.sot_index],
-                        axis=-1,
-                        dtype=paddle.float32)
+                    probs_at_sot = F.softmax(logits[:, self.sot_index],
+                                             axis=-1,
+                                             dtype=paddle.float32)
                     no_speech_probs = probs_at_sot[:, self.tokenizer.
                                                    no_speech].tolist()
 
@@ -1187,38 +1174,37 @@ class DecodingTask:
         tokens: paddle.Tensor
         if batch_size > 1:
             for i in range(batch_size):
-                tokens = paddle.concat(
-                    x=[
-                        paddle.to_tensor([self.initial_tokens]),
-                        paddle.to_tensor([self.initial_tokens])
-                    ],
-                    axis=0)
+                tokens = paddle.concat(x=[
+                    paddle.to_tensor([self.initial_tokens]),
+                    paddle.to_tensor([self.initial_tokens])
+                ],
+                                       axis=0)
         elif batch_size == 1:
             tokens = paddle.to_tensor([self.initial_tokens])
 
         # detect language if requested, overwriting the language token
         languages, language_probs = self._detect_language(
-            paddle.to_tensor(audio_features),
-            paddle.to_tensor(tokens), self.resource_path)
+            paddle.to_tensor(audio_features), paddle.to_tensor(tokens),
+            self.resource_path)
 
         if self.options.task == "lang_id":
             return [
-                DecodingResult(
-                    audio_features=features,
-                    language=language,
-                    language_probs=probs) for features, language, probs in
-                zip(audio_features, languages, language_probs)
+                DecodingResult(audio_features=features,
+                               language=language,
+                               language_probs=probs) for features, language,
+                probs in zip(audio_features, languages, language_probs)
             ]
 
         # repeat the audio & text tensors by the group size, for beam search or best-of-n sampling
 
-        audio_features = paddle.repeat_interleave(
-            audio_features, self.beam_size, axis=0)
+        audio_features = paddle.repeat_interleave(audio_features,
+                                                  self.beam_size,
+                                                  axis=0)
         tokens = paddle.repeat_interleave(tokens, self.beam_size, axis=0)
 
         # call the main sampling loop
-        tokens, sum_logprobs, no_speech_probs = self._main_loop(audio_features,
-                                                                tokens)
+        tokens, sum_logprobs, no_speech_probs = self._main_loop(
+            audio_features, tokens)
 
         # reshape the tensors to have (batch_size, beam_size) as the first two dimensions
         audio_features = audio_features[::self.beam_size]
@@ -1236,14 +1222,17 @@ class DecodingTask:
 
         # select the top-ranked sample in each group
         selected = self.sequence_ranker.rank(tokens, sum_logprobs)
-        tokens: List[List[
-            int]] = [t[i].tolist() for i, t in zip(selected, tokens)]
+        tokens: List[List[int]] = [
+            t[i].tolist() for i, t in zip(selected, tokens)
+        ]
         texts: List[str] = [tokenizer.decode(t).strip() for t in tokens]
 
-        sum_logprobs: List[
-            float] = [lp[i] for i, lp in zip(selected, sum_logprobs)]
-        avg_logprobs: List[
-            float] = [lp / (len(t) + 1) for t, lp in zip(tokens, sum_logprobs)]
+        sum_logprobs: List[float] = [
+            lp[i] for i, lp in zip(selected, sum_logprobs)
+        ]
+        avg_logprobs: List[float] = [
+            lp / (len(t) + 1) for t, lp in zip(tokens, sum_logprobs)
+        ]
 
         fields = (texts, languages, tokens, audio_features, avg_logprobs,
                   no_speech_probs)
@@ -1260,18 +1249,19 @@ class DecodingTask:
                 avg_logprob=avg_logprob,
                 no_speech_prob=no_speech_prob,
                 temperature=self.options.temperature,
-                compression_ratio=utils.compression_ratio(text), )
-            for text, language, tokens, features, avg_logprob, no_speech_prob in
-            zip(*fields)
+                compression_ratio=utils.compression_ratio(text),
+            ) for text, language, tokens, features, avg_logprob, no_speech_prob
+            in zip(*fields)
         ]
 
 
 @paddle.no_grad()
 def decode(
-        model: "Whisper",
-        mel: paddle.Tensor,
-        options: DecodingOptions=DecodingOptions(),
-        resource_path=str, ) -> Union[DecodingResult, List[DecodingResult]]:
+    model: "Whisper",
+    mel: paddle.Tensor,
+    options: DecodingOptions = DecodingOptions(),
+    resource_path=str,
+) -> Union[DecodingResult, List[DecodingResult]]:
     """
     Performs decoding of 30-second audio segment(s), provided as Mel spectrogram(s).
 
@@ -1312,13 +1302,15 @@ class Whisper(nn.Layer):
             self.dims.n_audio_ctx,
             self.dims.n_audio_state,
             self.dims.n_audio_head,
-            self.dims.n_audio_layer, )
+            self.dims.n_audio_layer,
+        )
         self.decoder = TextDecoder(
             self.dims.n_vocab,
             self.dims.n_text_ctx,
             self.dims.n_text_state,
             self.dims.n_text_head,
-            self.dims.n_text_layer, )
+            self.dims.n_text_layer,
+        )
 
     def embed_audio(self, mel: paddle.Tensor):
         return self.encoder.forward(mel)
@@ -1338,7 +1330,7 @@ class Whisper(nn.Layer):
     def is_multilingual(self):
         return self.dims.n_vocab == 51865
 
-    def install_kv_cache_hooks(self, cache: Optional[dict]=None):
+    def install_kv_cache_hooks(self, cache: Optional[dict] = None):
         """
         The `MultiHeadAttention` module optionally accepts `kv_cache` which stores the key and value
         tensors calculated for the previous positions. This method returns a dictionary that stores
@@ -1361,8 +1353,8 @@ class Whisper(nn.Layer):
                 cache[
                     module] = output  # save as-is, for the first token or cross attention
             else:
-                cache[module] = paddle.concat(
-                    [cache[module], output], axis=1).detach()
+                cache[module] = paddle.concat([cache[module], output],
+                                              axis=1).detach()
             return cache[module]
 
         def install_hooks(layer: nn.Layer):
@@ -1380,7 +1372,7 @@ class Whisper(nn.Layer):
     decode = decode
 
 
-def pad_or_trim(array, length: int=N_SAMPLES, *, axis: int=-1):
+def pad_or_trim(array, length: int = N_SAMPLES, *, axis: int = -1):
     """
     Pad or trim the audio array to N_SAMPLES, as expected by the encoder.
     """
@@ -1392,9 +1384,9 @@ def pad_or_trim(array, length: int=N_SAMPLES, *, axis: int=-1):
             pad_widths = [(0, 0)] * array.ndim
             pad_widths[axis] = (0, length - array.shape[axis])
             array = paddle.transpose(array, (1, 0))
-            array = F.pad(
-                array, [pad for sizes in pad_widths[::-1] for pad in sizes],
-                data_format='NLC')
+            array = F.pad(array,
+                          [pad for sizes in pad_widths[::-1] for pad in sizes],
+                          data_format='NLC')
             array = paddle.transpose(array, (1, 0))
     else:
         if array.shape[axis] > length:
@@ -1410,7 +1402,7 @@ def pad_or_trim(array, length: int=N_SAMPLES, *, axis: int=-1):
     return array
 
 
-def hann_window(n_fft: int=N_FFT):
+def hann_window(n_fft: int = N_FFT):
     """
     hanning window
     n_fft:  The number of frequency components of the discrete Fourier transform.
@@ -1421,7 +1413,7 @@ def hann_window(n_fft: int=N_FFT):
 
 
 @lru_cache(maxsize=None)
-def mel_filters(resource_path: str, n_mels: int=N_MELS) -> paddle.Tensor:
+def mel_filters(resource_path: str, n_mels: int = N_MELS) -> paddle.Tensor:
     """
     load the mel filterbank matrix for projecting STFT into a Mel spectrogram.
     Allows decoupling librosa dependency; saved using:
@@ -1437,8 +1429,8 @@ def mel_filters(resource_path: str, n_mels: int=N_MELS) -> paddle.Tensor:
 
 
 def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
-                        n_mels: int=N_MELS,
-                        resource_path: str=None):
+                        n_mels: int = N_MELS,
+                        resource_path: str = None):
     """
     Compute the log-Mel spectrogram of
 

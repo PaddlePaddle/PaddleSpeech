@@ -34,14 +34,16 @@ def get_lines(canton):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate lexicon for Cantonese pinyin to phoneme for MFA")
-    parser.add_argument(
-        "--output_lexicon", type=str, help="Path to save lexicon.")
-    parser.add_argument(
-        "--output_wavlabs",
-        type=str,
-        help="Path of wavs and labs for MFA training.")
-    parser.add_argument(
-        "--inputs", type=str, nargs="+", help="Path to the cantonese datasets.")
+    parser.add_argument("--output_lexicon",
+                        type=str,
+                        help="Path to save lexicon.")
+    parser.add_argument("--output_wavlabs",
+                        type=str,
+                        help="Path of wavs and labs for MFA training.")
+    parser.add_argument("--inputs",
+                        type=str,
+                        nargs="+",
+                        help="Path to the cantonese datasets.")
     args = parser.parse_args()
 
     os.mkdir(args.output_wavlabs)

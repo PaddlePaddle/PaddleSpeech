@@ -23,19 +23,19 @@ from paddle import nn
 
 class ResidualBlock(nn.Layer):
     """Residual block module in WaveNet."""
-
     def __init__(
-            self,
-            kernel_size: int=3,
-            residual_channels: int=64,
-            gate_channels: int=128,
-            skip_channels: int=64,
-            aux_channels: int=80,
-            global_channels: int=-1,
-            dropout_rate: float=0.0,
-            dilation: int=1,
-            bias: bool=True,
-            scale_residual: bool=False, ):
+        self,
+        kernel_size: int = 3,
+        residual_channels: int = 64,
+        gate_channels: int = 128,
+        skip_channels: int = 64,
+        aux_channels: int = 80,
+        global_channels: int = -1,
+        dropout_rate: float = 0.0,
+        dilation: int = 1,
+        bias: bool = True,
+        scale_residual: bool = False,
+    ):
         """Initialize ResidualBlock module.
 
         Args:
@@ -64,8 +64,8 @@ class ResidualBlock(nn.Layer):
         self.scale_residual = scale_residual
 
         # check
-        assert (
-            kernel_size - 1) % 2 == 0, "Not support even number kernel size."
+        assert (kernel_size -
+                1) % 2 == 0, "Not support even number kernel size."
         assert gate_channels % 2 == 0
 
         # dilation conv
@@ -76,19 +76,24 @@ class ResidualBlock(nn.Layer):
             kernel_size,
             padding=padding,
             dilation=dilation,
-            bias_attr=bias, )
+            bias_attr=bias,
+        )
 
         # local conditioning
         if aux_channels > 0:
-            self.conv1x1_aux = nn.Conv1D(
-                aux_channels, gate_channels, kernel_size=1, bias_attr=False)
+            self.conv1x1_aux = nn.Conv1D(aux_channels,
+                                         gate_channels,
+                                         kernel_size=1,
+                                         bias_attr=False)
         else:
             self.conv1x1_aux = None
 
         # global conditioning
         if global_channels > 0:
-            self.conv1x1_glo = nn.Conv1D(
-                global_channels, gate_channels, kernel_size=1, bias_attr=False)
+            self.conv1x1_glo = nn.Conv1D(global_channels,
+                                         gate_channels,
+                                         kernel_size=1,
+                                         bias_attr=False)
         else:
             self.conv1x1_glo = None
 
@@ -97,18 +102,17 @@ class ResidualBlock(nn.Layer):
 
         # NOTE: concat two convs into a single conv for the efficiency
         #   (integrate res 1x1 + skip 1x1 convs)
-        self.conv1x1_out = nn.Conv1D(
-            gate_out_channels,
-            residual_channels + skip_channels,
-            kernel_size=1,
-            bias_attr=bias)
+        self.conv1x1_out = nn.Conv1D(gate_out_channels,
+                                     residual_channels + skip_channels,
+                                     kernel_size=1,
+                                     bias_attr=bias)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_mask: Optional[paddle.Tensor]=None,
-            c: Optional[paddle.Tensor]=None,
-            g: Optional[paddle.Tensor]=None,
+        self,
+        x: paddle.Tensor,
+        x_mask: Optional[paddle.Tensor] = None,
+        c: Optional[paddle.Tensor] = None,
+        g: Optional[paddle.Tensor] = None,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -151,8 +155,8 @@ class ResidualBlock(nn.Layer):
             x = x * x_mask
 
         # split integrated conv results
-        x, s = paddle.split(
-            x, [self.residual_channels, self.skip_channels], axis=1)
+        x, s = paddle.split(x, [self.residual_channels, self.skip_channels],
+                            axis=1)
 
         # for residual connection
         x = x + residual

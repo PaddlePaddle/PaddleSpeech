@@ -40,7 +40,6 @@ class Prenet(nn.Layer):
        https://arxiv.org/abs/1712.05884
 
     """
-
     def __init__(self, idim, n_layers=2, n_units=256, dropout_rate=0.5):
         """Initialize prenet module.
 
@@ -93,16 +92,16 @@ class Postnet(nn.Layer):
        https://arxiv.org/abs/1712.05884
 
     """
-
     def __init__(
-            self,
-            idim,
-            odim,
-            n_layers=5,
-            n_chans=512,
-            n_filts=5,
-            dropout_rate=0.5,
-            use_batch_norm=True, ):
+        self,
+        idim,
+        odim,
+        n_layers=5,
+        n_chans=512,
+        n_filts=5,
+        dropout_rate=0.5,
+        use_batch_norm=True,
+    ):
         """Initialize postnet module.
 
         Args:
@@ -128,10 +127,12 @@ class Postnet(nn.Layer):
                             n_filts,
                             stride=1,
                             padding=(n_filts - 1) // 2,
-                            bias_attr=False, ),
+                            bias_attr=False,
+                        ),
                         nn.BatchNorm1D(ochans),
                         nn.Tanh(),
-                        nn.Dropout(dropout_rate), ))
+                        nn.Dropout(dropout_rate),
+                    ))
             else:
                 self.postnet.append(
                     nn.Sequential(
@@ -141,9 +142,11 @@ class Postnet(nn.Layer):
                             n_filts,
                             stride=1,
                             padding=(n_filts - 1) // 2,
-                            bias_attr=False, ),
+                            bias_attr=False,
+                        ),
                         nn.Tanh(),
-                        nn.Dropout(dropout_rate), ))
+                        nn.Dropout(dropout_rate),
+                    ))
         ichans = n_chans if n_layers != 1 else odim
         if use_batch_norm:
             self.postnet.append(
@@ -154,9 +157,11 @@ class Postnet(nn.Layer):
                         n_filts,
                         stride=1,
                         padding=(n_filts - 1) // 2,
-                        bias_attr=False, ),
+                        bias_attr=False,
+                    ),
                     nn.BatchNorm1D(odim),
-                    nn.Dropout(dropout_rate), ))
+                    nn.Dropout(dropout_rate),
+                ))
         else:
             self.postnet.append(
                 nn.Sequential(
@@ -166,8 +171,10 @@ class Postnet(nn.Layer):
                         n_filts,
                         stride=1,
                         padding=(n_filts - 1) // 2,
-                        bias_attr=False, ),
-                    nn.Dropout(dropout_rate), ))
+                        bias_attr=False,
+                    ),
+                    nn.Dropout(dropout_rate),
+                ))
 
     def forward(self, xs):
         """Calculate forward propagation.
@@ -196,7 +203,6 @@ class ZoneOutCell(nn.Layer):
     .. _`eladhoffer/seq2seq.pytorch`:
         https://github.com/eladhoffer/seq2seq.pytorch
     """
-
     def __init__(self, cell, zoneout_rate=0.1):
         """Initialize zone out cell module.
 
@@ -260,26 +266,26 @@ class Decoder(nn.Layer):
     .. _`Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions`:
        https://arxiv.org/abs/1712.05884
     """
-
     def __init__(
-            self,
-            idim,
-            odim,
-            att,
-            dlayers=2,
-            dunits=1024,
-            prenet_layers=2,
-            prenet_units=256,
-            postnet_layers=5,
-            postnet_chans=512,
-            postnet_filts=5,
-            output_activation_fn=None,
-            cumulate_att_w=True,
-            use_batch_norm=True,
-            use_concate=True,
-            dropout_rate=0.5,
-            zoneout_rate=0.1,
-            reduction_factor=1, ):
+        self,
+        idim,
+        odim,
+        att,
+        dlayers=2,
+        dunits=1024,
+        prenet_layers=2,
+        prenet_units=256,
+        postnet_layers=5,
+        postnet_chans=512,
+        postnet_filts=5,
+        output_activation_fn=None,
+        cumulate_att_w=True,
+        use_batch_norm=True,
+        use_concate=True,
+        dropout_rate=0.5,
+        zoneout_rate=0.1,
+        reduction_factor=1,
+    ):
         """Initialize Tacotron2 decoder module.
 
         Args:
@@ -351,7 +357,8 @@ class Decoder(nn.Layer):
                 idim=odim,
                 n_layers=prenet_layers,
                 n_units=prenet_units,
-                dropout_rate=dropout_rate, )
+                dropout_rate=dropout_rate,
+            )
         else:
             self.prenet = None
 
@@ -364,14 +371,16 @@ class Decoder(nn.Layer):
                 n_chans=postnet_chans,
                 n_filts=postnet_filts,
                 use_batch_norm=use_batch_norm,
-                dropout_rate=dropout_rate, )
+                dropout_rate=dropout_rate,
+            )
         else:
             self.postnet = None
 
         # define projection layers
         iunits = idim + dunits if use_concate else dunits
-        self.feat_out = nn.Linear(
-            iunits, odim * reduction_factor, bias_attr=False)
+        self.feat_out = nn.Linear(iunits,
+                                  odim * reduction_factor,
+                                  bias_attr=False)
         self.prob_out = nn.Linear(iunits, reduction_factor)
 
     def _zero_state(self, hs):
@@ -445,8 +454,8 @@ class Decoder(nn.Layer):
             zcs = (paddle.concat([z_list[-1], att_c], axis=1)
                    if self.use_concate else z_list[-1])
             outs.append(
-                self.feat_out(zcs).reshape([paddle.shape(hs)[0], self.odim, -1
-                                            ]))
+                self.feat_out(zcs).reshape([paddle.shape(hs)[0], self.odim,
+                                            -1]))
             logits.append(self.prob_out(zcs))
             att_ws.append(att_w)
             # teacher forcing
@@ -487,14 +496,15 @@ class Decoder(nn.Layer):
         return after_outs, before_outs, logits, att_ws
 
     def inference(
-            self,
-            h,
-            threshold=0.5,
-            minlenratio=0.0,
-            maxlenratio=10.0,
-            use_att_constraint=False,
-            backward_window=None,
-            forward_window=None, ):
+        self,
+        h,
+        threshold=0.5,
+        minlenratio=0.0,
+        maxlenratio=10.0,
+        use_att_constraint=False,
+        backward_window=None,
+        forward_window=None,
+    ):
         """Generate the sequence of features given the sequences of characters.
         Args:
             h(Tensor): 
@@ -578,7 +588,8 @@ class Decoder(nn.Layer):
                     prev_out,
                     last_attended_idx=last_attended_idx,
                     backward_window=backward_window,
-                    forward_window=forward_window, )
+                    forward_window=forward_window,
+                )
             else:
                 att_c, att_w = self.att(
                     hs,
@@ -587,7 +598,8 @@ class Decoder(nn.Layer):
                     prev_att_ws[-1],
                     last_attended_idx=last_attended_idx,
                     backward_window=backward_window,
-                    forward_window=forward_window, )
+                    forward_window=forward_window,
+                )
 
             att_ws.append(att_w)
             prenet_out = self.prenet(
@@ -611,8 +623,8 @@ class Decoder(nn.Layer):
             probs.append(prob)
 
             if self.output_activation_fn is not None:
-                prev_out = self.output_activation_fn(
-                    outs[-1][:, :, -1])  # (1, odim)
+                prev_out = self.output_activation_fn(outs[-1][:, :,
+                                                              -1])  # (1, odim)
             else:
                 prev_out = outs[-1][:, :, -1]  # (1, odim)
             if self.cumulate_att_w and paddle.sum(prev_att_w) != 0:

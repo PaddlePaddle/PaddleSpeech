@@ -9,17 +9,16 @@ import onnx
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--model',
-        required=True,
-        help='Path of directory saved the input model.')
-    parser.add_argument(
-        '--output_names',
-        required=True,
-        nargs='+',
-        help='The outputs of pruned model.')
-    parser.add_argument(
-        '--save_file', required=True, help='Path to save the new onnx model.')
+    parser.add_argument('--model',
+                        required=True,
+                        help='Path of directory saved the input model.')
+    parser.add_argument('--output_names',
+                        required=True,
+                        nargs='+',
+                        help='The outputs of pruned model.')
+    parser.add_argument('--save_file',
+                        required=True,
+                        help='Path to save the new onnx model.')
     return parser.parse_args()
 
 
@@ -47,8 +46,8 @@ if __name__ == '__main__':
     for output_name in args.output_names:
         if output_name not in output_tensor_names:
             print(
-                "[ERROR] Cannot find output tensor name '{}' in onnx model graph.".
-                format(output_name))
+                "[ERROR] Cannot find output tensor name '{}' in onnx model graph."
+                .format(output_name))
             sys.exit(-1)
 
     output_node_indices = set()  # has output names
@@ -108,12 +107,11 @@ if __name__ == '__main__':
     # infer shape
     try:
         from onnx_infer_shape import SymbolicShapeInference
-        model = SymbolicShapeInference.infer_shapes(
-            model,
-            int_max=2**31 - 1,
-            auto_merge=True,
-            guess_output_rank=False,
-            verbose=1)
+        model = SymbolicShapeInference.infer_shapes(model,
+                                                    int_max=2**31 - 1,
+                                                    auto_merge=True,
+                                                    guess_output_rank=False,
+                                                    verbose=1)
     except Exception as e:
         print(f"skip infer shape step: {e}")
 

@@ -212,8 +212,8 @@ class Calculator:
                 break
             else:  # shouldn't reach here
                 print(
-                    'this should not happen , i = {i} , j = {j} , error = {error}'.
-                    format(i=i, j=j, error=self.space[i][j]['error']))
+                    'this should not happen , i = {i} , j = {j} , error = {error}'
+                    .format(i=i, j=j, error=self.space[i][j]['error']))
         return result
 
     def overall(self):
@@ -250,27 +250,27 @@ def default_cluster(word):
     for i in reversed(range(len(unicode_names))):
         if unicode_names[i].startswith('DIGIT'):  # 1
             unicode_names[i] = 'Number'  # 'DIGIT'
-        elif (unicode_names[i].startswith('CJK UNIFIED IDEOGRAPH') or
-              unicode_names[i].startswith('CJK COMPATIBILITY IDEOGRAPH')):
+        elif (unicode_names[i].startswith('CJK UNIFIED IDEOGRAPH')
+              or unicode_names[i].startswith('CJK COMPATIBILITY IDEOGRAPH')):
             # 明 / 郎
             unicode_names[i] = 'Mandarin'  # 'CJK IDEOGRAPH'
-        elif (unicode_names[i].startswith('LATIN CAPITAL LETTER') or
-              unicode_names[i].startswith('LATIN SMALL LETTER')):
+        elif (unicode_names[i].startswith('LATIN CAPITAL LETTER')
+              or unicode_names[i].startswith('LATIN SMALL LETTER')):
             # A / a
             unicode_names[i] = 'English'  # 'LATIN LETTER'
         elif unicode_names[i].startswith('HIRAGANA LETTER'):  # は こ め
             unicode_names[i] = 'Japanese'  # 'GANA LETTER'
-        elif (unicode_names[i].startswith('AMPERSAND') or
-              unicode_names[i].startswith('APOSTROPHE') or
-              unicode_names[i].startswith('COMMERCIAL AT') or
-              unicode_names[i].startswith('DEGREE CELSIUS') or
-              unicode_names[i].startswith('EQUALS SIGN') or
-              unicode_names[i].startswith('FULL STOP') or
-              unicode_names[i].startswith('HYPHEN-MINUS') or
-              unicode_names[i].startswith('LOW LINE') or
-              unicode_names[i].startswith('NUMBER SIGN') or
-              unicode_names[i].startswith('PLUS SIGN') or
-              unicode_names[i].startswith('SEMICOLON')):
+        elif (unicode_names[i].startswith('AMPERSAND')
+              or unicode_names[i].startswith('APOSTROPHE')
+              or unicode_names[i].startswith('COMMERCIAL AT')
+              or unicode_names[i].startswith('DEGREE CELSIUS')
+              or unicode_names[i].startswith('EQUALS SIGN')
+              or unicode_names[i].startswith('FULL STOP')
+              or unicode_names[i].startswith('HYPHEN-MINUS')
+              or unicode_names[i].startswith('LOW LINE')
+              or unicode_names[i].startswith('NUMBER SIGN')
+              or unicode_names[i].startswith('PLUS SIGN')
+              or unicode_names[i].startswith('SEMICOLON')):
             # & / ' / @ / ℃ / = / . / - / _ / # / + / ;
             del unicode_names[i]
         else:
@@ -440,8 +440,8 @@ if __name__ == '__main__':
         result = calculator.calculate(lab, rec)
         if verbose:
             if result['all'] != 0:
-                wer = float(result['ins'] + result['sub'] + result[
-                    'del']) * 100.0 / result['all']
+                wer = float(result['ins'] + result['sub'] +
+                            result['del']) * 100.0 / result['all']
             else:
                 wer = 0.0
             print('WER: %4.2f %%' % wer, end=' ')
@@ -496,8 +496,8 @@ if __name__ == '__main__':
 
     result = calculator.overall()
     if result['all'] != 0:
-        wer = float(result['ins'] + result['sub'] + result[
-            'del']) * 100.0 / result['all']
+        wer = float(result['ins'] + result['sub'] +
+                    result['del']) * 100.0 / result['all']
     else:
         wer = 0.0
     print('Overall -> %4.2f %%' % wer, end=' ')
@@ -512,8 +512,8 @@ if __name__ == '__main__':
             result = calculator.cluster(
                 [k for k in default_clusters[cluster_id]])
             if result['all'] != 0:
-                wer = float(result['ins'] + result['sub'] + result[
-                    'del']) * 100.0 / result['all']
+                wer = float(result['ins'] + result['sub'] +
+                            result['del']) * 100.0 / result['all']
             else:
                 wer = 0.0
             print('%s -> %4.2f %%' % (cluster_id, wer), end=' ')
@@ -530,8 +530,8 @@ if __name__ == '__main__':
                        token.lstrip('</').rstrip('>') == cluster_id :
                         result = calculator.cluster(cluster)
                         if result['all'] != 0:
-                            wer = float(result['ins'] + result['sub'] + result[
-                                'del']) * 100.0 / result['all']
+                            wer = float(result['ins'] + result['sub'] +
+                                        result['del']) * 100.0 / result['all']
                         else:
                             wer = 0.0
                         print('%s -> %4.2f %%' % (cluster_id, wer), end=' ')

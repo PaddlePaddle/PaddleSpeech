@@ -41,25 +41,26 @@ __all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-        self.task_resource = CommonTaskResource(
-            task='tts', model_format='static')
+        self.task_resource = CommonTaskResource(task='tts',
+                                                model_format='static')
 
     def _init_from_path(
-            self,
-            am: str='fastspeech2_csmsc',
-            am_model: Optional[os.PathLike]=None,
-            am_params: Optional[os.PathLike]=None,
-            am_sample_rate: int=24000,
-            phones_dict: Optional[os.PathLike]=None,
-            tones_dict: Optional[os.PathLike]=None,
-            speaker_dict: Optional[os.PathLike]=None,
-            voc: str='pwgan_csmsc',
-            voc_model: Optional[os.PathLike]=None,
-            voc_params: Optional[os.PathLike]=None,
-            voc_sample_rate: int=24000,
-            lang: str='zh',
-            am_predictor_conf: dict=None,
-            voc_predictor_conf: dict=None, ):
+        self,
+        am: str = 'fastspeech2_csmsc',
+        am_model: Optional[os.PathLike] = None,
+        am_params: Optional[os.PathLike] = None,
+        am_sample_rate: int = 24000,
+        phones_dict: Optional[os.PathLike] = None,
+        tones_dict: Optional[os.PathLike] = None,
+        speaker_dict: Optional[os.PathLike] = None,
+        voc: str = 'pwgan_csmsc',
+        voc_model: Optional[os.PathLike] = None,
+        voc_params: Optional[os.PathLike] = None,
+        voc_sample_rate: int = 24000,
+        lang: str = 'zh',
+        am_predictor_conf: dict = None,
+        voc_predictor_conf: dict = None,
+    ):
         """
         Init model and other resources from a specific path.
         """
@@ -173,9 +174,8 @@ class TTSServerExecutor(TTSExecutor):
 
         # frontend
         if lang == 'zh':
-            self.frontend = Frontend(
-                phone_vocab_path=self.phones_dict,
-                tone_vocab_path=self.tones_dict)
+            self.frontend = Frontend(phone_vocab_path=self.phones_dict,
+                                     tone_vocab_path=self.tones_dict)
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
@@ -200,9 +200,9 @@ class TTSServerExecutor(TTSExecutor):
     @paddle.no_grad()
     def infer(self,
               text: str,
-              lang: str='zh',
-              am: str='fastspeech2_csmsc',
-              spk_id: int=0):
+              lang: str = 'zh',
+              am: str = 'fastspeech2_csmsc',
+              spk_id: int = 0):
         """
         Model inference and result stored in self.output.
         """
@@ -240,7 +240,8 @@ class TTSServerExecutor(TTSExecutor):
                 part_tone_ids = tone_ids[i]
                 am_result = run_model(
                     self.am_predictor,
-                    [part_phone_ids.numpy(), part_tone_ids.numpy()])
+                    [part_phone_ids.numpy(),
+                     part_tone_ids.numpy()])
                 mel = am_result[0]
 
             # fastspeech2
@@ -249,7 +250,8 @@ class TTSServerExecutor(TTSExecutor):
                 if am_dataset in {"aishell3", "vctk"}:
                     am_result = run_model(
                         self.am_predictor,
-                        [part_phone_ids.numpy(), np.array([spk_id])])
+                        [part_phone_ids.numpy(),
+                         np.array([spk_id])])
                 else:
                     am_result = run_model(self.am_predictor,
                                           [part_phone_ids.numpy()])
@@ -277,7 +279,6 @@ class TTSEngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         """Initialize TTS server engine
         """
@@ -321,7 +322,8 @@ class TTSEngine(BaseEngine):
                 voc_sample_rate=self.config.voc_sample_rate,
                 lang=self.config.lang,
                 am_predictor_conf=self.config.am_predictor_conf,
-                voc_predictor_conf=self.config.voc_predictor_conf, )
+                voc_predictor_conf=self.config.voc_predictor_conf,
+            )
         except Exception as e:
             logger.error("Failed to get model related files.")
             logger.error("Initialize TTS server engine Failed on device: %s." %
@@ -355,10 +357,10 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
     def postprocess(self,
                     wav,
                     original_fs: int,
-                    target_fs: int=0,
-                    volume: float=1.0,
-                    speed: float=1.0,
-                    audio_path: str=None):
+                    target_fs: int = 0,
+                    volume: float = 1.0,
+                    speed: float = 1.0,
+                    audio_path: str = None):
         """Post-processing operations, including speech, volume, sample rate, save audio file
 
         Args:
@@ -381,14 +383,14 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             target_fs = original_fs
             wav_tar_fs = wav
             logger.debug(
-                "The sample rate of synthesized audio is the same as model, which is {}Hz".
-                format(original_fs))
+                "The sample rate of synthesized audio is the same as model, which is {}Hz"
+                .format(original_fs))
         else:
-            wav_tar_fs = librosa.resample(
-                np.squeeze(wav), original_fs, target_fs)
+            wav_tar_fs = librosa.resample(np.squeeze(wav), original_fs,
+                                          target_fs)
             logger.debug(
-                "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
-                format(original_fs, target_fs))
+                "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully."
+                .format(original_fs, target_fs))
         # transform volume
         wav_vol = wav_tar_fs * volume
         logger.debug("Transform the volume of the audio successfully.")
@@ -421,8 +423,8 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             if audio_path.endswith(".wav"):
                 sf.write(audio_path, wav_speed, target_fs)
             elif audio_path.endswith(".pcm"):
-                wav_norm = wav_speed * (32767 / max(0.001,
-                                                    np.max(np.abs(wav_speed))))
+                wav_norm = wav_speed * (32767 /
+                                        max(0.001, np.max(np.abs(wav_speed))))
                 with open(audio_path, "wb") as f:
                     f.write(wav_norm.astype(np.int16))
             logger.info("Save audio to {} successfully.".format(audio_path))
@@ -433,11 +435,11 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
 
     def run(self,
             sentence: str,
-            spk_id: int=0,
-            speed: float=1.0,
-            volume: float=1.0,
-            sample_rate: int=0,
-            save_path: str=None):
+            spk_id: int = 0,
+            speed: float = 1.0,
+            volume: float = 1.0,
+            sample_rate: int = 0,
+            save_path: str = None):
         """get the result of the server response
 
         Args:
@@ -464,8 +466,10 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
 
         try:
             infer_st = time.time()
-            self.infer(
-                text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
+            self.infer(text=sentence,
+                       lang=lang,
+                       am=self.config.am,
+                       spk_id=spk_id)
             infer_et = time.time()
             infer_time = infer_et - infer_st
 

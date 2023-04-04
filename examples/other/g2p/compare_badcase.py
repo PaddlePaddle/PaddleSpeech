@@ -25,8 +25,9 @@ def compare(prefolder, curfolder):
     pre_block = []
     cur_block = []
     zh_lines = []
-    with open(prefolder + "/text.g2p.pra", "r") as pre_file, open(
-            curfolder + "/text.g2p.pra", "r") as cur_file:
+    with open(prefolder + "/text.g2p.pra",
+              "r") as pre_file, open(curfolder + "/text.g2p.pra",
+                                     "r") as cur_file:
         for pre_line, cur_line in zip(pre_file, cur_file):
             linecnt += 1
 
@@ -37,8 +38,8 @@ def compare(prefolder, curfolder):
                 cur_block.append(cur_line.strip())
                 if pre_line.strip().startswith(
                         "Eval:") and pre_line.strip() != cur_line.strip():
-                    uuid = pre_block[-5].replace("id: (baker_", "").replace(")",
-                                                                            "")
+                    uuid = pre_block[-5].replace("id: (baker_",
+                                                 "").replace(")", "")
                     with open("data/g2p/text", 'r') as txt:
                         conlines = txt.readlines()
 

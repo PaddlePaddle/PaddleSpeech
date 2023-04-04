@@ -40,29 +40,28 @@ def async_stream_send(triton_client, values, request_id, model_name):
 
         outputs.append(grpcclient.InferRequestedOutput('OUTPUT_0'))
         # Issue the asynchronous sequence inference.
-        triton_client.async_stream_infer(
-            model_name=model_name,
-            inputs=infer_inputs,
-            outputs=outputs,
-            request_id=request_id)
+        triton_client.async_stream_infer(model_name=model_name,
+                                         inputs=infer_inputs,
+                                         outputs=outputs,
+                                         request_id=request_id)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-v',
-        '--verbose',
-        action="store_true",
-        required=False,
-        default=False,
-        help='Enable verbose output')
+    parser.add_argument('-v',
+                        '--verbose',
+                        action="store_true",
+                        required=False,
+                        default=False,
+                        help='Enable verbose output')
     parser.add_argument(
         '-u',
         '--url',
         type=str,
         required=False,
         default='localhost:8001',
-        help='Inference server URL and it gRPC port. Default is localhost:8001.')
+        help='Inference server URL and it gRPC port. Default is localhost:8001.'
+    )
 
     FLAGS = parser.parse_args()
 

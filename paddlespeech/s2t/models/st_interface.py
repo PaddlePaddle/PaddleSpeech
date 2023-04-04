@@ -24,7 +24,6 @@ class STInterface(ASRInterface):
     and recognition when performing multi-task learning with the ASR task.
 
     """
-
     def translate(self,
                   x,
                   trans_args,

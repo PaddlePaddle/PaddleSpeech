@@ -5,10 +5,10 @@ from python_speech_features import delta
 from python_speech_features import logfbank
 import scipy.io.wavfile as wav
 
-(rate,sig) = wav.read("english.wav")
+(rate, sig) = wav.read("english.wav")
 
 # note that generally nfilt=40 is used for speech recognition
-fbank_feat = logfbank(sig,nfilt=23,lowfreq=20,dither=0,wintype='povey')
+fbank_feat = logfbank(sig, nfilt=23, lowfreq=20, dither=0, wintype='povey')
 
 # the computed fbank coefficents of english.wav with dimension [110,23]
 # [ 12.2865	12.6906	13.1765	15.714	16.064	15.7553	16.5746	16.9205	16.6472	16.1302	16.4576	16.7326	16.8864	17.7215	18.88	19.1377	19.1495	18.6683	18.3886	20.3506	20.2772	18.8248	18.1899
@@ -17,8 +17,7 @@ fbank_feat = logfbank(sig,nfilt=23,lowfreq=20,dither=0,wintype='povey')
 # ...
 # the same with that using kaldi commands: compute-fbank-feats --dither=0.0
 
-
-mfcc_feat = mfcc(sig,dither=0,useEnergy=True,wintype='povey')
+mfcc_feat = mfcc(sig, dither=0, useEnergy=True, wintype='povey')
 
 # the computed mfcc coefficents of english.wav with dimension [110,13]
 # [ 17.1337	-23.3651	-7.41751	-7.73686	-21.3682	-8.93884	-3.70843	4.68346	-16.0676	12.782	-7.24054	8.25089	10.7292
@@ -26,4 +25,3 @@ mfcc_feat = mfcc(sig,dither=0,useEnergy=True,wintype='povey')
 # ...
 # ...
 # the same with that using kaldi commands: compute-mfcc-feats --dither=0.0
-

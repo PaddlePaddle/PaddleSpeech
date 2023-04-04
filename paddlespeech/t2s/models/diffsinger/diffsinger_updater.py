@@ -39,9 +39,9 @@ class DiffSingerUpdater(StandardUpdater):
                  optimizers: Dict[str, Optimizer],
                  criterions: Dict[str, Layer],
                  dataloader: DataLoader,
-                 ds_train_start_steps: int=160000,
-                 output_dir: Path=None,
-                 only_train_diffusion: bool=True):
+                 ds_train_start_steps: int = 160000,
+                 output_dir: Path = None,
+                 only_train_diffusion: bool = True):
         super().__init__(model, optimizers, dataloader, init_state=None)
         self.model = model._layers if isinstance(model,
                                                  paddle.DataParallel) else model
@@ -93,7 +93,8 @@ class DiffSingerUpdater(StandardUpdater):
                 energy=batch["energy"],
                 spk_id=spk_id,
                 spk_emb=spk_emb,
-                only_train_fs2=True, )
+                only_train_fs2=True,
+            )
 
             l1_loss_fs2, ssim_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
                 after_outs=after_outs,
@@ -108,7 +109,8 @@ class DiffSingerUpdater(StandardUpdater):
                 ilens=batch["text_lengths"],
                 olens=olens,
                 spk_logits=spk_logits,
-                spk_ids=spk_id, )
+                spk_ids=spk_id,
+            )
 
             loss_fs2 = l1_loss_fs2 + ssim_loss_fs2 + duration_loss + pitch_loss + energy_loss + speaker_loss
 
@@ -156,7 +158,8 @@ class DiffSingerUpdater(StandardUpdater):
                 energy=batch["energy"],
                 spk_id=spk_id,
                 spk_emb=spk_emb,
-                only_train_fs2=False, )
+                only_train_fs2=False,
+            )
 
             noise_pred = noise_pred.transpose((0, 2, 1))
             noise_target = noise_target.transpose((0, 2, 1))
@@ -164,7 +167,8 @@ class DiffSingerUpdater(StandardUpdater):
             l1_loss_ds = self.criterion_ds(
                 noise_pred=noise_pred,
                 noise_target=noise_target,
-                mel_masks=mel_masks, )
+                mel_masks=mel_masks,
+            )
 
             loss_ds = l1_loss_ds
 
@@ -184,11 +188,12 @@ class DiffSingerUpdater(StandardUpdater):
 
 class DiffSingerEvaluator(StandardEvaluator):
     def __init__(
-            self,
-            model: Layer,
-            criterions: Dict[str, Layer],
-            dataloader: DataLoader,
-            output_dir: Path=None, ):
+        self,
+        model: Layer,
+        criterions: Dict[str, Layer],
+        dataloader: DataLoader,
+        output_dir: Path = None,
+    ):
         super().__init__(model, dataloader)
         self.model = model._layers if isinstance(model,
                                                  paddle.DataParallel) else model
@@ -227,7 +232,8 @@ class DiffSingerEvaluator(StandardEvaluator):
             energy=batch["energy"],
             spk_id=spk_id,
             spk_emb=spk_emb,
-            only_train_fs2=True, )
+            only_train_fs2=True,
+        )
 
         l1_loss_fs2, ssim_loss_fs2, duration_loss, pitch_loss, energy_loss, speaker_loss = self.criterion_fs2(
             after_outs=after_outs,
@@ -242,7 +248,8 @@ class DiffSingerEvaluator(StandardEvaluator):
             ilens=batch["text_lengths"],
             olens=olens,
             spk_logits=spk_logits,
-            spk_ids=spk_id, )
+            spk_ids=spk_id,
+        )
 
         loss_fs2 = l1_loss_fs2 + ssim_loss_fs2 + duration_loss + pitch_loss + energy_loss + speaker_loss
 
@@ -280,7 +287,8 @@ class DiffSingerEvaluator(StandardEvaluator):
             energy=batch["energy"],
             spk_id=spk_id,
             spk_emb=spk_emb,
-            only_train_fs2=False, )
+            only_train_fs2=False,
+        )
 
         noise_pred = noise_pred.transpose((0, 2, 1))
         noise_target = noise_target.transpose((0, 2, 1))
@@ -288,7 +296,8 @@ class DiffSingerEvaluator(StandardEvaluator):
         l1_loss_ds = self.criterion_ds(
             noise_pred=noise_pred,
             noise_target=noise_target,
-            mel_masks=mel_masks, )
+            mel_masks=mel_masks,
+        )
 
         loss_ds = l1_loss_ds
 

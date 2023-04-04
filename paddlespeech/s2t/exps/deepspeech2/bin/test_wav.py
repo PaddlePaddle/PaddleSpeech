@@ -51,10 +51,12 @@ class DeepSpeech2Tester_hub():
 
     def compute_result_transcripts(self, audio, audio_len, vocab_list, cfg):
         decode_batch_size = cfg.decode_batch_size
-        self.model.decoder.init_decoder(
-            decode_batch_size, vocab_list, cfg.decoding_method,
-            cfg.lang_model_path, cfg.alpha, cfg.beta, cfg.beam_size,
-            cfg.cutoff_prob, cfg.cutoff_top_n, cfg.num_proc_bsearch)
+        self.model.decoder.init_decoder(decode_batch_size, vocab_list,
+                                        cfg.decoding_method,
+                                        cfg.lang_model_path, cfg.alpha,
+                                        cfg.beta, cfg.beam_size,
+                                        cfg.cutoff_prob, cfg.cutoff_top_n,
+                                        cfg.num_proc_bsearch)
         result_transcripts = self.model.decode(audio, audio_len)
         return result_transcripts
 
@@ -65,8 +67,9 @@ class DeepSpeech2Tester_hub():
         cfg = self.config
         audio_file = self.audio_file
 
-        audio, sample_rate = soundfile.read(
-            self.audio_file, dtype="int16", always_2d=True)
+        audio, sample_rate = soundfile.read(self.audio_file,
+                                            dtype="int16",
+                                            always_2d=True)
 
         audio = audio[:, 0]
         logger.info(f"audio shape: {audio.shape}")
@@ -132,9 +135,8 @@ class DeepSpeech2Tester_hub():
 
         self.checkpoint_dir = checkpoint_dir
 
-        self.checkpoint = Checkpoint(
-            kbest_n=self.config.checkpoint.kbest_n,
-            latest_n=self.config.checkpoint.latest_n)
+        self.checkpoint = Checkpoint(kbest_n=self.config.checkpoint.kbest_n,
+                                     latest_n=self.config.checkpoint.latest_n)
 
     def resume(self):
         """Resume from the checkpoint at checkpoints in the output
@@ -173,8 +175,9 @@ if __name__ == "__main__":
     parser = default_argument_parser()
     parser.add_argument("--audio_file", type=str, help='audio file path')
     # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
+    parser.add_argument("--result_file",
+                        type=str,
+                        help="path of save the asr result")
     args = parser.parse_args()
     print_arguments(args, globals())
     if not os.path.isfile(args.audio_file):

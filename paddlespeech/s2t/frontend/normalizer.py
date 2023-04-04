@@ -68,8 +68,9 @@ class AudioDataset(Dataset):
         if num_samples == -1:
             sampled_manifest = manifest
         else:
-            sampled_manifest = self._rng.choice(
-                manifest, num_samples, replace=False)
+            sampled_manifest = self._rng.choice(manifest,
+                                                num_samples,
+                                                replace=False)
         self.items = sampled_manifest
 
     def __len__(self):
@@ -101,7 +102,6 @@ class FeatureNormalizer(object):
     :raises ValueError: If both mean_std_filepath and manifest_path
                         (or both mean_std_filepath and featurize_func) are None.
     """
-
     def __init__(self,
                  mean_std_filepath,
                  manifest_path=None,
@@ -164,12 +164,11 @@ class FeatureNormalizer(object):
 
         collate_func = CollateFunc(featurize_func)
         dataset = AudioDataset(manifest_path, num_samples, self._rng)
-        data_loader = DataLoader(
-            dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            num_workers=num_workers,
-            collate_fn=collate_func)
+        data_loader = DataLoader(dataset,
+                                 batch_size=batch_size,
+                                 shuffle=False,
+                                 num_workers=num_workers,
+                                 collate_fn=collate_func)
 
         with paddle.no_grad():
             all_mean_stat = None

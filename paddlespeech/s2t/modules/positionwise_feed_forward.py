@@ -28,14 +28,13 @@ __all__ = ["PositionwiseFeedForward"]
 
 class PositionwiseFeedForward(nn.Layer):
     """Positionwise feed forward layer."""
-
     def __init__(self,
                  idim: int,
                  hidden_units: int,
                  dropout_rate: float,
-                 activation: nn.Layer=nn.ReLU(),
-                 adaptive_scale: bool=False,
-                 init_weights: bool=False):
+                 activation: nn.Layer = nn.ReLU(),
+                 adaptive_scale: bool = False,
+                 init_weights: bool = False):
         """Construct a PositionwiseFeedForward object.
 
         FeedForward are appied on each position of the sequence.
@@ -69,14 +68,14 @@ class PositionwiseFeedForward(nn.Layer):
     def init_weights(self):
         ffn1_max = self.idim**-0.5
         ffn2_max = self.hidden_units**-0.5
-        self.w_1._param_attr = paddle.nn.initializer.Uniform(
-            low=-ffn1_max, high=ffn1_max)
-        self.w_1._bias_attr = paddle.nn.initializer.Uniform(
-            low=-ffn1_max, high=ffn1_max)
-        self.w_2._param_attr = paddle.nn.initializer.Uniform(
-            low=-ffn2_max, high=ffn2_max)
-        self.w_2._bias_attr = paddle.nn.initializer.Uniform(
-            low=-ffn2_max, high=ffn2_max)
+        self.w_1._param_attr = paddle.nn.initializer.Uniform(low=-ffn1_max,
+                                                             high=ffn1_max)
+        self.w_1._bias_attr = paddle.nn.initializer.Uniform(low=-ffn1_max,
+                                                            high=ffn1_max)
+        self.w_2._param_attr = paddle.nn.initializer.Uniform(low=-ffn2_max,
+                                                             high=ffn2_max)
+        self.w_2._bias_attr = paddle.nn.initializer.Uniform(low=-ffn2_max,
+                                                            high=ffn2_max)
 
     def forward(self, xs: paddle.Tensor) -> paddle.Tensor:
         """Forward function.

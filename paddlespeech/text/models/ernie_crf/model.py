@@ -29,11 +29,12 @@ class ErnieCrf(nn.Layer):
         self.ernie = ErnieForTokenClassification.from_pretrained(
             pretrained_token, num_labels=num_classes, **kwargs)
         self.num_classes = num_classes
-        self.crf = LinearChainCrf(
-            self.num_classes, crf_lr=crf_lr, with_start_stop_tag=False)
+        self.crf = LinearChainCrf(self.num_classes,
+                                  crf_lr=crf_lr,
+                                  with_start_stop_tag=False)
         self.crf_loss = LinearChainCrfLoss(self.crf)
-        self.viterbi_decoder = ViterbiDecoder(
-            self.crf.transitions, with_start_stop_tag=False)
+        self.viterbi_decoder = ViterbiDecoder(self.crf.transitions,
+                                              with_start_stop_tag=False)
 
     def forward(self,
                 input_ids,
@@ -42,16 +43,14 @@ class ErnieCrf(nn.Layer):
                 attention_mask=None,
                 lengths=None,
                 labels=None):
-        logits = self.ernie(
-            input_ids,
-            token_type_ids=token_type_ids,
-            attention_mask=attention_mask,
-            position_ids=position_ids)
+        logits = self.ernie(input_ids,
+                            token_type_ids=token_type_ids,
+                            attention_mask=attention_mask,
+                            position_ids=position_ids)
 
         if lengths is None:
-            lengths = paddle.ones(
-                shape=[input_ids.shape[0]],
-                dtype=paddle.int64) * input_ids.shape[1]
+            lengths = paddle.ones(shape=[input_ids.shape[0]],
+                                  dtype=paddle.int64) * input_ids.shape[1]
 
         _, prediction = self.viterbi_decoder(logits, lengths)
         prediction = prediction.reshape([-1])

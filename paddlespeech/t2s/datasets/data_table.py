@@ -34,12 +34,11 @@ class DataTable(Dataset):
         ValueError:
             If there is some field in converters that does not exist in fields.
     """
-
     def __init__(self,
                  data: List[Dict[str, Any]],
-                 fields: List[str]=None,
-                 converters: Dict[str, Callable]=None,
-                 use_cache: bool=False):
+                 fields: List[str] = None,
+                 converters: Dict[str, Callable] = None,
+                 use_cache: bool = False):
         # metadata
         self.data = data
         assert len(data) > 0, "This dataset has no examples"

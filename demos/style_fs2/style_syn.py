@@ -45,8 +45,9 @@ def evaluate(args, fastspeech2_config, pwg_config):
     print("vocab_size:", vocab_size)
 
     odim = fastspeech2_config.n_mels
-    model = FastSpeech2(
-        idim=vocab_size, odim=odim, **fastspeech2_config["model"])
+    model = FastSpeech2(idim=vocab_size,
+                        odim=odim,
+                        **fastspeech2_config["model"])
 
     model.set_state_dict(
         paddle.load(args.fastspeech2_checkpoint)["main_params"])
@@ -109,29 +110,28 @@ def evaluate(args, fastspeech2_config, pwg_config):
         sub_output_dir = output_dir / style
         sub_output_dir.mkdir(parents=True, exist_ok=True)
         for utt_id, sentence in sentences:
-            input_ids = frontend.get_input_ids(
-                sentence, merge_sentences=True, robot=robot)
+            input_ids = frontend.get_input_ids(sentence,
+                                               merge_sentences=True,
+                                               robot=robot)
             phone_ids = input_ids["phone_ids"][0]
 
             with paddle.no_grad():
-                mel = fastspeech2_inference(
-                    phone_ids,
-                    durations=durations,
-                    durations_scale=durations_scale,
-                    durations_bias=durations_bias,
-                    pitch=pitch,
-                    pitch_scale=pitch_scale,
-                    pitch_bias=pitch_bias,
-                    energy=energy,
-                    energy_scale=energy_scale,
-                    energy_bias=energy_bias,
-                    robot=robot)
+                mel = fastspeech2_inference(phone_ids,
+                                            durations=durations,
+                                            durations_scale=durations_scale,
+                                            durations_bias=durations_bias,
+                                            pitch=pitch,
+                                            pitch_scale=pitch_scale,
+                                            pitch_bias=pitch_bias,
+                                            energy=energy,
+                                            energy_scale=energy_scale,
+                                            energy_bias=energy_bias,
+                                            robot=robot)
                 wav = pwg_inference(mel)
 
-            sf.write(
-                str(sub_output_dir / (utt_id + ".wav")),
-                wav.numpy(),
-                samplerate=fastspeech2_config.fs)
+            sf.write(str(sub_output_dir / (utt_id + ".wav")),
+                     wav.numpy(),
+                     samplerate=fastspeech2_config.fs)
             print(f"{style}_{utt_id} done!")
 
 
@@ -139,50 +139,55 @@ def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(
         description="Synthesize with fastspeech2 & parallel wavegan.")
-    parser.add_argument(
-        "--fastspeech2-config", type=str, help="fastspeech2 config file.")
-    parser.add_argument(
-        "--fastspeech2-checkpoint",
-        type=str,
-        help="fastspeech2 checkpoint to load.")
+    parser.add_argument("--fastspeech2-config",
+                        type=str,
+                        help="fastspeech2 config file.")
+    parser.add_argument("--fastspeech2-checkpoint",
+                        type=str,
+                        help="fastspeech2 checkpoint to load.")
     parser.add_argument(
         "--fastspeech2-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training fastspeech2."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training fastspeech2."
     )
     parser.add_argument(
         "--fastspeech2-pitch-stat",
         type=str,
-        help="mean and standard deviation used to normalize pitch when training fastspeech2"
+        help=
+        "mean and standard deviation used to normalize pitch when training fastspeech2"
     )
     parser.add_argument(
         "--fastspeech2-energy-stat",
         type=str,
-        help="mean and standard deviation used to normalize energy when training fastspeech2."
+        help=
+        "mean and standard deviation used to normalize energy when training fastspeech2."
     )
-    parser.add_argument(
-        "--pwg-config", type=str, help="parallel wavegan config file.")
-    parser.add_argument(
-        "--pwg-checkpoint",
-        type=str,
-        help="parallel wavegan generator parameters to load.")
+    parser.add_argument("--pwg-config",
+                        type=str,
+                        help="parallel wavegan config file.")
+    parser.add_argument("--pwg-checkpoint",
+                        type=str,
+                        help="parallel wavegan generator parameters to load.")
     parser.add_argument(
         "--pwg-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training parallel wavegan."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training parallel wavegan."
     )
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phone_id_map.txt",
+                        help="phone vocabulary file.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument("--verbose", type=int, default=1, help="verbose.")
 
     args = parser.parse_args()

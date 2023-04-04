@@ -33,7 +33,6 @@ class SpecAugmentor(AugmentorBase):
         https://arxiv.org/abs/1912.05533
 
     """
-
     def __init__(self,
                  rng,
                  F,
@@ -159,8 +158,8 @@ class SpecAugmentor(AugmentorBase):
                 return x
             # NOTE: randrange(a, b) emits a, a + 1, ..., b - 1
             center = random.randrange(window, t - window)
-            warped = random.randrange(center - window, center +
-                                      window) + 1  # 1 ... t - 1
+            warped = random.randrange(center - window,
+                                      center + window) + 1  # 1 ... t - 1
 
             left = Image.fromarray(x[:center]).resize((x.shape[1], warped),
                                                       Image.BICUBIC)

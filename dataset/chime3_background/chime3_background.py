@@ -95,14 +95,15 @@ def create_manifest(data_dir, manifest_path):
                 audio_data, samplerate = soundfile.read(filepath)
                 duration = float(len(audio_data)) / samplerate
                 json_lines.append(
-                    json.dumps(
-                        {
-                            'utt': os.path.splitext(os.path.basename(filepath))[
-                                0],
-                            'feat': filepath,
-                            'feat_shape': (duration, ),  # second
-                            'type': 'background'
-                        }))
+                    json.dumps({
+                        'utt':
+                        os.path.splitext(os.path.basename(filepath))[0],
+                        'feat':
+                        filepath,
+                        'feat_shape': (duration, ),  # second
+                        'type':
+                        'background'
+                    }))
     with io.open(manifest_path, mode='w', encoding='utf8') as out_file:
         for line in json_lines:
             out_file.write(line + '\n')
@@ -116,14 +117,14 @@ def prepare_chime3(url, md5sum, target_dir, manifest_path):
                             "myairbridge-AG0Y3DNBE5IWRRTV.zip")
         # unpack
         unpack(filepath, target_dir)
-        unpack(
-            os.path.join(target_dir, 'CHiME3_background_bus.zip'), target_dir)
-        unpack(
-            os.path.join(target_dir, 'CHiME3_background_caf.zip'), target_dir)
-        unpack(
-            os.path.join(target_dir, 'CHiME3_background_ped.zip'), target_dir)
-        unpack(
-            os.path.join(target_dir, 'CHiME3_background_str.zip'), target_dir)
+        unpack(os.path.join(target_dir, 'CHiME3_background_bus.zip'),
+               target_dir)
+        unpack(os.path.join(target_dir, 'CHiME3_background_caf.zip'),
+               target_dir)
+        unpack(os.path.join(target_dir, 'CHiME3_background_ped.zip'),
+               target_dir)
+        unpack(os.path.join(target_dir, 'CHiME3_background_str.zip'),
+               target_dir)
     else:
         print("Skip downloading and unpacking. Data already exists in %s." %
               target_dir)
@@ -132,11 +133,10 @@ def prepare_chime3(url, md5sum, target_dir, manifest_path):
 
 
 def main():
-    prepare_chime3(
-        url=URL,
-        md5sum=MD5,
-        target_dir=args.target_dir,
-        manifest_path=args.manifest_filepath)
+    prepare_chime3(url=URL,
+                   md5sum=MD5,
+                   target_dir=args.target_dir,
+                   manifest_path=args.manifest_filepath)
 
 
 if __name__ == '__main__':

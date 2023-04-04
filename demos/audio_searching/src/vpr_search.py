@@ -33,12 +33,11 @@ from starlette.requests import Request
 from starlette.responses import FileResponse
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"])
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["*"],
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 MYSQL_CLI = MySQLHelper()
 
@@ -49,9 +48,9 @@ if not os.path.exists(UPLOAD_PATH):
 
 
 @app.post('/vpr/enroll')
-async def vpr_enroll(table_name: str=None,
-                     spk_id: str=Form(...),
-                     audio: UploadFile=File(...)):
+async def vpr_enroll(table_name: str = None,
+                     spk_id: str = Form(...),
+                     audio: UploadFile = File(...)):
     # Enroll the uploaded audio with spk-id into MySQL
     try:
         if not spk_id:
@@ -70,9 +69,9 @@ async def vpr_enroll(table_name: str=None,
 
 
 @app.post('/vpr/enroll/local')
-async def vpr_enroll_local(table_name: str=None,
-                           spk_id: str=None,
-                           audio_path: str=None):
+async def vpr_enroll_local(table_name: str = None,
+                           spk_id: str = None,
+                           audio_path: str = None):
     # Enroll the local audio with spk-id into MySQL
     try:
         do_enroll(table_name, spk_id, audio_path, MYSQL_CLI)
@@ -85,8 +84,8 @@ async def vpr_enroll_local(table_name: str=None,
 
 @app.post('/vpr/recog')
 async def vpr_recog(request: Request,
-                    table_name: str=None,
-                    audio: UploadFile=File(...)):
+                    table_name: str = None,
+                    audio: UploadFile = File(...)):
     # Voice print recognition online
     try:
         # Save the upload data to server.
@@ -111,8 +110,8 @@ async def vpr_recog(request: Request,
 
 @app.post('/vpr/recog/local')
 async def vpr_recog_local(request: Request,
-                          table_name: str=None,
-                          audio_path: str=None):
+                          table_name: str = None,
+                          audio_path: str = None):
     # Voice print recognition locally
     try:
         host = request.headers['host']
@@ -131,7 +130,7 @@ async def vpr_recog_local(request: Request,
 
 
 @app.post('/vpr/del')
-async def vpr_del(table_name: str=None, spk_id: dict=None):
+async def vpr_del(table_name: str = None, spk_id: dict = None):
     # Delete a record by spk_id in MySQL
     try:
         spk_id = spk_id['spk_id']
@@ -146,7 +145,7 @@ async def vpr_del(table_name: str=None, spk_id: dict=None):
 
 
 @app.get('/vpr/list')
-async def vpr_list(table_name: str=None):
+async def vpr_list(table_name: str = None):
     # Get all records in MySQL
     try:
         spk_ids, audio_paths = do_list(table_name, MYSQL_CLI)
@@ -161,8 +160,9 @@ async def vpr_list(table_name: str=None):
 
 @app.get('/vpr/data')
 async def vpr_data(
-    table_name: str=None,
-    spk_id: dict=None, ):
+    table_name: str = None,
+    spk_id: dict = None,
+):
     # Get the audio file from path by spk_id in MySQL
     try:
         spk_id = spk_id['spk_id']
@@ -177,7 +177,7 @@ async def vpr_data(
 
 
 @app.get('/vpr/count')
-async def vpr_count(table_name: str=None):
+async def vpr_count(table_name: str = None):
     # Get the total number of spk in MySQL
     try:
         num = do_count_vpr(table_name, MYSQL_CLI)
@@ -189,7 +189,7 @@ async def vpr_count(table_name: str=None):
 
 
 @app.post('/vpr/drop')
-async def drop_tables(table_name: str=None):
+async def drop_tables(table_name: str = None):
     # Delete the table of MySQL
     try:
         do_drop_vpr(table_name, MYSQL_CLI)

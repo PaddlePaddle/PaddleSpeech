@@ -39,8 +39,8 @@ def extract_audio_embedding(args, config):
     ecapa_tdnn = EcapaTdnn(**config.model)
 
     # stage4: build the speaker verification train instance with backbone model
-    model = SpeakerIdetification(
-        backbone=ecapa_tdnn, num_class=config.num_speakers)
+    model = SpeakerIdetification(backbone=ecapa_tdnn,
+                                 num_class=config.num_speakers)
     # stage 2: load the pre-trained model
     args.load_checkpoint = os.path.abspath(
         os.path.expanduser(args.load_checkpoint))
@@ -62,12 +62,11 @@ def extract_audio_embedding(args, config):
     # we need convert the audio feat to one-batch shape [batch, dim, time], where the batch is one
     # so the final shape is [1, dim, time]
     start_time = time.time()
-    feat = melspectrogram(
-        x=waveform,
-        sr=config.sr,
-        n_mels=config.n_mels,
-        window_size=config.window_size,
-        hop_length=config.hop_size)
+    feat = melspectrogram(x=waveform,
+                          sr=config.sr,
+                          n_mels=config.n_mels,
+                          window_size=config.window_size,
+                          hop_length=config.hop_size)
     feat = paddle.to_tensor(feat).unsqueeze(0)
 
     # in inference period, the lengths is all one without padding

@@ -17,7 +17,6 @@ import numpy
 
 class ChannelSelector():
     """Select 1ch from multi-channel signal"""
-
     def __init__(self, train_channel="random", eval_channel=0, axis=1):
         self.train_channel = train_channel
         self.eval_channel = eval_channel
@@ -29,7 +28,8 @@ class ChannelSelector():
                     name=self.__class__.__name__,
                     train_channel=self.train_channel,
                     eval_channel=self.eval_channel,
-                    axis=self.axis, ))
+                    axis=self.axis,
+                ))
 
     def __call__(self, x, train=True):
         # Assuming x: [Time, Channel] by default

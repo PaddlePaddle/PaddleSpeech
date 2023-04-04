@@ -31,17 +31,17 @@ device = torch.device("cuda:0")
 
 
 def test_convin_upsample_net():
-    net = ConvInUpsampleNet(
-        [4, 4, 4, 4],
-        "LeakyReLU", {"negative_slope": 0.2},
-        freq_axis_kernel_size=3,
-        aux_context_window=0)
-    net2 = upsample.ConvInUpsampleNetwork(
-        [4, 4, 4, 4],
-        nonlinear_activation="LeakyReLU",
-        nonlinear_activation_params={"negative_slope": 0.2},
-        freq_axis_kernel_size=3,
-        aux_context_window=0).to(device)
+    net = ConvInUpsampleNet([4, 4, 4, 4],
+                            "LeakyReLU", {"negative_slope": 0.2},
+                            freq_axis_kernel_size=3,
+                            aux_context_window=0)
+    net2 = upsample.ConvInUpsampleNetwork([4, 4, 4, 4],
+                                          nonlinear_activation="LeakyReLU",
+                                          nonlinear_activation_params={
+                                              "negative_slope": 0.2
+                                          },
+                                          freq_axis_kernel_size=3,
+                                          aux_context_window=0).to(device)
     summary(net)
     for k, v in net2.named_parameters():
         print(k, v.shape)
@@ -106,24 +106,23 @@ def test_residual_block():
 
 
 def test_pwg_generator():
-    net = PWGGenerator(
-        layers=9,
-        stacks=3,
-        upsample_scales=[4, 4, 4, 4],
-        nonlinear_activation="LeakyReLU",
-        nonlinear_activation_params={"negative_slope": 0.5},
-        use_weight_norm=True)
-    net2 = pwgan.ParallelWaveGANGenerator(
-        layers=9,
-        stacks=3,
-        upsample_params={
-            "upsample_scales": [4, 4, 4, 4],
-            "nonlinear_activation": "LeakyReLU",
-            "nonlinear_activation_params": {
-                "negative_slope": 0.5
-            }
-        },
-        use_weight_norm=True).to(device)
+    net = PWGGenerator(layers=9,
+                       stacks=3,
+                       upsample_scales=[4, 4, 4, 4],
+                       nonlinear_activation="LeakyReLU",
+                       nonlinear_activation_params={"negative_slope": 0.5},
+                       use_weight_norm=True)
+    net2 = pwgan.ParallelWaveGANGenerator(layers=9,
+                                          stacks=3,
+                                          upsample_params={
+                                              "upsample_scales": [4, 4, 4, 4],
+                                              "nonlinear_activation":
+                                              "LeakyReLU",
+                                              "nonlinear_activation_params": {
+                                                  "negative_slope": 0.5
+                                              }
+                                          },
+                                          use_weight_norm=True).to(device)
     summary(net)
     summary(net2)
     for k, v in net2.named_parameters():

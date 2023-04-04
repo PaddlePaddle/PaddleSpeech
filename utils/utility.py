@@ -52,8 +52,8 @@ def get_commandline_args():
     # Escape the extra characters for shell
     argv = [
         arg.replace("'", "'\\''") if all(char not in arg
-                                         for char in extra_chars) else
-        "'" + arg.replace("'", "'\\''") + "'" for arg in sys.argv
+                                         for char in extra_chars) else "'" +
+        arg.replace("'", "'\\''") + "'" for arg in sys.argv
     ]
 
     return sys.executable + " " + " ".join(argv)
@@ -96,12 +96,11 @@ def add_arguments(argname, type, default, help, argparser, **kwargs):
         args = parser.parse_args()
     """
     type = distutils.util.strtobool if type == bool else type
-    argparser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
+    argparser.add_argument("--" + argname,
+                           default=default,
+                           type=type,
+                           help=help + ' Default: %(default)s.',
+                           **kwargs)
 
 
 def md5file(fname):

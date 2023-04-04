@@ -31,10 +31,13 @@ import_alias = dict(
     freq_mask="paddlespeech.audio.transform.spec_augment:FreqMask",
     spec_augment="paddlespeech.audio.transform.spec_augment:SpecAugment",
     speed_perturbation="paddlespeech.audio.transform.perturb:SpeedPerturbation",
-    speed_perturbation_sox="paddlespeech.audio.transform.perturb:SpeedPerturbationSox",
-    volume_perturbation="paddlespeech.audio.transform.perturb:VolumePerturbation",
+    speed_perturbation_sox=
+    "paddlespeech.audio.transform.perturb:SpeedPerturbationSox",
+    volume_perturbation=
+    "paddlespeech.audio.transform.perturb:VolumePerturbation",
     noise_injection="paddlespeech.audio.transform.perturb:NoiseInjection",
-    bandpass_perturbation="paddlespeech.audio.transform.perturb:BandpassPerturbation",
+    bandpass_perturbation=
+    "paddlespeech.audio.transform.perturb:BandpassPerturbation",
     rir_convolve="paddlespeech.audio.transform.perturb:RIRConvolve",
     delta="paddlespeech.audio.transform.add_deltas:AddDeltas",
     cmvn="paddlespeech.audio.transform.cmvn:CMVN",
@@ -46,8 +49,10 @@ import_alias = dict(
     istft="paddlespeech.audio.transform.spectrogram:IStft",
     stft2fbank="paddlespeech.audio.transform.spectrogram:Stft2LogMelSpectrogram",
     wpe="paddlespeech.audio.transform.wpe:WPE",
-    channel_selector="paddlespeech.audio.transform.channel_selector:ChannelSelector",
-    fbank_kaldi="paddlespeech.audio.transform.spectrogram:LogMelSpectrogramKaldi",
+    channel_selector=
+    "paddlespeech.audio.transform.channel_selector:ChannelSelector",
+    fbank_kaldi=
+    "paddlespeech.audio.transform.spectrogram:LogMelSpectrogramKaldi",
     cmvn_json="paddlespeech.audio.transform.cmvn:GlobalCMVN")
 
 
@@ -68,7 +73,6 @@ class Transformation():
         ...       for _ in range(bs)]
         >>> xs = transform(xs)
     """
-
     def __init__(self, conffile=None):
         if conffile is not None:
             if isinstance(conffile, dict):
@@ -101,8 +105,8 @@ class Transformation():
                             class_obj.__name__, signa))
                     raise
         else:
-            raise NotImplementedError(
-                "Not supporting mode={}".format(self.conf["mode"]))
+            raise NotImplementedError("Not supporting mode={}".format(
+                self.conf["mode"]))
 
     def __repr__(self):
         rep = "\n" + "\n".join("    {}: {}".format(k, v)
@@ -150,8 +154,8 @@ class Transformation():
                         idx, func))
                     raise
         else:
-            raise NotImplementedError(
-                "Not supporting mode={}".format(self.conf["mode"]))
+            raise NotImplementedError("Not supporting mode={}".format(
+                self.conf["mode"]))
 
         if is_batch:
             return xs

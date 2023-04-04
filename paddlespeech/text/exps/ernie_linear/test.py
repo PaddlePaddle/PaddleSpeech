@@ -43,14 +43,18 @@ DefinedDataset = {
 
 
 def evaluation(y_pred, y_test):
-    precision, recall, f1, _ = precision_recall_fscore_support(
-        y_test, y_pred, average=None, labels=[1, 2, 3])
-    overall = precision_recall_fscore_support(
-        y_test, y_pred, average='macro', labels=[1, 2, 3])
-    result = pd.DataFrame(
-        np.array([precision, recall, f1]),
-        columns=list(['O', 'COMMA', 'PERIOD', 'QUESTION'])[1:],
-        index=['Precision', 'Recall', 'F1'])
+    precision, recall, f1, _ = precision_recall_fscore_support(y_test,
+                                                               y_pred,
+                                                               average=None,
+                                                               labels=[1, 2, 3])
+    overall = precision_recall_fscore_support(y_test,
+                                              y_pred,
+                                              average='macro',
+                                              labels=[1, 2, 3])
+    result = pd.DataFrame(np.array([precision, recall, f1]),
+                          columns=list(['O', 'COMMA', 'PERIOD',
+                                        'QUESTION'])[1:],
+                          index=['Precision', 'Recall', 'F1'])
     result['OVERALL'] = overall[:3]
     return result
 
@@ -65,11 +69,10 @@ def test(args):
 
     test_dataset = DefinedDataset[config["dataset_type"]](
         train_path=config["test_path"], **config["data_params"])
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=config.batch_size,
-        shuffle=False,
-        drop_last=False)
+    test_loader = DataLoader(test_dataset,
+                             batch_size=config.batch_size,
+                             shuffle=False,
+                             drop_last=False)
     model = DefinedClassifier[config["model_type"]](**config["model"])
     state_dict = paddle.load(args.checkpoint)
     model.set_state_dict(state_dict["main_params"])
@@ -89,8 +92,9 @@ def test(args):
         pred = paddle.argmax(logit, axis=1)
         test_total_label.extend(label.numpy().tolist())
         test_total_predict.extend(pred.numpy().tolist())
-    t = classification_report(
-        test_total_label, test_total_predict, target_names=punc_list)
+    t = classification_report(test_total_label,
+                              test_total_predict,
+                              target_names=punc_list)
     print(t)
     if args.print_eval:
         t2 = evaluation(test_total_label, test_total_predict)
@@ -104,8 +108,10 @@ def main():
     parser.add_argument("--config", type=str, help="ErnieLinear config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--print_eval", type=str2bool, default=True)
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
 
     args = parser.parse_args()
 

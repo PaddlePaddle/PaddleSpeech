@@ -65,7 +65,8 @@ def evaluate(args, diffsinger_config):
         spec_max=spec_max,
         idim=vocab_size,
         odim=odim,
-        **diffsinger_config["model"], )
+        **diffsinger_config["model"],
+    )
 
     model.set_state_dict(paddle.load(args.diffsinger_checkpoint)["main_params"])
     model.eval()
@@ -86,7 +87,8 @@ def evaluate(args, diffsinger_config):
         args.dur_file,
         dataset=args.dataset,
         sample_rate=diffsinger_config.fs,
-        n_shift=diffsinger_config.n_shift, )
+        n_shift=diffsinger_config.n_shift,
+    )
 
     if args.dataset == "opencpop":
         wavdir = rootdir / "wavs"
@@ -165,12 +167,11 @@ def evaluate(args, diffsinger_config):
         sub_output_dir.mkdir(parents=True, exist_ok=True)
 
         with paddle.no_grad():
-            mel = diffsinger_inference(
-                text=phone_ids,
-                note=note,
-                note_dur=note_dur,
-                is_slur=is_slur,
-                get_mel_fs2=False)
+            mel = diffsinger_inference(text=phone_ids,
+                                       note=note,
+                                       note_dur=note_dur,
+                                       is_slur=is_slur,
+                                       get_mel_fs2=False)
         np.save(sub_output_dir / (utt_id + "_feats.npy"), mel)
 
 
@@ -178,43 +179,50 @@ def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(
         description="Generate mel with diffsinger.")
-    parser.add_argument(
-        "--dataset",
-        default="opencpop",
-        type=str,
-        help="name of dataset, should in {opencpop} now")
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
-    parser.add_argument(
-        "--diffsinger-config", type=str, help="diffsinger config file.")
-    parser.add_argument(
-        "--diffsinger-checkpoint",
-        type=str,
-        help="diffsinger checkpoint to load.")
+    parser.add_argument("--dataset",
+                        default="opencpop",
+                        type=str,
+                        help="name of dataset, should in {opencpop} now")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
+    parser.add_argument("--diffsinger-config",
+                        type=str,
+                        help="diffsinger config file.")
+    parser.add_argument("--diffsinger-checkpoint",
+                        type=str,
+                        help="diffsinger checkpoint to load.")
     parser.add_argument(
         "--diffsinger-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training diffsinger."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training diffsinger."
     )
     parser.add_argument(
         "--diffsinger-stretch",
         type=str,
         help="min and max mel used to stretch before training diffusion.")
 
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phone_id_map.txt",
+                        help="phone vocabulary file.")
 
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
 
-    parser.add_argument(
-        "--dur-file", default=None, type=str, help="path to durations.txt.")
+    parser.add_argument("--dur-file",
+                        default=None,
+                        type=str,
+                        help="path to durations.txt.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 

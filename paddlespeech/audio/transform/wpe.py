@@ -37,7 +37,8 @@ class WPE(object):
                     delay=self.delay,
                     iterations=self.iterations,
                     psd_context=self.psd_context,
-                    statistics_mode=self.statistics_mode, ))
+                    statistics_mode=self.statistics_mode,
+                ))
 
     def __call__(self, xs):
         """Return enhanced
@@ -54,5 +55,6 @@ class WPE(object):
             delay=self.delay,
             iterations=self.iterations,
             psd_context=self.psd_context,
-            statistics_mode=self.statistics_mode, )
+            statistics_mode=self.statistics_mode,
+        )
         return xs.transpose(2, 1, 0)

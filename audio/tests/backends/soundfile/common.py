@@ -31,8 +31,8 @@ def skipIfFormatNotSupported(fmt):
 
 
 def parameterize(*params):
-    return parameterized.expand(
-        list(itertools.product(*params)), name_func=name_func)
+    return parameterized.expand(list(itertools.product(*params)),
+                                name_func=name_func)
 
 
 def fetch_wav_subtype(dtype, encoding, bits_per_sample):
@@ -55,6 +55,7 @@ def fetch_wav_subtype(dtype, encoding, bits_per_sample):
     if subtype:
         return subtype
     raise ValueError(f"wav does not support ({encoding}, {bits_per_sample}).")
+
 
 def get_encoding(ext, dtype):
     exts = {
@@ -79,6 +80,7 @@ def get_bit_depth(dtype):
         "uint8": 8,
     }
     return bit_depths[dtype]
+
 
 def get_bits_per_sample(ext, dtype):
     bits_per_samples = {

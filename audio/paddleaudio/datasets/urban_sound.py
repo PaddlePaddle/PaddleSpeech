@@ -54,13 +54,15 @@ class UrbanSound8K(AudioClassificationDataset):
     audio_path = os.path.join('UrbanSound8K', 'audio')
 
     def __init__(self,
-                 mode: str='train',
-                 split: int=1,
-                 feat_type: str='raw',
+                 mode: str = 'train',
+                 split: int = 1,
+                 feat_type: str = 'raw',
                  **kwargs):
         files, labels = self._get_data(mode, split)
-        super(UrbanSound8K, self).__init__(
-            files=files, labels=labels, feat_type=feat_type, **kwargs)
+        super(UrbanSound8K, self).__init__(files=files,
+                                           labels=labels,
+                                           feat_type=feat_type,
+                                           **kwargs)
         """
         Ags:
             mode (:obj:`str`, `optional`, defaults to `train`):

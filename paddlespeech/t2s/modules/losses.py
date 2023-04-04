@@ -52,8 +52,8 @@ def discretized_mix_logistic_loss(y_hat,
     # unpack parameters. (B, T, num_mixtures) x 3
     logit_probs = y_hat[:, :, :nr_mix]
     means = y_hat[:, :, nr_mix:2 * nr_mix]
-    log_scales = paddle.clip(
-        y_hat[:, :, 2 * nr_mix:3 * nr_mix], min=log_scale_min)
+    log_scales = paddle.clip(y_hat[:, :, 2 * nr_mix:3 * nr_mix],
+                             min=log_scale_min)
 
     # B x T x 1 -> B x T x num_mixtures
     y = y.expand_as(means)
@@ -85,8 +85,8 @@ def discretized_mix_logistic_loss(y_hat,
     # for num_classes=65536 case? 1e-7? not sure..
     inner_inner_cond = cdf_delta > 1e-5
 
-    inner_inner_cond = paddle.cast(
-        inner_inner_cond, dtype=paddle.get_default_dtype())
+    inner_inner_cond = paddle.cast(inner_inner_cond,
+                                   dtype=paddle.get_default_dtype())
 
     # inner_inner_out = inner_inner_cond * \
     #                   paddle.log(paddle.clip(cdf_delta, min=1e-12)) + \
@@ -100,8 +100,8 @@ def discretized_mix_logistic_loss(y_hat,
 
     inner_cond = paddle.cast(inner_cond, dtype=paddle.get_default_dtype())
 
-    inner_out = inner_cond * log_one_minus_cdf_min + (1. - inner_cond
-                                                      ) * inner_inner_out
+    inner_out = inner_cond * log_one_minus_cdf_min + (
+        1. - inner_cond) * inner_inner_out
     cond = y < -0.999
     cond = paddle.cast(cond, dtype=paddle.get_default_dtype())
 
@@ -136,8 +136,10 @@ def sample_from_discretized_mix_logistic(y, log_scale_min=None):
     logit_probs = y[:, :, :nr_mix]
 
     # sample mixture indicator from softmax
-    temp = paddle.uniform(
-        logit_probs.shape, dtype=logit_probs.dtype, min=1e-5, max=1.0 - 1e-5)
+    temp = paddle.uniform(logit_probs.shape,
+                          dtype=logit_probs.dtype,
+                          min=1e-5,
+                          max=1.0 - 1e-5)
     temp = logit_probs - paddle.log(-paddle.log(temp))
     argmax = paddle.argmax(temp, axis=-1)
 
@@ -147,9 +149,10 @@ def sample_from_discretized_mix_logistic(y, log_scale_min=None):
 
     # select logistic parameters
     means = paddle.sum(y[:, :, nr_mix:2 * nr_mix] * one_hot, axis=-1)
-    log_scales = paddle.clip(
-        paddle.sum(y[:, :, 2 * nr_mix:3 * nr_mix] * one_hot, axis=-1),
-        min=log_scale_min)
+    log_scales = paddle.clip(paddle.sum(y[:, :, 2 * nr_mix:3 * nr_mix] *
+                                        one_hot,
+                                        axis=-1),
+                             min=log_scale_min)
     # sample from logistic & clip to interval
     # we don't actually round to the nearest 8bit value when sampling
     u = paddle.uniform(means.shape, min=1e-5, max=1.0 - 1e-5)
@@ -173,7 +176,6 @@ class GuidedAttentionLoss(nn.Layer):
         https://arxiv.org/abs/1710.08969
 
     """
-
     def __init__(self, sigma=0.4, alpha=1.0, reset_always=True):
         """Initialize guided attention loss module.
 
@@ -207,8 +209,8 @@ class GuidedAttentionLoss(nn.Layer):
 
         """
         if self.guided_attn_masks is None:
-            self.guided_attn_masks = self._make_guided_attention_masks(ilens,
-                                                                       olens)
+            self.guided_attn_masks = self._make_guided_attention_masks(
+                ilens, olens)
         if self.masks is None:
             self.masks = self._make_masks(ilens, olens)
         losses = self.guided_attn_masks * att_ws
@@ -225,9 +227,9 @@ class GuidedAttentionLoss(nn.Layer):
         guided_attn_masks = paddle.zeros((n_batches, max_olen, max_ilen))
 
         for idx, (ilen, olen) in enumerate(zip(ilens, olens)):
-            guided_attn_masks[idx, :olen, :
-                              ilen] = self._make_guided_attention_mask(
-                                  ilen, olen, self.sigma)
+            guided_attn_masks[
+                idx, :olen, :ilen] = self._make_guided_attention_mask(
+                    ilen, olen, self.sigma)
         return guided_attn_masks
 
     @staticmethod
@@ -257,12 +259,12 @@ class GuidedAttentionLoss(nn.Layer):
                 [0.8858, 0.5422, 0.0831]])
 
         """
-        grid_x, grid_y = paddle.meshgrid(
-            paddle.arange(olen), paddle.arange(ilen))
+        grid_x, grid_y = paddle.meshgrid(paddle.arange(olen),
+                                         paddle.arange(ilen))
         grid_x = grid_x.cast(dtype=paddle.float32)
         grid_y = grid_y.cast(dtype=paddle.float32)
-        return 1.0 - paddle.exp(-(
-            (grid_y / ilen - grid_x / olen)**2) / (2 * (sigma**2)))
+        return 1.0 - paddle.exp(-((grid_y / ilen - grid_x / olen)**2) /
+                                (2 * (sigma**2)))
 
     @staticmethod
     def _make_masks(ilens, olens):
@@ -305,8 +307,8 @@ class GuidedAttentionLoss(nn.Layer):
         out_masks = make_non_pad_mask(olens)
         # (B, T_out, T_in)
 
-        return paddle.logical_and(
-            out_masks.unsqueeze(-1), in_masks.unsqueeze(-2))
+        return paddle.logical_and(out_masks.unsqueeze(-1),
+                                  in_masks.unsqueeze(-2))
 
 
 class GuidedMultiHeadAttentionLoss(GuidedAttentionLoss):
@@ -319,7 +321,6 @@ class GuidedMultiHeadAttentionLoss(GuidedAttentionLoss):
         reset_always (bool, optional): Whether to always reset masks.
 
     """
-
     def forward(self, att_ws, ilens, olens):
         """Calculate forward propagation.
 
@@ -336,8 +337,8 @@ class GuidedMultiHeadAttentionLoss(GuidedAttentionLoss):
 
         """
         if self.guided_attn_masks is None:
-            self.guided_attn_masks = (
-                self._make_guided_attention_masks(ilens, olens).unsqueeze(1))
+            self.guided_attn_masks = (self._make_guided_attention_masks(
+                ilens, olens).unsqueeze(1))
         if self.masks is None:
             self.masks = self._make_masks(ilens, olens).unsqueeze(1)
         losses = self.guided_attn_masks * att_ws
@@ -351,7 +352,6 @@ class GuidedMultiHeadAttentionLoss(GuidedAttentionLoss):
 
 class Tacotron2Loss(nn.Layer):
     """Loss function module for Tacotron2."""
-
     def __init__(self,
                  use_masking=True,
                  use_weighted_masking=False,
@@ -410,10 +410,10 @@ class Tacotron2Loss(nn.Layer):
                 masks.broadcast_to(after_outs.shape))
             before_outs = before_outs.masked_select(
                 masks.broadcast_to(before_outs.shape))
-            stop_labels = stop_labels.masked_select(
-                masks[:, :, 0].broadcast_to(stop_labels.shape))
-            logits = logits.masked_select(
-                masks[:, :, 0].broadcast_to(logits.shape))
+            stop_labels = stop_labels.masked_select(masks[:, :, 0].broadcast_to(
+                stop_labels.shape))
+            logits = logits.masked_select(masks[:, :,
+                                                0].broadcast_to(logits.shape))
 
         # calculate loss
         l1_loss = self.l1_criterion(after_outs, ys) + self.l1_criterion(
@@ -478,25 +478,23 @@ def stft(x,
     # calculate window
     window = signal.get_window(window, win_length, fftbins=True)
     window = paddle.to_tensor(window, dtype=x.dtype)
-    x_stft = paddle.signal.stft(
-        x,
-        fft_size,
-        hop_length,
-        win_length,
-        window=window,
-        center=center,
-        pad_mode=pad_mode)
+    x_stft = paddle.signal.stft(x,
+                                fft_size,
+                                hop_length,
+                                win_length,
+                                window=window,
+                                center=center,
+                                pad_mode=pad_mode)
 
     real = x_stft.real()
     imag = x_stft.imag()
 
-    return paddle.sqrt(paddle.clip(real**2 + imag**2, min=1e-7)).transpose(
-        [0, 2, 1])
+    return paddle.sqrt(paddle.clip(real**2 + imag**2,
+                                   min=1e-7)).transpose([0, 2, 1])
 
 
 class SpectralConvergenceLoss(nn.Layer):
     """Spectral convergence loss module."""
-
     def __init__(self):
         """Initilize spectral convergence loss module."""
         super().__init__()
@@ -511,14 +509,12 @@ class SpectralConvergenceLoss(nn.Layer):
         Returns:
             Tensor: Spectral convergence loss value.
         """
-        return paddle.norm(
-            y_mag - x_mag, p="fro") / paddle.clip(
-                paddle.norm(y_mag, p="fro"), min=1e-10)
+        return paddle.norm(y_mag - x_mag, p="fro") / paddle.clip(
+            paddle.norm(y_mag, p="fro"), min=1e-10)
 
 
 class LogSTFTMagnitudeLoss(nn.Layer):
     """Log STFT magnitude loss module."""
-
     def __init__(self, epsilon=1e-7):
         """Initilize los STFT magnitude loss module."""
         super().__init__()
@@ -534,14 +530,12 @@ class LogSTFTMagnitudeLoss(nn.Layer):
         Returns:
             Tensor: Log STFT magnitude loss value.
         """
-        return F.l1_loss(
-            paddle.log(paddle.clip(y_mag, min=self.epsilon)),
-            paddle.log(paddle.clip(x_mag, min=self.epsilon)))
+        return F.l1_loss(paddle.log(paddle.clip(y_mag, min=self.epsilon)),
+                         paddle.log(paddle.clip(x_mag, min=self.epsilon)))
 
 
 class STFTLoss(nn.Layer):
     """STFT loss module."""
-
     def __init__(self,
                  fft_size=1024,
                  shift_size=120,
@@ -581,13 +575,13 @@ class STFTLoss(nn.Layer):
 
 class MultiResolutionSTFTLoss(nn.Layer):
     """Multi resolution STFT loss module."""
-
     def __init__(
-            self,
-            fft_sizes=[1024, 2048, 512],
-            hop_sizes=[120, 240, 50],
-            win_lengths=[600, 1200, 240],
-            window="hann", ):
+        self,
+        fft_sizes=[1024, 2048, 512],
+        hop_sizes=[120, 240, 50],
+        win_lengths=[600, 1200, 240],
+        window="hann",
+    ):
         """Initialize Multi resolution STFT loss module.
         Args:
             fft_sizes (list): 
@@ -638,11 +632,11 @@ class MultiResolutionSTFTLoss(nn.Layer):
 
 class GeneratorAdversarialLoss(nn.Layer):
     """Generator adversarial loss module."""
-
     def __init__(
-            self,
-            average_by_discriminators=True,
-            loss_type="mse", ):
+        self,
+        average_by_discriminators=True,
+        loss_type="mse",
+    ):
         """Initialize GeneratorAversarialLoss module."""
         super().__init__()
         self.average_by_discriminators = average_by_discriminators
@@ -684,11 +678,11 @@ class GeneratorAdversarialLoss(nn.Layer):
 
 class DiscriminatorAdversarialLoss(nn.Layer):
     """Discriminator adversarial loss module."""
-
     def __init__(
-            self,
-            average_by_discriminators=True,
-            loss_type="mse", ):
+        self,
+        average_by_discriminators=True,
+        loss_type="mse",
+    ):
         """Initialize DiscriminatorAversarialLoss module."""
         super().__init__()
         self.average_by_discriminators = average_by_discriminators
@@ -750,8 +744,9 @@ def gaussian(window_size, sigma):
 
 def create_window(window_size, channel):
     _1D_window = gaussian(window_size, 1.5).unsqueeze(1)
-    _2D_window = paddle.matmul(_1D_window, paddle.transpose(
-        _1D_window, [1, 0])).unsqueeze([0, 1])
+    _2D_window = paddle.matmul(_1D_window,
+                               paddle.transpose(_1D_window,
+                                                [1, 0])).unsqueeze([0, 1])
     window = paddle.expand(_2D_window, [channel, 1, window_size, window_size])
     return window
 
@@ -829,22 +824,22 @@ def masked_l1_loss(prediction, target, mask):
 
 class MelSpectrogram(nn.Layer):
     """Calculate Mel-spectrogram."""
-
     def __init__(
-            self,
-            fs=22050,
-            fft_size=1024,
-            hop_size=256,
-            win_length=None,
-            window="hann",
-            num_mels=80,
-            fmin=80,
-            fmax=7600,
-            center=True,
-            normalized=False,
-            onesided=True,
-            eps=1e-10,
-            log_base=10.0, ):
+        self,
+        fs=22050,
+        fft_size=1024,
+        hop_size=256,
+        win_length=None,
+        window="hann",
+        num_mels=80,
+        fmin=80,
+        fmax=7600,
+        center=True,
+        normalized=False,
+        onesided=True,
+        eps=1e-10,
+        log_base=10.0,
+    ):
         """Initialize MelSpectrogram module."""
         super().__init__()
         self.fft_size = fft_size
@@ -869,7 +864,8 @@ class MelSpectrogram(nn.Layer):
             n_fft=fft_size,
             n_mels=num_mels,
             fmin=fmin,
-            fmax=fmax, )
+            fmax=fmax,
+        )
 
         self.melmat = paddle.to_tensor(melmat.T)
         self.stft_params = {
@@ -905,8 +901,9 @@ class MelSpectrogram(nn.Layer):
 
         if self.window is not None:
             # calculate window
-            window = signal.get_window(
-                self.window, self.win_length, fftbins=True)
+            window = signal.get_window(self.window,
+                                       self.win_length,
+                                       fftbins=True)
             window = paddle.to_tensor(window, dtype=x.dtype)
         else:
             window = None
@@ -927,22 +924,22 @@ class MelSpectrogram(nn.Layer):
 
 class MelSpectrogramLoss(nn.Layer):
     """Mel-spectrogram loss."""
-
     def __init__(
-            self,
-            fs=22050,
-            fft_size=1024,
-            hop_size=256,
-            win_length=None,
-            window="hann",
-            num_mels=80,
-            fmin=80,
-            fmax=7600,
-            center=True,
-            normalized=False,
-            onesided=True,
-            eps=1e-10,
-            log_base=10.0, ):
+        self,
+        fs=22050,
+        fft_size=1024,
+        hop_size=256,
+        win_length=None,
+        window="hann",
+        num_mels=80,
+        fmin=80,
+        fmax=7600,
+        center=True,
+        normalized=False,
+        onesided=True,
+        eps=1e-10,
+        log_base=10.0,
+    ):
         """Initialize Mel-spectrogram loss."""
         super().__init__()
         self.mel_spectrogram = MelSpectrogram(
@@ -958,7 +955,8 @@ class MelSpectrogramLoss(nn.Layer):
             normalized=normalized,
             onesided=onesided,
             eps=eps,
-            log_base=log_base, )
+            log_base=log_base,
+        )
 
     def forward(self, y_hat, y):
         """Calculate Mel-spectrogram loss.
@@ -980,12 +978,12 @@ class MelSpectrogramLoss(nn.Layer):
 
 class FeatureMatchLoss(nn.Layer):
     """Feature matching loss module."""
-
     def __init__(
-            self,
-            average_by_layers=True,
-            average_by_discriminators=True,
-            include_final_outputs=False, ):
+        self,
+        average_by_layers=True,
+        average_by_discriminators=True,
+        include_final_outputs=False,
+    ):
         """Initialize FeatureMatchLoss module."""
         super().__init__()
         self.average_by_layers = average_by_layers
@@ -1026,14 +1024,14 @@ class FeatureMatchLoss(nn.Layer):
 # loss for VITS
 class KLDivergenceLoss(nn.Layer):
     """KL divergence loss."""
-
     def forward(
-            self,
-            z_p: paddle.Tensor,
-            logs_q: paddle.Tensor,
-            m_p: paddle.Tensor,
-            logs_p: paddle.Tensor,
-            z_mask: paddle.Tensor, ) -> paddle.Tensor:
+        self,
+        z_p: paddle.Tensor,
+        logs_q: paddle.Tensor,
+        m_p: paddle.Tensor,
+        logs_p: paddle.Tensor,
+        z_mask: paddle.Tensor,
+    ) -> paddle.Tensor:
         """Calculate KL divergence loss.
 
         Args:
@@ -1069,10 +1067,10 @@ class KLDivergenceLoss(nn.Layer):
 class MLMLoss(nn.Layer):
     def __init__(self,
                  odim: int,
-                 vocab_size: int=0,
-                 lsm_weight: float=0.1,
-                 ignore_id: int=-1,
-                 text_masking: bool=False):
+                 vocab_size: int = 0,
+                 lsm_weight: float = 0.1,
+                 ignore_id: int = -1,
+                 text_masking: bool = False):
         super().__init__()
         if text_masking:
             self.text_mlm_loss = nn.CrossEntropyLoss(ignore_index=ignore_id)
@@ -1091,25 +1089,24 @@ class MLMLoss(nn.Layer):
             after_outs: paddle.Tensor,
             masked_pos: paddle.Tensor,
             # for text_loss when text_masking == True
-            text: paddle.Tensor=None,
-            text_outs: paddle.Tensor=None,
-            text_masked_pos: paddle.Tensor=None):
+            text: paddle.Tensor = None,
+            text_outs: paddle.Tensor = None,
+            text_masked_pos: paddle.Tensor = None):
 
         xs_pad = speech
         mlm_loss_pos = masked_pos > 0
-        loss = paddle.sum(
-            self.l1_loss_func(
-                paddle.reshape(before_outs, (-1, self.odim)),
-                paddle.reshape(xs_pad, (-1, self.odim))),
-            axis=-1)
+        loss = paddle.sum(self.l1_loss_func(
+            paddle.reshape(before_outs, (-1, self.odim)),
+            paddle.reshape(xs_pad, (-1, self.odim))),
+                          axis=-1)
         if after_outs is not None:
-            loss += paddle.sum(
-                self.l1_loss_func(
-                    paddle.reshape(after_outs, (-1, self.odim)),
-                    paddle.reshape(xs_pad, (-1, self.odim))),
-                axis=-1)
-        mlm_loss = paddle.sum((loss * paddle.reshape(
-            mlm_loss_pos, [-1]))) / paddle.sum((mlm_loss_pos) + 1e-10)
+            loss += paddle.sum(self.l1_loss_func(
+                paddle.reshape(after_outs, (-1, self.odim)),
+                paddle.reshape(xs_pad, (-1, self.odim))),
+                               axis=-1)
+        mlm_loss = paddle.sum(
+            (loss * paddle.reshape(mlm_loss_pos, [-1]))) / paddle.sum(
+                (mlm_loss_pos) + 1e-10)
 
         text_mlm_loss = None
 

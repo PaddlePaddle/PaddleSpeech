@@ -35,6 +35,7 @@ import time
 
 import numpy as np
 import soundfile
+
 logger = logging.getLogger(__name__)
 import paddle
 
@@ -174,8 +175,10 @@ def read_audio(waveforms_obj):
     # Default stop to start -> if not specified, num_frames becomes 0
     stop = waveforms_obj.get("stop", start)
     num_frames = stop - start
-    audio, fs = soundfile.read(
-        path, start=start, stop=start + num_frames, dtype="float32")
+    audio, fs = soundfile.read(path,
+                               start=start,
+                               stop=start + num_frames,
+                               dtype="float32")
     return audio
 
 
@@ -236,8 +239,10 @@ def read_audio_multichannel(waveforms_obj):
     stop = waveforms_obj.get("stop", start - 1)
     num_frames = stop - start
     for f in files:
-        audio, fs = soundfile.read(
-            path, start=start, stop=start + num_frames, dtype="float32")
+        audio, fs = soundfile.read(path,
+                                   start=start,
+                                   stop=start + num_frames,
+                                   dtype="float32")
         audio = paddle.to_tensor(audio)
         waveforms.append(audio)
 
@@ -388,7 +393,6 @@ class IterativeCSVWriter:
         List of the optional keys to write. Each key will be expanded, 
         producing three fields: key, key_format, key_opts.
     """
-
     def __init__(self, outstream, data_fields, defaults={}):
         self._outstream = outstream
         self.fields = ["ID", "duration"] + self._expand_data_fields(data_fields)
@@ -560,9 +564,8 @@ def length_to_mask(length, max_len=None, dtype=None, device=None):
 
     if max_len is None:
         max_len = length.max().long().item()  # using arange to generate mask
-    mask = paddle.arange(
-        max_len, dtype=length.dtype).expand(
-            [len(length), max_len]) < length.unsqueeze(1)
+    mask = paddle.arange(max_len, dtype=length.dtype).expand(
+        [len(length), max_len]) < length.unsqueeze(1)
 
     if dtype is None:
         dtype = length.dtype
@@ -605,9 +608,10 @@ def read_kaldi_lab(kaldi_ali, kaldi_lab_opts):
     # Reading the Kaldi labels
     lab = {
         k: v
-        for k, v in kaldi_io.read_vec_int_ark(
-            "gunzip -c " + kaldi_ali + "/ali*.gz | " + kaldi_lab_opts + " " +
-            kaldi_ali + "/final.mdl ark:- ark:-|")
+        for k, v in kaldi_io.read_vec_int_ark("gunzip -c " + kaldi_ali +
+                                              "/ali*.gz | " + kaldi_lab_opts +
+                                              " " + kaldi_ali +
+                                              "/final.mdl ark:- ark:-|")
     }
     return lab
 
@@ -760,8 +764,8 @@ def append_eos_token(label, length, eos_index):
     pad = paddle.zeros([batch_size, 1], dtype=new_label.dtype)
 
     new_label = paddle.concat([new_label, pad], dim=1)
-    new_label[paddle.arange(batch_size), paddle.to_tensor(
-        length, dtype="int64")] = eos_index
+    new_label[paddle.arange(batch_size),
+              paddle.to_tensor(length, dtype="int64")] = eos_index
     return new_label
 
 

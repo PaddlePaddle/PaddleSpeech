@@ -25,12 +25,15 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='text(line:utt1 中国 人) to lexicon（line:中国 中 国).')
-    parser.add_argument(
-        '--has_key', default=True, help='text path, with utt or not')
-    parser.add_argument(
-        '--text', required=True, help='text path. line: utt1 中国 人 or 中国 人')
-    parser.add_argument(
-        '--lexicon', required=True, help='lexicon path. line:中国 中 国')
+    parser.add_argument('--has_key',
+                        default=True,
+                        help='text path, with utt or not')
+    parser.add_argument('--text',
+                        required=True,
+                        help='text path. line: utt1 中国 人 or 中国 人')
+    parser.add_argument('--lexicon',
+                        required=True,
+                        help='lexicon path. line:中国 中 国')
     args = parser.parse_args()
     print(args)
 

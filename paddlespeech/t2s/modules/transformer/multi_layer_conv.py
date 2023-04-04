@@ -27,7 +27,6 @@ class MultiLayeredConv1d(nn.Layer):
         https://arxiv.org/pdf/1905.09263.pdf
 
     """
-
     def __init__(self, in_chans, hidden_chans, kernel_size, dropout_rate):
         """Initialize MultiLayeredConv1d module.
 
@@ -48,13 +47,15 @@ class MultiLayeredConv1d(nn.Layer):
             hidden_chans,
             kernel_size,
             stride=1,
-            padding=(kernel_size - 1) // 2, )
+            padding=(kernel_size - 1) // 2,
+        )
         self.w_2 = nn.Conv1D(
             hidden_chans,
             in_chans,
             kernel_size,
             stride=1,
-            padding=(kernel_size - 1) // 2, )
+            padding=(kernel_size - 1) // 2,
+        )
         self.dropout = nn.Dropout(dropout_rate)
         self.relu = nn.ReLU()
 
@@ -69,7 +70,8 @@ class MultiLayeredConv1d(nn.Layer):
             Tensor: Batch of output tensors (B, T, in_chans).
         """
         x = self.relu(self.w_1(x.transpose([0, 2, 1]))).transpose([0, 2, 1])
-        out = self.w_2(self.dropout(x).transpose([0, 2, 1])).transpose([0, 2, 1])
+        out = self.w_2(self.dropout(x).transpose([0, 2,
+                                                  1])).transpose([0, 2, 1])
         return out
 
 
@@ -79,7 +81,6 @@ class Conv1dLinear(nn.Layer):
     A variant of MultiLayeredConv1d, which replaces second conv-layer to linear.
 
     """
-
     def __init__(self, in_chans, hidden_chans, kernel_size, dropout_rate):
         """Initialize Conv1dLinear module.
 
@@ -99,7 +100,8 @@ class Conv1dLinear(nn.Layer):
             hidden_chans,
             kernel_size,
             stride=1,
-            padding=(kernel_size - 1) // 2, )
+            padding=(kernel_size - 1) // 2,
+        )
         self.w_2 = nn.Linear(hidden_chans, in_chans, bias_attr=True)
         self.dropout = nn.Dropout(dropout_rate)
         self.relu = nn.ReLU()

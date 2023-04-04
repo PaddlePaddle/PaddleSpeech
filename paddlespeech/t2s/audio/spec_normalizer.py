@@ -40,7 +40,6 @@ class LogMagnitude(NormalizerBase):
     """
     This is a simple normalizer used in Waveglow, Waveflow, tacotron2...
     """
-
     def __init__(self, min=1e-5):
         self.min = min
 
@@ -58,7 +57,6 @@ class UnitMagnitude(NormalizerBase):
     """
     This is the normalizer used in the 
     """
-
     def __init__(self, min=1e-5):
         self.min = min
 

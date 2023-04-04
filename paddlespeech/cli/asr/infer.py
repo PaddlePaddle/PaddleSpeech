@@ -45,10 +45,12 @@ __all__ = ['ASRExecutor']
 class ASRExecutor(BaseExecutor):
     def __init__(self):
         super().__init__(task='asr', inference_type='offline')
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.asr', add_help=True)
-        self.parser.add_argument(
-            '--input', type=str, default=None, help='Audio file to recognize.')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.asr',
+                                              add_help=True)
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to recognize.')
         self.parser.add_argument(
             '--model',
             type=str,
@@ -62,7 +64,8 @@ class ASRExecutor(BaseExecutor):
             '--lang',
             type=str,
             default='zh',
-            help='Choose model language. [zh, en, zh_en], zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k], zh_en:[conformer_talcs-codeswitch_zh_en-16k]'
+            help=
+            'Choose model language. [zh, en, zh_en], zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k], zh_en:[conformer_talcs-codeswitch_zh_en-16k]'
         )
         self.parser.add_argument(
             '--codeswitch',
@@ -95,34 +98,30 @@ class ASRExecutor(BaseExecutor):
             type=str,
             default=-1,
             help='only support transformer and conformer online model')
-        self.parser.add_argument(
-            '--ckpt_path',
-            type=str,
-            default=None,
-            help='Checkpoint file of model.')
-        self.parser.add_argument(
-            '--yes',
-            '-y',
-            action="store_true",
-            default=False,
-            help='No additional parameters required. \
+        self.parser.add_argument('--ckpt_path',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of model.')
+        self.parser.add_argument('--yes',
+                                 '-y',
+                                 action="store_true",
+                                 default=False,
+                                 help='No additional parameters required. \
             Once set this parameter, it means accepting the request of the program by default, \
             which includes transforming the audio sample rate')
-        self.parser.add_argument(
-            '--rtf',
-            action="store_true",
-            default=False,
-            help='Show Real-time Factor(RTF).')
+        self.parser.add_argument('--rtf',
+                                 action="store_true",
+                                 default=False,
+                                 help='Show Real-time Factor(RTF).')
         self.parser.add_argument(
             '--device',
             type=str,
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -130,14 +129,14 @@ class ASRExecutor(BaseExecutor):
             help='Increase logger verbosity of current task.')
 
     def _init_from_path(self,
-                        model_type: str='wenetspeech',
-                        lang: str='zh',
-                        codeswitch: bool=False,
-                        sample_rate: int=16000,
-                        cfg_path: Optional[os.PathLike]=None,
-                        decode_method: str='attention_rescoring',
-                        num_decoding_left_chunks: int=-1,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        model_type: str = 'wenetspeech',
+                        lang: str = 'zh',
+                        codeswitch: bool = False,
+                        sample_rate: int = 16000,
+                        cfg_path: Optional[os.PathLike] = None,
+                        decode_method: str = 'attention_rescoring',
+                        num_decoding_left_chunks: int = -1,
+                        ckpt_path: Optional[os.PathLike] = None):
         """
         Init model and other resources from a specific path.
         """
@@ -194,8 +193,8 @@ class ASRExecutor(BaseExecutor):
                 lm_url = self.task_resource.res_dict['lm_url']
                 lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
-                    lm_url,
-                    os.path.dirname(self.config.decode.lang_model_path), lm_md5)
+                    lm_url, os.path.dirname(self.config.decode.lang_model_path),
+                    lm_md5)
 
             elif "conformer" in model_type or "transformer" in model_type:
                 self.config.decode.decoding_method = decode_method
@@ -251,8 +250,9 @@ class ASRExecutor(BaseExecutor):
             preprocess_args = {"train": False}
             preprocessing = Transformation(preprocess_conf)
             logger.debug("read the audio file")
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
+            audio, audio_sample_rate = soundfile.read(audio_file,
+                                                      dtype="int16",
+                                                      always_2d=True)
             if self.change_format:
                 if audio.shape[1] >= 2:
                     audio = audio.mean(axis=1, dtype=np.int16)
@@ -260,10 +260,9 @@ class ASRExecutor(BaseExecutor):
                     audio = audio[:, 0]
                 # pcm16 -> pcm 32
                 audio = self._pcm16to32(audio)
-                audio = librosa.resample(
-                    audio,
-                    orig_sr=audio_sample_rate,
-                    target_sr=self.sample_rate)
+                audio = librosa.resample(audio,
+                                         orig_sr=audio_sample_rate,
+                                         target_sr=self.sample_rate)
                 audio_sample_rate = self.sample_rate
                 # pcm32 -> pcm 16
                 audio = self._pcm32to16(audio)
@@ -339,7 +338,8 @@ class ASRExecutor(BaseExecutor):
             url=url,
             root_dir=lm_dir,
             md5sum=md5sum,
-            decompress=False, )
+            decompress=False,
+        )
 
     def _pcm16to32(self, audio):
         assert (audio.dtype == np.int16)
@@ -355,7 +355,10 @@ class ASRExecutor(BaseExecutor):
         audio = np.round(audio).astype("int16")
         return audio
 
-    def _check(self, audio_file: str, sample_rate: int, force_yes: bool=False):
+    def _check(self,
+               audio_file: str,
+               sample_rate: int,
+               force_yes: bool = False):
         self.sample_rate = sample_rate
         if self.sample_rate != 16000 and self.sample_rate != 8000:
             logger.error(
@@ -371,8 +374,9 @@ class ASRExecutor(BaseExecutor):
 
         logger.debug("checking the audio file format......")
         try:
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
+            audio, audio_sample_rate = soundfile.read(audio_file,
+                                                      dtype="int16",
+                                                      always_2d=True)
             audio_duration = audio.shape[0] / audio_sample_rate
             if audio_duration > self.max_len:
                 logger.error(
@@ -452,18 +456,17 @@ class ASRExecutor(BaseExecutor):
 
         for id_, input_ in task_source.items():
             try:
-                res = self(
-                    audio_file=input_,
-                    model=model,
-                    lang=lang,
-                    codeswitch=codeswitch,
-                    sample_rate=sample_rate,
-                    config=config,
-                    ckpt_path=ckpt_path,
-                    decode_method=decode_method,
-                    force_yes=force_yes,
-                    rtf=rtf,
-                    device=device)
+                res = self(audio_file=input_,
+                           model=model,
+                           lang=lang,
+                           codeswitch=codeswitch,
+                           sample_rate=sample_rate,
+                           config=config,
+                           ckpt_path=ckpt_path,
+                           decode_method=decode_method,
+                           force_yes=force_yes,
+                           rtf=rtf,
+                           device=device)
                 task_results[id_] = res
             except Exception as e:
                 has_exceptions = True
@@ -483,16 +486,16 @@ class ASRExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='conformer_u2pp_online_wenetspeech',
-                 lang: str='zh',
-                 codeswitch: bool=False,
-                 sample_rate: int=16000,
-                 config: os.PathLike=None,
-                 ckpt_path: os.PathLike=None,
-                 decode_method: str='attention_rescoring',
-                 num_decoding_left_chunks: int=-1,
-                 force_yes: bool=False,
-                 rtf: bool=False,
+                 model: str = 'conformer_u2pp_online_wenetspeech',
+                 lang: str = 'zh',
+                 codeswitch: bool = False,
+                 sample_rate: int = 16000,
+                 config: os.PathLike = None,
+                 ckpt_path: os.PathLike = None,
+                 decode_method: str = 'attention_rescoring',
+                 num_decoding_left_chunks: int = -1,
+                 force_yes: bool = False,
+                 rtf: bool = False,
                  device=paddle.get_device()):
         """
         Python API to call an executor.
@@ -513,8 +516,9 @@ class ASRExecutor(BaseExecutor):
 
         if rtf:
             CLI_TIMER[k]['end'].append(time.time())
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
+            audio, audio_sample_rate = soundfile.read(audio_file,
+                                                      dtype="int16",
+                                                      always_2d=True)
             CLI_TIMER[k]['extra'].append(audio.shape[0] / audio_sample_rate)
 
         return res

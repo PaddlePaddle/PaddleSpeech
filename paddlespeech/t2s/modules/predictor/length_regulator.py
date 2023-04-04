@@ -31,7 +31,6 @@ class LengthRegulator(nn.Layer):
         https://arxiv.org/pdf/1905.09263.pdf
 
     """
-
     def __init__(self, pad_value=0.0):
         """Initilize length regulator module.
 

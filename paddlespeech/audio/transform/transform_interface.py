@@ -16,7 +16,6 @@
 
 class TransformInterface:
     """Transform Interface"""
-
     def __call__(self, x):
         raise NotImplementedError("__call__ method is not implemented")
 
@@ -30,6 +29,5 @@ class TransformInterface:
 
 class Identity(TransformInterface):
     """Identity Function"""
-
     def __call__(self, x):
         return x

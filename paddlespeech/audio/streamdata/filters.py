@@ -40,7 +40,6 @@ class FilterFunction(object):
 
     We use this roundabout construct becauce it can be pickled.
     """
-
     def __init__(self, f, *args, **kw):
         """Create a curried function."""
         self.f = f
@@ -65,7 +64,6 @@ class RestCurried(object):
 
     We use this roundabout construct because it can be pickled.
     """
-
     def __init__(self, f):
         """Store the function for future currying."""
         self.f = f
@@ -497,15 +495,16 @@ def _extract_keys(source,
             pattern = pattern.split(";") if isinstance(pattern,
                                                        str) else pattern
             matches = [
-                x for x in sample.keys()
-                if any(fnmatch("." + x, p) for p in pattern)
+                x for x in sample.keys() if any(
+                    fnmatch("." + x, p) for p in pattern)
             ]
             if len(matches) == 0:
                 if ignore_missing:
                     continue
                 else:
                     raise ValueError(
-                        f"Cannot find {pattern} in sample keys {sample.keys()}.")
+                        f"Cannot find {pattern} in sample keys {sample.keys()}."
+                    )
             if len(matches) > 1 and duplicate_is_error:
                 raise ValueError(
                     f"Multiple sample keys {sample.keys()} match {pattern}.")
@@ -590,11 +589,12 @@ def find_decoder(decoders, path):
 
 
 def _xdecode(
-        source,
-        *args,
-        must_decode=True,
-        defaults=default_decoders,
-        **kw, ):
+    source,
+    *args,
+    must_decode=True,
+    defaults=default_decoders,
+    **kw,
+):
     decoders = list(defaults) + list(args)
     decoders += [("*." + k, v) for k, v in kw.items()]
     for sample in source:
@@ -761,10 +761,9 @@ def _audio_resample(source, resample_rate=16000):
         if sample_rate != resample_rate:
             sample['sample_rate'] = resample_rate
             sample['wav'] = paddle.to_tensor(
-                backends.soundfile_backend.resample(
-                    waveform.numpy(),
-                    src_sr=sample_rate,
-                    target_sr=resample_rate))
+                backends.soundfile_backend.resample(waveform.numpy(),
+                                                    src_sr=sample_rate,
+                                                    target_sr=resample_rate))
         yield sample
 
 
@@ -797,14 +796,13 @@ def _audio_compute_fbank(source,
         waveform = sample['wav']
         waveform = waveform * (1 << 15)
         # Only keep fname, feat, label
-        mat = kaldi.fbank(
-            waveform,
-            n_mels=num_mel_bins,
-            frame_length=frame_length,
-            frame_shift=frame_shift,
-            dither=dither,
-            energy_floor=0.0,
-            sr=sample_rate)
+        mat = kaldi.fbank(waveform,
+                          n_mels=num_mel_bins,
+                          frame_length=frame_length,
+                          frame_shift=frame_shift,
+                          dither=dither,
+                          energy_floor=0.0,
+                          sr=sample_rate)
         yield dict(fname=sample['fname'], label=sample['label'], feat=mat)
 
 
@@ -812,18 +810,19 @@ audio_compute_fbank = pipelinefilter(_audio_compute_fbank)
 
 
 def _audio_spec_aug(
-        source,
-        max_w=5,
-        w_inplace=True,
-        w_mode="PIL",
-        max_f=30,
-        num_f_mask=2,
-        f_inplace=True,
-        f_replace_with_zero=False,
-        max_t=40,
-        num_t_mask=2,
-        t_inplace=True,
-        t_replace_with_zero=False, ):
+    source,
+    max_w=5,
+    w_inplace=True,
+    w_mode="PIL",
+    max_f=30,
+    num_f_mask=2,
+    f_inplace=True,
+    f_replace_with_zero=False,
+    max_t=40,
+    num_t_mask=2,
+    t_inplace=True,
+    t_replace_with_zero=False,
+):
     """ Do spec augmentation
         Inplace operation
 
@@ -848,18 +847,16 @@ def _audio_spec_aug(
         x = sample['feat']
         x = x.numpy()
         x = time_warp(x, max_time_warp=max_w, inplace=w_inplace, mode=w_mode)
-        x = freq_mask(
-            x,
-            F=max_f,
-            n_mask=num_f_mask,
-            inplace=f_inplace,
-            replace_with_zero=f_replace_with_zero)
-        x = time_mask(
-            x,
-            T=max_t,
-            n_mask=num_t_mask,
-            inplace=t_inplace,
-            replace_with_zero=t_replace_with_zero)
+        x = freq_mask(x,
+                      F=max_f,
+                      n_mask=num_f_mask,
+                      inplace=f_inplace,
+                      replace_with_zero=f_replace_with_zero)
+        x = time_mask(x,
+                      T=max_t,
+                      n_mask=num_t_mask,
+                      inplace=t_inplace,
+                      replace_with_zero=t_replace_with_zero)
         sample['feat'] = paddle.to_tensor(x, dtype=paddle.float32)
         yield sample
 
@@ -961,8 +958,8 @@ def _audio_padding(source):
     """
     for sample in source:
         assert isinstance(sample, list)
-        feats_length = paddle.to_tensor(
-            [x['feat'].shape[0] for x in sample], dtype="int64")
+        feats_length = paddle.to_tensor([x['feat'].shape[0] for x in sample],
+                                        dtype="int64")
         order = paddle.argsort(feats_length, descending=True)
         feats_lengths = paddle.to_tensor(
             [sample[i]['feat'].shape[0] for i in order], dtype="int64")
@@ -971,12 +968,14 @@ def _audio_padding(source):
         sorted_labels = [
             paddle.to_tensor(sample[i]['label'], dtype="int32") for i in order
         ]
-        label_lengths = paddle.to_tensor(
-            [x.shape[0] for x in sorted_labels], dtype="int64")
-        padded_feats = pad_sequence(
-            sorted_feats, batch_first=True, padding_value=0)
-        padding_labels = pad_sequence(
-            sorted_labels, batch_first=True, padding_value=-1)
+        label_lengths = paddle.to_tensor([x.shape[0] for x in sorted_labels],
+                                         dtype="int64")
+        padded_feats = pad_sequence(sorted_feats,
+                                    batch_first=True,
+                                    padding_value=0)
+        padding_labels = pad_sequence(sorted_labels,
+                                      batch_first=True,
+                                      padding_value=-1)
 
         yield (sorted_keys, padded_feats, feats_lengths, padding_labels,
                label_lengths)

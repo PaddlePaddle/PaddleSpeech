@@ -39,109 +39,109 @@ class DiffSinger(nn.Layer):
     Returns:
 
     """
-
     def __init__(
-            self,
-            # min and max spec for stretching before diffusion
-            spec_min: paddle.Tensor,
-            spec_max: paddle.Tensor,
-            # fastspeech2midi config
-            idim: int,
-            odim: int,
-            use_energy_pred: bool=False,
-            use_postnet: bool=False,
-            # music score related
-            note_num: int=300,
-            is_slur_num: int=2,
-            fastspeech2_params: Dict[str, Any]={
-                "adim": 256,
-                "aheads": 2,
-                "elayers": 4,
-                "eunits": 1024,
-                "dlayers": 4,
-                "dunits": 1024,
-                "positionwise_layer_type": "conv1d",
-                "positionwise_conv_kernel_size": 1,
-                "use_scaled_pos_enc": True,
-                "use_batch_norm": True,
-                "encoder_normalize_before": True,
-                "decoder_normalize_before": True,
-                "encoder_concat_after": False,
-                "decoder_concat_after": False,
-                "reduction_factor": 1,
-                # for transformer
-                "transformer_enc_dropout_rate": 0.1,
-                "transformer_enc_positional_dropout_rate": 0.1,
-                "transformer_enc_attn_dropout_rate": 0.1,
-                "transformer_dec_dropout_rate": 0.1,
-                "transformer_dec_positional_dropout_rate": 0.1,
-                "transformer_dec_attn_dropout_rate": 0.1,
-                "transformer_activation_type": "gelu",
-                # duration predictor
-                "duration_predictor_layers": 2,
-                "duration_predictor_chans": 384,
-                "duration_predictor_kernel_size": 3,
-                "duration_predictor_dropout_rate": 0.1,
-                # pitch predictor
-                "use_pitch_embed": True,
-                "pitch_predictor_layers": 2,
-                "pitch_predictor_chans": 384,
-                "pitch_predictor_kernel_size": 3,
-                "pitch_predictor_dropout": 0.5,
-                "pitch_embed_kernel_size": 9,
-                "pitch_embed_dropout": 0.5,
-                "stop_gradient_from_pitch_predictor": False,
-                # energy predictor
-                "use_energy_embed": False,
-                "energy_predictor_layers": 2,
-                "energy_predictor_chans": 384,
-                "energy_predictor_kernel_size": 3,
-                "energy_predictor_dropout": 0.5,
-                "energy_embed_kernel_size": 9,
-                "energy_embed_dropout": 0.5,
-                "stop_gradient_from_energy_predictor": False,
-                # postnet
-                "postnet_layers": 5,
-                "postnet_chans": 512,
-                "postnet_filts": 5,
-                "postnet_dropout_rate": 0.5,
-                # spk emb
-                "spk_num": None,
-                "spk_embed_dim": None,
-                "spk_embed_integration_type": "add",
-                # training related
-                "init_type": "xavier_uniform",
-                "init_enc_alpha": 1.0,
-                "init_dec_alpha": 1.0,
-                # speaker classifier
-                "enable_speaker_classifier": False,
-                "hidden_sc_dim": 256,
-            },
-            # denoiser config
-            denoiser_params: Dict[str, Any]={
-                "in_channels": 80,
-                "out_channels": 80,
-                "kernel_size": 3,
-                "layers": 20,
-                "stacks": 5,
-                "residual_channels": 256,
-                "gate_channels": 512,
-                "skip_channels": 256,
-                "aux_channels": 256,
-                "dropout": 0.,
-                "bias": True,
-                "use_weight_norm": False,
-                "init_type": "kaiming_normal",
-            },
-            # diffusion config
-            diffusion_params: Dict[str, Any]={
-                "num_train_timesteps": 100,
-                "beta_start": 0.0001,
-                "beta_end": 0.06,
-                "beta_schedule": "squaredcos_cap_v2",
-                "num_max_timesteps": 60,
-                "stretch": True,
-            }, ):
+        self,
+        # min and max spec for stretching before diffusion
+        spec_min: paddle.Tensor,
+        spec_max: paddle.Tensor,
+        # fastspeech2midi config
+        idim: int,
+        odim: int,
+        use_energy_pred: bool = False,
+        use_postnet: bool = False,
+        # music score related
+        note_num: int = 300,
+        is_slur_num: int = 2,
+        fastspeech2_params: Dict[str, Any] = {
+            "adim": 256,
+            "aheads": 2,
+            "elayers": 4,
+            "eunits": 1024,
+            "dlayers": 4,
+            "dunits": 1024,
+            "positionwise_layer_type": "conv1d",
+            "positionwise_conv_kernel_size": 1,
+            "use_scaled_pos_enc": True,
+            "use_batch_norm": True,
+            "encoder_normalize_before": True,
+            "decoder_normalize_before": True,
+            "encoder_concat_after": False,
+            "decoder_concat_after": False,
+            "reduction_factor": 1,
+            # for transformer
+            "transformer_enc_dropout_rate": 0.1,
+            "transformer_enc_positional_dropout_rate": 0.1,
+            "transformer_enc_attn_dropout_rate": 0.1,
+            "transformer_dec_dropout_rate": 0.1,
+            "transformer_dec_positional_dropout_rate": 0.1,
+            "transformer_dec_attn_dropout_rate": 0.1,
+            "transformer_activation_type": "gelu",
+            # duration predictor
+            "duration_predictor_layers": 2,
+            "duration_predictor_chans": 384,
+            "duration_predictor_kernel_size": 3,
+            "duration_predictor_dropout_rate": 0.1,
+            # pitch predictor
+            "use_pitch_embed": True,
+            "pitch_predictor_layers": 2,
+            "pitch_predictor_chans": 384,
+            "pitch_predictor_kernel_size": 3,
+            "pitch_predictor_dropout": 0.5,
+            "pitch_embed_kernel_size": 9,
+            "pitch_embed_dropout": 0.5,
+            "stop_gradient_from_pitch_predictor": False,
+            # energy predictor
+            "use_energy_embed": False,
+            "energy_predictor_layers": 2,
+            "energy_predictor_chans": 384,
+            "energy_predictor_kernel_size": 3,
+            "energy_predictor_dropout": 0.5,
+            "energy_embed_kernel_size": 9,
+            "energy_embed_dropout": 0.5,
+            "stop_gradient_from_energy_predictor": False,
+            # postnet
+            "postnet_layers": 5,
+            "postnet_chans": 512,
+            "postnet_filts": 5,
+            "postnet_dropout_rate": 0.5,
+            # spk emb
+            "spk_num": None,
+            "spk_embed_dim": None,
+            "spk_embed_integration_type": "add",
+            # training related
+            "init_type": "xavier_uniform",
+            "init_enc_alpha": 1.0,
+            "init_dec_alpha": 1.0,
+            # speaker classifier
+            "enable_speaker_classifier": False,
+            "hidden_sc_dim": 256,
+        },
+        # denoiser config
+        denoiser_params: Dict[str, Any] = {
+            "in_channels": 80,
+            "out_channels": 80,
+            "kernel_size": 3,
+            "layers": 20,
+            "stacks": 5,
+            "residual_channels": 256,
+            "gate_channels": 512,
+            "skip_channels": 256,
+            "aux_channels": 256,
+            "dropout": 0.,
+            "bias": True,
+            "use_weight_norm": False,
+            "init_type": "kaiming_normal",
+        },
+        # diffusion config
+        diffusion_params: Dict[str, Any] = {
+            "num_train_timesteps": 100,
+            "beta_start": 0.0001,
+            "beta_end": 0.06,
+            "beta_schedule": "squaredcos_cap_v2",
+            "num_max_timesteps": 60,
+            "stretch": True,
+        },
+    ):
         """Initialize DiffSinger module.
 
         Args:
@@ -166,29 +166,31 @@ class DiffSinger(nn.Layer):
             note_num=note_num,
             is_slur_num=is_slur_num,
             use_energy_pred=use_energy_pred,
-            use_postnet=use_postnet, )
+            use_postnet=use_postnet,
+        )
         denoiser = DiffNet(**denoiser_params)
         self.diffusion = GaussianDiffusion(
             denoiser,
             **diffusion_params,
             min_values=spec_min,
-            max_values=spec_max, )
+            max_values=spec_max,
+        )
 
     def forward(
-            self,
-            text: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            durations: paddle.Tensor,
-            pitch: paddle.Tensor,
-            energy: paddle.Tensor,
-            spk_emb: paddle.Tensor=None,
-            spk_id: paddle.Tensor=None,
-            only_train_fs2: bool=True,
+        self,
+        text: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        durations: paddle.Tensor,
+        pitch: paddle.Tensor,
+        energy: paddle.Tensor,
+        spk_emb: paddle.Tensor = None,
+        spk_id: paddle.Tensor = None,
+        only_train_fs2: bool = True,
     ) -> Tuple[paddle.Tensor, Dict[str, paddle.Tensor], paddle.Tensor]:
         """Calculate forward propagation.
 
@@ -254,17 +256,18 @@ class DiffSinger(nn.Layer):
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
 
         # get the output(final mel) from diffusion module
-        noise_pred, noise_target = self.diffusion(
-            speech.transpose((0, 2, 1)), cond_fs2)
+        noise_pred, noise_target = self.diffusion(speech.transpose((0, 2, 1)),
+                                                  cond_fs2)
         return noise_pred, noise_target, mel_masks
 
     def inference(
-            self,
-            text: paddle.Tensor,
-            note: paddle.Tensor,
-            note_dur: paddle.Tensor,
-            is_slur: paddle.Tensor,
-            get_mel_fs2: bool=False, ):
+        self,
+        text: paddle.Tensor,
+        note: paddle.Tensor,
+        note_dur: paddle.Tensor,
+        is_slur: paddle.Tensor,
+        get_mel_fs2: bool = False,
+    ):
         """Run inference
 
         Args:
@@ -289,12 +292,11 @@ class DiffSinger(nn.Layer):
         cond_fs2 = self.fs2.encoder_infer(text, note, note_dur, is_slur)
         cond_fs2 = cond_fs2.transpose((0, 2, 1))
         noise = paddle.randn(mel_fs2.shape)
-        mel = self.diffusion.inference(
-            noise=noise,
-            cond=cond_fs2,
-            ref_x=mel_fs2,
-            scheduler_type="ddpm",
-            num_inference_steps=60)
+        mel = self.diffusion.inference(noise=noise,
+                                       cond=cond_fs2,
+                                       ref_x=mel_fs2,
+                                       scheduler_type="ddpm",
+                                       num_inference_steps=60)
         mel = mel.transpose((0, 2, 1))
         return mel[0]
 
@@ -305,7 +307,7 @@ class DiffSingerInference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = model
 
-    def forward(self, text, note, note_dur, is_slur, get_mel_fs2: bool=False):
+    def forward(self, text, note, note_dur, is_slur, get_mel_fs2: bool = False):
         """Calculate forward propagation.
 
         Args:
@@ -323,21 +325,20 @@ class DiffSingerInference(nn.Layer):
         Returns:
             logmel(Tensor(float32)): denorm logmel, [T, mel_bin]
         """
-        normalized_mel = self.acoustic_model.inference(
-            text=text,
-            note=note,
-            note_dur=note_dur,
-            is_slur=is_slur,
-            get_mel_fs2=get_mel_fs2)
+        normalized_mel = self.acoustic_model.inference(text=text,
+                                                       note=note,
+                                                       note_dur=note_dur,
+                                                       is_slur=is_slur,
+                                                       get_mel_fs2=get_mel_fs2)
         logmel = normalized_mel
         return logmel
 
 
 class DiffusionLoss(nn.Layer):
     """Loss function module for Diffusion module on DiffSinger."""
-
-    def __init__(self, use_masking: bool=True,
-                 use_weighted_masking: bool=False):
+    def __init__(self,
+                 use_masking: bool = True,
+                 use_weighted_masking: bool = False):
         """Initialize feed-forward Transformer loss module.
         Args:
             use_masking (bool): 
@@ -357,10 +358,11 @@ class DiffusionLoss(nn.Layer):
         self.l1_criterion = nn.L1Loss(reduction=reduction)
 
     def forward(
-            self,
-            noise_pred: paddle.Tensor,
-            noise_target: paddle.Tensor,
-            mel_masks: paddle.Tensor, ) -> paddle.Tensor:
+        self,
+        noise_pred: paddle.Tensor,
+        noise_target: paddle.Tensor,
+        mel_masks: paddle.Tensor,
+    ) -> paddle.Tensor:
         """Calculate forward propagation.
 
         Args:
@@ -387,8 +389,7 @@ class DiffusionLoss(nn.Layer):
         if self.use_weighted_masking:
             mel_masks = mel_masks.unsqueeze(-1)
             out_weights = mel_masks.cast(dtype=paddle.float32) / mel_masks.cast(
-                dtype=paddle.float32).sum(
-                    axis=1, keepdim=True)
+                dtype=paddle.float32).sum(axis=1, keepdim=True)
             out_weights /= noise_target.shape[0] * noise_target.shape[2]
 
             # apply weight

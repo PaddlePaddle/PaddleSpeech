@@ -53,16 +53,14 @@ def get_avg_cer(raw_dict, ref_dict, text_normalizer, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="text normalization example.")
-    parser.add_argument(
-        "--input-dir",
-        default="data/textnorm",
-        type=str,
-        help="directory to preprocessed test data.")
-    parser.add_argument(
-        "--output-dir",
-        default="exp/textnorm",
-        type=str,
-        help="directory to save textnorm results.")
+    parser.add_argument("--input-dir",
+                        default="data/textnorm",
+                        type=str,
+                        help="directory to preprocessed test data.")
+    parser.add_argument("--output-dir",
+                        default="exp/textnorm",
+                        type=str,
+                        help="directory to save textnorm results.")
 
     args = parser.parse_args()
     input_dir = Path(args.input_dir).expanduser()

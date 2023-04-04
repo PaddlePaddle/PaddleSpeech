@@ -36,6 +36,7 @@ from paddlespeech.t2s.exps.syn_utils import get_am_inference
 from paddlespeech.t2s.exps.syn_utils import get_voc_inference
 from paddlespeech.t2s.exps.syn_utils import norm
 from paddlespeech.t2s.utils import str2bool
+
 large_pinyin.load()
 
 
@@ -47,13 +48,13 @@ def _p2id(phonemes: List[str]) -> np.ndarray:
 
 
 def prep_feats_with_dur(wav_path: str,
-                        old_str: str='',
-                        new_str: str='',
-                        source_lang: str='en',
-                        target_lang: str='en',
-                        duration_adjust: bool=True,
-                        fs: int=24000,
-                        n_shift: int=300):
+                        old_str: str = '',
+                        new_str: str = '',
+                        source_lang: str = 'en',
+                        target_lang: str = 'en',
+                        duration_adjust: bool = True,
+                        fs: int = 24000,
+                        n_shift: int = 300):
     '''
     Returns:
         np.ndarray: new wav, replace the part to be edited in original wav with 0
@@ -64,14 +65,13 @@ def prep_feats_with_dur(wav_path: str,
         List[int]: masked mel boundary of new wav
     '''
     wav_org, _ = librosa.load(wav_path, sr=fs)
-    phns_spans_outs = get_phns_spans(
-        wav_path=wav_path,
-        old_str=old_str,
-        new_str=new_str,
-        source_lang=source_lang,
-        target_lang=target_lang,
-        fs=fs,
-        n_shift=n_shift)
+    phns_spans_outs = get_phns_spans(wav_path=wav_path,
+                                     old_str=old_str,
+                                     new_str=new_str,
+                                     source_lang=source_lang,
+                                     target_lang=target_lang,
+                                     fs=fs,
+                                     n_shift=n_shift)
 
     mfa_start = phns_spans_outs['mfa_start']
     mfa_end = phns_spans_outs['mfa_end']
@@ -90,8 +90,9 @@ def prep_feats_with_dur(wav_path: str,
     orig_old_durs = [e - s for e, s in zip(mfa_end, mfa_start)]
 
     if duration_adjust:
-        d_factor = get_dur_adj_factor(
-            orig_dur=orig_old_durs, pred_dur=old_durs, phns=old_phns)
+        d_factor = get_dur_adj_factor(orig_dur=orig_old_durs,
+                                      pred_dur=old_durs,
+                                      phns=old_phns)
         d_factor = d_factor * 1.25
     else:
         d_factor = 1
@@ -131,18 +132,20 @@ def prep_feats_with_dur(wav_path: str,
     else:
         wav_left_idx = int(np.floor(mfa_start[span_to_repl[0]] * n_shift))
         wav_right_idx = int(np.ceil(mfa_end[span_to_repl[1] - 1] * n_shift))
-    blank_wav = np.zeros(
-        (int(np.ceil(new_span_dur_sum * n_shift)), ), dtype=wav_org.dtype)
+    blank_wav = np.zeros((int(np.ceil(new_span_dur_sum * n_shift)), ),
+                         dtype=wav_org.dtype)
     # 原始音频，需要编辑的部分替换成空音频，空音频的时间由 fs2 的 duration_predictor 决定
     new_wav = np.concatenate(
         [wav_org[:wav_left_idx], blank_wav, wav_org[wav_right_idx:]])
 
     # 4. get old and new mel span to be mask
-    old_span_bdy = get_span_bdy(
-        mfa_start=mfa_start, mfa_end=mfa_end, span_to_repl=span_to_repl)
+    old_span_bdy = get_span_bdy(mfa_start=mfa_start,
+                                mfa_end=mfa_end,
+                                span_to_repl=span_to_repl)
 
-    new_span_bdy = get_span_bdy(
-        mfa_start=new_mfa_start, mfa_end=new_mfa_end, span_to_repl=span_to_add)
+    new_span_bdy = get_span_bdy(mfa_start=new_mfa_start,
+                                mfa_end=new_mfa_end,
+                                span_to_repl=span_to_add)
 
     # old_span_bdy, new_span_bdy 是帧级别的范围
     outs = {}
@@ -156,23 +159,22 @@ def prep_feats_with_dur(wav_path: str,
 
 
 def prep_feats(wav_path: str,
-               old_str: str='',
-               new_str: str='',
-               source_lang: str='en',
-               target_lang: str='en',
-               duration_adjust: bool=True,
-               fs: int=24000,
-               n_shift: int=300):
+               old_str: str = '',
+               new_str: str = '',
+               source_lang: str = 'en',
+               target_lang: str = 'en',
+               duration_adjust: bool = True,
+               fs: int = 24000,
+               n_shift: int = 300):
 
-    with_dur_outs = prep_feats_with_dur(
-        wav_path=wav_path,
-        old_str=old_str,
-        new_str=new_str,
-        source_lang=source_lang,
-        target_lang=target_lang,
-        duration_adjust=duration_adjust,
-        fs=fs,
-        n_shift=n_shift)
+    with_dur_outs = prep_feats_with_dur(wav_path=wav_path,
+                                        old_str=old_str,
+                                        new_str=new_str,
+                                        source_lang=source_lang,
+                                        target_lang=target_lang,
+                                        duration_adjust=duration_adjust,
+                                        fs=fs,
+                                        n_shift=n_shift)
 
     wav_name = os.path.basename(wav_path)
     utt_id = wav_name.split('.')[0]
@@ -220,37 +222,35 @@ def prep_feats(wav_path: str,
 
 
 def get_mlm_output(wav_path: str,
-                   old_str: str='',
-                   new_str: str='',
-                   source_lang: str='en',
-                   target_lang: str='en',
-                   duration_adjust: bool=True,
-                   fs: int=24000,
-                   n_shift: int=300):
+                   old_str: str = '',
+                   new_str: str = '',
+                   source_lang: str = 'en',
+                   target_lang: str = 'en',
+                   duration_adjust: bool = True,
+                   fs: int = 24000,
+                   n_shift: int = 300):
 
-    prep_feats_outs = prep_feats(
-        wav_path=wav_path,
-        old_str=old_str,
-        new_str=new_str,
-        source_lang=source_lang,
-        target_lang=target_lang,
-        duration_adjust=duration_adjust,
-        fs=fs,
-        n_shift=n_shift)
+    prep_feats_outs = prep_feats(wav_path=wav_path,
+                                 old_str=old_str,
+                                 new_str=new_str,
+                                 source_lang=source_lang,
+                                 target_lang=target_lang,
+                                 duration_adjust=duration_adjust,
+                                 fs=fs,
+                                 n_shift=n_shift)
 
     batch = prep_feats_outs['batch']
     new_span_bdy = prep_feats_outs['new_span_bdy']
     old_span_bdy = prep_feats_outs['old_span_bdy']
 
-    out_mels = erniesat_inference(
-        speech=batch['speech'],
-        text=batch['text'],
-        masked_pos=batch['masked_pos'],
-        speech_mask=batch['speech_mask'],
-        text_mask=batch['text_mask'],
-        speech_seg_pos=batch['speech_seg_pos'],
-        text_seg_pos=batch['text_seg_pos'],
-        span_bdy=new_span_bdy)
+    out_mels = erniesat_inference(speech=batch['speech'],
+                                  text=batch['text'],
+                                  masked_pos=batch['masked_pos'],
+                                  speech_mask=batch['speech_mask'],
+                                  text_mask=batch['text_mask'],
+                                  speech_seg_pos=batch['speech_seg_pos'],
+                                  text_seg_pos=batch['text_seg_pos'],
+                                  span_bdy=new_span_bdy)
 
     # 拼接音频
     output_feat = paddle.concat(x=out_mels, axis=0)
@@ -265,24 +265,23 @@ def get_mlm_output(wav_path: str,
 
 
 def get_wav(wav_path: str,
-            source_lang: str='en',
-            target_lang: str='en',
-            old_str: str='',
-            new_str: str='',
-            duration_adjust: bool=True,
-            fs: int=24000,
-            n_shift: int=300,
-            task_name: str='synthesize'):
+            source_lang: str = 'en',
+            target_lang: str = 'en',
+            old_str: str = '',
+            new_str: str = '',
+            duration_adjust: bool = True,
+            fs: int = 24000,
+            n_shift: int = 300,
+            task_name: str = 'synthesize'):
 
-    outs = get_mlm_output(
-        wav_path=wav_path,
-        old_str=old_str,
-        new_str=new_str,
-        source_lang=source_lang,
-        target_lang=target_lang,
-        duration_adjust=duration_adjust,
-        fs=fs,
-        n_shift=n_shift)
+    outs = get_mlm_output(wav_path=wav_path,
+                          old_str=old_str,
+                          new_str=new_str,
+                          source_lang=source_lang,
+                          target_lang=target_lang,
+                          duration_adjust=duration_adjust,
+                          fs=fs,
+                          n_shift=n_shift)
 
     wav_org = outs['wav_org']
     output_feat = outs['output_feat']
@@ -311,68 +310,77 @@ def parse_args():
         description="Synthesize with acoustic model & vocoder")
     # ernie sat
 
-    parser.add_argument(
-        '--erniesat_config',
-        type=str,
-        default=None,
-        help='Config of acoustic model.')
-    parser.add_argument(
-        '--erniesat_ckpt',
-        type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+    parser.add_argument('--erniesat_config',
+                        type=str,
+                        default=None,
+                        help='Config of acoustic model.')
+    parser.add_argument('--erniesat_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of acoustic model.')
     parser.add_argument(
         "--erniesat_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
     # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=[
-            'pwgan_aishell3',
-            'pwgan_vctk',
-            'hifigan_aishell3',
-            'hifigan_vctk',
-        ],
-        help='Choose vocoder type of tts task.')
-    parser.add_argument(
-        '--voc_config', type=str, default=None, help='Config of voc.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=[
+                            'pwgan_aishell3',
+                            'pwgan_vctk',
+                            'hifigan_aishell3',
+                            'hifigan_vctk',
+                        ],
+                        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc_config',
+                        type=str,
+                        default=None,
+                        help='Config of voc.')
+    parser.add_argument('--voc_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of voc.')
     parser.add_argument(
         "--voc_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training voc."
     )
     # other
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     # ernie sat related
-    parser.add_argument(
-        "--task_name",
-        type=str,
-        choices=['edit', 'synthesize'],
-        help="task name.")
+    parser.add_argument("--task_name",
+                        type=str,
+                        choices=['edit', 'synthesize'],
+                        help="task name.")
     parser.add_argument("--wav_path", type=str, help="path of old wav")
     parser.add_argument("--old_str", type=str, help="old string")
     parser.add_argument("--new_str", type=str, help="new string")
-    parser.add_argument(
-        "--source_lang", type=str, default="en", help="source language")
-    parser.add_argument(
-        "--target_lang", type=str, default="en", help="target language")
-    parser.add_argument(
-        "--duration_adjust",
-        type=str2bool,
-        default=True,
-        help="whether to adjust duration.")
+    parser.add_argument("--source_lang",
+                        type=str,
+                        default="en",
+                        help="source language")
+    parser.add_argument("--target_lang",
+                        type=str,
+                        default="en",
+                        help="target language")
+    parser.add_argument("--duration_adjust",
+                        type=str2bool,
+                        default=True,
+                        help="whether to adjust duration.")
     parser.add_argument("--output_name", type=str, default="output.wav")
 
     args = parser.parse_args()
@@ -397,18 +405,16 @@ if __name__ == '__main__':
 
     # convert Chinese characters to pinyin
     if args.source_lang == 'zh':
-        old_str = pypinyin.lazy_pinyin(
-            old_str,
-            neutral_tone_with_five=True,
-            style=pypinyin.Style.TONE3,
-            tone_sandhi=True)
+        old_str = pypinyin.lazy_pinyin(old_str,
+                                       neutral_tone_with_five=True,
+                                       style=pypinyin.Style.TONE3,
+                                       tone_sandhi=True)
         old_str = ' '.join(old_str)
     if args.target_lang == 'zh':
-        new_str = pypinyin.lazy_pinyin(
-            new_str,
-            neutral_tone_with_five=True,
-            style=pypinyin.Style.TONE3,
-            tone_sandhi=True)
+        new_str = pypinyin.lazy_pinyin(new_str,
+                                       neutral_tone_with_five=True,
+                                       style=pypinyin.Style.TONE3,
+                                       tone_sandhi=True)
         new_str = ' '.join(new_str)
 
     if args.task_name == 'edit':
@@ -419,15 +425,14 @@ if __name__ == '__main__':
         new_str = old_str + ' ' + new_str
 
     # Extractor
-    mel_extractor = LogMelFBank(
-        sr=erniesat_config.fs,
-        n_fft=erniesat_config.n_fft,
-        hop_length=erniesat_config.n_shift,
-        win_length=erniesat_config.win_length,
-        window=erniesat_config.window,
-        n_mels=erniesat_config.n_mels,
-        fmin=erniesat_config.fmin,
-        fmax=erniesat_config.fmax)
+    mel_extractor = LogMelFBank(sr=erniesat_config.fs,
+                                n_fft=erniesat_config.n_fft,
+                                hop_length=erniesat_config.n_shift,
+                                win_length=erniesat_config.win_length,
+                                window=erniesat_config.window,
+                                n_mels=erniesat_config.n_mels,
+                                fmin=erniesat_config.fmin,
+                                fmax=erniesat_config.fmax)
 
     collate_fn = build_erniesat_collate_fn(
         mlm_prob=erniesat_config.mlm_prob,
@@ -443,37 +448,35 @@ if __name__ == '__main__':
         vocab_phones[phn] = int(id)
 
     # ernie sat model
-    erniesat_inference = get_am_inference(
-        am='erniesat_dataset',
-        am_config=erniesat_config,
-        am_ckpt=args.erniesat_ckpt,
-        am_stat=args.erniesat_stat,
-        phones_dict=args.phones_dict)
+    erniesat_inference = get_am_inference(am='erniesat_dataset',
+                                          am_config=erniesat_config,
+                                          am_ckpt=args.erniesat_ckpt,
+                                          am_stat=args.erniesat_stat,
+                                          phones_dict=args.phones_dict)
 
     with open(args.voc_config) as f:
         voc_config = CfgNode(yaml.safe_load(f))
 
     # vocoder
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
 
     erniesat_stat = args.erniesat_stat
 
-    wav_dict = get_wav(
-        wav_path=args.wav_path,
-        source_lang=args.source_lang,
-        target_lang=args.target_lang,
-        old_str=old_str,
-        new_str=new_str,
-        duration_adjust=args.duration_adjust,
-        fs=erniesat_config.fs,
-        n_shift=erniesat_config.n_shift,
-        task_name=args.task_name)
+    wav_dict = get_wav(wav_path=args.wav_path,
+                       source_lang=args.source_lang,
+                       target_lang=args.target_lang,
+                       old_str=old_str,
+                       new_str=new_str,
+                       duration_adjust=args.duration_adjust,
+                       fs=erniesat_config.fs,
+                       n_shift=erniesat_config.n_shift,
+                       task_name=args.task_name)
 
-    sf.write(
-        args.output_name, wav_dict['output'], samplerate=erniesat_config.fs)
+    sf.write(args.output_name,
+             wav_dict['output'],
+             samplerate=erniesat_config.fs)
     print(
         f"\033[1;32;m Generated audio saved into {args.output_name} ! \033[0m")

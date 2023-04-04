@@ -46,7 +46,8 @@ class KaldiFbank(nn.Layer):
                 n_mels=self.n_mels,
                 n_frame_shift=self.n_frame_shift,
                 n_frame_length=self.n_frame_length,
-                dither=self.dither, ))
+                dither=self.dither,
+            ))
 
     def forward(self, x: paddle.Tensor):
         """

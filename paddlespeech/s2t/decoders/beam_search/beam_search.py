@@ -45,23 +45,24 @@ class Hypothesis(NamedTuple):
             yseq=self.yseq.tolist(),
             score=float(self.score),
             scores={k: float(v)
-                    for k, v in self.scores.items()}, )._asdict()
+                    for k, v in self.scores.items()},
+        )._asdict()
 
 
 class BeamSearch(paddle.nn.Layer):
     """Beam search implementation."""
-
     def __init__(
-            self,
-            scorers: Dict[str, ScorerInterface],
-            weights: Dict[str, float],
-            beam_size: int,
-            vocab_size: int,
-            sos: int,
-            eos: int,
-            token_list: List[str]=None,
-            pre_beam_ratio: float=1.5,
-            pre_beam_score_key: str=None, ):
+        self,
+        scorers: Dict[str, ScorerInterface],
+        weights: Dict[str, float],
+        beam_size: int,
+        vocab_size: int,
+        sos: int,
+        eos: int,
+        token_list: List[str] = None,
+        pre_beam_ratio: float = 1.5,
+        pre_beam_score_key: str = None,
+    ):
         """Initialize beam search.
 
         Args:
@@ -112,16 +113,16 @@ class BeamSearch(paddle.nn.Layer):
         self.pre_beam_size = int(pre_beam_ratio * beam_size)
         self.beam_size = beam_size
         self.n_vocab = vocab_size
-        if (pre_beam_score_key is not None and pre_beam_score_key != "full" and
-                pre_beam_score_key not in self.full_scorers):
+        if (pre_beam_score_key is not None and pre_beam_score_key != "full"
+                and pre_beam_score_key not in self.full_scorers):
             raise KeyError(
                 f"{pre_beam_score_key} is not found in {self.full_scorers}")
         # selected `key` scorer to do pre beam search
         self.pre_beam_score_key = pre_beam_score_key
         # do_pre_beam when need, valid and has part_scorers
-        self.do_pre_beam = (self.pre_beam_score_key is not None and
-                            self.pre_beam_size < self.n_vocab and
-                            len(self.part_scorers) > 0)
+        self.do_pre_beam = (self.pre_beam_score_key is not None
+                            and self.pre_beam_size < self.n_vocab
+                            and len(self.part_scorers) > 0)
 
     def init_hyp(self, x: paddle.Tensor) -> List[Hypothesis]:
         """Get an initial hypothesis data.
@@ -143,7 +144,8 @@ class BeamSearch(paddle.nn.Layer):
                 yseq=paddle.to_tensor([self.sos], place=x.place),
                 score=0.0,
                 scores=init_scores,
-                states=init_states, )
+                states=init_states,
+            )
         ]
 
     @staticmethod
@@ -162,8 +164,9 @@ class BeamSearch(paddle.nn.Layer):
         x = paddle.to_tensor([x], dtype=xs.dtype) if isinstance(x, int) else x
         return paddle.concat((xs, x))
 
-    def score_full(self, hyp: Hypothesis, x: paddle.Tensor
-                   ) -> Tuple[Dict[str, paddle.Tensor], Dict[str, Any]]:
+    def score_full(
+            self, hyp: Hypothesis, x: paddle.Tensor
+    ) -> Tuple[Dict[str, paddle.Tensor], Dict[str, Any]]:
         """Score new hypothesis by `self.full_scorers`.
 
         Args:
@@ -185,11 +188,9 @@ class BeamSearch(paddle.nn.Layer):
             scores[k], states[k] = d.score(hyp.yseq, hyp.states[k], x)
         return scores, states
 
-    def score_partial(self,
-                      hyp: Hypothesis,
-                      ids: paddle.Tensor,
-                      x: paddle.Tensor
-                      ) -> Tuple[Dict[str, paddle.Tensor], Dict[str, Any]]:
+    def score_partial(
+            self, hyp: Hypothesis, ids: paddle.Tensor, x: paddle.Tensor
+    ) -> Tuple[Dict[str, paddle.Tensor], Dict[str, Any]]:
         """Score new hypothesis by `self.part_scorers`.
 
         Args:
@@ -248,11 +249,12 @@ class BeamSearch(paddle.nn.Layer):
 
     @staticmethod
     def merge_scores(
-            prev_scores: Dict[str, float],
-            next_full_scores: Dict[str, paddle.Tensor],
-            full_idx: int,
-            next_part_scores: Dict[str, paddle.Tensor],
-            part_idx: int, ) -> Dict[str, paddle.Tensor]:
+        prev_scores: Dict[str, float],
+        next_full_scores: Dict[str, paddle.Tensor],
+        full_idx: int,
+        next_part_scores: Dict[str, paddle.Tensor],
+        part_idx: int,
+    ) -> Dict[str, paddle.Tensor]:
         """Merge scores for new hypothesis.
 
         Args:
@@ -351,8 +353,8 @@ class BeamSearch(paddle.nn.Layer):
 
     def forward(self,
                 x: paddle.Tensor,
-                maxlenratio: float=0.0,
-                minlenratio: float=0.0) -> List[Hypothesis]:
+                maxlenratio: float = 0.0,
+                minlenratio: float = 0.0) -> List[Hypothesis]:
         """Perform beam search.
 
         Args:
@@ -405,8 +407,8 @@ class BeamSearch(paddle.nn.Layer):
         if len(nbest_hyps) == 0:
             logger.warning("there is no N-best results, perform recognition "
                            "again with smaller minlenratio.")
-            return ([] if minlenratio < 0.1 else
-                    self.forward(x, maxlenratio, max(0.0, minlenratio - 0.1)))
+            return ([] if minlenratio < 0.1 else self.forward(
+                x, maxlenratio, max(0.0, minlenratio - 0.1)))
 
         # report the best result
         best = nbest_hyps[0]
@@ -425,17 +427,19 @@ class BeamSearch(paddle.nn.Layer):
             #     + "".join([self.token_list[x] for x in best.yseq[1:-1]])
             #     + "\n"
             # )
-            logger.info("best hypo: " + "".join(
-                [self.token_list[x] for x in best.yseq[1:]]) + "\n")
+            logger.info("best hypo: " +
+                        "".join([self.token_list[x]
+                                 for x in best.yseq[1:]]) + "\n")
         return nbest_hyps
 
     def post_process(
-            self,
-            i: int,
-            maxlen: int,
-            maxlenratio: float,
-            running_hyps: List[Hypothesis],
-            ended_hyps: List[Hypothesis], ) -> List[Hypothesis]:
+        self,
+        i: int,
+        maxlen: int,
+        maxlenratio: float,
+        running_hyps: List[Hypothesis],
+        ended_hyps: List[Hypothesis],
+    ) -> List[Hypothesis]:
         """Perform post-processing of beam search iterations.
 
         Args:
@@ -451,8 +455,9 @@ class BeamSearch(paddle.nn.Layer):
         """
         logger.debug(f"the number of running hypotheses: {len(running_hyps)}")
         if self.token_list is not None:
-            logger.debug("best hypo: " + "".join(
-                [self.token_list[x] for x in running_hyps[0].yseq[1:]]))
+            logger.debug(
+                "best hypo: " +
+                "".join([self.token_list[x] for x in running_hyps[0].yseq[1:]]))
         # add eos in the final loop to avoid that there are no ended hyps
         if i == maxlen - 1:
             logger.info("adding <eos> in the last position in the loop")
@@ -479,18 +484,19 @@ class BeamSearch(paddle.nn.Layer):
 
 
 def beam_search(
-        x: paddle.Tensor,
-        sos: int,
-        eos: int,
-        beam_size: int,
-        vocab_size: int,
-        scorers: Dict[str, ScorerInterface],
-        weights: Dict[str, float],
-        token_list: List[str]=None,
-        maxlenratio: float=0.0,
-        minlenratio: float=0.0,
-        pre_beam_ratio: float=1.5,
-        pre_beam_score_key: str="full", ) -> list:
+    x: paddle.Tensor,
+    sos: int,
+    eos: int,
+    beam_size: int,
+    vocab_size: int,
+    scorers: Dict[str, ScorerInterface],
+    weights: Dict[str, float],
+    token_list: List[str] = None,
+    maxlenratio: float = 0.0,
+    minlenratio: float = 0.0,
+    pre_beam_ratio: float = 1.5,
+    pre_beam_score_key: str = "full",
+) -> list:
     """Perform beam search with scorers.
 
     Args:
@@ -526,6 +532,6 @@ def beam_search(
         pre_beam_score_key=pre_beam_score_key,
         sos=sos,
         eos=eos,
-        token_list=token_list, ).forward(
-            x=x, maxlenratio=maxlenratio, minlenratio=minlenratio)
+        token_list=token_list,
+    ).forward(x=x, maxlenratio=maxlenratio, minlenratio=minlenratio)
     return [h.asdict() for h in ret]

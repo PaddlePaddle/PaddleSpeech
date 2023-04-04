@@ -28,6 +28,7 @@ from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
+
 logger = Log(__name__).getlog()
 
 # TODO(hui zhang): dynamic load
@@ -68,8 +69,9 @@ class U2Infer():
 
         with paddle.no_grad():
             # read
-            audio, sample_rate = soundfile.read(
-                self.audio_file, dtype="int16", always_2d=True)
+            audio, sample_rate = soundfile.read(self.audio_file,
+                                                dtype="int16",
+                                                always_2d=True)
             audio = audio[:, 0]
             logger.info(f"audio shape: {audio.shape}")
 
@@ -126,15 +128,16 @@ def main(config, args):
 if __name__ == "__main__":
     parser = default_argument_parser()
     # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
-    parser.add_argument(
-        "--audio_file", type=str, help="path of the input audio file")
-    parser.add_argument(
-        "--debug",
-        type=distutils.util.strtobool,
-        default=False,
-        help="for debug.")
+    parser.add_argument("--result_file",
+                        type=str,
+                        help="path of save the asr result")
+    parser.add_argument("--audio_file",
+                        type=str,
+                        help="path of the input audio file")
+    parser.add_argument("--debug",
+                        type=distutils.util.strtobool,
+                        default=False,
+                        help="for debug.")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

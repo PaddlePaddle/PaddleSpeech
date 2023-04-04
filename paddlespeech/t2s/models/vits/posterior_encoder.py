@@ -35,20 +35,20 @@ class PosteriorEncoder(nn.Layer):
     .. _`Conditional Variational Autoencoder with Adversarial Learning for End-to-End
         Text-to-Speech`: https://arxiv.org/abs/2006.04558
     """
-
     def __init__(
-            self,
-            in_channels: int=513,
-            out_channels: int=192,
-            hidden_channels: int=192,
-            kernel_size: int=5,
-            layers: int=16,
-            stacks: int=1,
-            base_dilation: int=1,
-            global_channels: int=-1,
-            dropout_rate: float=0.0,
-            bias: bool=True,
-            use_weight_norm: bool=True, ):
+        self,
+        in_channels: int = 513,
+        out_channels: int = 192,
+        hidden_channels: int = 192,
+        kernel_size: int = 5,
+        layers: int = 16,
+        stacks: int = 1,
+        base_dilation: int = 1,
+        global_channels: int = -1,
+        dropout_rate: float = 0.0,
+        bias: bool = True,
+        use_weight_norm: bool = True,
+    ):
         """Initilialize PosteriorEncoder module.
 
         Args:
@@ -98,14 +98,15 @@ class PosteriorEncoder(nn.Layer):
             use_first_conv=False,
             use_last_conv=False,
             scale_residual=False,
-            scale_skip_connect=True, )
+            scale_skip_connect=True,
+        )
         self.proj = nn.Conv1D(hidden_channels, out_channels * 2, 1)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_lengths: paddle.Tensor,
-            g: Optional[paddle.Tensor]=None
+        self,
+        x: paddle.Tensor,
+        x_lengths: paddle.Tensor,
+        g: Optional[paddle.Tensor] = None
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Calculate forward propagation.
 

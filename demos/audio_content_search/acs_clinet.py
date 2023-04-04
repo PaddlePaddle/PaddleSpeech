@@ -22,8 +22,9 @@ def main(args):
     audio_format = "wav"
     sample_rate = 16000
     lang = "zh"
-    handler = ASRHttpHandler(
-        server_ip=args.server_ip, port=args.port, endpoint=args.endpoint)
+    handler = ASRHttpHandler(server_ip=args.server_ip,
+                             port=args.port,
+                             endpoint=args.endpoint)
     res = handler.run(args.wavfile, audio_format, sample_rate, lang)
     # res = res['result']
     logger.info(f"the final result: {res}")
@@ -31,19 +32,19 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="audio content search client")
-    parser.add_argument(
-        '--server_ip', type=str, default='127.0.0.1', help='server ip')
+    parser.add_argument('--server_ip',
+                        type=str,
+                        default='127.0.0.1',
+                        help='server ip')
     parser.add_argument('--port', type=int, default=8090, help='server port')
-    parser.add_argument(
-        "--wavfile",
-        action="store",
-        help="wav file path ",
-        default="./16_audio.wav")
-    parser.add_argument(
-        '--endpoint',
-        type=str,
-        default='/paddlespeech/asr/search',
-        help='server endpoint')
+    parser.add_argument("--wavfile",
+                        action="store",
+                        help="wav file path ",
+                        default="./16_audio.wav")
+    parser.add_argument('--endpoint',
+                        type=str,
+                        default='/paddlespeech/asr/search',
+                        help='server endpoint')
     args = parser.parse_args()
 
     main(args)

@@ -55,10 +55,9 @@ def evaluate(args, speedyspeech_config, pwg_config):
     tone_size = len(tone_id)
     print("tone_size:", tone_size)
 
-    model = SpeedySpeech(
-        vocab_size=vocab_size,
-        tone_size=tone_size,
-        **speedyspeech_config["model"])
+    model = SpeedySpeech(vocab_size=vocab_size,
+                         tone_size=tone_size,
+                         **speedyspeech_config["model"])
     model.set_state_dict(
         paddle.load(args.speedyspeech_checkpoint)["main_params"])
     model.eval()
@@ -84,12 +83,13 @@ def evaluate(args, speedyspeech_config, pwg_config):
     speedyspeech_inference = SpeedySpeechInference(speedyspeech_normalizer,
                                                    model)
     speedyspeech_inference.eval()
-    speedyspeech_inference = jit.to_static(
-        speedyspeech_inference,
-        input_spec=[
-            InputSpec([-1], dtype=paddle.int64), InputSpec(
-                [-1], dtype=paddle.int64)
-        ])
+    speedyspeech_inference = jit.to_static(speedyspeech_inference,
+                                           input_spec=[
+                                               InputSpec([-1],
+                                                         dtype=paddle.int64),
+                                               InputSpec([-1],
+                                                         dtype=paddle.int64)
+                                           ])
     paddle.jit.save(speedyspeech_inference,
                     os.path.join(args.inference_dir, "speedyspeech"))
     speedyspeech_inference = paddle.jit.load(
@@ -97,23 +97,24 @@ def evaluate(args, speedyspeech_config, pwg_config):
 
     pwg_inference = PWGInference(pwg_normalizer, vocoder)
     pwg_inference.eval()
-    pwg_inference = jit.to_static(
-        pwg_inference, input_spec=[
-            InputSpec([-1, 80], dtype=paddle.float32),
-        ])
+    pwg_inference = jit.to_static(pwg_inference,
+                                  input_spec=[
+                                      InputSpec([-1, 80], dtype=paddle.float32),
+                                  ])
     paddle.jit.save(pwg_inference, os.path.join(args.inference_dir, "pwg"))
     pwg_inference = paddle.jit.load(os.path.join(args.inference_dir, "pwg"))
 
-    frontend = Frontend(
-        phone_vocab_path=args.phones_dict, tone_vocab_path=args.tones_dict)
+    frontend = Frontend(phone_vocab_path=args.phones_dict,
+                        tone_vocab_path=args.tones_dict)
     print("frontend done!")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for utt_id, sentence in sentences:
-        input_ids = frontend.get_input_ids(
-            sentence, merge_sentences=True, get_tone_ids=True)
+        input_ids = frontend.get_input_ids(sentence,
+                                           merge_sentences=True,
+                                           get_tone_ids=True)
         phone_ids = input_ids["phone_ids"]
         tone_ids = input_ids["tone_ids"]
 
@@ -129,10 +130,9 @@ def evaluate(args, speedyspeech_config, pwg_config):
                 flags = 1
             else:
                 wav = paddle.concat([wav, temp_wav])
-        sf.write(
-            output_dir / (utt_id + ".wav"),
-            wav.numpy(),
-            samplerate=speedyspeech_config.fs)
+        sf.write(output_dir / (utt_id + ".wav"),
+                 wav.numpy(),
+                 samplerate=speedyspeech_config.fs)
         print(f"{utt_id} done!")
 
 
@@ -140,46 +140,54 @@ def main():
     # parse args and config and redirect to train_sp
     parser = argparse.ArgumentParser(
         description="Synthesize with speedyspeech & parallel wavegan.")
-    parser.add_argument(
-        "--speedyspeech-config", type=str, help="config file for speedyspeech.")
-    parser.add_argument(
-        "--speedyspeech-checkpoint",
-        type=str,
-        help="speedyspeech checkpoint to load.")
+    parser.add_argument("--speedyspeech-config",
+                        type=str,
+                        help="config file for speedyspeech.")
+    parser.add_argument("--speedyspeech-checkpoint",
+                        type=str,
+                        help="speedyspeech checkpoint to load.")
     parser.add_argument(
         "--speedyspeech-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training speedyspeech."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training speedyspeech."
     )
-    parser.add_argument(
-        "--pwg-config", type=str, help="config file for parallelwavegan.")
-    parser.add_argument(
-        "--pwg-checkpoint",
-        type=str,
-        help="parallel wavegan checkpoint to load.")
+    parser.add_argument("--pwg-config",
+                        type=str,
+                        help="config file for parallelwavegan.")
+    parser.add_argument("--pwg-checkpoint",
+                        type=str,
+                        help="parallel wavegan checkpoint to load.")
     parser.add_argument(
         "--pwg-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training speedyspeech."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training speedyspeech."
     )
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones-dict", type=str, default=None, help="tone vocabulary file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones-dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
     parser.add_argument("--output-dir", type=str, help="output dir")
-    parser.add_argument(
-        "--inference-dir", type=str, help="dir to save inference models")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu or xpu.")
-    parser.add_argument(
-        "--nxpu",
-        type=int,
-        default=0,
-        help="if nxpu == 0 and ngpu == 0, use cpu.")
+    parser.add_argument("--inference-dir",
+                        type=str,
+                        help="dir to save inference models")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu or xpu.")
+    parser.add_argument("--nxpu",
+                        type=int,
+                        default=0,
+                        help="if nxpu == 0 and ngpu == 0, use cpu.")
 
     args, _ = parser.parse_known_args()
 

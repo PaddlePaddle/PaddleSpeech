@@ -83,15 +83,13 @@ def torch2paddle(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        '--torch_ckpt',
-        type=str,
-        default='/home/snapshot.ep.98',
-        help="Path to torch checkpoint.")
-    parser.add_argument(
-        '--paddle_ckpt',
-        type=str,
-        default='paddle.98.pdparams',
-        help="Path to save paddlepaddle checkpoint.")
+    parser.add_argument('--torch_ckpt',
+                        type=str,
+                        default='/home/snapshot.ep.98',
+                        help="Path to torch checkpoint.")
+    parser.add_argument('--paddle_ckpt',
+                        type=str,
+                        default='paddle.98.pdparams',
+                        help="Path to save paddlepaddle checkpoint.")
     args = parser.parse_args()
     torch2paddle(args)

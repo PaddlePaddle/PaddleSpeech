@@ -18,7 +18,6 @@ import paddle
 
 class MultiSequential(paddle.nn.Sequential):
     """Multi-input multi-output paddle.nn.Sequential."""
-
     def forward(self, *args):
         """Repeat."""
         for m in self:
@@ -38,4 +37,4 @@ def repeat(N, fn):
     Returns:
         MultiSequential: Repeated model instance.
     """
-    return MultiSequential(* [fn(n) for n in range(N)])
+    return MultiSequential(*[fn(n) for n in range(N)])

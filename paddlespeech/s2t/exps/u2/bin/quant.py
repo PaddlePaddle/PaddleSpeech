@@ -23,6 +23,7 @@ from paddlespeech.s2t.models.u2 import U2Model
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
+
 logger = Log(__name__).getlog()
 
 
@@ -117,18 +118,18 @@ class U2Infer():
         ######################### self.model.forward_encoder_chunk ############
         input_spec = [
             # xs, (B, T, D)
-            paddle.static.InputSpec(
-                shape=[batch_size, None, feat_dim], dtype='float32'),
+            paddle.static.InputSpec(shape=[batch_size, None, feat_dim],
+                                    dtype='float32'),
             # offset, int, but need be tensor
             paddle.static.InputSpec(shape=[1], dtype='int32'),
             # required_cache_size, int
             num_left_chunks,
             # att_cache
-            paddle.static.InputSpec(
-                shape=[None, None, None, None], dtype='float32'),
+            paddle.static.InputSpec(shape=[None, None, None, None],
+                                    dtype='float32'),
             # cnn_cache
-            paddle.static.InputSpec(
-                shape=[None, None, None, None], dtype='float32')
+            paddle.static.InputSpec(shape=[None, None, None, None],
+                                    dtype='float32')
         ]
         self.model.forward_encoder_chunk = paddle.jit.to_static(
             self.model.forward_encoder_chunk, input_spec=input_spec)
@@ -136,8 +137,8 @@ class U2Infer():
         ######################### self.model.ctc_activation ########################
         input_spec = [
             # encoder_out, (B,T,D)
-            paddle.static.InputSpec(
-                shape=[batch_size, None, model_size], dtype='float32')
+            paddle.static.InputSpec(shape=[batch_size, None, model_size],
+                                    dtype='float32')
         ]
         self.model.ctc_activation = paddle.jit.to_static(
             self.model.ctc_activation, input_spec=input_spec)
@@ -149,8 +150,8 @@ class U2Infer():
             # hyps_lens, (B,)
             paddle.static.InputSpec(shape=[None], dtype='int64'),
             # encoder_out, (B,T,D)
-            paddle.static.InputSpec(
-                shape=[batch_size, None, model_size], dtype='float32'),
+            paddle.static.InputSpec(shape=[batch_size, None, model_size],
+                                    dtype='float32'),
             reverse_weight
         ]
         self.model.forward_attention_decoder = paddle.jit.to_static(
@@ -160,11 +161,10 @@ class U2Infer():
         # jit save
         logger.info(f"export save: {self.args.export_path}")
         self.ptq.ptq._convert(self.model)
-        paddle.jit.save(
-            self.model,
-            self.args.export_path,
-            combine_params=True,
-            skip_forward=True)
+        paddle.jit.save(self.model,
+                        self.args.export_path,
+                        combine_params=True,
+                        skip_forward=True)
 
 
 def main(config, args):
@@ -174,20 +174,20 @@ def main(config, args):
 if __name__ == "__main__":
     parser = default_argument_parser()
     # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
-    parser.add_argument(
-        "--audio_scp", type=str, help="path of the input audio file")
-    parser.add_argument(
-        "--num_utts",
-        type=int,
-        default=200,
-        help="num utts for quant calibrition.")
-    parser.add_argument(
-        "--export_path",
-        type=str,
-        default='export.jit.quant',
-        help="path of the input audio file")
+    parser.add_argument("--result_file",
+                        type=str,
+                        help="path of save the asr result")
+    parser.add_argument("--audio_scp",
+                        type=str,
+                        help="path of the input audio file")
+    parser.add_argument("--num_utts",
+                        type=int,
+                        default=200,
+                        help="num utts for quant calibrition.")
+    parser.add_argument("--export_path",
+                        type=str,
+                        default='export.jit.quant',
+                        help="path of the input audio file")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

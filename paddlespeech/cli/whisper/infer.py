@@ -48,22 +48,24 @@ __all__ = ['WhisperExecutor']
 class WhisperExecutor(BaseExecutor):
     def __init__(self):
         super().__init__('whisper')
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.whisper', add_help=True)
-        self.parser.add_argument(
-            '--input', type=str, default=None, help='Audio file to recognize.')
-        self.parser.add_argument(
-            '--model',
-            type=str,
-            default='whisper',
-            choices=['whisper'],
-            help='Choose model type of asr task.')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.whisper',
+                                              add_help=True)
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Audio file to recognize.')
+        self.parser.add_argument('--model',
+                                 type=str,
+                                 default='whisper',
+                                 choices=['whisper'],
+                                 help='Choose model type of asr task.')
         self.parser.add_argument(
             '--lang',
             type=str,
             default='',
             choices=['', 'en'],
-            help='Choose model language. Default is "", English-only model set [en].'
+            help=
+            'Choose model language. Default is "", English-only model set [en].'
         )
         self.parser.add_argument(
             '--task',
@@ -76,22 +78,25 @@ class WhisperExecutor(BaseExecutor):
             type=str,
             default='large',
             choices=['large', 'medium', 'base', 'small', 'tiny'],
-            help='Choose model size. now only support large, large:[whisper-large-16k]'
+            help=
+            'Choose model size. now only support large, large:[whisper-large-16k]'
         )
         self.parser.add_argument(
             '--language',
             type=str,
             default='None',
-            choices=sorted(LANGUAGES.keys()) + sorted(
-                [k.title() for k in TO_LANGUAGE_CODE.keys()]),
-            help='Choose model decode language. Default is None, recognized by model.'
+            choices=sorted(LANGUAGES.keys()) +
+            sorted([k.title() for k in TO_LANGUAGE_CODE.keys()]),
+            help=
+            'Choose model decode language. Default is None, recognized by model.'
         )
         self.parser.add_argument(
             "--sample_rate",
             type=int,
             default=16000,
             choices=[16000],
-            help='Choose the audio sample rate of the model. only support 16000')
+            help='Choose the audio sample rate of the model. only support 16000'
+        )
         self.parser.add_argument(
             '--config',
             type=str,
@@ -103,34 +108,30 @@ class WhisperExecutor(BaseExecutor):
             default='ctc_prefix_beam_search',
             choices=['ctc_greedy_search', 'ctc_prefix_beam_search'],
             help='only support transformer and conformer model')
-        self.parser.add_argument(
-            '--ckpt_path',
-            type=str,
-            default=None,
-            help='Checkpoint file of model.')
-        self.parser.add_argument(
-            '--yes',
-            '-y',
-            action="store_true",
-            default=False,
-            help='No additional parameters required. \
+        self.parser.add_argument('--ckpt_path',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of model.')
+        self.parser.add_argument('--yes',
+                                 '-y',
+                                 action="store_true",
+                                 default=False,
+                                 help='No additional parameters required. \
             Once set this parameter, it means accepting the request of the program by default, \
             which includes transforming the audio sample rate')
-        self.parser.add_argument(
-            '--rtf',
-            action="store_true",
-            default=False,
-            help='Show Real-time Factor(RTF).')
+        self.parser.add_argument('--rtf',
+                                 action="store_true",
+                                 default=False,
+                                 help='Show Real-time Factor(RTF).')
         self.parser.add_argument(
             '--device',
             type=str,
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -138,16 +139,16 @@ class WhisperExecutor(BaseExecutor):
             help='Increase logger verbosity of current task.')
 
     def _init_from_path(self,
-                        model_type: str='whisper',
-                        lang: str='',
-                        task: str='transcribe',
-                        size: str='large',
-                        language: str='None',
-                        sample_rate: int=16000,
-                        cfg_path: Optional[os.PathLike]=None,
-                        decode_method: str='ctc_prefix_beam_search',
-                        num_decoding_left_chunks: int=-1,
-                        ckpt_path: Optional[os.PathLike]=None):
+                        model_type: str = 'whisper',
+                        lang: str = '',
+                        task: str = 'transcribe',
+                        size: str = 'large',
+                        language: str = 'None',
+                        sample_rate: int = 16000,
+                        cfg_path: Optional[os.PathLike] = None,
+                        decode_method: str = 'ctc_prefix_beam_search',
+                        num_decoding_left_chunks: int = -1,
+                        ckpt_path: Optional[os.PathLike] = None):
         """
         Init model and other resources from a specific path.
         """
@@ -190,8 +191,9 @@ class WhisperExecutor(BaseExecutor):
                 resource_url = self.task_resource.res_dict['resource_data']
                 resource_md5 = self.task_resource.res_dict['resource_data_md5']
 
-                self.resource_path = os.path.join(
-                    DATA_HOME, self.task_resource.version, 'whisper')
+                self.resource_path = os.path.join(DATA_HOME,
+                                                  self.task_resource.version,
+                                                  'whisper')
                 self.download_resource(resource_url, self.resource_path,
                                        resource_md5)
             else:
@@ -232,8 +234,9 @@ class WhisperExecutor(BaseExecutor):
         # Get the object for feature extraction
         # whisper hard-coded audio hyperparameters, params in paddlespeech/s2t/models/whisper/whisper.py
         logger.debug("read the audio file")
-        audio, audio_sample_rate = soundfile.read(
-            audio_file, dtype="float32", always_2d=True)
+        audio, audio_sample_rate = soundfile.read(audio_file,
+                                                  dtype="float32",
+                                                  always_2d=True)
         if self.change_format:
             if audio.shape[1] >= 2:
                 audio = audio.mean(axis=1, dtype=np.int16)
@@ -241,8 +244,9 @@ class WhisperExecutor(BaseExecutor):
                 audio = audio[:, 0]
             # pcm16 -> pcm 32
             audio = self._pcm16to32(audio)
-            audio = librosa.resample(
-                audio, orig_sr=audio_sample_rate, target_sr=self.sample_rate)
+            audio = librosa.resample(audio,
+                                     orig_sr=audio_sample_rate,
+                                     target_sr=self.sample_rate)
             audio_sample_rate = self.sample_rate
             # pcm32 -> pcm 16
             audio = self._pcm32to16(audio)
@@ -304,7 +308,8 @@ class WhisperExecutor(BaseExecutor):
             url=url,
             root_dir=lm_dir,
             md5sum=md5sum,
-            decompress=True, )
+            decompress=True,
+        )
 
     def _pcm16to32(self, audio):
         assert (audio.dtype == np.int16)
@@ -320,7 +325,10 @@ class WhisperExecutor(BaseExecutor):
         audio = np.round(audio).astype("int16")
         return audio
 
-    def _check(self, audio_file: str, sample_rate: int, force_yes: bool=False):
+    def _check(self,
+               audio_file: str,
+               sample_rate: int,
+               force_yes: bool = False):
         self.sample_rate = sample_rate
         if self.sample_rate != 16000 and self.sample_rate != 8000:
             logger.error(
@@ -336,8 +344,9 @@ class WhisperExecutor(BaseExecutor):
 
         logger.debug("checking the audio file format......")
         try:
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
+            audio, audio_sample_rate = soundfile.read(audio_file,
+                                                      dtype="int16",
+                                                      always_2d=True)
         except Exception as e:
             logger.exception(e)
             logger.error(
@@ -413,20 +422,19 @@ class WhisperExecutor(BaseExecutor):
 
         for id_, input_ in task_source.items():
             try:
-                res = self(
-                    audio_file=input_,
-                    model=model,
-                    lang=lang,
-                    task=task,
-                    size=size,
-                    language=language,
-                    sample_rate=sample_rate,
-                    config=config,
-                    ckpt_path=ckpt_path,
-                    decode_method=decode_method,
-                    force_yes=force_yes,
-                    rtf=rtf,
-                    device=device)
+                res = self(audio_file=input_,
+                           model=model,
+                           lang=lang,
+                           task=task,
+                           size=size,
+                           language=language,
+                           sample_rate=sample_rate,
+                           config=config,
+                           ckpt_path=ckpt_path,
+                           decode_method=decode_method,
+                           force_yes=force_yes,
+                           rtf=rtf,
+                           device=device)
                 task_results[id_] = res
             except Exception as e:
                 has_exceptions = True
@@ -446,18 +454,18 @@ class WhisperExecutor(BaseExecutor):
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='whisper',
-                 lang: str='',
-                 task: str='transcribe',
-                 size: str='large',
-                 language: str='None',
-                 sample_rate: int=16000,
-                 config: os.PathLike=None,
-                 ckpt_path: os.PathLike=None,
-                 decode_method: str='attention_rescoring',
-                 num_decoding_left_chunks: int=-1,
-                 force_yes: bool=False,
-                 rtf: bool=False,
+                 model: str = 'whisper',
+                 lang: str = '',
+                 task: str = 'transcribe',
+                 size: str = 'large',
+                 language: str = 'None',
+                 sample_rate: int = 16000,
+                 config: os.PathLike = None,
+                 ckpt_path: os.PathLike = None,
+                 decode_method: str = 'attention_rescoring',
+                 num_decoding_left_chunks: int = -1,
+                 force_yes: bool = False,
+                 rtf: bool = False,
                  device=paddle.get_device()):
         """
         Python API to call an executor.
@@ -479,8 +487,9 @@ class WhisperExecutor(BaseExecutor):
 
         if rtf:
             CLI_TIMER[k]['end'].append(time.time())
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="int16", always_2d=True)
+            audio, audio_sample_rate = soundfile.read(audio_file,
+                                                      dtype="int16",
+                                                      always_2d=True)
             CLI_TIMER[k]['extra'].append(audio.shape[0] / audio_sample_rate)
 
         return res

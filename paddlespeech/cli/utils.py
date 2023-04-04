@@ -57,7 +57,7 @@ def timer_register(command):
     return command
 
 
-def cli_register(name: str, description: str='') -> Any:
+def cli_register(name: str, description: str = '') -> Any:
     def _warpper(command):
         items = name.split('.')
 
@@ -72,7 +72,7 @@ def cli_register(name: str, description: str='') -> Any:
     return _warpper
 
 
-def explicit_command_register(name: str, description: str='', cls: str=''):
+def explicit_command_register(name: str, description: str = '', cls: str = ''):
     items = name.split('.')
     com = commands
     for item in items:
@@ -138,20 +138,21 @@ def download_and_decompress(archive: Dict[str, str], path: str) -> os.PathLike:
         if not os.path.isdir(uncompress_path):
             download._decompress(filepath)
     else:
-        StatsWorker(
-            task='download',
-            version=__version__,
-            extra_info={
-                'download_url': archive['url'],
-                'paddle_version': paddle.__version__
-            }).start()
+        StatsWorker(task='download',
+                    version=__version__,
+                    extra_info={
+                        'download_url': archive['url'],
+                        'paddle_version': paddle.__version__
+                    }).start()
         uncompress_path = download.get_path_from_url(archive['url'], path,
                                                      archive['md5'])
 
     return uncompress_path
 
 
-def load_state_dict_from_url(url: str, path: str, md5: str=None) -> os.PathLike:
+def load_state_dict_from_url(url: str,
+                             path: str,
+                             md5: str = None) -> os.PathLike:
     """
     Download and load a state dict from url
     """
@@ -264,12 +265,9 @@ def _note_one_stat(cls_name, params={}):
         })
     elif task == 'st':
         extra_info.update({
-            'lang':
-            params['src_lang'] + '-' + params['tgt_lang'],
-            'inp_sr':
-            sr,
-            'model_sr':
-            params['sample_rate'],
+            'lang': params['src_lang'] + '-' + params['tgt_lang'],
+            'inp_sr': sr,
+            'model_sr': params['sample_rate'],
         })
     elif task == 'tts':
         model = params['am']
@@ -293,7 +291,8 @@ def _note_one_stat(cls_name, params={}):
         task=task,
         model=model,
         version=__version__,
-        extra_info=extra_info, ).start()
+        extra_info=extra_info,
+    ).start()
 
 
 def _parse_args(func, *args, **kwargs):

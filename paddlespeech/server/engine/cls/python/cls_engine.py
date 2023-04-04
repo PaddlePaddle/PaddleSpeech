@@ -36,7 +36,6 @@ class CLSEngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         super(CLSEngine, self).__init__()
 
@@ -67,9 +66,10 @@ class CLSEngine(BaseEngine):
             return False
 
         try:
-            self.executor._init_from_path(
-                self.config.model, self.config.cfg_path, self.config.ckpt_path,
-                self.config.label_file)
+            self.executor._init_from_path(self.config.model,
+                                          self.config.cfg_path,
+                                          self.config.ckpt_path,
+                                          self.config.label_file)
         except Exception as e:
             logger.error("Initialize CLS server engine Failed.")
             logger.error(e)

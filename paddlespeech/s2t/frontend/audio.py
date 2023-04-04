@@ -37,7 +37,6 @@ class AudioSegment():
     :type sample_rate: int
     :raises TypeError: If the sample data type is not float or int.
     """
-
     def __init__(self, samples, sample_rate):
         """Create audio segment from samples.
 
@@ -178,8 +177,9 @@ class AudioSegment():
         bytes_per_header = struct.unpack("i", f.read(4))[0]
         header_bytes = f.read(bytes_per_header * (num_utterances + 1))
         header = [
-            struct.unpack("i", header_bytes[bytes_per_header * i:
-                                            bytes_per_header * (i + 1)])[0]
+            struct.unpack(
+                "i", header_bytes[bytes_per_header * i:bytes_per_header *
+                                  (i + 1)])[0]
             for i in range(num_utterances + 1)
         ]
 
@@ -204,8 +204,8 @@ class AudioSegment():
         :return: Audio segment instance.
         :rtype: AudioSegment
         """
-        samples, sample_rate = soundfile.read(
-            io.BytesIO(bytes), dtype='float32')
+        samples, sample_rate = soundfile.read(io.BytesIO(bytes),
+                                              dtype='float32')
         return cls(samples, sample_rate)
 
     @classmethod
@@ -278,12 +278,11 @@ class AudioSegment():
             'float32': 'FLOAT',
             'float64': 'DOUBLE'
         }
-        soundfile.write(
-            filepath,
-            samples,
-            self._sample_rate,
-            format='WAV',
-            subtype=subtype_map[dtype])
+        soundfile.write(filepath,
+                        samples,
+                        self._sample_rate,
+                        format='WAV',
+                        subtype=subtype_map[dtype])
 
     def superimpose(self, other):
         """Add samples from another segment to those of this segment
@@ -464,8 +463,10 @@ class AudioSegment():
                        'kaiser_fast'}.
         :type filter: str
         """
-        self._samples = resampy.resample(
-            self.samples, self.sample_rate, target_sample_rate, filter=filter)
+        self._samples = resampy.resample(self.samples,
+                                         self.sample_rate,
+                                         target_sample_rate,
+                                         filter=filter)
         self._sample_rate = target_sample_rate
 
     def pad_silence(self, duration, sides='both'):
@@ -651,8 +652,8 @@ class AudioSegment():
             noise = noise.resample(self.sample_rate)
         if noise.sample_rate != self.sample_rate:
             raise ValueError("Noise sample rate (%d Hz) is not equal to base "
-                             "signal sample rate (%d Hz)." % (noise.sample_rate,
-                                                              self.sample_rate))
+                             "signal sample rate (%d Hz)." %
+                             (noise.sample_rate, self.sample_rate))
         if noise.duration < self.duration:
             raise ValueError("Noise signal (%f sec) must be at least as long as"
                              " base signal (%f sec)." %

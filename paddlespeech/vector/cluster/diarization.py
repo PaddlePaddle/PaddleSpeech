@@ -195,10 +195,11 @@ def _check_random_state(seed):
 
 
 def spectral_embedding(
-        adjacency,
-        n_components=8,
-        norm_laplacian=True,
-        drop_first=True, ):
+    adjacency,
+    n_components=8,
+    norm_laplacian=True,
+    drop_first=True,
+):
     """
     Returns spectral embeddings.
 
@@ -256,8 +257,9 @@ def spectral_embedding(
         warnings.warn("Graph is not fully connected, spectral embedding"
                       " may not work as expected.")
 
-    laplacian, dd = csgraph_laplacian(
-        adjacency, normed=norm_laplacian, return_diag=True)
+    laplacian, dd = csgraph_laplacian(adjacency,
+                                      normed=norm_laplacian,
+                                      return_diag=True)
 
     laplacian = _set_diag(laplacian, 1, norm_laplacian)
 
@@ -267,7 +269,8 @@ def spectral_embedding(
         laplacian,
         k=n_components,
         sigma=1.0,
-        which="LM", )
+        which="LM",
+    )
 
     embedding = diffusion_map.T[n_components::-1]
 
@@ -282,11 +285,12 @@ def spectral_embedding(
 
 
 def spectral_clustering(
-        affinity,
-        n_clusters=8,
-        n_components=None,
-        random_state=None,
-        n_init=10, ):
+    affinity,
+    n_clusters=8,
+    n_components=None,
+    random_state=None,
+    n_init=10,
+):
     """
     Performs spectral clustering.
 
@@ -332,10 +336,13 @@ def spectral_clustering(
     maps = spectral_embedding(
         affinity,
         n_components=n_components,
-        drop_first=False, )
+        drop_first=False,
+    )
 
-    _, labels, _ = k_means(
-        maps, n_clusters, random_state=random_state, n_init=n_init)
+    _, labels, _ = k_means(maps,
+                           n_clusters,
+                           random_state=random_state,
+                           n_init=n_init)
 
     return labels
 
@@ -354,12 +361,12 @@ class EmbeddingMeta:
         An ndarray of float64. Each line contains embedding
         from the corresponding session.
     """
-
     def __init__(
-            self,
-            segset=None,
-            modelset=None,
-            stats=None, ):
+        self,
+        segset=None,
+        modelset=None,
+        stats=None,
+    ):
 
         if segset is None:
             self.segset = np.empty(0, dtype="|O")
@@ -429,10 +436,12 @@ class EmbeddingMeta:
         sts_per_model.segset = copy.deepcopy(sts_per_model.modelset)
         sts_per_model.stat0 = np.zeros(
             (sts_per_model.modelset.shape[0], self.stat0.shape[1]),
-            dtype=np.float64, )
+            dtype=np.float64,
+        )
         sts_per_model.stats = np.zeros(
             (sts_per_model.modelset.shape[0], self.stats.shape[1]),
-            dtype=np.float64, )
+            dtype=np.float64,
+        )
 
         session_per_model = np.zeros(np.unique(self.modelset).shape[0])
 
@@ -520,8 +529,8 @@ class EmbeddingMeta:
             sess_nb = self.stat0.shape[0]
             self.center_stats(mu)
             self.stats = (np.einsum("ikj,ikl->ilj",
-                                    self.stats.T.reshape(-1, n, sess_nb), sigma)
-                          .reshape(-1, sess_nb).T)
+                                    self.stats.T.reshape(-1, n, sess_nb),
+                                    sigma).reshape(-1, sess_nb).T)
 
         else:
             raise Exception("Wrong dimension of Sigma, must be 1 or 2")
@@ -630,7 +639,6 @@ class SpecClustUnorm:
     >>> clust.do_spec_clust(emb, k_oracle=3, p_val=0.3)
     >>> # print(clust.labels_) # [0 0 0 2 2 2 1 1 1 1]
     """
-
     def __init__(self, min_num_spkrs=2, max_num_spkrs=10):
 
         self.min_num_spkrs = min_num_spkrs
@@ -843,13 +851,15 @@ class SpecCluster(SpectralClustering):
         connectivity = kneighbors_graph(
             X,
             n_neighbors=n_neighbors,
-            include_self=True, )
+            include_self=True,
+        )
         self.affinity_matrix_ = 0.5 * (connectivity + connectivity.T)
 
         # Perform spectral clustering on affinity matrix
         self.labels_ = spectral_clustering(
             self.affinity_matrix_,
-            n_clusters=self.n_clusters, )
+            n_clusters=self.n_clusters,
+        )
         return self
 
 
@@ -1180,7 +1190,8 @@ def do_AHC(diary_obj, out_rttm_file, rec_id, k_oracle=4, p_val=0.3):
         clustering = AgglomerativeClustering(
             n_clusters=num_of_spk,
             affinity="cosine",
-            linkage="average", ).fit(diary_obj.stats)
+            linkage="average",
+        ).fit(diary_obj.stats)
         labels = clustering.labels_
 
     else:
@@ -1190,7 +1201,8 @@ def do_AHC(diary_obj, out_rttm_file, rec_id, k_oracle=4, p_val=0.3):
             n_clusters=None,
             affinity="cosine",
             linkage="average",
-            distance_threshold=p_val, ).fit(diary_obj.stats)
+            distance_threshold=p_val,
+        ).fit(diary_obj.stats)
         labels = clustering.labels_
 
     # Convert labels to speaker boundaries
@@ -1257,7 +1269,8 @@ def do_spec_clustering(diary_obj, out_rttm_file, rec_id, k, pval, affinity_type,
             n_clusters=k,
             assign_labels="kmeans",
             random_state=1234,
-            affinity="nearest_neighbors", )
+            affinity="nearest_neighbors",
+        )
         clust_obj.perform_sc(diary_obj.stats, n_neighbors)
         labels = clust_obj.labels_
 
@@ -1295,34 +1308,33 @@ def do_spec_clustering(diary_obj, out_rttm_file, rec_id, k, pval, affinity_type,
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(
-        prog='python diarization.py --backend AHC', description='diarizing')
-    parser.add_argument(
-        '--sys_rttm_dir',
-        required=False,
-        help='Directory to store system RTTM files')
-    parser.add_argument(
-        '--ref_rttm_dir',
-        required=False,
-        help='Directory to store reference RTTM files')
-    parser.add_argument(
-        '--backend', default="AHC", help='type of backend, AHC or SC or kmeans')
-    parser.add_argument(
-        '--oracle_n_spkrs',
-        default=True,
-        type=strtobool,
-        help='Oracle num of speakers')
-    parser.add_argument(
-        '--mic_type',
-        default="Mix-Headset",
-        help='Type of microphone to be used')
-    parser.add_argument(
-        '--affinity', default="cos", help='affinity matrix, cos or nn')
+    parser = argparse.ArgumentParser(prog='python diarization.py --backend AHC',
+                                     description='diarizing')
+    parser.add_argument('--sys_rttm_dir',
+                        required=False,
+                        help='Directory to store system RTTM files')
+    parser.add_argument('--ref_rttm_dir',
+                        required=False,
+                        help='Directory to store reference RTTM files')
+    parser.add_argument('--backend',
+                        default="AHC",
+                        help='type of backend, AHC or SC or kmeans')
+    parser.add_argument('--oracle_n_spkrs',
+                        default=True,
+                        type=strtobool,
+                        help='Oracle num of speakers')
+    parser.add_argument('--mic_type',
+                        default="Mix-Headset",
+                        help='Type of microphone to be used')
+    parser.add_argument('--affinity',
+                        default="cos",
+                        help='affinity matrix, cos or nn')
     parser.add_argument(
         '--max_subseg_dur',
         default=3.0,
         type=float,
-        help='Duration in seconds of a subsegments to be prepared from larger segments'
+        help=
+        'Duration in seconds of a subsegments to be prepared from larger segments'
     )
     parser.add_argument(
         '--overlap',
@@ -1360,7 +1372,8 @@ if __name__ == '__main__':
             num_spkrs,
             pval,
             args.affinity,
-            n_neighbors, )
+            n_neighbors,
+        )
     if args.backend == "AHC":
         print("begin AHC ")
         do_AHC(stat_obj, out_rttm_file, rec_id, num_spkrs, pval)

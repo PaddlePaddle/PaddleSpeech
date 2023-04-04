@@ -115,7 +115,6 @@ class NCELoss(nn.Layer):
     Q = Q_from_tokens(output_dim)
     NCELoss(Q)
     """
-
     def __init__(self, Q, noise_ratio=100, Z_offset=9.5):
         """Noise Contrastive Estimation loss funtion
 
@@ -150,8 +149,8 @@ class NCELoss(nn.Layer):
         """Get prior model of batchsize data
         """
         idx_size = idx.size
-        prob_model = paddle.to_tensor(
-            self.Q.numpy()[paddle.reshape(idx, [-1]).numpy()])
+        prob_model = paddle.to_tensor(self.Q.numpy()[paddle.reshape(
+            idx, [-1]).numpy()])
         prob_model = paddle.reshape(prob_model, [idx.shape[0], idx.shape[1]])
         if sep_target:
             return prob_model[:, 0], prob_model[:, 1:]
@@ -180,8 +179,8 @@ class NCELoss(nn.Layer):
             dtype="int64",
             stop_gradient=False)
         new_idx = idx_increment + idx
-        new_scores = paddle.index_select(
-            paddle.reshape(scores, [-1]), paddle.reshape(new_idx, [-1]))
+        new_scores = paddle.index_select(paddle.reshape(scores, [-1]),
+                                         paddle.reshape(new_idx, [-1]))
 
         return paddle.reshape(new_scores, [B, K])
 
@@ -191,8 +190,10 @@ class NCELoss(nn.Layer):
         if uniform:
             noise = np.random.randint(self.N, size=self.K * batch_size)
         else:
-            noise = np.random.choice(
-                self.N, self.K * batch_size, replace=True, p=self.Q.data)
+            noise = np.random.choice(self.N,
+                                     self.K * batch_size,
+                                     replace=True,
+                                     p=self.Q.data)
         noise = paddle.to_tensor(noise, dtype='int64', stop_gradient=False)
         noise_idx = paddle.reshape(noise, [batch_size, self.K])
         return noise_idx
@@ -207,7 +208,6 @@ class NCELoss(nn.Layer):
                  prob_target_in_noise):
         """Combined the loss of target and noise
         """
-
         def safe_log(tensor):
             """Safe log
             """
@@ -244,14 +244,13 @@ class FocalLoss(nn.Layer):
                             However, if the field size_average is set to False, the losses are
                             instead summed for each minibatch.
     """
-
     def __init__(self, alpha=1, gamma=0, size_average=True, ignore_index=-100):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.size_average = size_average
-        self.ce = nn.CrossEntropyLoss(
-            ignore_index=ignore_index, reduction="none")
+        self.ce = nn.CrossEntropyLoss(ignore_index=ignore_index,
+                                      reduction="none")
 
     def forward(self, outputs, targets):
         """Forword inference.
@@ -272,14 +271,13 @@ class FocalLoss(nn.Layer):
 class GE2ELoss(nn.Layer):
     """Generalized end-to-end loss which defined in the paper "GENERALIZED END-TO-END LOSS FOR SPEAKER VERIFICATION"
     """
-
     def __init__(self, init_w=10.0, init_b=-5.0, loss_method="softmax"):
         super(GE2ELoss, self).__init__()
         self.loss_method = loss_method.lower()
-        self.w = self.create_parameter(
-            [1], default_initializer=I.Constant(init_w))
-        self.b = self.create_parameter(
-            [1], default_initializer=I.Constant(init_b))
+        self.w = self.create_parameter([1],
+                                       default_initializer=I.Constant(init_w))
+        self.b = self.create_parameter([1],
+                                       default_initializer=I.Constant(init_b))
         assert self.loss_method in ["softmax", "contrast"]
 
     def get_cossim(self, embeddings_list, centroids):
@@ -292,8 +290,8 @@ class GE2ELoss(nn.Layer):
             if embeddings.ndim > 1 and e_num > 1:
                 expand_centroids = paddle.expand(
                     centroids[s_idx], shape=[e_num, embeddings.shape[1]])
-                new_centroids = (expand_centroids * e_num - embeddings) / (
-                    e_num - 1)
+                new_centroids = (expand_centroids * e_num -
+                                 embeddings) / (e_num - 1)
                 sims = F.cosine_similarity(embeddings, new_centroids)
                 cossim[:, s_idx] = sims
             cossims.append(self.w * cossim + self.b)
@@ -353,8 +351,8 @@ class GE2ELoss(nn.Layer):
                 spker_centroid = paddle.mean(embeddings, axis=0)
             else:
                 spker_centroid = embeddings
-            centroids.append(spker_centroid.clone() / paddle.norm(
-                spker_centroid, axis=0, keepdim=True))
+            centroids.append(spker_centroid.clone() /
+                             paddle.norm(spker_centroid, axis=0, keepdim=True))
         centroids = paddle.stack(centroids)
         # cal cosine similarity
         cossims = self.get_cossim(embeddings_list, centroids)

@@ -23,7 +23,6 @@ class GradientReversalFunction(PyLayer):
     Forward pass is the identity function. In the backward pass,
     the upstream gradients are multiplied by -lambda (i.e. gradient is reversed)
     """
-
     @staticmethod
     def forward(ctx, x, lambda_=1):
         """Forward in networks
@@ -47,7 +46,6 @@ class GradientReversalLayer(nn.Layer):
     Forward pass is the identity function. In the backward pass,
     the upstream gradients are multiplied by -lambda (i.e. gradient is reversed)
     """
-
     def __init__(self, lambda_=1):
         super(GradientReversalLayer, self).__init__()
         self.lambda_ = lambda_

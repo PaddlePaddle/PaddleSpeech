@@ -22,17 +22,18 @@ from paddlespeech.server.engine.engine_pool import init_engine_pool
 from paddlespeech.server.restful.api import setup_router as setup_http_router
 from paddlespeech.server.utils.config import get_config
 from paddlespeech.server.ws.api import setup_router as setup_ws_router
+
 warnings.filterwarnings("ignore")
 import sys
 
-app = FastAPI(
-    title="PaddleSpeech Serving API", description="Api", version="0.0.1")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"])
+app = FastAPI(title="PaddleSpeech Serving API",
+              description="Api",
+              version="0.0.1")
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["*"],
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 # change yaml file here
 config_file = "./conf/application.yaml"
@@ -58,13 +59,14 @@ app.include_router(api_router)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=True)
-    parser.add_argument(
-        "--workers", type=int, help="workers of server", default=1)
+    parser.add_argument("--workers",
+                        type=int,
+                        help="workers of server",
+                        default=1)
     args = parser.parse_args()
 
-    uvicorn.run(
-        "start_multi_progress_server:app",
-        host=config.host,
-        port=config.port,
-        debug=True,
-        workers=args.workers)
+    uvicorn.run("start_multi_progress_server:app",
+                host=config.host,
+                port=config.port,
+                debug=True,
+                workers=args.workers)

@@ -78,12 +78,13 @@ def load_cmvn_from_json(cmvn_stats):
 
 
 def merge_configs(
-        conf_path="conf/conformer.yaml",
-        preprocess_path="conf/preprocess.yaml",
-        decode_path="conf/tuning/decode.yaml",
-        vocab_path="data/vocab.txt",
-        cmvn_path="data/mean_std.json",
-        save_path="conf/conformer_infer.yaml", ):
+    conf_path="conf/conformer.yaml",
+    preprocess_path="conf/preprocess.yaml",
+    decode_path="conf/tuning/decode.yaml",
+    vocab_path="data/vocab.txt",
+    cmvn_path="data/mean_std.json",
+    save_path="conf/conformer_infer.yaml",
+):
 
     # Load the configs
     config = load(conf_path)
@@ -178,21 +179,30 @@ def merge_configs(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='Config merge', add_help=True)
-    parser.add_argument(
-        '--cfg_pth',
-        type=str,
-        default='conf/transformer.yaml',
-        help='origin config file')
-    parser.add_argument(
-        '--pre_pth', type=str, default="conf/preprocess.yaml", help='')
-    parser.add_argument(
-        '--dcd_pth', type=str, default="conf/tuninig/decode.yaml", help='')
-    parser.add_argument(
-        '--vb_pth', type=str, default="data/lang_char/vocab.txt", help='')
-    parser.add_argument(
-        '--cmvn_pth', type=str, default="data/mean_std.json", help='')
-    parser.add_argument(
-        '--save_pth', type=str, default="conf/transformer_infer.yaml", help='')
+    parser.add_argument('--cfg_pth',
+                        type=str,
+                        default='conf/transformer.yaml',
+                        help='origin config file')
+    parser.add_argument('--pre_pth',
+                        type=str,
+                        default="conf/preprocess.yaml",
+                        help='')
+    parser.add_argument('--dcd_pth',
+                        type=str,
+                        default="conf/tuninig/decode.yaml",
+                        help='')
+    parser.add_argument('--vb_pth',
+                        type=str,
+                        default="data/lang_char/vocab.txt",
+                        help='')
+    parser.add_argument('--cmvn_pth',
+                        type=str,
+                        default="data/mean_std.json",
+                        help='')
+    parser.add_argument('--save_pth',
+                        type=str,
+                        default="conf/transformer_infer.yaml",
+                        help='')
     parser_args = parser.parse_args()
 
     merge_configs(
@@ -201,4 +211,5 @@ if __name__ == "__main__":
         preprocess_path=parser_args.pre_pth,
         vocab_path=parser_args.vb_pth,
         cmvn_path=parser_args.cmvn_pth,
-        save_path=parser_args.save_pth, )
+        save_path=parser_args.save_pth,
+    )

@@ -37,15 +37,15 @@ class StochasticDurationPredictor(nn.Layer):
     .. _`Conditional Variational Autoencoder with Adversarial Learning for End-to-End
         Text-to-Speech`: https://arxiv.org/abs/2106.06103
     """
-
     def __init__(
-            self,
-            channels: int=192,
-            kernel_size: int=3,
-            dropout_rate: float=0.5,
-            flows: int=4,
-            dds_conv_layers: int=3,
-            global_channels: int=-1, ):
+        self,
+        channels: int = 192,
+        kernel_size: int = 3,
+        dropout_rate: float = 0.5,
+        flows: int = 4,
+        dds_conv_layers: int = 3,
+        global_channels: int = -1,
+    ):
         """Initialize StochasticDurationPredictor module.
         Args:
             channels (int):
@@ -68,7 +68,8 @@ class StochasticDurationPredictor(nn.Layer):
             channels,
             kernel_size,
             layers=dds_conv_layers,
-            dropout_rate=dropout_rate, )
+            dropout_rate=dropout_rate,
+        )
         self.proj = nn.Conv1D(channels, channels, 1)
 
         self.log_flow = LogFlow()
@@ -80,7 +81,8 @@ class StochasticDurationPredictor(nn.Layer):
                     2,
                     channels,
                     kernel_size,
-                    layers=dds_conv_layers, ))
+                    layers=dds_conv_layers,
+                ))
             self.flows.append(FlipFlow())
 
         self.post_pre = nn.Conv1D(1, channels, 1)
@@ -88,7 +90,8 @@ class StochasticDurationPredictor(nn.Layer):
             channels,
             kernel_size,
             layers=dds_conv_layers,
-            dropout_rate=dropout_rate, )
+            dropout_rate=dropout_rate,
+        )
         self.post_proj = nn.Conv1D(channels, channels, 1)
         self.post_flows = nn.LayerList()
         self.post_flows.append(ElementwiseAffineFlow(2))
@@ -98,20 +101,22 @@ class StochasticDurationPredictor(nn.Layer):
                     2,
                     channels,
                     kernel_size,
-                    layers=dds_conv_layers, ))
+                    layers=dds_conv_layers,
+                ))
             self.post_flows.append(FlipFlow())
 
         if global_channels > 0:
             self.global_conv = nn.Conv1D(global_channels, channels, 1)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_mask: paddle.Tensor,
-            w: Optional[paddle.Tensor]=None,
-            g: Optional[paddle.Tensor]=None,
-            inverse: bool=False,
-            noise_scale: float=1.0, ) -> paddle.Tensor:
+        self,
+        x: paddle.Tensor,
+        x_mask: paddle.Tensor,
+        w: Optional[paddle.Tensor] = None,
+        g: Optional[paddle.Tensor] = None,
+        inverse: bool = False,
+        noise_scale: float = 1.0,
+    ) -> paddle.Tensor:
         """Calculate forward propagation.
         Args:
             x (Tensor):
@@ -145,8 +150,8 @@ class StochasticDurationPredictor(nn.Layer):
             h_w = self.post_pre(w)
             h_w = self.post_dds(h_w, x_mask)
             h_w = self.post_proj(h_w) * x_mask
-            e_q = (paddle.randn([paddle.shape(w)[0], 2, paddle.shape(w)[2]]) *
-                   x_mask)
+            e_q = (paddle.randn([paddle.shape(w)[0], 2,
+                                 paddle.shape(w)[2]]) * x_mask)
             z_q = e_q
             logdet_tot_q = 0.0
             for i, flow in enumerate(self.post_flows):
@@ -174,8 +179,8 @@ class StochasticDurationPredictor(nn.Layer):
             flows = list(reversed(self.flows))
             # remove a useless vflow
             flows = flows[:-2] + [flows[-1]]
-            z = (paddle.randn([paddle.shape(x)[0], 2, paddle.shape(x)[2]]) *
-                 noise_scale)
+            z = (paddle.randn([paddle.shape(x)[0], 2,
+                               paddle.shape(x)[2]]) * noise_scale)
             for flow in flows:
                 z = flow(z, x_mask, g=x, inverse=inverse)
             z0, z1 = paddle.split(z, 2, axis=1)

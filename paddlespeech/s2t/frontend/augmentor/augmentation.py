@@ -29,14 +29,21 @@ logger = Log(__name__).getlog()
 __all__ = ["AugmentationPipeline"]
 
 import_alias = dict(
-    volume="paddlespeech.s2t.frontend.augmentor.impulse_response:VolumePerturbAugmentor",
-    shift="paddlespeech.s2t.frontend.augmentor.shift_perturb:ShiftPerturbAugmentor",
-    speed="paddlespeech.s2t.frontend.augmentor.speed_perturb:SpeedPerturbAugmentor",
+    volume=
+    "paddlespeech.s2t.frontend.augmentor.impulse_response:VolumePerturbAugmentor",
+    shift=
+    "paddlespeech.s2t.frontend.augmentor.shift_perturb:ShiftPerturbAugmentor",
+    speed=
+    "paddlespeech.s2t.frontend.augmentor.speed_perturb:SpeedPerturbAugmentor",
     resample="paddlespeech.s2t.frontend.augmentor.resample:ResampleAugmentor",
-    bayesian_normal="paddlespeech.s2t.frontend.augmentor.online_bayesian_normalization:OnlineBayesianNormalizationAugmentor",
-    noise="paddlespeech.s2t.frontend.augmentor.noise_perturb:NoisePerturbAugmentor",
-    impulse="paddlespeech.s2t.frontend.augmentor.impulse_response:ImpulseResponseAugmentor",
-    specaug="paddlespeech.s2t.frontend.augmentor.spec_augment:SpecAugmentor", )
+    bayesian_normal=
+    "paddlespeech.s2t.frontend.augmentor.online_bayesian_normalization:OnlineBayesianNormalizationAugmentor",
+    noise=
+    "paddlespeech.s2t.frontend.augmentor.noise_perturb:NoisePerturbAugmentor",
+    impulse=
+    "paddlespeech.s2t.frontend.augmentor.impulse_response:ImpulseResponseAugmentor",
+    specaug="paddlespeech.s2t.frontend.augmentor.spec_augment:SpecAugmentor",
+)
 
 
 class AugmentationPipeline():
@@ -100,7 +107,7 @@ class AugmentationPipeline():
 
     SPEC_TYPES = {'specaug'}
 
-    def __init__(self, preprocess_conf: str, random_seed: int=0):
+    def __init__(self, preprocess_conf: str, random_seed: int = 0):
         self._rng = np.random.RandomState(random_seed)
         self.conf = {'mode': 'sequential', 'process': []}
         if preprocess_conf:
@@ -120,7 +127,8 @@ class AugmentationPipeline():
         self._spec_augmentors, self._spec_rates = self._parse_pipeline_from(
             'feature')
         logger.info(
-            f"Augmentation: {pformat(list(zip(self._augmentors, self._rates)))}")
+            f"Augmentation: {pformat(list(zip(self._augmentors, self._rates)))}"
+        )
 
     def __call__(self, xs, uttid_list=None, **kwargs):
         if not isinstance(xs, Sequence):
@@ -133,8 +141,8 @@ class AugmentationPipeline():
             uttid_list = [uttid_list for _ in range(len(xs))]
 
         if self.conf.get("mode", "sequential") == "sequential":
-            for idx, (func, rate) in enumerate(
-                    zip(self._augmentors, self._rates), 0):
+            for idx, (func,
+                      rate) in enumerate(zip(self._augmentors, self._rates), 0):
                 if self._rng.uniform(0., 1.) >= rate:
                     continue
 
@@ -159,8 +167,8 @@ class AugmentationPipeline():
                         idx, func))
                     raise
         else:
-            raise NotImplementedError(
-                "Not supporting mode={}".format(self.conf["mode"]))
+            raise NotImplementedError("Not supporting mode={}".format(
+                self.conf["mode"]))
 
         if is_batch:
             return xs

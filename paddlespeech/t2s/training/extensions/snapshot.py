@@ -51,7 +51,7 @@ class Snapshot(extension.Extension):
     priority = -100
     default_name = "snapshot"
 
-    def __init__(self, max_size: int=5, snapshot_on_error: bool=False):
+    def __init__(self, max_size: int = 5, snapshot_on_error: bool = False):
         self.records: List[Dict[str, Any]] = []
         self.max_size = max_size
         self._snapshot_on_error = snapshot_on_error

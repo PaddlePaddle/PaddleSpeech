@@ -57,8 +57,9 @@ def main(args):
                     # for english
                     pieces = sp.EncodeAsPieces(word)
                     if contain_oov(pieces):
-                        print('Ignoring words {}, which contains oov unit'.
-                              format(''.join(word).strip('▁')))
+                        print(
+                            'Ignoring words {}, which contains oov unit'.format(
+                                ''.join(word).strip('▁')))
                         continue
 
                     # word is piece list, which not have <unk> piece, filter out by `contain_oov(pieces)`
@@ -67,8 +68,9 @@ def main(args):
                 else:
                     # ignore words with OOV
                     if contain_oov(word):
-                        print('Ignoring words {}, which contains oov unit'.
-                              format(word))
+                        print(
+                            'Ignoring words {}, which contains oov unit'.format(
+                                word))
                         continue
 
                     # Optional, append ▁ in front of english word
@@ -95,14 +97,12 @@ if __name__ == '__main__':
         required=True,
         help='e2e model unit file(lang_char.txt/vocab.txt). line: char/spm_pices'
     )
-    parser.add_argument(
-        '--in_lexicon',
-        required=True,
-        help='raw lexicon file. line: word ph0 ... phn')
-    parser.add_argument(
-        '--out_lexicon',
-        required=True,
-        help='output lexicon file. line: word char0 ... charn')
+    parser.add_argument('--in_lexicon',
+                        required=True,
+                        help='raw lexicon file. line: word ph0 ... phn')
+    parser.add_argument('--out_lexicon',
+                        required=True,
+                        help='output lexicon file. line: word char0 ... charn')
     parser.add_argument('--bpemodel', default=None, help='bpemodel')
 
     args = parser.parse_args()

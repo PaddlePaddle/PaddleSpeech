@@ -129,8 +129,8 @@ def create_manifest(data_dir, manifest_path_prefix):
             f.write(line + "\n")
 
     manifest_dir = os.path.dirname(manifest_path_prefix)
-    meta_path = os.path.join(manifest_dir, "voxceleb1." +
-                             data_dir_name) + ".meta"
+    meta_path = os.path.join(manifest_dir,
+                             "voxceleb1." + data_dir_name) + ".meta"
     with codecs.open(meta_path, 'w', encoding='utf-8') as f:
         print(f"{total_num} utts", file=f)
         print(f"{len(speakers)} speakers", file=f)
@@ -152,10 +152,9 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
         print(f"start to download the vox1 zip package to {target_dir}")
         for zip_part in data_list.keys():
             download_url = " --no-check-certificate " + base_url + "/" + zip_part
-            download(
-                url=download_url,
-                md5sum=data_list[zip_part],
-                target_dir=target_dir)
+            download(url=download_url,
+                     md5sum=data_list[zip_part],
+                     target_dir=target_dir)
 
         # pack the all part to target zip file
         all_target_part, target_name, target_md5sum = target_data.split()
@@ -195,26 +194,23 @@ def main():
         args.target_dir = os.path.expanduser(args.target_dir)
 
     # prepare the vox1 dev data
-    prepare_dataset(
-        base_url=BASE_URL,
-        data_list=DEV_LIST,
-        target_dir=os.path.join(args.target_dir, "dev"),
-        manifest_path=args.manifest_prefix,
-        target_data=DEV_TARGET_DATA)
+    prepare_dataset(base_url=BASE_URL,
+                    data_list=DEV_LIST,
+                    target_dir=os.path.join(args.target_dir, "dev"),
+                    manifest_path=args.manifest_prefix,
+                    target_data=DEV_TARGET_DATA)
 
     # prepare the vox1 test data
-    prepare_dataset(
-        base_url=BASE_URL,
-        data_list=TEST_LIST,
-        target_dir=os.path.join(args.target_dir, "test"),
-        manifest_path=args.manifest_prefix,
-        target_data=TEST_TARGET_DATA)
+    prepare_dataset(base_url=BASE_URL,
+                    data_list=TEST_LIST,
+                    target_dir=os.path.join(args.target_dir, "test"),
+                    manifest_path=args.manifest_prefix,
+                    target_data=TEST_TARGET_DATA)
 
     # prepare the vox1 trial
-    prepare_trial(
-        base_url=TRIAL_BASE_URL,
-        data_list=TRIAL_LIST,
-        target_dir=os.path.dirname(args.manifest_prefix))
+    prepare_trial(base_url=TRIAL_BASE_URL,
+                  data_list=TRIAL_LIST,
+                  target_dir=os.path.dirname(args.manifest_prefix))
 
     print("Manifest prepare done!")
 

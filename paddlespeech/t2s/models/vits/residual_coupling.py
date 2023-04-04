@@ -38,20 +38,20 @@ class ResidualAffineCouplingBlock(nn.Layer):
         Text-to-Speech`: https://arxiv.org/abs/2006.04558
 
     """
-
     def __init__(
-            self,
-            in_channels: int=192,
-            hidden_channels: int=192,
-            flows: int=4,
-            kernel_size: int=5,
-            base_dilation: int=1,
-            layers: int=4,
-            global_channels: int=-1,
-            dropout_rate: float=0.0,
-            use_weight_norm: bool=True,
-            bias: bool=True,
-            use_only_mean: bool=True, ):
+        self,
+        in_channels: int = 192,
+        hidden_channels: int = 192,
+        flows: int = 4,
+        kernel_size: int = 5,
+        base_dilation: int = 1,
+        layers: int = 4,
+        global_channels: int = -1,
+        dropout_rate: float = 0.0,
+        use_weight_norm: bool = True,
+        bias: bool = True,
+        use_only_mean: bool = True,
+    ):
         """Initilize ResidualAffineCouplingBlock module.
 
         Args:
@@ -97,15 +97,17 @@ class ResidualAffineCouplingBlock(nn.Layer):
                     dropout_rate=dropout_rate,
                     use_weight_norm=use_weight_norm,
                     bias=bias,
-                    use_only_mean=use_only_mean, ))
+                    use_only_mean=use_only_mean,
+                ))
             self.flows.append(FlipFlow())
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_mask: paddle.Tensor,
-            g: Optional[paddle.Tensor]=None,
-            inverse: bool=False, ) -> paddle.Tensor:
+        self,
+        x: paddle.Tensor,
+        x_mask: paddle.Tensor,
+        g: Optional[paddle.Tensor] = None,
+        inverse: bool = False,
+    ) -> paddle.Tensor:
         """Calculate forward propagation.
 
         Args:
@@ -133,20 +135,20 @@ class ResidualAffineCouplingBlock(nn.Layer):
 
 class ResidualAffineCouplingLayer(nn.Layer):
     """Residual affine coupling layer."""
-
     def __init__(
-            self,
-            in_channels: int=192,
-            hidden_channels: int=192,
-            kernel_size: int=5,
-            base_dilation: int=1,
-            layers: int=5,
-            stacks: int=1,
-            global_channels: int=-1,
-            dropout_rate: float=0.0,
-            use_weight_norm: bool=True,
-            bias: bool=True,
-            use_only_mean: bool=True, ):
+        self,
+        in_channels: int = 192,
+        hidden_channels: int = 192,
+        kernel_size: int = 5,
+        base_dilation: int = 1,
+        layers: int = 5,
+        stacks: int = 1,
+        global_channels: int = -1,
+        dropout_rate: float = 0.0,
+        use_weight_norm: bool = True,
+        bias: bool = True,
+        use_only_mean: bool = True,
+    ):
         """Initialzie ResidualAffineCouplingLayer module.
 
         Args:
@@ -183,7 +185,8 @@ class ResidualAffineCouplingLayer(nn.Layer):
         self.input_conv = nn.Conv1D(
             self.half_channels,
             hidden_channels,
-            1, )
+            1,
+        )
         self.encoder = WaveNet(
             in_channels=-1,
             out_channels=-1,
@@ -202,17 +205,20 @@ class ResidualAffineCouplingLayer(nn.Layer):
             use_first_conv=False,
             use_last_conv=False,
             scale_residual=False,
-            scale_skip_connect=True, )
+            scale_skip_connect=True,
+        )
         if use_only_mean:
             self.proj = nn.Conv1D(
                 hidden_channels,
                 self.half_channels,
-                1, )
+                1,
+            )
         else:
             self.proj = nn.Conv1D(
                 hidden_channels,
                 self.half_channels * 2,
-                1, )
+                1,
+            )
 
         weight = paddle.zeros(paddle.shape(self.proj.weight))
 
@@ -229,11 +235,11 @@ class ResidualAffineCouplingLayer(nn.Layer):
             default_initializer=paddle.nn.initializer.Assign(bias))
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_mask: paddle.Tensor,
-            g: Optional[paddle.Tensor]=None,
-            inverse: bool=False,
+        self,
+        x: paddle.Tensor,
+        x_mask: paddle.Tensor,
+        g: Optional[paddle.Tensor] = None,
+        inverse: bool = False,
     ) -> Union[paddle.Tensor, Tuple[paddle.Tensor, paddle.Tensor]]:
         """Calculate forward propagation.
 

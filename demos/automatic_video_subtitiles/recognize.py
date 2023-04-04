@@ -30,14 +30,13 @@ if __name__ == "__main__":
     asr_executor = ASRExecutor()
     text_executor = TextExecutor()
 
-    text = asr_executor(
-        audio_file=os.path.abspath(os.path.expanduser(args.input)),
-        device=args.device)
-    result = text_executor(
-        text=text,
-        task='punc',
-        model='ernie_linear_p3_wudao',
-        device=args.device)
+    text = asr_executor(audio_file=os.path.abspath(
+        os.path.expanduser(args.input)),
+                        device=args.device)
+    result = text_executor(text=text,
+                           task='punc',
+                           model='ernie_linear_p3_wudao',
+                           device=args.device)
 
     print('ASR Result: \n{}'.format(text))
     print('Text Result: \n{}'.format(result))

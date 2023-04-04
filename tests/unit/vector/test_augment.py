@@ -18,10 +18,10 @@ def test_add_noise(tmpdir, device):
     paddle.device.set_device(device)
     from paddlespeech.vector.io.augment import AddNoise
 
-    test_waveform = paddle.sin(
-        paddle.arange(16000.0, dtype="float32")).unsqueeze(0)
-    test_noise = paddle.cos(
-        paddle.arange(16000.0, dtype="float32")).unsqueeze(0)
+    test_waveform = paddle.sin(paddle.arange(16000.0,
+                                             dtype="float32")).unsqueeze(0)
+    test_noise = paddle.cos(paddle.arange(16000.0,
+                                          dtype="float32")).unsqueeze(0)
     wav_lens = paddle.ones([1], dtype="float32")
 
     # Edge cases
@@ -33,8 +33,8 @@ def test_speed_perturb(device):
     paddle.device.set_device(device)
     from paddlespeech.vector.io.augment import SpeedPerturb
 
-    test_waveform = paddle.sin(
-        paddle.arange(16000.0, dtype="float32")).unsqueeze(0)
+    test_waveform = paddle.sin(paddle.arange(16000.0,
+                                             dtype="float32")).unsqueeze(0)
 
     # Edge cases
     no_perturb = SpeedPerturb(16000, perturb_prob=0.0)
@@ -51,9 +51,10 @@ def test_babble(device):
     paddle.device.set_device(device)
     from paddlespeech.vector.io.augment import AddBabble
 
-    test_waveform = paddle.stack(
-        (paddle.sin(paddle.arange(16000.0, dtype="float32")),
-         paddle.cos(paddle.arange(16000.0, dtype="float32")), ))
+    test_waveform = paddle.stack((
+        paddle.sin(paddle.arange(16000.0, dtype="float32")),
+        paddle.cos(paddle.arange(16000.0, dtype="float32")),
+    ))
     lengths = paddle.ones([2])
 
     # Edge cases
@@ -72,8 +73,8 @@ def test_drop_freq(device):
     paddle.device.set_device(device)
     from paddlespeech.vector.io.augment import DropFreq
 
-    test_waveform = paddle.sin(
-        paddle.arange(16000.0, dtype="float32")).unsqueeze(0)
+    test_waveform = paddle.sin(paddle.arange(16000.0,
+                                             dtype="float32")).unsqueeze(0)
 
     # Edge cases
     no_drop = DropFreq(drop_prob=0.0)
@@ -87,16 +88,16 @@ def test_drop_freq(device):
 
     # Check case where frequency range *does* include signal frequency
     drop_same_freq = DropFreq(drop_freq_low=0.28, drop_freq_high=0.28)
-    assert drop_same_freq(test_waveform).allclose(
-        paddle.zeros([1, 16000]), atol=4e-1)
+    assert drop_same_freq(test_waveform).allclose(paddle.zeros([1, 16000]),
+                                                  atol=4e-1)
 
 
 def test_drop_chunk(device):
     paddle.device.set_device(device)
     from paddlespeech.vector.io.augment import DropChunk
 
-    test_waveform = paddle.sin(
-        paddle.arange(16000.0, dtype="float32")).unsqueeze(0)
+    test_waveform = paddle.sin(paddle.arange(16000.0,
+                                             dtype="float32")).unsqueeze(0)
     lengths = paddle.ones([1])
 
     # Edge cases
@@ -117,7 +118,8 @@ def test_drop_chunk(device):
         drop_count_high=1,
         drop_start=100,
         drop_end=200,
-        noise_factor=0.0, )
+        noise_factor=0.0,
+    )
     expected_waveform = test_waveform.clone()
     expected_waveform[:, 100:200] = 0.0
 

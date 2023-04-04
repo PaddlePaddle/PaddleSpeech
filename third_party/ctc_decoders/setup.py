@@ -113,18 +113,17 @@ if compile_test('lzma.h', 'lzma'):
 os.system('swig -python -c++ ./decoders.i')
 
 decoders_module = [
-    Extension(
-        name='_paddlespeech_ctcdecoders',
-        sources=FILES + glob.glob('*.cxx') + glob.glob('*.cpp'),
-        language='c++',
-        include_dirs=[
-            '.',
-            'kenlm',
-            'openfst-1.6.3/src/include',
-            'ThreadPool',
-        ],
-        libraries=LIBS,
-        extra_compile_args=ARGS)
+    Extension(name='_paddlespeech_ctcdecoders',
+              sources=FILES + glob.glob('*.cxx') + glob.glob('*.cpp'),
+              language='c++',
+              include_dirs=[
+                  '.',
+                  'kenlm',
+                  'openfst-1.6.3/src/include',
+                  'ThreadPool',
+              ],
+              libraries=LIBS,
+              extra_compile_args=ARGS)
 ]
 
 setup(

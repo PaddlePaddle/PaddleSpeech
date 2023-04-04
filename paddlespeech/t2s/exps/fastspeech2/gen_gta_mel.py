@@ -53,11 +53,10 @@ def evaluate(args, fastspeech2_config):
         spk_num = None
 
     odim = fastspeech2_config.n_mels
-    model = FastSpeech2(
-        idim=vocab_size,
-        odim=odim,
-        **fastspeech2_config["model"],
-        spk_num=spk_num)
+    model = FastSpeech2(idim=vocab_size,
+                        odim=odim,
+                        **fastspeech2_config["model"],
+                        spk_num=spk_num)
 
     model.set_state_dict(
         paddle.load(args.fastspeech2_checkpoint)["main_params"])
@@ -153,8 +152,9 @@ def evaluate(args, fastspeech2_config):
         sub_output_dir.mkdir(parents=True, exist_ok=True)
 
         with paddle.no_grad():
-            mel = fastspeech2_inference(
-                phone_ids, durations=durations, spk_id=speaker_id)
+            mel = fastspeech2_inference(phone_ids,
+                                        durations=durations,
+                                        spk_id=speaker_id)
         np.save(sub_output_dir / (utt_id + "_feats.npy"), mel)
 
 
@@ -167,40 +167,47 @@ def main():
         default="baker",
         type=str,
         help="name of dataset, should in {baker, ljspeech, vctk} now")
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
-    parser.add_argument(
-        "--fastspeech2-config", type=str, help="fastspeech2 config file.")
-    parser.add_argument(
-        "--fastspeech2-checkpoint",
-        type=str,
-        help="fastspeech2 checkpoint to load.")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
+    parser.add_argument("--fastspeech2-config",
+                        type=str,
+                        help="fastspeech2 config file.")
+    parser.add_argument("--fastspeech2-checkpoint",
+                        type=str,
+                        help="fastspeech2 checkpoint to load.")
     parser.add_argument(
         "--fastspeech2-stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training fastspeech2."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training fastspeech2."
     )
 
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phone_id_map.txt",
+                        help="phone vocabulary file.")
 
-    parser.add_argument(
-        "--speaker-dict", type=str, default=None, help="speaker id map file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file.")
 
-    parser.add_argument(
-        "--dur-file", default=None, type=str, help="path to durations.txt.")
+    parser.add_argument("--dur-file",
+                        default=None,
+                        type=str,
+                        help="path to durations.txt.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
-    parser.add_argument(
-        "--cut-sil",
-        type=str2bool,
-        default=True,
-        help="whether cut sil in the edge of audio")
+    parser.add_argument("--cut-sil",
+                        type=str2bool,
+                        default=True,
+                        help="whether cut sil in the edge of audio")
 
     args = parser.parse_args()
 

@@ -24,18 +24,18 @@ from paddlespeech.t2s.modules.causal_conv import CausalConv1D
 
 class ResidualStack(nn.Layer):
     """Residual stack module introduced in MelGAN."""
-
     def __init__(
-            self,
-            kernel_size: int=3,
-            channels: int=32,
-            dilation: int=1,
-            bias: bool=True,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.2},
-            pad: str="Pad1D",
-            pad_params: Dict[str, Any]={"mode": "reflect"},
-            use_causal_conv: bool=False, ):
+        self,
+        kernel_size: int = 3,
+        channels: int = 32,
+        dilation: int = 1,
+        bias: bool = True,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.2},
+        pad: str = "Pad1D",
+        pad_params: Dict[str, Any] = {"mode": "reflect"},
+        use_causal_conv: bool = False,
+    ):
         """Initialize ResidualStack module.
 
         Args:
@@ -65,22 +65,22 @@ class ResidualStack(nn.Layer):
 
         # defile residual stack part
         if not use_causal_conv:
-            assert (kernel_size - 1
-                    ) % 2 == 0, "Not support even number kernel size."
+            assert (kernel_size -
+                    1) % 2 == 0, "Not support even number kernel size."
             self.stack = nn.Sequential(
                 get_activation(nonlinear_activation,
                                **nonlinear_activation_params),
                 getattr(nn, pad)((kernel_size - 1) // 2 * dilation,
                                  **pad_params),
-                nn.Conv1D(
-                    channels,
-                    channels,
-                    kernel_size,
-                    dilation=dilation,
-                    bias_attr=bias),
+                nn.Conv1D(channels,
+                          channels,
+                          kernel_size,
+                          dilation=dilation,
+                          bias_attr=bias),
                 get_activation(nonlinear_activation,
                                **nonlinear_activation_params),
-                nn.Conv1D(channels, channels, 1, bias_attr=bias), )
+                nn.Conv1D(channels, channels, 1, bias_attr=bias),
+            )
         else:
             self.stack = nn.Sequential(
                 get_activation(nonlinear_activation,
@@ -92,10 +92,12 @@ class ResidualStack(nn.Layer):
                     dilation=dilation,
                     bias=bias,
                     pad=pad,
-                    pad_params=pad_params, ),
+                    pad_params=pad_params,
+                ),
                 get_activation(nonlinear_activation,
                                **nonlinear_activation_params),
-                nn.Conv1D(channels, channels, 1, bias_attr=bias), )
+                nn.Conv1D(channels, channels, 1, bias_attr=bias),
+            )
 
         # defile extra layer for skip connection
         self.skip_layer = nn.Conv1D(channels, channels, 1, bias_attr=bias)

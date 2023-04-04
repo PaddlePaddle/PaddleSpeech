@@ -52,8 +52,8 @@ def help():
     return response
 
 
-@router.post(
-    "/paddlespeech/asr", response_model=Union[ASRResponse, ErrorResponse])
+@router.post("/paddlespeech/asr",
+             response_model=Union[ASRResponse, ErrorResponse])
 def asr(request_body: ASRRequest):
     """asr api 
 

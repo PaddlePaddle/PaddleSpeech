@@ -96,8 +96,8 @@ class CTCPrefixBeamSearch:
         for t in range(0, maxlen):
             logp = ctc_probs[t]  # (vocab_size,)
             # next_hyps = defaultdict(lambda: (-float('inf'), -float('inf')))
-            next_hyps = defaultdict(
-                        lambda: (-float('inf'), -float('inf'), -float('inf'), -float('inf'), -float('inf'), [], []))
+            next_hyps = defaultdict(lambda: (-float('inf'), -float(
+                'inf'), -float('inf'), -float('inf'), -float('inf'), [], []))
 
             # 2.1 First beam prune: select topk best
             #     do token passing process
@@ -171,10 +171,9 @@ class CTCPrefixBeamSearch:
                                                n_times_nb)
 
             # 2.2 Second beam prune
-            next_hyps = sorted(
-                next_hyps.items(),
-                key=lambda x: log_add([x[1][0], x[1][1]]),
-                reverse=True)
+            next_hyps = sorted(next_hyps.items(),
+                               key=lambda x: log_add([x[1][0], x[1][1]]),
+                               reverse=True)
             self.cur_hyps = next_hyps[:second_beam_size]
 
             # 2.3 update the absolute time step

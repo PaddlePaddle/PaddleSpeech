@@ -69,8 +69,8 @@ class AudioMannger:
         if start_index > len(pcm_bins):
             return False
         # 检查从这个 start 开始是否为静音帧
-        energy = self.compute_chunk_volume(
-            start_index=start_index, pcm_bins=pcm_bins)
+        energy = self.compute_chunk_volume(start_index=start_index,
+                                           pcm_bins=pcm_bins)
         # print(energy)
         if energy > self.vad_threshold:
             return True
@@ -81,8 +81,8 @@ class AudioMannger:
         max_energy = 0
         start = 0
         while start < len(pcm_bins):
-            energy = self.compute_chunk_volume(
-                start_index=start, pcm_bins=pcm_bins)
+            energy = self.compute_chunk_volume(start_index=start,
+                                               pcm_bins=pcm_bins)
             if energy > max_energy:
                 max_energy = energy
             start += self.window_length
@@ -115,8 +115,8 @@ class AudioMannger:
                             file_path = os.path.join(
                                 self.file_dir,
                                 "asr_" + datetime.datetime.strftime(
-                                    datetime.datetime.now(),
-                                    '%Y%m%d%H%M%S') + randName() + ".wav")
+                                    datetime.datetime.now(), '%Y%m%d%H%M%S') +
+                                randName() + ".wav")
                             self.save_audio(file_path=file_path)
                             self.asr_result = self.robot.speech2text(file_path)
                         self.clear_audio()

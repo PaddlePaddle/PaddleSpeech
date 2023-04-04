@@ -33,16 +33,15 @@ __all__ = ['ConvolutionModule']
 
 class ConvolutionModule(nn.Layer):
     """ConvolutionModule in Conformer model."""
-
     def __init__(self,
                  channels: int,
-                 kernel_size: int=15,
-                 activation: nn.Layer=nn.ReLU(),
-                 norm: str="batch_norm",
-                 causal: bool=False,
-                 bias: bool=True,
-                 adaptive_scale: bool=False,
-                 init_weights: bool=False):
+                 kernel_size: int = 15,
+                 activation: nn.Layer = nn.ReLU(),
+                 norm: str = "batch_norm",
+                 causal: bool = False,
+                 bias: bool = True,
+                 adaptive_scale: bool = False,
+                 init_weights: bool = False):
         """Construct an ConvolutionModule object.
         Args:
             channels (int): The number of channels of conv layers.
@@ -143,10 +142,10 @@ class ConvolutionModule(nn.Layer):
                 low=-pw_max, high=pw_max)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-            cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+        self,
+        x: paddle.Tensor,
+        mask_pad: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+        cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Compute convolution module.
         Args:
@@ -172,8 +171,10 @@ class ConvolutionModule(nn.Layer):
 
         if self.lorder > 0:
             if cache.shape[2] == 0:  # cache_t == 0
-                x = nn.functional.pad(
-                    x, [self.lorder, 0], 'constant', 0.0, data_format='NCL')
+                x = nn.functional.pad(x, [self.lorder, 0],
+                                      'constant',
+                                      0.0,
+                                      data_format='NCL')
             else:
                 assert cache.shape[0] == x.shape[0]  # B
                 assert cache.shape[1] == x.shape[1]  # C

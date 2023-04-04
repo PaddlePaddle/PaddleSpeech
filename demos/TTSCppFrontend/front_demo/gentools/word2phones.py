@@ -44,10 +44,12 @@ def GenPhones(initials, finals, seperate=True):
 with open(worddict, "r") as f1, open(newdict, "w+") as f2:
     for line in f1.readlines():
         word = line.split(" ")[0]
-        initials = lazy_pinyin(
-            word, neutral_tone_with_five=True, style=Style.INITIALS)
-        finals = lazy_pinyin(
-            word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
+        initials = lazy_pinyin(word,
+                               neutral_tone_with_five=True,
+                               style=Style.INITIALS)
+        finals = lazy_pinyin(word,
+                             neutral_tone_with_five=True,
+                             style=Style.FINALS_TONE3)
 
         phones = GenPhones(initials, finals, True)
 

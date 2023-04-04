@@ -82,40 +82,42 @@ class Decoder(nn.Layer):
             if False, no additional linear will be applied. i.e. x -> x + att(x)
 
     """
-
     def __init__(
-            self,
-            odim,
-            selfattention_layer_type="selfattn",
-            attention_dim=256,
-            attention_heads=4,
-            conv_wshare=4,
-            conv_kernel_length=11,
-            conv_usebias=False,
-            linear_units=2048,
-            num_blocks=6,
-            dropout_rate=0.1,
-            positional_dropout_rate=0.1,
-            self_attention_dropout_rate=0.0,
-            src_attention_dropout_rate=0.0,
-            input_layer="embed",
-            use_output_layer=True,
-            pos_enc_class=PositionalEncoding,
-            normalize_before=True,
-            concat_after=False, ):
+        self,
+        odim,
+        selfattention_layer_type="selfattn",
+        attention_dim=256,
+        attention_heads=4,
+        conv_wshare=4,
+        conv_kernel_length=11,
+        conv_usebias=False,
+        linear_units=2048,
+        num_blocks=6,
+        dropout_rate=0.1,
+        positional_dropout_rate=0.1,
+        self_attention_dropout_rate=0.0,
+        src_attention_dropout_rate=0.0,
+        input_layer="embed",
+        use_output_layer=True,
+        pos_enc_class=PositionalEncoding,
+        normalize_before=True,
+        concat_after=False,
+    ):
         """Construct an Decoder object."""
         nn.Layer.__init__(self)
         if input_layer == "embed":
             self.embed = nn.Sequential(
                 nn.Embedding(odim, attention_dim),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif input_layer == "linear":
             self.embed = nn.Sequential(
                 nn.Linear(odim, attention_dim),
                 nn.LayerNorm(attention_dim),
                 nn.Dropout(dropout_rate),
                 nn.ReLU(),
-                pos_enc_class(attention_dim, positional_dropout_rate), )
+                pos_enc_class(attention_dim, positional_dropout_rate),
+            )
         elif isinstance(input_layer, nn.Layer):
             self.embed = nn.Sequential(
                 input_layer,
@@ -128,28 +130,38 @@ class Decoder(nn.Layer):
         if selfattention_layer_type == "selfattn":
             logging.info("decoder self-attention layer type = self-attention")
             decoder_selfattn_layer = MultiHeadedAttention
-            decoder_selfattn_layer_args = [
-                (attention_heads, attention_dim, self_attention_dropout_rate, )
-            ] * num_blocks
+            decoder_selfattn_layer_args = [(
+                attention_heads,
+                attention_dim,
+                self_attention_dropout_rate,
+            )] * num_blocks
         elif selfattention_layer_type == "lightconv":
             logging.info(
                 "decoder self-attention layer type = lightweight convolution")
             decoder_selfattn_layer = LightweightConvolution
             decoder_selfattn_layer_args = [(
-                conv_wshare, attention_dim, self_attention_dropout_rate,
-                int(conv_kernel_length.split("_")[lnum]), True, conv_usebias, )
-                                           for lnum in range(num_blocks)]
+                conv_wshare,
+                attention_dim,
+                self_attention_dropout_rate,
+                int(conv_kernel_length.split("_")[lnum]),
+                True,
+                conv_usebias,
+            ) for lnum in range(num_blocks)]
 
         self.decoders = repeat(
             num_blocks,
             lambda lnum: DecoderLayer(
                 attention_dim,
                 decoder_selfattn_layer(*decoder_selfattn_layer_args[lnum]),
-                MultiHeadedAttention(attention_heads, attention_dim, src_attention_dropout_rate),
-                PositionwiseFeedForward(attention_dim, linear_units, dropout_rate),
+                MultiHeadedAttention(attention_heads, attention_dim,
+                                     src_attention_dropout_rate),
+                PositionwiseFeedForward(attention_dim, linear_units,
+                                        dropout_rate),
                 dropout_rate,
                 normalize_before,
-                concat_after, ), )
+                concat_after,
+            ),
+        )
         self.selfattention_layer_type = selfattention_layer_type
         if self.normalize_before:
             self.after_norm = LayerNorm(attention_dim)
@@ -180,8 +192,8 @@ class Decoder(nn.Layer):
 
         """
         x = self.embed(tgt)
-        x, tgt_mask, memory, memory_mask = self.decoders(x, tgt_mask, memory,
-                                                         memory_mask)
+        x, tgt_mask, memory, memory_mask = self.decoders(
+            x, tgt_mask, memory, memory_mask)
         if self.normalize_before:
             x = self.after_norm(x)
         if self.output_layer is not None:
@@ -213,8 +225,11 @@ class Decoder(nn.Layer):
             cache = [None] * len(self.decoders)
         new_cache = []
         for c, decoder in zip(cache, self.decoders):
-            x, tgt_mask, memory, memory_mask = decoder(
-                x, tgt_mask, memory, None, cache=c)
+            x, tgt_mask, memory, memory_mask = decoder(x,
+                                                       tgt_mask,
+                                                       memory,
+                                                       None,
+                                                       cache=c)
             new_cache.append(x)
 
         if self.normalize_before:
@@ -236,14 +251,14 @@ class Decoder(nn.Layer):
                 f"{self.selfattention_layer_type} does not support cached decoding."
             )
             state = None
-        logp, state = self.forward_one_step(
-            ys.unsqueeze(0), ys_mask, x.unsqueeze(0), cache=state)
+        logp, state = self.forward_one_step(ys.unsqueeze(0),
+                                            ys_mask,
+                                            x.unsqueeze(0),
+                                            cache=state)
         return logp.squeeze(0), state
 
     # batch beam search API (see BatchScorerInterface)
-    def batch_score(self,
-                    ys: paddle.Tensor,
-                    states: List[Any],
+    def batch_score(self, ys: paddle.Tensor, states: List[Any],
                     xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 

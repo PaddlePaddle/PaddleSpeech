@@ -75,18 +75,16 @@ def start_server(config, args):
     # warming up with utterrances sampled from Librispeech
     print('-----------------------------------------------------------')
     print('Warming up ...')
-    warm_up_test(
-        audio_process_handler=file_to_transcript,
-        manifest_path=args.warmup_manifest,
-        num_test_cases=3)
+    warm_up_test(audio_process_handler=file_to_transcript,
+                 manifest_path=args.warmup_manifest,
+                 num_test_cases=3)
     print('-----------------------------------------------------------')
 
     # start the server
-    server = AsrTCPServer(
-        server_address=(args.host_ip, args.host_port),
-        RequestHandlerClass=AsrRequestHandler,
-        speech_save_dir=args.speech_save_dir,
-        audio_process_handler=file_to_transcript)
+    server = AsrTCPServer(server_address=(args.host_ip, args.host_port),
+                          RequestHandlerClass=AsrRequestHandler,
+                          speech_save_dir=args.speech_save_dir,
+                          audio_process_handler=file_to_transcript)
     print("ASR Server Started.")
     server.serve_forever()
 

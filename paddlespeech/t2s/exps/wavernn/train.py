@@ -66,7 +66,8 @@ def train_sp(args, config):
         converters={
             "wave": np.load,
             "feats": np.load,
-        }, )
+        },
+    )
 
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
@@ -76,46 +77,43 @@ def train_sp(args, config):
         converters={
             "wave": np.load,
             "feats": np.load,
-        }, )
+        },
+    )
 
-    batch_fn = WaveRNNClip(
-        mode=config.model.mode,
-        aux_context_window=config.model.aux_context_window,
-        hop_size=config.n_shift,
-        batch_max_steps=config.batch_max_steps,
-        bits=config.model.bits)
+    batch_fn = WaveRNNClip(mode=config.model.mode,
+                           aux_context_window=config.model.aux_context_window,
+                           hop_size=config.n_shift,
+                           batch_max_steps=config.batch_max_steps,
+                           bits=config.model.bits)
 
     # collate function and dataloader
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=True)
-    dev_sampler = DistributedBatchSampler(
-        dev_dataset,
-        batch_size=config.batch_size,
-        shuffle=False,
-        drop_last=False)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
+    dev_sampler = DistributedBatchSampler(dev_dataset,
+                                          batch_size=config.batch_size,
+                                          shuffle=False,
+                                          drop_last=False)
     print("samplers done!")
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=batch_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=batch_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        collate_fn=batch_fn,
-        batch_sampler=dev_sampler,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                collate_fn=batch_fn,
+                                batch_sampler=dev_sampler,
+                                num_workers=config.num_workers)
 
     valid_generate_loader = DataLoader(dev_dataset, batch_size=1)
 
     print("dataloaders done!")
 
-    model = WaveRNN(
-        hop_length=config.n_shift, sample_rate=config.fs, **config["model"])
+    model = WaveRNN(hop_length=config.n_shift,
+                    sample_rate=config.fs,
+                    **config["model"])
     if world_size > 1:
         model = DataParallel(model)
     print("model done!")
@@ -129,10 +127,9 @@ def train_sp(args, config):
         RuntimeError('Unknown model mode value - ', config.model.mode)
     print("criterions done!")
     clip = paddle.nn.ClipGradByGlobalNorm(config.grad_clip)
-    optimizer = Adam(
-        parameters=model.parameters(),
-        learning_rate=config.learning_rate,
-        grad_clip=clip)
+    optimizer = Adam(parameters=model.parameters(),
+                     learning_rate=config.learning_rate,
+                     grad_clip=clip)
 
     print("optimizer done!")
 
@@ -143,34 +140,30 @@ def train_sp(args, config):
         # copy conf to output_dir
         shutil.copyfile(args.config, output_dir / config_name)
 
-    updater = WaveRNNUpdater(
-        model=model,
-        optimizer=optimizer,
-        criterion=criterion,
-        dataloader=train_dataloader,
-        output_dir=output_dir,
-        mode=config.model.mode)
+    updater = WaveRNNUpdater(model=model,
+                             optimizer=optimizer,
+                             criterion=criterion,
+                             dataloader=train_dataloader,
+                             output_dir=output_dir,
+                             mode=config.model.mode)
 
-    evaluator = WaveRNNEvaluator(
-        model=model,
-        dataloader=dev_dataloader,
-        criterion=criterion,
-        output_dir=output_dir,
-        valid_generate_loader=valid_generate_loader,
-        config=config)
+    evaluator = WaveRNNEvaluator(model=model,
+                                 dataloader=dev_dataloader,
+                                 criterion=criterion,
+                                 output_dir=output_dir,
+                                 valid_generate_loader=valid_generate_loader,
+                                 config=config)
 
-    trainer = Trainer(
-        updater,
-        stop_trigger=(config.train_max_steps, "iteration"),
-        out=output_dir)
+    trainer = Trainer(updater,
+                      stop_trigger=(config.train_max_steps, "iteration"),
+                      out=output_dir)
 
     if dist.get_rank() == 0:
-        trainer.extend(
-            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+        trainer.extend(evaluator,
+                       trigger=(config.eval_interval_steps, 'iteration'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots),
-        trigger=(config.save_interval_steps, 'iteration'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()
@@ -184,8 +177,10 @@ def main():
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 

@@ -47,7 +47,6 @@ class Sequential(paddle.nn.LayerDict):
     >>> outputs.shape
     paddle.shape([10, 40, 100])
     """
-
     def __init__(self, *layers, input_shape=None, **named_layers):
         super().__init__()
 

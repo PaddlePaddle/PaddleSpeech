@@ -72,37 +72,35 @@ def change_engine_type(yamlfile: str, engine_type):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--config_file',
-        type=str,
-        default='./conf/application.yaml',
-        help='server yaml file.')
-    parser.add_argument(
-        '--change_task',
-        type=str,
-        default=None,
-        help='Change task',
-        choices=[
-            'enginetype-asr_python',
-            'enginetype-asr_inference',
-            'enginetype-tts_python',
-            'enginetype-tts_inference',
-            'enginetype-cls_python',
-            'enginetype-cls_inference',
-            'device-asr_python-cpu',
-            'device-asr_python-gpu',
-            'device-asr_inference-cpu',
-            'device-asr_inference-gpu',
-            'device-tts_python-cpu',
-            'device-tts_python-gpu',
-            'device-tts_inference-cpu',
-            'device-tts_inference-gpu',
-            'device-cls_python-cpu',
-            'device-cls_python-gpu',
-            'device-cls_inference-cpu',
-            'device-cls_inference-gpu',
-        ],
-        required=True)
+    parser.add_argument('--config_file',
+                        type=str,
+                        default='./conf/application.yaml',
+                        help='server yaml file.')
+    parser.add_argument('--change_task',
+                        type=str,
+                        default=None,
+                        help='Change task',
+                        choices=[
+                            'enginetype-asr_python',
+                            'enginetype-asr_inference',
+                            'enginetype-tts_python',
+                            'enginetype-tts_inference',
+                            'enginetype-cls_python',
+                            'enginetype-cls_inference',
+                            'device-asr_python-cpu',
+                            'device-asr_python-gpu',
+                            'device-asr_inference-cpu',
+                            'device-asr_inference-gpu',
+                            'device-tts_python-cpu',
+                            'device-tts_python-gpu',
+                            'device-tts_inference-cpu',
+                            'device-tts_inference-gpu',
+                            'device-cls_python-cpu',
+                            'device-cls_python-gpu',
+                            'device-cls_inference-cpu',
+                            'device-cls_inference-gpu',
+                        ],
+                        required=True)
     args = parser.parse_args()
 
     types = args.change_task.split("-")

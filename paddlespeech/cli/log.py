@@ -20,7 +20,7 @@ __all__ = [
 
 
 class Logger(object):
-    def __init__(self, name: str=None):
+    def __init__(self, name: str = None):
         name = 'PaddleSpeech' if not name else name
         self.logger = logging.getLogger(name)
 
@@ -39,8 +39,8 @@ class Logger(object):
             if key == 'EXCEPTION':
                 self.__dict__[key.lower()] = self.logger.exception
             else:
-                self.__dict__[key.lower()] = functools.partial(self.__call__,
-                                                               level)
+                self.__dict__[key.lower()] = functools.partial(
+                    self.__call__, level)
 
         self.format = logging.Formatter(
             fmt='[%(asctime)-15s] [%(levelname)8s] - %(message)s')

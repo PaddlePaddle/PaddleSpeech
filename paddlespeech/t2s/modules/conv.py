@@ -70,7 +70,6 @@ class Conv1dCell(nn.Conv1D):
         >>> outputs[0].shape
         [4, 4]
     """
-
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -80,18 +79,18 @@ class Conv1dCell(nn.Conv1D):
                  bias_attr=None):
         _dilation = dilation[0] if isinstance(dilation,
                                               (tuple, list)) else dilation
-        _kernel_size = kernel_size[0] if isinstance(kernel_size, (
-            tuple, list)) else kernel_size
+        _kernel_size = kernel_size[0] if isinstance(kernel_size,
+                                                    (tuple,
+                                                     list)) else kernel_size
         self._r = 1 + (_kernel_size - 1) * _dilation
-        super().__init__(
-            in_channels,
-            out_channels,
-            kernel_size,
-            padding=(self._r - 1, 0),
-            dilation=dilation,
-            weight_attr=weight_attr,
-            bias_attr=bias_attr,
-            data_format="NCL")
+        super().__init__(in_channels,
+                         out_channels,
+                         kernel_size,
+                         padding=(self._r - 1, 0),
+                         dilation=dilation,
+                         weight_attr=weight_attr,
+                         bias_attr=bias_attr,
+                         data_format="NCL")
 
     @property
     def receptive_field(self):
@@ -146,7 +145,8 @@ class Conv1dCell(nn.Conv1D):
             
         """
         self._buffer = paddle.concat(
-            [self._buffer[:, :, 1:], paddle.unsqueeze(x_t, -1)], -1)
+            [self._buffer[:, :, 1:],
+             paddle.unsqueeze(x_t, -1)], -1)
 
     def add_input(self, x_t):
         """Add step input and compute step output.
@@ -210,7 +210,6 @@ class Conv1dBatchNorm(nn.Layer):
         epsilon (float, optional): 
             The epsilon of the BatchNorm1D layer, by default 1e-05
     """
-
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -223,20 +222,18 @@ class Conv1dBatchNorm(nn.Layer):
                  momentum=0.9,
                  epsilon=1e-05):
         super().__init__()
-        self.conv = nn.Conv1D(
-            in_channels,
-            out_channels,
-            kernel_size,
-            stride,
-            padding=padding,
-            weight_attr=weight_attr,
-            bias_attr=bias_attr,
-            data_format=data_format)
-        self.bn = nn.BatchNorm1D(
-            out_channels,
-            momentum=momentum,
-            epsilon=epsilon,
-            data_format=data_format)
+        self.conv = nn.Conv1D(in_channels,
+                              out_channels,
+                              kernel_size,
+                              stride,
+                              padding=padding,
+                              weight_attr=weight_attr,
+                              bias_attr=bias_attr,
+                              data_format=data_format)
+        self.bn = nn.BatchNorm1D(out_channels,
+                                 momentum=momentum,
+                                 epsilon=epsilon,
+                                 data_format=data_format)
 
     def forward(self, x):
         """Forward pass of the Conv1dBatchNorm layer.

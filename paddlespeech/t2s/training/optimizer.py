@@ -20,7 +20,8 @@ scheduler_classes = dict(
     step_decay=paddle.optimizer.lr.StepDecay,
     multistep_decay=paddle.optimizer.lr.MultiStepDecay,
     exponential_decay=paddle.optimizer.lr.ExponentialDecay,
-    CosineAnnealingDecay=paddle.optimizer.lr.CosineAnnealingDecay, )
+    CosineAnnealingDecay=paddle.optimizer.lr.CosineAnnealingDecay,
+)
 
 optim_classes = dict(
     adadelta=paddle.optimizer.Adadelta,
@@ -31,16 +32,18 @@ optim_classes = dict(
     lamb=paddle.optimizer.Lamb,
     momentum=paddle.optimizer.Momentum,
     rmsprop=paddle.optimizer.RMSProp,
-    sgd=paddle.optimizer.SGD, )
+    sgd=paddle.optimizer.SGD,
+)
 
 
 def build_optimizers(
-        model: nn.Layer,
-        optim='adadelta',
-        max_grad_norm=None,
-        learning_rate=0.01,
-        weight_decay=None,
-        epsilon=1.0e-6, ) -> paddle.optimizer:
+    model: nn.Layer,
+    optim='adadelta',
+    max_grad_norm=None,
+    learning_rate=0.01,
+    weight_decay=None,
+    epsilon=1.0e-6,
+) -> paddle.optimizer:
     optim_class = optim_classes.get(optim)
     if optim_class is None:
         raise ValueError(f"must be one of {list(optim_classes)}: {optim}")

@@ -36,18 +36,18 @@ __all__ = ['ASREngine', 'PaddleASRConnectionHandler']
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        self.task_resource = CommonTaskResource(
-            task='asr', model_format='static')
+        self.task_resource = CommonTaskResource(task='asr',
+                                                model_format='static')
 
     def _init_from_path(self,
-                        model_type: str='wenetspeech',
-                        am_model: Optional[os.PathLike]=None,
-                        am_params: Optional[os.PathLike]=None,
-                        lang: str='zh',
-                        sample_rate: int=16000,
-                        cfg_path: Optional[os.PathLike]=None,
-                        decode_method: str='attention_rescoring',
-                        am_predictor_conf: dict=None):
+                        model_type: str = 'wenetspeech',
+                        am_model: Optional[os.PathLike] = None,
+                        am_params: Optional[os.PathLike] = None,
+                        lang: str = 'zh',
+                        sample_rate: int = 16000,
+                        cfg_path: Optional[os.PathLike] = None,
+                        decode_method: str = 'attention_rescoring',
+                        am_predictor_conf: dict = None):
         """
         Init model and other resources from a specific path.
         """
@@ -97,8 +97,8 @@ class ASRServerExecutor(ASRExecutor):
                 lm_url = self.task_resource.res_dict['lm_url']
                 lm_md5 = self.task_resource.res_dict['lm_md5']
                 self.download_lm(
-                    lm_url,
-                    os.path.dirname(self.config.decode.lang_model_path), lm_md5)
+                    lm_url, os.path.dirname(self.config.decode.lang_model_path),
+                    lm_md5)
             elif "conformer" in model_type or "transformer" in model_type:
                 raise Exception("wrong type")
             else:
@@ -132,14 +132,16 @@ class ASRServerExecutor(ASRExecutor):
         if "deepspeech2" in model_type:
             decode_batch_size = audio.shape[0]
             # init once
-            self.decoder.init_decoder(
-                decode_batch_size, self.text_feature.vocab_list,
-                cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
-                cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
-                cfg.num_proc_bsearch)
+            self.decoder.init_decoder(decode_batch_size,
+                                      self.text_feature.vocab_list,
+                                      cfg.decoding_method, cfg.lang_model_path,
+                                      cfg.alpha, cfg.beta, cfg.beam_size,
+                                      cfg.cutoff_prob, cfg.cutoff_top_n,
+                                      cfg.num_proc_bsearch)
 
-            output_data = run_model(self.am_predictor,
-                                    [audio.numpy(), audio_len.numpy()])
+            output_data = run_model(
+                self.am_predictor,
+                [audio.numpy(), audio_len.numpy()])
 
             probs = output_data[0]
             eouts_len = output_data[1]
@@ -164,7 +166,6 @@ class ASREngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         super(ASREngine, self).__init__()
 
@@ -233,9 +234,9 @@ class PaddleASRConnectionHandler(ASRServerExecutor):
         Args:
             audio_data (bytes): base64.b64decode
         """
-        if self._check(
-                io.BytesIO(audio_data), self.asr_engine.config.sample_rate,
-                self.asr_engine.config.force_yes):
+        if self._check(io.BytesIO(audio_data),
+                       self.asr_engine.config.sample_rate,
+                       self.asr_engine.config.force_yes):
             logger.debug("start running asr engine")
             self.preprocess(self.asr_engine.config.model_type,
                             io.BytesIO(audio_data))

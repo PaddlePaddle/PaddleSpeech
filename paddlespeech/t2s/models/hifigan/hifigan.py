@@ -29,25 +29,24 @@ from paddlespeech.t2s.modules.residual_block import HiFiGANResidualBlock as Resi
 
 class HiFiGANGenerator(nn.Layer):
     """HiFiGAN generator module."""
-
     def __init__(
-            self,
-            in_channels: int=80,
-            out_channels: int=1,
-            channels: int=512,
-            global_channels: int=-1,
-            kernel_size: int=7,
-            upsample_scales: List[int]=(8, 8, 2, 2),
-            upsample_kernel_sizes: List[int]=(16, 16, 4, 4),
-            resblock_kernel_sizes: List[int]=(3, 7, 11),
-            resblock_dilations: List[List[int]]=[(1, 3, 5), (1, 3, 5),
-                                                 (1, 3, 5)],
-            use_additional_convs: bool=True,
-            bias: bool=True,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.1},
-            use_weight_norm: bool=True,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 80,
+        out_channels: int = 1,
+        channels: int = 512,
+        global_channels: int = -1,
+        kernel_size: int = 7,
+        upsample_scales: List[int] = (8, 8, 2, 2),
+        upsample_kernel_sizes: List[int] = (16, 16, 4, 4),
+        resblock_kernel_sizes: List[int] = (3, 7, 11),
+        resblock_dilations: List[List[int]] = [(1, 3, 5), (1, 3, 5), (1, 3, 5)],
+        use_additional_convs: bool = True,
+        bias: bool = True,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.1},
+        use_weight_norm: bool = True,
+        init_type: str = "xavier_uniform",
+    ):
         """Initialize HiFiGANGenerator module.
         Args:
             in_channels (int): 
@@ -98,23 +97,26 @@ class HiFiGANGenerator(nn.Layer):
             channels,
             kernel_size,
             1,
-            padding=(kernel_size - 1) // 2, )
+            padding=(kernel_size - 1) // 2,
+        )
         self.upsamples = nn.LayerList()
         self.blocks = nn.LayerList()
         for i in range(len(upsample_kernel_sizes)):
             assert upsample_kernel_sizes[i] == 2 * upsample_scales[i]
             self.upsamples.append(
                 nn.Sequential(
-                    get_activation(nonlinear_activation, **
-                                   nonlinear_activation_params),
+                    get_activation(nonlinear_activation,
+                                   **nonlinear_activation_params),
                     nn.Conv1DTranspose(
                         channels // (2**i),
                         channels // (2**(i + 1)),
                         upsample_kernel_sizes[i],
                         upsample_scales[i],
-                        padding=upsample_scales[i] // 2 + upsample_scales[i] %
-                        2,
-                        output_padding=upsample_scales[i] % 2, ), ))
+                        padding=upsample_scales[i] // 2 +
+                        upsample_scales[i] % 2,
+                        output_padding=upsample_scales[i] % 2,
+                    ),
+                ))
             for j in range(len(resblock_kernel_sizes)):
                 self.blocks.append(
                     ResidualBlock(
@@ -133,8 +135,10 @@ class HiFiGANGenerator(nn.Layer):
                 out_channels,
                 kernel_size,
                 1,
-                padding=(kernel_size - 1) // 2, ),
-            nn.Tanh(), )
+                padding=(kernel_size - 1) // 2,
+            ),
+            nn.Tanh(),
+        )
 
         if global_channels > 0:
             self.global_conv = nn.Conv1D(global_channels, channels, 1)
@@ -148,7 +152,7 @@ class HiFiGANGenerator(nn.Layer):
         # reset parameters
         self.reset_parameters()
 
-    def forward(self, c, g: Optional[paddle.Tensor]=None):
+    def forward(self, c, g: Optional[paddle.Tensor] = None):
         """Calculate forward propagation.
         
         Args:
@@ -190,7 +194,6 @@ class HiFiGANGenerator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -201,7 +204,6 @@ class HiFiGANGenerator(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 nn.utils.remove_weight_norm(layer)
@@ -210,7 +212,7 @@ class HiFiGANGenerator(nn.Layer):
 
         self.apply(_remove_weight_norm)
 
-    def inference(self, c, g: Optional[paddle.Tensor]=None):
+    def inference(self, c, g: Optional[paddle.Tensor] = None):
         """Perform inference.
         Args:
             c (Tensor): 
@@ -229,22 +231,22 @@ class HiFiGANGenerator(nn.Layer):
 
 class HiFiGANPeriodDiscriminator(nn.Layer):
     """HiFiGAN period discriminator module."""
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            period: int=3,
-            kernel_sizes: List[int]=[5, 3],
-            channels: int=32,
-            downsample_scales: List[int]=[3, 3, 3, 3, 1],
-            max_downsample_channels: int=1024,
-            bias: bool=True,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.1},
-            use_weight_norm: bool=True,
-            use_spectral_norm: bool=False,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        period: int = 3,
+        kernel_sizes: List[int] = [5, 3],
+        channels: int = 32,
+        downsample_scales: List[int] = [3, 3, 3, 3, 1],
+        max_downsample_channels: int = 1024,
+        bias: bool = True,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.1},
+        use_weight_norm: bool = True,
+        use_spectral_norm: bool = False,
+        init_type: str = "xavier_uniform",
+    ):
         """Initialize HiFiGANPeriodDiscriminator module.
 
         Args:
@@ -298,9 +300,11 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
                         out_chs,
                         (kernel_sizes[0], 1),
                         (downsample_scale, 1),
-                        padding=((kernel_sizes[0] - 1) // 2, 0), ),
-                    get_activation(nonlinear_activation, **
-                                   nonlinear_activation_params), ))
+                        padding=((kernel_sizes[0] - 1) // 2, 0),
+                    ),
+                    get_activation(nonlinear_activation,
+                                   **nonlinear_activation_params),
+                ))
             in_chs = out_chs
             # NOTE: Use downsample_scale + 1?
             out_chs = min(out_chs * 4, max_downsample_channels)
@@ -309,7 +313,8 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
             out_channels,
             (kernel_sizes[1] - 1, 1),
             1,
-            padding=((kernel_sizes[1] - 1) // 2, 0), )
+            padding=((kernel_sizes[1] - 1) // 2, 0),
+        )
 
         if use_weight_norm and use_spectral_norm:
             raise ValueError("Either use use_weight_norm or use_spectral_norm.")
@@ -354,7 +359,6 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -363,7 +367,6 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
 
     def apply_spectral_norm(self):
         """Apply spectral normalization module from all of the layers."""
-
         def _apply_spectral_norm(m):
             if isinstance(m, nn.Conv2D):
                 nn.utils.spectral_norm(m)
@@ -373,26 +376,26 @@ class HiFiGANPeriodDiscriminator(nn.Layer):
 
 class HiFiGANMultiPeriodDiscriminator(nn.Layer):
     """HiFiGAN multi-period discriminator module."""
-
     def __init__(
-            self,
-            periods: List[int]=[2, 3, 5, 7, 11],
-            discriminator_params: Dict[str, Any]={
-                "in_channels": 1,
-                "out_channels": 1,
-                "kernel_sizes": [5, 3],
-                "channels": 32,
-                "downsample_scales": [3, 3, 3, 3, 1],
-                "max_downsample_channels": 1024,
-                "bias": True,
-                "nonlinear_activation": "leakyrelu",
-                "nonlinear_activation_params": {
-                    "negative_slope": 0.1
-                },
-                "use_weight_norm": True,
-                "use_spectral_norm": False,
+        self,
+        periods: List[int] = [2, 3, 5, 7, 11],
+        discriminator_params: Dict[str, Any] = {
+            "in_channels": 1,
+            "out_channels": 1,
+            "kernel_sizes": [5, 3],
+            "channels": 32,
+            "downsample_scales": [3, 3, 3, 3, 1],
+            "max_downsample_channels": 1024,
+            "bias": True,
+            "nonlinear_activation": "leakyrelu",
+            "nonlinear_activation_params": {
+                "negative_slope": 0.1
             },
-            init_type: str="xavier_uniform", ):
+            "use_weight_norm": True,
+            "use_spectral_norm": False,
+        },
+        init_type: str = "xavier_uniform",
+    ):
         """Initialize HiFiGANMultiPeriodDiscriminator module.
 
         Args:
@@ -430,22 +433,22 @@ class HiFiGANMultiPeriodDiscriminator(nn.Layer):
 
 class HiFiGANScaleDiscriminator(nn.Layer):
     """HiFi-GAN scale discriminator module."""
-
     def __init__(
-            self,
-            in_channels: int=1,
-            out_channels: int=1,
-            kernel_sizes: List[int]=[15, 41, 5, 3],
-            channels: int=128,
-            max_downsample_channels: int=1024,
-            max_groups: int=16,
-            bias: bool=True,
-            downsample_scales: List[int]=[2, 2, 4, 4, 1],
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.1},
-            use_weight_norm: bool=True,
-            use_spectral_norm: bool=False,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 1,
+        out_channels: int = 1,
+        kernel_sizes: List[int] = [15, 41, 5, 3],
+        channels: int = 128,
+        max_downsample_channels: int = 1024,
+        max_groups: int = 16,
+        bias: bool = True,
+        downsample_scales: List[int] = [2, 2, 4, 4, 1],
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.1},
+        use_weight_norm: bool = True,
+        use_spectral_norm: bool = False,
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize HiFiGAN scale discriminator module.
 
         Args:
@@ -494,9 +497,11 @@ class HiFiGANScaleDiscriminator(nn.Layer):
                     # NOTE: Use always the same kernel size
                     kernel_sizes[0],
                     bias_attr=bias,
-                    padding=(kernel_sizes[0] - 1) // 2, ),
-                get_activation(nonlinear_activation, **
-                               nonlinear_activation_params), ))
+                    padding=(kernel_sizes[0] - 1) // 2,
+                ),
+                get_activation(nonlinear_activation,
+                               **nonlinear_activation_params),
+            ))
 
         # add downsample layers
         in_chs = channels
@@ -513,9 +518,11 @@ class HiFiGANScaleDiscriminator(nn.Layer):
                         stride=downsample_scale,
                         padding=(kernel_sizes[1] - 1) // 2,
                         groups=groups,
-                        bias_attr=bias, ),
-                    get_activation(nonlinear_activation, **
-                                   nonlinear_activation_params), ))
+                        bias_attr=bias,
+                    ),
+                    get_activation(nonlinear_activation,
+                                   **nonlinear_activation_params),
+                ))
             in_chs = out_chs
             # NOTE: Remove hard coding?
             out_chs = min(in_chs * 2, max_downsample_channels)
@@ -532,9 +539,11 @@ class HiFiGANScaleDiscriminator(nn.Layer):
                     kernel_size=kernel_sizes[2],
                     stride=1,
                     padding=(kernel_sizes[2] - 1) // 2,
-                    bias_attr=bias, ),
-                get_activation(nonlinear_activation, **
-                               nonlinear_activation_params), ))
+                    bias_attr=bias,
+                ),
+                get_activation(nonlinear_activation,
+                               **nonlinear_activation_params),
+            ))
         self.layers.append(
             nn.Conv1D(
                 out_chs,
@@ -542,7 +551,8 @@ class HiFiGANScaleDiscriminator(nn.Layer):
                 kernel_size=kernel_sizes[3],
                 stride=1,
                 padding=(kernel_sizes[3] - 1) // 2,
-                bias_attr=bias, ), )
+                bias_attr=bias,
+            ), )
 
         if use_weight_norm and use_spectral_norm:
             raise ValueError("Either use use_weight_norm or use_spectral_norm.")
@@ -574,7 +584,6 @@ class HiFiGANScaleDiscriminator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv2D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -583,7 +592,6 @@ class HiFiGANScaleDiscriminator(nn.Layer):
 
     def apply_spectral_norm(self):
         """Apply spectral normalization module from all of the layers."""
-
         def _apply_spectral_norm(m):
             if isinstance(m, nn.Conv2D):
                 nn.utils.spectral_norm(m)
@@ -593,33 +601,33 @@ class HiFiGANScaleDiscriminator(nn.Layer):
 
 class HiFiGANMultiScaleDiscriminator(nn.Layer):
     """HiFi-GAN multi-scale discriminator module."""
-
     def __init__(
-            self,
-            scales: int=3,
-            downsample_pooling: str="AvgPool1D",
-            # follow the official implementation setting
-            downsample_pooling_params: Dict[str, Any]={
-                "kernel_size": 4,
-                "stride": 2,
-                "padding": 2,
+        self,
+        scales: int = 3,
+        downsample_pooling: str = "AvgPool1D",
+        # follow the official implementation setting
+        downsample_pooling_params: Dict[str, Any] = {
+            "kernel_size": 4,
+            "stride": 2,
+            "padding": 2,
+        },
+        discriminator_params: Dict[str, Any] = {
+            "in_channels": 1,
+            "out_channels": 1,
+            "kernel_sizes": [15, 41, 5, 3],
+            "channels": 128,
+            "max_downsample_channels": 1024,
+            "max_groups": 16,
+            "bias": True,
+            "downsample_scales": [2, 2, 4, 4, 1],
+            "nonlinear_activation": "leakyrelu",
+            "nonlinear_activation_params": {
+                "negative_slope": 0.1
             },
-            discriminator_params: Dict[str, Any]={
-                "in_channels": 1,
-                "out_channels": 1,
-                "kernel_sizes": [15, 41, 5, 3],
-                "channels": 128,
-                "max_downsample_channels": 1024,
-                "max_groups": 16,
-                "bias": True,
-                "downsample_scales": [2, 2, 4, 4, 1],
-                "nonlinear_activation": "leakyrelu",
-                "nonlinear_activation_params": {
-                    "negative_slope": 0.1
-                },
-            },
-            follow_official_norm: bool=False,
-            init_type: str="xavier_uniform", ):
+        },
+        follow_official_norm: bool = False,
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize HiFiGAN multi-scale discriminator module.
    
         Args:
@@ -648,8 +656,8 @@ class HiFiGANMultiScaleDiscriminator(nn.Layer):
                     params["use_weight_norm"] = True
                     params["use_spectral_norm"] = False
             self.discriminators.append(HiFiGANScaleDiscriminator(**params))
-        self.pooling = getattr(nn, downsample_pooling)(
-            **downsample_pooling_params)
+        self.pooling = getattr(nn,
+                               downsample_pooling)(**downsample_pooling_params)
 
     def forward(self, x):
         """Calculate forward propagation.
@@ -670,50 +678,50 @@ class HiFiGANMultiScaleDiscriminator(nn.Layer):
 
 class HiFiGANMultiScaleMultiPeriodDiscriminator(nn.Layer):
     """HiFi-GAN multi-scale + multi-period discriminator module."""
-
     def __init__(
-            self,
-            # Multi-scale discriminator related
-            scales: int=3,
-            scale_downsample_pooling: str="AvgPool1D",
-            scale_downsample_pooling_params: Dict[str, Any]={
-                "kernel_size": 4,
-                "stride": 2,
-                "padding": 2,
+        self,
+        # Multi-scale discriminator related
+        scales: int = 3,
+        scale_downsample_pooling: str = "AvgPool1D",
+        scale_downsample_pooling_params: Dict[str, Any] = {
+            "kernel_size": 4,
+            "stride": 2,
+            "padding": 2,
+        },
+        scale_discriminator_params: Dict[str, Any] = {
+            "in_channels": 1,
+            "out_channels": 1,
+            "kernel_sizes": [15, 41, 5, 3],
+            "channels": 128,
+            "max_downsample_channels": 1024,
+            "max_groups": 16,
+            "bias": True,
+            "downsample_scales": [2, 2, 4, 4, 1],
+            "nonlinear_activation": "leakyrelu",
+            "nonlinear_activation_params": {
+                "negative_slope": 0.1
             },
-            scale_discriminator_params: Dict[str, Any]={
-                "in_channels": 1,
-                "out_channels": 1,
-                "kernel_sizes": [15, 41, 5, 3],
-                "channels": 128,
-                "max_downsample_channels": 1024,
-                "max_groups": 16,
-                "bias": True,
-                "downsample_scales": [2, 2, 4, 4, 1],
-                "nonlinear_activation": "leakyrelu",
-                "nonlinear_activation_params": {
-                    "negative_slope": 0.1
-                },
+        },
+        follow_official_norm: bool = True,
+        # Multi-period discriminator related
+        periods: List[int] = [2, 3, 5, 7, 11],
+        period_discriminator_params: Dict[str, Any] = {
+            "in_channels": 1,
+            "out_channels": 1,
+            "kernel_sizes": [5, 3],
+            "channels": 32,
+            "downsample_scales": [3, 3, 3, 3, 1],
+            "max_downsample_channels": 1024,
+            "bias": True,
+            "nonlinear_activation": "leakyrelu",
+            "nonlinear_activation_params": {
+                "negative_slope": 0.1
             },
-            follow_official_norm: bool=True,
-            # Multi-period discriminator related
-            periods: List[int]=[2, 3, 5, 7, 11],
-            period_discriminator_params: Dict[str, Any]={
-                "in_channels": 1,
-                "out_channels": 1,
-                "kernel_sizes": [5, 3],
-                "channels": 32,
-                "downsample_scales": [3, 3, 3, 3, 1],
-                "max_downsample_channels": 1024,
-                "bias": True,
-                "nonlinear_activation": "leakyrelu",
-                "nonlinear_activation_params": {
-                    "negative_slope": 0.1
-                },
-                "use_weight_norm": True,
-                "use_spectral_norm": False,
-            },
-            init_type: str="xavier_uniform", ):
+            "use_weight_norm": True,
+            "use_spectral_norm": False,
+        },
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize HiFiGAN multi-scale + multi-period discriminator module.
 
         Args:
@@ -744,10 +752,12 @@ class HiFiGANMultiScaleMultiPeriodDiscriminator(nn.Layer):
             downsample_pooling=scale_downsample_pooling,
             downsample_pooling_params=scale_downsample_pooling_params,
             discriminator_params=scale_discriminator_params,
-            follow_official_norm=follow_official_norm, )
+            follow_official_norm=follow_official_norm,
+        )
         self.mpd = HiFiGANMultiPeriodDiscriminator(
             periods=periods,
-            discriminator_params=period_discriminator_params, )
+            discriminator_params=period_discriminator_params,
+        )
 
     def forward(self, x):
         """Calculate forward propagation.

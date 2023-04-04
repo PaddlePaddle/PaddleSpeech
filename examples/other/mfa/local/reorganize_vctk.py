@@ -104,15 +104,13 @@ def reorganize_vctk(root_dir: Union[str, Path], output_dir: Union[str, Path]):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Reorganize VCTK-Corpus-0.92 dataset for MFA")
-    parser.add_argument(
-        "--root-dir",
-        type=str,
-        default="",
-        help="path to VCTK-Corpus-0.92 dataset.")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        help="path to save outputs (audio and transcriptions)")
+    parser.add_argument("--root-dir",
+                        type=str,
+                        default="",
+                        help="path to VCTK-Corpus-0.92 dataset.")
+    parser.add_argument("--output-dir",
+                        type=str,
+                        help="path to save outputs (audio and transcriptions)")
 
     args = parser.parse_args()
     root_dir = Path(args.root_dir).expanduser()

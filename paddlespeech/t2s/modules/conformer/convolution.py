@@ -25,7 +25,6 @@ class ConvolutionModule(nn.Layer):
         kernel_size (int): 
             Kernerl size of conv layers.
     """
-
     def __init__(self, channels, kernel_size, activation=nn.ReLU(), bias=True):
         """Construct an ConvolutionModule object."""
         super().__init__()
@@ -38,7 +37,8 @@ class ConvolutionModule(nn.Layer):
             kernel_size=1,
             stride=1,
             padding=0,
-            bias_attr=bias, )
+            bias_attr=bias,
+        )
         self.depthwise_conv = nn.Conv1D(
             channels,
             channels,
@@ -46,7 +46,8 @@ class ConvolutionModule(nn.Layer):
             stride=1,
             padding=(kernel_size - 1) // 2,
             groups=channels,
-            bias_attr=bias, )
+            bias_attr=bias,
+        )
         self.norm = nn.BatchNorm1D(channels)
         self.pointwise_conv2 = nn.Conv1D(
             channels,
@@ -54,7 +55,8 @@ class ConvolutionModule(nn.Layer):
             kernel_size=1,
             stride=1,
             padding=0,
-            bias_attr=bias, )
+            bias_attr=bias,
+        )
         self.activation = activation
 
     def forward(self, x):

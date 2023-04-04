@@ -52,15 +52,14 @@ def evaluate(args, config):
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    mel_extractor = LogMelFBank(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window,
-        n_mels=config.n_mels,
-        fmin=config.fmin,
-        fmax=config.fmax)
+    mel_extractor = LogMelFBank(sr=config.fs,
+                                n_fft=config.n_fft,
+                                hop_length=config.n_shift,
+                                win_length=config.win_length,
+                                window=config.window,
+                                n_mels=config.n_mels,
+                                fmin=config.fmin,
+                                fmax=config.fmax)
 
     for utt_name in os.listdir(input_dir):
         wav, _ = librosa.load(str(input_dir / utt_name), sr=config.fs)
@@ -69,10 +68,9 @@ def evaluate(args, config):
         mel = paddle.to_tensor(mel)
         with paddle.no_grad():
             gen_wav = pwg_inference(mel)
-        sf.write(
-            str(output_dir / ("gen_" + utt_name)),
-            gen_wav.numpy(),
-            samplerate=config.fs)
+        sf.write(str(output_dir / ("gen_" + utt_name)),
+                 gen_wav.numpy(),
+                 samplerate=config.fs)
         print(f"{utt_name} done!")
 
 
@@ -81,18 +79,22 @@ def main():
     parser = argparse.ArgumentParser(
         description="Synthesize with parallel wavegan.")
 
-    parser.add_argument(
-        "--config", type=str, help="parallel wavegan config file.")
+    parser.add_argument("--config",
+                        type=str,
+                        help="parallel wavegan config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument(
         "--stat",
         type=str,
-        help="mean and standard deviation used to normalize spectrogram when training parallel wavegan."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training parallel wavegan."
     )
     parser.add_argument("--input-dir", type=str, help="input dir of wavs.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 

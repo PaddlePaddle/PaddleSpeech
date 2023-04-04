@@ -25,6 +25,7 @@ from ..reporter import ObsScope
 from ..reporter import report
 from ..timer import Timer
 from paddlespeech.s2t.utils.log import Log
+
 logger = Log(__name__).getlog()
 
 

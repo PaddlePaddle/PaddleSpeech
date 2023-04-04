@@ -36,12 +36,11 @@ class Robot:
             self.text2speech(text, asr_init_path)
 
         # asr model初始化
-        self.asr_model(
-            asr_init_path,
-            model=self.asr_name,
-            lang='zh',
-            sample_rate=16000,
-            force_yes=True)
+        self.asr_model(asr_init_path,
+                       model=self.asr_name,
+                       lang='zh',
+                       sample_rate=16000,
+                       force_yes=True)
 
     def speech2text(self, audio_file):
         self.asr_model.preprocess(self.asr_name, audio_file)

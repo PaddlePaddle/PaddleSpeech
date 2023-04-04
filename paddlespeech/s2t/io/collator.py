@@ -155,8 +155,9 @@ class SpeechCollatorBase():
                 transcript_part = text_ids
         else:
             # read audio
-            speech_segment = SpeechSegment.from_file(
-                audio_file, transcript, infos=self._local_data)
+            speech_segment = SpeechSegment.from_file(audio_file,
+                                                     transcript,
+                                                     infos=self._local_data)
             # audio augment
             self.augmentation.transform_audio(speech_segment)
 
@@ -237,8 +238,9 @@ class SpeechCollator(SpeechCollatorBase):
 
         if isinstance(config.augmentation_config, (str, bytes)):
             if config.augmentation_config:
-                aug_file = io.open(
-                    config.augmentation_config, mode='r', encoding='utf8')
+                aug_file = io.open(config.augmentation_config,
+                                   mode='r',
+                                   encoding='utf8')
             else:
                 aug_file = io.StringIO(initial_value='{}', newline='')
         else:
@@ -279,8 +281,8 @@ class TripletSpeechCollator(SpeechCollator):
                     where translation part could be token ids or text.
         :rtype: tuple of (2darray, list)
         """
-        spectrum, translation_part = super().process_utterance(audio_file,
-                                                               translation)
+        spectrum, translation_part = super().process_utterance(
+            audio_file, translation)
         transcript_part = self._speech_featurizer.text_featurize(
             transcript, self.keep_transcription_text)
         return spectrum, translation_part, transcript_part

@@ -20,33 +20,35 @@ from paddlespeech.s2t.utils.cli_utils import get_commandline_args
 def get_parser():
     parser = argparse.ArgumentParser(
         description="remove longshort data from format manifest",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
-    parser.add_argument(
-        "--verbose", "-V", default=0, type=int, help="Verbose option")
-    parser.add_argument(
-        "--iaxis",
-        default=0,
-        type=int,
-        help="multi inputs index, 0 is the first")
-    parser.add_argument(
-        "--oaxis",
-        default=0,
-        type=int,
-        help="multi outputs index, 0 is the first")
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("--verbose",
+                        "-V",
+                        default=0,
+                        type=int,
+                        help="Verbose option")
+    parser.add_argument("--iaxis",
+                        default=0,
+                        type=int,
+                        help="multi inputs index, 0 is the first")
+    parser.add_argument("--oaxis",
+                        default=0,
+                        type=int,
+                        help="multi outputs index, 0 is the first")
     parser.add_argument("--maxframes", default=2000, type=int, help="maxframes")
     parser.add_argument("--minframes", default=10, type=int, help="minframes")
     parser.add_argument("--maxchars", default=200, type=int, help="max tokens")
     parser.add_argument("--minchars", default=0, type=int, help="min tokens")
-    parser.add_argument(
-        "--stride_ms", default=10, type=int, help="stride in ms unit.")
-    parser.add_argument(
-        "rspecifier",
-        type=str,
-        help="jsonl format manifest. e.g. manifest.jsonl")
-    parser.add_argument(
-        "wspecifier_or_wxfilename",
-        type=str,
-        help="Write specifier. e.g. manifest.jsonl")
+    parser.add_argument("--stride_ms",
+                        default=10,
+                        type=int,
+                        help="stride in ms unit.")
+    parser.add_argument("rspecifier",
+                        type=str,
+                        help="jsonl format manifest. e.g. manifest.jsonl")
+    parser.add_argument("wspecifier_or_wxfilename",
+                        type=str,
+                        help="Write specifier. e.g. manifest.jsonl")
     return parser
 
 

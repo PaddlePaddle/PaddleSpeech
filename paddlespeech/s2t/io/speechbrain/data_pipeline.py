@@ -59,7 +59,6 @@ class DynamicItem:
     provides : list
         The keys that this provides.
     """
-
     def __init__(self, takes=[], func=None, provides=[]):
         self.takes = takes
         self.func = func
@@ -111,7 +110,6 @@ class GeneratorDynamicItem(DynamicItem):
     even if parts of the pipeline depend on others for their initialization.
 
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Doesn't generate electricity, only stores the currently active
@@ -192,7 +190,6 @@ def takes(*argkeys):
     >>> tokenize('\tThis Example gets tokenized')
     ['this', 'example', 'gets', 'tokenized']
     """
-
     def decorator(obj):
         """Decorator definition."""
         if isinstance(obj, DynamicItem):
@@ -247,7 +244,6 @@ def provides(*output_keys):
     ...     yield wav[0], wav[1]
 
     """
-
     def decorator(obj):
         """Decorator definition."""
         if isinstance(obj, DynamicItem):
@@ -282,7 +278,6 @@ class DataPipeline:
     >>> pipeline({"text": "Test"})
     {'bar': 'tset'}
     """
-
     def __init__(self, static_data_keys, dynamic_items=[], output_keys=[]):
         self.dg = DependencyGraph()
         self._exec_order = None

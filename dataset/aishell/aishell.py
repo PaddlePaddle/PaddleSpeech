@@ -141,17 +141,15 @@ def main():
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 
-    prepare_dataset(
-        url=DATA_URL,
-        md5sum=MD5_DATA,
-        target_dir=args.target_dir,
-        manifest_path=args.manifest_prefix)
+    prepare_dataset(url=DATA_URL,
+                    md5sum=MD5_DATA,
+                    target_dir=args.target_dir,
+                    manifest_path=args.manifest_prefix)
 
-    prepare_dataset(
-        url=RESOURCE_URL,
-        md5sum=MD5_RESOURCE,
-        target_dir=args.target_dir,
-        manifest_path=None)
+    prepare_dataset(url=RESOURCE_URL,
+                    md5sum=MD5_RESOURCE,
+                    target_dir=args.target_dir,
+                    manifest_path=None)
 
     print("Data download and manifest prepare done!")
 

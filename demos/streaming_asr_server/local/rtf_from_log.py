@@ -3,8 +3,10 @@ import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__doc__)
-    parser.add_argument(
-        '--logfile', type=str, required=True, help='ws client log file')
+    parser.add_argument('--logfile',
+                        type=str,
+                        required=True,
+                        help='ws client log file')
 
     args = parser.parse_args()
 

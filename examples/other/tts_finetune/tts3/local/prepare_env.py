@@ -47,11 +47,10 @@ if __name__ == '__main__':
         default="./pretrained_models/fastspeech2_aishell3_ckpt_1.1.0",
         help="Path to pretrained model")
 
-    parser.add_argument(
-        "--output_dir",
-        type=str,
-        default="./exp/default/",
-        help="directory to save finetune model.")
+    parser.add_argument("--output_dir",
+                        type=str,
+                        default="./exp/default/",
+                        help="directory to save finetune model.")
 
     args = parser.parse_args()
 

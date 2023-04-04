@@ -35,12 +35,11 @@ class AudioClassificationDataset(paddle.io.Dataset):
     """
     Base class of audio classification dataset.
     """
-
     def __init__(self,
                  files: List[str],
                  labels: List[int],
-                 feat_type: str='raw',
-                 sample_rate: int=None,
+                 feat_type: str = 'raw',
+                 sample_rate: int = None,
                  **kwargs):
         """
         Ags:
@@ -79,12 +78,13 @@ class AudioClassificationDataset(paddle.io.Dataset):
         record = {}
         if self.feat_type in ['kaldi_fbank', 'kaldi_mfcc']:
             waveform = paddle.to_tensor(waveform).unsqueeze(0)  # (C, T)
-            record['feat'] = feat_func(
-                waveform=waveform, sr=self.sample_rate, **self.feat_config)
+            record['feat'] = feat_func(waveform=waveform,
+                                       sr=self.sample_rate,
+                                       **self.feat_config)
         else:
             record['feat'] = feat_func(
-                waveform, sample_rate,
-                **self.feat_config) if feat_func else waveform
+                waveform, sample_rate, **
+                self.feat_config) if feat_func else waveform
         record['label'] = label
         return record
 

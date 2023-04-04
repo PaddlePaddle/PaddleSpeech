@@ -31,15 +31,15 @@ class VariancePredictor(nn.Layer):
         https://arxiv.org/abs/2006.04558
 
     """
-
     def __init__(
-            self,
-            idim: int,
-            n_layers: int=2,
-            n_chans: int=384,
-            kernel_size: int=3,
-            bias: bool=True,
-            dropout_rate: float=0.5, ):
+        self,
+        idim: int,
+        n_layers: int = 2,
+        n_chans: int = 384,
+        kernel_size: int = 3,
+        bias: bool = True,
+        dropout_rate: float = 0.5,
+    ):
         """Initilize duration predictor module.
 
         Args:
@@ -67,15 +67,18 @@ class VariancePredictor(nn.Layer):
                         kernel_size,
                         stride=1,
                         padding=(kernel_size - 1) // 2,
-                        bias_attr=True, ),
+                        bias_attr=True,
+                    ),
                     nn.ReLU(),
                     LayerNorm(n_chans, dim=1),
-                    nn.Dropout(dropout_rate), ))
+                    nn.Dropout(dropout_rate),
+                ))
 
         self.linear = nn.Linear(n_chans, 1, bias_attr=True)
 
-    def forward(self, xs: paddle.Tensor,
-                x_masks: paddle.Tensor=None) -> paddle.Tensor:
+    def forward(self,
+                xs: paddle.Tensor,
+                x_masks: paddle.Tensor = None) -> paddle.Tensor:
         """Calculate forward propagation.
 
         Args:
@@ -96,7 +99,7 @@ class VariancePredictor(nn.Layer):
             xs = f(xs)
         # (B, Tmax, 1)
         xs = self.linear(xs.transpose([0, 2, 1]))
-    
+
         if x_masks is not None:
             xs = masked_fill(xs, x_masks, 0.0)
         return xs

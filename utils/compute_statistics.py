@@ -29,12 +29,12 @@ def main():
     """Run preprocessing process."""
     parser = argparse.ArgumentParser(
         description="Compute mean and variance of dumped raw features.")
-    parser.add_argument(
-        "--metadata", type=str, help="json file with id and file paths ")
-    parser.add_argument(
-        "--field-name",
-        type=str,
-        help="name of the field to compute statistics for.")
+    parser.add_argument("--metadata",
+                        type=str,
+                        help="json file with id and file paths ")
+    parser.add_argument("--field-name",
+                        type=str,
+                        help="name of the field to compute statistics for.")
 
     parser.add_argument(
         "--output",
@@ -42,11 +42,10 @@ def main():
         help="path to save statistics. if not provided, "
         "stats will be saved in the above root directory with name stats.npy")
 
-    parser.add_argument(
-        "--use-relative-path",
-        type=str2bool,
-        default=False,
-        help="whether use relative path in metadata")
+    parser.add_argument("--use-relative-path",
+                        type=str2bool,
+                        default=False,
+                        help="whether use relative path in metadata")
 
     parser.add_argument(
         "--verbose",
@@ -59,24 +58,24 @@ def main():
     if args.verbose > 1:
         logging.basicConfig(
             level=logging.DEBUG,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
+            format=
+            "%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s")
     elif args.verbose > 0:
         logging.basicConfig(
             level=logging.INFO,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
+            format=
+            "%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s")
     else:
         logging.basicConfig(
             level=logging.WARN,
-            format="%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s"
-        )
+            format=
+            "%(asctime)s (%(module)s:%(lineno)d) %(levelname)s: %(message)s")
         logging.warning('Skip DEBUG/INFO messages')
 
     # check directory existence
     if args.output is None:
-        args.output = Path(
-            args.metadata).parent.with_name(args.field_name + "_stats.npy")
+        args.output = Path(args.metadata).parent.with_name(args.field_name +
+                                                           "_stats.npy")
     else:
         args.output = Path(args.output)
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -92,7 +91,8 @@ def main():
     dataset = DataTable(
         metadata,
         fields=[args.field_name],
-        converters={args.field_name: np.load}, )
+        converters={args.field_name: np.load},
+    )
     logging.info(f"The number of files = {len(dataset)}.")
 
     # calculate statistics

@@ -48,7 +48,6 @@ class Phonetics(ABC):
 class English(Phonetics):
     """ Normalize the input text sequence and convert into pronunciation id sequence.
     """
-
     def __init__(self, phone_vocab_path=None):
         self.backend = G2p()
         self.phonemes = list(self.backend.phonemes)
@@ -84,8 +83,8 @@ class English(Phonetics):
 
     def get_input_ids(self,
                       sentence: str,
-                      merge_sentences: bool=False,
-                      to_tensor: bool=True) -> paddle.Tensor:
+                      merge_sentences: bool = False,
+                      to_tensor: bool = True) -> paddle.Tensor:
         result = {}
         sentences = self.text_normalizer._split(sentence, lang="en")
         phones_list = []
@@ -97,8 +96,8 @@ class English(Phonetics):
             phones = [phn for phn in phones if not phn.isspace()]
             # replace unk phone with sp
             phones = [
-                phn
-                if (phn in self.vocab_phones and phn not in self.punc) else "sp"
+                phn if
+                (phn in self.vocab_phones and phn not in self.punc) else "sp"
                 for phn in phones
             ]
             if len(phones) != 0:
@@ -162,7 +161,6 @@ class English(Phonetics):
 class EnglishCharacter(Phonetics):
     """ Normalize the input text sequence and convert it into character id sequence.
     """
-
     def __init__(self):
         self.backend = G2p()
         self.graphemes = list(self.backend.graphemes)
@@ -221,7 +219,6 @@ class EnglishCharacter(Phonetics):
 class Chinese(Phonetics):
     """Normalize Chinese text sequence and convert it into ids.
     """
-
     def __init__(self):
         # self.opencc_backend = OpenCC('t2s.json')
         self.backend = G2pM()

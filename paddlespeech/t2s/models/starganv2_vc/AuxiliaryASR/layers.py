@@ -36,12 +36,12 @@ class LinearNorm(nn.Layer):
     def __init__(self,
                  in_dim: int,
                  out_dim: int,
-                 bias: bool=True,
-                 w_init_gain: str='linear'):
+                 bias: bool = True,
+                 w_init_gain: str = 'linear'):
         super().__init__()
         self.linear_layer = nn.Linear(in_dim, out_dim, bias_attr=bias)
-        xavier_uniform_(
-            self.linear_layer.weight, gain=_calculate_gain(w_init_gain))
+        xavier_uniform_(self.linear_layer.weight,
+                        gain=_calculate_gain(w_init_gain))
 
     def forward(self, x: paddle.Tensor):
         out = self.linear_layer(x)
@@ -52,29 +52,28 @@ class ConvNorm(nn.Layer):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 kernel_size: int=1,
-                 stride: int=1,
-                 padding: int=None,
-                 dilation: int=1,
-                 bias: bool=True,
-                 w_init_gain: str='linear',
+                 kernel_size: int = 1,
+                 stride: int = 1,
+                 padding: int = None,
+                 dilation: int = 1,
+                 bias: bool = True,
+                 w_init_gain: str = 'linear',
                  param=None):
         super().__init__()
         if padding is None:
             assert (kernel_size % 2 == 1)
             padding = int(dilation * (kernel_size - 1) / 2)
 
-        self.conv = nn.Conv1D(
-            in_channels,
-            out_channels,
-            kernel_size=kernel_size,
-            stride=stride,
-            padding=padding,
-            dilation=dilation,
-            bias_attr=bias)
+        self.conv = nn.Conv1D(in_channels,
+                              out_channels,
+                              kernel_size=kernel_size,
+                              stride=stride,
+                              padding=padding,
+                              dilation=dilation,
+                              bias_attr=bias)
 
-        xavier_uniform_(
-            self.conv.weight, gain=_calculate_gain(w_init_gain, param=param))
+        xavier_uniform_(self.conv.weight,
+                        gain=_calculate_gain(w_init_gain, param=param))
 
     def forward(self, signal: paddle.Tensor):
         conv_signal = self.conv(signal)
@@ -84,17 +83,16 @@ class ConvNorm(nn.Layer):
 class ConvBlock(nn.Layer):
     def __init__(self,
                  hidden_dim: int,
-                 n_conv: int=3,
-                 dropout_p: float=0.2,
-                 activ: str='relu'):
+                 n_conv: int = 3,
+                 dropout_p: float = 0.2,
+                 activ: str = 'relu'):
         super().__init__()
         self._n_groups = 8
         self.blocks = nn.LayerList([
-            self._get_conv(
-                hidden_dim=hidden_dim,
-                dilation=3**i,
-                activ=activ,
-                dropout_p=dropout_p) for i in range(n_conv)
+            self._get_conv(hidden_dim=hidden_dim,
+                           dilation=3**i,
+                           activ=activ,
+                           dropout_p=dropout_p) for i in range(n_conv)
         ])
 
     def forward(self, x: paddle.Tensor):
@@ -107,43 +105,44 @@ class ConvBlock(nn.Layer):
     def _get_conv(self,
                   hidden_dim: int,
                   dilation: int,
-                  activ: str='relu',
-                  dropout_p: float=0.2):
+                  activ: str = 'relu',
+                  dropout_p: float = 0.2):
         layers = [
-            ConvNorm(
-                in_channels=hidden_dim,
-                out_channels=hidden_dim,
-                kernel_size=3,
-                padding=dilation,
-                dilation=dilation), _get_activation_fn(activ),
+            ConvNorm(in_channels=hidden_dim,
+                     out_channels=hidden_dim,
+                     kernel_size=3,
+                     padding=dilation,
+                     dilation=dilation),
+            _get_activation_fn(activ),
             nn.GroupNorm(num_groups=self._n_groups, num_channels=hidden_dim),
-            nn.Dropout(p=dropout_p), ConvNorm(
-                hidden_dim, hidden_dim, kernel_size=3, padding=1,
-                dilation=1), _get_activation_fn(activ), nn.Dropout(p=dropout_p)
+            nn.Dropout(p=dropout_p),
+            ConvNorm(hidden_dim,
+                     hidden_dim,
+                     kernel_size=3,
+                     padding=1,
+                     dilation=1),
+            _get_activation_fn(activ),
+            nn.Dropout(p=dropout_p)
         ]
         return nn.Sequential(*layers)
 
 
 class LocationLayer(nn.Layer):
-    def __init__(self,
-                 attention_n_filters: int,
-                 attention_kernel_size: int,
+    def __init__(self, attention_n_filters: int, attention_kernel_size: int,
                  attention_dim: int):
         super().__init__()
         padding = int((attention_kernel_size - 1) / 2)
-        self.location_conv = ConvNorm(
-            in_channels=2,
-            out_channels=attention_n_filters,
-            kernel_size=attention_kernel_size,
-            padding=padding,
-            bias=False,
-            stride=1,
-            dilation=1)
-        self.location_dense = LinearNorm(
-            in_dim=attention_n_filters,
-            out_dim=attention_dim,
-            bias=False,
-            w_init_gain='tanh')
+        self.location_conv = ConvNorm(in_channels=2,
+                                      out_channels=attention_n_filters,
+                                      kernel_size=attention_kernel_size,
+                                      padding=padding,
+                                      bias=False,
+                                      stride=1,
+                                      dilation=1)
+        self.location_dense = LinearNorm(in_dim=attention_n_filters,
+                                         out_dim=attention_dim,
+                                         bias=False,
+                                         w_init_gain='tanh')
 
     def forward(self, attention_weights_cat: paddle.Tensor):
         processed_attention = self.location_conv(attention_weights_cat)
@@ -153,23 +152,18 @@ class LocationLayer(nn.Layer):
 
 
 class Attention(nn.Layer):
-    def __init__(self,
-                 attention_rnn_dim: int,
-                 embedding_dim: int,
-                 attention_dim: int,
-                 attention_location_n_filters: int,
+    def __init__(self, attention_rnn_dim: int, embedding_dim: int,
+                 attention_dim: int, attention_location_n_filters: int,
                  attention_location_kernel_size: int):
         super().__init__()
-        self.query_layer = LinearNorm(
-            in_dim=attention_rnn_dim,
-            out_dim=attention_dim,
-            bias=False,
-            w_init_gain='tanh')
-        self.memory_layer = LinearNorm(
-            in_dim=embedding_dim,
-            out_dim=attention_dim,
-            bias=False,
-            w_init_gain='tanh')
+        self.query_layer = LinearNorm(in_dim=attention_rnn_dim,
+                                      out_dim=attention_dim,
+                                      bias=False,
+                                      w_init_gain='tanh')
+        self.memory_layer = LinearNorm(in_dim=embedding_dim,
+                                       out_dim=attention_dim,
+                                       bias=False,
+                                       w_init_gain='tanh')
         self.v = LinearNorm(in_dim=attention_dim, out_dim=1, bias=False)
         self.location_layer = LocationLayer(
             attention_n_filters=attention_location_n_filters,
@@ -177,8 +171,7 @@ class Attention(nn.Layer):
             attention_dim=attention_dim)
         self.score_mask_value = -float("inf")
 
-    def get_alignment_energies(self,
-                               query: paddle.Tensor,
+    def get_alignment_energies(self, query: paddle.Tensor,
                                processed_memory: paddle.Tensor,
                                attention_weights_cat: paddle.Tensor):
         """
@@ -203,12 +196,9 @@ class Attention(nn.Layer):
         energies = energies.squeeze(-1)
         return energies
 
-    def forward(self,
-                attention_hidden_state: paddle.Tensor,
-                memory: paddle.Tensor,
-                processed_memory: paddle.Tensor,
-                attention_weights_cat: paddle.Tensor,
-                mask: paddle.Tensor):
+    def forward(self, attention_hidden_state: paddle.Tensor,
+                memory: paddle.Tensor, processed_memory: paddle.Tensor,
+                attention_weights_cat: paddle.Tensor, mask: paddle.Tensor):
         """
         Args:
             attention_hidden_state: 
@@ -238,7 +228,7 @@ class Attention(nn.Layer):
 
 
 class MFCC(nn.Layer):
-    def __init__(self, n_mfcc: int=40, n_mels: int=80):
+    def __init__(self, n_mfcc: int = 40, n_mels: int = 80):
         super().__init__()
         self.n_mfcc = n_mfcc
         self.n_mels = n_mels

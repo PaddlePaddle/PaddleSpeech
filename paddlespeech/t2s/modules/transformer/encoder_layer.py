@@ -39,15 +39,15 @@ class EncoderLayer(nn.Layer):
             i.e. x -> x + linear(concat(x, att(x)))
             if False, no additional linear will be applied. i.e. x -> x + att(x)
     """
-
     def __init__(
-            self,
-            size,
-            self_attn,
-            feed_forward,
-            dropout_rate,
-            normalize_before=True,
-            concat_after=False, ):
+        self,
+        size,
+        self_attn,
+        feed_forward,
+        dropout_rate,
+        normalize_before=True,
+        concat_after=False,
+    ):
         """Construct an EncoderLayer object."""
         super().__init__()
         self.self_attn = self_attn
@@ -91,8 +91,8 @@ class EncoderLayer(nn.Layer):
             mask = None if mask is None else mask[:, -1:, :]
 
         if self.concat_after:
-            x_concat = paddle.concat(
-                (x, self.self_attn(x_q, x, x, mask)), axis=-1)
+            x_concat = paddle.concat((x, self.self_attn(x_q, x, x, mask)),
+                                     axis=-1)
             x = residual + self.concat_linear(x_concat)
         else:
 

@@ -27,6 +27,7 @@ from paddlespeech.t2s.modules.losses import weighted_mean
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -40,7 +41,7 @@ class SpeedySpeechUpdater(StandardUpdater):
                  optimizer: Optimizer,
                  dataloader: DataLoader,
                  init_state=None,
-                 output_dir: Path=None):
+                 output_dir: Path = None):
         super().__init__(model, optimizer, dataloader, init_state=None)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
@@ -56,17 +57,16 @@ class SpeedySpeechUpdater(StandardUpdater):
         # spk_id!=None in multiple spk speedyspeech
         spk_id = batch["spk_id"] if "spk_id" in batch else None
 
-        decoded, predicted_durations = self.model(
-            text=batch["phones"],
-            tones=batch["tones"],
-            durations=batch["durations"],
-            spk_id=spk_id)
+        decoded, predicted_durations = self.model(text=batch["phones"],
+                                                  tones=batch["tones"],
+                                                  durations=batch["durations"],
+                                                  spk_id=spk_id)
 
         target_mel = batch["feats"]
-        spec_mask = F.sequence_mask(
-            batch["num_frames"], dtype=target_mel.dtype).unsqueeze(-1)
-        text_mask = F.sequence_mask(
-            batch["num_phones"], dtype=predicted_durations.dtype)
+        spec_mask = F.sequence_mask(batch["num_frames"],
+                                    dtype=target_mel.dtype).unsqueeze(-1)
+        text_mask = F.sequence_mask(batch["num_phones"],
+                                    dtype=predicted_durations.dtype)
 
         # spec loss
         l1_loss = masked_l1_loss(decoded, target_mel, spec_mask)
@@ -81,8 +81,10 @@ class SpeedySpeechUpdater(StandardUpdater):
                 predicted_durations,
                 paddle.log(target_durations),
                 delta=1.0,
-                reduction='none', ),
-            text_mask, )
+                reduction='none',
+            ),
+            text_mask,
+        )
 
         # ssim loss
         ssim_loss = 1.0 - ssim((decoded * spec_mask).unsqueeze(1),
@@ -112,7 +114,7 @@ class SpeedySpeechEvaluator(StandardEvaluator):
     def __init__(self,
                  model: Layer,
                  dataloader: DataLoader,
-                 output_dir: Path=None):
+                 output_dir: Path = None):
         super().__init__(model, dataloader)
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
@@ -127,17 +129,16 @@ class SpeedySpeechEvaluator(StandardEvaluator):
 
         spk_id = batch["spk_id"] if "spk_id" in batch else None
 
-        decoded, predicted_durations = self.model(
-            text=batch["phones"],
-            tones=batch["tones"],
-            durations=batch["durations"],
-            spk_id=spk_id)
+        decoded, predicted_durations = self.model(text=batch["phones"],
+                                                  tones=batch["tones"],
+                                                  durations=batch["durations"],
+                                                  spk_id=spk_id)
 
         target_mel = batch["feats"]
-        spec_mask = F.sequence_mask(
-            batch["num_frames"], dtype=target_mel.dtype).unsqueeze(-1)
-        text_mask = F.sequence_mask(
-            batch["num_phones"], dtype=predicted_durations.dtype)
+        spec_mask = F.sequence_mask(batch["num_frames"],
+                                    dtype=target_mel.dtype).unsqueeze(-1)
+        text_mask = F.sequence_mask(batch["num_phones"],
+                                    dtype=predicted_durations.dtype)
 
         # spec loss
         l1_loss = masked_l1_loss(decoded, target_mel, spec_mask)
@@ -152,8 +153,10 @@ class SpeedySpeechEvaluator(StandardEvaluator):
                 predicted_durations,
                 paddle.log(target_durations),
                 delta=1.0,
-                reduction='none', ),
-            text_mask, )
+                reduction='none',
+            ),
+            text_mask,
+        )
 
         # ssim loss
         ssim_loss = 1.0 - ssim((decoded * spec_mask).unsqueeze(1),

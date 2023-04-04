@@ -64,29 +64,28 @@ class ResidualBlock(nn.Layer):
         dilation (int, optional): 
             Dilation of the 1D convolution, by default 4
     """
-
     def __init__(self,
-                 encoder_hidden: int=256,
-                 residual_channels: int=256,
-                 gate_channels: int=512,
-                 kernel_size: int=3,
-                 dilation: int=4):
+                 encoder_hidden: int = 256,
+                 residual_channels: int = 256,
+                 gate_channels: int = 512,
+                 kernel_size: int = 3,
+                 dilation: int = 4):
         super().__init__()
-        self.dilated_conv = Conv1D(
-            residual_channels,
-            gate_channels,
-            kernel_size,
-            padding=dilation,
-            dilation=dilation)
+        self.dilated_conv = Conv1D(residual_channels,
+                                   gate_channels,
+                                   kernel_size,
+                                   padding=dilation,
+                                   dilation=dilation)
         self.diffusion_projection = Linear(residual_channels, residual_channels)
         self.conditioner_projection = Conv1D(encoder_hidden, gate_channels, 1)
         self.output_projection = Conv1D(residual_channels, gate_channels, 1)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            diffusion_step: paddle.Tensor,
-            cond: paddle.Tensor, ):
+        self,
+        x: paddle.Tensor,
+        diffusion_step: paddle.Tensor,
+        cond: paddle.Tensor,
+    ):
         """Calculate forward propagation.
         Args:
             spec (Tensor(float32)): input feature. (B, residual_channels, T)
@@ -114,8 +113,7 @@ class ResidualBlock(nn.Layer):
 class SinusoidalPosEmb(nn.Layer):
     """Positional embedding
     """
-
-    def __init__(self, dim: int=256):
+    def __init__(self, dim: int = 256):
         super().__init__()
         self.dim = dim
 
@@ -159,22 +157,22 @@ class DiffNet(nn.Layer):
         use_weight_norm (bool, optional): 
             Whether to use weight norm in all convolutions, by default False
     """
-
     def __init__(
-            self,
-            in_channels: int=80,
-            out_channels: int=80,
-            kernel_size: int=3,
-            layers: int=20,
-            stacks: int=5,
-            residual_channels: int=256,
-            gate_channels: int=512,
-            skip_channels: int=256,
-            aux_channels: int=256,
-            dropout: float=0.,
-            bias: bool=True,
-            use_weight_norm: bool=False,
-            init_type: str="kaiming_normal", ):
+        self,
+        in_channels: int = 80,
+        out_channels: int = 80,
+        kernel_size: int = 3,
+        layers: int = 20,
+        stacks: int = 5,
+        residual_channels: int = 256,
+        gate_channels: int = 512,
+        skip_channels: int = 256,
+        aux_channels: int = 256,
+        dropout: float = 0.,
+        bias: bool = True,
+        use_weight_norm: bool = False,
+        init_type: str = "kaiming_normal",
+    ):
         super().__init__()
 
         self.in_channels = in_channels
@@ -191,15 +189,14 @@ class DiffNet(nn.Layer):
                                        1)
         self.diffusion_embedding = SinusoidalPosEmb(self.residual_channels)
         dim = self.residual_channels
-        self.mlp = nn.Sequential(
-            Linear(dim, dim * 4), nn.Mish(), Linear(dim * 4, dim))
+        self.mlp = nn.Sequential(Linear(dim, dim * 4), nn.Mish(),
+                                 Linear(dim * 4, dim))
         self.residual_layers = nn.LayerList([
-            ResidualBlock(
-                encoder_hidden=self.aux_channels,
-                residual_channels=self.residual_channels,
-                gate_channels=self.gate_channels,
-                kernel_size=self.kernel_size,
-                dilation=2**(i % self.dilation_cycle_length))
+            ResidualBlock(encoder_hidden=self.aux_channels,
+                          residual_channels=self.residual_channels,
+                          gate_channels=self.gate_channels,
+                          kernel_size=self.kernel_size,
+                          dilation=2**(i % self.dilation_cycle_length))
             for i in range(self.layers)
         ])
         self.skip_projection = Conv1D(self.residual_channels,
@@ -209,10 +206,11 @@ class DiffNet(nn.Layer):
         zeros_(self.output_projection.weight)
 
     def forward(
-            self,
-            spec: paddle.Tensor,
-            diffusion_step: paddle.Tensor,
-            cond: paddle.Tensor, ):
+        self,
+        spec: paddle.Tensor,
+        diffusion_step: paddle.Tensor,
+        cond: paddle.Tensor,
+    ):
         """Calculate forward propagation.
         Args:
             spec (Tensor(float32)): The input mel-spectrogram. (B, n_mel, T)
@@ -234,10 +232,11 @@ class DiffNet(nn.Layer):
             x, skip_connection = layer(
                 x=x,
                 diffusion_step=diffusion_step,
-                cond=cond, )
+                cond=cond,
+            )
             skip.append(skip_connection)
-        x = paddle.sum(
-            paddle.stack(skip), axis=0) / math.sqrt(len(self.residual_layers))
+        x = paddle.sum(paddle.stack(skip), axis=0) / math.sqrt(
+            len(self.residual_layers))
         x = self.skip_projection(x)
         x = F.relu(x)
         x = self.output_projection(x)  # [B, 80, T]

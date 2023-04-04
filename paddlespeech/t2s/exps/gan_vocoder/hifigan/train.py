@@ -76,7 +76,8 @@ def train_sp(args, config):
         converters={
             "wave": np.load,
             "feats": np.load,
-        }, )
+        },
+    )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
@@ -85,41 +86,37 @@ def train_sp(args, config):
         converters={
             "wave": np.load,
             "feats": np.load,
-        }, )
+        },
+    )
 
     # collate function and dataloader
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=True)
-    dev_sampler = DistributedBatchSampler(
-        dev_dataset,
-        batch_size=config.batch_size,
-        shuffle=False,
-        drop_last=False)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
+    dev_sampler = DistributedBatchSampler(dev_dataset,
+                                          batch_size=config.batch_size,
+                                          shuffle=False,
+                                          drop_last=False)
     print("samplers done!")
 
     if "aux_context_window" in config.generator_params:
         aux_context_window = config.generator_params.aux_context_window
     else:
         aux_context_window = 0
-    train_batch_fn = Clip(
-        batch_max_steps=config.batch_max_steps,
-        hop_size=config.n_shift,
-        aux_context_window=aux_context_window)
+    train_batch_fn = Clip(batch_max_steps=config.batch_max_steps,
+                          hop_size=config.n_shift,
+                          aux_context_window=aux_context_window)
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=train_batch_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=train_batch_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        batch_sampler=dev_sampler,
-        collate_fn=train_batch_fn,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                batch_sampler=dev_sampler,
+                                collate_fn=train_batch_fn,
+                                num_workers=config.num_workers)
     print("dataloaders done!")
 
     generator = HiFiGANGenerator(**config["generator_params"])
@@ -139,7 +136,8 @@ def train_sp(args, config):
         window=config.window,
         num_mels=config.n_mels,
         fmin=config.fmin,
-        fmax=config.fmax, )
+        fmax=config.fmax,
+    )
     criterion_gen_adv = GeneratorAdversarialLoss(
         **config["generator_adv_loss_params"])
     criterion_dis_adv = DiscriminatorAdversarialLoss(
@@ -153,21 +151,19 @@ def train_sp(args, config):
         generator_grad_norm) if generator_grad_norm > 0 else None
     print("gradient_clip_g:", gradient_clip_g)
 
-    optimizer_g = Adam(
-        learning_rate=lr_schedule_g,
-        grad_clip=gradient_clip_g,
-        parameters=generator.parameters(),
-        **config["generator_optimizer_params"])
+    optimizer_g = Adam(learning_rate=lr_schedule_g,
+                       grad_clip=gradient_clip_g,
+                       parameters=generator.parameters(),
+                       **config["generator_optimizer_params"])
     lr_schedule_d = MultiStepDecay(**config["discriminator_scheduler_params"])
     discriminator_grad_norm = config["discriminator_grad_norm"]
     gradient_clip_d = nn.ClipGradByGlobalNorm(
         discriminator_grad_norm) if discriminator_grad_norm > 0 else None
     print("gradient_clip_d:", gradient_clip_d)
-    optimizer_d = Adam(
-        learning_rate=lr_schedule_d,
-        grad_clip=gradient_clip_d,
-        parameters=discriminator.parameters(),
-        **config["discriminator_optimizer_params"])
+    optimizer_d = Adam(learning_rate=lr_schedule_d,
+                       grad_clip=gradient_clip_d,
+                       parameters=discriminator.parameters(),
+                       **config["discriminator_optimizer_params"])
     print("optimizers done!")
 
     output_dir = Path(args.output_dir)
@@ -205,35 +201,32 @@ def train_sp(args, config):
         lambda_feat_match=config.lambda_feat_match,
         output_dir=output_dir)
 
-    evaluator = HiFiGANEvaluator(
-        models={
-            "generator": generator,
-            "discriminator": discriminator,
-        },
-        criterions={
-            "mel": criterion_mel,
-            "feat_match": criterion_feat_match,
-            "gen_adv": criterion_gen_adv,
-            "dis_adv": criterion_dis_adv,
-        },
-        dataloader=dev_dataloader,
-        lambda_adv=config.lambda_adv,
-        lambda_aux=config.lambda_aux,
-        lambda_feat_match=config.lambda_feat_match,
-        output_dir=output_dir)
+    evaluator = HiFiGANEvaluator(models={
+        "generator": generator,
+        "discriminator": discriminator,
+    },
+                                 criterions={
+                                     "mel": criterion_mel,
+                                     "feat_match": criterion_feat_match,
+                                     "gen_adv": criterion_gen_adv,
+                                     "dis_adv": criterion_dis_adv,
+                                 },
+                                 dataloader=dev_dataloader,
+                                 lambda_adv=config.lambda_adv,
+                                 lambda_aux=config.lambda_aux,
+                                 lambda_feat_match=config.lambda_feat_match,
+                                 output_dir=output_dir)
 
-    trainer = Trainer(
-        updater,
-        stop_trigger=(config.train_max_steps, "iteration"),
-        out=output_dir)
+    trainer = Trainer(updater,
+                      stop_trigger=(config.train_max_steps, "iteration"),
+                      out=output_dir)
 
     if dist.get_rank() == 0:
-        trainer.extend(
-            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+        trainer.extend(evaluator,
+                       trigger=(config.eval_interval_steps, 'iteration'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots),
-        trigger=(config.save_interval_steps, 'iteration'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()
@@ -247,8 +240,10 @@ def main():
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 

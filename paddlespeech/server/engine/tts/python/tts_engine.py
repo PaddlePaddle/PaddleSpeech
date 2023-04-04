@@ -43,7 +43,6 @@ class TTSEngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self, name=None):
         """Initialize TTS server engine
         """
@@ -71,19 +70,18 @@ class TTSEngine(BaseEngine):
             return False
 
         try:
-            self.executor._init_from_path(
-                am=self.config.am,
-                am_config=self.config.am_config,
-                am_ckpt=self.config.am_ckpt,
-                am_stat=self.config.am_stat,
-                phones_dict=self.config.phones_dict,
-                tones_dict=self.config.tones_dict,
-                speaker_dict=self.config.speaker_dict,
-                voc=self.config.voc,
-                voc_config=self.config.voc_config,
-                voc_ckpt=self.config.voc_ckpt,
-                voc_stat=self.config.voc_stat,
-                lang=self.config.lang)
+            self.executor._init_from_path(am=self.config.am,
+                                          am_config=self.config.am_config,
+                                          am_ckpt=self.config.am_ckpt,
+                                          am_stat=self.config.am_stat,
+                                          phones_dict=self.config.phones_dict,
+                                          tones_dict=self.config.tones_dict,
+                                          speaker_dict=self.config.speaker_dict,
+                                          voc=self.config.voc,
+                                          voc_config=self.config.voc_config,
+                                          voc_ckpt=self.config.voc_ckpt,
+                                          voc_stat=self.config.voc_stat,
+                                          lang=self.config.lang)
         except Exception as e:
             logger.error("Failed to get model related files.")
             logger.error("Initialize TTS server engine Failed on device: %s." %
@@ -117,10 +115,10 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
     def postprocess(self,
                     wav,
                     original_fs: int,
-                    target_fs: int=0,
-                    volume: float=1.0,
-                    speed: float=1.0,
-                    audio_path: str=None):
+                    target_fs: int = 0,
+                    volume: float = 1.0,
+                    speed: float = 1.0,
+                    audio_path: str = None):
         """Post-processing operations, including speech, volume, sample rate, save audio file
 
         Args:
@@ -143,14 +141,14 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             target_fs = original_fs
             wav_tar_fs = wav
             logger.debug(
-                "The sample rate of synthesized audio is the same as model, which is {}Hz".
-                format(original_fs))
+                "The sample rate of synthesized audio is the same as model, which is {}Hz"
+                .format(original_fs))
         else:
-            wav_tar_fs = librosa.resample(
-                np.squeeze(wav), original_fs, target_fs)
+            wav_tar_fs = librosa.resample(np.squeeze(wav), original_fs,
+                                          target_fs)
             logger.debug(
-                "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
-                format(original_fs, target_fs))
+                "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully."
+                .format(original_fs, target_fs))
         # transform volume
         wav_vol = wav_tar_fs * volume
         logger.debug("Transform the volume of the audio successfully.")
@@ -184,8 +182,8 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
             if audio_path.endswith(".wav"):
                 sf.write(audio_path, wav_speed, target_fs)
             elif audio_path.endswith(".pcm"):
-                wav_norm = wav_speed * (32767 / max(0.001,
-                                                    np.max(np.abs(wav_speed))))
+                wav_norm = wav_speed * (32767 /
+                                        max(0.001, np.max(np.abs(wav_speed))))
                 with open(audio_path, "wb") as f:
                     f.write(wav_norm.astype(np.int16))
             logger.info("Save audio to {} successfully.".format(audio_path))
@@ -196,11 +194,11 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
 
     def run(self,
             sentence: str,
-            spk_id: int=0,
-            speed: float=1.0,
-            volume: float=1.0,
-            sample_rate: int=0,
-            save_path: str=None):
+            spk_id: int = 0,
+            speed: float = 1.0,
+            volume: float = 1.0,
+            sample_rate: int = 0,
+            save_path: str = None):
         """ run include inference and postprocess.
 
         Args:
@@ -227,8 +225,10 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
 
         try:
             infer_st = time.time()
-            self.infer(
-                text=sentence, lang=lang, am=self.config.am, spk_id=spk_id)
+            self.infer(text=sentence,
+                       lang=lang,
+                       am=self.config.am,
+                       spk_id=spk_id)
             infer_et = time.time()
             infer_time = infer_et - infer_st
             duration = len(

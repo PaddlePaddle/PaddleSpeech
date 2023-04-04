@@ -51,8 +51,8 @@ def _apply_attention_constraint(e,
     # if e.shape[0] != 1:
     #     raise NotImplementedError(
     #         "Batch attention constraining is not yet supported.")
-    backward_idx = paddle.cast(
-        last_attended_idx - backward_window, dtype='int64')
+    backward_idx = paddle.cast(last_attended_idx - backward_window,
+                               dtype='int64')
     forward_idx = paddle.cast(last_attended_idx + forward_window, dtype='int64')
     if backward_idx > 0:
         e[:, :backward_idx] = -float("inf")
@@ -81,7 +81,6 @@ class AttLoc(nn.Layer):
         han_mode (bool): 
             flag to swith on mode of hierarchical attention and not store pre_compute_enc_h
     """
-
     def __init__(self,
                  eprojs,
                  dunits,
@@ -98,7 +97,8 @@ class AttLoc(nn.Layer):
             aconv_chans,
             (1, 2 * aconv_filts + 1),
             padding=(0, aconv_filts),
-            bias_attr=False, )
+            bias_attr=False,
+        )
         self.gvec = nn.Linear(att_dim, 1)
 
         self.dunits = dunits
@@ -118,15 +118,16 @@ class AttLoc(nn.Layer):
         self.mask = None
 
     def forward(
-            self,
-            enc_hs_pad,
-            enc_hs_len,
-            dec_z,
-            att_prev,
-            scaling=2.0,
-            last_attended_idx=-1,
-            backward_window=1,
-            forward_window=3, ):
+        self,
+        enc_hs_pad,
+        enc_hs_len,
+        dec_z,
+        att_prev,
+        scaling=2.0,
+        last_attended_idx=-1,
+        backward_window=1,
+        forward_window=3,
+    ):
         """Calculate AttLoc forward propagation.
         Args:
             enc_hs_pad(Tensor): 
@@ -202,8 +203,8 @@ class AttLoc(nn.Layer):
 
         # weighted sum over frames
         # utt x hdim
-        c = paddle.sum(
-            self.enc_h * w.reshape([batch, self.h_length, 1]), axis=1)
+        c = paddle.sum(self.enc_h * w.reshape([batch, self.h_length, 1]),
+                       axis=1)
         return c, w
 
 
@@ -226,7 +227,6 @@ class AttForward(nn.Layer):
         aconv_filts (int): 
             filter size of attention convolution
     """
-
     def __init__(self, eprojs, dunits, att_dim, aconv_chans, aconv_filts):
         super().__init__()
         self.mlp_enc = nn.Linear(eprojs, att_dim)
@@ -237,7 +237,8 @@ class AttForward(nn.Layer):
             aconv_chans,
             (1, 2 * aconv_filts + 1),
             padding=(0, aconv_filts),
-            bias_attr=False, )
+            bias_attr=False,
+        )
         self.gvec = nn.Linear(att_dim, 1)
         self.dunits = dunits
         self.eprojs = eprojs
@@ -255,15 +256,16 @@ class AttForward(nn.Layer):
         self.mask = None
 
     def forward(
-            self,
-            enc_hs_pad,
-            enc_hs_len,
-            dec_z,
-            att_prev,
-            scaling=1.0,
-            last_attended_idx=None,
-            backward_window=1,
-            forward_window=3, ):
+        self,
+        enc_hs_pad,
+        enc_hs_len,
+        dec_z,
+        att_prev,
+        scaling=1.0,
+        last_attended_idx=None,
+        backward_window=1,
+        forward_window=3,
+    ):
         """Calculate AttForward forward propagation.
 
         Args:
@@ -372,7 +374,6 @@ class AttForwardTA(nn.Layer):
         odim (int): 
             output dimension
     """
-
     def __init__(self, eunits, dunits, att_dim, aconv_chans, aconv_filts, odim):
         super().__init__()
         self.mlp_enc = nn.Linear(eunits, att_dim)
@@ -384,7 +385,8 @@ class AttForwardTA(nn.Layer):
             aconv_chans,
             (1, 2 * aconv_filts + 1),
             padding=(0, aconv_filts),
-            bias_attr=False, )
+            bias_attr=False,
+        )
         self.gvec = nn.Linear(att_dim, 1)
         self.dunits = dunits
         self.eunits = eunits
@@ -403,16 +405,17 @@ class AttForwardTA(nn.Layer):
         self.trans_agent_prob = 0.5
 
     def forward(
-            self,
-            enc_hs_pad,
-            enc_hs_len,
-            dec_z,
-            att_prev,
-            out_prev,
-            scaling=1.0,
-            last_attended_idx=None,
-            backward_window=1,
-            forward_window=3, ):
+        self,
+        enc_hs_pad,
+        enc_hs_len,
+        dec_z,
+        att_prev,
+        out_prev,
+        scaling=1.0,
+        last_attended_idx=None,
+        backward_window=1,
+        forward_window=3,
+    ):
         """Calculate AttForwardTA forward propagation.
 
         Args:
@@ -499,8 +502,8 @@ class AttForwardTA(nn.Layer):
         # weighted sum over flames
         # utt x hdim
         # NOTE use bmm instead of sum(*)
-        c = paddle.sum(
-            self.enc_h * w.reshape([batch, self.h_length, 1]), axis=1)
+        c = paddle.sum(self.enc_h * w.reshape([batch, self.h_length, 1]),
+                       axis=1)
 
         # update transition agent prob
         self.trans_agent_prob = F.sigmoid(

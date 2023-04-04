@@ -26,8 +26,7 @@ from base import BackendTest
 class TestIO(BackendTest):
     def test_load_mono_channel(self):
         sf_data, sf_sr = sf.read(self.files[0])
-        pa_data, pa_sr = load(
-            self.files[0], normal=False, dtype='float64')
+        pa_data, pa_sr = load(self.files[0], normal=False, dtype='float64')
 
         self.assertEqual(sf_data.dtype, pa_data.dtype)
         self.assertEqual(sf_sr, pa_sr)
@@ -36,16 +35,20 @@ class TestIO(BackendTest):
     def test_load_multi_channels(self):
         sf_data, sf_sr = sf.read(self.files[1])
         sf_data = sf_data.T  # Channel dim first
-        pa_data, pa_sr = load(
-            self.files[1], mono=False, normal=False, dtype='float64')
+        pa_data, pa_sr = load(self.files[1],
+                              mono=False,
+                              normal=False,
+                              dtype='float64')
 
         self.assertEqual(sf_data.dtype, pa_data.dtype)
         self.assertEqual(sf_sr, pa_sr)
         np.testing.assert_array_almost_equal(sf_data, pa_data)
 
     def test_save_mono_channel(self):
-        waveform, sr = np.random.randint(
-            low=-32768, high=32768, size=(48000), dtype=np.int16), 16000
+        waveform, sr = np.random.randint(low=-32768,
+                                         high=32768,
+                                         size=(48000),
+                                         dtype=np.int16), 16000
         sf_tmp_file = 'sf_tmp.wav'
         pa_tmp_file = 'pa_tmp.wav'
 
@@ -57,8 +60,10 @@ class TestIO(BackendTest):
             os.remove(file)
 
     def test_save_multi_channels(self):
-        waveform, sr = np.random.randint(
-            low=-32768, high=32768, size=(2, 48000), dtype=np.int16), 16000
+        waveform, sr = np.random.randint(low=-32768,
+                                         high=32768,
+                                         size=(2, 48000),
+                                         dtype=np.int16), 16000
         sf_tmp_file = 'sf_tmp.wav'
         pa_tmp_file = 'pa_tmp.wav'
 

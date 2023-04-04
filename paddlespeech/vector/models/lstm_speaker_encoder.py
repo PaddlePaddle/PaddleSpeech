@@ -58,35 +58,39 @@ class LSTMSpeakerEncoder(nn.Layer):
 
         # Inclusive centroids (1 per speaker). Cloning is needed for reverse differentiation
         centroids_incl = paddle.mean(embeds, axis=1)
-        centroids_incl_norm = paddle.norm(
-            centroids_incl, p=2, axis=1, keepdim=True)
+        centroids_incl_norm = paddle.norm(centroids_incl,
+                                          p=2,
+                                          axis=1,
+                                          keepdim=True)
         normalized_centroids_incl = centroids_incl / centroids_incl_norm
 
         # Exclusive centroids (1 per utterance)
         centroids_excl = paddle.broadcast_to(
             paddle.sum(embeds, axis=1, keepdim=True), embeds.shape) - embeds
         centroids_excl /= (utterances_per_speaker - 1)
-        centroids_excl_norm = paddle.norm(
-            centroids_excl, p=2, axis=2, keepdim=True)
+        centroids_excl_norm = paddle.norm(centroids_excl,
+                                          p=2,
+                                          axis=2,
+                                          keepdim=True)
         normalized_centroids_excl = centroids_excl / centroids_excl_norm
 
-        p1 = paddle.matmul(
-            embeds.reshape([-1, embed_dim]),
-            normalized_centroids_incl,
-            transpose_y=True)  # (NMN)
+        p1 = paddle.matmul(embeds.reshape([-1, embed_dim]),
+                           normalized_centroids_incl,
+                           transpose_y=True)  # (NMN)
         p1 = p1.reshape([-1])
         # print("p1: ", p1.shape)
-        p2 = paddle.bmm(
-            embeds.reshape([-1, 1, embed_dim]),
-            normalized_centroids_excl.reshape([-1, embed_dim, 1]))  # (NM, 1, 1)
+        p2 = paddle.bmm(embeds.reshape([-1, 1, embed_dim]),
+                        normalized_centroids_excl.reshape([-1, embed_dim,
+                                                           1]))  # (NM, 1, 1)
         p2 = p2.reshape([-1])  # （NM)
 
         # begin: alternative implementation for scatter
         with paddle.no_grad():
-            index = paddle.arange(
-                0, speakers_per_batch * utterances_per_speaker,
-                dtype="int64").reshape(
-                    [speakers_per_batch, utterances_per_speaker])
+            index = paddle.arange(0,
+                                  speakers_per_batch * utterances_per_speaker,
+                                  dtype="int64").reshape([
+                                      speakers_per_batch, utterances_per_speaker
+                                  ])
             index = index * speakers_per_batch + paddle.arange(
                 0, speakers_per_batch, dtype="int64").unsqueeze(-1)
             index = paddle.reshape(index, [-1])
@@ -125,8 +129,8 @@ class LSTMSpeakerEncoder(nn.Layer):
         sim_matrix, *_ = self.similarity_matrix(embeds)
         sim_matrix = sim_matrix.reshape(
             [speakers_per_batch * utterances_per_speaker, speakers_per_batch])
-        target = paddle.arange(
-            0, speakers_per_batch, dtype="int64").unsqueeze(-1)
+        target = paddle.arange(0, speakers_per_batch,
+                               dtype="int64").unsqueeze(-1)
         target = paddle.expand(target,
                                [speakers_per_batch, utterances_per_speaker])
         target = paddle.reshape(target, [-1])

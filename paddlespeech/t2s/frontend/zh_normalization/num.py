@@ -172,7 +172,7 @@ def replace_range(match) -> str:
     return result
 
 
-def _get_value(value_string: str, use_zero: bool=True) -> List[str]:
+def _get_value(value_string: str, use_zero: bool = True) -> List[str]:
     stripped = value_string.lstrip('0')
     if len(stripped) == 0:
         return []
@@ -182,12 +182,12 @@ def _get_value(value_string: str, use_zero: bool=True) -> List[str]:
         else:
             return [DIGITS[stripped]]
     else:
-        largest_unit = next(
-            power for power in reversed(UNITS.keys()) if power < len(stripped))
+        largest_unit = next(power for power in reversed(UNITS.keys())
+                            if power < len(stripped))
         first_part = value_string[:-largest_unit]
         second_part = value_string[-largest_unit:]
-        return _get_value(first_part) + [UNITS[largest_unit]] + _get_value(
-            second_part)
+        return _get_value(first_part) + [UNITS[largest_unit]
+                                         ] + _get_value(second_part)
 
 
 def verbalize_cardinal(value_string: str) -> str:

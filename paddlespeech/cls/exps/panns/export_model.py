@@ -28,18 +28,18 @@ args = parser.parse_args()
 # yapf: enable
 
 if __name__ == '__main__':
-    model = SoundClassifier(
-        backbone=cnn14(pretrained=False, extract_embedding=True),
-        num_class=len(ESC50.label_list))
+    model = SoundClassifier(backbone=cnn14(pretrained=False,
+                                           extract_embedding=True),
+                            num_class=len(ESC50.label_list))
     model.set_state_dict(paddle.load(args.checkpoint))
     model.eval()
 
-    model = paddle.jit.to_static(
-        model,
-        input_spec=[
-            paddle.static.InputSpec(
-                shape=[None, None, 64], dtype=paddle.float32)
-        ])
+    model = paddle.jit.to_static(model,
+                                 input_spec=[
+                                     paddle.static.InputSpec(
+                                         shape=[None, None, 64],
+                                         dtype=paddle.float32)
+                                 ])
 
     # Save in static graph model.
     paddle.jit.save(model, os.path.join(args.output_dir, "inference"))

@@ -132,18 +132,18 @@ class GaussianDiffusion(nn.Layer):
         100%|█████| 14/14 [00:00<00:00, 23.80it/s]
 
     """
-
     def __init__(
-            self,
-            denoiser: nn.Layer,
-            num_train_timesteps: Optional[int]=1000,
-            beta_start: Optional[float]=0.0001,
-            beta_end: Optional[float]=0.02,
-            beta_schedule: Optional[str]="squaredcos_cap_v2",
-            num_max_timesteps: Optional[int]=None,
-            stretch: bool=True,
-            min_values: paddle.Tensor=None,
-            max_values: paddle.Tensor=None, ):
+        self,
+        denoiser: nn.Layer,
+        num_train_timesteps: Optional[int] = 1000,
+        beta_start: Optional[float] = 0.0001,
+        beta_end: Optional[float] = 0.02,
+        beta_schedule: Optional[str] = "squaredcos_cap_v2",
+        num_max_timesteps: Optional[int] = None,
+        stretch: bool = True,
+        min_values: paddle.Tensor = None,
+        max_values: paddle.Tensor = None,
+    ):
         super().__init__()
 
         self.num_train_timesteps = num_train_timesteps
@@ -168,15 +168,18 @@ class GaussianDiffusion(nn.Layer):
         Args:
             x: [B, T, N]
         """
-        return (x - self.min_values) / (self.max_values - self.min_values
-                                        ) * 2 - 1
+        return (x - self.min_values) / (self.max_values -
+                                        self.min_values) * 2 - 1
 
     def denorm_spec(self, x):
-        return (x + 1) / 2 * (self.max_values - self.min_values
-                              ) + self.min_values
+        return (x + 1) / 2 * (self.max_values -
+                              self.min_values) + self.min_values
 
-    def forward(self, x: paddle.Tensor, cond: Optional[paddle.Tensor]=None
-                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    def forward(
+        self,
+        x: paddle.Tensor,
+        cond: Optional[paddle.Tensor] = None
+    ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Generate random timesteps noised x.
 
         Args:
@@ -219,16 +222,16 @@ class GaussianDiffusion(nn.Layer):
 
     def inference(self,
                   noise: paddle.Tensor,
-                  cond: Optional[paddle.Tensor]=None,
-                  ref_x: Optional[paddle.Tensor]=None,
-                  num_inference_steps: Optional[int]=1000,
-                  strength: Optional[float]=None,
-                  scheduler_type: Optional[str]="ddpm",
-                  clip_noise: Optional[bool]=False,
-                  clip_noise_range: Optional[Tuple[float, float]]=(-1, 1),
+                  cond: Optional[paddle.Tensor] = None,
+                  ref_x: Optional[paddle.Tensor] = None,
+                  num_inference_steps: Optional[int] = 1000,
+                  strength: Optional[float] = None,
+                  scheduler_type: Optional[str] = "ddpm",
+                  clip_noise: Optional[bool] = False,
+                  clip_noise_range: Optional[Tuple[float, float]] = (-1, 1),
                   callback: Optional[Callable[[int, int, int, paddle.Tensor],
-                                              None]]=None,
-                  callback_steps: Optional[int]=1):
+                                              None]] = None,
+                  callback_steps: Optional[int] = 1):
         """Denoising input from noises. Refer to ppdiffusers img2img pipeline.
 
         Args:
@@ -281,11 +284,10 @@ class GaussianDiffusion(nn.Layer):
         if scheduler_cls is None:
             raise ValueError(f"No such scheduler type named {scheduler_type}")
 
-        scheduler = scheduler_cls(
-            num_train_timesteps=self.num_train_timesteps,
-            beta_start=self.beta_start,
-            beta_end=self.beta_end,
-            beta_schedule=self.beta_schedule)
+        scheduler = scheduler_cls(num_train_timesteps=self.num_train_timesteps,
+                                  beta_start=self.beta_start,
+                                  beta_end=self.beta_end,
+                                  beta_schedule=self.beta_schedule)
 
         # set timesteps
         scheduler.set_timesteps(num_inference_steps)

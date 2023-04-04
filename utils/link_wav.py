@@ -26,16 +26,14 @@ def main():
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features .")
 
-    parser.add_argument(
-        "--old-dump-dir",
-        default=None,
-        type=str,
-        help="directory to dump feature files.")
-    parser.add_argument(
-        "--dump-dir",
-        type=str,
-        required=True,
-        help="directory to finetune dump feature files.")
+    parser.add_argument("--old-dump-dir",
+                        default=None,
+                        type=str,
+                        help="directory to dump feature files.")
+    parser.add_argument("--dump-dir",
+                        type=str,
+                        required=True,
+                        help="directory to finetune dump feature files.")
     args = parser.parse_args()
 
     old_dump_dir = Path(args.old_dump_dir).expanduser()

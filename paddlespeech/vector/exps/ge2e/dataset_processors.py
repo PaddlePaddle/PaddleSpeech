@@ -42,7 +42,7 @@ def _process_speaker(speaker_dir: Path,
                      datasets_root: Path,
                      output_dir: Path,
                      pattern: str,
-                     skip_existing: bool=False):
+                     skip_existing: bool = False):
     # datastes root: a reference path to compute speaker_name
     # we prepand dataset name to speaker_id becase we are mixing serveal
     # multispeaker datasets together
@@ -80,25 +80,23 @@ def _process_dataset(processor: SpeakerVerificationPreprocessor,
                      dataset_name: str,
                      output_dir: Path,
                      pattern: str,
-                     skip_existing: bool=False):
+                     skip_existing: bool = False):
     print(
         f"{dataset_name}: Preprocessing data for {len(speaker_dirs)} speakers.")
 
-    _func = partial(
-        _process_speaker,
-        processor=processor,
-        datasets_root=datasets_root,
-        output_dir=output_dir,
-        pattern=pattern,
-        skip_existing=skip_existing)
+    _func = partial(_process_speaker,
+                    processor=processor,
+                    datasets_root=datasets_root,
+                    output_dir=output_dir,
+                    pattern=pattern,
+                    skip_existing=skip_existing)
 
     with mp.Pool(16) as pool:
         list(
-            tqdm(
-                pool.imap(_func, speaker_dirs),
-                dataset_name,
-                len(speaker_dirs),
-                unit="speakers"))
+            tqdm(pool.imap(_func, speaker_dirs),
+                 dataset_name,
+                 len(speaker_dirs),
+                 unit="speakers"))
     print(f"Done preprocessing {dataset_name}.")
 
 
@@ -113,7 +111,9 @@ def process_librispeech(processor,
                      output_dir, "*.flac", skip_existing)
 
 
-def process_voxceleb1(processor, datasets_root, output_dir,
+def process_voxceleb1(processor,
+                      datasets_root,
+                      output_dir,
                       skip_existing=False):
     dataset_name = "VoxCeleb1"
     dataset_root = datasets_root / dataset_name
@@ -141,7 +141,9 @@ def process_voxceleb1(processor, datasets_root, output_dir,
                      output_dir, "*.wav", skip_existing)
 
 
-def process_voxceleb2(processor, datasets_root, output_dir,
+def process_voxceleb2(processor,
+                      datasets_root,
+                      output_dir,
                       skip_existing=False):
     dataset_name = "VoxCeleb2"
     dataset_root = datasets_root / dataset_name
@@ -163,7 +165,9 @@ def process_aidatatang_200zh(processor,
                      output_dir, "*.wav", skip_existing)
 
 
-def process_magicdata(processor, datasets_root, output_dir,
+def process_magicdata(processor,
+                      datasets_root,
+                      output_dir,
                       skip_existing=False):
     dataset_name = "magicdata/train"
     dataset_root = datasets_root / dataset_name

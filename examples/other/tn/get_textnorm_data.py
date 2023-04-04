@@ -17,16 +17,14 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description="text normalization example.")
-    parser.add_argument(
-        "--test-file",
-        default="data/textnorm_test_cases.txt",
-        type=str,
-        help="path of text normalization test file.")
-    parser.add_argument(
-        "--output-dir",
-        default="data/textnorm",
-        type=str,
-        help="directory to output.")
+    parser.add_argument("--test-file",
+                        default="data/textnorm_test_cases.txt",
+                        type=str,
+                        help="path of text normalization test file.")
+    parser.add_argument("--output-dir",
+                        default="data/textnorm",
+                        type=str,
+                        help="directory to output.")
 
     args = parser.parse_args()
     test_file = Path(args.test_file).expanduser()

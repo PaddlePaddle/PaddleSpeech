@@ -20,10 +20,10 @@ from paddle.inference import Config
 from paddle.inference import create_predictor
 
 
-def init_predictor(model_dir: Optional[os.PathLike]=None,
-                   model_file: Optional[os.PathLike]=None,
-                   params_file: Optional[os.PathLike]=None,
-                   predictor_conf: dict=None):
+def init_predictor(model_dir: Optional[os.PathLike] = None,
+                   model_file: Optional[os.PathLike] = None,
+                   params_file: Optional[os.PathLike] = None,
+                   predictor_conf: dict = None):
     """Create predictor with Paddle inference
 
     Args:

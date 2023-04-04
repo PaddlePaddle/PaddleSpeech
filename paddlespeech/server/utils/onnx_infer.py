@@ -19,7 +19,7 @@ import onnxruntime as ort
 from paddlespeech.cli.log import logger
 
 
-def get_sess(model_path: Optional[os.PathLike]=None, sess_conf: dict=None):
+def get_sess(model_path: Optional[os.PathLike] = None, sess_conf: dict = None):
     logger.debug(f"ort sessconf: {sess_conf}")
     sess_options = ort.SessionOptions()
     sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
@@ -46,6 +46,7 @@ def get_sess(model_path: Optional[os.PathLike]=None, sess_conf: dict=None):
 
     sess_options.inter_op_num_threads = sess_conf.get("inter_op_num_threads", 0)
 
-    sess = ort.InferenceSession(
-        model_path, providers=providers, sess_options=sess_options)
+    sess = ort.InferenceSession(model_path,
+                                providers=providers,
+                                sess_options=sess_options)
     return sess

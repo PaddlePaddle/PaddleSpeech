@@ -50,22 +50,20 @@ def evaluate(args):
     print(voc_config)
 
     # ernie sat model
-    erniesat_inference = get_am_inference(
-        am='erniesat_dataset',
-        am_config=erniesat_config,
-        am_ckpt=args.erniesat_ckpt,
-        am_stat=args.erniesat_stat,
-        phones_dict=args.phones_dict)
+    erniesat_inference = get_am_inference(am='erniesat_dataset',
+                                          am_config=erniesat_config,
+                                          am_ckpt=args.erniesat_ckpt,
+                                          am_stat=args.erniesat_stat,
+                                          phones_dict=args.phones_dict)
 
-    test_dataset = get_test_dataset(
-        test_metadata=test_metadata, am='erniesat_dataset')
+    test_dataset = get_test_dataset(test_metadata=test_metadata,
+                                    am='erniesat_dataset')
 
     # vocoder
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -114,15 +112,13 @@ def evaluate(args):
                 wav_raw = voc_inference(denorm_mel)
                 wav_raw = wav_raw.numpy()
 
-        sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            wav,
-            samplerate=erniesat_config.fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 wav,
+                 samplerate=erniesat_config.fs)
         if gen_raw:
-            sf.write(
-                str(output_dir / (utt_id + "_raw" + ".wav")),
-                wav_raw,
-                samplerate=erniesat_config.fs)
+            sf.write(str(output_dir / (utt_id + "_raw" + ".wav")),
+                     wav_raw,
+                     samplerate=erniesat_config.fs)
 
         print(f"{utt_id} done!")
 
@@ -133,49 +129,56 @@ def parse_args():
         description="Synthesize with acoustic model & vocoder")
     # ernie sat
 
-    parser.add_argument(
-        '--erniesat_config',
-        type=str,
-        default=None,
-        help='Config of acoustic model.')
-    parser.add_argument(
-        '--erniesat_ckpt',
-        type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+    parser.add_argument('--erniesat_config',
+                        type=str,
+                        default=None,
+                        help='Config of acoustic model.')
+    parser.add_argument('--erniesat_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of acoustic model.')
     parser.add_argument(
         "--erniesat_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
     # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=[
-            'pwgan_aishell3',
-            'pwgan_vctk',
-            'hifigan_aishell3',
-            'hifigan_vctk',
-        ],
-        help='Choose vocoder type of tts task.')
-    parser.add_argument(
-        '--voc_config', type=str, default=None, help='Config of voc.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=[
+                            'pwgan_aishell3',
+                            'pwgan_vctk',
+                            'hifigan_aishell3',
+                            'hifigan_vctk',
+                        ],
+                        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc_config',
+                        type=str,
+                        default=None,
+                        help='Config of voc.')
+    parser.add_argument('--voc_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of voc.')
     parser.add_argument(
         "--voc_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training voc."
     )
     # other
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
 

@@ -65,12 +65,11 @@ def create_dataloader(json_file, batch_size):
     """
 
     # create datasets
-    dataset = JSONDataset(
-        json_file=json_file,
-        feat_type='melspectrogram',
-        n_mels=config.n_mels,
-        window_size=config.window_size,
-        hop_length=config.hop_size)
+    dataset = JSONDataset(json_file=json_file,
+                          feat_type='melspectrogram',
+                          n_mels=config.n_mels,
+                          window_size=config.window_size,
+                          hop_length=config.hop_size)
 
     # create dataloader
     batch_sampler = BatchSampler(dataset, batch_size=batch_size, shuffle=True)
@@ -113,7 +112,8 @@ def main(args, config):
     meta_file = os.path.join(
         args.data_dir,
         config.meta_data_dir,
-        "ami_" + args.dataset + "." + config.mic_type + ".subsegs.json", )
+        "ami_" + args.dataset + "." + config.mic_type + ".subsegs.json",
+    )
     with open(meta_file, "r") as f:
         full_meta = json.load(f)
 
@@ -147,8 +147,8 @@ def main(args, config):
         # embedding directory.
         if not os.path.exists(
                 os.path.join(args.data_dir, config.embedding_dir, split)):
-            os.makedirs(
-                os.path.join(args.data_dir, config.embedding_dir, split))
+            os.makedirs(os.path.join(args.data_dir, config.embedding_dir,
+                                     split))
 
         # file to store embeddings.
         emb_file_name = rec_id + "." + config.mic_type + ".emb_stat.pkl"
@@ -187,7 +187,8 @@ def main(args, config):
             segset = np.array(segset, dtype="|O")
             stat_obj = EmbeddingMeta(
                 segset=segset,
-                stats=embeddings, )
+                stats=embeddings,
+            )
             logger.debug("Saving Embeddings...")
             with open(diary_stat_emb_file, "wb") as output:
                 pickle.dump(stat_obj, output)
@@ -203,13 +204,14 @@ if __name__ == "__main__":
         '--device',
         default="gpu",
         help="Select which device to perform diarization, defaults to gpu.")
-    parser.add_argument(
-        "--config", default=None, type=str, help="configuration file")
-    parser.add_argument(
-        "--data-dir",
-        default="../save/",
-        type=str,
-        help="processsed data directory")
+    parser.add_argument("--config",
+                        default=None,
+                        type=str,
+                        help="configuration file")
+    parser.add_argument("--data-dir",
+                        default="../save/",
+                        type=str,
+                        help="processsed data directory")
     parser.add_argument(
         "--dataset",
         choices=['dev', 'eval'],

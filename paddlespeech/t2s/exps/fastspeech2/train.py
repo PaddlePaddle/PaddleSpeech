@@ -90,37 +90,36 @@ def train_sp(args, config):
     train_dataset = DataTable(
         data=train_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
         data=dev_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
 
     # collate function and dataloader
 
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=True)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
 
     print("samplers done!")
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=collate_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=collate_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        shuffle=False,
-        drop_last=False,
-        batch_size=config.batch_size,
-        collate_fn=collate_fn,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                shuffle=False,
+                                drop_last=False,
+                                batch_size=config.batch_size,
+                                collate_fn=collate_fn,
+                                num_workers=config.num_workers)
     print("dataloaders done!")
 
     with open(args.phones_dict, 'rt', encoding='utf-8') as f:
@@ -129,8 +128,10 @@ def train_sp(args, config):
     print("vocab_size:", vocab_size)
 
     odim = config.n_mels
-    model = FastSpeech2(
-        idim=vocab_size, odim=odim, spk_num=spk_num, **config["model"])
+    model = FastSpeech2(idim=vocab_size,
+                        odim=odim,
+                        spk_num=spk_num,
+                        **config["model"])
     if world_size > 1:
         model = DataParallel(model)
     print("model done!")
@@ -156,7 +157,8 @@ def train_sp(args, config):
         dataloader=train_dataloader,
         output_dir=output_dir,
         enable_spk_cls=enable_spk_cls,
-        **config["updater"], )
+        **config["updater"],
+    )
 
     trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
@@ -165,13 +167,14 @@ def train_sp(args, config):
         dev_dataloader,
         output_dir=output_dir,
         enable_spk_cls=enable_spk_cls,
-        **config["updater"], )
+        **config["updater"],
+    )
 
     if dist.get_rank() == 0:
         trainer.extend(evaluator, trigger=(1, "epoch"))
         trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(1, 'epoch'))
     trainer.run()
 
 
@@ -182,21 +185,23 @@ def main():
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict",
-        type=str,
-        default=None,
-        help="speaker id map file for multiple speaker model.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file for multiple speaker model.")
 
-    parser.add_argument(
-        "--voice-cloning",
-        type=str2bool,
-        default=False,
-        help="whether training voice cloning model.")
+    parser.add_argument("--voice-cloning",
+                        type=str2bool,
+                        default=False,
+                        help="whether training voice cloning model.")
 
     args = parser.parse_args()
 

@@ -21,16 +21,16 @@ class TestInfo(TempDirMixin, unittest.TestCase):
     @parameterize(
         ["float32", "int32"],
         [8000, 16000],
-        [1, 2], )
+        [1, 2],
+    )
     def test_wav(self, dtype, sample_rate, num_channels):
         """`soundfile_backend.info` can check wav file correctly"""
         duration = 1
         path = self.get_temp_path("data.wav")
-        data = get_wav_data(
-            dtype,
-            num_channels,
-            normalize=False,
-            num_frames=duration * sample_rate)
+        data = get_wav_data(dtype,
+                            num_channels,
+                            normalize=False,
+                            num_frames=duration * sample_rate)
         save_wav(path, data, sample_rate)
         info = soundfile_backend.info(path)
         assert info.sample_rate == sample_rate
@@ -85,7 +85,8 @@ class TestInfo(TempDirMixin, unittest.TestCase):
     @nested_params(
         [8000, 16000],
         [1, 2],
-        [("PCM_24", 24), ("PCM_32", 32)], )
+        [("PCM_24", 24), ("PCM_32", 32)],
+    )
     @skipIfFormatNotSupported("NIST")
     def test_sphere(self, sample_rate, num_channels, subtype_and_bit_depth):
         """`soundfile_backend.info` can check sph file correctly"""
@@ -110,7 +111,6 @@ class TestInfo(TempDirMixin, unittest.TestCase):
         This will happen if a new subtype is supported in SoundFile: the _SUBTYPE_TO_BITS_PER_SAMPLE
         dict should be updated.
         """
-
         def _mock_info_func(_):
             class MockSoundFileInfo:
                 samplerate = 8000

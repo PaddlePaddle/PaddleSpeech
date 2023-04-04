@@ -27,25 +27,27 @@ def parse_args():
         '--input_file',
         type=str,
         default="static_ds2online_inputs.pickle",
-        help="aishell ds2 input data file. For wenetspeech, we only feed for infer model",
+        help=
+        "aishell ds2 input data file. For wenetspeech, we only feed for infer model",
     )
     parser.add_argument(
         '--model_type',
         type=str,
         default="aishell",
-        help="aishell(1024) or wenetspeech(2048)", )
-    parser.add_argument(
-        '--model_dir', type=str, default=".", help="paddle model dir.")
-    parser.add_argument(
-        '--model_prefix',
-        type=str,
-        default="avg_1.jit",
-        help="paddle model prefix.")
-    parser.add_argument(
-        '--onnx_model',
-        type=str,
-        default='./model.old.onnx',
-        help="onnx model.")
+        help="aishell(1024) or wenetspeech(2048)",
+    )
+    parser.add_argument('--model_dir',
+                        type=str,
+                        default=".",
+                        help="paddle model dir.")
+    parser.add_argument('--model_prefix',
+                        type=str,
+                        default="avg_1.jit",
+                        help="paddle model prefix.")
+    parser.add_argument('--onnx_model',
+                        type=str,
+                        default='./model.old.onnx',
+                        help="onnx model.")
 
     return parser.parse_args()
 
@@ -75,7 +77,8 @@ if __name__ == '__main__':
         paddle.to_tensor(audio_chunk),
         paddle.to_tensor(audio_chunk_lens),
         paddle.to_tensor(chunk_state_h_box),
-        paddle.to_tensor(chunk_state_c_box), )
+        paddle.to_tensor(chunk_state_c_box),
+    )
 
     # onnxruntime
     options = onnxruntime.SessionOptions()

@@ -56,10 +56,10 @@ class Snapshot(extension.Extension):
 
     def __init__(self,
                  mode='latest',
-                 max_size: int=5,
+                 max_size: int = 5,
                  indicator=None,
                  less_better=True,
-                 snapshot_on_error: bool=False):
+                 snapshot_on_error: bool = False):
         self.records: List[Dict[str, Any]] = []
         assert mode in ('latest', 'kbest'), mode
         if mode == 'kbest':
@@ -118,10 +118,9 @@ class Snapshot(extension.Extension):
         # remove the earist
         if self.full():
             if mode == 'kbest':
-                self.records = sorted(
-                    self.records,
-                    key=lambda record: record['indicator'],
-                    reverse=not self.less_is_better)
+                self.records = sorted(self.records,
+                                      key=lambda record: record['indicator'],
+                                      reverse=not self.less_is_better)
             eariest_record = self.records[0]
             os.remove(eariest_record["path"])
             self.records.pop(0)

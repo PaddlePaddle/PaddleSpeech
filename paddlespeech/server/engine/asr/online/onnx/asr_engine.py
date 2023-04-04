@@ -92,11 +92,12 @@ class PaddleASRConnectionHanddler:
 
             cfg = self.model_config.decode
             decode_batch_size = 1  # for online
-            self.decoder.init_decoder(
-                decode_batch_size, self.text_feature.vocab_list,
-                cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
-                cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
-                cfg.num_proc_bsearch)
+            self.decoder.init_decoder(decode_batch_size,
+                                      self.text_feature.vocab_list,
+                                      cfg.decoding_method, cfg.lang_model_path,
+                                      cfg.alpha, cfg.beta, cfg.beam_size,
+                                      cfg.cutoff_prob, cfg.cutoff_top_n,
+                                      cfg.num_proc_bsearch)
         else:
             raise ValueError(f"Not supported: {self.model_type}")
 
@@ -186,8 +187,8 @@ class PaddleASRConnectionHanddler:
         else:
             assert (len(x_chunk.shape) == 3)  # (B,T,D)
             assert (len(self.cached_feat.shape) == 3)  # (B,T,D)
-            self.cached_feat = paddle.concat(
-                [self.cached_feat, x_chunk], axis=1)
+            self.cached_feat = paddle.concat([self.cached_feat, x_chunk],
+                                             axis=1)
 
         # set the feat device
         if self.device is None:
@@ -342,8 +343,9 @@ class PaddleASRConnectionHanddler:
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        self.task_resource = CommonTaskResource(
-            task='asr', model_format='onnx', inference_mode='online')
+        self.task_resource = CommonTaskResource(task='asr',
+                                                model_format='onnx',
+                                                inference_mode='online')
 
     def update_config(self) -> None:
         if "deepspeech2" in self.model_type:
@@ -357,8 +359,8 @@ class ASRServerExecutor(ASRExecutor):
             lm_md5 = self.task_resource.res_dict['lm_md5']
             logger.debug(f"Start to load language model {lm_url}")
             self.download_lm(
-                lm_url,
-                os.path.dirname(self.config.decode.lang_model_path), lm_md5)
+                lm_url, os.path.dirname(self.config.decode.lang_model_path),
+                lm_md5)
         else:
             raise NotImplementedError(
                 f"{self.model_type} not support paddleinference.")
@@ -375,15 +377,15 @@ class ASRServerExecutor(ASRExecutor):
                 f"{self.model_type} not support paddleinference.")
 
     def _init_from_path(self,
-                        model_type: str=None,
-                        am_model: Optional[os.PathLike]=None,
-                        am_params: Optional[os.PathLike]=None,
-                        lang: str='zh',
-                        sample_rate: int=16000,
-                        cfg_path: Optional[os.PathLike]=None,
-                        decode_method: str='attention_rescoring',
-                        num_decoding_left_chunks: int=-1,
-                        am_predictor_conf: dict=None):
+                        model_type: str = None,
+                        am_model: Optional[os.PathLike] = None,
+                        am_params: Optional[os.PathLike] = None,
+                        lang: str = 'zh',
+                        sample_rate: int = 16000,
+                        cfg_path: Optional[os.PathLike] = None,
+                        decode_method: str = 'attention_rescoring',
+                        num_decoding_left_chunks: int = -1,
+                        am_predictor_conf: dict = None):
         """
         Init model and other resources from a specific path.
         """
@@ -415,8 +417,9 @@ class ASRServerExecutor(ASRExecutor):
             self.res_path = os.path.dirname(
                 os.path.dirname(os.path.abspath(self.cfg_path)))
 
-        self.am_model = os.path.join(self.res_path, self.task_resource.res_dict[
-            'onnx_model']) if am_model is None else os.path.abspath(am_model)
+        self.am_model = os.path.join(
+            self.res_path, self.task_resource.res_dict['onnx_model']
+        ) if am_model is None else os.path.abspath(am_model)
 
         # self.am_params = os.path.join(
         #     self.res_path, self.task_resource.res_dict[
@@ -459,7 +462,6 @@ class ASREngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         super(ASREngine, self).__init__()
 

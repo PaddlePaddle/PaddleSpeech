@@ -39,7 +39,6 @@ class MilvusHelper:
     #   6. delete a collection
 
     """
-
     def __init__(self):
         try:
             self.collection = None
@@ -74,22 +73,20 @@ class MilvusHelper:
         # Create milvus collection if not exists
         try:
             if not self.has_collection(collection_name):
-                field1 = FieldSchema(
-                    name="id",
-                    dtype=DataType.INT64,
-                    descrition="int64",
-                    is_primary=True,
-                    auto_id=True)
-                field2 = FieldSchema(
-                    name="embedding",
-                    dtype=DataType.FLOAT_VECTOR,
-                    descrition="speaker embeddings",
-                    dim=VECTOR_DIMENSION,
-                    is_primary=False)
-                schema = CollectionSchema(
-                    fields=[field1, field2], description="embeddings info")
-                self.collection = Collection(
-                    name=collection_name, schema=schema)
+                field1 = FieldSchema(name="id",
+                                     dtype=DataType.INT64,
+                                     descrition="int64",
+                                     is_primary=True,
+                                     auto_id=True)
+                field2 = FieldSchema(name="embedding",
+                                     dtype=DataType.FLOAT_VECTOR,
+                                     descrition="speaker embeddings",
+                                     dim=VECTOR_DIMENSION,
+                                     is_primary=False)
+                schema = CollectionSchema(fields=[field1, field2],
+                                          description="embeddings info")
+                self.collection = Collection(name=collection_name,
+                                             schema=schema)
                 LOGGER.debug(f"Create Milvus collection: {collection_name}")
             else:
                 self.set_collection(collection_name)
@@ -126,8 +123,8 @@ class MilvusHelper:
                     "nlist": 16384
                 }
             }
-            status = self.collection.create_index(
-                field_name="embedding", index_params=default_index)
+            status = self.collection.create_index(field_name="embedding",
+                                                  index_params=default_index)
             if not status.code:
                 LOGGER.debug(
                     f"Successfully create index in collection:{collection_name} with param:{default_index}"
@@ -160,11 +157,10 @@ class MilvusHelper:
                     "nprobe": 16
                 }
             }
-            res = self.collection.search(
-                vectors,
-                anns_field="embedding",
-                param=search_params,
-                limit=top_k)
+            res = self.collection.search(vectors,
+                                         anns_field="embedding",
+                                         param=search_params,
+                                         limit=top_k)
             LOGGER.debug(f"Successfully search in collection: {res}")
             return res
         except Exception as e:

@@ -44,8 +44,9 @@ def pad_list(xs, pad_value):
     """
     n_batch = len(xs)
     max_len = max(x.shape[0] for x in xs)
-    pad = paddle.full(
-        [n_batch, max_len, *xs[0].shape[1:]], pad_value, dtype=xs[0].dtype)
+    pad = paddle.full([n_batch, max_len, *xs[0].shape[1:]],
+                      pad_value,
+                      dtype=xs[0].dtype)
 
     for i in range(n_batch):
         pad[i, :xs[i].shape[0]] = xs[i]
@@ -291,9 +292,10 @@ def initialize(model: nn.Layer, init: str):
 
 # for VITS
 def get_random_segments(
-        x: paddle.paddle,
-        x_lengths: paddle.Tensor,
-        segment_size: int, ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+    x: paddle.paddle,
+    x_lengths: paddle.Tensor,
+    segment_size: int,
+) -> Tuple[paddle.Tensor, paddle.Tensor]:
     """Get random segments.
     Args:
         x (Tensor): 
@@ -317,9 +319,10 @@ def get_random_segments(
 
 
 def get_segments(
-        x: paddle.Tensor,
-        start_idxs: paddle.Tensor,
-        segment_size: int, ) -> paddle.Tensor:
+    x: paddle.Tensor,
+    start_idxs: paddle.Tensor,
+    segment_size: int,
+) -> paddle.Tensor:
     """Get segments.
     Args:
         x (Tensor): 
@@ -367,9 +370,9 @@ def phones_masking(xs_pad: paddle.Tensor,
                    align_start: paddle.Tensor,
                    align_end: paddle.Tensor,
                    align_start_lens: paddle.Tensor,
-                   mlm_prob: float=0.8,
-                   mean_phn_span: int=8,
-                   span_bdy: paddle.Tensor=None):
+                   mlm_prob: float = 0.8,
+                   mean_phn_span: int = 8,
+                   span_bdy: paddle.Tensor = None):
     '''
     Args:
         xs_pad (paddle.Tensor): 
@@ -435,9 +438,9 @@ def phones_text_masking(xs_pad: paddle.Tensor,
                         align_start: paddle.Tensor,
                         align_end: paddle.Tensor,
                         align_start_lens: paddle.Tensor,
-                        mlm_prob: float=0.8,
-                        mean_phn_span: int=8,
-                        span_bdy: paddle.Tensor=None):
+                        mlm_prob: float = 0.8,
+                        mean_phn_span: int = 8,
+                        span_bdy: paddle.Tensor = None):
     '''
     Args:
         xs_pad (paddle.Tensor): 
@@ -506,8 +509,8 @@ def phones_text_masking(xs_pad: paddle.Tensor,
                     masked_pos[idx, s:e] = 1
     non_eos_mask = paddle.reshape(src_mask, shape=paddle.shape(xs_pad)[:2])
     masked_pos = masked_pos * non_eos_mask
-    non_eos_text_mask = paddle.reshape(
-        text_mask, shape=paddle.shape(text_pad)[:2])
+    non_eos_text_mask = paddle.reshape(text_mask,
+                                       shape=paddle.shape(text_pad)[:2])
     text_masked_pos = text_masked_pos * non_eos_text_mask
     masked_pos = paddle.cast(masked_pos, 'bool')
     text_masked_pos = paddle.cast(text_masked_pos, 'bool')
@@ -520,7 +523,7 @@ def get_seg_pos(speech_pad: paddle.Tensor,
                 align_start: paddle.Tensor,
                 align_end: paddle.Tensor,
                 align_start_lens: paddle.Tensor,
-                seg_emb: bool=False):
+                seg_emb: bool = False):
     '''
     Args:
         speech_pad (paddle.Tensor): 
@@ -586,8 +589,8 @@ def get_seg_pos(speech_pad: paddle.Tensor,
 
 # randomly select the range of speech and text to mask during training
 def random_spans_noise_mask(length: int,
-                            mlm_prob: float=0.8,
-                            mean_phn_span: float=8):
+                            mlm_prob: float = 0.8,
+                            mean_phn_span: float = 8):
     """This function is copy of `random_spans_helper 
     <https://github.com/google-research/text-to-text-transfer-transformer/blob/84f8bcc14b5f2c03de51bd3587609ba8f6bbd1cd/t5/data/preprocessors.py#L2682>`__ .
     Noise mask consisting of random spans of noise tokens.

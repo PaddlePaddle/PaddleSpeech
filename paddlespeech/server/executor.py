@@ -21,7 +21,6 @@ class BaseExecutor(ABC):
     """
         An abstract executor of paddlespeech server tasks.
     """
-
     def __init__(self):
         self.parser = argparse.ArgumentParser()
 

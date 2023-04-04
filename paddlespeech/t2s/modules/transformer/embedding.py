@@ -34,7 +34,6 @@ class PositionalEncoding(nn.Layer):
         type (str): 
             dtype of param
     """
-
     def __init__(self,
                  d_model,
                  dropout_rate,
@@ -56,11 +55,11 @@ class PositionalEncoding(nn.Layer):
         x_shape = paddle.shape(x)
         pe = paddle.zeros([x_shape[1], self.d_model])
         if self.reverse:
-            position = paddle.arange(
-                x_shape[1] - 1, -1, -1.0, dtype=self.dtype).unsqueeze(1)
+            position = paddle.arange(x_shape[1] - 1, -1, -1.0,
+                                     dtype=self.dtype).unsqueeze(1)
         else:
-            position = paddle.arange(
-                0, x_shape[1], dtype=self.dtype).unsqueeze(1)
+            position = paddle.arange(0, x_shape[1],
+                                     dtype=self.dtype).unsqueeze(1)
         div_term = paddle.exp(
             paddle.arange(0, self.d_model, 2, dtype=self.dtype) *
             -(math.log(10000.0) / self.d_model))
@@ -99,14 +98,12 @@ class ScaledPositionalEncoding(PositionalEncoding):
         dtype (str): 
             dtype of param
     """
-
     def __init__(self, d_model, dropout_rate, max_len=5000, dtype="float32"):
         """Initialize class."""
-        super().__init__(
-            d_model=d_model,
-            dropout_rate=dropout_rate,
-            max_len=max_len,
-            dtype=dtype)
+        super().__init__(d_model=d_model,
+                         dropout_rate=dropout_rate,
+                         max_len=max_len,
+                         dtype=dtype)
         x = paddle.ones([1], dtype=self.dtype)
         self.alpha = paddle.create_parameter(
             shape=x.shape,
@@ -145,7 +142,6 @@ class RelPositionalEncoding(nn.Layer):
         max_len (int): 
             Maximum input length.
     """
-
     def __init__(self, d_model, dropout_rate, max_len=5000, dtype="float32"):
         """Construct an PositionalEncoding object."""
         super().__init__()
@@ -219,8 +215,7 @@ class LegacyRelPositionalEncoding(PositionalEncoding):
             Maximum input length.
 
     """
-
-    def __init__(self, d_model: int, dropout_rate: float, max_len: int=5000):
+    def __init__(self, d_model: int, dropout_rate: float, max_len: int = 5000):
         """
         Args:
             d_model (int): 
@@ -239,12 +234,14 @@ class LegacyRelPositionalEncoding(PositionalEncoding):
                 return
         pe = paddle.zeros((paddle.shape(x)[1], self.d_model))
         if self.reverse:
-            position = paddle.arange(
-                paddle.shape(x)[1] - 1, -1, -1.0,
-                dtype=paddle.float32).unsqueeze(1)
+            position = paddle.arange(paddle.shape(x)[1] - 1,
+                                     -1,
+                                     -1.0,
+                                     dtype=paddle.float32).unsqueeze(1)
         else:
-            position = paddle.arange(
-                0, paddle.shape(x)[1], dtype=paddle.float32).unsqueeze(1)
+            position = paddle.arange(0,
+                                     paddle.shape(x)[1],
+                                     dtype=paddle.float32).unsqueeze(1)
         div_term = paddle.exp(
             paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
             -(math.log(10000.0) / self.d_model))

@@ -45,7 +45,7 @@ EPS = 1e-8
 def resample(y: np.ndarray,
              src_sr: int,
              target_sr: int,
-             mode: str='kaiser_fast') -> np.ndarray:
+             mode: str = 'kaiser_fast') -> np.ndarray:
     """Audio resampling.
 
     Args:
@@ -73,7 +73,7 @@ def resample(y: np.ndarray,
     return resampy.resample(y, src_sr, target_sr, filter=mode)
 
 
-def to_mono(y: np.ndarray, merge_type: str='average') -> np.ndarray:
+def to_mono(y: np.ndarray, merge_type: str = 'average') -> np.ndarray:
     """Convert sterior audio to mono.
 
     Args:
@@ -108,13 +108,15 @@ def to_mono(y: np.ndarray, merge_type: str='average') -> np.ndarray:
     elif y.dtype == 'int16':
         y_out = y.astype('int32')
         y_out = (y_out[0] + y_out[1]) // 2
-        y_out = np.clip(y_out, np.iinfo(y.dtype).min,
+        y_out = np.clip(y_out,
+                        np.iinfo(y.dtype).min,
                         np.iinfo(y.dtype).max).astype(y.dtype)
 
     elif y.dtype == 'int8':
         y_out = y.astype('int16')
         y_out = (y_out[0] + y_out[1]) // 2
-        y_out = np.clip(y_out, np.iinfo(y.dtype).min,
+        y_out = np.clip(y_out,
+                        np.iinfo(y.dtype).min,
                         np.iinfo(y.dtype).max).astype(y.dtype)
     else:
         raise ParameterError(f'Unsupported dtype: {y.dtype}')
@@ -122,9 +124,9 @@ def to_mono(y: np.ndarray, merge_type: str='average') -> np.ndarray:
 
 
 def soundfile_load_(file: os.PathLike,
-                    offset: Optional[float]=None,
-                    dtype: str='int16',
-                    duration: Optional[int]=None) -> Tuple[np.ndarray, int]:
+                    offset: Optional[float] = None,
+                    dtype: str = 'int16',
+                    duration: Optional[int] = None) -> Tuple[np.ndarray, int]:
     """Load audio using soundfile library. This function load audio file using libsndfile.
 
     Args:
@@ -149,8 +151,9 @@ def soundfile_load_(file: os.PathLike,
     return y, sf_desc.samplerate
 
 
-def normalize(y: np.ndarray, norm_type: str='linear',
-              mul_factor: float=1.0) -> np.ndarray:
+def normalize(y: np.ndarray,
+              norm_type: str = 'linear',
+              mul_factor: float = 1.0) -> np.ndarray:
     """Normalize an input audio with additional multiplier.
 
     Args:
@@ -206,16 +209,16 @@ def soundfile_save(y: np.ndarray, sr: int, file: os.PathLike) -> None:
 
 def soundfile_load(
         file: os.PathLike,
-        sr: Optional[int]=None,
-        mono: bool=True,
-        merge_type: str='average',  # ch0,ch1,random,average
-        normal: bool=True,
-        norm_type: str='linear',
-        norm_mul_factor: float=1.0,
-        offset: float=0.0,
-        duration: Optional[int]=None,
-        dtype: str='float32',
-        resample_mode: str='kaiser_fast') -> Tuple[np.ndarray, int]:
+        sr: Optional[int] = None,
+        mono: bool = True,
+        merge_type: str = 'average',  # ch0,ch1,random,average
+        normal: bool = True,
+        norm_type: str = 'linear',
+        norm_mul_factor: float = 1.0,
+        offset: float = 0.0,
+        duration: Optional[int] = None,
+        dtype: str = 'float32',
+        resample_mode: str = 'kaiser_fast') -> Tuple[np.ndarray, int]:
     """Load audio file from disk. This function loads audio from disk using using audio beackend.
 
     Args:
@@ -260,8 +263,7 @@ def soundfile_load(
 #the code below token form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py with modificaion.
 
 
-def _get_subtype_for_wav(dtype: paddle.dtype,
-                         encoding: str,
+def _get_subtype_for_wav(dtype: paddle.dtype, encoding: str,
                          bits_per_sample: int):
     if not encoding:
         if not bits_per_sample:
@@ -319,9 +321,7 @@ def _get_subtype_for_sphere(encoding: str, bits_per_sample: int):
     raise ValueError(f"sph does not support {encoding}.")
 
 
-def _get_subtype(dtype: paddle.dtype,
-                 format: str,
-                 encoding: str,
+def _get_subtype(dtype: paddle.dtype, format: str, encoding: str,
                  bits_per_sample: int):
     if format == "wav":
         return _get_subtype_for_wav(dtype, encoding, bits_per_sample)
@@ -346,14 +346,15 @@ def _get_subtype(dtype: paddle.dtype,
 
 
 def save(
-        filepath: str,
-        src: paddle.Tensor,
-        sample_rate: int,
-        channels_first: bool=True,
-        compression: Optional[float]=None,
-        format: Optional[str]=None,
-        encoding: Optional[str]=None,
-        bits_per_sample: Optional[int]=None, ):
+    filepath: str,
+    src: paddle.Tensor,
+    sample_rate: int,
+    channels_first: bool = True,
+    compression: Optional[float] = None,
+    format: Optional[str] = None,
+    encoding: Optional[str] = None,
+    bits_per_sample: Optional[int] = None,
+):
     """Save audio data to file.
 
     Note:
@@ -474,12 +475,11 @@ def save(
     if channels_first:
         src = src.t()
 
-    soundfile.write(
-        file=filepath,
-        data=src,
-        samplerate=sample_rate,
-        subtype=subtype,
-        format=format)
+    soundfile.write(file=filepath,
+                    data=src,
+                    samplerate=sample_rate,
+                    subtype=subtype,
+                    format=format)
 
 
 _SUBTYPE2DTYPE = {
@@ -493,12 +493,13 @@ _SUBTYPE2DTYPE = {
 
 
 def load(
-        filepath: str,
-        frame_offset: int=0,
-        num_frames: int=-1,
-        normalize: bool=True,
-        channels_first: bool=True,
-        format: Optional[str]=None, ) -> Tuple[paddle.Tensor, int]:
+    filepath: str,
+    frame_offset: int = 0,
+    num_frames: int = -1,
+    normalize: bool = True,
+    channels_first: bool = True,
+    format: Optional[str] = None,
+) -> Tuple[paddle.Tensor, int]:
     """Load audio data from file.
 
     Note:
@@ -651,7 +652,7 @@ def _get_encoding(format: str, subtype: str):
     return _SUBTYPE_TO_ENCODING.get(subtype, "UNKNOWN")
 
 
-def info(filepath: str, format: Optional[str]=None) -> AudioInfo:
+def info(filepath: str, format: Optional[str] = None) -> AudioInfo:
     """Get signal information of an audio file.
 
     Note:
@@ -674,4 +675,5 @@ def info(filepath: str, format: Optional[str]=None) -> AudioInfo:
         sinfo.frames,
         sinfo.channels,
         bits_per_sample=_get_bit_depth(sinfo.subtype),
-        encoding=_get_encoding(sinfo.format, sinfo.subtype), )
+        encoding=_get_encoding(sinfo.format, sinfo.subtype),
+    )

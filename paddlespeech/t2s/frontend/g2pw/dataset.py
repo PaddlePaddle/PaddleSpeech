@@ -32,9 +32,9 @@ def prepare_onnx_input(tokenizer,
                        chars: List[str],
                        texts: List[str],
                        query_ids: List[int],
-                       use_mask: bool=False,
-                       window_size: int=None,
-                       max_len: int=512) -> Dict[str, np.array]:
+                       use_mask: bool = False,
+                       window_size: int = None,
+                       max_len: int = 512) -> Dict[str, np.array]:
     if window_size is not None:
         truncated_texts, truncated_query_ids = _truncate_texts(
             window_size=window_size, texts=texts, query_ids=query_ids)
@@ -111,12 +111,8 @@ def _truncate_texts(window_size: int, texts: List[str],
     return truncated_texts, truncated_query_ids
 
 
-def _truncate(max_len: int,
-              text: str,
-              query_id: int,
-              tokens: List[str],
-              text2token: List[int],
-              token2text: List[Tuple[int]]):
+def _truncate(max_len: int, text: str, query_id: int, tokens: List[str],
+              text2token: List[int], token2text: List[Tuple[int]]):
     truncate_len = max_len - 2
     if len(tokens) <= truncate_len:
         return (text, query_id, tokens, text2token, token2text)
@@ -143,8 +139,9 @@ def _truncate(max_len: int,
     ], [(s - start, e - start) for s, e in token2text[token_start:token_end]])
 
 
-def get_phoneme_labels(polyphonic_chars: List[List[str]]
-                       ) -> Tuple[List[str], Dict[str, List[int]]]:
+def get_phoneme_labels(
+    polyphonic_chars: List[List[str]]
+) -> Tuple[List[str], Dict[str, List[int]]]:
     labels = sorted(list(set([phoneme for char, phoneme in polyphonic_chars])))
     char2phonemes = {}
     for char, phoneme in polyphonic_chars:
@@ -154,8 +151,9 @@ def get_phoneme_labels(polyphonic_chars: List[List[str]]
     return labels, char2phonemes
 
 
-def get_char_phoneme_labels(polyphonic_chars: List[List[str]]
-                            ) -> Tuple[List[str], Dict[str, List[int]]]:
+def get_char_phoneme_labels(
+    polyphonic_chars: List[List[str]]
+) -> Tuple[List[str], Dict[str, List[int]]]:
     labels = sorted(
         list(set([f'{char} {phoneme}' for char, phoneme in polyphonic_chars])))
     char2phonemes = {}

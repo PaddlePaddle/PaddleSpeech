@@ -36,13 +36,14 @@ logger = Log(__name__).getlog()
 # TODO: Complete type-hint and doc string.
 class DropFreq(nn.Layer):
     def __init__(
-            self,
-            drop_freq_low=1e-14,
-            drop_freq_high=1,
-            drop_count_low=1,
-            drop_count_high=2,
-            drop_width=0.05,
-            drop_prob=1, ):
+        self,
+        drop_freq_low=1e-14,
+        drop_freq_high=1,
+        drop_count_low=1,
+        drop_count_high=2,
+        drop_width=0.05,
+        drop_prob=1,
+    ):
         super(DropFreq, self).__init__()
         self.drop_freq_low = drop_freq_low
         self.drop_freq_high = drop_freq_high
@@ -62,13 +63,14 @@ class DropFreq(nn.Layer):
             dropped_waveform = dropped_waveform.unsqueeze(-1)
 
         # Pick number of frequencies to drop
-        drop_count = paddle.randint(
-            low=self.drop_count_low, high=self.drop_count_high + 1, shape=[1])
+        drop_count = paddle.randint(low=self.drop_count_low,
+                                    high=self.drop_count_high + 1,
+                                    shape=[1])
 
         # Pick a frequency to drop
         drop_range = self.drop_freq_high - self.drop_freq_low
-        drop_frequency = (
-            paddle.rand([drop_count]) * drop_range + self.drop_freq_low)
+        drop_frequency = (paddle.rand([drop_count]) * drop_range +
+                          self.drop_freq_low)
 
         # Filter parameters
         filter_length = 101
@@ -93,15 +95,16 @@ class DropFreq(nn.Layer):
 
 class DropChunk(nn.Layer):
     def __init__(
-            self,
-            drop_length_low=100,
-            drop_length_high=1000,
-            drop_count_low=1,
-            drop_count_high=10,
-            drop_start=0,
-            drop_end=None,
-            drop_prob=1,
-            noise_factor=0.0, ):
+        self,
+        drop_length_low=100,
+        drop_length_high=1000,
+        drop_count_low=1,
+        drop_count_high=10,
+        drop_start=0,
+        drop_end=None,
+        drop_prob=1,
+        noise_factor=0.0,
+    ):
         super(DropChunk, self).__init__()
         self.drop_length_low = drop_length_low
         self.drop_length_high = drop_length_high
@@ -144,7 +147,8 @@ class DropChunk(nn.Layer):
         drop_times = paddle.randint(
             low=self.drop_count_low,
             high=self.drop_count_high + 1,
-            shape=[batch_size], )
+            shape=[batch_size],
+        )
 
         # Iterate batch to set mask
         for i in range(batch_size):
@@ -155,7 +159,8 @@ class DropChunk(nn.Layer):
             length = paddle.randint(
                 low=self.drop_length_low,
                 high=self.drop_length_high + 1,
-                shape=[drop_times[i]], )
+                shape=[drop_times[i]],
+            )
 
             # Compute range of starting locations
             start_min = self.drop_start
@@ -172,7 +177,8 @@ class DropChunk(nn.Layer):
             start = paddle.randint(
                 low=start_min,
                 high=start_max + 1,
-                shape=[drop_times[i]], )
+                shape=[drop_times[i]],
+            )
 
             end = start + length
 
@@ -197,10 +203,11 @@ class DropChunk(nn.Layer):
 
 class Resample(nn.Layer):
     def __init__(
-            self,
-            orig_freq=16000,
-            new_freq=16000,
-            lowpass_filter_width=6, ):
+        self,
+        orig_freq=16000,
+        new_freq=16000,
+        lowpass_filter_width=6,
+    ):
         super(Resample, self).__init__()
         self.orig_freq = orig_freq
         self.new_freq = new_freq
@@ -253,8 +260,8 @@ class Resample(nn.Layer):
         batch_size, num_channels, wave_len = waveforms.shape
         window_size = self.weights.shape[1]
         tot_output_samp = self._output_samples(wave_len)
-        resampled_waveform = paddle.zeros((batch_size, num_channels,
-                                           tot_output_samp))
+        resampled_waveform = paddle.zeros(
+            (batch_size, num_channels, tot_output_samp))
 
         # eye size: (num_channels, num_channels, 1)
         eye = paddle.eye(num_channels).unsqueeze(2)
@@ -283,7 +290,8 @@ class Resample(nn.Layer):
                 # weight=self.weights[i].repeat(num_channels, 1, 1),
                 weight=self.weights[i].expand((num_channels, 1, -1)),
                 stride=self.conv_stride,
-                groups=num_channels, )
+                groups=num_channels,
+            )
 
             # we want conv_wave[:, i] to be at
             # output[:, i + n*conv_transpose_stride]
@@ -388,10 +396,11 @@ class Resample(nn.Layer):
 
 class SpeedPerturb(nn.Layer):
     def __init__(
-            self,
-            orig_freq,
-            speeds=[90, 100, 110],
-            perturb_prob=1.0, ):
+        self,
+        orig_freq,
+        speeds=[90, 100, 110],
+        perturb_prob=1.0,
+    ):
         super(SpeedPerturb, self).__init__()
         self.orig_freq = orig_freq
         self.speeds = speeds
@@ -423,14 +432,15 @@ class SpeedPerturb(nn.Layer):
 
 class AddNoise(nn.Layer):
     def __init__(
-            self,
-            noise_dataset=None,  # None for white noise
-            num_workers=0,
-            snr_low=0,
-            snr_high=0,
-            mix_prob=1.0,
-            start_index=None,
-            normalize=False, ):
+        self,
+        noise_dataset=None,  # None for white noise
+        num_workers=0,
+        snr_low=0,
+        snr_high=0,
+        mix_prob=1.0,
+        start_index=None,
+        normalize=False,
+    ):
         super(AddNoise, self).__init__()
 
         self.num_workers = num_workers
@@ -474,7 +484,8 @@ class AddNoise(nn.Layer):
             tensor_length = waveforms.shape[1]
             noise_waveform, noise_length = self._load_noise(
                 lengths,
-                tensor_length, )
+                tensor_length,
+            )
 
             # Rescale and add
             noise_amplitude = compute_amplitude(noise_waveform, noise_length)
@@ -483,8 +494,9 @@ class AddNoise(nn.Layer):
 
         # Normalizing to prevent clipping
         if self.normalize:
-            abs_max, _ = paddle.max(
-                paddle.abs(noisy_waveform), axis=1, keepdim=True)
+            abs_max, _ = paddle.max(paddle.abs(noisy_waveform),
+                                    axis=1,
+                                    keepdim=True)
             noisy_waveform = noisy_waveform / abs_max.clip(min=1.0)
 
         return noisy_waveform
@@ -513,7 +525,8 @@ class AddNoise(nn.Layer):
                 ids = [item['utt_id'] for item in batch]
                 lengths = np.asarray([item['feat'].shape[0] for item in batch])
                 waveforms = list(
-                    map(lambda x: pad(x, max(max_length, lengths.max().item())),
+                    map(lambda x: pad(x, max(max_length,
+                                             lengths.max().item())),
                         [item['feat'] for item in batch]))
                 waveforms = np.stack(waveforms)
                 return {'ids': ids, 'feats': waveforms, 'lengths': lengths}
@@ -525,7 +538,8 @@ class AddNoise(nn.Layer):
                 shuffle=True,
                 num_workers=self.num_workers,
                 collate_fn=noise_collate_fn,
-                return_list=True, )
+                return_list=True,
+            )
             self.noise_data = iter(self.noise_dataloader)
 
         noise_batch, noise_len = self._load_noise_batch_of_size(batch_size)
@@ -572,11 +586,12 @@ class AddNoise(nn.Layer):
 
 class AddReverb(nn.Layer):
     def __init__(
-            self,
-            rir_dataset,
-            reverb_prob=1.0,
-            rir_scale_factor=1.0,
-            num_workers=0, ):
+        self,
+        rir_dataset,
+        reverb_prob=1.0,
+        rir_scale_factor=1.0,
+        num_workers=0,
+    ):
         super(AddReverb, self).__init__()
         self.rir_dataset = rir_dataset
         self.reverb_prob = reverb_prob
@@ -593,7 +608,8 @@ class AddReverb(nn.Layer):
             ids = [item['utt_id'] for item in batch]
             lengths = np.asarray([item['feat'].shape[0] for item in batch])
             waveforms = list(
-                map(lambda x: pad(x, lengths.max().item()),
+                map(lambda x: pad(x,
+                                  lengths.max().item()),
                     [item['feat'] for item in batch]))
             waveforms = np.stack(waveforms)
             return {'ids': ids, 'feats': waveforms, 'lengths': lengths}
@@ -603,7 +619,8 @@ class AddReverb(nn.Layer):
             collate_fn=rir_collate_fn,
             num_workers=num_workers,
             shuffle=True,
-            return_list=True, )
+            return_list=True,
+        )
 
         self.rir_data = iter(self.rir_dataloader)
 
@@ -644,15 +661,15 @@ class AddReverb(nn.Layer):
                 scale_factor=self.rir_scale_factor,
                 mode="linear",
                 align_corners=False,
-                data_format='NCW', )
+                data_format='NCW',
+            )
             # (N, C, L) -> (N, L, C)
             rir_waveform = rir_waveform.transpose([0, 2, 1])
 
-        rev_waveform = reverberate(
-            waveforms,
-            rir_waveform,
-            self.rir_dataset.sample_rate,
-            rescale_amp="avg")
+        rev_waveform = reverberate(waveforms,
+                                   rir_waveform,
+                                   self.rir_dataset.sample_rate,
+                                   rescale_amp="avg")
 
         # Remove channels dimension if added
         if channel_added:
@@ -678,11 +695,12 @@ class AddReverb(nn.Layer):
 
 class AddBabble(nn.Layer):
     def __init__(
-            self,
-            speaker_count=3,
-            snr_low=0,
-            snr_high=0,
-            mix_prob=1, ):
+        self,
+        speaker_count=3,
+        snr_low=0,
+        snr_high=0,
+        mix_prob=1,
+    ):
         super(AddBabble, self).__init__()
         self.speaker_count = speaker_count
         self.snr_low = snr_low
@@ -717,8 +735,8 @@ class AddBabble(nn.Layer):
         for i in range(1, self.speaker_count):
             babble_waveform += waveforms.roll((1 + i, ), axis=0)
             babble_len = paddle.concat(
-                [babble_len, babble_len.roll((1, ), axis=0)], axis=-1).max(
-                    axis=-1, keepdim=True)
+                [babble_len, babble_len.roll(
+                    (1, ), axis=0)], axis=-1).max(axis=-1, keepdim=True)
 
         # Rescale and add to mixture
         babble_amplitude = compute_amplitude(babble_waveform, babble_len)
@@ -730,35 +748,39 @@ class AddBabble(nn.Layer):
 
 class TimeDomainSpecAugment(nn.Layer):
     def __init__(
-            self,
-            perturb_prob=1.0,
-            drop_freq_prob=1.0,
-            drop_chunk_prob=1.0,
-            speeds=[95, 100, 105],
-            sample_rate=16000,
-            drop_freq_count_low=0,
-            drop_freq_count_high=3,
-            drop_chunk_count_low=0,
-            drop_chunk_count_high=5,
-            drop_chunk_length_low=1000,
-            drop_chunk_length_high=2000,
-            drop_chunk_noise_factor=0, ):
+        self,
+        perturb_prob=1.0,
+        drop_freq_prob=1.0,
+        drop_chunk_prob=1.0,
+        speeds=[95, 100, 105],
+        sample_rate=16000,
+        drop_freq_count_low=0,
+        drop_freq_count_high=3,
+        drop_chunk_count_low=0,
+        drop_chunk_count_high=5,
+        drop_chunk_length_low=1000,
+        drop_chunk_length_high=2000,
+        drop_chunk_noise_factor=0,
+    ):
         super(TimeDomainSpecAugment, self).__init__()
         self.speed_perturb = SpeedPerturb(
             perturb_prob=perturb_prob,
             orig_freq=sample_rate,
-            speeds=speeds, )
+            speeds=speeds,
+        )
         self.drop_freq = DropFreq(
             drop_prob=drop_freq_prob,
             drop_count_low=drop_freq_count_low,
-            drop_count_high=drop_freq_count_high, )
+            drop_count_high=drop_freq_count_high,
+        )
         self.drop_chunk = DropChunk(
             drop_prob=drop_chunk_prob,
             drop_count_low=drop_chunk_count_low,
             drop_count_high=drop_chunk_count_high,
             drop_length_low=drop_chunk_length_low,
             drop_length_high=drop_chunk_length_high,
-            noise_factor=drop_chunk_noise_factor, )
+            noise_factor=drop_chunk_noise_factor,
+        )
 
     def forward(self, waveforms, lengths=None):
         if lengths is None:
@@ -775,19 +797,20 @@ class TimeDomainSpecAugment(nn.Layer):
 
 class EnvCorrupt(nn.Layer):
     def __init__(
-            self,
-            reverb_prob=1.0,
-            babble_prob=1.0,
-            noise_prob=1.0,
-            rir_dataset=None,
-            noise_dataset=None,
-            num_workers=0,
-            babble_speaker_count=0,
-            babble_snr_low=0,
-            babble_snr_high=0,
-            noise_snr_low=0,
-            noise_snr_high=0,
-            rir_scale_factor=1.0, ):
+        self,
+        reverb_prob=1.0,
+        babble_prob=1.0,
+        noise_prob=1.0,
+        rir_dataset=None,
+        noise_dataset=None,
+        num_workers=0,
+        babble_speaker_count=0,
+        babble_snr_low=0,
+        babble_snr_high=0,
+        noise_snr_low=0,
+        noise_snr_high=0,
+        rir_scale_factor=1.0,
+    ):
         super(EnvCorrupt, self).__init__()
 
         # Initialize corrupters
@@ -796,14 +819,16 @@ class EnvCorrupt(nn.Layer):
                 rir_dataset=rir_dataset,
                 num_workers=num_workers,
                 reverb_prob=reverb_prob,
-                rir_scale_factor=rir_scale_factor, )
+                rir_scale_factor=rir_scale_factor,
+            )
 
         if babble_speaker_count > 0 and babble_prob > 0.0:
             self.add_babble = AddBabble(
                 speaker_count=babble_speaker_count,
                 snr_low=babble_snr_low,
                 snr_high=babble_snr_high,
-                mix_prob=babble_prob, )
+                mix_prob=babble_prob,
+            )
 
         if noise_dataset is not None and noise_prob > 0.0:
             self.add_noise = AddNoise(
@@ -811,7 +836,8 @@ class EnvCorrupt(nn.Layer):
                 num_workers=num_workers,
                 snr_low=noise_snr_low,
                 snr_high=noise_snr_high,
-                mix_prob=noise_prob, )
+                mix_prob=noise_prob,
+            )
 
     def forward(self, waveforms, lengths=None):
         if lengths is None:
@@ -840,29 +866,33 @@ def build_augment_pipeline(target_dir=None) -> List[paddle.nn.Layer]:
         List[paddle.nn.Layer]: all augment process
     """
     logger.info("start to build the augment pipeline")
-    noise_dataset = CSVDataset(csv_path=os.path.join(target_dir,
-                                                     "rir_noise/csv/noise.csv"))
-    rir_dataset = CSVDataset(csv_path=os.path.join(target_dir,
-                                                   "rir_noise/csv/rir.csv"))
+    noise_dataset = CSVDataset(
+        csv_path=os.path.join(target_dir, "rir_noise/csv/noise.csv"))
+    rir_dataset = CSVDataset(
+        csv_path=os.path.join(target_dir, "rir_noise/csv/rir.csv"))
 
     wavedrop = TimeDomainSpecAugment(
         sample_rate=16000,
-        speeds=[100], )
+        speeds=[100],
+    )
     speed_perturb = TimeDomainSpecAugment(
         sample_rate=16000,
-        speeds=[95, 100, 105], )
+        speeds=[95, 100, 105],
+    )
     add_noise = EnvCorrupt(
         noise_dataset=noise_dataset,
         reverb_prob=0.0,
         noise_prob=1.0,
         noise_snr_low=0,
         noise_snr_high=15,
-        rir_scale_factor=1.0, )
+        rir_scale_factor=1.0,
+    )
     add_rev = EnvCorrupt(
         rir_dataset=rir_dataset,
         reverb_prob=1.0,
         noise_prob=0.0,
-        rir_scale_factor=1.0, )
+        rir_scale_factor=1.0,
+    )
     add_rev_noise = EnvCorrupt(
         noise_dataset=noise_dataset,
         rir_dataset=rir_dataset,
@@ -870,7 +900,8 @@ def build_augment_pipeline(target_dir=None) -> List[paddle.nn.Layer]:
         noise_prob=1.0,
         noise_snr_low=0,
         noise_snr_high=15,
-        rir_scale_factor=1.0, )
+        rir_scale_factor=1.0,
+    )
 
     return [wavedrop, speed_perturb, add_noise, add_rev, add_rev_noise]
 
@@ -899,9 +930,9 @@ def waveform_augment(waveforms: paddle.Tensor,
         else:
             # Pad
             lengths_to_pad = waveforms.shape[1] - waveforms_aug.shape[1]
-            waveforms_aug = F.pad(
-                waveforms_aug.unsqueeze(-1), [0, lengths_to_pad],
-                data_format='NLC').squeeze(-1)
+            waveforms_aug = F.pad(waveforms_aug.unsqueeze(-1),
+                                  [0, lengths_to_pad],
+                                  data_format='NLC').squeeze(-1)
         # stage 2: append the augmented waveform into the list
         waveforms_aug_list.append(waveforms_aug)
 

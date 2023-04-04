@@ -38,7 +38,7 @@ def identity(x: Any) -> Any:
     return x
 
 
-def safe_eval(s: str, expr: str="{}"):
+def safe_eval(s: str, expr: str = "{}"):
     """Evaluate the given expression more safely."""
     if re.sub("[^A-Za-z0-9_]", "", s) != s:
         raise ValueError(f"safe_eval: illegal characters in: '{s}'")
@@ -56,8 +56,8 @@ def lookup_sym(sym: str, modules: list):
 
 
 def repeatedly0(loader: Iterator,
-                nepochs: int=sys.maxsize,
-                nbatches: int=sys.maxsize):
+                nepochs: int = sys.maxsize,
+                nbatches: int = sys.maxsize):
     """Repeatedly returns batches from a DataLoader."""
     for epoch in range(nepochs):
         for sample in itt.islice(loader, nbatches):
@@ -70,11 +70,12 @@ def guess_batchsize(batch: Union[tuple, list]):
 
 
 def repeatedly(
-        source: Iterator,
-        nepochs: int=None,
-        nbatches: int=None,
-        nsamples: int=None,
-        batchsize: Callable[..., int]=guess_batchsize, ):
+    source: Iterator,
+    nepochs: int = None,
+    nbatches: int = None,
+    nsamples: int = None,
+    batchsize: Callable[..., int] = guess_batchsize,
+):
     """Repeatedly yield samples from an iterator."""
     epoch = 0
     batch = 0

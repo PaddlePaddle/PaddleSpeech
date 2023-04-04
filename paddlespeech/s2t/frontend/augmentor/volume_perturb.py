@@ -31,7 +31,6 @@ class VolumePerturbAugmentor(AugmentorBase):
     :param max_gain_dBFS: Maximal gain in dBFS.
     :type max_gain_dBFS: float
     """
-
     def __init__(self, rng, min_gain_dBFS, max_gain_dBFS):
         self._min_gain_dBFS = min_gain_dBFS
         self._max_gain_dBFS = max_gain_dBFS

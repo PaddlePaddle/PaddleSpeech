@@ -76,17 +76,17 @@ class SimpleAdadelta(Optimizer):
             adadelta.clear_grad()
 
     """
-
     def __init__(
-            self,
-            learning_rate=0.001,
-            epsilon=1.0e-6,
-            rho=0.95,
-            parameters=None,
-            weight_decay=0.0,
-            foreach=None,
-            maximize=False,
-            name=None, ):
+        self,
+        learning_rate=0.001,
+        epsilon=1.0e-6,
+        rho=0.95,
+        parameters=None,
+        weight_decay=0.0,
+        foreach=None,
+        maximize=False,
+        name=None,
+    ):
         if learning_rate is None:
             raise ValueError("learning_rate is not set.")
         if epsilon is None:
@@ -97,7 +97,8 @@ class SimpleAdadelta(Optimizer):
             learning_rate=learning_rate,
             parameters=parameters,
             weight_decay=weight_decay,
-            name=name, )
+            name=name,
+        )
 
         self._epsilon = epsilon
         self._rho = rho
@@ -151,16 +152,15 @@ class SimpleAdadelta(Optimizer):
                             self.acc_deltas.append(self.acc_delta)
 
         self.state = 1
-        adadelta(
-            params_grads,
-            square_avgs=self.square_avgs,
-            acc_deltas=self.acc_deltas,
-            learning_rate=self._learning_rate,
-            rho=self._rho,
-            epsilon=self._epsilon,
-            weight_decay=self._weight_decay,
-            foreach=self._foreach,
-            maximize=self._maximize)
+        adadelta(params_grads,
+                 square_avgs=self.square_avgs,
+                 acc_deltas=self.acc_deltas,
+                 learning_rate=self._learning_rate,
+                 rho=self._rho,
+                 epsilon=self._epsilon,
+                 weight_decay=self._weight_decay,
+                 foreach=self._foreach,
+                 maximize=self._maximize)
 
 
 def adadelta(params_grads,
@@ -181,26 +181,19 @@ def adadelta(params_grads,
         # optimizer is used
         func = _single_tensor_adadelta
 
-    func(
-        params_grads,
-        square_avgs,
-        acc_deltas,
-        learning_rate=learning_rate,
-        rho=rho,
-        epsilon=epsilon,
-        weight_decay=weight_decay,
-        maximize=maximize)
+    func(params_grads,
+         square_avgs,
+         acc_deltas,
+         learning_rate=learning_rate,
+         rho=rho,
+         epsilon=epsilon,
+         weight_decay=weight_decay,
+         maximize=maximize)
 
 
-def _single_tensor_adadelta(params_grads,
-                            square_avgs,
-                            acc_deltas,
-                            *,
-                            learning_rate: float,
-                            rho: float,
-                            epsilon: float,
-                            weight_decay: float,
-                            maximize: bool):
+def _single_tensor_adadelta(params_grads, square_avgs, acc_deltas, *,
+                            learning_rate: float, rho: float, epsilon: float,
+                            weight_decay: float, maximize: bool):
     """
     Calculate variables(square_avgs, acc_deltas) and update parameters.
     """
@@ -235,5 +228,5 @@ def _single_tensor_adadelta(params_grads,
         # param = param - delta*learning_rate
         param.set_value(
             param.add(
-                paddle.multiply(
-                    delta.astype('float32'), paddle.to_tensor(-learning_rate))))
+                paddle.multiply(delta.astype('float32'),
+                                paddle.to_tensor(-learning_rate))))

@@ -201,7 +201,6 @@ class ImageHandler:
     - pilrgba: pil None rgba
 
     """
-
     def __init__(self, imagespec, extensions=image_extensions):
         """Create an image handler.
 
@@ -328,7 +327,6 @@ class Continue:
                 return Continue(key[:-3], decompress(data))
             return None
     """
-
     def __init__(self, key, data):
         """__init__.
 
@@ -368,7 +366,6 @@ class Decoder:
     For each key/data item, this iterates through the list of
     handlers until some handler returns something other than None.
     """
-
     def __init__(self, handlers, pre=None, post=None, only=None, partial=False):
         """Create a Decoder.
 

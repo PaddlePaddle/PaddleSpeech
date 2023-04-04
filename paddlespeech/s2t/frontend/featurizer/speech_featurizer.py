@@ -19,7 +19,6 @@ from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 class SpeechFeaturizer():
     """Speech and Text feature extraction.
     """
-
     def __init__(self,
                  unit_type,
                  vocab_filepath,
@@ -53,11 +52,10 @@ class SpeechFeaturizer():
             dither=dither)
         self.feature_size = self.audio_feature.feature_size
 
-        self.text_feature = TextFeaturizer(
-            unit_type=unit_type,
-            vocab=vocab_filepath,
-            spm_model_prefix=spm_model_prefix,
-            maskctc=maskctc)
+        self.text_feature = TextFeaturizer(unit_type=unit_type,
+                                           vocab=vocab_filepath,
+                                           spm_model_prefix=spm_model_prefix,
+                                           maskctc=maskctc)
         self.vocab_size = self.text_feature.vocab_size
 
     def featurize(self, speech_segment, keep_transcription_text):

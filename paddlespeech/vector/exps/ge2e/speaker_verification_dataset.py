@@ -36,7 +36,6 @@ class MultiSpeakerMelDataset(Dataset):
         utterance2.npy
         utterance3.npy
     """
-
     def __init__(self, dataset_root: Path):
         self.root = Path(dataset_root).expanduser()
         speaker_dirs = [f for f in self.root.glob("*") if f.is_dir()]
@@ -72,10 +71,7 @@ class MultiSpeakerSampler(BatchSampler):
     First, N speakers from all speakers are sampled randomly. Then, for each
     speaker, randomly sample M utterances from their corresponding utterances.
     """
-
-    def __init__(self,
-                 dataset: MultiSpeakerMelDataset,
-                 speakers_per_batch: int,
+    def __init__(self, dataset: MultiSpeakerMelDataset, speakers_per_batch: int,
                  utterances_per_speaker: int):
         self._speakers = list(dataset.speaker_dirs)
         self._speaker_to_utterances = dataset.speaker_to_utterances

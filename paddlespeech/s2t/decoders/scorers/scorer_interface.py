@@ -38,7 +38,6 @@ class ScorerInterface:
             * :class:`lm.seq_rnn.SequentialRNNLM`
 
     """
-
     def init_state(self, x: paddle.Tensor) -> Any:
         """Get an initial state for decoding (optional).
 
@@ -50,7 +49,7 @@ class ScorerInterface:
         """
         return None
 
-    def select_state(self, state: Any, i: int, new_id: int=None) -> Any:
+    def select_state(self, state: Any, i: int, new_id: int = None) -> Any:
         """Select state with relative ids in the main beam search.
 
         Args:
@@ -96,7 +95,6 @@ class ScorerInterface:
 
 class BatchScorerInterface(ScorerInterface):
     """Batch scorer interface."""
-
     def batch_init_state(self, x: paddle.Tensor) -> Any:
         """Get an initial state for decoding (optional).
 
@@ -108,9 +106,7 @@ class BatchScorerInterface(ScorerInterface):
         """
         return self.init_state(x)
 
-    def batch_score(self,
-                    ys: paddle.Tensor,
-                    states: List[Any],
+    def batch_score(self, ys: paddle.Tensor, states: List[Any],
                     xs: paddle.Tensor) -> Tuple[paddle.Tensor, List[Any]]:
         """Score new token batch (required).
 
@@ -153,10 +149,7 @@ class PartialScorerInterface(ScorerInterface):
              * :class:`decoders.scorers.ctc.CTCPrefixScorer`
 
     """
-
-    def score_partial(self,
-                      y: paddle.Tensor,
-                      next_tokens: paddle.Tensor,
+    def score_partial(self, y: paddle.Tensor, next_tokens: paddle.Tensor,
                       state: Any,
                       x: paddle.Tensor) -> Tuple[paddle.Tensor, Any]:
         """Score new token (required).
@@ -178,13 +171,13 @@ class PartialScorerInterface(ScorerInterface):
 
 class BatchPartialScorerInterface(BatchScorerInterface, PartialScorerInterface):
     """Batch partial scorer interface for beam search."""
-
     def batch_score_partial(
-            self,
-            ys: paddle.Tensor,
-            next_tokens: paddle.Tensor,
-            states: List[Any],
-            xs: paddle.Tensor, ) -> Tuple[paddle.Tensor, Any]:
+        self,
+        ys: paddle.Tensor,
+        next_tokens: paddle.Tensor,
+        states: List[Any],
+        xs: paddle.Tensor,
+    ) -> Tuple[paddle.Tensor, Any]:
         """Score new token (required).
 
         Args:

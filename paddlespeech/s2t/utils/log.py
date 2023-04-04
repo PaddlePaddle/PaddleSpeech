@@ -105,17 +105,15 @@ class Log():
         _frame = _frame.f_back
 
     if _call_from_cli:
-        logger.add(
-            sys.stdout,
-            level='ERROR',
-            enqueue=True,
-            filter=lambda record: record['level'].no >= 20)
+        logger.add(sys.stdout,
+                   level='ERROR',
+                   enqueue=True,
+                   filter=lambda record: record['level'].no >= 20)
     else:
-        logger.add(
-            sys.stdout,
-            level='INFO',
-            enqueue=True,
-            filter=lambda record: record['level'].no >= 20)
+        logger.add(sys.stdout,
+                   level='INFO',
+                   enqueue=True,
+                   filter=lambda record: record['level'].no >= 20)
         _, file_prefix, _ = find_log_dir_and_names()
         sink_prefix = os.path.join("exp/log", file_prefix)
         sink_path = sink_prefix[:-3] + "{time}.log"
@@ -130,7 +128,6 @@ class Log():
 
 class Autolog:
     """Just used by fullchain project"""
-
     def __init__(self,
                  batch_size,
                  model_name="DeepSpeech",

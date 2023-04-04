@@ -35,8 +35,10 @@ def main():
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--test-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 
@@ -66,13 +68,12 @@ def main():
 
     with jsonlines.open(args.test_metadata, 'r') as reader:
         metadata = list(reader)
-    test_dataset = DataTable(
-        metadata,
-        fields=['utt_id', 'feats'],
-        converters={
-            'utt_id': None,
-            'feats': np.load,
-        })
+    test_dataset = DataTable(metadata,
+                             fields=['utt_id', 'feats'],
+                             converters={
+                                 'utt_id': None,
+                                 'feats': np.load,
+                             })
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -84,13 +85,12 @@ def main():
         mel = paddle.to_tensor(mel)  # (T, C)
         with timer() as t:
             with paddle.no_grad():
-                wav = model.generate(
-                    c=mel,
-                    batched=config.inference.gen_batched,
-                    target=config.inference.target,
-                    overlap=config.inference.overlap,
-                    mu_law=config.mu_law,
-                    gen_display=False)
+                wav = model.generate(c=mel,
+                                     batched=config.inference.gen_batched,
+                                     target=config.inference.target,
+                                     overlap=config.inference.overlap,
+                                     mu_law=config.mu_law,
+                                     gen_display=False)
             wav = wav.numpy()
             N += wav.size
             T += t.elapse

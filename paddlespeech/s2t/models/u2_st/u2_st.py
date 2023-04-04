@@ -48,18 +48,17 @@ logger = Log(__name__).getlog()
 
 class U2STBaseModel(nn.Layer):
     """CTC-Attention hybrid Encoder-Decoder model"""
-
     def __init__(self,
                  vocab_size: int,
                  encoder: TransformerEncoder,
                  st_decoder: TransformerDecoder,
-                 decoder: TransformerDecoder=None,
-                 ctc: CTCDecoderBase=None,
-                 ctc_weight: float=0.0,
-                 asr_weight: float=0.0,
-                 ignore_id: int=IGNORE_ID,
-                 lsm_weight: float=0.0,
-                 length_normalized_loss: bool=False,
+                 decoder: TransformerDecoder = None,
+                 ctc: CTCDecoderBase = None,
+                 ctc_weight: float = 0.0,
+                 asr_weight: float = 0.0,
+                 ignore_id: int = IGNORE_ID,
+                 lsm_weight: float = 0.0,
+                 length_normalized_loss: bool = False,
                  **kwargs):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
 
@@ -80,18 +79,19 @@ class U2STBaseModel(nn.Layer):
             size=vocab_size,
             padding_idx=ignore_id,
             smoothing=lsm_weight,
-            normalize_length=length_normalized_loss, )
+            normalize_length=length_normalized_loss,
+        )
 
     def forward(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            text: paddle.Tensor,
-            text_lengths: paddle.Tensor,
-            asr_text: paddle.Tensor=None,
-            asr_text_lengths: paddle.Tensor=None,
-    ) -> Tuple[Optional[paddle.Tensor], Optional[paddle.Tensor], Optional[
-            paddle.Tensor]]:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        text: paddle.Tensor,
+        text_lengths: paddle.Tensor,
+        asr_text: paddle.Tensor = None,
+        asr_text_lengths: paddle.Tensor = None,
+    ) -> Tuple[Optional[paddle.Tensor], Optional[paddle.Tensor],
+               Optional[paddle.Tensor]]:
         """Frontend + Encoder + Decoder + Calc loss
         Args:
             speech: (Batch, Length, ...)
@@ -141,19 +141,20 @@ class U2STBaseModel(nn.Layer):
             elif loss_asr_att is None:
                 loss_asr = loss_asr_ctc
             else:
-                loss_asr = self.ctc_weight * loss_asr_ctc + (1 - self.ctc_weight
-                                                             ) * loss_asr_att
+                loss_asr = self.ctc_weight * loss_asr_ctc + (
+                    1 - self.ctc_weight) * loss_asr_att
             loss = self.asr_weight * loss_asr + (1 - self.asr_weight) * loss_st
         else:
             loss = loss_st
         return loss, loss_st, loss_asr_att, loss_asr_ctc
 
     def _calc_st_loss(
-            self,
-            encoder_out: paddle.Tensor,
-            encoder_mask: paddle.Tensor,
-            ys_pad: paddle.Tensor,
-            ys_pad_lens: paddle.Tensor, ) -> Tuple[paddle.Tensor, float]:
+        self,
+        encoder_out: paddle.Tensor,
+        encoder_mask: paddle.Tensor,
+        ys_pad: paddle.Tensor,
+        ys_pad_lens: paddle.Tensor,
+    ) -> Tuple[paddle.Tensor, float]:
         """Calc attention loss.
 
         Args:
@@ -178,15 +179,17 @@ class U2STBaseModel(nn.Layer):
         acc_att = th_accuracy(
             decoder_out.view(-1, self.vocab_size),
             ys_out_pad,
-            ignore_label=self.ignore_id, )
+            ignore_label=self.ignore_id,
+        )
         return loss_att, acc_att
 
     def _calc_att_loss(
-            self,
-            encoder_out: paddle.Tensor,
-            encoder_mask: paddle.Tensor,
-            ys_pad: paddle.Tensor,
-            ys_pad_lens: paddle.Tensor, ) -> Tuple[paddle.Tensor, float]:
+        self,
+        encoder_out: paddle.Tensor,
+        encoder_mask: paddle.Tensor,
+        ys_pad: paddle.Tensor,
+        ys_pad_lens: paddle.Tensor,
+    ) -> Tuple[paddle.Tensor, float]:
         """Calc attention loss.
 
         Args:
@@ -211,16 +214,17 @@ class U2STBaseModel(nn.Layer):
         acc_att = th_accuracy(
             decoder_out.view(-1, self.vocab_size),
             ys_out_pad,
-            ignore_label=self.ignore_id, )
+            ignore_label=self.ignore_id,
+        )
         return loss_att, acc_att
 
     def _forward_encoder(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False,
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
     ) -> Tuple[paddle.Tensor, paddle.Tensor]:
         """Encoder pass.
 
@@ -254,15 +258,16 @@ class U2STBaseModel(nn.Layer):
         return encoder_out, encoder_mask
 
     def translate(
-            self,
-            speech: paddle.Tensor,
-            speech_lengths: paddle.Tensor,
-            beam_size: int=10,
-            word_reward: float=0.0,
-            maxlenratio: float=0.5,
-            decoding_chunk_size: int=-1,
-            num_decoding_left_chunks: int=-1,
-            simulate_streaming: bool=False, ) -> paddle.Tensor:
+        self,
+        speech: paddle.Tensor,
+        speech_lengths: paddle.Tensor,
+        beam_size: int = 10,
+        word_reward: float = 0.0,
+        maxlenratio: float = 0.5,
+        decoding_chunk_size: int = -1,
+        num_decoding_left_chunks: int = -1,
+        simulate_streaming: bool = False,
+    ) -> paddle.Tensor:
         """ Apply beam search on attention decoder with length penalty
         Args:
             speech (paddle.Tensor): (batch, max_len, feat_dim)
@@ -306,9 +311,9 @@ class U2STBaseModel(nn.Layer):
 
             if hyps[0]["cache"] is not None:
                 cache = [
-                    paddle.ones(
-                        (len(hyps), i - 1, hyp_cache.shape[-1]),
-                        dtype=paddle.float32) for hyp_cache in hyps[0]["cache"]
+                    paddle.ones((len(hyps), i - 1, hyp_cache.shape[-1]),
+                                dtype=paddle.float32)
+                    for hyp_cache in hyps[0]["cache"]
                 ]
             for j, hyp in enumerate(hyps):
                 ys[j, :] = paddle.to_tensor(hyp["yseq"])
@@ -335,8 +340,8 @@ class U2STBaseModel(nn.Layer):
                     # will be (2 x beam) hyps at most
                     hyps_best_kept.append(new_hyp)
 
-                hyps_best_kept = sorted(
-                    hyps_best_kept, key=lambda x: -x["score"])[:beam_size]
+                hyps_best_kept = sorted(hyps_best_kept,
+                                        key=lambda x: -x["score"])[:beam_size]
 
             # sort and get nbest
             hyps = hyps_best_kept
@@ -393,12 +398,12 @@ class U2STBaseModel(nn.Layer):
 
     @jit.to_static
     def forward_encoder_chunk(
-            self,
-            xs: paddle.Tensor,
-            offset: int,
-            required_cache_size: int,
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+        self,
+        xs: paddle.Tensor,
+        offset: int,
+        required_cache_size: int,
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -447,10 +452,11 @@ class U2STBaseModel(nn.Layer):
 
     @jit.to_static
     def forward_attention_decoder(
-            self,
-            hyps: paddle.Tensor,
-            hyps_lens: paddle.Tensor,
-            encoder_out: paddle.Tensor, ) -> paddle.Tensor:
+        self,
+        hyps: paddle.Tensor,
+        hyps_lens: paddle.Tensor,
+        encoder_out: paddle.Tensor,
+    ) -> paddle.Tensor:
         """ Export interface for c++ call, forward decoder with multiple
             hypothesis from ctc prefix beam search and one encoder output
         Args:
@@ -466,8 +472,8 @@ class U2STBaseModel(nn.Layer):
         assert hyps_lens.shape[0] == num_hyps
         encoder_out = encoder_out.repeat(num_hyps, 1, 1)
         # (B, 1, T)
-        encoder_mask = paddle.ones(
-            [num_hyps, 1, encoder_out.shape[1]], dtype=paddle.bool)
+        encoder_mask = paddle.ones([num_hyps, 1, encoder_out.shape[1]],
+                                   dtype=paddle.bool)
         # (num_hyps, max_hyps_len, vocab_size)
         decoder_out, _ = self.decoder(encoder_out, encoder_mask, hyps,
                                       hyps_lens)
@@ -481,11 +487,11 @@ class U2STBaseModel(nn.Layer):
                text_feature: Dict[str, int],
                decoding_method: str,
                beam_size: int,
-               word_reward: float=0.0,
-               maxlenratio: float=0.5,
-               decoding_chunk_size: int=-1,
-               num_decoding_left_chunks: int=-1,
-               simulate_streaming: bool=False):
+               word_reward: float = 0.0,
+               maxlenratio: float = 0.5,
+               decoding_chunk_size: int = -1,
+               num_decoding_left_chunks: int = -1,
+               simulate_streaming: bool = False):
         """u2 decoding.
 
         Args:
@@ -536,19 +542,17 @@ class U2STModel(U2STBaseModel):
 
         if isinstance(decoder, Tuple):
             st_decoder, asr_decoder, ctc = decoder
-            super().__init__(
-                vocab_size=vocab_size,
-                encoder=encoder,
-                st_decoder=st_decoder,
-                decoder=asr_decoder,
-                ctc=ctc,
-                **configs['model_conf'])
+            super().__init__(vocab_size=vocab_size,
+                             encoder=encoder,
+                             st_decoder=st_decoder,
+                             decoder=asr_decoder,
+                             ctc=ctc,
+                             **configs['model_conf'])
         else:
-            super().__init__(
-                vocab_size=vocab_size,
-                encoder=encoder,
-                st_decoder=decoder,
-                **configs['model_conf'])
+            super().__init__(vocab_size=vocab_size,
+                             encoder=encoder,
+                             st_decoder=decoder,
+                             **configs['model_conf'])
 
     @classmethod
     def _init_from_config(cls, configs: dict):
@@ -566,9 +570,8 @@ class U2STModel(U2STBaseModel):
         if configs['cmvn_file'] is not None:
             mean, istd = load_cmvn(configs['cmvn_file'],
                                    configs['cmvn_file_type'])
-            global_cmvn = GlobalCMVN(
-                paddle.to_tensor(mean, dtype=paddle.float),
-                paddle.to_tensor(istd, dtype=paddle.float))
+            global_cmvn = GlobalCMVN(paddle.to_tensor(mean, dtype=paddle.float),
+                                     paddle.to_tensor(istd, dtype=paddle.float))
         else:
             global_cmvn = None
 
@@ -580,24 +583,24 @@ class U2STModel(U2STBaseModel):
         encoder_type = configs.get('encoder', 'transformer')
         logger.info(f"U2 Encoder type: {encoder_type}")
         if encoder_type == 'transformer':
-            encoder = TransformerEncoder(
-                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+            encoder = TransformerEncoder(input_dim,
+                                         global_cmvn=global_cmvn,
+                                         **configs['encoder_conf'])
         elif encoder_type == 'conformer':
-            encoder = ConformerEncoder(
-                input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+            encoder = ConformerEncoder(input_dim,
+                                       global_cmvn=global_cmvn,
+                                       **configs['encoder_conf'])
         else:
             raise ValueError(f"not support encoder type:{encoder_type}")
 
-        st_decoder = TransformerDecoder(vocab_size,
-                                        encoder.output_size(),
+        st_decoder = TransformerDecoder(vocab_size, encoder.output_size(),
                                         **configs['decoder_conf'])
 
         asr_weight = configs['model_conf']['asr_weight']
         logger.info(f"ASR Joint Training Weight: {asr_weight}")
 
         if asr_weight > 0.:
-            decoder = TransformerDecoder(vocab_size,
-                                         encoder.output_size(),
+            decoder = TransformerDecoder(vocab_size, encoder.output_size(),
                                          **configs['decoder_conf'])
             # ctc decoder and ctc loss
             model_conf = configs['model_conf']
@@ -651,8 +654,8 @@ class U2STModel(U2STBaseModel):
         model = cls.from_config(config)
 
         if checkpoint_path:
-            infos = checkpoint.load_parameters(
-                model, checkpoint_path=checkpoint_path)
+            infos = checkpoint.load_parameters(model,
+                                               checkpoint_path=checkpoint_path)
             logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)
         return model
@@ -677,9 +680,8 @@ class U2STInferModel(U2STModel):
         Returns:
             List[List[int]]: best path result
         """
-        return self.translate(
-            feats,
-            feats_lengths,
-            decoding_chunk_size=decoding_chunk_size,
-            num_decoding_left_chunks=num_decoding_left_chunks,
-            simulate_streaming=simulate_streaming)
+        return self.translate(feats,
+                              feats_lengths,
+                              decoding_chunk_size=decoding_chunk_size,
+                              num_decoding_left_chunks=num_decoding_left_chunks,
+                              simulate_streaming=simulate_streaming)

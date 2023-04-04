@@ -92,8 +92,8 @@ def gen_lexicon(lexicon_files: List[Union[str, Path]],
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Gen Chinese characters to phone lexicon for THCHS-30 dataset"
-    )
+        description=
+        "Gen Chinese characters to phone lexicon for THCHS-30 dataset")
     # A line of word_lexicon:
     # 一丁点 ii i4 d ing1 d ian3
     # the first is word, and the rest are the phones of the word, and the len of phones is twice of the word's len
@@ -102,11 +102,10 @@ if __name__ == "__main__":
         type=str,
         default="data/dict/lm_word_lexicon_1 data/dict/lm_word_lexicon_2",
         help="lm_word_lexicon files")
-    parser.add_argument(
-        "--output-path",
-        type=str,
-        default="data/dict/word.lexicon",
-        help="path to save output word2phone lexicon")
+    parser.add_argument("--output-path",
+                        type=str,
+                        default="data/dict/word.lexicon",
+                        help="path to save output word2phone lexicon")
     args = parser.parse_args()
     lexicon_files = args.lexicon_files.split(" ")
     output_path = Path(args.output_path).expanduser()

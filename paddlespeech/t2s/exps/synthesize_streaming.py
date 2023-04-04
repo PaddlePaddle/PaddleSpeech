@@ -53,10 +53,9 @@ def evaluate(args):
     sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     # frontend
-    frontend = get_frontend(
-        lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+    frontend = get_frontend(lang=args.lang,
+                            phones_dict=args.phones_dict,
+                            tones_dict=args.tones_dict)
 
     with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
@@ -83,11 +82,10 @@ def evaluate(args):
     am_postnet = am.postnet
 
     # vocoder
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
 
     # whether dygraph to static
     if args.inference_dir:
@@ -95,9 +93,9 @@ def evaluate(args):
         # am.encoder_infer
         am_encoder_infer = jit.to_static(
             am_encoder_infer, input_spec=[InputSpec([-1], dtype=paddle.int64)])
-        paddle.jit.save(am_encoder_infer,
-                        os.path.join(args.inference_dir,
-                                     args.am + "_am_encoder_infer"))
+        paddle.jit.save(
+            am_encoder_infer,
+            os.path.join(args.inference_dir, args.am + "_am_encoder_infer"))
         am_encoder_infer = paddle.jit.load(
             os.path.join(args.inference_dir, args.am + "_am_encoder_infer"))
 
@@ -105,8 +103,8 @@ def evaluate(args):
         am_decoder = jit.to_static(
             am_decoder,
             input_spec=[InputSpec([1, -1, 384], dtype=paddle.float32)])
-        paddle.jit.save(am_decoder,
-                        os.path.join(args.inference_dir,
+        paddle.jit.save(
+            am_decoder, os.path.join(args.inference_dir,
                                      args.am + "_am_decoder"))
         am_decoder = paddle.jit.load(
             os.path.join(args.inference_dir, args.am + "_am_decoder"))
@@ -115,17 +113,16 @@ def evaluate(args):
         am_postnet = jit.to_static(
             am_postnet,
             input_spec=[InputSpec([1, 80, -1], dtype=paddle.float32)])
-        paddle.jit.save(am_postnet,
-                        os.path.join(args.inference_dir,
+        paddle.jit.save(
+            am_postnet, os.path.join(args.inference_dir,
                                      args.am + "_am_postnet"))
         am_postnet = paddle.jit.load(
             os.path.join(args.inference_dir, args.am + "_am_postnet"))
 
         # vocoder
-        voc_inference = voc_to_static(
-            voc_inference=voc_inference,
-            voc=args.voc,
-            inference_dir=args.inference_dir)
+        voc_inference = voc_to_static(voc_inference=voc_inference,
+                                      voc=args.voc,
+                                      inference_dir=args.inference_dir)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -139,12 +136,11 @@ def evaluate(args):
 
     for utt_id, sentence in sentences:
         with timer() as t:
-            frontend_dict = run_frontend(
-                frontend=frontend,
-                text=sentence,
-                merge_sentences=merge_sentences,
-                get_tone_ids=get_tone_ids,
-                lang=args.lang)
+            frontend_dict = run_frontend(frontend=frontend,
+                                         text=sentence,
+                                         merge_sentences=merge_sentences,
+                                         get_tone_ids=get_tone_ids,
+                                         lang=args.lang)
             phone_ids = frontend_dict['phone_ids']
             # merge_sentences=True here, so we only use the first item of phone_ids
             phone_ids = phone_ids[0]
@@ -193,8 +189,9 @@ def evaluate(args):
         print(
             f"{utt_id}, mel: {mel.shape}, wave: {wav.shape}, time: {t.elapse}s, Hz: {speed}, RTF: {rtf}."
         )
-        sf.write(
-            str(output_dir / (utt_id + ".wav")), wav, samplerate=am_config.fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 wav,
+                 samplerate=am_config.fs)
         print(f"{utt_id} done!")
     print(f"generation speed: {N / T}Hz, RTF: {am_config.fs / (N / T) }")
 
@@ -204,81 +201,93 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Synthesize with acoustic model & vocoder")
     # acoustic model
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=['fastspeech2_csmsc'],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        '--am_config', type=str, default=None, help='Config of acoustic model.')
-    parser.add_argument(
-        '--am_ckpt',
-        type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=['fastspeech2_csmsc'],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am_config',
+                        type=str,
+                        default=None,
+                        help='Config of acoustic model.')
+    parser.add_argument('--am_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of acoustic model.')
     parser.add_argument(
         "--am_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones_dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--tones_dict", type=str, default=None, help="tone vocabulary file.")
+    parser.add_argument("--phones_dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--tones_dict",
+                        type=str,
+                        default=None,
+                        help="tone vocabulary file.")
 
     # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=[
-            'pwgan_csmsc',
-            'mb_melgan_csmsc',
-            'style_melgan_csmsc',
-            'hifigan_csmsc',
-        ],
-        help='Choose vocoder type of tts task.')
-    parser.add_argument(
-        '--voc_config', type=str, default=None, help='Config of voc.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=[
+                            'pwgan_csmsc',
+                            'mb_melgan_csmsc',
+                            'style_melgan_csmsc',
+                            'hifigan_csmsc',
+                        ],
+                        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc_config',
+                        type=str,
+                        default=None,
+                        help='Config of voc.')
+    parser.add_argument('--voc_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of voc.')
     parser.add_argument(
         "--voc_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training voc."
     )
     # other
-    parser.add_argument(
-        '--lang',
-        type=str,
-        default='zh',
-        help='Choose model language. zh or en')
+    parser.add_argument('--lang',
+                        type=str,
+                        default='zh',
+                        help='Choose model language. zh or en')
 
-    parser.add_argument(
-        "--inference_dir",
-        type=str,
-        default=None,
-        help="dir to save inference models")
+    parser.add_argument("--inference_dir",
+                        type=str,
+                        default=None,
+                        help="dir to save inference models")
 
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
     parser.add_argument(
         "--text",
         type=str,
         help="text to synthesize, a 'utt_id sentence' pair per line.")
     # streaming related
-    parser.add_argument(
-        "--am_streaming",
-        type=str2bool,
-        default=False,
-        help="whether use streaming acoustic model")
-    parser.add_argument(
-        "--block_size", type=int, default=42, help="block size of am streaming")
-    parser.add_argument(
-        "--pad_size", type=int, default=12, help="pad size of am streaming")
+    parser.add_argument("--am_streaming",
+                        type=str2bool,
+                        default=False,
+                        help="whether use streaming acoustic model")
+    parser.add_argument("--block_size",
+                        type=int,
+                        default=42,
+                        help="block size of am streaming")
+    parser.add_argument("--pad_size",
+                        type=int,
+                        default=12,
+                        help="pad size of am streaming")
 
     parser.add_argument("--output_dir", type=str, help="output dir.")
 

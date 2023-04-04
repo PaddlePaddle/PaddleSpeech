@@ -97,12 +97,12 @@ class DynamicItemDataset(Dataset):
         From the output_keys dict key:value pairs the key appears outside,
         and value is the internal key.
     """
-
     def __init__(
-            self,
-            data,
-            dynamic_items=[],
-            output_keys=[], ):
+        self,
+        data,
+        dynamic_items=[],
+        output_keys=[],
+    ):
         self.data = data
         self.data_ids = list(self.data.keys())
         static_keys = list(self.data[self.data_ids[0]].keys())
@@ -179,13 +179,14 @@ class DynamicItemDataset(Dataset):
         self.pipeline.set_output_keys(saved_output)
 
     def filtered_sorted(
-            self,
-            key_min_value={},
-            key_max_value={},
-            key_test={},
-            sort_key=None,
-            reverse=False,
-            select_n=None, ):
+        self,
+        key_min_value={},
+        key_max_value={},
+        key_test={},
+        sort_key=None,
+        reverse=False,
+        select_n=None,
+    ):
         """Get a filtered and/or sorted version of this, shares static data.
 
         The reason to implement these operations in the same method is that
@@ -231,20 +232,21 @@ class DynamicItemDataset(Dataset):
             key_test,
             sort_key,
             reverse,
-            select_n, )
+            select_n,
+        )
         return FilteredSortedDynamicItemDataset(
             self, filtered_sorted_ids)  # NOTE: defined below
 
     def _filtered_sorted_ids(
-            self,
-            key_min_value={},
-            key_max_value={},
-            key_test={},
-            sort_key=None,
-            reverse=False,
-            select_n=None, ):
+        self,
+        key_min_value={},
+        key_max_value={},
+        key_test={},
+        sort_key=None,
+        reverse=False,
+        select_n=None,
+    ):
         """Returns a list of data ids, fulfilling the sorting and filtering."""
-
         def combined_filter(computed):
             """Applies filter."""
             for key, limit in key_min_value.items():
@@ -265,9 +267,9 @@ class DynamicItemDataset(Dataset):
                 return False
             return True
 
-        temp_keys = (set(key_min_value.keys()) | set(key_max_value.keys()) |
-                     set(key_test.keys()) |
-                     set([] if sort_key is None else [sort_key]))
+        temp_keys = (set(key_min_value.keys()) | set(key_max_value.keys())
+                     | set(key_test.keys())
+                     | set([] if sort_key is None else [sort_key]))
         filtered_ids = []
         with self.output_keys_as(temp_keys):
             for i, data_id in enumerate(self.data_ids):
@@ -336,7 +338,6 @@ class FilteredSortedDynamicItemDataset(DynamicItemDataset):
     Shares the static data (reference).
     Has its own dynamic_items and output_keys (deepcopy).
     """
-
     def __init__(self, from_dataset, data_ids):
         self.data = from_dataset.data
         self.data_ids = data_ids

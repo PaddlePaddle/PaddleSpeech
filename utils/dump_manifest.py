@@ -58,9 +58,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="dump manifest to wav.scp text.word ...")
     parser.add_argument("--manifest-path", type=str, help="path to manifest")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        help="path to save outputs(audio and transcriptions)")
+    parser.add_argument("--output-dir",
+                        type=str,
+                        help="path to save outputs(audio and transcriptions)")
     args = parser.parse_args()
     dump_manifest(args.manifest_path, args.output_dir)

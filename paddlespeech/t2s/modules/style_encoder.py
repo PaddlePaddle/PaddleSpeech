@@ -57,19 +57,19 @@ class StyleEncoder(nn.Layer):
         * Support manual weight specification in inference.
 
     """
-
     def __init__(
-            self,
-            idim: int=80,
-            gst_tokens: int=10,
-            gst_token_dim: int=256,
-            gst_heads: int=4,
-            conv_layers: int=6,
-            conv_chans_list: Sequence[int]=(32, 32, 64, 64, 128, 128),
-            conv_kernel_size: int=3,
-            conv_stride: int=2,
-            gru_layers: int=1,
-            gru_units: int=128, ):
+        self,
+        idim: int = 80,
+        gst_tokens: int = 10,
+        gst_token_dim: int = 256,
+        gst_heads: int = 4,
+        conv_layers: int = 6,
+        conv_chans_list: Sequence[int] = (32, 32, 64, 64, 128, 128),
+        conv_kernel_size: int = 3,
+        conv_stride: int = 2,
+        gru_layers: int = 1,
+        gru_units: int = 128,
+    ):
         """Initilize global style encoder module."""
         assert check_argument_types()
         super().__init__()
@@ -81,12 +81,14 @@ class StyleEncoder(nn.Layer):
             conv_kernel_size=conv_kernel_size,
             conv_stride=conv_stride,
             gru_layers=gru_layers,
-            gru_units=gru_units, )
+            gru_units=gru_units,
+        )
         self.stl = StyleTokenLayer(
             ref_embed_dim=gru_units,
             gst_tokens=gst_tokens,
             gst_token_dim=gst_token_dim,
-            gst_heads=gst_heads, )
+            gst_heads=gst_heads,
+        )
 
     def forward(self, speech: paddle.Tensor) -> paddle.Tensor:
         """Calculate forward propagation.
@@ -131,16 +133,16 @@ class ReferenceEncoder(nn.Layer):
             The number of GRU units in the reference encoder.
 
     """
-
     def __init__(
-            self,
-            idim=80,
-            conv_layers: int=6,
-            conv_chans_list: Sequence[int]=(32, 32, 64, 64, 128, 128),
-            conv_kernel_size: int=3,
-            conv_stride: int=2,
-            gru_layers: int=1,
-            gru_units: int=128, ):
+        self,
+        idim=80,
+        conv_layers: int = 6,
+        conv_chans_list: Sequence[int] = (32, 32, 64, 64, 128, 128),
+        conv_kernel_size: int = 3,
+        conv_stride: int = 2,
+        gru_layers: int = 1,
+        gru_units: int = 128,
+    ):
         """Initilize reference encoder module."""
         assert check_argument_types()
         super().__init__()
@@ -164,7 +166,8 @@ class ReferenceEncoder(nn.Layer):
                     stride=conv_stride,
                     padding=padding,
                     # Do not use bias due to the following batch norm
-                    bias_attr=False, ),
+                    bias_attr=False,
+                ),
                 nn.BatchNorm2D(conv_out_chans),
                 nn.ReLU(),
             ]
@@ -178,8 +181,8 @@ class ReferenceEncoder(nn.Layer):
         # get the number of GRU input units
         gru_in_units = idim
         for i in range(conv_layers):
-            gru_in_units = (gru_in_units - conv_kernel_size + 2 * padding
-                            ) // conv_stride + 1
+            gru_in_units = (gru_in_units - conv_kernel_size +
+                            2 * padding) // conv_stride + 1
         gru_in_units *= conv_out_chans
         self.gru = nn.GRU(gru_in_units, gru_units, gru_layers, time_major=False)
 
@@ -231,14 +234,14 @@ class StyleTokenLayer(nn.Layer):
             Dropout rate in multi-head attention.
 
     """
-
     def __init__(
-            self,
-            ref_embed_dim: int=128,
-            gst_tokens: int=10,
-            gst_token_dim: int=256,
-            gst_heads: int=4,
-            dropout_rate: float=0.0, ):
+        self,
+        ref_embed_dim: int = 128,
+        gst_tokens: int = 10,
+        gst_token_dim: int = 256,
+        gst_heads: int = 4,
+        dropout_rate: float = 0.0,
+    ):
         """Initilize style token layer module."""
         assert check_argument_types()
         super().__init__()
@@ -254,7 +257,8 @@ class StyleTokenLayer(nn.Layer):
             v_dim=gst_token_dim // gst_heads,
             n_head=gst_heads,
             n_feat=gst_token_dim,
-            dropout_rate=dropout_rate, )
+            dropout_rate=dropout_rate,
+        )
 
     def forward(self, ref_embs: paddle.Tensor) -> paddle.Tensor:
         """Calculate forward propagation.
@@ -280,7 +284,6 @@ class StyleTokenLayer(nn.Layer):
 
 class MultiHeadedAttention(BaseMultiHeadedAttention):
     """Multi head attention module with different input dimension."""
-
     def __init__(self, q_dim, k_dim, v_dim, n_head, n_feat, dropout_rate=0.0):
         """Initialize multi head attention module."""
         # Do not use super().__init__() here since we want to

@@ -57,9 +57,8 @@ def help():
     return response
 
 
-@router.post(
-    "/paddlespeech/asr/search",
-    response_model=Union[ACSResponse, ErrorResponse])
+@router.post("/paddlespeech/asr/search",
+             response_model=Union[ACSResponse, ErrorResponse])
 def acs(request_body: ASRRequest):
     """acs api 
 

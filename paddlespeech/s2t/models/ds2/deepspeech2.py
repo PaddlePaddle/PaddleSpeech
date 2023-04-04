@@ -21,6 +21,7 @@ from paddlespeech.s2t.modules.ctc import CTCDecoder
 from paddlespeech.s2t.utils import layer_tools
 from paddlespeech.s2t.utils.checkpoint import Checkpoint
 from paddlespeech.s2t.utils.log import Log
+
 logger = Log(__name__).getlog()
 
 __all__ = ['DeepSpeech2Model', 'DeepSpeech2InferModel']
@@ -67,18 +68,16 @@ class CRNNEncoder(nn.Layer):
                 rnn_input_size = layernorm_size
             if use_gru is True:
                 self.rnn.append(
-                    nn.GRU(
-                        input_size=rnn_input_size,
-                        hidden_size=rnn_size,
-                        num_layers=1,
-                        direction=rnn_direction))
+                    nn.GRU(input_size=rnn_input_size,
+                           hidden_size=rnn_size,
+                           num_layers=1,
+                           direction=rnn_direction))
             else:
                 self.rnn.append(
-                    nn.LSTM(
-                        input_size=rnn_input_size,
-                        hidden_size=rnn_size,
-                        num_layers=1,
-                        direction=rnn_direction))
+                    nn.LSTM(input_size=rnn_input_size,
+                            hidden_size=rnn_size,
+                            num_layers=1,
+                            direction=rnn_direction))
             self.layernorm_list.append(nn.LayerNorm(layernorm_size))
             self.output_dim = layernorm_size
 
@@ -111,14 +110,17 @@ class CRNNEncoder(nn.Layer):
             init_state_list = None
 
             if self.use_gru is True:
-                init_state_h_list = paddle.split(
-                    init_state_h_box, self.num_rnn_layers, axis=0)
+                init_state_h_list = paddle.split(init_state_h_box,
+                                                 self.num_rnn_layers,
+                                                 axis=0)
                 init_state_list = init_state_h_list
             else:
-                init_state_h_list = paddle.split(
-                    init_state_h_box, self.num_rnn_layers, axis=0)
-                init_state_c_list = paddle.split(
-                    init_state_c_box, self.num_rnn_layers, axis=0)
+                init_state_h_list = paddle.split(init_state_h_box,
+                                                 self.num_rnn_layers,
+                                                 axis=0)
+                init_state_c_list = paddle.split(init_state_c_box,
+                                                 self.num_rnn_layers,
+                                                 axis=0)
                 init_state_list = [(init_state_h_list[i], init_state_c_list[i])
                                    for i in range(self.num_rnn_layers)]
         else:
@@ -137,8 +139,8 @@ class CRNNEncoder(nn.Layer):
             x = F.relu(x)
 
         if self.use_gru is True:
-            final_chunk_state_h_box = paddle.concat(
-                final_chunk_state_list, axis=0)
+            final_chunk_state_h_box = paddle.concat(final_chunk_state_list,
+                                                    axis=0)
             final_chunk_state_c_box = init_state_c_box
         else:
             final_chunk_state_h_list = [
@@ -147,10 +149,10 @@ class CRNNEncoder(nn.Layer):
             final_chunk_state_c_list = [
                 final_chunk_state_list[i][1] for i in range(self.num_rnn_layers)
             ]
-            final_chunk_state_h_box = paddle.concat(
-                final_chunk_state_h_list, axis=0)
-            final_chunk_state_c_box = paddle.concat(
-                final_chunk_state_c_list, axis=0)
+            final_chunk_state_h_box = paddle.concat(final_chunk_state_h_list,
+                                                    axis=0)
+            final_chunk_state_c_box = paddle.concat(final_chunk_state_c_list,
+                                                    axis=0)
 
         return x, x_lens, final_chunk_state_h_box, final_chunk_state_c_box
 
@@ -169,8 +171,8 @@ class CRNNEncoder(nn.Layer):
         """
         subsampling_rate = self.conv.subsampling_rate
         receptive_field_length = self.conv.receptive_field_length
-        chunk_size = (decoder_chunk_size - 1
-                      ) * subsampling_rate + receptive_field_length
+        chunk_size = (decoder_chunk_size -
+                      1) * subsampling_rate + receptive_field_length
         chunk_stride = subsampling_rate * decoder_chunk_size
         max_len = x.shape[1]
         assert (chunk_size <= max_len)
@@ -240,31 +242,30 @@ class DeepSpeech2Model(nn.Layer):
              before softmax) and a ctc cost layer.
     :rtype: tuple of LayerOutput
     """
-
     def __init__(
-            self,
-            feat_size,
-            dict_size,
-            num_conv_layers=2,
-            num_rnn_layers=4,
-            rnn_size=1024,
-            rnn_direction='forward',
-            num_fc_layers=2,
-            fc_layers_size_list=[512, 256],
-            use_gru=False,
-            blank_id=0,
-            ctc_grad_norm_type=None, ):
+        self,
+        feat_size,
+        dict_size,
+        num_conv_layers=2,
+        num_rnn_layers=4,
+        rnn_size=1024,
+        rnn_direction='forward',
+        num_fc_layers=2,
+        fc_layers_size_list=[512, 256],
+        use_gru=False,
+        blank_id=0,
+        ctc_grad_norm_type=None,
+    ):
         super().__init__()
-        self.encoder = CRNNEncoder(
-            feat_size=feat_size,
-            dict_size=dict_size,
-            num_conv_layers=num_conv_layers,
-            num_rnn_layers=num_rnn_layers,
-            rnn_direction=rnn_direction,
-            num_fc_layers=num_fc_layers,
-            fc_layers_size_list=fc_layers_size_list,
-            rnn_size=rnn_size,
-            use_gru=use_gru)
+        self.encoder = CRNNEncoder(feat_size=feat_size,
+                                   dict_size=dict_size,
+                                   num_conv_layers=num_conv_layers,
+                                   num_rnn_layers=num_rnn_layers,
+                                   rnn_direction=rnn_direction,
+                                   num_fc_layers=num_fc_layers,
+                                   fc_layers_size_list=fc_layers_size_list,
+                                   rnn_size=rnn_size,
+                                   use_gru=use_gru)
 
         self.decoder = CTCDecoder(
             odim=dict_size,  # <blank> is in  vocab
@@ -334,9 +335,10 @@ class DeepSpeech2Model(nn.Layer):
             fc_layers_size_list=config.fc_layers_size_list,
             use_gru=config.use_gru,
             blank_id=config.blank_id,
-            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
-        infos = Checkpoint().load_parameters(
-            model, checkpoint_path=checkpoint_path)
+            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None),
+        )
+        infos = Checkpoint().load_parameters(model,
+                                             checkpoint_path=checkpoint_path)
         logger.info(f"checkpoint info: {infos}")
         layer_tools.summary(model)
         return model
@@ -364,7 +366,8 @@ class DeepSpeech2Model(nn.Layer):
             fc_layers_size_list=config.fc_layers_size_list,
             use_gru=config.use_gru,
             blank_id=config.blank_id,
-            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None), )
+            ctc_grad_norm_type=config.get('ctc_grad_norm_type', None),
+        )
         return model
 
 
@@ -401,10 +404,10 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
                         dtype='float32'),
                     paddle.static.InputSpec(shape=[None],
                                             dtype='int64'),  # audio_length, [B]
-                    paddle.static.InputSpec(
-                        shape=[None, None, None], dtype='float32'),
-                    paddle.static.InputSpec(
-                        shape=[None, None, None], dtype='float32')
+                    paddle.static.InputSpec(shape=[None, None, None],
+                                            dtype='float32'),
+                    paddle.static.InputSpec(shape=[None, None, None],
+                                            dtype='float32')
                 ])
         elif self.encoder.rnn_direction == "bidirect":
             static_model = paddle.jit.to_static(

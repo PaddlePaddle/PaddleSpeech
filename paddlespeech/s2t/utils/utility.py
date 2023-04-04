@@ -53,7 +53,7 @@ def UpdateConfig(config):
     config.freeze()
 
 
-def seed_all(seed: int=20210329):
+def seed_all(seed: int = 20210329):
     """freeze random generator seed."""
     np.random.seed(seed)
     random.seed(seed)
@@ -97,12 +97,11 @@ def add_arguments(argname, type, default, help, argparser, **kwargs):
         args = parser.parse_args()
     """
     type = distutils.util.strtobool if type == bool else type
-    argparser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
+    argparser.add_argument("--" + argname,
+                           default=default,
+                           type=type,
+                           help=help + ' Default: %(default)s.',
+                           **kwargs)
 
 
 def log_add(args: List[int]) -> float:

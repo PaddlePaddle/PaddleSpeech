@@ -55,8 +55,8 @@ def batch_pad_right(array: list, mode="constant", value=0):
     if len(array) == 1:
         # if there is only one tensor in the batch we simply unsqueeze it.
         return np.expand_dims(array[0], 0), np.array([1.0], dtype="float32")
-    if not (any(
-        [array[i].ndim == array[0].ndim for i in range(1, len(array))])):
+    if not (any([array[i].ndim == array[0].ndim
+                 for i in range(1, len(array))])):
         raise IndexError("All array must have same number of dimensions")
 
     # FIXME we limit the support here: we allow padding of only the first dimension
@@ -64,8 +64,8 @@ def batch_pad_right(array: list, mode="constant", value=0):
     max_shape = []
     for dim in range(array[0].ndim):
         if dim != 0:
-            if not all(
-                [x.shape[dim] == array[0].shape[dim] for x in array[1:]]):
+            if not all([x.shape[dim] == array[0].shape[dim]
+                        for x in array[1:]]):
                 raise EnvironmentError(
                     "Tensors should have same dimensions except for the first one"
                 )
@@ -75,8 +75,10 @@ def batch_pad_right(array: list, mode="constant", value=0):
     valid = []
     for t in array:
         # for each tensor we apply pad_right_to
-        padded, valid_percent = pad_right_to(
-            t, max_shape, mode=mode, value=value)
+        padded, valid_percent = pad_right_to(t,
+                                             max_shape,
+                                             mode=mode,
+                                             value=value)
         batched.append(padded)
         valid.append(valid_percent[0])
 
@@ -92,7 +94,8 @@ def pad_right_to(
         array: np.ndarray,
         target_shape: (list, tuple),
         mode="constant",
-        value=0, ):
+        value=0,
+):
     """
     This function takes a numpy of arbitrary shape and pads it to target
     shape by appending values on the right.
@@ -155,11 +158,11 @@ def mod_default_collate(batch):
             return paddle.stack(batch, 0, name=out)
         except RuntimeError:  # Unequal size:
             return batch
-    elif (elem_type.__module__ == "numpy" and elem_type.__name__ != "str_" and
-          elem_type.__name__ != "string_"):
+    elif (elem_type.__module__ == "numpy" and elem_type.__name__ != "str_"
+          and elem_type.__name__ != "string_"):
         try:
-            if (elem_type.__name__ == "ndarray" or
-                    elem_type.__name__ == "memmap"):
+            if (elem_type.__name__ == "ndarray"
+                    or elem_type.__name__ == "memmap"):
                 # array of string classes and object
                 if np_str_obj_array_pattern.search(elem.dtype.str) is not None:
                     return batch

@@ -40,26 +40,26 @@ class TextEncoder(nn.Layer):
         Text-to-Speech`: https://arxiv.org/abs/2006.04558
 
     """
-
     def __init__(
-            self,
-            vocabs: int,
-            attention_dim: int=192,
-            attention_heads: int=2,
-            linear_units: int=768,
-            blocks: int=6,
-            positionwise_layer_type: str="conv1d",
-            positionwise_conv_kernel_size: int=3,
-            positional_encoding_layer_type: str="rel_pos",
-            self_attention_layer_type: str="rel_selfattn",
-            activation_type: str="swish",
-            normalize_before: bool=True,
-            use_macaron_style: bool=False,
-            use_conformer_conv: bool=False,
-            conformer_kernel_size: int=7,
-            dropout_rate: float=0.1,
-            positional_dropout_rate: float=0.0,
-            attention_dropout_rate: float=0.0, ):
+        self,
+        vocabs: int,
+        attention_dim: int = 192,
+        attention_heads: int = 2,
+        linear_units: int = 768,
+        blocks: int = 6,
+        positionwise_layer_type: str = "conv1d",
+        positionwise_conv_kernel_size: int = 3,
+        positional_encoding_layer_type: str = "rel_pos",
+        self_attention_layer_type: str = "rel_selfattn",
+        activation_type: str = "swish",
+        normalize_before: bool = True,
+        use_macaron_style: bool = False,
+        use_conformer_conv: bool = False,
+        conformer_kernel_size: int = 7,
+        dropout_rate: float = 0.1,
+        positional_dropout_rate: float = 0.0,
+        attention_dropout_rate: float = 0.0,
+    ):
         """Initialize TextEncoder module.
 
         Args:
@@ -124,15 +124,16 @@ class TextEncoder(nn.Layer):
             selfattention_layer_type=self_attention_layer_type,
             activation_type=activation_type,
             use_cnn_module=use_conformer_conv,
-            cnn_module_kernel=conformer_kernel_size, )
+            cnn_module_kernel=conformer_kernel_size,
+        )
         self.proj = nn.Conv1D(attention_dim, attention_dim * 2, 1)
 
         self.reset_parameters()
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            x_lengths: paddle.Tensor,
+        self,
+        x: paddle.Tensor,
+        x_lengths: paddle.Tensor,
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Calculate forward propagation.
 

@@ -35,6 +35,7 @@ from paddlespeech.s2t.io.speechbrain.data_utils import batch_pad_right
 from paddlespeech.s2t.io.speechbrain.data_utils import mod_default_collate
 from paddlespeech.s2t.io.speechbrain.dataset import DynamicItemDataset
 from paddlespeech.s2t.io.speechbrain.sampler import ReproducibleRandomSampler
+
 PaddedData = collections.namedtuple("PaddedData", ["data", "lengths"])
 import numpy
 
@@ -59,32 +60,32 @@ class Wav2vec2DataLoader(DataLoader):
         else:
             return_list = False
 
-        super().__init__(
-            dataset,
-            feed_list=None,
-            places=None,
-            return_list=return_list,
-            batch_sampler=batch_sampler,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            drop_last=drop_last,
-            collate_fn=collate_fn,
-            num_workers=num_workers,
-            use_buffer_reader=True,
-            use_shared_memory=False,
-            timeout=timeout,
-            worker_init_fn=worker_init_fn)
+        super().__init__(dataset,
+                         feed_list=None,
+                         places=None,
+                         return_list=return_list,
+                         batch_sampler=batch_sampler,
+                         batch_size=batch_size,
+                         shuffle=shuffle,
+                         drop_last=drop_last,
+                         collate_fn=collate_fn,
+                         num_workers=num_workers,
+                         use_buffer_reader=True,
+                         use_shared_memory=False,
+                         timeout=timeout,
+                         worker_init_fn=worker_init_fn)
         if sampler is not None:
             self.batch_sampler.sampler = sampler
 
 
 def PaddedBatch(
-        examples,
-        padded_keys=None,
-        device_prep_keys=None,
-        padding_func=batch_pad_right,
-        padding_kwargs={},
-        nonpadded_stack=True, ):
+    examples,
+    padded_keys=None,
+    device_prep_keys=None,
+    padding_func=batch_pad_right,
+    padding_kwargs={},
+    nonpadded_stack=True,
+):
     __length = len(examples)
     __keys = list(examples[0].keys())
     __padded_keys = []
@@ -108,8 +109,8 @@ def PaddedBatch(
                 values = mod_default_collate(values)
             res[key] = values
         if (device_prep_keys is not None and key in device_prep_keys) or (
-                device_prep_keys is None and
-                isinstance(values[0], paddle.Tensor)):
+                device_prep_keys is None
+                and isinstance(values[0], paddle.Tensor)):
             __device_prep_keys.append(key)
     return res
 

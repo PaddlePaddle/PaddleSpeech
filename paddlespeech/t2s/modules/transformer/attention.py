@@ -32,7 +32,6 @@ class MultiHeadedAttention(nn.Layer):
         dropout_rate (float): 
             Dropout rate.
     """
-
     def __init__(self, n_head, n_feat, dropout_rate):
         """Construct an MultiHeadedAttention object."""
         super().__init__()
@@ -68,11 +67,11 @@ class MultiHeadedAttention(nn.Layer):
         """
         n_batch = paddle.shape(query)[0]
 
-        q = paddle.reshape(
-            self.linear_q(query), [n_batch, -1, self.h, self.d_k])
+        q = paddle.reshape(self.linear_q(query),
+                           [n_batch, -1, self.h, self.d_k])
         k = paddle.reshape(self.linear_k(key), [n_batch, -1, self.h, self.d_k])
-        v = paddle.reshape(
-            self.linear_v(value), [n_batch, -1, self.h, self.d_k])
+        v = paddle.reshape(self.linear_v(value),
+                           [n_batch, -1, self.h, self.d_k])
 
         # (batch, head, time1, d_k)
         q = q.transpose((0, 2, 1, 3))
@@ -116,8 +115,8 @@ class MultiHeadedAttention(nn.Layer):
         # (batch, head, time1, time2) * (batch, head, time2, d_k) -> # (batch, head, time1, d_k)
         x = paddle.matmul(p_attn, value)
         # (batch, time1, d_model)
-        x = (paddle.reshape(
-            x.transpose((0, 2, 1, 3)), (n_batch, -1, self.h * self.d_k)))
+        x = (paddle.reshape(x.transpose((0, 2, 1, 3)),
+                            (n_batch, -1, self.h * self.d_k)))
         # (batch, time1, d_model)
         return self.linear_out(x)
 
@@ -159,7 +158,6 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         zero_triu (bool): 
             Whether to zero the upper triangular part of attention matrix.
     """
-
     def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
         """Construct an RelPositionMultiHeadedAttention object."""
         super().__init__(n_head, n_feat, dropout_rate)
@@ -261,7 +259,6 @@ class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):
         zero_triu (bool): 
             Whether to zero the upper triangular part of attention matrix.
     """
-
     def __init__(self, n_head, n_feat, dropout_rate, zero_triu=False):
         """Construct an RelPositionMultiHeadedAttention object."""
         super().__init__(n_head, n_feat, dropout_rate)
@@ -319,8 +316,8 @@ class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):
         q = paddle.transpose(q, [0, 2, 1, 3])
 
         n_batch_pos = paddle.shape(pos_emb)[0]
-        p = paddle.reshape(
-            self.linear_pos(pos_emb), [n_batch_pos, -1, self.h, self.d_k])
+        p = paddle.reshape(self.linear_pos(pos_emb),
+                           [n_batch_pos, -1, self.h, self.d_k])
         # (batch, head, time1, d_k)
         p = paddle.transpose(p, [0, 2, 1, 3])
         # (batch, head, time1, d_k)

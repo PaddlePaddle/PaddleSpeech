@@ -22,7 +22,7 @@ import numpy as np
 from . import gopen
 
 
-def imageencoder(image: Any, format: str="PNG"):  # skipcq: PYL-W0622
+def imageencoder(image: Any, format: str = "PNG"):  # skipcq: PYL-W0622
     """Compress an image using PIL and return it as a string.
 
     Can handle float or uint8 images.
@@ -265,16 +265,16 @@ class TarWriter:
         tarwriter.write(sample)
     ```
     """
-
     def __init__(
-            self,
-            fileobj,
-            user: str="bigdata",
-            group: str="bigdata",
-            mode: int=0o0444,
-            compress: Optional[bool]=None,
-            encoder: Union[None, bool, Callable]=True,
-            keep_meta: bool=False, ):
+        self,
+        fileobj,
+        user: str = "bigdata",
+        group: str = "bigdata",
+        mode: int = 0o0444,
+        compress: Optional[bool] = None,
+        encoder: Union[None, bool, Callable] = True,
+        keep_meta: bool = False,
+    ):
         """Create a tar writer.
 
         :param fileobj: stream to write data to
@@ -366,15 +366,15 @@ class TarWriter:
 
 class ShardWriter:
     """Like TarWriter but splits into multiple shards."""
-
     def __init__(
-            self,
-            pattern: str,
-            maxcount: int=100000,
-            maxsize: float=3e9,
-            post: Optional[Callable]=None,
-            start_shard: int=0,
-            **kw, ):
+        self,
+        pattern: str,
+        maxcount: int = 100000,
+        maxsize: float = 3e9,
+        post: Optional[Callable] = None,
+        start_shard: int = 0,
+        **kw,
+    ):
         """Create a ShardWriter.
 
         :param pattern: output file pattern
@@ -407,7 +407,8 @@ class ShardWriter:
                 self.fname,
                 self.count,
                 "%.1f GB" % (self.size / 1e9),
-                self.total, )
+                self.total,
+            )
         self.shard += 1
         stream = open(self.fname, "wb")
         self.tarstream = TarWriter(stream, **self.kw)
@@ -419,8 +420,8 @@ class ShardWriter:
 
         :param obj: sample to be written
         """
-        if (self.tarstream is None or self.count >= self.maxcount or
-                self.size >= self.maxsize):
+        if (self.tarstream is None or self.count >= self.maxcount
+                or self.size >= self.maxsize):
             self.next_stream()
         size = self.tarstream.write(obj)
         self.count += 1

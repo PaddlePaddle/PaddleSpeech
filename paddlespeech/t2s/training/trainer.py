@@ -40,10 +40,10 @@ class _ExtensionEntry(object):
 class Trainer(object):
     def __init__(self,
                  updater: UpdaterBase,
-                 stop_trigger: Callable=None,
-                 out: Union[str, Path]='result',
-                 extensions: List[Extension]=None,
-                 profiler_options: str=None):
+                 stop_trigger: Callable = None,
+                 out: Union[str, Path] = 'result',
+                 extensions: List[Extension] = None,
+                 profiler_options: str = None):
         self.updater = updater
         self.extensions = OrderedDict()
         self.stop_trigger = LimitTrigger(*stop_trigger)
@@ -93,8 +93,8 @@ class Trainer(object):
             modified_name = f"{name}_{ordinal}"
         extension.name = modified_name
 
-        self.extensions[modified_name] = _ExtensionEntry(extension, trigger,
-                                                         priority)
+        self.extensions[modified_name] = _ExtensionEntry(
+            extension, trigger, priority)
 
     def get_extension(self, name):
         """get extension by name."""
@@ -161,9 +161,9 @@ class Trainer(object):
                         batch_read_time
                     ) + "avg_batch_cost: {:.5f} sec, ".format(avg_batch_cost)
                     msg += "avg_samples: {}, ".format(
-                        self.updater.
-                        batch_size) + "avg_ips: {:.5f} sequences/sec".format(
-                            self.updater.batch_size / avg_batch_cost)
+                        self.updater.batch_size
+                    ) + "avg_ips: {:.5f} sequences/sec".format(
+                        self.updater.batch_size / avg_batch_cost)
                     logger.info(msg)
 
                     # execute extension when necessary

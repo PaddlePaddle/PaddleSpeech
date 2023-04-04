@@ -47,8 +47,9 @@ def valid_sample(sample):
 
     :param sample: sample to be checked
     """
-    return (sample is not None and isinstance(sample, dict) and
-            len(list(sample.keys())) > 0 and not sample.get("__bad__", False))
+    return (sample is not None and isinstance(sample, dict)
+            and len(list(sample.keys())) > 0
+            and not sample.get("__bad__", False))
 
 
 # FIXME: UNUSED
@@ -99,8 +100,8 @@ def tar_file_iterator(fileobj,
                 continue
             if fname is None:
                 continue
-            if ("/" not in fname and fname.startswith(meta_prefix) and
-                    fname.endswith(meta_suffix)):
+            if ("/" not in fname and fname.startswith(meta_prefix)
+                    and fname.endswith(meta_suffix)):
                 # skipping metadata for now
                 continue
             if skip_meta is not None and re.match(skip_meta, fname):
@@ -113,8 +114,9 @@ def tar_file_iterator(fileobj,
             if postfix == 'wav':
                 waveform, sample_rate = paddleaudio.backends.soundfile_load(
                     stream.extractfile(tarinfo), normal=False)
-                result = dict(
-                    fname=prefix, wav=waveform, sample_rate=sample_rate)
+                result = dict(fname=prefix,
+                              wav=waveform,
+                              sample_rate=sample_rate)
             else:
                 txt = stream.extractfile(tarinfo).read().decode('utf8').strip()
                 result = dict(fname=prefix, txt=txt)
@@ -165,9 +167,9 @@ def tar_file_and_group_iterator(fileobj,
                 elif postfix in AUDIO_FORMAT_SETS:
                     waveform, sample_rate = paddleaudio.backends.soundfile_load(
                         file_obj, normal=False)
-                    waveform = paddle.to_tensor(
-                        np.expand_dims(np.array(waveform), 0),
-                        dtype=paddle.float32)
+                    waveform = paddle.to_tensor(np.expand_dims(
+                        np.array(waveform), 0),
+                                                dtype=paddle.float32)
 
                     example['wav'] = waveform
                     example['sample_rate'] = sample_rate
@@ -175,8 +177,8 @@ def tar_file_and_group_iterator(fileobj,
                     example[postfix] = file_obj.read()
             except Exception as exn:
                 if hasattr(exn, "args") and len(exn.args) > 0:
-                    exn.args = (exn.args[0] + " @ " + str(fileobj),
-                                ) + exn.args[1:]
+                    exn.args = (exn.args[0] + " @ " +
+                                str(fileobj), ) + exn.args[1:]
                 if handler(exn):
                     continue
                 else:
@@ -201,8 +203,8 @@ def tar_file_expander(data, handler=reraise_exception):
             assert isinstance(source, dict)
             assert "stream" in source
             for sample in tar_file_iterator(source["stream"]):
-                assert (isinstance(sample, dict) and "data" in sample and
-                        "fname" in sample)
+                assert (isinstance(sample, dict) and "data" in sample
+                        and "fname" in sample)
                 sample["__url__"] = url
                 yield sample
         except Exception as exn:
@@ -224,8 +226,8 @@ def tar_file_and_group_expander(data, handler=reraise_exception):
             assert isinstance(source, dict)
             assert "stream" in source
             for sample in tar_file_and_group_iterator(source["stream"]):
-                assert (isinstance(sample, dict) and "wav" in sample and
-                        "txt" in sample and "fname" in sample)
+                assert (isinstance(sample, dict) and "wav" in sample
+                        and "txt" in sample and "fname" in sample)
                 sample["__url__"] = url
                 yield sample
         except Exception as exn:
@@ -256,7 +258,8 @@ def group_by_keys(data,
                 prefix,
                 suffix,
                 current_sample.keys()
-                if isinstance(current_sample, dict) else None, )
+                if isinstance(current_sample, dict) else None,
+            )
         if prefix is None:
             continue
         if lcase:

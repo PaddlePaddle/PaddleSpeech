@@ -97,11 +97,12 @@ class PaddleASRConnectionHanddler:
 
             cfg = self.model_config.decode
             decode_batch_size = 1  # for online
-            self.decoder.init_decoder(
-                decode_batch_size, self.text_feature.vocab_list,
-                cfg.decoding_method, cfg.lang_model_path, cfg.alpha, cfg.beta,
-                cfg.beam_size, cfg.cutoff_prob, cfg.cutoff_top_n,
-                cfg.num_proc_bsearch)
+            self.decoder.init_decoder(decode_batch_size,
+                                      self.text_feature.vocab_list,
+                                      cfg.decoding_method, cfg.lang_model_path,
+                                      cfg.alpha, cfg.beta, cfg.beam_size,
+                                      cfg.cutoff_prob, cfg.cutoff_top_n,
+                                      cfg.num_proc_bsearch)
 
         elif "conformer" in self.model_type or "transformer" in self.model_type:
             # acoustic model
@@ -236,8 +237,8 @@ class PaddleASRConnectionHanddler:
         else:
             assert (len(x_chunk.shape) == 3)  # (B,T,D)
             assert (len(self.cached_feat.shape) == 3)  # (B,T,D)
-            self.cached_feat = paddle.concat(
-                [self.cached_feat, x_chunk], axis=1)
+            self.cached_feat = paddle.concat([self.cached_feat, x_chunk],
+                                             axis=1)
 
         # set the feat device
         if self.device is None:
@@ -597,16 +598,18 @@ class PaddleASRConnectionHanddler:
             if len(hyp_content) == 0:
                 hyp_content = (self.model.ctc.blank_id, )
 
-            hyp_content = paddle.to_tensor(
-                hyp_content, place=self.device, dtype=paddle.long)
+            hyp_content = paddle.to_tensor(hyp_content,
+                                           place=self.device,
+                                           dtype=paddle.long)
             hyp_list.append(hyp_content)
 
-        hyps_pad = pad_sequence(
-            hyp_list, batch_first=True, padding_value=self.model.ignore_id)
+        hyps_pad = pad_sequence(hyp_list,
+                                batch_first=True,
+                                padding_value=self.model.ignore_id)
         ori_hyps_pad = hyps_pad
-        hyps_lens = paddle.to_tensor(
-            [len(hyp[0]) for hyp in hyps], place=self.device,
-            dtype=paddle.long)  # (beam_size,)
+        hyps_lens = paddle.to_tensor([len(hyp[0]) for hyp in hyps],
+                                     place=self.device,
+                                     dtype=paddle.long)  # (beam_size,)
         hyps_pad, _ = add_sos_eos(hyps_pad, self.model.sos, self.model.eos,
                                   self.model.ignore_id)
         hyps_lens = hyps_lens + 1  # Add <sos> at begining
@@ -683,8 +686,8 @@ class PaddleASRConnectionHanddler:
 
         word_time_stamp = []
         for idx, _ in enumerate(self.time_stamp):
-            start = (self.time_stamp[idx - 1] + self.time_stamp[idx]
-                     ) / 2.0 if idx > 0 else 0
+            start = (self.time_stamp[idx - 1] +
+                     self.time_stamp[idx]) / 2.0 if idx > 0 else 0
             start = start * decode_frame_shift_in_sec
 
             end = (self.time_stamp[idx] + self.time_stamp[idx + 1]
@@ -704,8 +707,9 @@ class PaddleASRConnectionHanddler:
 class ASRServerExecutor(ASRExecutor):
     def __init__(self):
         super().__init__()
-        self.task_resource = CommonTaskResource(
-            task='asr', model_format='dynamic', inference_mode='online')
+        self.task_resource = CommonTaskResource(task='asr',
+                                                model_format='dynamic',
+                                                inference_mode='online')
 
     def update_config(self) -> None:
         if "deepspeech2" in self.model_type:
@@ -719,8 +723,8 @@ class ASRServerExecutor(ASRExecutor):
             lm_md5 = self.task_resource.res_dict['lm_md5']
             logger.debug(f"Start to load language model {lm_url}")
             self.download_lm(
-                lm_url,
-                os.path.dirname(self.config.decode.lang_model_path), lm_md5)
+                lm_url, os.path.dirname(self.config.decode.lang_model_path),
+                lm_md5)
         elif "conformer" in self.model_type or "transformer" in self.model_type:
             with UpdateConfig(self.config):
                 logger.debug("start to create the stream conformer asr engine")
@@ -768,15 +772,15 @@ class ASRServerExecutor(ASRExecutor):
             raise Exception(f"not support: {self.model_type}")
 
     def _init_from_path(self,
-                        model_type: str=None,
-                        am_model: Optional[os.PathLike]=None,
-                        am_params: Optional[os.PathLike]=None,
-                        lang: str='zh',
-                        sample_rate: int=16000,
-                        cfg_path: Optional[os.PathLike]=None,
-                        decode_method: str='attention_rescoring',
-                        num_decoding_left_chunks: int=-1,
-                        am_predictor_conf: dict=None):
+                        model_type: str = None,
+                        am_model: Optional[os.PathLike] = None,
+                        am_params: Optional[os.PathLike] = None,
+                        lang: str = 'zh',
+                        sample_rate: int = 16000,
+                        cfg_path: Optional[os.PathLike] = None,
+                        decode_method: str = 'attention_rescoring',
+                        num_decoding_left_chunks: int = -1,
+                        am_predictor_conf: dict = None):
         """
         Init model and other resources from a specific path.
         """
@@ -852,7 +856,6 @@ class ASREngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         super(ASREngine, self).__init__()
 

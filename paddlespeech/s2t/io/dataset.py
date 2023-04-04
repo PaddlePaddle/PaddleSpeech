@@ -46,7 +46,8 @@ class ManifestDataset(Dataset):
             max_output_len=config.max_output_len,
             min_output_len=config.min_output_len,
             max_output_input_ratio=config.max_output_input_ratio,
-            min_output_input_ratio=config.min_output_input_ratio, )
+            min_output_input_ratio=config.min_output_input_ratio,
+        )
         return dataset
 
     def __init__(self,
@@ -103,7 +104,6 @@ class TransformDataset(Dataset):
         converter: batch function
         reader: read data
     """
-
     def __init__(self, data, converter, reader):
         """Init function."""
         super().__init__()

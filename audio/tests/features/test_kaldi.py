@@ -28,14 +28,14 @@ class TestKaldi(FeatTest):
         self.dtype = 'float32'
 
     def test_window(self):
-        t_hann_window = torch.hann_window(
-            self.window_size, periodic=False, dtype=eval(f'torch.{self.dtype}'))
-        t_hamm_window = torch.hamming_window(
-            self.window_size,
-            periodic=False,
-            alpha=0.54,
-            beta=0.46,
-            dtype=eval(f'torch.{self.dtype}'))
+        t_hann_window = torch.hann_window(self.window_size,
+                                          periodic=False,
+                                          dtype=eval(f'torch.{self.dtype}'))
+        t_hamm_window = torch.hamming_window(self.window_size,
+                                             periodic=False,
+                                             alpha=0.54,
+                                             beta=0.46,
+                                             dtype=eval(f'torch.{self.dtype}'))
         t_povey_window = torch.hann_window(
             self.window_size, periodic=False,
             dtype=eval(f'torch.{self.dtype}')).pow(0.85)
@@ -65,16 +65,18 @@ class TestKaldi(FeatTest):
             torch.from_numpy(self.waveform.astype(self.dtype)))
         pa_features = paddleaudio.compliance.kaldi.fbank(
             paddle.to_tensor(self.waveform.astype(self.dtype)))
-        np.testing.assert_array_almost_equal(
-            ta_features, pa_features, decimal=4)
+        np.testing.assert_array_almost_equal(ta_features,
+                                             pa_features,
+                                             decimal=4)
 
     def test_mfcc(self):
         ta_features = torchaudio.compliance.kaldi.mfcc(
             torch.from_numpy(self.waveform.astype(self.dtype)))
         pa_features = paddleaudio.compliance.kaldi.mfcc(
             paddle.to_tensor(self.waveform.astype(self.dtype)))
-        np.testing.assert_array_almost_equal(
-            ta_features, pa_features, decimal=4)
+        np.testing.assert_array_almost_equal(ta_features,
+                                             pa_features,
+                                             decimal=4)
 
 
 if __name__ == '__main__':

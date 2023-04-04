@@ -54,12 +54,11 @@ class ASRWsAudioHandler(threading.Thread):
         self._running = True
         self._frames = []
         p = pyaudio.PyAudio()
-        stream = p.open(
-            format=self.format,
-            channels=self.channels,
-            rate=self.rate,
-            input=True,
-            frames_per_buffer=self.chunk)
+        stream = p.open(format=self.format,
+                        channels=self.channels,
+                        rate=self.rate,
+                        input=True,
+                        frames_per_buffer=self.chunk)
         while (self._running):
             data = stream.read(self.chunk)
             self._frames.append(data)

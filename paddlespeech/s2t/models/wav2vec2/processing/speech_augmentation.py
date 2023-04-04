@@ -62,12 +62,12 @@ class SpeedPerturb(nn.Layer):
     >>> perturbed.shape
     paddle.shape([1, 46956])
     """
-
     def __init__(
-            self,
-            orig_freq,
-            speeds=[90, 100, 110],
-            perturb_prob=1.0, ):
+        self,
+        orig_freq,
+        speeds=[90, 100, 110],
+        perturb_prob=1.0,
+    ):
         super().__init__()
         self.orig_freq = orig_freq
         self.speeds = speeds
@@ -123,12 +123,12 @@ class Resample(nn.Layer):
         Controls the sharpness of the filter, larger numbers result in a
         sharper filter, but they are less efficient. Values from 4 to 10 are allowed.
     """
-
     def __init__(
-            self,
-            orig_freq=16000,
-            new_freq=16000,
-            lowpass_filter_width=6, ):
+        self,
+        orig_freq=16000,
+        new_freq=16000,
+        lowpass_filter_width=6,
+    ):
         super().__init__()
         self.orig_freq = orig_freq
         self.new_freq = new_freq
@@ -258,7 +258,8 @@ class Resample(nn.Layer):
                 x=wave_to_conv,
                 weight=self.weights[i].repeat(num_channels, 1, 1),
                 stride=self.conv_stride,
-                groups=num_channels, )
+                groups=num_channels,
+            )
 
             # we want conv_wave[:, i] to be at
             # output[:, i + n*conv_transpose_stride]
@@ -422,15 +423,15 @@ class DropFreq(nn.Layer):
     >>> signal = read_audio('tests/samples/single-mic/example1.wav')
     >>> dropped_signal = dropper(signal.unsqueeze(0))
     """
-
     def __init__(
-            self,
-            drop_freq_low=1e-14,
-            drop_freq_high=1,
-            drop_count_low=1,
-            drop_count_high=2,
-            drop_width=0.05,
-            drop_prob=1, ):
+        self,
+        drop_freq_low=1e-14,
+        drop_freq_high=1,
+        drop_count_low=1,
+        drop_count_high=2,
+        drop_width=0.05,
+        drop_prob=1,
+    ):
         super().__init__()
         self.drop_freq_low = drop_freq_low
         self.drop_freq_high = drop_freq_high
@@ -463,7 +464,8 @@ class DropFreq(nn.Layer):
         drop_count = paddle.randint(
             low=self.drop_count_low,
             high=self.drop_count_high + 1,
-            shape=(1, ), )
+            shape=(1, ),
+        )
 
         # Filter parameters
         filter_length = 101
@@ -476,14 +478,15 @@ class DropFreq(nn.Layer):
         if drop_count.shape == 0:
             # Pick a frequency to drop
             drop_range = self.drop_freq_high - self.drop_freq_low
-            drop_frequency = (
-                paddle.rand(drop_count) * drop_range + self.drop_freq_low)
+            drop_frequency = (paddle.rand(drop_count) * drop_range +
+                              self.drop_freq_low)
             # Subtract each frequency
             for frequency in drop_frequency:
                 notch_kernel = notch_filter(
                     frequency,
                     filter_length,
-                    self.drop_width, )
+                    self.drop_width,
+                )
                 drop_filter = convolve1d(drop_filter, notch_kernel, pad)
 
         # Apply filter
@@ -535,17 +538,17 @@ class DropChunk(nn.Layer):
     >>> float(dropped_signal[:, 150])
     0.0
     """
-
     def __init__(
-            self,
-            drop_length_low=100,
-            drop_length_high=1000,
-            drop_count_low=1,
-            drop_count_high=10,
-            drop_start=0,
-            drop_end=None,
-            drop_prob=1,
-            noise_factor=0.0, ):
+        self,
+        drop_length_low=100,
+        drop_length_high=1000,
+        drop_count_low=1,
+        drop_count_high=10,
+        drop_start=0,
+        drop_end=None,
+        drop_prob=1,
+        noise_factor=0.0,
+    ):
         super().__init__()
         self.drop_length_low = drop_length_low
         self.drop_length_high = drop_length_high
@@ -601,7 +604,8 @@ class DropChunk(nn.Layer):
         drop_times = paddle.randint(
             low=self.drop_count_low,
             high=self.drop_count_high + 1,
-            shape=(batch_size, ), )
+            shape=(batch_size, ),
+        )
 
         # Iterate batch to set mask
         for i in range(batch_size):
@@ -612,7 +616,8 @@ class DropChunk(nn.Layer):
             length = paddle.randint(
                 low=self.drop_length_low,
                 high=self.drop_length_high + 1,
-                shape=(drop_times[i], ), )
+                shape=(drop_times[i], ),
+            )
 
             # Compute range of starting locations
             start_min = self.drop_start
@@ -629,7 +634,8 @@ class DropChunk(nn.Layer):
             start = paddle.randint(
                 low=start_min,
                 high=start_max + 1,
-                shape=(drop_times[i], ), )
+                shape=(drop_times[i], ),
+            )
 
             end = start + length
 
@@ -684,7 +690,6 @@ class SpecAugment(paddle.nn.Layer):
     >>> print(a.shape)
     paddle.Size([8, 120, 80])
     """
-
     def __init__(
             self,
             time_warp=True,
@@ -696,7 +701,8 @@ class SpecAugment(paddle.nn.Layer):
             time_mask=True,
             time_mask_width=(0, 100),
             n_time_mask=2,
-            replace_with_zero=True, ):
+            replace_with_zero=True,
+    ):
         super().__init__()
         assert (
             time_warp or freq_mask or time_mask
@@ -752,12 +758,14 @@ class SpecAugment(paddle.nn.Layer):
             x[:, :, :c],
             (w, x.shape[3]),
             mode=self.time_warp_mode,
-            align_corners=True, )
+            align_corners=True,
+        )
         right = paddle.nn.functional.interpolate(
             x[:, :, c:],
             (time - w, x.shape[3]),
             mode=self.time_warp_mode,
-            align_corners=True, )
+            align_corners=True,
+        )
 
         x[:, :, :w] = left
         x[:, :, w:] = right
@@ -856,35 +864,38 @@ class TimeDomainSpecAugment(nn.Layer):
     >>> feats.shape
     paddle.shape([10, 12800])
     """
-
     def __init__(
-            self,
-            perturb_prob=1.0,
-            drop_freq_prob=1.0,
-            drop_chunk_prob=1.0,
-            speeds=[95, 100, 105],
-            sample_rate=16000,
-            drop_freq_count_low=0,
-            drop_freq_count_high=3,
-            drop_chunk_count_low=0,
-            drop_chunk_count_high=5,
-            drop_chunk_length_low=1000,
-            drop_chunk_length_high=2000,
-            drop_chunk_noise_factor=0, ):
+        self,
+        perturb_prob=1.0,
+        drop_freq_prob=1.0,
+        drop_chunk_prob=1.0,
+        speeds=[95, 100, 105],
+        sample_rate=16000,
+        drop_freq_count_low=0,
+        drop_freq_count_high=3,
+        drop_chunk_count_low=0,
+        drop_chunk_count_high=5,
+        drop_chunk_length_low=1000,
+        drop_chunk_length_high=2000,
+        drop_chunk_noise_factor=0,
+    ):
         super().__init__()
-        self.speed_perturb = SpeedPerturb(
-            perturb_prob=perturb_prob, orig_freq=sample_rate, speeds=speeds)
+        self.speed_perturb = SpeedPerturb(perturb_prob=perturb_prob,
+                                          orig_freq=sample_rate,
+                                          speeds=speeds)
         self.drop_freq = DropFreq(
             drop_prob=drop_freq_prob,
             drop_count_low=drop_freq_count_low,
-            drop_count_high=drop_freq_count_high, )
+            drop_count_high=drop_freq_count_high,
+        )
         self.drop_chunk = DropChunk(
             drop_prob=drop_chunk_prob,
             drop_count_low=drop_chunk_count_low,
             drop_count_high=drop_chunk_count_high,
             drop_length_low=drop_chunk_length_low,
             drop_length_high=drop_chunk_length_high,
-            noise_factor=drop_chunk_noise_factor, )
+            noise_factor=drop_chunk_noise_factor,
+        )
 
     def forward(self, waveforms, lengths):
         """Returns the distorted waveforms.

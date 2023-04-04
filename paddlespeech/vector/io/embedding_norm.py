@@ -22,10 +22,11 @@ class InputNormalization:
     spk_dict_count: Dict[int, int]
 
     def __init__(
-            self,
-            mean_norm=True,
-            std_norm=True,
-            norm_type="global", ):
+        self,
+        mean_norm=True,
+        std_norm=True,
+        norm_type="global",
+    ):
         """Do feature or embedding mean and std norm
 
         Args:

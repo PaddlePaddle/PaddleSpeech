@@ -36,8 +36,8 @@ from paddlespeech.vector.modules.sid_model import SpeakerIdetification
 class VectorExecutor(BaseExecutor):
     def __init__(self):
         super().__init__('vector')
-        self.parser = argparse.ArgumentParser(
-            prog="paddlespeech.vector", add_help=True)
+        self.parser = argparse.ArgumentParser(prog="paddlespeech.vector",
+                                              add_help=True)
 
         self.parser.add_argument(
             "--model",
@@ -48,34 +48,30 @@ class VectorExecutor(BaseExecutor):
                 for tag in self.task_resource.pretrained_models.keys()
             ],
             help="Choose model type of vector task.")
-        self.parser.add_argument(
-            "--task",
-            type=str,
-            default="spk",
-            choices=["spk", "score"],
-            help="task type in vector domain")
-        self.parser.add_argument(
-            "--input",
-            type=str,
-            default=None,
-            help="Audio file to extract embedding.")
+        self.parser.add_argument("--task",
+                                 type=str,
+                                 default="spk",
+                                 choices=["spk", "score"],
+                                 help="task type in vector domain")
+        self.parser.add_argument("--input",
+                                 type=str,
+                                 default=None,
+                                 help="Audio file to extract embedding.")
         self.parser.add_argument(
             "--sample_rate",
             type=int,
             default=16000,
             choices=[16000],
             help="Choose the audio sample rate of the model. 8000 or 16000")
-        self.parser.add_argument(
-            "--ckpt_path",
-            type=str,
-            default=None,
-            help="Checkpoint file of model.")
-        self.parser.add_argument(
-            '--yes',
-            '-y',
-            action="store_true",
-            default=False,
-            help='No additional parameters required. \
+        self.parser.add_argument("--ckpt_path",
+                                 type=str,
+                                 default=None,
+                                 help="Checkpoint file of model.")
+        self.parser.add_argument('--yes',
+                                 '-y',
+                                 action="store_true",
+                                 default=False,
+                                 help='No additional parameters required. \
             Once set this parameter, it means accepting the request of the program by default, \
             which includes transforming the audio sample rate')
         self.parser.add_argument(
@@ -88,11 +84,10 @@ class VectorExecutor(BaseExecutor):
             type=str,
             default=paddle.get_device(),
             help="Choose device to execute model inference.")
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
 
         self.parser.add_argument(
             '-v',
@@ -137,14 +132,13 @@ class VectorExecutor(BaseExecutor):
                 # extract the speaker audio embedding
                 if parser_args.task == "spk":
                     logger.debug("do vector spk task")
-                    res = self(
-                        audio_file=input_,
-                        model=model,
-                        sample_rate=sample_rate,
-                        config=config,
-                        ckpt_path=ckpt_path,
-                        force_yes=force_yes,
-                        device=device)
+                    res = self(audio_file=input_,
+                               model=model,
+                               sample_rate=sample_rate,
+                               config=config,
+                               ckpt_path=ckpt_path,
+                               force_yes=force_yes,
+                               device=device)
                     task_result[id_] = res
                 elif parser_args.task == "score":
                     logger.debug("do vector score task")
@@ -160,22 +154,20 @@ class VectorExecutor(BaseExecutor):
                     logger.debug(
                         f"score task, enroll audio: {enroll_audio}, test audio: {test_audio}"
                     )
-                    enroll_embedding = self(
-                        audio_file=enroll_audio,
-                        model=model,
-                        sample_rate=sample_rate,
-                        config=config,
-                        ckpt_path=ckpt_path,
-                        force_yes=force_yes,
-                        device=device)
-                    test_embedding = self(
-                        audio_file=test_audio,
-                        model=model,
-                        sample_rate=sample_rate,
-                        config=config,
-                        ckpt_path=ckpt_path,
-                        force_yes=force_yes,
-                        device=device)
+                    enroll_embedding = self(audio_file=enroll_audio,
+                                            model=model,
+                                            sample_rate=sample_rate,
+                                            config=config,
+                                            ckpt_path=ckpt_path,
+                                            force_yes=force_yes,
+                                            device=device)
+                    test_embedding = self(audio_file=test_audio,
+                                          model=model,
+                                          sample_rate=sample_rate,
+                                          config=config,
+                                          ckpt_path=ckpt_path,
+                                          force_yes=force_yes,
+                                          device=device)
 
                     # get the score
                     res = self.get_embeddings_score(enroll_embedding,
@@ -236,20 +228,19 @@ class VectorExecutor(BaseExecutor):
             self.score_func = paddle.nn.CosineSimilarity(axis=0)
             logger.debug("create the cosine score function ")
 
-        score = self.score_func(
-            paddle.to_tensor(enroll_embedding),
-            paddle.to_tensor(test_embedding))
+        score = self.score_func(paddle.to_tensor(enroll_embedding),
+                                paddle.to_tensor(test_embedding))
 
         return score.item()
 
     @stats_wrapper
     def __call__(self,
                  audio_file: os.PathLike,
-                 model: str='ecapatdnn_voxceleb12',
-                 sample_rate: int=16000,
-                 config: os.PathLike=None,
-                 ckpt_path: os.PathLike=None,
-                 force_yes: bool=False,
+                 model: str = 'ecapatdnn_voxceleb12',
+                 sample_rate: int = 16000,
+                 config: os.PathLike = None,
+                 ckpt_path: os.PathLike = None,
+                 force_yes: bool = False,
                  device=paddle.get_device()):
         """Extract the audio embedding
 
@@ -290,10 +281,10 @@ class VectorExecutor(BaseExecutor):
         return res
 
     def _init_from_path(self,
-                        model_type: str='ecapatdnn_voxceleb12',
-                        sample_rate: int=16000,
-                        cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None,
+                        model_type: str = 'ecapatdnn_voxceleb12',
+                        sample_rate: int = 16000,
+                        cfg_path: Optional[os.PathLike] = None,
+                        ckpt_path: Optional[os.PathLike] = None,
                         task=None):
         """Init the neural network from the model path
 
@@ -355,8 +346,8 @@ class VectorExecutor(BaseExecutor):
         logger.debug(f"model name {model_name}")
         model_conf = self.config.model
         backbone = model_class(**model_conf)
-        model = SpeakerIdetification(
-            backbone=backbone, num_class=self.config.num_speakers)
+        model = SpeakerIdetification(backbone=backbone,
+                                     num_class=self.config.num_speakers)
         self.model = model
         self.model.eval()
 
@@ -419,12 +410,11 @@ class VectorExecutor(BaseExecutor):
         # stage 2: get the audio feat
         # Note: Now we only support fbank feature
         try:
-            feat = melspectrogram(
-                x=waveform,
-                sr=self.config.sr,
-                n_mels=self.config.n_mels,
-                window_size=self.config.window_size,
-                hop_length=self.config.hop_size)
+            feat = melspectrogram(x=waveform,
+                                  sr=self.config.sr,
+                                  n_mels=self.config.n_mels,
+                                  window_size=self.config.window_size,
+                                  hop_length=self.config.hop_size)
             logger.debug(f"extract the audio feat, shape is: {feat.shape}")
         except Exception as e:
             logger.debug(f"feat occurs exception {e}")
@@ -446,7 +436,10 @@ class VectorExecutor(BaseExecutor):
 
         logger.debug("audio extract the feat success")
 
-    def _check(self, audio_file: str, sample_rate: int, force_yes: bool=False):
+    def _check(self,
+               audio_file: str,
+               sample_rate: int,
+               force_yes: bool = False):
         """Check if the model sample match the audio sample rate 
 
         Args:
@@ -472,8 +465,9 @@ class VectorExecutor(BaseExecutor):
 
         logger.debug("checking the aduio file format......")
         try:
-            audio, audio_sample_rate = soundfile.read(
-                audio_file, dtype="float32", always_2d=True)
+            audio, audio_sample_rate = soundfile.read(audio_file,
+                                                      dtype="float32",
+                                                      always_2d=True)
         except Exception as e:
             logger.exception(e)
             logger.error(

@@ -84,7 +84,6 @@ class ExperimentBase(object):
         >>> else:
         >>>     main_sp(config, args)
     """
-
     def __init__(self, config, args):
         self.config = config
         self.args = args

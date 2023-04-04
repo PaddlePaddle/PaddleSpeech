@@ -51,10 +51,11 @@ logger = Log(__name__).getlog()
 
 
 def clip_grad_norm_(
-        parameters,
-        max_norm,
-        norm_type=2.0,
-        error_if_nonfinite=False, ):
+    parameters,
+    max_norm,
+    norm_type=2.0,
+    error_if_nonfinite=False,
+):
     r"""Clips gradient norm of the iteratable parameters.
 
     Norms are calculated together on all gradients, just as they are
@@ -107,13 +108,14 @@ def clip_grad_norm_(
         return paddle.to_tensor(0.0)
     if norm_type == float("inf"):
         norms = [g.detach().abs().max() for g in grads]
-        total_norm = (norms[0]
-                      if len(norms) == 1 else paddle.max(paddle.stack(norms)))
+        total_norm = (norms[0] if len(norms) == 1 else paddle.max(
+            paddle.stack(norms)))
     else:
         total_norm = paddle.linalg.norm(
             paddle.stack(
                 [paddle.linalg.norm(g.detach(), norm_type) for g in grads]),
-            norm_type, )
+            norm_type,
+        )
 
     if error_if_nonfinite and paddle.logical_or(total_norm.isnan(),
                                                 total_norm.isinf()):
@@ -179,8 +181,8 @@ class Wav2Vec2ASRTrainer(Trainer):
         if self.use_sb:
             wav, wavs_lens_rate = batch['sig']
             target, target_lens_rate = batch['tokens']
-            target_lens = (target_lens_rate *
-                           target.shape[1]).round().astype(paddle.int64)
+            target_lens = (target_lens_rate * target.shape[1]).round().astype(
+                paddle.int64)
         else:
             utt, wav, wavs_lens, target, target_lens = batch
             wavs_lens_rate = wavs_lens / wav.shape[1]
@@ -202,8 +204,8 @@ class Wav2Vec2ASRTrainer(Trainer):
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
             # When using cpu w/o DDP, model does not have `no_sync`
-            context = self.model.no_sync if (hasattr(self.model, "no_sync") and
-                                             self.parallel) else nullcontext
+            context = self.model.no_sync if (hasattr(self.model, "no_sync")
+                                             and self.parallel) else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.
@@ -248,8 +250,9 @@ class Wav2Vec2ASRTrainer(Trainer):
                     "wav2vec2_lr": self.wav2vec2_lr_scheduler()
                 })
                 for key, val in losses_np_v.items():
-                    self.visualizer.add_scalar(
-                        tag='train/' + key, value=val, step=self.iteration - 1)
+                    self.visualizer.add_scalar(tag='train/' + key,
+                                               value=val,
+                                               step=self.iteration - 1)
 
     @paddle.no_grad()
     def valid(self):
@@ -297,12 +300,12 @@ class Wav2Vec2ASRTrainer(Trainer):
                                  for k, v in valid_losses.items())
                 logger.info(msg)
 
-        logger.info(
-            'Rank {} Val info val_loss {}'.format(dist.get_rank(), total_loss))
+        logger.info('Rank {} Val info val_loss {}'.format(
+            dist.get_rank(), total_loss))
         return total_loss, num_seen_utts
 
     @mp_tools.rank_zero_only
-    def save(self, tag=None, infos: dict=None):
+    def save(self, tag=None, infos: dict = None):
         """Save checkpoint (model parameters and optimizer states).
 
         Args:
@@ -370,21 +373,21 @@ class Wav2Vec2ASRTrainer(Trainer):
             self.epoch = resume_json["epoch"]
 
             # resotre model from *.pdparams
-            params_path = os.path.join(self.checkpoint_dir,
-                                       "{}".format(self.epoch)) + '.pdparams'
+            params_path = os.path.join(self.checkpoint_dir, "{}".format(
+                self.epoch)) + '.pdparams'
             model_dict = paddle.load(params_path)
             self.model.set_state_dict(model_dict)
 
             # resotre optimizer from *.pdopt
-            optimizer_path = os.path.join(self.checkpoint_dir,
-                                          "{}".format(self.epoch)) + '.pdopt'
+            optimizer_path = os.path.join(self.checkpoint_dir, "{}".format(
+                self.epoch)) + '.pdopt'
             optimizer_dict = paddle.load(optimizer_path)
             self.model_optimizer.set_state_dict(optimizer_dict['model'])
             self.wav2vec2_optimizer.set_state_dict(optimizer_dict['wav2vec2'])
 
             # resotre lr_scheduler from *.pdlrs
-            scheduler_path = os.path.join(self.checkpoint_dir,
-                                          "{}".format(self.epoch)) + '.pdlrs'
+            scheduler_path = os.path.join(self.checkpoint_dir, "{}".format(
+                self.epoch)) + '.pdlrs'
             if os.path.isfile(os.path.join(scheduler_path)):
                 scheduler_dict = paddle.load(scheduler_path)
                 if self.config.model_scheduler == 'newbobscheduler':
@@ -466,19 +469,18 @@ class Wav2Vec2ASRTrainer(Trainer):
                     cv_loss = float(cv_loss)
                 else:
                     cv_loss = float(total_loss)
-            logger.info(
-                'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
+            logger.info('Epoch {} Val info val_loss {}'.format(
+                self.epoch, cv_loss))
             if self.visualizer:
-                self.visualizer.add_scalar(
-                    tag='eval/cv_loss', value=cv_loss, step=self.epoch)
-                self.visualizer.add_scalar(
-                    tag='eval/model_lr',
-                    value=self.model_lr_scheduler(),
-                    step=self.epoch)
-                self.visualizer.add_scalar(
-                    tag='eval/wav2vec2_lr',
-                    value=self.wav2vec2_lr_scheduler(),
-                    step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/cv_loss',
+                                           value=cv_loss,
+                                           step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/model_lr',
+                                           value=self.model_lr_scheduler(),
+                                           step=self.epoch)
+                self.visualizer.add_scalar(tag='eval/wav2vec2_lr',
+                                           value=self.wav2vec2_lr_scheduler(),
+                                           step=self.epoch)
 
             if self.config.model_scheduler == 'newbobscheduler':
                 self.model_lr_scheduler.step(cv_loss)
@@ -496,7 +498,8 @@ class Wav2Vec2ASRTrainer(Trainer):
 
         train_data = dataset.DynamicItemDataset.from_csv(
             csv_path=hparams["train_data"],
-            replacements={"data_root": data_folder}, )
+            replacements={"data_root": data_folder},
+        )
 
         if hparams["sorting"] == "ascending":
             # we sort training data to speed up training and get better results.
@@ -505,8 +508,8 @@ class Wav2Vec2ASRTrainer(Trainer):
             hparams["train_dataloader_opts"]["shuffle"] = False
 
         elif hparams["sorting"] == "descending":
-            train_data = train_data.filtered_sorted(
-                sort_key="duration", reverse=True)
+            train_data = train_data.filtered_sorted(sort_key="duration",
+                                                    reverse=True)
             # when sorting do not shuffle in dataloader ! otherwise is pointless
             hparams["train_dataloader_opts"]["shuffle"] = False
 
@@ -519,12 +522,14 @@ class Wav2Vec2ASRTrainer(Trainer):
 
         valid_data = dataset.DynamicItemDataset.from_csv(
             csv_path=hparams["valid_data"],
-            replacements={"data_root": data_folder}, )
+            replacements={"data_root": data_folder},
+        )
         valid_data = valid_data.filtered_sorted(sort_key="duration")
 
         test_data = dataset.DynamicItemDataset.from_csv(
             csv_path=hparams["test_data"],
-            replacements={"data_root": data_folder}, )
+            replacements={"data_root": data_folder},
+        )
         test_data = test_data.filtered_sorted(sort_key="duration")
 
         datasets = [train_data, valid_data, test_data]
@@ -558,7 +563,8 @@ class Wav2Vec2ASRTrainer(Trainer):
         # 4. Set output:
         dataset.set_output_keys(
             datasets,
-            ["id", "sig", "wrd", "tokens"], )
+            ["id", "sig", "wrd", "tokens"],
+        )
 
         # 5. If Dynamic Batching is used, we instantiate the needed samplers.
         train_batch_sampler = None
@@ -575,7 +581,8 @@ class Wav2Vec2ASRTrainer(Trainer):
                 num_buckets=num_buckets,
                 length_func=lambda x: x["duration"],
                 shuffle=dynamic_hparams["shuffle_ex"],
-                batch_ordering=dynamic_hparams["batch_ordering"], )
+                batch_ordering=dynamic_hparams["batch_ordering"],
+            )
 
             valid_batch_sampler = DynamicBatchSampler(
                 valid_data,
@@ -583,10 +590,17 @@ class Wav2Vec2ASRTrainer(Trainer):
                 num_buckets=num_buckets,
                 length_func=lambda x: x["duration"],
                 shuffle=dynamic_hparams["shuffle_ex"],
-                batch_ordering=dynamic_hparams["batch_ordering"], )
+                batch_ordering=dynamic_hparams["batch_ordering"],
+            )
 
-        return (train_data, valid_data, test_data, tokenizer,
-                train_batch_sampler, valid_batch_sampler, )
+        return (
+            train_data,
+            valid_data,
+            test_data,
+            tokenizer,
+            train_batch_sampler,
+            valid_batch_sampler,
+        )
 
     def setup_dataloader(self):
         config = self.config.clone()
@@ -597,8 +611,14 @@ class Wav2Vec2ASRTrainer(Trainer):
             with open(hparams_file, 'r', encoding='utf8') as fin:
                 hparams = load_hyperpyyaml(fin, None)
 
-            (train_data, valid_data, test_data, tokenizer, train_bsampler,
-             valid_bsampler, ) = self.dataio_prepare(hparams)
+            (
+                train_data,
+                valid_data,
+                test_data,
+                tokenizer,
+                train_bsampler,
+                valid_bsampler,
+            ) = self.dataio_prepare(hparams)
 
             train_dataloader_opts = hparams["train_dataloader_opts"]
             valid_dataloader_opts = hparams["valid_dataloader_opts"]
@@ -613,12 +633,14 @@ class Wav2Vec2ASRTrainer(Trainer):
                 valid_dataloader_opts = {"batch_sampler": valid_bsampler}
 
             if self.train:
-                self.train_loader = make_dataloader(
-                    train_data, stage='train', **train_dataloader_opts)
+                self.train_loader = make_dataloader(train_data,
+                                                    stage='train',
+                                                    **train_dataloader_opts)
                 self.valid_loader = make_dataloader(
                     valid_data,
                     stage='val',
-                    **valid_dataloader_opts, )
+                    **valid_dataloader_opts,
+                )
                 logger.info("Setup train/valid Dataloader!")
             else:
                 self.test_loader = make_dataloader(
@@ -689,24 +711,29 @@ class Wav2Vec2ASRTrainer(Trainer):
         wav2vec2_scheduler_conf = train_config.wav2vec2_scheduler_conf
 
         model_scheduler_args = dict(
-            **{"learning_rate": model_optim_conf.lr,
-               "verbose": False}, **(dict(model_scheduler_conf)))
+            **{
+                "learning_rate": model_optim_conf.lr,
+                "verbose": False
+            }, **(dict(model_scheduler_conf)))
 
         wav2vec2_scheduler_args = dict(
-            **{"learning_rate": wav2vec2_optim_conf.lr,
-               "verbose": False}, **(dict(wav2vec2_scheduler_conf)))
+            **{
+                "learning_rate": wav2vec2_optim_conf.lr,
+                "verbose": False
+            }, **(dict(wav2vec2_scheduler_conf)))
 
-        model_lr_scheduler = LRSchedulerFactory.from_args(model_scheduler_type,
-                                                          model_scheduler_args)
+        model_lr_scheduler = LRSchedulerFactory.from_args(
+            model_scheduler_type, model_scheduler_args)
         wav2vec2_lr_scheduler = LRSchedulerFactory.from_args(
             wav2vec2_scheduler_type, wav2vec2_scheduler_args)
 
         def optimizer_args(
-                config,
-                optim_type,
-                optim_conf,
-                parameters,
-                lr_scheduler=None, ):
+            config,
+            optim_type,
+            optim_conf,
+            parameters,
+            lr_scheduler=None,
+        ):
             optim_arg = dict(optim_conf)
             optim_arg.update({
                 "learning_rate":
@@ -716,20 +743,17 @@ class Wav2Vec2ASRTrainer(Trainer):
             })
             return optim_arg
 
-        model_optimizer_args = optimizer_args(config, model_optim_type,
-                                              model_optim_conf, [{
-                                                  'params':
-                                                  model._layers.enc.parameters()
-                                              }, {
-                                                  'params':
-                                                  model._layers.ctc.parameters()
-                                              }] if self.parallel else [{
-                                                  'params':
-                                                  model.enc.parameters()
-                                              }, {
-                                                  'params':
-                                                  model.ctc.parameters()
-                                              }], model_lr_scheduler)
+        model_optimizer_args = optimizer_args(
+            config, model_optim_type, model_optim_conf,
+            [{
+                'params': model._layers.enc.parameters()
+            }, {
+                'params': model._layers.ctc.parameters()
+            }] if self.parallel else [{
+                'params': model.enc.parameters()
+            }, {
+                'params': model.ctc.parameters()
+            }], model_lr_scheduler)
 
         wav2vec2_optimizer_args = optimizer_args(
             config, wav2vec2_optim_type, wav2vec2_optim_conf,
@@ -738,8 +762,8 @@ class Wav2Vec2ASRTrainer(Trainer):
 
         model_optimizer = OptimizerFactory.from_args(model_optim_type,
                                                      model_optimizer_args)
-        wav2vec2_optimizer = OptimizerFactory.from_args(wav2vec2_optim_type,
-                                                        wav2vec2_optimizer_args)
+        wav2vec2_optimizer = OptimizerFactory.from_args(
+            wav2vec2_optim_type, wav2vec2_optimizer_args)
 
         self.model_optimizer = model_optimizer
         self.wav2vec2_optimizer = wav2vec2_optimizer
@@ -751,8 +775,8 @@ class Wav2Vec2ASRTrainer(Trainer):
 class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
     def __init__(self, config, args):
         super().__init__(config, args)
-        self.text_featurizer = TextFeaturizer(
-            unit_type=config.unit_type, vocab=config.vocab_filepath)
+        self.text_featurizer = TextFeaturizer(unit_type=config.unit_type,
+                                              vocab=config.vocab_filepath)
         self.vocab_list = self.text_featurizer.vocab_list
 
     def id2token(self, texts, texts_len):
@@ -764,7 +788,12 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             trans.append(self.text_featurizer.defeaturize(ids.numpy().tolist()))
         return trans
 
-    def compute_metrics(self, id, audio, audio_len, texts, texts_len,
+    def compute_metrics(self,
+                        id,
+                        audio,
+                        audio_len,
+                        texts,
+                        texts_len,
                         fout=None):
         decode_cfg = self.config.decode
         errors_sum, len_refs, num_ins = 0.0, 0, 0
@@ -780,8 +809,9 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             beam_size=decode_cfg.beam_size)
         decode_time = time.time() - start_time
 
-        for utt, target, result, rec_tids in zip(
-                id, target_transcripts, result_transcripts, result_tokenids):
+        for utt, target, result, rec_tids in zip(id, target_transcripts,
+                                                 result_transcripts,
+                                                 result_tokenids):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -796,8 +826,9 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")
-            logger.info("One example error rate [%s] = %f" % (
-                decode_cfg.error_rate_type, error_rate_func(target, result)))
+            logger.info(
+                "One example error rate [%s] = %f" %
+                (decode_cfg.error_rate_type, error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,
@@ -823,8 +854,9 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             sb_pipeline=True)
         decode_time = time.time() - start_time
 
-        for utt, target, result, rec_tids in zip(
-                id, target_transcripts, result_transcripts, result_tokenids):
+        for utt, target, result, rec_tids in zip(id, target_transcripts,
+                                                 result_transcripts,
+                                                 result_tokenids):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -839,8 +871,9 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             logger.info(f"Utt: {utt}")
             logger.info(f"Ref: {target}")
             logger.info(f"Hyp: {result}")
-            logger.info("One example error rate [%s] = %f" % (
-                decode_cfg.error_rate_type, error_rate_func(target, result)))
+            logger.info(
+                "One example error rate [%s] = %f" %
+                (decode_cfg.error_rate_type, error_rate_func(target, result)))
 
         return dict(
             errors_sum=errors_sum,

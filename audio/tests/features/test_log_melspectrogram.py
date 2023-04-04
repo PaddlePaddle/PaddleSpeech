@@ -33,13 +33,12 @@ class TestLogMelSpectrogram(FeatTest):
         ps_res = ps_melspect(self.waveform.T).squeeze(1).T
 
         x = paddle.to_tensor(self.waveform)
-        ps_melspect = paddleaudio.features.LogMelSpectrogram(
-            self.sr,
-            self.n_fft,
-            self.hop_length,
-            power=1.0,
-            n_mels=self.n_mels,
-            f_min=0.0)
+        ps_melspect = paddleaudio.features.LogMelSpectrogram(self.sr,
+                                                             self.n_fft,
+                                                             self.hop_length,
+                                                             power=1.0,
+                                                             n_mels=self.n_mels,
+                                                             f_min=0.0)
         pa_res = (ps_melspect(x) / 10.0).squeeze(0).numpy()
 
         np.testing.assert_array_almost_equal(ps_res, pa_res, decimal=5)

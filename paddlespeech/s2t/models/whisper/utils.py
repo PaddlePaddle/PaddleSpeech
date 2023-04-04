@@ -33,8 +33,8 @@ def compression_ratio(text) -> float:
 
 
 def format_timestamp(seconds: float,
-                     always_include_hours: bool=False,
-                     decimal_marker: str='.'):
+                     always_include_hours: bool = False,
+                     decimal_marker: str = '.'):
     assert seconds >= 0, "non-negative timestamp expected"
     milliseconds = round(seconds * 1000.0)
 
@@ -63,7 +63,8 @@ def write_vtt(transcript: Iterator[dict], file: TextIO):
             f"{format_timestamp(segment['start'])} --> {format_timestamp(segment['end'])}\n"
             f"{segment['text'].strip().replace('-->', '->')}\n",
             file=file,
-            flush=True, )
+            flush=True,
+        )
 
 
 def write_srt(transcript: Iterator[dict], file: TextIO):
@@ -89,4 +90,5 @@ def write_srt(transcript: Iterator[dict], file: TextIO):
             f"{format_timestamp(segment['end'], always_include_hours=True, decimal_marker=',')}\n"
             f"{segment['text'].strip().replace('-->', '->')}\n",
             file=file,
-            flush=True, )
+            flush=True,
+        )

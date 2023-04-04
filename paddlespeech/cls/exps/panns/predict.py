@@ -55,9 +55,9 @@ if __name__ == '__main__':
     ds_class = dynamic_import(data_conf['dataset'])
     backbone_class = dynamic_import(model_conf['backbone'])
 
-    model = SoundClassifier(
-        backbone=backbone_class(pretrained=False, extract_embedding=True),
-        num_class=len(ds_class.label_list))
+    model = SoundClassifier(backbone=backbone_class(pretrained=False,
+                                                    extract_embedding=True),
+                            num_class=len(ds_class.label_list))
     model.set_state_dict(paddle.load(predicting_conf['checkpoint']))
     model.eval()
 

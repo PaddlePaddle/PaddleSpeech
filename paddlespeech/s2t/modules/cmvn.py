@@ -27,7 +27,7 @@ class GlobalCMVN(nn.Layer):
     def __init__(self,
                  mean: paddle.Tensor,
                  istd: paddle.Tensor,
-                 norm_var: bool=True):
+                 norm_var: bool = True):
         """
         Args:
             mean (paddle.Tensor): mean stats

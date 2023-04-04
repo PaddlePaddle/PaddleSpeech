@@ -36,8 +36,9 @@ def main(args, config):
     # so we ignore the execption
     # we explicitly pass the vox2 base path to data prepare and generate the audio info
     logger.info("start to generate the voxceleb dataset info")
-    train_dataset = VoxCeleb(
-        'train', target_dir=args.data_dir, vox2_base_path=config.vox2_base_path)
+    train_dataset = VoxCeleb('train',
+                             target_dir=args.data_dir,
+                             vox2_base_path=config.vox2_base_path)
 
     # stage 2: generate the augment noise csv file
     if config.augment:

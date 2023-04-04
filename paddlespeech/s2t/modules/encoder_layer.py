@@ -34,15 +34,15 @@ __all__ = [
 
 class TransformerEncoderLayer(nn.Layer):
     """Encoder layer module."""
-
     def __init__(
-            self,
-            size: int,
-            self_attn: nn.Layer,
-            feed_forward: nn.Layer,
-            dropout_rate: float,
-            normalize_before: bool=True,
-            concat_after: bool=False, ):
+        self,
+        size: int,
+        self_attn: nn.Layer,
+        feed_forward: nn.Layer,
+        dropout_rate: float,
+        normalize_before: bool = True,
+        concat_after: bool = False,
+    ):
         """Construct an EncoderLayer object.
 
         Args:
@@ -75,13 +75,13 @@ class TransformerEncoderLayer(nn.Layer):
         self.concat_linear = Linear(size + size, size)
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            mask: paddle.Tensor,
-            pos_emb: paddle.Tensor,
-            mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+        self,
+        x: paddle.Tensor,
+        mask: paddle.Tensor,
+        pos_emb: paddle.Tensor,
+        mask_pad: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:
@@ -131,17 +131,17 @@ class TransformerEncoderLayer(nn.Layer):
 
 class ConformerEncoderLayer(nn.Layer):
     """Encoder layer module."""
-
     def __init__(
-            self,
-            size: int,
-            self_attn: nn.Layer,
-            feed_forward: Optional[nn.Layer]=None,
-            feed_forward_macaron: Optional[nn.Layer]=None,
-            conv_module: Optional[nn.Layer]=None,
-            dropout_rate: float=0.1,
-            normalize_before: bool=True,
-            concat_after: bool=False, ):
+        self,
+        size: int,
+        self_attn: nn.Layer,
+        feed_forward: Optional[nn.Layer] = None,
+        feed_forward_macaron: Optional[nn.Layer] = None,
+        conv_module: Optional[nn.Layer] = None,
+        dropout_rate: float = 0.1,
+        normalize_before: bool = True,
+        concat_after: bool = False,
+    ):
         """Construct an EncoderLayer object.
 
         Args:
@@ -178,8 +178,8 @@ class ConformerEncoderLayer(nn.Layer):
         else:
             self.ff_scale = 1.0
         if self.conv_module is not None:
-            self.norm_conv = LayerNorm(
-                size, epsilon=1e-12)  # for the CNN module
+            self.norm_conv = LayerNorm(size,
+                                       epsilon=1e-12)  # for the CNN module
             self.norm_final = LayerNorm(
                 size, epsilon=1e-12)  # for the final output of the block
         self.dropout = nn.Dropout(dropout_rate)
@@ -192,13 +192,13 @@ class ConformerEncoderLayer(nn.Layer):
             self.concat_linear = nn.Identity()
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            mask: paddle.Tensor,
-            pos_emb: paddle.Tensor,
-            mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+        self,
+        x: paddle.Tensor,
+        mask: paddle.Tensor,
+        pos_emb: paddle.Tensor,
+        mask_pad: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:
@@ -239,8 +239,12 @@ class ConformerEncoderLayer(nn.Layer):
         if self.normalize_before:
             x = self.norm_mha(x)
 
-        x_att, new_att_cache = self.self_attn(
-            x, x, x, mask, pos_emb, cache=att_cache)
+        x_att, new_att_cache = self.self_attn(x,
+                                              x,
+                                              x,
+                                              mask,
+                                              pos_emb,
+                                              cache=att_cache)
 
         if self.concat_after:
             x_concat = paddle.concat((x, x_att), axis=-1)
@@ -283,16 +287,15 @@ class ConformerEncoderLayer(nn.Layer):
 
 class SqueezeformerEncoderLayer(nn.Layer):
     """Encoder layer module."""
-
     def __init__(self,
                  size: int,
                  self_attn: paddle.nn.Layer,
-                 feed_forward1: Optional[nn.Layer]=None,
-                 conv_module: Optional[nn.Layer]=None,
-                 feed_forward2: Optional[nn.Layer]=None,
-                 normalize_before: bool=False,
-                 dropout_rate: float=0.1,
-                 concat_after: bool=False):
+                 feed_forward1: Optional[nn.Layer] = None,
+                 conv_module: Optional[nn.Layer] = None,
+                 feed_forward2: Optional[nn.Layer] = None,
+                 normalize_before: bool = False,
+                 dropout_rate: float = 0.1,
+                 concat_after: bool = False):
         """Construct an EncoderLayer object.
 
         Args:
@@ -330,13 +333,13 @@ class SqueezeformerEncoderLayer(nn.Layer):
             self.concat_linear = nn.Identity()
 
     def forward(
-            self,
-            x: paddle.Tensor,
-            mask: paddle.Tensor,
-            pos_emb: paddle.Tensor,
-            mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
-            att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
+        self,
+        x: paddle.Tensor,
+        mask: paddle.Tensor,
+        pos_emb: paddle.Tensor,
+        mask_pad: paddle.Tensor = paddle.ones([0, 0, 0], dtype=paddle.bool),
+        att_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
+        cnn_cache: paddle.Tensor = paddle.zeros([0, 0, 0, 0]),
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:

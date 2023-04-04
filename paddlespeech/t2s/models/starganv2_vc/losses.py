@@ -80,12 +80,11 @@ def compute_d_loss(nets,
             args.lambda_adv_cls * loss_real_adv_cls + \
             args.lambda_con_reg * loss_con_reg
 
-    return loss, Munch(
-        real=loss_real.item(),
-        fake=loss_fake.item(),
-        reg=loss_reg.item(),
-        real_adv_cls=loss_real_adv_cls.item(),
-        con_reg=loss_con_reg.item())
+    return loss, Munch(real=loss_real.item(),
+                       fake=loss_fake.item(),
+                       reg=loss_reg.item(),
+                       real_adv_cls=loss_real_adv_cls.item(),
+                       con_reg=loss_con_reg.item())
 
 
 def compute_g_loss(nets,
@@ -127,9 +126,8 @@ def compute_g_loss(nets,
     # norm consistency loss
     x_fake_norm = log_norm(x_fake)
     x_real_norm = log_norm(x_real)
-    loss_norm = ((
-        paddle.nn.ReLU()(paddle.abs(x_fake_norm - x_real_norm) - args.norm_bias)
-    )**2).mean()
+    loss_norm = ((paddle.nn.ReLU()(paddle.abs(x_fake_norm - x_real_norm) -
+                                   args.norm_bias))**2).mean()
 
     # F0 loss
     loss_f0 = f0_loss(F0_fake, F0_real)
@@ -137,8 +135,8 @@ def compute_g_loss(nets,
     # style F0 loss (style initialization)
     if x_refs is not None and args.lambda_f0_sty > 0 and not use_adv_cls:
         F0_sty, _, _ = nets.f0_model(x_ref)
-        loss_f0_sty = F.l1_loss(
-            compute_mean_f0(F0_fake), compute_mean_f0(F0_sty))
+        loss_f0_sty = F.l1_loss(compute_mean_f0(F0_fake),
+                                compute_mean_f0(F0_sty))
     else:
         loss_f0_sty = paddle.zeros([1]).mean()
 
@@ -188,15 +186,14 @@ def compute_g_loss(nets,
            + args.lambda_f0_sty * loss_f0_sty \
            + args.lambda_adv_cls * loss_adv_cls
 
-    return loss, Munch(
-        adv=loss_adv.item(),
-        sty=loss_sty.item(),
-        ds=loss_ds.item(),
-        cyc=loss_cyc.item(),
-        norm=loss_norm.item(),
-        asr=loss_asr.item(),
-        f0=loss_f0.item(),
-        adv_cls=loss_adv_cls.item())
+    return loss, Munch(adv=loss_adv.item(),
+                       sty=loss_sty.item(),
+                       ds=loss_ds.item(),
+                       cyc=loss_cyc.item(),
+                       norm=loss_norm.item(),
+                       asr=loss_asr.item(),
+                       f0=loss_f0.item(),
+                       adv_cls=loss_adv_cls.item())
 
 
 # for norm consistency loss
@@ -223,12 +220,11 @@ def adv_loss(logits, target):
 def r1_reg(d_out, x_in):
     # zero-centered gradient penalty for real images
     batch_size = x_in.shape[0]
-    grad_dout = paddle.grad(
-        outputs=d_out.sum(),
-        inputs=x_in,
-        create_graph=True,
-        retain_graph=True,
-        only_inputs=True)[0]
+    grad_dout = paddle.grad(outputs=d_out.sum(),
+                            inputs=x_in,
+                            create_graph=True,
+                            retain_graph=True,
+                            only_inputs=True)[0]
     grad_dout2 = grad_dout.pow(2)
     assert (grad_dout2.shape == x_in.shape)
     reg = 0.5 * grad_dout2.reshape((batch_size, -1)).sum(1).mean(0)

@@ -56,7 +56,6 @@ class DependencyGraph:
     to/from it.
     Implicit keys and explicit keys can also be mixed.
     """
-
     def __init__(self):
         self.digraph = []
         self.key2ind = {}

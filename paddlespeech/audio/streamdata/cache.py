@@ -68,11 +68,12 @@ def pipe_cleaner(spec):
 
 
 def get_file_cached(
-        spec,
-        cache_size=-1,
-        cache_dir=None,
-        url_to_name=pipe_cleaner,
-        verbose=False, ):
+    spec,
+    cache_size=-1,
+    cache_dir=None,
+    url_to_name=pipe_cleaner,
+    verbose=False,
+):
     if cache_size == -1:
         cache_size = default_cache_size
     if cache_dir is None:
@@ -109,14 +110,15 @@ verbose_cache = int(os.environ.get("WDS_VERBOSE_CACHE", "0"))
 
 
 def cached_url_opener(
-        data,
-        handler=reraise_exception,
-        cache_size=-1,
-        cache_dir=None,
-        url_to_name=pipe_cleaner,
-        validator=check_tar_format,
-        verbose=False,
-        always=False, ):
+    data,
+    handler=reraise_exception,
+    cache_size=-1,
+    cache_dir=None,
+    url_to_name=pipe_cleaner,
+    validator=check_tar_format,
+    verbose=False,
+    always=False,
+):
     """Given a stream of url names (packaged in `dict(url=url)`), yield opened streams."""
     verbose = verbose or verbose_cache
     for sample in data:
@@ -133,7 +135,8 @@ def cached_url_opener(
                     cache_size=cache_size,
                     cache_dir=cache_dir,
                     url_to_name=url_to_name,
-                    verbose=verbose, )
+                    verbose=verbose,
+                )
             if verbose:
                 print("# opening %s" % dest, file=sys.stderr)
             assert os.path.exists(dest)
@@ -165,13 +168,14 @@ def cached_url_opener(
 
 
 def cached_tarfile_samples(
-        src,
-        handler=reraise_exception,
-        cache_size=-1,
-        cache_dir=None,
-        verbose=False,
-        url_to_name=pipe_cleaner,
-        always=False, ):
+    src,
+    handler=reraise_exception,
+    cache_size=-1,
+    cache_dir=None,
+    verbose=False,
+    url_to_name=pipe_cleaner,
+    always=False,
+):
     streams = cached_url_opener(
         src,
         handler=handler,
@@ -179,7 +183,8 @@ def cached_tarfile_samples(
         cache_dir=cache_dir,
         verbose=verbose,
         url_to_name=url_to_name,
-        always=always, )
+        always=always,
+    )
     samples = tar_file_and_group_expander(streams, handler=handler)
     return samples
 

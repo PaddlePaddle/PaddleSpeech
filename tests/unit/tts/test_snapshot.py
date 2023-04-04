@@ -33,8 +33,9 @@ def test_snapshot():
     updater = StandardUpdater(model, optimizer, dataloader=dataloader)
     updater.update_core = lambda x: None
 
-    trainer = Trainer(
-        updater, stop_trigger=(1000, 'iteration'), out='temp_test_snapshot')
+    trainer = Trainer(updater,
+                      stop_trigger=(1000, 'iteration'),
+                      out='temp_test_snapshot')
     shutil.rmtree(trainer.out, ignore_errors=True)
 
     snap = Snapshot(max_size=5)

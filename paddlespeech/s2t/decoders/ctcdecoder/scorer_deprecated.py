@@ -32,7 +32,6 @@ class Scorer(object):
     :model_path: Path to load language model.
     :type model_path: str
     """
-
     def __init__(self, alpha, beta, model_path):
         self._alpha = alpha
         self._beta = beta

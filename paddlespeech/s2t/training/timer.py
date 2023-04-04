@@ -26,7 +26,6 @@ class Timer():
         with Timer("Message") as value:
             do some thing
     """
-
     def __init__(self, message=None):
         self.message = message
 

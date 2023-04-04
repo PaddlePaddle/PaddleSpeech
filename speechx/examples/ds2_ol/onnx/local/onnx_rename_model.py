@@ -8,23 +8,23 @@ import onnx
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--model',
-        required=True,
-        help='Path of directory saved the input model.')
-    parser.add_argument(
-        '--origin_names',
-        required=True,
-        nargs='+',
-        help='The original name you want to modify.')
+    parser.add_argument('--model',
+                        required=True,
+                        help='Path of directory saved the input model.')
+    parser.add_argument('--origin_names',
+                        required=True,
+                        nargs='+',
+                        help='The original name you want to modify.')
     parser.add_argument(
         '--new_names',
         required=True,
         nargs='+',
-        help='The new name you want change to, the number of new_names should be same with the number of origin_names'
+        help=
+        'The new name you want change to, the number of new_names should be same with the number of origin_names'
     )
-    parser.add_argument(
-        '--save_file', required=True, help='Path to save the new onnx model.')
+    parser.add_argument('--save_file',
+                        required=True,
+                        help='Path to save the new onnx model.')
     return parser.parse_args()
 
 

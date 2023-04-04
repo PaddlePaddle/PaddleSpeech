@@ -37,7 +37,9 @@ def gen_audio_file(
 ):
     """Generate synthetic audio file with `sox` command."""
     if path.endswith(".wav"):
-        warnings.warn("Use get_wav_data and save_wav to generate wav file for accurate result.")
+        warnings.warn(
+            "Use get_wav_data and save_wav to generate wav file for accurate result."
+        )
     command = [
         "sox",
         "-V3",  # verbose
@@ -81,7 +83,12 @@ def gen_audio_file(
     subprocess.run(command, check=True)
 
 
-def convert_audio_file(src_path, dst_path, *, encoding=None, bit_depth=None, compression=None):
+def convert_audio_file(src_path,
+                       dst_path,
+                       *,
+                       encoding=None,
+                       bit_depth=None,
+                       compression=None):
     """Convert audio file with `sox` command."""
     command = ["sox", "-V3", "--no-dither", "-R", str(src_path)]
     if encoding is not None:
@@ -103,7 +110,12 @@ def _flattern(effects):
     return [item for sublist in effects for item in sublist]
 
 
-def run_sox_effect(input_file, output_file, effect, *, output_sample_rate=None, output_bitdepth=None):
+def run_sox_effect(input_file,
+                   output_file,
+                   effect,
+                   *,
+                   output_sample_rate=None,
+                   output_bitdepth=None):
     """Run sox effects"""
     effect = _flattern(effect)
     command = ["sox", "-V", "--no-dither", input_file]

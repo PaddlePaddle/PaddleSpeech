@@ -34,16 +34,17 @@ __all__ = ['TextExecutor']
 class TextExecutor(BaseExecutor):
     def __init__(self):
         super().__init__(task='text')
-        self.parser = argparse.ArgumentParser(
-            prog='paddlespeech.text', add_help=True)
-        self.parser.add_argument(
-            '--input', type=str, default=None, help='Input text.')
-        self.parser.add_argument(
-            '--task',
-            type=str,
-            default='punc',
-            choices=['punc'],
-            help='Choose text task.')
+        self.parser = argparse.ArgumentParser(prog='paddlespeech.text',
+                                              add_help=True)
+        self.parser.add_argument('--input',
+                                 type=str,
+                                 default=None,
+                                 help='Input text.')
+        self.parser.add_argument('--task',
+                                 type=str,
+                                 default='punc',
+                                 choices=['punc'],
+                                 help='Choose text task.')
         self.parser.add_argument(
             '--model',
             type=str,
@@ -53,22 +54,20 @@ class TextExecutor(BaseExecutor):
                 for tag in self.task_resource.pretrained_models.keys()
             ],
             help='Choose model type of text task.')
-        self.parser.add_argument(
-            '--lang',
-            type=str,
-            default='zh',
-            choices=['zh', 'en'],
-            help='Choose model language.')
+        self.parser.add_argument('--lang',
+                                 type=str,
+                                 default='zh',
+                                 choices=['zh', 'en'],
+                                 help='Choose model language.')
         self.parser.add_argument(
             '--config',
             type=str,
             default=None,
             help='Config of cls task. Use deault config when it is None.')
-        self.parser.add_argument(
-            '--ckpt_path',
-            type=str,
-            default=None,
-            help='Checkpoint file of model.')
+        self.parser.add_argument('--ckpt_path',
+                                 type=str,
+                                 default=None,
+                                 help='Checkpoint file of model.')
         self.parser.add_argument(
             '--punc_vocab',
             type=str,
@@ -79,11 +78,10 @@ class TextExecutor(BaseExecutor):
             type=str,
             default=paddle.get_device(),
             help='Choose device to execute model inference.')
-        self.parser.add_argument(
-            '-d',
-            '--job_dump_result',
-            action='store_true',
-            help='Save job result into file.')
+        self.parser.add_argument('-d',
+                                 '--job_dump_result',
+                                 action='store_true',
+                                 help='Save job result into file.')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -91,12 +89,12 @@ class TextExecutor(BaseExecutor):
             help='Increase logger verbosity of current task.')
 
     def _init_from_path(self,
-                        task: str='punc',
-                        model_type: str='ernie_linear_p7_wudao',
-                        lang: str='zh',
-                        cfg_path: Optional[os.PathLike]=None,
-                        ckpt_path: Optional[os.PathLike]=None,
-                        vocab_file: Optional[os.PathLike]=None):
+                        task: str = 'punc',
+                        model_type: str = 'ernie_linear_p7_wudao',
+                        lang: str = 'zh',
+                        cfg_path: Optional[os.PathLike] = None,
+                        ckpt_path: Optional[os.PathLike] = None,
+                        vocab_file: Optional[os.PathLike] = None):
         """
             Init model and other resources from a specific path.
         """
@@ -134,8 +132,8 @@ class TextExecutor(BaseExecutor):
             # model
             model_class, tokenizer_class = self.task_resource.get_model_class(
                 model_name)
-            self.model = model_class(
-                cfg_path=self.cfg_path, ckpt_path=self.ckpt_path)
+            self.model = model_class(cfg_path=self.cfg_path,
+                                     ckpt_path=self.ckpt_path)
             self.tokenizer = tokenizer_class.from_pretrained('ernie-1.0')
         else:
             raise NotImplementedError
@@ -144,12 +142,12 @@ class TextExecutor(BaseExecutor):
 
     #init new models
     def _init_from_path_new(self,
-                            task: str='punc',
-                            model_type: str='ernie_linear_p7_wudao',
-                            lang: str='zh',
-                            cfg_path: Optional[os.PathLike]=None,
-                            ckpt_path: Optional[os.PathLike]=None,
-                            vocab_file: Optional[os.PathLike]=None):
+                            task: str = 'punc',
+                            model_type: str = 'ernie_linear_p7_wudao',
+                            lang: str = 'zh',
+                            cfg_path: Optional[os.PathLike] = None,
+                            ckpt_path: Optional[os.PathLike] = None,
+                            vocab_file: Optional[os.PathLike] = None):
         if hasattr(self, 'model'):
             logger.debug('Model had been initialized.')
             return
@@ -218,8 +216,9 @@ class TextExecutor(BaseExecutor):
             clean_text = self._clean_text(text)
             assert len(clean_text) > 0, f'Invalid input string: {text}'
 
-            tokenized_input = self.tokenizer(
-                list(clean_text), return_length=True, is_split_into_words=True)
+            tokenized_input = self.tokenizer(list(clean_text),
+                                             return_length=True,
+                                             is_split_into_words=True)
 
             self._inputs['input_ids'] = tokenized_input['input_ids']
             self._inputs['seg_ids'] = tokenized_input['token_type_ids']
@@ -242,7 +241,8 @@ class TextExecutor(BaseExecutor):
         else:
             raise NotImplementedError
 
-    def postprocess(self, isNewTrainer: bool=False) -> Union[str, os.PathLike]:
+    def postprocess(self,
+                    isNewTrainer: bool = False) -> Union[str, os.PathLike]:
         """
             Output postprocess and return human-readable results such as texts and audio files.
         """
@@ -251,8 +251,8 @@ class TextExecutor(BaseExecutor):
             seq_len = self._inputs['seq_len']
             preds = self._outputs['preds']
 
-            tokens = self.tokenizer.convert_ids_to_tokens(
-                input_ids[1:seq_len - 1])
+            tokens = self.tokenizer.convert_ids_to_tokens(input_ids[1:seq_len -
+                                                                    1])
             labels = preds[1:seq_len - 1].tolist()
             assert len(tokens) == len(labels)
             if isNewTrainer:
@@ -308,13 +308,14 @@ class TextExecutor(BaseExecutor):
     def __call__(
             self,
             text: str,
-            task: str='punc',
-            model: str='ernie_linear_p7_wudao',
-            lang: str='zh',
-            config: Optional[os.PathLike]=None,
-            ckpt_path: Optional[os.PathLike]=None,
-            punc_vocab: Optional[os.PathLike]=None,
-            device: str=paddle.get_device(), ):
+            task: str = 'punc',
+            model: str = 'ernie_linear_p7_wudao',
+            lang: str = 'zh',
+            config: Optional[os.PathLike] = None,
+            ckpt_path: Optional[os.PathLike] = None,
+            punc_vocab: Optional[os.PathLike] = None,
+            device: str = paddle.get_device(),
+    ):
         """
             Python API to call an executor.
         """

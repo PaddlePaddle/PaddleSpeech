@@ -34,14 +34,17 @@ def main():
         "--generator-type",
         type=str,
         default="pwgan",
-        help="type of GANVocoder, should in {pwgan, mb_melgan, style_melgan, hifigan, } now"
+        help=
+        "type of GANVocoder, should in {pwgan, mb_melgan, style_melgan, hifigan, } now"
     )
     parser.add_argument("--config", type=str, help="GANVocoder config file.")
     parser.add_argument("--checkpoint", type=str, help="snapshot to load.")
     parser.add_argument("--test-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu == 0, use cpu.")
 
     args = parser.parse_args()
 
@@ -86,13 +89,12 @@ def main():
 
     with jsonlines.open(args.test_metadata, 'r') as reader:
         metadata = list(reader)
-    test_dataset = DataTable(
-        metadata,
-        fields=['utt_id', 'feats'],
-        converters={
-            'utt_id': None,
-            'feats': np.load,
-        })
+    test_dataset = DataTable(metadata,
+                             fields=['utt_id', 'feats'],
+                             converters={
+                                 'utt_id': None,
+                                 'feats': np.load,
+                             })
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 

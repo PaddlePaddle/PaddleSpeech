@@ -25,7 +25,8 @@ wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
 if not os.path.isfile(os.path.basename(wav_url)):
     urllib.request.urlretrieve(wav_url, os.path.basename(wav_url))
 
-waveform, sr = paddleaudio.backends.soundfile_load(os.path.abspath(os.path.basename(wav_url)))
+waveform, sr = paddleaudio.backends.soundfile_load(
+    os.path.abspath(os.path.basename(wav_url)))
 waveform_tensor = paddle.to_tensor(waveform).unsqueeze(0)
 waveform_tensor_torch = torch.from_numpy(waveform).unsqueeze(0)
 
@@ -67,16 +68,18 @@ def test_melspect_cpu(benchmark):
     enable_cpu_device()
     feature_paddleaudio = benchmark(melspectrogram)
     feature_librosa = librosa.feature.melspectrogram(waveform, **mel_conf)
-    np.testing.assert_array_almost_equal(
-        feature_librosa, feature_paddleaudio, decimal=3)
+    np.testing.assert_array_almost_equal(feature_librosa,
+                                         feature_paddleaudio,
+                                         decimal=3)
 
 
 def test_melspect_gpu(benchmark):
     enable_gpu_device()
     feature_paddleaudio = benchmark(melspectrogram)
     feature_librosa = librosa.feature.melspectrogram(waveform, **mel_conf)
-    np.testing.assert_array_almost_equal(
-        feature_librosa, feature_paddleaudio, decimal=3)
+    np.testing.assert_array_almost_equal(feature_librosa,
+                                         feature_paddleaudio,
+                                         decimal=3)
 
 
 mel_extractor_torchaudio = torchaudio.transforms.MelSpectrogram(
@@ -93,8 +96,9 @@ def test_melspect_cpu_torchaudio(benchmark):
     waveform_tensor_torch = waveform_tensor_torch.to('cpu')
     feature_paddleaudio = benchmark(melspectrogram_torchaudio)
     feature_librosa = librosa.feature.melspectrogram(waveform, **mel_conf)
-    np.testing.assert_array_almost_equal(
-        feature_librosa, feature_paddleaudio, decimal=3)
+    np.testing.assert_array_almost_equal(feature_librosa,
+                                         feature_paddleaudio,
+                                         decimal=3)
 
 
 def test_melspect_gpu_torchaudio(benchmark):
@@ -103,5 +107,6 @@ def test_melspect_gpu_torchaudio(benchmark):
     waveform_tensor_torch = waveform_tensor_torch.to('cuda')
     feature_torchaudio = benchmark(melspectrogram_torchaudio)
     feature_librosa = librosa.feature.melspectrogram(waveform, **mel_conf)
-    np.testing.assert_array_almost_equal(
-        feature_librosa, feature_torchaudio.cpu(), decimal=3)
+    np.testing.assert_array_almost_equal(feature_librosa,
+                                         feature_torchaudio.cpu(),
+                                         decimal=3)

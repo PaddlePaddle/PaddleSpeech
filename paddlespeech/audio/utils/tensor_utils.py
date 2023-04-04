@@ -38,8 +38,8 @@ def has_tensor(val):
 
 
 def pad_sequence(sequences: List[paddle.Tensor],
-                 batch_first: bool=False,
-                 padding_value: float=0.0) -> paddle.Tensor:
+                 batch_first: bool = False,
+                 padding_value: float = 0.0) -> paddle.Tensor:
     r"""Pad a list of variable length Tensors with ``padding_value``
 
     ``pad_sequence`` stacks a list of Tensors along a new dimension,
@@ -166,8 +166,7 @@ def add_sos_eos(ys_pad: paddle.Tensor, sos: int, eos: int,
     return ys_in, ys_out
 
 
-def th_accuracy(pad_outputs: paddle.Tensor,
-                pad_targets: paddle.Tensor,
+def th_accuracy(pad_outputs: paddle.Tensor, pad_targets: paddle.Tensor,
                 ignore_label: int) -> float:
     """Calculate accuracy.
     Args:
@@ -194,7 +193,7 @@ def th_accuracy(pad_outputs: paddle.Tensor,
 
 def reverse_pad_list(ys_pad: paddle.Tensor,
                      ys_lens: paddle.Tensor,
-                     pad_value: float=-1.0) -> paddle.Tensor:
+                     pad_value: float = -1.0) -> paddle.Tensor:
     """Reverse padding for the list of tensors.
     Args:
         ys_pad (tensor): The padded tensor (B, Tokenmax).
@@ -215,10 +214,8 @@ def reverse_pad_list(ys_pad: paddle.Tensor,
     return r_ys_pad
 
 
-def st_reverse_pad_list(ys_pad: paddle.Tensor,
-                        ys_lens: paddle.Tensor,
-                        sos: float,
-                        eos: float) -> paddle.Tensor:
+def st_reverse_pad_list(ys_pad: paddle.Tensor, ys_lens: paddle.Tensor,
+                        sos: float, eos: float) -> paddle.Tensor:
     """Reverse padding for the list of tensors.
     Args:
         ys_pad (tensor): The padded tensor (B, Tokenmax).

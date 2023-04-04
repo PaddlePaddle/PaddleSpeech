@@ -35,31 +35,27 @@ if __name__ == '__main__':
         description='Create a draft release with the issues from a milestone.',
     )
 
-    parser.add_argument(
-        'user',
-        metavar='user',
-        type=str,
-        default='paddlepaddle',
-        help='github user: paddlepaddle')
+    parser.add_argument('user',
+                        metavar='user',
+                        type=str,
+                        default='paddlepaddle',
+                        help='github user: paddlepaddle')
 
-    parser.add_argument(
-        'repository',
-        metavar='repository',
-        type=str,
-        default='paddlespeech',
-        help='github repository: paddlespeech')
+    parser.add_argument('repository',
+                        metavar='repository',
+                        type=str,
+                        default='paddlespeech',
+                        help='github repository: paddlespeech')
 
-    parser.add_argument(
-        'milestone',
-        metavar='milestone',
-        type=str,
-        help='name of used milestone: v0.3.3')
+    parser.add_argument('milestone',
+                        metavar='milestone',
+                        type=str,
+                        help='name of used milestone: v0.3.3')
 
-    parser.add_argument(
-        '-c',
-        '--closed',
-        help='Fetch closed milestones/issues',
-        action='store_true')
+    parser.add_argument('-c',
+                        '--closed',
+                        help='Fetch closed milestones/issues',
+                        action='store_true')
 
     parser.print_help()
     args = parser.parse_args()
@@ -174,9 +170,9 @@ if __name__ == '__main__':
             if label:
                 thanks_to.append('@%s' % (issue['user']['login']))
                 final_data.append(' * **[%s]** - %s #%d by **@%s**\n' %
-                                (label['name'], issue['title'], issue['number'],
-                                issue['user']['login']))
-     
+                                  (label['name'], issue['title'],
+                                   issue['number'], issue['user']['login']))
+
     dic = collections.defaultdict(set)
     for l_release in list(set(labels)):
 
@@ -187,7 +183,6 @@ if __name__ == '__main__':
     with open(f"release_note_pulls_{args.milestone}.md", 'w') as f:
         for key, value in dic.items():
             print('# %s\n%s' % (key, ''.join(value)), file=f)
-        print(
-            '# %s\n%s' % ('Acknowledgements', 'Special thanks to %s ' %
-                          ('  '.join(list(set(thanks_to))))),
-            file=f)
+        print('# %s\n%s' % ('Acknowledgements', 'Special thanks to %s ' %
+                            ('  '.join(list(set(thanks_to))))),
+              file=f)

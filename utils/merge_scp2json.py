@@ -46,41 +46,50 @@ def get_parser():
         "--input-scps feat:data/feats2.scp shape:data/utt2feat2_shape:shape "
         "--output-scps text:data/text shape:data/utt2text_shape:shape "
         "--scps utt2spk:data/utt2spk".format(sys.argv[0]),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "--input-scps",
         type=str,
         nargs="*",
         action="append",
         default=[],
-        help="Json files for the inputs", )
+        help="Json files for the inputs",
+    )
     parser.add_argument(
         "--output-scps",
         type=str,
         nargs="*",
         action="append",
         default=[],
-        help="Json files for the outputs", )
+        help="Json files for the outputs",
+    )
     parser.add_argument(
         "--scps",
         type=str,
         nargs="+",
         default=[],
-        help="The json files except for the input and outputs", )
-    parser.add_argument(
-        "--verbose", "-V", default=1, type=int, help="Verbose option")
+        help="The json files except for the input and outputs",
+    )
+    parser.add_argument("--verbose",
+                        "-V",
+                        default=1,
+                        type=int,
+                        help="Verbose option")
     parser.add_argument(
         "--allow-one-column",
         type=strtobool,
         default=False,
         help="Allow one column in input scp files. "
-        "In this case, the value will be empty string.", )
+        "In this case, the value will be empty string.",
+    )
     parser.add_argument(
         "--out",
         "-O",
         type=str,
         help="The output filename. "
-        "If omitted, then output to sys.stdout", )
+        "If omitted, then output to sys.stdout",
+    )
     return parser
 
 
@@ -139,8 +148,9 @@ if __name__ == "__main__":
 
                 for item in lis:
                     if key == item[0]:
-                        raise RuntimeError('The key "{}" is duplicated: {} {}'.
-                                           format(key, item[3], key_scp))
+                        raise RuntimeError(
+                            'The key "{}" is duplicated: {} {}'.format(
+                                key, item[3], key_scp))
 
                 lis.append((key, scp, type_func, key_scp, type_func_str))
             lis_list.append(lis)
@@ -205,7 +215,8 @@ if __name__ == "__main__":
                                 concat[0][1],
                                 concat[count][1],
                                 first.rstrip(),
-                                line.rstrip(), ))
+                                line.rstrip(),
+                            ))
                     count += 1
 
         # The end of file
@@ -224,8 +235,8 @@ if __name__ == "__main__":
         ]:
 
             lis = []
-            for idx, (line_list, info_list) in enumerate(
-                    zip(_lines, _infos), 1):
+            for idx, (line_list,
+                      info_list) in enumerate(zip(_lines, _infos), 1):
                 if inout == "input":
                     d = {"name": "input{}".format(idx)}
                 elif inout == "output":
@@ -272,12 +283,11 @@ if __name__ == "__main__":
                 # If key == 'other'. only has the first item
                 entry.update(lis[0])
 
-        entry = json.dumps(
-            entry,
-            indent=4,
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ": "))
+        entry = json.dumps(entry,
+                           indent=4,
+                           ensure_ascii=False,
+                           sort_keys=True,
+                           separators=(",", ": "))
         # Add indent
         indent = "    " * 2
         entry = ("\n" + indent).join(entry.split("\n"))

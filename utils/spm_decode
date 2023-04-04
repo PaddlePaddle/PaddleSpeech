@@ -17,19 +17,24 @@ import sentencepiece as spm
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True,
+    parser.add_argument("--model",
+                        required=True,
                         help="sentencepiece model to use for decoding")
     parser.add_argument("--input", default=None, help="input file to decode")
-    parser.add_argument("--input_format", choices=["piece", "id"], default="piece")
+    parser.add_argument("--input_format",
+                        choices=["piece", "id"],
+                        default="piece")
     args = parser.parse_args()
 
     sp = spm.SentencePieceProcessor()
     sp.Load(args.model)
 
     if args.input_format == "piece":
+
         def decode(l):
             return "".join(sp.DecodePieces(l))
     elif args.input_format == "id":
+
         def decode(l):
             return "".join(sp.DecodeIds(l))
     else:

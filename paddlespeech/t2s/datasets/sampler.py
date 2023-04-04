@@ -52,7 +52,6 @@ class ErnieSATSampler(BatchSampler):
                 # do something
                 break
     """
-
     def __init__(self,
                  dataset,
                  batch_size,
@@ -112,8 +111,9 @@ class ErnieSATSampler(BatchSampler):
 
             indices = indices[len(indices) - last_batch_size:]
             subsampled_indices.extend(
-                indices[self.local_rank * last_local_batch_size:(
-                    self.local_rank + 1) * last_local_batch_size])
+                indices[self.local_rank *
+                        last_local_batch_size:(self.local_rank + 1) *
+                        last_local_batch_size])
             return subsampled_indices
 
         if self.nranks > 1:

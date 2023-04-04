@@ -20,7 +20,6 @@ from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 class ASRInterface:
     """ASR Interface model implementation."""
-
     @staticmethod
     def add_arguments(parser):
         """Add arguments to parser."""

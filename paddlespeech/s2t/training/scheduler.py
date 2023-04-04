@@ -56,9 +56,8 @@ class WarmupLR(LRScheduler):
              * min(step ** -0.5, step * warmup_step ** -1.5)
     Note that the maximum lr equals to optimizer.lr in this scheduler.
     """
-
     def __init__(self,
-                 warmup_steps: Union[int, float]=25000,
+                 warmup_steps: Union[int, float] = 25000,
                  learning_rate=1.0,
                  last_epoch=-1,
                  verbose=False,
@@ -76,7 +75,7 @@ class WarmupLR(LRScheduler):
         return self.base_lr * self.warmup_steps**0.5 * min(
             step_num**-0.5, step_num * self.warmup_steps**-1.5)
 
-    def set_step(self, step: int=None):
+    def set_step(self, step: int = None):
         '''
         It will update the learning rate in optimizer according to current ``epoch`` .
         The new learning rate will take effect on next ``optimizer.step`` .
@@ -100,7 +99,6 @@ class ConstantLR(LRScheduler):
     Returns:
         ``ConstantLR`` instance to schedule learning rate.
     """
-
     def __init__(self, learning_rate, last_epoch=-1, verbose=False):
         super().__init__(learning_rate, last_epoch, verbose)
 
@@ -139,15 +137,15 @@ class NewBobScheduler(LRScheduler):
     >>> scheduler(metric_value=2.5)
     (1.0, 0.5)
     """
-
     def __init__(
-            self,
-            learning_rate,
-            last_epoch=-1,
-            verbose=False,
-            annealing_factor=0.5,
-            improvement_threshold=0.0025,
-            patient=0, ):
+        self,
+        learning_rate,
+        last_epoch=-1,
+        verbose=False,
+        annealing_factor=0.5,
+        improvement_threshold=0.0025,
+        patient=0,
+    ):
         self.hyperparam_value = learning_rate
         self.annealing_factor = annealing_factor
         self.improvement_threshold = improvement_threshold

@@ -64,7 +64,6 @@ class ReproducibleRandomSampler(RandomSampler):
         The epoch to start at.
 
     """
-
     def __init__(self, data_source, seed=563375142, epoch=0, **kwargs):
         if "generator" in kwargs:
             MSG = ("Cannot give a separate generator when using " +
@@ -113,15 +112,15 @@ class ReproducibleWeightedRandomSampler(WeightedRandomSampler):
     epoch : int
         The epoch to start at.
     """
-
     def __init__(
-            self,
-            weights,
-            num_samples,
-            replacement,
-            seed=129491412,
-            epoch=0,
-            **kwargs, ):
+        self,
+        weights,
+        num_samples,
+        replacement,
+        seed=129491412,
+        epoch=0,
+        **kwargs,
+    ):
         if "generator" in kwargs:
             MSG = ("Cannot give a separate generator when using " +
                    "ReproducibleRandomSampler")
@@ -184,22 +183,22 @@ class DynamicBatchSampler(Sampler):
     argument instead of specifying a left_bucket_length and a bucket_length_multiplier.
 
     """
-
     def __init__(
-            self,
-            dataset,
-            max_batch_length: int,
-            num_buckets: int=None,
-            length_func=lambda x: x["duration"],
-            shuffle: bool=True,
-            batch_ordering: str="random",
-            max_batch_ex: int=None,
-            bucket_boundaries: List[int]=[],
-            lengths_list: List[int]=None,
-            seed: int=42,
-            epoch: int=0,
-            drop_last: bool=False,
-            verbose: bool=False, ):
+        self,
+        dataset,
+        max_batch_length: int,
+        num_buckets: int = None,
+        length_func=lambda x: x["duration"],
+        shuffle: bool = True,
+        batch_ordering: str = "random",
+        max_batch_ex: int = None,
+        bucket_boundaries: List[int] = [],
+        lengths_list: List[int] = None,
+        seed: int = 42,
+        epoch: int = 0,
+        drop_last: bool = False,
+        verbose: bool = False,
+    ):
         self._dataset = dataset
         self._ex_lengths = {}
         ex_ids = self._dataset.data_ids
@@ -236,7 +235,8 @@ class DynamicBatchSampler(Sampler):
             np.testing.assert_array_equal(
                 np.array(bucket_boundaries),
                 np.array(sorted(bucket_boundaries)),
-                err_msg="The arg bucket_boundaries should be an ascending sorted list of non negative values values!",
+                err_msg=
+                "The arg bucket_boundaries should be an ascending sorted list of non negative values values!",
             )
             self._bucket_boundaries = np.array(sorted(bucket_boundaries))
         else:
@@ -244,7 +244,8 @@ class DynamicBatchSampler(Sampler):
             self._bucket_boundaries = np.array(
                 self._get_boundaries_through_warping(
                     max_batch_length=max_batch_length,
-                    num_quantiles=num_buckets, ))
+                    num_quantiles=num_buckets,
+                ))
 
         self._max_batch_length = max_batch_length
         self._shuffle_ex = shuffle
@@ -267,9 +268,10 @@ class DynamicBatchSampler(Sampler):
         return [self._ex_lengths[str(idx)] for idx in batch]
 
     def _get_boundaries_through_warping(
-            self,
-            max_batch_length: int,
-            num_quantiles: int, ) -> List[int]:
+        self,
+        max_batch_length: int,
+        num_quantiles: int,
+    ) -> List[int]:
 
         # NOTE: the following lines do not cover that there is only one example in the dataset
         # warp frames (duration) distribution of train data
@@ -280,7 +282,8 @@ class DynamicBatchSampler(Sampler):
         latent_boundaries = np.linspace(
             1 / num_boundaries,
             num_quantiles / num_boundaries,
-            num_quantiles, )
+            num_quantiles,
+        )
         # get quantiles using lognormal distribution
         quantiles = lognorm.ppf(latent_boundaries, 1)
         # scale up to to max_batch_length
@@ -295,7 +298,8 @@ class DynamicBatchSampler(Sampler):
             "Latent bucket boundary - buckets: {} - length multipliers: {}".
             format(
                 list(map("{:.2f}".format, bucket_boundaries)),
-                list(map("{:.2f}".format, length_multipliers)), ))
+                list(map("{:.2f}".format, length_multipliers)),
+            ))
         return list(sorted(bucket_boundaries))
 
     def _permute_batches(self):
@@ -304,8 +308,8 @@ class DynamicBatchSampler(Sampler):
             # deterministically shuffle based on epoch and seed
             gen = paddle.seed(1)
             gen.manual_seed(self._seed + self._epoch)
-            sampler = paddle.randperm(
-                len(self._batches)).tolist()  # type: ignore
+            sampler = paddle.randperm(len(
+                self._batches)).tolist()  # type: ignore
             tmp = []
             for idx in sampler:
                 tmp.append(self._batches[idx])
@@ -314,12 +318,14 @@ class DynamicBatchSampler(Sampler):
         elif self._batch_ordering == "ascending":
             self._batches = sorted(
                 self._batches,
-                key=lambda x: max([self._ex_lengths[str(idx)] for idx in x]), )
+                key=lambda x: max([self._ex_lengths[str(idx)] for idx in x]),
+            )
         elif self._batch_ordering == "descending":
             self._batches = sorted(
                 self._batches,
                 key=lambda x: max([self._ex_lengths[str(idx)] for idx in x]),
-                reverse=True, )
+                reverse=True,
+            )
         else:
             raise NotImplementedError
 
@@ -329,8 +335,8 @@ class DynamicBatchSampler(Sampler):
             # deterministically shuffle based on epoch and seed
             gen = paddle.seed(1)
             gen.manual_seed(self._seed + self._epoch)
-            sampler = paddle.randperm(
-                len(self._dataset)).tolist()  # type: ignore
+            sampler = paddle.randperm(len(
+                self._dataset)).tolist()  # type: ignore
         else:
             # take examples as they are: e.g. they have been sorted
             sampler = range(len(self._dataset))  # type: ignore
@@ -403,7 +409,8 @@ class DynamicBatchSampler(Sampler):
                     self._bucket_lens[bucket_indx],
                     stats_tracker[bucket_indx]["n_ex"],
                     num_batches,
-                    pad_factor * 100, ))
+                    pad_factor * 100,
+                ))
 
             if self.verbose:
                 batch_stats = {
@@ -432,7 +439,8 @@ class DynamicBatchSampler(Sampler):
                             batch_stats["tot_frames"][i],
                             len(self._batches[i]),
                             batch_stats["tot_pad_frames"][i],
-                            batch_stats["pad_%"][i], ))
+                            batch_stats["pad_%"][i],
+                        ))
 
     def __iter__(self):
         for batch in self._batches:
@@ -476,16 +484,16 @@ class BalancingDataSampler(ReproducibleWeightedRandomSampler):
         The epoch to start at.
 
     """
-
     def __init__(
-            self,
-            dataset,
-            key,
-            num_samples=None,
-            replacement=True,
-            seed=563375142,
-            epoch=0,
-            **kwargs, ):
+        self,
+        dataset,
+        key,
+        num_samples=None,
+        replacement=True,
+        seed=563375142,
+        epoch=0,
+        **kwargs,
+    ):
         self.dataset = dataset
         self.key = key
         if not num_samples:

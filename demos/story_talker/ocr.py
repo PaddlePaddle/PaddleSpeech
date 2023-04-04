@@ -38,8 +38,11 @@ def evaluate(args, ocr):
             boxes = [line[0] for line in result]
             txts = [line[1][0] for line in result]
             scores = [line[1][1] for line in result]
-            im_show = draw_ocr(
-                image, boxes, txts, scores, font_path=args.font_path)
+            im_show = draw_ocr(image,
+                               boxes,
+                               txts,
+                               scores,
+                               font_path=args.font_path)
             im_show = Image.fromarray(im_show)
             paragraph = "".join(txts)
             # 过滤出中文结果
@@ -54,13 +57,14 @@ def main():
     parser = argparse.ArgumentParser(
         description="Synthesize with fastspeech2 & parallel wavegan.")
     parser.add_argument("--img-dir", default="imgs", type=str, help="img_dir.")
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="output",
-        help="output sentences path.")
-    parser.add_argument(
-        "--font-path", type=str, default="simfang.ttf", help="font path")
+    parser.add_argument("--output-dir",
+                        type=str,
+                        default="output",
+                        help="output sentences path.")
+    parser.add_argument("--font-path",
+                        type=str,
+                        default="simfang.ttf",
+                        help="font path")
     args = parser.parse_args()
 
     paddle.set_device("gpu")

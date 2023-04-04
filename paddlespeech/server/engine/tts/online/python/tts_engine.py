@@ -39,12 +39,11 @@ __all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']
 class TTSServerExecutor(TTSExecutor):
     def __init__(self):
         super().__init__()
-        self.task_resource = CommonTaskResource(
-            task='tts', model_format='dynamic', inference_mode='online')
+        self.task_resource = CommonTaskResource(task='tts',
+                                                model_format='dynamic',
+                                                inference_mode='online')
 
-    def get_model_info(self,
-                       field: str,
-                       model_name: str,
+    def get_model_info(self, field: str, model_name: str,
                        ckpt: Optional[os.PathLike],
                        stat: Optional[os.PathLike]):
         """get model information
@@ -65,8 +64,9 @@ class TTSServerExecutor(TTSExecutor):
 
         if field == "am":
             odim = self.am_config.n_mels
-            model = model_class(
-                idim=self.vocab_size, odim=odim, **self.am_config["model"])
+            model = model_class(idim=self.vocab_size,
+                                odim=odim,
+                                **self.am_config["model"])
             model.set_state_dict(paddle.load(ckpt)["main_params"])
 
         elif field == "voc":
@@ -85,19 +85,20 @@ class TTSServerExecutor(TTSExecutor):
         return model, model_mu, model_std
 
     def _init_from_path(
-            self,
-            am: str='fastspeech2_csmsc',
-            am_config: Optional[os.PathLike]=None,
-            am_ckpt: Optional[os.PathLike]=None,
-            am_stat: Optional[os.PathLike]=None,
-            phones_dict: Optional[os.PathLike]=None,
-            tones_dict: Optional[os.PathLike]=None,
-            speaker_dict: Optional[os.PathLike]=None,
-            voc: str='mb_melgan_csmsc',
-            voc_config: Optional[os.PathLike]=None,
-            voc_ckpt: Optional[os.PathLike]=None,
-            voc_stat: Optional[os.PathLike]=None,
-            lang: str='zh', ):
+        self,
+        am: str = 'fastspeech2_csmsc',
+        am_config: Optional[os.PathLike] = None,
+        am_ckpt: Optional[os.PathLike] = None,
+        am_stat: Optional[os.PathLike] = None,
+        phones_dict: Optional[os.PathLike] = None,
+        tones_dict: Optional[os.PathLike] = None,
+        speaker_dict: Optional[os.PathLike] = None,
+        voc: str = 'mb_melgan_csmsc',
+        voc_config: Optional[os.PathLike] = None,
+        voc_ckpt: Optional[os.PathLike] = None,
+        voc_stat: Optional[os.PathLike] = None,
+        lang: str = 'zh',
+    ):
         """
         Init model and other resources from a specific path.
         """
@@ -170,8 +171,8 @@ class TTSServerExecutor(TTSExecutor):
             self.voc_config = os.path.abspath(voc_config)
             self.voc_ckpt = os.path.abspath(voc_ckpt)
             self.voc_stat = os.path.abspath(voc_stat)
-            self.voc_res_path = os.path.dirname(
-                os.path.abspath(self.voc_config))
+            self.voc_res_path = os.path.dirname(os.path.abspath(
+                self.voc_config))
 
         # Init body.
         with open(self.am_config) as f:
@@ -185,9 +186,8 @@ class TTSServerExecutor(TTSExecutor):
 
         # frontend
         if lang == 'zh':
-            self.frontend = Frontend(
-                phone_vocab_path=self.phones_dict,
-                tone_vocab_path=self.tones_dict)
+            self.frontend = Frontend(phone_vocab_path=self.phones_dict,
+                                     tone_vocab_path=self.tones_dict)
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)
@@ -223,7 +223,6 @@ class TTSEngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self, name=None):
         """Initialize TTS server engine
         """
@@ -236,8 +235,8 @@ class TTSEngine(BaseEngine):
         self.engine_type = "online"
 
         assert (
-            config.am == "fastspeech2_csmsc" or
-            config.am == "fastspeech2_cnndecoder_csmsc"
+            config.am == "fastspeech2_csmsc"
+            or config.am == "fastspeech2_cnndecoder_csmsc"
         ) and (
             config.voc == "hifigan_csmsc" or config.voc == "mb_melgan_csmsc"
         ), 'Please check config, am support: fastspeech2, voc support: hifigan_csmsc-zh or mb_melgan_csmsc.'
@@ -262,19 +261,18 @@ class TTSEngine(BaseEngine):
             return False
 
         try:
-            self.executor._init_from_path(
-                am=self.config.am,
-                am_config=self.config.am_config,
-                am_ckpt=self.config.am_ckpt,
-                am_stat=self.config.am_stat,
-                phones_dict=self.config.phones_dict,
-                tones_dict=self.config.tones_dict,
-                speaker_dict=self.config.speaker_dict,
-                voc=self.config.voc,
-                voc_config=self.config.voc_config,
-                voc_ckpt=self.config.voc_ckpt,
-                voc_stat=self.config.voc_stat,
-                lang=self.config.lang)
+            self.executor._init_from_path(am=self.config.am,
+                                          am_config=self.config.am_config,
+                                          am_ckpt=self.config.am_ckpt,
+                                          am_stat=self.config.am_stat,
+                                          phones_dict=self.config.phones_dict,
+                                          tones_dict=self.config.tones_dict,
+                                          speaker_dict=self.config.speaker_dict,
+                                          voc=self.config.voc,
+                                          voc_config=self.config.voc_config,
+                                          voc_ckpt=self.config.voc_ckpt,
+                                          voc_stat=self.config.voc_stat,
+                                          lang=self.config.lang)
         except Exception as e:
             logger.error("Failed to get model related files.")
             logger.error("Initialize TTS server engine Failed on device: %s." %
@@ -341,11 +339,12 @@ class PaddleTTSConnectionHandler:
 
     @paddle.no_grad()
     def infer(
-            self,
-            text: str,
-            lang: str='zh',
-            am: str='fastspeech2_csmsc',
-            spk_id: int=0, ):
+        self,
+        text: str,
+        lang: str = 'zh',
+        am: str = 'fastspeech2_csmsc',
+        spk_id: int = 0,
+    ):
         """
         Model inference and result stored in self.output.
         """
@@ -432,13 +431,13 @@ class PaddleTTSConnectionHandler:
                     if i == 0:
                         mel_streaming = sub_mel
                     else:
-                        mel_streaming = np.concatenate(
-                            (mel_streaming, sub_mel), axis=0)
+                        mel_streaming = np.concatenate((mel_streaming, sub_mel),
+                                                       axis=0)
 
                     # streaming voc
                     # 当流式AM推理的mel帧数大于流式voc推理的chunk size，开始进行流式voc 推理
-                    while (mel_streaming.shape[0] >= end and
-                           voc_chunk_id < voc_chunk_num):
+                    while (mel_streaming.shape[0] >= end
+                           and voc_chunk_id < voc_chunk_num):
                         if first_flag == 1:
                             first_am_et = time.time()
                             self.first_am_infer = first_am_et - frontend_et
@@ -446,9 +445,10 @@ class PaddleTTSConnectionHandler:
                         voc_chunk = paddle.to_tensor(voc_chunk)
                         sub_wav = self.executor.voc_inference(voc_chunk)
 
-                        sub_wav = self.depadding(
-                            sub_wav, voc_chunk_num, voc_chunk_id,
-                            self.voc_block, self.voc_pad, self.voc_upsample)
+                        sub_wav = self.depadding(sub_wav, voc_chunk_num,
+                                                 voc_chunk_id, self.voc_block,
+                                                 self.voc_pad,
+                                                 self.voc_upsample)
                         if first_flag == 1:
                             first_voc_et = time.time()
                             self.first_voc_infer = first_voc_et - first_am_et
@@ -472,9 +472,10 @@ class PaddleTTSConnectionHandler:
         self.final_response_time = time.time() - frontend_st
 
     def run(
-            self,
-            sentence: str,
-            spk_id: int=0, ):
+        self,
+        sentence: str,
+        spk_id: int = 0,
+    ):
         """ run include inference and postprocess.
 
         Args:
@@ -491,7 +492,8 @@ class PaddleTTSConnectionHandler:
                 text=sentence,
                 lang=self.config.lang,
                 am=self.config.am,
-                spk_id=spk_id, ):
+                spk_id=spk_id,
+        ):
 
             # wav type: <class 'numpy.ndarray'>  float32, convert to pcm (base64)
             wav = float2pcm(wav)  # float32 to int16

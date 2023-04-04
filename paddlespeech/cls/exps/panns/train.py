@@ -58,7 +58,8 @@ if __name__ == "__main__":
         batch_sampler=train_sampler,
         num_workers=training_conf['num_workers'],
         return_list=True,
-        use_buffer_reader=True, )
+        use_buffer_reader=True,
+    )
 
     # Feature
     feature_extractor = LogMelSpectrogram(**feat_conf)
@@ -110,8 +111,8 @@ if __name__ == "__main__":
 
             timer.count()
 
-            if (batch_idx + 1
-                ) % training_conf['log_freq'] == 0 and local_rank == 0:
+            if (batch_idx +
+                    1) % training_conf['log_freq'] == 0 and local_rank == 0:
                 lr = optimizer.get_lr()
                 avg_loss /= training_conf['log_freq']
                 avg_acc = num_corrects / num_samples
@@ -140,7 +141,8 @@ if __name__ == "__main__":
                 dev_ds,
                 batch_sampler=dev_sampler,
                 num_workers=training_conf['num_workers'],
-                return_list=True, )
+                return_list=True,
+            )
 
             model.eval()
             num_corrects = 0

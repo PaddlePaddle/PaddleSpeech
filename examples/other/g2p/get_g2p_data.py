@@ -28,8 +28,8 @@ def get_baker_data(root_dir):
     alignment_files = [f for f in alignment_files if f.stem not in exclude]
     data_dict = defaultdict(dict)
     for alignment_fp in alignment_files:
-        alignment = textgrid.openTextgrid(
-            alignment_fp, includeEmptyIntervals=True)
+        alignment = textgrid.openTextgrid(alignment_fp,
+                                          includeEmptyIntervals=True)
         # only with baker's annotation
         utt_id = alignment.tierNameList[0].split(".")[0]
         intervals = alignment.tierDict[alignment.tierNameList[0]].entryList
@@ -59,16 +59,14 @@ def get_g2p_phones(data_dict, frontend):
 
 def main():
     parser = argparse.ArgumentParser(description="g2p example.")
-    parser.add_argument(
-        "--root-dir",
-        default=None,
-        type=str,
-        help="directory to baker dataset.")
-    parser.add_argument(
-        "--output-dir",
-        default="data/g2p",
-        type=str,
-        help="directory to output.")
+    parser.add_argument("--root-dir",
+                        default=None,
+                        type=str,
+                        help="directory to baker dataset.")
+    parser.add_argument("--output-dir",
+                        default="data/g2p",
+                        type=str,
+                        help="directory to output.")
 
     args = parser.parse_args()
     root_dir = Path(args.root_dir).expanduser()

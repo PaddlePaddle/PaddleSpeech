@@ -35,9 +35,9 @@ def waveform_collate_fn(batch):
 
 
 def feature_normalize(feats: paddle.Tensor,
-                      mean_norm: bool=True,
-                      std_norm: bool=True,
-                      convert_to_numpy: bool=False):
+                      mean_norm: bool = True,
+                      std_norm: bool = True,
+                      convert_to_numpy: bool = False):
     """Do one utterance feature normalization
 
     Args:
@@ -82,7 +82,9 @@ def pad_right_2d(x, target_length, axis=-1, mode='constant', **kwargs):
     return np.pad(x, pad_width, mode=mode, **kwargs)
 
 
-def batch_feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
+def batch_feature_normalize(batch,
+                            mean_norm: bool = True,
+                            std_norm: bool = True):
     """Do batch utterance features normalization
 
     Args:
@@ -106,8 +108,8 @@ def batch_feature_normalize(batch, mean_norm: bool=True, std_norm: bool=True):
         mean = feat.mean(axis=-1, keepdims=True) if mean_norm else 0
         std = feat.std(axis=-1, keepdims=True) if std_norm else 1
         feats[i][:, :lengths[i]] = (feat - mean) / std
-        assert feats[i][:, lengths[
-            i]:].sum() == 0  # Padding valus should all be 0.
+        assert feats[i][:, lengths[i]:].sum(
+        ) == 0  # Padding valus should all be 0.
 
     # Converts into ratios.
     # the utterance of the max length doesn't need to padding
@@ -189,8 +191,10 @@ def batch_pad_right(arrays, mode="constant", value=0):
     valid = []
     for t in arrays:
         # for each array we apply pad_right_to
-        padded, valid_percent = pad_right_to(
-            t, max_shape, mode=mode, value=value)
+        padded, valid_percent = pad_right_to(t,
+                                             max_shape,
+                                             mode=mode,
+                                             value=value)
         batched.append(padded)
         valid.append(valid_percent[-1])
 

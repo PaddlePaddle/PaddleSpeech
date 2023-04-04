@@ -48,5 +48,5 @@ def test_summary():
     summary.add(3)
     state = summary.make_statistics()
     print(state)
-    np.testing.assert_allclose(
-        np.array(list(state)), np.array([2.0, np.std([1, 2, 3])]))
+    np.testing.assert_allclose(np.array(list(state)),
+                               np.array([2.0, np.std([1, 2, 3])]))

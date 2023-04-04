@@ -17,8 +17,8 @@ from paddle.static import InputSpec
 
 def sinusoid_position_encoding(num_positions: int,
                                feature_size: int,
-                               omega: float=1.0,
-                               start_pos: int=0,
+                               omega: float = 1.0,
+                               start_pos: int = 0,
                                dtype=None) -> paddle.Tensor:
     # return tensor shape (num_positions, feature_size)
 
@@ -28,8 +28,8 @@ def sinusoid_position_encoding(num_positions: int,
 
     channel = paddle.arange(0, feature_size, 2, dtype=dtype)
     index = paddle.arange(start_pos, start_pos + num_positions, 1, dtype=dtype)
-    p = (paddle.unsqueeze(index, -1) *
-         omega) / (10000.0**(channel / float(feature_size)))
+    p = (paddle.unsqueeze(index, -1) * omega) / (10000.0**(channel /
+                                                           float(feature_size)))
     encodings = paddle.zeros([num_positions, feature_size], dtype=dtype)
     encodings[:, 0::2] = paddle.sin(p)
     encodings[:, 1::2] = paddle.cos(p)
@@ -45,6 +45,6 @@ def call_it(x):
 
 
 call_it(paddle.randn([8, 32]))
-m = paddle.jit.to_static(
-    call_it, input_spec=[InputSpec([-1, -1], dtype=paddle.int32)])
+m = paddle.jit.to_static(call_it,
+                         input_spec=[InputSpec([-1, -1], dtype=paddle.int32)])
 m(paddle.randn([8, 32]).astype(paddle.int32))

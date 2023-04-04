@@ -125,9 +125,10 @@ class Conv1D(nn.Conv1D):
                         fan_in=None,
                         negative_slope=math.sqrt(5),
                         nonlinearity='leaky_relu'))
-        super(Conv1D, self).__init__(
-            in_channels, out_channels, kernel_size, stride, padding, dilation,
-            groups, padding_mode, weight_attr, bias_attr, data_format)
+        super(Conv1D,
+              self).__init__(in_channels, out_channels, kernel_size, stride,
+                             padding, dilation, groups, padding_mode,
+                             weight_attr, bias_attr, data_format)
 
 
 class Conv2D(nn.Conv2D):
@@ -157,6 +158,7 @@ class Conv2D(nn.Conv2D):
                         fan_in=None,
                         negative_slope=math.sqrt(5),
                         nonlinearity='leaky_relu'))
-        super(Conv2D, self).__init__(
-            in_channels, out_channels, kernel_size, stride, padding, dilation,
-            groups, padding_mode, weight_attr, bias_attr, data_format)
+        super(Conv2D,
+              self).__init__(in_channels, out_channels, kernel_size, stride,
+                             padding, dilation, groups, padding_mode,
+                             weight_attr, bias_attr, data_format)

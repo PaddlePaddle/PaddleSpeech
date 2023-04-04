@@ -124,17 +124,16 @@ def process_sentences(config,
                       sentences: Dict,
                       output_dir: Path,
                       mel_extractor=None,
-                      nprocs: int=1):
+                      nprocs: int = 1):
 
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
-            record = process_sentence(
-                config=config,
-                fp=fp,
-                sentences=sentences,
-                output_dir=output_dir,
-                mel_extractor=mel_extractor)
+            record = process_sentence(config=config,
+                                      fp=fp,
+                                      sentences=sentences,
+                                      output_dir=output_dir,
+                                      mel_extractor=mel_extractor)
             if record:
                 results.append(record)
     else:
@@ -165,29 +164,30 @@ def main():
     parser = argparse.ArgumentParser(
         description="Preprocess audio and then extract features.")
 
-    parser.add_argument(
-        "--dataset",
-        default="ljspeech",
-        type=str,
-        help="name of dataset, should in {ljspeech} now")
+    parser.add_argument("--dataset",
+                        default="ljspeech",
+                        type=str,
+                        help="name of dataset, should in {ljspeech} now")
 
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
 
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump feature files.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump feature files.")
 
-    parser.add_argument(
-        "--config-path",
-        default="conf/default.yaml",
-        type=str,
-        help="yaml format configuration file.")
+    parser.add_argument("--config-path",
+                        default="conf/default.yaml",
+                        type=str,
+                        help="yaml format configuration file.")
 
-    parser.add_argument(
-        "--num-cpu", type=int, default=1, help="number of process.")
+    parser.add_argument("--num-cpu",
+                        type=int,
+                        default=1,
+                        help="number of process.")
 
     args = parser.parse_args()
 
@@ -230,41 +230,37 @@ def main():
     test_dump_dir.mkdir(parents=True, exist_ok=True)
 
     # Extractor
-    mel_extractor = LogMelFBank(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window,
-        n_mels=config.n_mels,
-        fmin=config.fmin,
-        fmax=config.fmax)
+    mel_extractor = LogMelFBank(sr=config.fs,
+                                n_fft=config.n_fft,
+                                hop_length=config.n_shift,
+                                win_length=config.win_length,
+                                window=config.window,
+                                n_mels=config.n_mels,
+                                fmin=config.fmin,
+                                fmax=config.fmax)
 
     # process for the 3 sections
     if train_wav_files:
-        process_sentences(
-            config=config,
-            fps=train_wav_files,
-            sentences=sentences,
-            output_dir=train_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu)
+        process_sentences(config=config,
+                          fps=train_wav_files,
+                          sentences=sentences,
+                          output_dir=train_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu)
     if dev_wav_files:
-        process_sentences(
-            config=config,
-            fps=dev_wav_files,
-            sentences=sentences,
-            output_dir=dev_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu)
+        process_sentences(config=config,
+                          fps=dev_wav_files,
+                          sentences=sentences,
+                          output_dir=dev_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu)
     if test_wav_files:
-        process_sentences(
-            config=config,
-            fps=test_wav_files,
-            sentences=sentences,
-            output_dir=test_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu)
+        process_sentences(config=config,
+                          fps=test_wav_files,
+                          sentences=sentences,
+                          output_dir=test_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu)
 
 
 if __name__ == "__main__":

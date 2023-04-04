@@ -30,7 +30,6 @@ class CustomConverter():
         dtype (np.dtype): Data type to convert.
         
     """
-
     def __init__(self,
                  subsampling_factor=1,
                  dtype=np.float32,

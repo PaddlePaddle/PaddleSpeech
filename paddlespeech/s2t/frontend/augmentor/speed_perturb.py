@@ -19,8 +19,10 @@ from paddlespeech.s2t.frontend.augmentor.base import AugmentorBase
 
 class SpeedPerturbAugmentor(AugmentorBase):
     """Augmentation model for adding speed perturbation."""
-
-    def __init__(self, rng, min_speed_rate=0.9, max_speed_rate=1.1,
+    def __init__(self,
+                 rng,
+                 min_speed_rate=0.9,
+                 max_speed_rate=1.1,
                  num_rates=3):
         """speed perturbation.
         
@@ -76,8 +78,10 @@ class SpeedPerturbAugmentor(AugmentorBase):
         self._rng = rng
         self._num_rates = num_rates
         if num_rates > 0:
-            self._rates = np.linspace(
-                self._min_rate, self._max_rate, self._num_rates, endpoint=True)
+            self._rates = np.linspace(self._min_rate,
+                                      self._max_rate,
+                                      self._num_rates,
+                                      endpoint=True)
 
     def __call__(self, x, uttid=None, train=True):
         if not train:

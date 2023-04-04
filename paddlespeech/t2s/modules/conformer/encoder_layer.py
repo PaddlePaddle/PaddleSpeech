@@ -54,18 +54,18 @@ class EncoderLayer(nn.Layer):
             During training, the layer may skip residual computation and return input
             as-is with given probability.
     """
-
     def __init__(
-            self,
-            size,
-            self_attn,
-            feed_forward,
-            feed_forward_macaron,
-            conv_module,
-            dropout_rate,
-            normalize_before=True,
-            concat_after=False,
-            stochastic_depth_rate=0.0, ):
+        self,
+        size,
+        self_attn,
+        feed_forward,
+        feed_forward_macaron,
+        conv_module,
+        dropout_rate,
+        normalize_before=True,
+        concat_after=False,
+        stochastic_depth_rate=0.0,
+    ):
         """Construct an EncoderLayer object."""
         super().__init__()
         self.self_attn = self_attn

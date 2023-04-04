@@ -50,7 +50,7 @@ __all__ = [
 ]
 
 
-def cli_server_register(name: str, description: str='') -> Any:
+def cli_server_register(name: str, description: str = '') -> Any:
     def _warpper(command):
         items = name.split('.')
 
@@ -74,7 +74,7 @@ def get_server_command(name: str) -> Any:
     return com['_entry']
 
 
-def cli_client_register(name: str, description: str='') -> Any:
+def cli_client_register(name: str, description: str = '') -> Any:
     def _warpper(command):
         items = name.split('.')
 
@@ -145,20 +145,21 @@ def download_and_decompress(archive: Dict[str, str], path: str) -> os.PathLike:
         if not os.path.isdir(uncompress_path):
             download._decompress(filepath)
     else:
-        StatsWorker(
-            task='download',
-            version=__version__,
-            extra_info={
-                'download_url': archive['url'],
-                'paddle_version': paddle.__version__
-            }).start()
+        StatsWorker(task='download',
+                    version=__version__,
+                    extra_info={
+                        'download_url': archive['url'],
+                        'paddle_version': paddle.__version__
+                    }).start()
         uncompress_path = download.get_path_from_url(archive['url'], path,
                                                      archive['md5'])
 
     return uncompress_path
 
 
-def load_state_dict_from_url(url: str, path: str, md5: str=None) -> os.PathLike:
+def load_state_dict_from_url(url: str,
+                             path: str,
+                             md5: str = None) -> os.PathLike:
     """
     Download and load a state dict from url
     """
@@ -181,8 +182,8 @@ def _get_paddlespcceh_home():
                 return home_path
             else:
                 raise RuntimeError(
-                    'The environment variable PPSPEECH_HOME {} is not a directory.'.
-                    format(home_path))
+                    'The environment variable PPSPEECH_HOME {} is not a directory.'
+                    .format(home_path))
         else:
             return home_path
     return os.path.join(_get_user_home(), '.paddlespeech')
@@ -301,12 +302,9 @@ def _note_one_stat(cls_name, params={}):
         })
     elif task == 'st':
         extra_info.update({
-            'lang':
-            params['src_lang'] + '-' + params['tgt_lang'],
-            'inp_sr':
-            sr,
-            'model_sr':
-            params['sample_rate'],
+            'lang': params['src_lang'] + '-' + params['tgt_lang'],
+            'inp_sr': sr,
+            'model_sr': params['sample_rate'],
         })
     elif task == 'tts':
         model = params['am']
@@ -330,7 +328,8 @@ def _note_one_stat(cls_name, params={}):
         task=task,
         model=model,
         version=__version__,
-        extra_info=extra_info, ).start()
+        extra_info=extra_info,
+    ).start()
 
 
 def _parse_args(func, *args, **kwargs):

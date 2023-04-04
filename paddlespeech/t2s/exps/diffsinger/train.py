@@ -90,36 +90,35 @@ def train_sp(args, config):
     train_dataset = DataTable(
         data=train_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
     with jsonlines.open(args.dev_metadata, 'r') as reader:
         dev_metadata = list(reader)
     dev_dataset = DataTable(
         data=dev_metadata,
         fields=fields,
-        converters=converters, )
+        converters=converters,
+    )
 
     # collate function and dataloader
-    train_sampler = DistributedBatchSampler(
-        train_dataset,
-        batch_size=config.batch_size,
-        shuffle=True,
-        drop_last=True)
+    train_sampler = DistributedBatchSampler(train_dataset,
+                                            batch_size=config.batch_size,
+                                            shuffle=True,
+                                            drop_last=True)
 
     print("samplers done!")
 
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_sampler=train_sampler,
-        collate_fn=collate_fn,
-        num_workers=config.num_workers)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_sampler=train_sampler,
+                                  collate_fn=collate_fn,
+                                  num_workers=config.num_workers)
 
-    dev_dataloader = DataLoader(
-        dev_dataset,
-        shuffle=False,
-        drop_last=False,
-        batch_size=config.batch_size,
-        collate_fn=collate_fn,
-        num_workers=config.num_workers)
+    dev_dataloader = DataLoader(dev_dataset,
+                                shuffle=False,
+                                drop_last=False,
+                                batch_size=config.batch_size,
+                                collate_fn=collate_fn,
+                                num_workers=config.num_workers)
     print("dataloaders done!")
 
     with open(args.phones_dict, "r") as f:
@@ -141,7 +140,8 @@ def train_sp(args, config):
         spec_max=spec_max,
         idim=vocab_size,
         odim=odim,
-        **config["model"], )
+        **config["model"],
+    )
     model_fs2 = model.fs2
     model_ds = model.diffusion
     if world_size > 1:
@@ -157,11 +157,10 @@ def train_sp(args, config):
     optimizer_fs2 = build_optimizers(model_fs2, **config["fs2_optimizer"])
     lr_schedule_ds = StepDecay(**config["ds_scheduler_params"])
     gradient_clip_ds = nn.ClipGradByGlobalNorm(config["ds_grad_norm"])
-    optimizer_ds = AdamW(
-        learning_rate=lr_schedule_ds,
-        grad_clip=gradient_clip_ds,
-        parameters=model_ds.parameters(),
-        **config["ds_optimizer_params"])
+    optimizer_ds = AdamW(learning_rate=lr_schedule_ds,
+                         grad_clip=gradient_clip_ds,
+                         parameters=model_ds.parameters(),
+                         **config["ds_optimizer_params"])
     print("optimizer done!")
 
     output_dir = Path(args.output_dir)
@@ -193,20 +192,21 @@ def train_sp(args, config):
             "ds": criterion_ds,
         },
         dataloader=dev_dataloader,
-        output_dir=output_dir, )
+        output_dir=output_dir,
+    )
 
     trainer = Trainer(
         updater,
         stop_trigger=(config.train_max_steps, "iteration"),
-        out=output_dir, )
+        out=output_dir,
+    )
 
     if dist.get_rank() == 0:
-        trainer.extend(
-            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+        trainer.extend(evaluator,
+                       trigger=(config.eval_interval_steps, 'iteration'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
-    trainer.extend(
-        Snapshot(max_size=config.num_snapshots),
-        trigger=(config.save_interval_steps, 'iteration'))
+    trainer.extend(Snapshot(max_size=config.num_snapshots),
+                   trigger=(config.save_interval_steps, 'iteration'))
 
     print("Trainer Done!")
     trainer.run()
@@ -219,19 +219,21 @@ def main():
     parser.add_argument("--train-metadata", type=str, help="training data.")
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
-    parser.add_argument(
-        "--phones-dict", type=str, default=None, help="phone vocabulary file.")
-    parser.add_argument(
-        "--speaker-dict",
-        type=str,
-        default=None,
-        help="speaker id map file for multiple speaker model.")
-    parser.add_argument(
-        "--speech-stretchs",
-        type=str,
-        help="The min and max values of the mel spectrum.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default=None,
+                        help="phone vocabulary file.")
+    parser.add_argument("--speaker-dict",
+                        type=str,
+                        default=None,
+                        help="speaker id map file for multiple speaker model.")
+    parser.add_argument("--speech-stretchs",
+                        type=str,
+                        help="The min and max values of the mel spectrum.")
 
     args = parser.parse_args()
 

@@ -30,7 +30,7 @@ from paddlespeech.vector.exps.ge2e.audio_processor import SpeakerVerificationPre
 from paddlespeech.vector.models.lstm_speaker_encoder import LSTMSpeakerEncoder
 
 
-def gen_random_embed(use_ecapa: bool=False):
+def gen_random_embed(use_ecapa: bool = False):
     if use_ecapa:
         # Randomly generate numbers of -25 ~ 25, 192 is the dim of spk_emb
         random_spk_emb = (-1 + 2 * np.random.rand(192)) * 25
@@ -65,27 +65,28 @@ def voice_cloning(args):
     if args.use_ecapa:
         vec_executor = VectorExecutor()
         # warm up
-        vec_executor(
-            audio_file=input_dir / os.listdir(input_dir)[0], force_yes=True)
+        vec_executor(audio_file=input_dir / os.listdir(input_dir)[0],
+                     force_yes=True)
         print("ECAPA-TDNN Done!")
     # use GE2E
     else:
-        p = SpeakerVerificationPreprocessor(
-            sampling_rate=16000,
-            audio_norm_target_dBFS=-30,
-            vad_window_length=30,
-            vad_moving_average_width=8,
-            vad_max_silence_length=6,
-            mel_window_length=25,
-            mel_window_step=10,
-            n_mels=40,
-            partial_n_frames=160,
-            min_pad_coverage=0.75,
-            partial_overlap_ratio=0.5)
+        p = SpeakerVerificationPreprocessor(sampling_rate=16000,
+                                            audio_norm_target_dBFS=-30,
+                                            vad_window_length=30,
+                                            vad_moving_average_width=8,
+                                            vad_max_silence_length=6,
+                                            mel_window_length=25,
+                                            mel_window_step=10,
+                                            n_mels=40,
+                                            partial_n_frames=160,
+                                            min_pad_coverage=0.75,
+                                            partial_overlap_ratio=0.5)
         print("Audio Processor Done!")
 
-        speaker_encoder = LSTMSpeakerEncoder(
-            n_mels=40, num_layers=3, hidden_size=256, output_size=256)
+        speaker_encoder = LSTMSpeakerEncoder(n_mels=40,
+                                             num_layers=3,
+                                             hidden_size=256,
+                                             output_size=256)
         speaker_encoder.set_state_dict(paddle.load(args.ge2e_params_path))
         speaker_encoder.eval()
         print("GE2E Done!")
@@ -98,19 +99,17 @@ def voice_cloning(args):
     phone_ids = input_ids["phone_ids"][0]
 
     # acoustic model
-    am_inference = get_am_inference(
-        am=args.am,
-        am_config=am_config,
-        am_ckpt=args.am_ckpt,
-        am_stat=args.am_stat,
-        phones_dict=args.phones_dict)
+    am_inference = get_am_inference(am=args.am,
+                                    am_config=am_config,
+                                    am_ckpt=args.am_ckpt,
+                                    am_stat=args.am_stat,
+                                    phones_dict=args.phones_dict)
 
     # vocoder
-    voc_inference = get_voc_inference(
-        voc=args.voc,
-        voc_config=voc_config,
-        voc_ckpt=args.voc_ckpt,
-        voc_stat=args.voc_stat)
+    voc_inference = get_voc_inference(voc=args.voc,
+                                      voc_config=voc_config,
+                                      voc_ckpt=args.voc_ckpt,
+                                      voc_stat=args.voc_stat)
 
     for name in os.listdir(input_dir):
         utt_id = name.split(".")[0]
@@ -128,10 +127,9 @@ def voice_cloning(args):
         with paddle.no_grad():
             wav = voc_inference(am_inference(phone_ids, spk_emb=spk_emb))
 
-        sf.write(
-            str(output_dir / (utt_id + ".wav")),
-            wav.numpy(),
-            samplerate=am_config.fs)
+        sf.write(str(output_dir / (utt_id + ".wav")),
+                 wav.numpy(),
+                 samplerate=am_config.fs)
         print(f"{utt_id} done!")
 
     # generate 5 random_spk_emb
@@ -150,62 +148,67 @@ def voice_cloning(args):
 def parse_args():
     # parse args and config
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument(
-        '--am',
-        type=str,
-        default='fastspeech2_csmsc',
-        choices=['fastspeech2_aishell3', 'tacotron2_aishell3'],
-        help='Choose acoustic model type of tts task.')
-    parser.add_argument(
-        '--am_config', type=str, default=None, help='Config of acoustic model.')
-    parser.add_argument(
-        '--am_ckpt',
-        type=str,
-        default=None,
-        help='Checkpoint file of acoustic model.')
+    parser.add_argument('--am',
+                        type=str,
+                        default='fastspeech2_csmsc',
+                        choices=['fastspeech2_aishell3', 'tacotron2_aishell3'],
+                        help='Choose acoustic model type of tts task.')
+    parser.add_argument('--am_config',
+                        type=str,
+                        default=None,
+                        help='Config of acoustic model.')
+    parser.add_argument('--am_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of acoustic model.')
     parser.add_argument(
         "--am_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training acoustic model."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training acoustic model."
     )
-    parser.add_argument(
-        "--phones-dict",
-        type=str,
-        default="phone_id_map.txt",
-        help="phone vocabulary file.")
+    parser.add_argument("--phones-dict",
+                        type=str,
+                        default="phone_id_map.txt",
+                        help="phone vocabulary file.")
     # vocoder
-    parser.add_argument(
-        '--voc',
-        type=str,
-        default='pwgan_csmsc',
-        choices=['pwgan_aishell3'],
-        help='Choose vocoder type of tts task.')
+    parser.add_argument('--voc',
+                        type=str,
+                        default='pwgan_csmsc',
+                        choices=['pwgan_aishell3'],
+                        help='Choose vocoder type of tts task.')
 
-    parser.add_argument(
-        '--voc_config', type=str, default=None, help='Config of voc.')
-    parser.add_argument(
-        '--voc_ckpt', type=str, default=None, help='Checkpoint file of voc.')
+    parser.add_argument('--voc_config',
+                        type=str,
+                        default=None,
+                        help='Config of voc.')
+    parser.add_argument('--voc_ckpt',
+                        type=str,
+                        default=None,
+                        help='Checkpoint file of voc.')
     parser.add_argument(
         "--voc_stat",
         type=str,
         default=None,
-        help="mean and standard deviation used to normalize spectrogram when training voc."
+        help=
+        "mean and standard deviation used to normalize spectrogram when training voc."
     )
-    parser.add_argument(
-        "--text",
-        type=str,
-        default="每当你觉得，想要批评什么人的时候，你切要记着，这个世界上的人，并非都具备你禀有的条件。",
-        help="text to synthesize, a line")
-    parser.add_argument(
-        "--ge2e_params_path", type=str, help="ge2e params path.")
-    parser.add_argument(
-        "--use_ecapa",
-        type=str2bool,
-        default=False,
-        help="whether to use ECAPA-TDNN as speaker encoder.")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+    parser.add_argument("--text",
+                        type=str,
+                        default="每当你觉得，想要批评什么人的时候，你切要记着，这个世界上的人，并非都具备你禀有的条件。",
+                        help="text to synthesize, a line")
+    parser.add_argument("--ge2e_params_path",
+                        type=str,
+                        help="ge2e params path.")
+    parser.add_argument("--use_ecapa",
+                        type=str2bool,
+                        default=False,
+                        help="whether to use ECAPA-TDNN as speaker encoder.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
     parser.add_argument(
         "--input-dir",
         type=str,

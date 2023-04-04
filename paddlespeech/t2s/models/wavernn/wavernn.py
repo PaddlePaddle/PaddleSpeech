@@ -50,16 +50,18 @@ class ResBlock(nn.Layer):
 
 class MelResNet(nn.Layer):
     def __init__(self,
-                 res_blocks: int=10,
-                 compute_dims: int=128,
-                 res_out_dims: int=128,
-                 aux_channels: int=80,
-                 aux_context_window: int=0):
+                 res_blocks: int = 10,
+                 compute_dims: int = 128,
+                 res_out_dims: int = 128,
+                 aux_channels: int = 80,
+                 aux_context_window: int = 0):
         super().__init__()
         k_size = aux_context_window * 2 + 1
         # pay attention here, the dim reduces aux_context_window * 2
-        self.conv_in = nn.Conv1D(
-            aux_channels, compute_dims, kernel_size=k_size, bias_attr=False)
+        self.conv_in = nn.Conv1D(aux_channels,
+                                 compute_dims,
+                                 kernel_size=k_size,
+                                 bias_attr=False)
         self.batch_norm = nn.BatchNorm1D(compute_dims)
         self.layers = nn.LayerList()
         for _ in range(res_blocks):
@@ -87,23 +89,22 @@ class MelResNet(nn.Layer):
 
 class UpsampleNetwork(nn.Layer):
     def __init__(self,
-                 aux_channels: int=80,
-                 upsample_scales: List[int]=[4, 5, 3, 5],
-                 compute_dims: int=128,
-                 res_blocks: int=10,
-                 res_out_dims: int=128,
-                 aux_context_window: int=2):
+                 aux_channels: int = 80,
+                 upsample_scales: List[int] = [4, 5, 3, 5],
+                 compute_dims: int = 128,
+                 res_blocks: int = 10,
+                 res_out_dims: int = 128,
+                 aux_context_window: int = 2):
         super().__init__()
         # total_scale is the total Up sampling multiple
         total_scale = np.prod(upsample_scales)
         # TODO pad*total_scale is numpy.int64
         self.indent = int(aux_context_window * total_scale)
-        self.resnet = MelResNet(
-            res_blocks=res_blocks,
-            aux_channels=aux_channels,
-            compute_dims=compute_dims,
-            res_out_dims=res_out_dims,
-            aux_context_window=aux_context_window)
+        self.resnet = MelResNet(res_blocks=res_blocks,
+                                aux_channels=aux_channels,
+                                compute_dims=compute_dims,
+                                res_out_dims=res_out_dims,
+                                aux_context_window=aux_context_window)
         self.resnet_stretch = Stretch2D(total_scale, 1)
         self.up_layers = nn.LayerList()
         for scale in upsample_scales:
@@ -111,8 +112,11 @@ class UpsampleNetwork(nn.Layer):
             padding = (0, scale)
             stretch = Stretch2D(scale, 1)
 
-            conv = nn.Conv2D(
-                1, 1, kernel_size=k_size, padding=padding, bias_attr=False)
+            conv = nn.Conv2D(1,
+                             1,
+                             kernel_size=k_size,
+                             padding=padding,
+                             bias_attr=False)
             weight_ = paddle.full_like(conv.weight, 1. / k_size[1])
             conv.weight.set_value(weight_)
             self.up_layers.append(stretch)
@@ -154,20 +158,21 @@ class UpsampleNetwork(nn.Layer):
 
 class WaveRNN(nn.Layer):
     def __init__(
-            self,
-            rnn_dims: int=512,
-            fc_dims: int=512,
-            bits: int=9,
-            aux_context_window: int=2,
-            upsample_scales: List[int]=[4, 5, 3, 5],
-            aux_channels: int=80,
-            compute_dims: int=128,
-            res_out_dims: int=128,
-            res_blocks: int=10,
-            hop_length: int=300,
-            sample_rate: int=24000,
-            mode='RAW',
-            init_type: str="xavier_uniform", ):
+        self,
+        rnn_dims: int = 512,
+        fc_dims: int = 512,
+        bits: int = 9,
+        aux_context_window: int = 2,
+        upsample_scales: List[int] = [4, 5, 3, 5],
+        aux_channels: int = 80,
+        compute_dims: int = 128,
+        res_out_dims: int = 128,
+        res_blocks: int = 10,
+        hop_length: int = 300,
+        sample_rate: int = 24000,
+        mode='RAW',
+        init_type: str = "xavier_uniform",
+    ):
         '''
         Args:
             rnn_dims (int, optional): 
@@ -215,13 +220,12 @@ class WaveRNN(nn.Layer):
         # initialize parameters
         initialize(self, init_type)
 
-        self.upsample = UpsampleNetwork(
-            aux_channels=aux_channels,
-            upsample_scales=upsample_scales,
-            compute_dims=compute_dims,
-            res_blocks=res_blocks,
-            res_out_dims=res_out_dims,
-            aux_context_window=aux_context_window)
+        self.upsample = UpsampleNetwork(aux_channels=aux_channels,
+                                        upsample_scales=upsample_scales,
+                                        compute_dims=compute_dims,
+                                        res_blocks=res_blocks,
+                                        res_out_dims=res_out_dims,
+                                        aux_context_window=aux_context_window)
         self.I = nn.Linear(aux_channels + self.aux_dims + 1, rnn_dims)
 
         self.rnn1 = nn.GRU(rnn_dims, rnn_dims)
@@ -290,11 +294,11 @@ class WaveRNN(nn.Layer):
     @paddle.no_grad()
     def generate(self,
                  c,
-                 batched: bool=True,
-                 target: int=12000,
-                 overlap: int=600,
-                 mu_law: bool=True,
-                 gen_display: bool=False):
+                 batched: bool = True,
+                 target: int = 12000,
+                 overlap: int = 600,
+                 mu_law: bool = True,
+                 gen_display: bool = False):
         """
         Args:
             c(Tensor): 
@@ -324,9 +328,9 @@ class WaveRNN(nn.Layer):
         T = paddle.shape(c)[-1]
         wave_len = T * self.hop_length
         # TODO remove two transpose op by modifying function pad_tensor
-        c = self.pad_tensor(
-            c.transpose([0, 2, 1]), pad=self.aux_context_window,
-            side='both').transpose([0, 2, 1])
+        c = self.pad_tensor(c.transpose([0, 2, 1]),
+                            pad=self.aux_context_window,
+                            side='both').transpose([0, 2, 1])
 
         c, aux = self.upsample(c)
 
@@ -389,8 +393,8 @@ class WaveRNN(nn.Layer):
                 # corresponding operate [np.floor((fx + 1) / 2 * mu + 0.5)] in enocde_mu_law
                 # distrib.sample([1])[0].cast('float32'): [0, 2**bits-1]
                 # sample: [-1, 1]
-                sample = 2 * distrib.sample([1])[0].cast('float32') / (
-                    self.n_classes - 1.) - 1.
+                sample = 2 * distrib.sample(
+                    [1])[0].cast('float32') / (self.n_classes - 1.) - 1.
                 output.append(sample)
                 x = sample.unsqueeze(-1)
             else:
@@ -500,7 +504,7 @@ class WaveRNN(nn.Layer):
             folded[i] = x[0][start:end, :]
         return folded
 
-    def xfade_and_unfold(self, y, target: int=12000, overlap: int=600):
+    def xfade_and_unfold(self, y, target: int = 12000, overlap: int = 600):
         ''' Applies a crossfade and unfolds into a 1d array.
 
         Args:
@@ -547,8 +551,10 @@ class WaveRNN(nn.Layer):
         # Equal power crossfade
         # fade_in increase from 0 to 1, fade_out reduces from 1 to 0
         sigmoid_scale = 2.3
-        t = paddle.linspace(
-            -sigmoid_scale, sigmoid_scale, fade_len, dtype=paddle.float32)
+        t = paddle.linspace(-sigmoid_scale,
+                            sigmoid_scale,
+                            fade_len,
+                            dtype=paddle.float32)
         # sigmoid 曲线应该更好
         fade_in = paddle.nn.functional.sigmoid(t)
         fade_out = 1 - paddle.nn.functional.sigmoid(t)
@@ -592,15 +598,14 @@ class WaveRNNInference(nn.Layer):
 
     def forward(self,
                 logmel,
-                batched: bool=True,
-                target: int=12000,
-                overlap: int=600,
-                mu_law: bool=True,
-                gen_display: bool=False):
+                batched: bool = True,
+                target: int = 12000,
+                overlap: int = 600,
+                mu_law: bool = True,
+                gen_display: bool = False):
         normalized_mel = self.normalizer(logmel)
 
-        wav = self.wavernn.generate(
-            normalized_mel, )
+        wav = self.wavernn.generate(normalized_mel, )
         # batched=batched,
         # target=target,
         # overlap=overlap,

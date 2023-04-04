@@ -53,7 +53,7 @@ def remove_duplicates_and_blank(hyp: List[int], blank_id=0) -> List[int]:
     return new_hyp
 
 
-def insert_blank(label: np.ndarray, blank_id: int=0) -> np.ndarray:
+def insert_blank(label: np.ndarray, blank_id: int = 0) -> np.ndarray:
     """Insert blank token between every two label token.
 
     "abcdefg" -> "-a-b-c-d-e-f-g-"
@@ -73,7 +73,8 @@ def insert_blank(label: np.ndarray, blank_id: int=0) -> np.ndarray:
     return label
 
 
-def forced_align(ctc_probs: paddle.Tensor, y: paddle.Tensor,
+def forced_align(ctc_probs: paddle.Tensor,
+                 y: paddle.Tensor,
                  blank_id=0) -> List[int]:
     """ctc forced alignment.
 
@@ -202,11 +203,10 @@ def ctc_align(config, model, dataloader, batch_size, stride_ms, token_dict,
 
             # write textgrid
             textgrid_path = align_output_path / (key[0] + ".TextGrid")
-            second_per_frame = 1. / (1000. /
-                                     stride_ms)  # 25ms window, 10ms stride
-            second_per_example = (
-                len(alignment) + 1) * subsample * second_per_frame
-            text_grid.generate_textgrid(
-                maxtime=second_per_example,
-                intervals=tierformat,
-                output=str(textgrid_path))
+            second_per_frame = 1. / (1000. / stride_ms
+                                     )  # 25ms window, 10ms stride
+            second_per_example = (len(alignment) +
+                                  1) * subsample * second_per_frame
+            text_grid.generate_textgrid(maxtime=second_per_example,
+                                        intervals=tierformat,
+                                        output=str(textgrid_path))

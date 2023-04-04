@@ -21,23 +21,22 @@ from paddle import nn
 
 class TADELayer(nn.Layer):
     """TADE Layer module."""
-
     def __init__(
-            self,
-            in_channels: int=64,
-            aux_channels: int=80,
-            kernel_size: int=9,
-            bias: bool=True,
-            upsample_factor: int=2,
-            upsample_mode: str="nearest", ):
+        self,
+        in_channels: int = 64,
+        aux_channels: int = 80,
+        kernel_size: int = 9,
+        bias: bool = True,
+        upsample_factor: int = 2,
+        upsample_mode: str = "nearest",
+    ):
         """Initilize TADE layer."""
         super().__init__()
-        self.norm = nn.InstanceNorm1D(
-            in_channels,
-            momentum=0.1,
-            data_format="NCL",
-            weight_attr=False,
-            bias_attr=False)
+        self.norm = nn.InstanceNorm1D(in_channels,
+                                      momentum=0.1,
+                                      data_format="NCL",
+                                      weight_attr=False,
+                                      bias_attr=False)
         self.aux_conv = nn.Sequential(
             nn.Conv1D(
                 aux_channels,
@@ -45,7 +44,8 @@ class TADELayer(nn.Layer):
                 kernel_size,
                 1,
                 bias_attr=bias,
-                padding=(kernel_size - 1) // 2, ), )
+                padding=(kernel_size - 1) // 2,
+            ), )
         self.gated_conv = nn.Sequential(
             nn.Conv1D(
                 in_channels,
@@ -53,9 +53,10 @@ class TADELayer(nn.Layer):
                 kernel_size,
                 1,
                 bias_attr=bias,
-                padding=(kernel_size - 1) // 2, ), )
-        self.upsample = nn.Upsample(
-            scale_factor=upsample_factor, mode=upsample_mode)
+                padding=(kernel_size - 1) // 2,
+            ), )
+        self.upsample = nn.Upsample(scale_factor=upsample_factor,
+                                    mode=upsample_mode)
 
     def forward(self, x, c):
         """Calculate forward propagation.
@@ -86,18 +87,18 @@ class TADELayer(nn.Layer):
 
 class TADEResBlock(nn.Layer):
     """TADEResBlock module."""
-
     def __init__(
-            self,
-            in_channels: int=64,
-            aux_channels: int=80,
-            kernel_size: int=9,
-            dilation: int=2,
-            bias: bool=True,
-            upsample_factor: int=2,
-            # this is a diff in paddle, the mode only can be "linear" when input is 3D
-            upsample_mode: str="nearest",
-            gated_function: str="softmax", ):
+        self,
+        in_channels: int = 64,
+        aux_channels: int = 80,
+        kernel_size: int = 9,
+        dilation: int = 2,
+        bias: bool = True,
+        upsample_factor: int = 2,
+        # this is a diff in paddle, the mode only can be "linear" when input is 3D
+        upsample_mode: str = "nearest",
+        gated_function: str = "softmax",
+    ):
         """Initialize TADEResBlock module."""
         super().__init__()
         self.tade1 = TADELayer(
@@ -106,21 +107,24 @@ class TADEResBlock(nn.Layer):
             kernel_size=kernel_size,
             bias=bias,
             upsample_factor=1,
-            upsample_mode=upsample_mode, )
+            upsample_mode=upsample_mode,
+        )
         self.gated_conv1 = nn.Conv1D(
             in_channels,
             in_channels * 2,
             kernel_size,
             1,
             bias_attr=bias,
-            padding=(kernel_size - 1) // 2, )
+            padding=(kernel_size - 1) // 2,
+        )
         self.tade2 = TADELayer(
             in_channels=in_channels,
             aux_channels=in_channels,
             kernel_size=kernel_size,
             bias=bias,
             upsample_factor=upsample_factor,
-            upsample_mode=upsample_mode, )
+            upsample_mode=upsample_mode,
+        )
         self.gated_conv2 = nn.Conv1D(
             in_channels,
             in_channels * 2,
@@ -128,9 +132,10 @@ class TADEResBlock(nn.Layer):
             1,
             bias_attr=bias,
             dilation=dilation,
-            padding=(kernel_size - 1) // 2 * dilation, )
-        self.upsample = nn.Upsample(
-            scale_factor=upsample_factor, mode=upsample_mode)
+            padding=(kernel_size - 1) // 2 * dilation,
+        )
+        self.upsample = nn.Upsample(scale_factor=upsample_factor,
+                                    mode=upsample_mode)
         if gated_function == "softmax":
             self.gated_function = partial(F.softmax, axis=1)
         elif gated_function == "sigmoid":

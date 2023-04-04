@@ -32,25 +32,25 @@ from paddlespeech.t2s.modules.tade_res_block import TADEResBlock
 
 class StyleMelGANGenerator(nn.Layer):
     """Style MelGAN generator module."""
-
     def __init__(
-            self,
-            in_channels: int=128,
-            aux_channels: int=80,
-            channels: int=64,
-            out_channels: int=1,
-            kernel_size: int=9,
-            dilation: int=2,
-            bias: bool=True,
-            noise_upsample_scales: List[int]=[11, 2, 2, 2],
-            noise_upsample_activation: str="leakyrelu",
-            noise_upsample_activation_params: Dict[str,
-                                                   Any]={"negative_slope": 0.2},
-            upsample_scales: List[int]=[2, 2, 2, 2, 2, 2, 2, 2, 1],
-            upsample_mode: str="linear",
-            gated_function: str="softmax",
-            use_weight_norm: bool=True,
-            init_type: str="xavier_uniform", ):
+        self,
+        in_channels: int = 128,
+        aux_channels: int = 80,
+        channels: int = 64,
+        out_channels: int = 1,
+        kernel_size: int = 9,
+        dilation: int = 2,
+        bias: bool = True,
+        noise_upsample_scales: List[int] = [11, 2, 2, 2],
+        noise_upsample_activation: str = "leakyrelu",
+        noise_upsample_activation_params: Dict[str,
+                                               Any] = {"negative_slope": 0.2},
+        upsample_scales: List[int] = [2, 2, 2, 2, 2, 2, 2, 2, 1],
+        upsample_mode: str = "linear",
+        gated_function: str = "softmax",
+        use_weight_norm: bool = True,
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize Style MelGAN generator.
 
         Args:
@@ -99,13 +99,14 @@ class StyleMelGANGenerator(nn.Layer):
                     channels,
                     noise_upsample_scale * 2,
                     stride=noise_upsample_scale,
-                    padding=noise_upsample_scale // 2 + noise_upsample_scale %
-                    2,
+                    padding=noise_upsample_scale // 2 +
+                    noise_upsample_scale % 2,
                     output_padding=noise_upsample_scale % 2,
-                    bias_attr=bias, ))
+                    bias_attr=bias,
+                ))
             noise_upsample.append(
-                get_activation(noise_upsample_activation, **
-                               noise_upsample_activation_params))
+                get_activation(noise_upsample_activation,
+                               **noise_upsample_activation_params))
             in_chs = channels
         self.noise_upsample = nn.Sequential(*noise_upsample)
         self.noise_upsample_factor = np.prod(noise_upsample_scales)
@@ -122,7 +123,8 @@ class StyleMelGANGenerator(nn.Layer):
                     bias=bias,
                     upsample_factor=upsample_scale,
                     upsample_mode=upsample_mode,
-                    gated_function=gated_function, ), )
+                    gated_function=gated_function,
+                ), )
             aux_chs = channels
         self.upsample_factor = np.prod(upsample_scales)
 
@@ -133,8 +135,10 @@ class StyleMelGANGenerator(nn.Layer):
                 kernel_size,
                 1,
                 bias_attr=bias,
-                padding=(kernel_size - 1) // 2, ),
-            nn.Tanh(), )
+                padding=(kernel_size - 1) // 2,
+            ),
+            nn.Tanh(),
+        )
 
         nn.initializer.set_global_initializer(None)
 
@@ -168,7 +172,6 @@ class StyleMelGANGenerator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -179,7 +182,6 @@ class StyleMelGANGenerator(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 if layer:
@@ -218,9 +220,9 @@ class StyleMelGANGenerator(nn.Layer):
         c_shape = paddle.shape(c)
         # prepare noise input
         # there is a bug in Paddle int division, we must convert a int tensor to int here
-        noise_T = paddle.cast(
-            paddle.ceil(c_shape[2] / int(self.noise_upsample_factor)),
-            dtype='int64')
+        noise_T = paddle.cast(paddle.ceil(c_shape[2] /
+                                          int(self.noise_upsample_factor)),
+                              dtype='int64')
         noise_size = (1, self.in_channels, noise_T)
         # (1, in_channels, T/noise_upsample_factor)
         noise = paddle.randn(noise_size)
@@ -229,8 +231,9 @@ class StyleMelGANGenerator(nn.Layer):
         x_shape = paddle.shape(x)
         total_length = c_shape[2] * self.upsample_factor
         # Dygraph to Static Graph bug here, 2021.12.15
-        c = F.pad(
-            c, (0, x_shape[2] - c_shape[2]), "replicate", data_format="NCL")
+        c = F.pad(c, (0, x_shape[2] - c_shape[2]),
+                  "replicate",
+                  data_format="NCL")
         # c.shape[2] == x.shape[2] here
         # (1, in_channels, T*prod(upsample_scales))
         for block in self.blocks:
@@ -241,35 +244,35 @@ class StyleMelGANGenerator(nn.Layer):
 
 class StyleMelGANDiscriminator(nn.Layer):
     """Style MelGAN disciminator module."""
-
     def __init__(
-            self,
-            repeats: int=2,
-            window_sizes: List[int]=[512, 1024, 2048, 4096],
-            pqmf_params: List[List[int]]=[
-                [1, None, None, None],
-                [2, 62, 0.26700, 9.0],
-                [4, 62, 0.14200, 9.0],
-                [8, 62, 0.07949, 9.0],
-            ],
-            discriminator_params: Dict[str, Any]={
-                "out_channels": 1,
-                "kernel_sizes": [5, 3],
-                "channels": 16,
-                "max_downsample_channels": 512,
-                "bias": True,
-                "downsample_scales": [4, 4, 4, 1],
-                "nonlinear_activation": "leakyrelu",
-                "nonlinear_activation_params": {
-                    "negative_slope": 0.2
-                },
-                "pad": "Pad1D",
-                "pad_params": {
-                    "mode": "reflect"
-                },
+        self,
+        repeats: int = 2,
+        window_sizes: List[int] = [512, 1024, 2048, 4096],
+        pqmf_params: List[List[int]] = [
+            [1, None, None, None],
+            [2, 62, 0.26700, 9.0],
+            [4, 62, 0.14200, 9.0],
+            [8, 62, 0.07949, 9.0],
+        ],
+        discriminator_params: Dict[str, Any] = {
+            "out_channels": 1,
+            "kernel_sizes": [5, 3],
+            "channels": 16,
+            "max_downsample_channels": 512,
+            "bias": True,
+            "downsample_scales": [4, 4, 4, 1],
+            "nonlinear_activation": "leakyrelu",
+            "nonlinear_activation_params": {
+                "negative_slope": 0.2
             },
-            use_weight_norm: bool=True,
-            init_type: str="xavier_uniform", ):
+            "pad": "Pad1D",
+            "pad_params": {
+                "mode": "reflect"
+            },
+        },
+        use_weight_norm: bool = True,
+        init_type: str = "xavier_uniform",
+    ):
         """Initilize Style MelGAN discriminator.
 
         Args:
@@ -348,7 +351,6 @@ class StyleMelGANDiscriminator(nn.Layer):
         """Recursively apply weight normalization to all the Convolution layers
         in the sublayers.
         """
-
         def _apply_weight_norm(layer):
             if isinstance(layer, (nn.Conv1D, nn.Conv1DTranspose)):
                 nn.utils.weight_norm(layer)
@@ -359,7 +361,6 @@ class StyleMelGANDiscriminator(nn.Layer):
         """Recursively remove weight normalization from all the Convolution 
         layers in the sublayers.
         """
-
         def _remove_weight_norm(layer):
             try:
                 nn.utils.remove_weight_norm(layer)

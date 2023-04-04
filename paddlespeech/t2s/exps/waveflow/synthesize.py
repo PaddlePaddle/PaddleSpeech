@@ -53,24 +53,27 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="generate mel spectrogram with TransformerTTS.")
-    parser.add_argument(
-        "--config",
-        type=str,
-        metavar="FILE",
-        help="extra config to overwrite the default config")
-    parser.add_argument(
-        "--checkpoint_path", type=str, help="path of the checkpoint to load.")
+    parser.add_argument("--config",
+                        type=str,
+                        metavar="FILE",
+                        help="extra config to overwrite the default config")
+    parser.add_argument("--checkpoint_path",
+                        type=str,
+                        help="path of the checkpoint to load.")
     parser.add_argument(
         "--input",
         type=str,
         help="path of directory containing mel spectrogram (in .npy format)")
     parser.add_argument("--output", type=str, help="path to save outputs")
-    parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+    parser.add_argument("--ngpu",
+                        type=int,
+                        default=1,
+                        help="if ngpu=0, use cpu.")
     parser.add_argument(
         "--opts",
         nargs=argparse.REMAINDER,
-        help="options to overwrite --config file and the default config, passing in KEY VALUE pairs"
+        help=
+        "options to overwrite --config file and the default config, passing in KEY VALUE pairs"
     )
 
     args = parser.parse_args()

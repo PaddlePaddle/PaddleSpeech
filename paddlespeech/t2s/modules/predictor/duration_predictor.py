@@ -39,7 +39,6 @@ class DurationPredictor(nn.Layer):
     those are calculated in linear domain.
 
     """
-
     def __init__(self,
                  idim,
                  n_layers=2,
@@ -76,10 +75,12 @@ class DurationPredictor(nn.Layer):
                         n_chans,
                         kernel_size,
                         stride=1,
-                        padding=(kernel_size - 1) // 2, ),
+                        padding=(kernel_size - 1) // 2,
+                    ),
                     nn.ReLU(),
                     LayerNorm(n_chans, dim=1),
-                    nn.Dropout(dropout_rate), ))
+                    nn.Dropout(dropout_rate),
+                ))
         self.linear = nn.Linear(n_chans, 1, bias_attr=True)
 
     def _forward(self, xs, x_masks=None, is_inference=False):
@@ -135,7 +136,6 @@ class DurationPredictorLoss(nn.Layer):
     The loss value is Calculated in log domain to make it Gaussian.
 
     """
-
     def __init__(self, offset=1.0, reduction="mean"):
         """Initilize duration predictor loss module.
         Args:

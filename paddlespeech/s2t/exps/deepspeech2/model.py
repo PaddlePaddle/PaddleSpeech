@@ -62,8 +62,8 @@ class DeepSpeech2Trainer(Trainer):
             # Disable gradient synchronizations across DDP processes.
             # Within this context, gradients will be accumulated on module
             # variables, which will later be synchronized.
-            context = self.model.no_sync if (hasattr(self.model, "no_sync") and
-                                             self.parallel) else nullcontext
+            context = self.model.no_sync if (hasattr(self.model, "no_sync")
+                                             and self.parallel) else nullcontext
         else:
             # Used for single gpu training and DDP gradient synchronization
             # processes.
@@ -208,8 +208,8 @@ class DeepSpeech2Trainer(Trainer):
                 shortest_first=False)
             logger.info("Setup train/valid Dataloader!")
         else:
-            decode_batch_size = config.get('decode', dict()).get(
-                'decode_batch_size', 1)
+            decode_batch_size = config.get('decode',
+                                           dict()).get('decode_batch_size', 1)
             # test dataset, return raw text
             self.test_loader = BatchDataLoader(
                 json_file=config.test_manifest,
@@ -235,8 +235,8 @@ class DeepSpeech2Trainer(Trainer):
 class DeepSpeech2Tester(DeepSpeech2Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
-        self._text_featurizer = TextFeaturizer(
-            unit_type=config.unit_type, vocab=config.vocab_filepath)
+        self._text_featurizer = TextFeaturizer(unit_type=config.unit_type,
+                                               vocab=config.vocab_filepath)
         self.vocab_list = self._text_featurizer.vocab_list
 
     def ordid2token(self, texts, texts_len):
@@ -245,8 +245,8 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         for text, n in zip(texts, texts_len):
             n = n.numpy().item()
             ids = text[:n]
-            trans.append(
-                self._text_featurizer.defeaturize(ids.numpy().tolist()))
+            trans.append(self._text_featurizer.defeaturize(
+                ids.numpy().tolist()))
         return trans
 
     def compute_metrics(self,
@@ -280,12 +280,11 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
                 "Current error rate [%s] = %f" %
                 (decode_cfg.error_rate_type, error_rate_func(target, result)))
 
-        return dict(
-            errors_sum=errors_sum,
-            len_refs=len_refs,
-            num_ins=num_ins,
-            error_rate=errors_sum / len_refs,
-            error_rate_type=decode_cfg.error_rate_type)
+        return dict(errors_sum=errors_sum,
+                    len_refs=len_refs,
+                    num_ins=num_ins,
+                    error_rate=errors_sum / len_refs,
+                    error_rate_type=decode_cfg.error_rate_type)
 
     def compute_result_transcripts(self, audio, audio_len):
         result_transcripts = self.model.decode(audio, audio_len)
@@ -403,8 +402,8 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 audio, audio_len, decoder_chunk_size=1)
             result_transcripts = [trans[-1] for trans in trans_batch]
         elif self.config.rnn_direction == "bidirect":
-            output_probs, output_lens = self.static_forward_offline(audio,
-                                                                    audio_len)
+            output_probs, output_lens = self.static_forward_offline(
+                audio, audio_len)
             batch_size = output_probs.shape[0]
             self.model.decoder.reset_decoder(batch_size=batch_size)
 
@@ -437,8 +436,10 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         except KeyboardInterrupt:
             exit(-1)
 
-    def static_forward_online(self, audio, audio_len,
-                              decoder_chunk_size: int=1):
+    def static_forward_online(self,
+                              audio,
+                              audio_len,
+                              decoder_chunk_size: int = 1):
         """
         Parameters
         ----------
@@ -456,16 +457,16 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         subsampling_rate = self.model.encoder.conv.subsampling_rate
         receptive_field_length = self.model.encoder.conv.receptive_field_length
         chunk_stride = subsampling_rate * decoder_chunk_size
-        chunk_size = (decoder_chunk_size - 1
-                      ) * subsampling_rate + receptive_field_length
+        chunk_size = (decoder_chunk_size -
+                      1) * subsampling_rate + receptive_field_length
 
         x_batch = audio.numpy()
         batch_size, Tmax, x_dim = x_batch.shape
         x_len_batch = audio_len.numpy().astype(np.int64)
         if (Tmax - chunk_size) % chunk_stride != 0:
             # The length of padding for the batch
-            padding_len_batch = chunk_stride - (Tmax - chunk_size
-                                                ) % chunk_stride
+            padding_len_batch = chunk_stride - (Tmax -
+                                                chunk_size) % chunk_stride
         else:
             padding_len_batch = 0
         x_list = np.split(x_batch, batch_size, axis=0)
@@ -479,13 +480,13 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
             assert (chunk_size <= x_len)
 
             if (x_len - chunk_size) % chunk_stride != 0:
-                padding_len_x = chunk_stride - (x_len - chunk_size
-                                                ) % chunk_stride
+                padding_len_x = chunk_stride - (x_len -
+                                                chunk_size) % chunk_stride
             else:
                 padding_len_x = 0
 
-            padding = np.zeros(
-                (x.shape[0], padding_len_x, x.shape[2]), dtype=x.dtype)
+            padding = np.zeros((x.shape[0], padding_len_x, x.shape[2]),
+                               dtype=x.dtype)
             padded_x = np.concatenate([x, padding], axis=1)
 
             num_chunk = (x_len + padding_len_x - chunk_size) / chunk_stride + 1
@@ -563,10 +564,10 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
                 1]
             output_probs_padding = np.zeros(
                 (1, output_probs_padding_len, vocab_size),
-                dtype=output_probs.
-                dtype)  # The prob padding for a piece of utterance
-            output_probs = np.concatenate(
-                [output_probs, output_probs_padding], axis=1)
+                dtype=output_probs.dtype
+            )  # The prob padding for a piece of utterance
+            output_probs = np.concatenate([output_probs, output_probs_padding],
+                                          axis=1)
             output_probs_list.append(output_probs)
             output_lens_list.append(output_lens)
             if self.args.enable_auto_log is True:

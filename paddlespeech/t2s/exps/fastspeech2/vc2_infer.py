@@ -8,9 +8,7 @@ import tqdm
 from paddlespeech.cli.vector import VectorExecutor
 
 
-def _process_utterance(ifpath: Path,
-                       input_dir: Path,
-                       output_dir: Path,
+def _process_utterance(ifpath: Path, input_dir: Path, output_dir: Path,
                        vec_executor):
     rel_path = ifpath.relative_to(input_dir)
     ofpath = (output_dir / rel_path).with_suffix(".npy")
@@ -36,11 +34,10 @@ def main(args):
     if nprocs == 1:
         results = []
         for ifpath in tqdm.tqdm(ifpaths, total=len(ifpaths)):
-            _process_utterance(
-                ifpath=ifpath,
-                input_dir=input_dir,
-                output_dir=output_dir,
-                vec_executor=vec_executor)
+            _process_utterance(ifpath=ifpath,
+                               input_dir=input_dir,
+                               output_dir=output_dir,
+                               vec_executor=vec_executor)
     else:
         with ThreadPoolExecutor(nprocs) as pool:
             with tqdm.tqdm(total=len(ifpaths)) as progress:
@@ -52,19 +49,20 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="compute utterance embed.")
-    parser.add_argument(
-        "--input", type=str, help="path of the audio_file folder.")
-    parser.add_argument(
-        "--pattern",
-        type=str,
-        default="*.wav",
-        help="pattern to filter audio files.")
-    parser.add_argument(
-        "--output",
-        metavar="OUTPUT_DIR",
-        help="path to save spk embedding results.")
-    parser.add_argument(
-        "--num-cpu", type=int, default=1, help="number of process.")
+    parser.add_argument("--input",
+                        type=str,
+                        help="path of the audio_file folder.")
+    parser.add_argument("--pattern",
+                        type=str,
+                        default="*.wav",
+                        help="pattern to filter audio files.")
+    parser.add_argument("--output",
+                        metavar="OUTPUT_DIR",
+                        help="path to save spk embedding results.")
+    parser.add_argument("--num-cpu",
+                        type=int,
+                        default=1,
+                        help="number of process.")
     args = parser.parse_args()
 
     main(args)

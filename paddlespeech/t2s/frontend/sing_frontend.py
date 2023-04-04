@@ -87,10 +87,11 @@ class SingFrontend():
         return note_info
 
     def process(
-            self,
-            phones: List[int],
-            notes: List[str],
-            note_durs: List[float], ) -> Dict[str, List[paddle.Tensor]]:
+        self,
+        phones: List[int],
+        notes: List[str],
+        note_durs: List[float],
+    ) -> Dict[str, List[paddle.Tensor]]:
         new_phones = []
         new_notes = []
         new_note_durs = []
@@ -118,8 +119,9 @@ class SingFrontend():
 
         return new_phones, new_notes, new_note_durs, is_slurs
 
-    def get_input_ids(self, svs_input: Dict[str, str],
-                      to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
+    def get_input_ids(self,
+                      svs_input: Dict[str, str],
+                      to_tensor: bool = True) -> Dict[str, List[paddle.Tensor]]:
         """convert input to int/float.
 
         Args:

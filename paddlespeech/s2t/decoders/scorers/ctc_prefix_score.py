@@ -16,7 +16,6 @@ class CTCPrefixScorePD():
     See also Seki et al. "Vectorized Beam Search for CTC-Attention-Based
     Speech Recognition," In INTERSPEECH (pp. 3825-3829), 2019.
     """
-
     def __init__(self, x, xlens, blank, eos, margin=0):
         """Construct CTC prefix scorer
 
@@ -76,14 +75,15 @@ class CTCPrefixScorePD():
         last_ids = [yi[-1] for yi in y]  # last output label ids
         n_bh = len(last_ids)  # batch * hyps
         n_hyps = n_bh // self.batch  # assuming each utterance has the same # of hyps
-        self.scoring_num = paddle.shape(scoring_ids)[
-            -1] if scoring_ids is not None else 0
+        self.scoring_num = paddle.shape(
+            scoring_ids)[-1] if scoring_ids is not None else 0
         # prepare state info
         if state is None:
             r_prev = paddle.full(
                 (self.input_length, 2, self.batch, n_hyps),
                 self.logzero,
-                dtype=self.dtype, )  # (T, 2, B, W)
+                dtype=self.dtype,
+            )  # (T, 2, B, W)
             r_prev[:, 1] = paddle.cumsum(self.x[0, :, :, self.blank],
                                          0).unsqueeze(2)
             r_prev = r_prev.view(-1, 2, n_bh)  # (T, 2, BW)
@@ -96,34 +96,35 @@ class CTCPrefixScorePD():
         # select input dimensions for scoring
         if self.scoring_num > 0:
             # (BW, O)
-            scoring_idmap = paddle.full(
-                (n_bh, self.odim), -1, dtype=paddle.long)
+            scoring_idmap = paddle.full((n_bh, self.odim),
+                                        -1,
+                                        dtype=paddle.long)
             snum = self.scoring_num
             if self.idx_bh is None or n_bh > len(self.idx_bh):
                 self.idx_bh = paddle.arange(n_bh).view(-1, 1)  # (BW, 1)
             scoring_idmap[self.idx_bh[:n_bh], scoring_ids] = paddle.arange(snum)
             scoring_idx = (
-                scoring_ids + self.idx_bo.repeat(1, n_hyps).view(-1,
-                                                                 1)  # (BW,1)
+                scoring_ids +
+                self.idx_bo.repeat(1, n_hyps).view(-1, 1)  # (BW,1)
             ).view(-1)  # (BWO)
             # x_ shape (2, T, B*W, O)
-            x_ = paddle.index_select(
-                self.x.view(2, -1, self.batch * self.odim), scoring_idx,
-                2).view(2, -1, n_bh, snum)
+            x_ = paddle.index_select(self.x.view(2, -1, self.batch * self.odim),
+                                     scoring_idx, 2).view(2, -1, n_bh, snum)
         else:
             scoring_ids = None
             scoring_idmap = None
             snum = self.odim
             # x_ shape (2, T, B*W, O)
-            x_ = self.x.unsqueeze(3).repeat(1, 1, 1, n_hyps, 1).view(2, -1,
-                                                                     n_bh, snum)
+            x_ = self.x.unsqueeze(3).repeat(1, 1, 1, n_hyps,
+                                            1).view(2, -1, n_bh, snum)
 
         # new CTC forward probs are prepared as a (T x 2 x BW x S) tensor
         # that corresponds to r_t^n(h) and r_t^b(h) in a batch.
         r = paddle.full(
             (self.input_length, 2, n_bh, snum),
             self.logzero,
-            dtype=self.dtype, )
+            dtype=self.dtype,
+        )
         if output_length == 0:
             r[0, 0] = x_[0, 0]
 
@@ -154,21 +155,23 @@ class CTCPrefixScorePD():
         # compute forward probabilities log(r_t^n(h)) and log(r_t^b(h))
         for t in range(start, end):
             rp = r[t - 1]  # (2 x BW x O')
-            rr = paddle.stack([rp[0], log_phi[t - 1], rp[0], rp[1]]).view(
-                2, 2, n_bh, snum)  # (2,2,BW,O')
+            rr = paddle.stack([rp[0], log_phi[t - 1], rp[0],
+                               rp[1]]).view(2, 2, n_bh, snum)  # (2,2,BW,O')
             r[t] = paddle.logsumexp(rr, 1) + x_[:, t]
 
         # compute log prefix probabilities log(psi)
         log_phi_x = paddle.concat(
             (log_phi[0].unsqueeze(0), log_phi[:-1]), axis=0) + x_[0]
         if scoring_ids is not None:
-            log_psi = paddle.full(
-                (n_bh, self.odim), self.logzero, dtype=self.dtype)
+            log_psi = paddle.full((n_bh, self.odim),
+                                  self.logzero,
+                                  dtype=self.dtype)
             log_psi_ = paddle.logsumexp(
                 paddle.concat(
                     (log_phi_x[start:end], r[start - 1, 0].unsqueeze(0)),
                     axis=0),
-                axis=0, )
+                axis=0,
+            )
             for si in range(n_bh):
                 log_psi[si, scoring_ids[si]] = log_psi_[si]
         else:
@@ -176,7 +179,8 @@ class CTCPrefixScorePD():
                 paddle.concat(
                     (log_phi_x[start:end], r[start - 1, 0].unsqueeze(0)),
                     axis=0),
-                axis=0, )
+                axis=0,
+            )
 
         for si in range(n_bh):
             log_psi[si, self.eos] = r_sum[self.end_frames[si // n_hyps], si]
@@ -214,8 +218,8 @@ class CTCPrefixScorePD():
         else:
             snum = self.odim
         # select forward probabilities
-        r_new = paddle.index_select(r.view(-1, 2, n_bh * snum), vidx, 2).view(
-            -1, 2, n_bh)
+        r_new = paddle.index_select(r.view(-1, 2, n_bh * snum), vidx,
+                                    2).view(-1, 2, n_bh)
         return r_new, s_new, f_min, f_max
 
     def extend_prob(self, x):
@@ -257,7 +261,8 @@ class CTCPrefixScorePD():
             r_prev_new = paddle.full(
                 (self.input_length, 2),
                 self.logzero,
-                dtype=self.dtype, )
+                dtype=self.dtype,
+            )
             start = max(r_prev.shape[0], 1)
             r_prev_new[0:start] = r_prev
             for t in range(start, self.input_length):
@@ -275,7 +280,6 @@ class CTCPrefixScore():
     but extended to efficiently compute the probabilities of multiple labels
     simultaneously
     """
-
     def __init__(self, x, blank, eos, xp):
         self.xp = xp
         self.logzero = -10000000000.0
@@ -337,8 +341,8 @@ class CTCPrefixScore():
                                   r_prev[:, 1])  # log(r_t^n(g) + r_t^b(g))
         last = y[-1]
         if output_length > 0 and last in cs:
-            log_phi = self.xp.ndarray(
-                (self.input_length, len(cs)), dtype=np.float32)
+            log_phi = self.xp.ndarray((self.input_length, len(cs)),
+                                      dtype=np.float32)
             for i in six.moves.range(len(cs)):
                 log_phi[:, i] = r_sum if cs[i] != last else r_prev[:, 1]
         else:

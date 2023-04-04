@@ -1,4 +1,3 @@
-
 def get_encoding(ext, dtype):
     exts = {
         "mp3",
@@ -22,6 +21,7 @@ def get_bit_depth(dtype):
         "uint8": 8,
     }
     return bit_depths[dtype]
+
 
 def get_bits_per_sample(ext, dtype):
     bits_per_samples = {

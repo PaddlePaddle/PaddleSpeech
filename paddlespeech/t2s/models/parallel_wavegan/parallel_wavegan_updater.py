@@ -41,11 +41,11 @@ class PWGUpdater(StandardUpdater):
                  criterions: Dict[str, Layer],
                  schedulers: Dict[str, LRScheduler],
                  dataloader: DataLoader,
-                 generator_train_start_steps: int=0,
-                 discriminator_train_start_steps: int=100000,
-                 lambda_adv: float=1.0,
-                 lambda_aux: float=1.0,
-                 output_dir: Path=None):
+                 generator_train_start_steps: int = 0,
+                 discriminator_train_start_steps: int = 100000,
+                 lambda_adv: float = 1.0,
+                 lambda_aux: float = 1.0,
+                 output_dir: Path = None):
         self.models = models
         self.generator: Layer = models['generator']
         self.discriminator: Layer = models['discriminator']
@@ -153,9 +153,9 @@ class PWGEvaluator(StandardEvaluator):
                  models: Dict[str, Layer],
                  criterions: Dict[str, Layer],
                  dataloader: DataLoader,
-                 lambda_adv: float=1.0,
-                 lambda_aux: float=1.0,
-                 output_dir: Path=None):
+                 lambda_adv: float = 1.0,
+                 lambda_aux: float = 1.0,
+                 output_dir: Path = None):
         self.models = models
         self.generator = models['generator']
         self.discriminator = models['discriminator']

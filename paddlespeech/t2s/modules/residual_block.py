@@ -48,17 +48,16 @@ class WaveNetResidualBlock(nn.Layer):
         use_causal_conv (bool, optional): 
             Whether to use causal padding for the 1D convolution, by default False
     """
-
     def __init__(self,
-                 kernel_size: int=3,
-                 residual_channels: int=64,
-                 gate_channels: int=128,
-                 skip_channels: int=64,
-                 aux_channels: int=80,
-                 dropout: float=0.,
-                 dilation: int=1,
-                 bias: bool=True,
-                 use_causal_conv: bool=False):
+                 kernel_size: int = 3,
+                 residual_channels: int = 64,
+                 gate_channels: int = 128,
+                 skip_channels: int = 64,
+                 aux_channels: int = 80,
+                 dropout: float = 0.,
+                 dilation: int = 1,
+                 bias: bool = True,
+                 use_causal_conv: bool = False):
         super().__init__()
         self.dropout = dropout
         if use_causal_conv:
@@ -68,24 +67,29 @@ class WaveNetResidualBlock(nn.Layer):
             padding = (kernel_size - 1) // 2 * dilation
         self.use_causal_conv = use_causal_conv
 
-        self.conv = nn.Conv1D(
-            residual_channels,
-            gate_channels,
-            kernel_size,
-            padding=padding,
-            dilation=dilation,
-            bias_attr=bias)
+        self.conv = nn.Conv1D(residual_channels,
+                              gate_channels,
+                              kernel_size,
+                              padding=padding,
+                              dilation=dilation,
+                              bias_attr=bias)
         if aux_channels is not None:
-            self.conv1x1_aux = nn.Conv1D(
-                aux_channels, gate_channels, kernel_size=1, bias_attr=False)
+            self.conv1x1_aux = nn.Conv1D(aux_channels,
+                                         gate_channels,
+                                         kernel_size=1,
+                                         bias_attr=False)
         else:
             self.conv1x1_aux = None
 
         gate_out_channels = gate_channels // 2
-        self.conv1x1_out = nn.Conv1D(
-            gate_out_channels, residual_channels, kernel_size=1, bias_attr=bias)
-        self.conv1x1_skip = nn.Conv1D(
-            gate_out_channels, skip_channels, kernel_size=1, bias_attr=bias)
+        self.conv1x1_out = nn.Conv1D(gate_out_channels,
+                                     residual_channels,
+                                     kernel_size=1,
+                                     bias_attr=bias)
+        self.conv1x1_skip = nn.Conv1D(gate_out_channels,
+                                      skip_channels,
+                                      kernel_size=1,
+                                      bias_attr=bias)
 
     def forward(self, x, c):
         """
@@ -121,16 +125,15 @@ class WaveNetResidualBlock(nn.Layer):
 
 class HiFiGANResidualBlock(nn.Layer):
     """Residual block module in HiFiGAN."""
-
     def __init__(
-            self,
-            kernel_size: int=3,
-            channels: int=512,
-            dilations: List[int]=(1, 3, 5),
-            bias: bool=True,
-            use_additional_convs: bool=True,
-            nonlinear_activation: str="leakyrelu",
-            nonlinear_activation_params: Dict[str, Any]={"negative_slope": 0.1},
+        self,
+        kernel_size: int = 3,
+        channels: int = 512,
+        dilations: List[int] = (1, 3, 5),
+        bias: bool = True,
+        use_additional_convs: bool = True,
+        nonlinear_activation: str = "leakyrelu",
+        nonlinear_activation_params: Dict[str, Any] = {"negative_slope": 0.1},
     ):
         """Initialize HiFiGANResidualBlock module.
         Args:
@@ -160,8 +163,8 @@ class HiFiGANResidualBlock(nn.Layer):
         for dilation in dilations:
             self.convs1.append(
                 nn.Sequential(
-                    get_activation(nonlinear_activation, **
-                                   nonlinear_activation_params),
+                    get_activation(nonlinear_activation,
+                                   **nonlinear_activation_params),
                     nn.Conv1D(
                         channels,
                         channels,
@@ -169,12 +172,14 @@ class HiFiGANResidualBlock(nn.Layer):
                         1,
                         dilation=dilation,
                         bias_attr=bias,
-                        padding=(kernel_size - 1) // 2 * dilation, ), ))
+                        padding=(kernel_size - 1) // 2 * dilation,
+                    ),
+                ))
             if use_additional_convs:
                 self.convs2.append(
                     nn.Sequential(
-                        get_activation(nonlinear_activation, **
-                                       nonlinear_activation_params),
+                        get_activation(nonlinear_activation,
+                                       **nonlinear_activation_params),
                         nn.Conv1D(
                             channels,
                             channels,
@@ -182,7 +187,9 @@ class HiFiGANResidualBlock(nn.Layer):
                             1,
                             dilation=1,
                             bias_attr=bias,
-                            padding=(kernel_size - 1) // 2, ), ))
+                            padding=(kernel_size - 1) // 2,
+                        ),
+                    ))
 
     def forward(self, x):
         """Calculate forward propagation.

@@ -34,17 +34,18 @@ __all__ = ['CLSEngine', 'PaddleCLSConnectionHandler']
 class CLSServerExecutor(CLSExecutor):
     def __init__(self):
         super().__init__()
-        self.task_resource = CommonTaskResource(
-            task='cls', model_format='static')
+        self.task_resource = CommonTaskResource(task='cls',
+                                                model_format='static')
 
     def _init_from_path(
-            self,
-            model_type: str='panns_cnn14_audioset',
-            cfg_path: Optional[os.PathLike]=None,
-            model_path: Optional[os.PathLike]=None,
-            params_path: Optional[os.PathLike]=None,
-            label_file: Optional[os.PathLike]=None,
-            predictor_conf: dict=None, ):
+        self,
+        model_type: str = 'panns_cnn14_audioset',
+        cfg_path: Optional[os.PathLike] = None,
+        model_path: Optional[os.PathLike] = None,
+        params_path: Optional[os.PathLike] = None,
+        label_file: Optional[os.PathLike] = None,
+        predictor_conf: dict = None,
+    ):
         """
         Init model and other resources from a specific path.
         """
@@ -86,10 +87,9 @@ class CLSServerExecutor(CLSExecutor):
 
         # Create predictor
         self.predictor_conf = predictor_conf
-        self.predictor = init_predictor(
-            model_file=self.model_path,
-            params_file=self.params_path,
-            predictor_conf=self.predictor_conf)
+        self.predictor = init_predictor(model_file=self.model_path,
+                                        params_file=self.params_path,
+                                        predictor_conf=self.predictor_conf)
         logger.debug("Create predictor successfully.")
 
     @paddle.no_grad()
@@ -107,7 +107,6 @@ class CLSEngine(BaseEngine):
     Args:
         metaclass: Defaults to Singleton.
     """
-
     def __init__(self):
         super(CLSEngine, self).__init__()
 
@@ -138,10 +137,12 @@ class CLSEngine(BaseEngine):
             return False
 
         try:
-            self.executor._init_from_path(
-                self.config.model_type, self.config.cfg_path,
-                self.config.model_path, self.config.params_path,
-                self.config.label_file, self.config.predictor_conf)
+            self.executor._init_from_path(self.config.model_type,
+                                          self.config.cfg_path,
+                                          self.config.model_path,
+                                          self.config.params_path,
+                                          self.config.label_file,
+                                          self.config.predictor_conf)
 
         except Exception as e:
             logger.error("Initialize CLS server engine Failed.")

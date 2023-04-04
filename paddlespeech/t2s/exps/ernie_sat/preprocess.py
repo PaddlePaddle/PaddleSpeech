@@ -41,8 +41,8 @@ def process_sentence(config: Dict[str, Any],
                      sentences: Dict,
                      output_dir: Path,
                      mel_extractor=None,
-                     cut_sil: bool=True,
-                     spk_emb_dir: Path=None):
+                     cut_sil: bool = True,
+                     spk_emb_dir: Path = None):
     utt_id = fp.stem
     # for vctk
     if utt_id.endswith("_mic2"):
@@ -65,8 +65,9 @@ def process_sentence(config: Dict[str, Any],
         d_cumsum = np.pad(np.array(durations).cumsum(0), (1, 0), 'constant')
 
         # little imprecise than use *.TextGrid directly
-        times = librosa.frames_to_time(
-            d_cumsum, sr=config.fs, hop_length=config.n_shift)
+        times = librosa.frames_to_time(d_cumsum,
+                                       sr=config.fs,
+                                       hop_length=config.n_shift)
         if cut_sil:
             start = 0
             end = d_cumsum[-1]
@@ -132,20 +133,19 @@ def process_sentences(config,
                       sentences: Dict,
                       output_dir: Path,
                       mel_extractor=None,
-                      nprocs: int=1,
-                      cut_sil: bool=True,
-                      spk_emb_dir: Path=None):
+                      nprocs: int = 1,
+                      cut_sil: bool = True,
+                      spk_emb_dir: Path = None):
     if nprocs == 1:
         results = []
         for fp in tqdm.tqdm(fps, total=len(fps)):
-            record = process_sentence(
-                config=config,
-                fp=fp,
-                sentences=sentences,
-                output_dir=output_dir,
-                mel_extractor=mel_extractor,
-                cut_sil=cut_sil,
-                spk_emb_dir=spk_emb_dir)
+            record = process_sentence(config=config,
+                                      fp=fp,
+                                      sentences=sentences,
+                                      output_dir=output_dir,
+                                      mel_extractor=mel_extractor,
+                                      cut_sil=cut_sil,
+                                      spk_emb_dir=spk_emb_dir)
             if record:
                 results.append(record)
     else:
@@ -184,33 +184,36 @@ def main():
         type=str,
         help="name of dataset, should in {baker, aishell3, ljspeech, vctk} now")
 
-    parser.add_argument(
-        "--rootdir", default=None, type=str, help="directory to dataset.")
+    parser.add_argument("--rootdir",
+                        default=None,
+                        type=str,
+                        help="directory to dataset.")
 
-    parser.add_argument(
-        "--dumpdir",
-        type=str,
-        required=True,
-        help="directory to dump feature files.")
-    parser.add_argument(
-        "--dur-file", default=None, type=str, help="path to durations.txt.")
+    parser.add_argument("--dumpdir",
+                        type=str,
+                        required=True,
+                        help="directory to dump feature files.")
+    parser.add_argument("--dur-file",
+                        default=None,
+                        type=str,
+                        help="path to durations.txt.")
 
     parser.add_argument("--config", type=str, help="fastspeech2 config file.")
 
-    parser.add_argument(
-        "--num-cpu", type=int, default=1, help="number of process.")
+    parser.add_argument("--num-cpu",
+                        type=int,
+                        default=1,
+                        help="number of process.")
 
-    parser.add_argument(
-        "--cut-sil",
-        type=str2bool,
-        default=True,
-        help="whether cut sil in the edge of audio")
+    parser.add_argument("--cut-sil",
+                        type=str2bool,
+                        default=True,
+                        help="whether cut sil in the edge of audio")
 
-    parser.add_argument(
-        "--spk_emb_dir",
-        default=None,
-        type=str,
-        help="directory to speaker embedding files.")
+    parser.add_argument("--spk_emb_dir",
+                        default=None,
+                        type=str,
+                        help="directory to speaker embedding files.")
     args = parser.parse_args()
 
     rootdir = Path(args.rootdir).expanduser()
@@ -296,46 +299,42 @@ def main():
     test_dump_dir.mkdir(parents=True, exist_ok=True)
 
     # Extractor
-    mel_extractor = LogMelFBank(
-        sr=config.fs,
-        n_fft=config.n_fft,
-        hop_length=config.n_shift,
-        win_length=config.win_length,
-        window=config.window,
-        n_mels=config.n_mels,
-        fmin=config.fmin,
-        fmax=config.fmax)
+    mel_extractor = LogMelFBank(sr=config.fs,
+                                n_fft=config.n_fft,
+                                hop_length=config.n_shift,
+                                win_length=config.win_length,
+                                window=config.window,
+                                n_mels=config.n_mels,
+                                fmin=config.fmin,
+                                fmax=config.fmax)
 
     # process for the 3 sections
     if train_wav_files:
-        process_sentences(
-            config=config,
-            fps=train_wav_files,
-            sentences=sentences,
-            output_dir=train_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir)
+        process_sentences(config=config,
+                          fps=train_wav_files,
+                          sentences=sentences,
+                          output_dir=train_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil,
+                          spk_emb_dir=spk_emb_dir)
     if dev_wav_files:
-        process_sentences(
-            config=config,
-            fps=dev_wav_files,
-            sentences=sentences,
-            output_dir=dev_dump_dir,
-            mel_extractor=mel_extractor,
-            cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir)
+        process_sentences(config=config,
+                          fps=dev_wav_files,
+                          sentences=sentences,
+                          output_dir=dev_dump_dir,
+                          mel_extractor=mel_extractor,
+                          cut_sil=args.cut_sil,
+                          spk_emb_dir=spk_emb_dir)
     if test_wav_files:
-        process_sentences(
-            config=config,
-            fps=test_wav_files,
-            sentences=sentences,
-            output_dir=test_dump_dir,
-            mel_extractor=mel_extractor,
-            nprocs=args.num_cpu,
-            cut_sil=args.cut_sil,
-            spk_emb_dir=spk_emb_dir)
+        process_sentences(config=config,
+                          fps=test_wav_files,
+                          sentences=sentences,
+                          output_dir=test_dump_dir,
+                          mel_extractor=mel_extractor,
+                          nprocs=args.num_cpu,
+                          cut_sil=args.cut_sil,
+                          spk_emb_dir=spk_emb_dir)
 
 
 if __name__ == "__main__":

@@ -32,13 +32,14 @@ logger = Log(__name__).getlog()
 
 
 def diarize_dataset(
-        full_meta,
-        split_type,
-        n_lambdas,
-        pval,
-        save_dir,
-        config,
-        n_neighbors=10, ):
+    full_meta,
+    split_type,
+    n_lambdas,
+    pval,
+    save_dir,
+    config,
+    n_neighbors=10,
+):
     """This function diarizes all the recordings in a given dataset. It performs
     computation of embedding and clusters them using spectral clustering (or other backends).
     The output speaker boundary file is stored in the RTTM format.
@@ -116,7 +117,8 @@ def diarize_dataset(
                 out_rttm_file,
                 rec_id,
                 num_spkrs,
-                pval, )
+                pval,
+            )
 
         if config.backend == "SC":
             # go for Spectral Clustering (SC).
@@ -127,7 +129,8 @@ def diarize_dataset(
                 num_spkrs,
                 pval,
                 config.affinity,
-                n_neighbors, )
+                n_neighbors,
+            )
 
         # can used for AHC later. Likewise one can add different backends here.
         if config.backend == "AHC":
@@ -147,7 +150,9 @@ def diarize_dataset(
                 shutil.copyfileobj(indi_rttm_file, cat_file)
 
     msg = "The system generated RTTM file for %s set : %s" % (
-        split_type, concate_rttm_file, )
+        split_type,
+        concate_rttm_file,
+    )
     logger.debug(msg)
 
     return concate_rttm_file
@@ -174,7 +179,8 @@ def dev_pval_tuner(full_meta, save_dir, config):
             ref_rttm_file,
             sys_rttm_file,
             config.ignore_overlap,
-            config.forgiveness_collar, )
+            config.forgiveness_collar,
+        )
 
         DER_list.append(DER_)
 
@@ -211,7 +217,8 @@ def dev_ahc_threshold_tuner(full_meta, save_dir, config):
             ref_rttm,
             sys_rttm,
             config.ignore_overlap,
-            config.forgiveness_collar, )
+            config.forgiveness_collar,
+        )
 
         DER_list.append(DER_)
 
@@ -248,7 +255,8 @@ def dev_nn_tuner(full_meta, split_type, save_dir, config):
             ref_rttm,
             sys_rttm,
             config.ignore_overlap,
-            config.forgiveness_collar, )
+            config.forgiveness_collar,
+        )
 
         DER_list.append([nn, DER_])
 
@@ -282,7 +290,8 @@ def dev_tuner(full_meta, split_type, save_dir, config):
             ref_rttm,
             sys_rttm,
             config.ignore_overlap,
-            config.forgiveness_collar, )
+            config.forgiveness_collar,
+        )
 
         DER_list.append(DER_)
 
@@ -298,7 +307,8 @@ def main(args, config):
     dev_meta_file = os.path.join(
         args.data_dir,
         config.meta_data_dir,
-        "ami_dev." + config.mic_type + ".subsegs.json", )
+        "ami_dev." + config.mic_type + ".subsegs.json",
+    )
     with open(dev_meta_file, "r") as f:
         meta_dev = json.load(f)
 
@@ -316,8 +326,8 @@ def main(args, config):
     n_lambdas = None
     best_pval = None
 
-    if config.affinity == "cos" and (config.backend == "SC" or
-                                     config.backend == "kmeans"):
+    if config.affinity == "cos" and (config.backend == "SC"
+                                     or config.backend == "kmeans"):
         # oracle num_spkrs or not, doesn't matter for kmeans and SC backends
         # cos: Tune for the best pval for SC /kmeans (for unknown num of spkrs)
         logger.info(
@@ -344,14 +354,15 @@ def main(args, config):
     eval_meta_file = os.path.join(
         args.data_dir,
         config.meta_data_dir,
-        "ami_eval." + config.mic_type + ".subsegs.json", )
+        "ami_eval." + config.mic_type + ".subsegs.json",
+    )
     with open(eval_meta_file, "r") as f:
         full_meta_eval = json.load(f)
 
     # tag to be appended to final output DER files. Writing DER for individual files.
     type_of_num_spkr = "oracle" if config.oracle_n_spkrs else "est"
-    tag = (
-        type_of_num_spkr + "_" + str(config.affinity) + "." + config.mic_type)
+    tag = (type_of_num_spkr + "_" + str(config.affinity) + "." +
+           config.mic_type)
 
     # perform final diarization on 'dev' and 'eval' with best hyperparams.
     final_DERs = {}
@@ -368,14 +379,13 @@ def main(args, config):
         # performing diarization.
         msg = "Diarizing using best hyperparams: " + split_type + " set"
         logger.info(msg)
-        out_boundaries = diarize_dataset(
-            full_meta,
-            split_type,
-            n_lambdas=n_lambdas,
-            pval=best_pval,
-            n_neighbors=best_nn,
-            save_dir=args.data_dir,
-            config=config)
+        out_boundaries = diarize_dataset(full_meta,
+                                         split_type,
+                                         n_lambdas=n_lambdas,
+                                         pval=best_pval,
+                                         n_neighbors=best_nn,
+                                         save_dir=args.data_dir,
+                                         config=config)
 
         # computing DER.
         msg = "Computing DERs for " + split_type + " set"
@@ -388,7 +398,8 @@ def main(args, config):
             sys_rttm,
             config.ignore_overlap,
             config.forgiveness_collar,
-            individual_file_scores=True, )
+            individual_file_scores=True,
+        )
 
         # writing DER values to a file. Append tag.
         der_file_name = split_type + "_DER_" + tag
@@ -411,13 +422,14 @@ def main(args, config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument(
-        "--config", default=None, type=str, help="configuration file")
-    parser.add_argument(
-        "--data-dir",
-        default="../data/",
-        type=str,
-        help="processsed data directory")
+    parser.add_argument("--config",
+                        default=None,
+                        type=str,
+                        help="configuration file")
+    parser.add_argument("--data-dir",
+                        default="../data/",
+                        type=str,
+                        help="processsed data directory")
     args = parser.parse_args()
     config = CfgNode(new_allowed=True)
     if args.config:

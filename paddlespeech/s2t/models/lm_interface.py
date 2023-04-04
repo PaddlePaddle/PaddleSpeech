@@ -21,7 +21,6 @@ from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 
 class LMInterface(ScorerInterface):
     """LM Interface model implementation."""
-
     @staticmethod
     def add_arguments(parser):
         """Add arguments to command line argument parser."""

@@ -21,16 +21,14 @@ import pyaudio
 from paddlespeech.s2t.utils.socket_server import socket_send
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument(
-    "--host_ip",
-    default="localhost",
-    type=str,
-    help="Server IP address. (default: %(default)s)")
-parser.add_argument(
-    "--host_port",
-    default=8086,
-    type=int,
-    help="Server Port. (default: %(default)s)")
+parser.add_argument("--host_ip",
+                    default="localhost",
+                    type=str,
+                    help="Server IP address. (default: %(default)s)")
+parser.add_argument("--host_port",
+                    default=8086,
+                    type=int,
+                    help="Server Port. (default: %(default)s)")
 args = parser.parse_args()
 
 is_recording = False
@@ -71,12 +69,11 @@ def callback(in_data, frame_count, time_info, status):
 def main():
     # prepare audio recorder
     p = pyaudio.PyAudio()
-    stream = p.open(
-        format=pyaudio.paInt16,
-        channels=1,
-        rate=16000,
-        input=True,
-        stream_callback=callback)
+    stream = p.open(format=pyaudio.paInt16,
+                    channels=1,
+                    rate=16000,
+                    input=True,
+                    stream_callback=callback)
     stream.start_stream()
 
     # prepare keyboard listener

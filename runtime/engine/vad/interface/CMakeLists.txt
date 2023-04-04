@@ -2,7 +2,7 @@ set(srcs
     vad_interface.cc 
 )
 
-add_library(pps_vad_interface SHARED ${srcs})
+add_library(pps_vad_interface ${srcs})
 target_link_libraries(pps_vad_interface PUBLIC pps_vad extern_glog)
 
 

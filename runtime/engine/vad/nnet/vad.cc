@@ -176,34 +176,43 @@ const Vad::State& Vad::Postprocess() {
 
     if (outputProb_ < threshold_ && !triggerd_) {
         // 1. Silence
+#ifdef PPS_DEBUG
         DLOG(INFO) << "{ silence: " << 1.0 * current_sample_ / sample_rate_
                    << " s; prob: " << outputProb_ << " }";
+#endif
         states_.emplace_back(Vad::State::SIL);
     } else if (outputProb_ >= threshold_ && !triggerd_) {
         // 2. Start
         triggerd_ = true;
         speech_start_ =
             current_sample_ - current_chunk_size_ - speech_pad_left_samples_;
+        speech_start_ = std::max(int(speech_start_), 0);
         float start_sec = 1.0 * speech_start_ / sample_rate_;
         speakStart_.emplace_back(start_sec);
+#ifdef PPS_DEBUG
         DLOG(INFO) << "{ speech start: " << start_sec
                    << " s; prob: " << outputProb_ << " }";
+#endif
         states_.emplace_back(Vad::State::START);
     } else if (outputProb_ >= threshold_ - beam_ && triggerd_) {
         // 3. Continue
 
         if (temp_end_ != 0) {
             // speech prob relaxation, speech continues again
+#ifdef PPS_DEBUG
             DLOG(INFO)
                 << "{ speech fake end(sil < min_silence_ms) to continue: "
                 << 1.0 * current_sample_ / sample_rate_
                 << " s; prob: " << outputProb_ << " }";
+#endif
             temp_end_ = 0;
         } else {
             // speech prob relaxation, keep tracking speech
+#ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech continue: "
                        << 1.0 * current_sample_ / sample_rate_
                        << " s; prob: " << outputProb_ << " }";
+#endif
         }
 
         states_.emplace_back(Vad::State::SPEECH);
@@ -216,9 +225,11 @@ const Vad::State& Vad::Postprocess() {
         // check possible speech end
         if (current_sample_ - temp_end_ < min_silence_samples_) {
             // a. silence < min_slience_samples, continue speaking
+#ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech fake end(sil < min_silence_ms): "
                        << 1.0 * current_sample_ / sample_rate_
                        << " s; prob: " << outputProb_ << " }";
+#endif
             states_.emplace_back(Vad::State::SIL);
         } else {
             // b. silence >= min_slience_samples, end speaking
@@ -227,8 +238,10 @@ const Vad::State& Vad::Postprocess() {
             triggerd_ = false;
             auto end_sec = 1.0 * speech_end_ / sample_rate_;
             speakEnd_.emplace_back(end_sec);
+#ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech end: " << end_sec
                        << " s; prob: " << outputProb_ << " }";
+#endif
             states_.emplace_back(Vad::State::END);
         }
     }
@@ -236,7 +249,44 @@ const Vad::State& Vad::Postprocess() {
     return states_.back();
 }
 
-const std::vector<std::map<std::string, float>> Vad::GetResult(
+std::string Vad::ConvertTime(float time_s) const{
+	float seconds,minutes,hours;
+	float seconds02;
+    int minutes02, hours02;
+ 
+	//	计算小时
+	hours = time_s / 60 / 60;  // 1
+	hours02 = (int)hours;
+	//cout << hours02 << endl;
+ 
+	// 计算分钟
+	minutes = time_s / 60;
+	if (minutes >= 60) {
+		//cout << minutes << endl;
+		//cout << 60 * hours02 << endl;
+		minutes02 = minutes - 60 * (double)hours02;
+	}
+	else {
+		minutes02 = minutes;
+	}
+	//cout << minutes02 << endl;
+ 
+	// 计算秒数
+	seconds = (60 * 60 * hours02) + (60 * minutes02);
+	seconds02 = time_s - seconds;
+	//cout << input_seconds << endl;
+	//cout << seconds << endl;
+	//cout << seconds02 << endl;
+ 
+	// 输出格式
+	//cout << setw(2) << hours02 <<":" << setw(2) << minutes02 << ":" << setw(2) << seconds02 << endl;
+    std::stringstream ss;
+    ss << hours02 << ":" << minutes02 << ":" << seconds02;
+ 
+	return ss.str();
+}
+
+int Vad::GetResult(char* result, int max_len,
     float removeThreshold,
     float expandHeadThreshold,
     float expandTailThreshold,
@@ -249,6 +299,8 @@ const std::vector<std::map<std::string, float>> Vad::GetResult(
         // set the audio length as the last end
         speakEnd_.emplace_back(audioLength);
     }
+    
+    std::string json = "[";
     // Remove too short segments
     //  auto startIter = speakStart_.begin();
     //  auto endIter = speakEnd_.begin();
@@ -290,12 +342,18 @@ const std::vector<std::map<std::string, float>> Vad::GetResult(
     //      }
     //  }
 
-    std::vector<std::map<std::string, float>> result;
     for (int i = 0; i < speakStart_.size(); ++i) {
-        result.emplace_back(std::map<std::string, float>(
-            {{"start", speakStart_[i]}, {"end", speakEnd_[i]}}));
+        json += "{\"s\":\"" + ConvertTime(speakStart_[i]) + "\",\"e\":\"" + ConvertTime(speakEnd_[i]) + "\"},";
     }
-    return result;
+    json.pop_back();
+    json += "]";
+    
+    if(result != NULL){
+        snprintf(result, max_len, "%s", json.c_str());
+    } else {
+        DLOG(INFO) << "result is NULL";
+    }
+    return 0;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vad::State& s) {

@@ -70,7 +70,7 @@ class Vad : public fastdeploy::FastDeployModel {
 
     const State& Postprocess();
 
-    const std::vector<std::map<std::string, float>> GetResult(
+    int GetResult(char* result, int max_len,
         float removeThreshold = 0.0,
         float expandHeadThreshold = 0.0,
         float expandTailThreshold = 0,
@@ -103,6 +103,7 @@ class Vad : public fastdeploy::FastDeployModel {
 
   private:
     bool Initialize();
+    std::string ConvertTime(float time_s) const;
 
   private:
     std::mutex init_lock_;

@@ -41,6 +41,7 @@ PPSVadState_t PPSVadFeedForward(PPSHandle_t instance,
                                 float* chunk,
                                 int num_element);
 
+int PPSVadGetResult(PPSHandle_t instance, char* result, int max_len);
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

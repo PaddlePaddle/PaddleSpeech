@@ -137,7 +137,8 @@ A Comparison between iSTFTNet and Hifigan
 > Rtf is tested on the CSMSC test dataset, and the test environment is aistudio v100 16G 1GPU, the test command is `./run.sh --stage 3 --stop-stage 3`
 
 The pretained hifigan model int the comparison  can be downloaded here:
-*  [hifigan_csmsc_ckpt.zip](https://pan.baidu.com/s/1pGY6RYV7yEB_5hRI_JoWig?pwd=tcaj)
+
+- [hifigan_csmsc_ckpt.zip](https://pan.baidu.com/s/1pGY6RYV7yEB_5hRI_JoWig?pwd=tcaj)
 
 ## Acknowledgement
 

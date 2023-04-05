@@ -138,32 +138,30 @@ class HiFiGANGenerator(nn.Layer):
                         nonlinear_activation=nonlinear_activation,
                         nonlinear_activation_params=nonlinear_activation_params,
                     ))
-        self.output_conv = nn.Sequential(
-            nn.LeakyReLU(),
-            nn.Conv1D(
-                channels // (2**(i + 1)),
-                out_channels,
-                kernel_size,
-                1,
-                padding=(kernel_size - 1) // 2, ),
-            nn.Tanh(), )
         self.use_istft = use_istft
         if self.use_istft:
             self.istft_hop_size = 1
             for j in range(istft_layer_id, len(upsample_scales)):
                 self.istft_hop_size *= upsample_scales[j]
-            self.istft_layer_id = istft_layer_id
             self.istft_n_fft = int(self.istft_hop_size * overlap_ratio)
             self.istft_win_size = self.istft_n_fft
             self.reflection_pad = nn.Pad1D(padding=[1, 0], mode='reflect')
-            self.conv_post = nn.Conv1D(
+            self.output_conv = nn.Conv1D(
                 channels // (2**(i + 1)),
                 (self.istft_n_fft // 2 + 1) * 2,
                 kernel_size,
                 1,
                 padding=(kernel_size - 1) // 2, )
         else:
-            self.istft_layer_id = len(upsample_scales)
+            self.output_conv = nn.Sequential(
+                nn.LeakyReLU(),
+                nn.Conv1D(
+                    channels // (2**(i + 1)),
+                    out_channels,
+                    kernel_size,
+                    1,
+                    padding=(kernel_size - 1) // 2, ),
+                nn.Tanh(), )
 
         if global_channels > 0:
             self.global_conv = nn.Conv1D(global_channels, channels, 1)
@@ -200,7 +198,7 @@ class HiFiGANGenerator(nn.Layer):
         if self.use_istft:
             c = F.leaky_relu(c)
             c = self.reflection_pad(c)
-            c = self.conv_post(c)
+            c = self.output_conv(c)
             """
             Input of Exp operator, an N-D Tensor, with data type float32, float64 or float16.
             https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/exp_en.html

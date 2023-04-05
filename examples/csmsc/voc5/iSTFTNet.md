@@ -117,7 +117,7 @@ optional arguments:
 
 The pretrained model can be downloaded here:
 
-- [iSTFTNet_csmsc_ckpt.zip](https://pan.baidu.com/s/1jETAg8y7LbnwqvgSrG6Lfw?pwd=i3on)
+- [iSTFTNet_csmsc_ckpt.zip](https://pan.baidu.com/s/1qTX2_Qvm6Pj2aMP7YwXRjw?pwd=eznd)
 
 iSTFTNet checkpoint contains files listed below.
 

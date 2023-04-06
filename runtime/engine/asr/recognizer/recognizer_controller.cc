@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "recognizer/recognizer_controller.h"
-#include "recognizer/u2_recognizer.h"
+//#include "recognizer/u2_recognizer.h"
 #include "nnet/u2_nnet.h"
 
 namespace ppspeech {
 
-RecognizerController::RecognizerController(int num_worker, U2RecognizerResource resource) {
+RecognizerController::RecognizerController(int num_worker, RecognizerResource resource) {
     nnet_ = std::make_shared<ppspeech::U2Nnet>(resource.model_opts); 
     recognizer_workers.resize(num_worker);
     for (size_t i = 0; i < num_worker; ++i) {
-        recognizer_workers[i].reset(new ppspeech::U2Recognizer(resource, nnet_->Clone())); 
+        recognizer_workers[i].reset(new ppspeech::RecognizerControllerImpl(resource, nnet_->Clone())); 
         waiting_workers.push(i);
     }
 }
@@ -51,7 +51,7 @@ void RecognizerController::InitDecoder(int idx) {
 }
 
 std::string RecognizerController::GetFinalResult(int idx) {
-    recognizer_workers[idx]->WaitDecodeFinished();
+    recognizer_workers[idx]->WaitDecoderFinished();
     recognizer_workers[idx]->AttentionRescoring();
     std::string result = recognizer_workers[idx]->GetFinalResult();
     {

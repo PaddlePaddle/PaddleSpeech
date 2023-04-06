@@ -36,21 +36,19 @@ class FeatureCache : public FrontendInterface {
 
     virtual void SetFinished() {
         std::unique_lock<std::mutex> lock(mutex_);
-        LOG(INFO) << "set finished";
-        // read the last chunk data
-        Compute();
         base_extractor_->SetFinished();
-        LOG(INFO) << "compute last feats done.";
     }
 
-    virtual bool IsFinished() const { return base_extractor_->IsFinished(); }
+    virtual bool IsFinished() const {
+      return base_extractor_->IsFinished() && cache_.empty(); 
+    }
 
     void Reset() override {
         std::queue<std::vector<BaseFloat>> empty;
+        VLOG(1) << "feature cache size: " << cache_.size();
         std::swap(cache_, empty);
         nframe_ = 0;
         base_extractor_->Reset();
-        VLOG(3) << "feature cache reset: cache size: " << cache_.size();
     }
 
   private:

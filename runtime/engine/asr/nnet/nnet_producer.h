@@ -25,7 +25,6 @@ class NnetProducer {
   public:
     explicit NnetProducer(std::shared_ptr<NnetBase> nnet,
                           std::shared_ptr<FrontendInterface> frontend = NULL);
-
     // Feed feats or waves
     void Accept(const std::vector<kaldi::BaseFloat>& inputs);
 
@@ -33,36 +32,24 @@ class NnetProducer {
 
     // nnet
     bool Read(std::vector<kaldi::BaseFloat>* nnet_prob);
-    bool ReadandCompute(std::vector<kaldi::BaseFloat>* nnet_prob);
-    static void RunNnetEvaluation(NnetProducer* me);
-    void RunNnetEvaluationInteral();
-    void WaitProduce();
-
-    void Wait() {
-        abort_ = true;
-        condition_variable_.notify_one();
-        if (thread_.joinable()) thread_.join();
-    }
 
     bool Empty() const { return cache_.empty(); }
 
     void SetInputFinished() {
         LOG(INFO) << "set finished";
         frontend_->SetFinished();
-        condition_variable_.notify_one();
     }
 
     // the compute thread exit
-    bool IsFinished() const { return finished_; }
-
-    ~NnetProducer() {
-        if (thread_.joinable()) thread_.join();
+    bool IsFinished() const { 
+        return (frontend_->IsFinished() && finished_); 
     }
+
+    ~NnetProducer() {}
 
     void Reset() {
         if (frontend_ != NULL) frontend_->Reset();
         if (nnet_ != NULL) nnet_->Reset();
-        VLOG(3) << "feature cache reset: cache size: " << cache_.size();
         cache_.clear();
         finished_ = false;
     }
@@ -71,19 +58,13 @@ class NnetProducer {
                             float reverse_weight,
                             std::vector<float>* rescoring_score);
 
-  private:
     bool Compute();
+  private:
 
     std::shared_ptr<FrontendInterface> frontend_;
     std::shared_ptr<NnetBase> nnet_;
     SafeQueue<std::vector<kaldi::BaseFloat>> cache_;
-    std::mutex mutex_;
-    std::mutex read_mutex_;
-    std::condition_variable condition_variable_;
-    std::condition_variable condition_read_ready_;
-    std::thread thread_;
     bool finished_;
-    bool abort_;
 
     DISALLOW_COPY_AND_ASSIGN(NnetProducer);
 };

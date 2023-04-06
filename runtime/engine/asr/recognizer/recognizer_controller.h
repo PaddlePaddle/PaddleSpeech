@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma once
+
 #include <queue>
 #include <memory>
 
-#include "recognizer/u2_recognizer.h"
+#include "recognizer/recognizer_controller_impl.h"
 #include "nnet/u2_nnet.h"
 
 namespace ppspeech {
 
 class RecognizerController {
   public:
-    explicit RecognizerController(int num_worker, U2RecognizerResource resource);  
+    explicit RecognizerController(int num_worker, RecognizerResource resource);  
     ~RecognizerController();
     int GetRecognizerInstanceId();
     void InitDecoder(int idx);
@@ -34,7 +36,9 @@ class RecognizerController {
     std::queue<int> waiting_workers;  
     std::shared_ptr<ppspeech::U2Nnet> nnet_;
     std::mutex mutex_;
-    std::vector<std::unique_ptr<ppspeech::U2Recognizer>> recognizer_workers;
+    std::vector<std::unique_ptr<ppspeech::RecognizerControllerImpl>> recognizer_workers;
+  
+    DISALLOW_COPY_AND_ASSIGN(RecognizerController);
 };
 
 }

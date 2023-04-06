@@ -16,7 +16,7 @@ set(PPS_VERSION "${PPS_VERSION_MAJOR}.${PPS_VERSION_MINOR}.${PPS_VERSION_PATCH}"
 
 # compiler option
 # Keep the same with openfst, -fPIC or -fpic
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ldl")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb -ldl")
 SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O0 -Wall -g -ggdb")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} --std=c++14 -pthread -fPIC -O3 -Wall")
 
@@ -60,7 +60,10 @@ set(FETCHCONTENT_BASE_DIR ${fc_patch})
 ###############################################################################
 # https://github.com/google/brotli/pull/655
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(NDEBUG "debug option" OFF)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    ADD_DEFINITIONS(-DNDEBUG)
+endif()
 
 option(WITH_ASR "build asr" ON)
 option(WITH_CLS "build cls" ON)
@@ -97,8 +100,11 @@ include(fastdeploy)
 
 if(WITH_ASR)
     # openfst
-    include(openfst)
-    add_dependencies(openfst gflags extern_glog)
+    #include(openfst)
+    #add_dependencies(openfst gflags extern_glog)
+    set(OpenFST_SRC /paddle/ssd1/zhouyang28/wks/PaddleSpeech/runtime/fc_patch/openfst)
+    link_directories(${OpenFST_SRC}/lib)
+    include_directories(${OpenFST_SRC}/include)
 endif()
 
 ###############################################################################

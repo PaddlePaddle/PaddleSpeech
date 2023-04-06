@@ -15,7 +15,7 @@
 #include "decoder/param.h"
 #include "frontend/wave-reader.h"
 #include "kaldi/util/table-types.h"
-#include "recognizer/u2_recognizer.h"
+#include "recognizer/recognizer_controller.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
@@ -45,10 +45,10 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    ppspeech::U2RecognizerResource resource =
-        ppspeech::U2RecognizerResource::InitFromFlags();
-    std::shared_ptr<ppspeech::U2Recognizer> recognizer_ptr(
-        new ppspeech::U2Recognizer(resource));
+    ppspeech::RecognizerResource resource =
+        ppspeech::RecognizerResource::InitFromFlags();
+    std::shared_ptr<ppspeech::RecognizerControllerImpl> recognizer_ptr(
+        new ppspeech::RecognizerControllerImpl(resource));
 
     for (; !wav_reader.Done(); wav_reader.Next()) {
         recognizer_ptr->InitDecoder();
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
         }
         CHECK(sample_offset == tot_samples);
         recognizer_ptr->SetInputFinished();
-        recognizer_ptr->WaitDecodeFinished();
+        recognizer_ptr->WaitDecoderFinished();
 
         kaldi::Timer timer;
         recognizer_ptr->AttentionRescoring();

@@ -28,7 +28,7 @@ endif()
 
 if(ANDROID)
   add_library(extern_glog INTERFACE)
-  add_dependencies(glog gflags)
+  add_dependencies(extern_glog gflags)
 else() # UNIX
   add_library(extern_glog ALIAS glog)
   add_dependencies(glog gflags)

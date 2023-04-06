@@ -7,6 +7,7 @@ add_library(kaldi-native-fbank-core
   rfft.cc
 )
 target_link_libraries(kaldi-native-fbank-core PUBLIC utils base)
+target_compile_options(kaldi-native-fbank-core PUBLIC "-fPIC")
 
 add_library(frontend STATIC
   cmvn.cc

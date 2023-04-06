@@ -49,23 +49,22 @@ int ClsNnet::Init(const ClsNnetConf& conf) {
     // init model
     fastdeploy::RuntimeOption runtime_option;
 
-#ifdef USE_ORT_BACKEND
-    runtime_option.SetModelPath(
-        conf.model_file_path_, "", fastdeploy::ModelFormat::ONNX);  // onnx
-    runtime_option.UseOrtBackend();                                 // onnx
-#endif
-#ifdef USE_PADDLE_LITE_BACKEND
-    runtime_option.SetModelPath(conf.model_file_path_,
-                                conf.param_file_path_,
-                                fastdeploy::ModelFormat::PADDLE);
-    runtime_option.UseLiteBackend();
-#endif
 #ifdef USE_PADDLE_INFERENCE_BACKEND
     runtime_option.SetModelPath(conf.model_file_path_,
                                 conf.param_file_path_,
                                 fastdeploy::ModelFormat::PADDLE);
     runtime_option.UsePaddleInferBackend();
+#elif defined(USE_ORT_BACKEND)
+    runtime_option.SetModelPath(
+        conf.model_file_path_, "", fastdeploy::ModelFormat::ONNX);  // onnx
+    runtime_option.UseOrtBackend();                                 // onnx
+#elif defined(USE_PADDLE_LITE_BACKEND)
+    runtime_option.SetModelPath(conf.model_file_path_,
+                                conf.param_file_path_,
+                                fastdeploy::ModelFormat::PADDLE);
+    runtime_option.UseLiteBackend();
 #endif
+
     runtime_option.SetCpuThreadNum(conf.num_cpu_thread_);
     // runtime_option.DeletePaddleBackendPass("simplify_with_basic_ops_pass");
     runtime_ = std::unique_ptr<fastdeploy::Runtime>(new fastdeploy::Runtime());
@@ -105,7 +104,7 @@ int ClsNnet::Forward(const char* wav_path,
                    conf_.wav_normal_,
                    conf_.wav_normal_type_,
                    conf_.wav_norm_mul_factor_);
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::ofstream fp("cls.wavform", std::ios::out);
         for (int i = 0; i < wavform.size(); ++i) {
@@ -138,7 +137,7 @@ int ClsNnet::Forward(const char* wav_path,
             feats[i * feat_dim + j] = PowerTodb(feats[i * feat_dim + j]);
         }
     }
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::ofstream fp("cls.feat", std::ios::out);
         for (int i = 0; i < num_frames; ++i) {
@@ -162,7 +161,7 @@ int ClsNnet::Forward(const char* wav_path,
 #ifdef WITH_PROFILING
     printf("fast deploy infer consume: %fs\n", timer.Elapsed());
 #endif
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::ofstream fp("cls.logits", std::ios::out);
         for (int i = 0; i < model_out.size(); ++i) {

@@ -223,7 +223,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     VLOG(3) << "feats shape: " << feats.shape()[0] << ", " << feats.shape()[1]
             << ", " << feats.shape()[2];
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("feat", std::ios_base::app | std::ios_base::out);
         path << offset_;
@@ -269,7 +269,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     cnn_cache_ = outputs[2];
 #endif
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_logits",
                                std::ios_base::app | std::ios_base::out);
@@ -299,7 +299,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     encoder_outs_.push_back(chunk_out);
     VLOG(2) << "encoder_outs_ size: " << encoder_outs_.size();
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_logits_list",
                                std::ios_base::app | std::ios_base::out);
@@ -332,7 +332,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     CHECK_EQ(outputs.size(), 1);
     paddle::Tensor ctc_log_probs = outputs[0];
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_logprob",
                                std::ios_base::app | std::ios_base::out);
@@ -371,7 +371,7 @@ void U2Nnet::ForwardEncoderChunkImpl(
     std::memcpy(
         out_prob->data(), ctc_log_probs_ptr, T * D * sizeof(kaldi::BaseFloat));
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_logits_list_ctc",
                                std::ios_base::app | std::ios_base::out);
@@ -462,7 +462,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
         }
     }
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_logits_concat",
                                std::ios_base::app | std::ios_base::out);
@@ -486,7 +486,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     paddle::Tensor encoder_out = paddle::concat(encoder_outs_, 1);
     VLOG(2) << "encoder_outs_ size: " << encoder_outs_.size();
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_out0",
                                std::ios_base::app | std::ios_base::out);
@@ -505,7 +505,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 #endif  // end TEST_DEBUG
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("encoder_out",
                                std::ios_base::app | std::ios_base::out);
@@ -536,7 +536,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     CHECK_EQ(probs_shape[0], num_hyps);
     CHECK_EQ(probs_shape[1], max_hyps_len);
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("decoder_logprob",
                                std::ios_base::app | std::ios_base::out);
@@ -554,7 +554,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 #endif  // end TEST_DEBUG
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("hyps_lens",
                                std::ios_base::app | std::ios_base::out);
@@ -570,7 +570,7 @@ void U2Nnet::AttentionRescoring(const std::vector<std::vector<int>>& hyps,
     }
 #endif  // end TEST_DEBUG
 
-#ifndef NDEBUG
+#ifdef PPS_DEBUG
     {
         std::stringstream path("hyps_tensor",
                                std::ios_base::app | std::ios_base::out);

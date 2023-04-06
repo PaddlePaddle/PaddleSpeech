@@ -100,8 +100,8 @@ void Vad::Reset() {
     temp_end_ = 0;
     current_sample_ = 0;
 
-    speakStart_.clear();
-    speakEnd_.clear();
+    speechStart_.clear();
+    speechEnd_.clear();
 
     states_.clear();
 }
@@ -188,7 +188,7 @@ const Vad::State& Vad::Postprocess() {
             current_sample_ - current_chunk_size_ - speech_pad_left_samples_;
         speech_start_ = std::max(int(speech_start_), 0);
         float start_sec = 1.0 * speech_start_ / sample_rate_;
-        speakStart_.emplace_back(start_sec);
+        speechStart_.emplace_back(start_sec);
 #ifdef PPS_DEBUG
         DLOG(INFO) << "{ speech start: " << start_sec
                    << " s; prob: " << outputProb_ << " }";
@@ -237,7 +237,7 @@ const Vad::State& Vad::Postprocess() {
             temp_end_ = 0;
             triggerd_ = false;
             auto end_sec = 1.0 * speech_end_ / sample_rate_;
-            speakEnd_.emplace_back(end_sec);
+            speechEnd_.emplace_back(end_sec);
 #ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech end: " << end_sec
                        << " s; prob: " << outputProb_ << " }";
@@ -250,38 +250,30 @@ const Vad::State& Vad::Postprocess() {
 }
 
 std::string Vad::ConvertTime(float time_s) const{
-	float seconds,minutes,hours;
-	float seconds02;
-    int minutes02, hours02;
+    float seconds_tmp, minutes_tmp, hours_tmp;
+    float seconds;
+    int minutes, hours;
  
 	//	计算小时
-	hours = time_s / 60 / 60;  // 1
-	hours02 = (int)hours;
-	//cout << hours02 << endl;
+	hours_tmp = time_s / 60 / 60;  // 1
+	hours = (int)hours_tmp;
  
 	// 计算分钟
-	minutes = time_s / 60;
-	if (minutes >= 60) {
-		//cout << minutes << endl;
-		//cout << 60 * hours02 << endl;
-		minutes02 = minutes - 60 * (double)hours02;
+	minutes_tmp = time_s / 60;
+	if (minutes_tmp >= 60) {
+		minutes = minutes_tmp - 60 * (double)hours;
 	}
 	else {
-		minutes02 = minutes;
+		minutes = minutes_tmp;
 	}
-	//cout << minutes02 << endl;
  
 	// 计算秒数
-	seconds = (60 * 60 * hours02) + (60 * minutes02);
-	seconds02 = time_s - seconds;
-	//cout << input_seconds << endl;
-	//cout << seconds << endl;
-	//cout << seconds02 << endl;
+	seconds_tmp = (60 * 60 * hours) + (60 * minutes);
+	seconds = time_s - seconds_tmp;
  
 	// 输出格式
-	//cout << setw(2) << hours02 <<":" << setw(2) << minutes02 << ":" << setw(2) << seconds02 << endl;
     std::stringstream ss;
-    ss << hours02 << ":" << minutes02 << ":" << seconds02;
+    ss << hours << ":" << minutes << ":" << seconds;
  
 	return ss.str();
 }
@@ -292,58 +284,18 @@ int Vad::GetResult(char* result, int max_len,
     float expandTailThreshold,
     float mergeThreshold) const {
     float audioLength = 1.0 * current_sample_ / sample_rate_;
-    if (speakStart_.empty() && speakEnd_.empty()) {
+    if (speechStart_.empty() && speechEnd_.empty()) {
         return {};
     }
-    if (speakEnd_.size() != speakStart_.size()) {
+    if (speechEnd_.size() != speechStart_.size()) {
         // set the audio length as the last end
-        speakEnd_.emplace_back(audioLength);
+        speechEnd_.emplace_back(audioLength);
     }
     
     std::string json = "[";
-    // Remove too short segments
-    //  auto startIter = speakStart_.begin();
-    //  auto endIter = speakEnd_.begin();
-    //  while (startIter != speakStart_.end()) {
-    //      if (removeThreshold < audioLength &&
-    //          *endIter - *startIter < removeThreshold) {
-    //          startIter = speakStart_.erase(startIter);
-    //          endIter = speakEnd_.erase(endIter);
-    //      } else {
-    //          startIter++;
-    //          endIter++;
-    //      }
-    //  }
-    //  // Expand to avoid to tight cut.
-    //  startIter = speakStart_.begin();
-    //  endIter = speakEnd_.begin();
-    //  *startIter = std::fmax(0.f, *startIter - expandHeadThreshold);
-    //  *endIter = std::fmin(*endIter + expandTailThreshold, *(startIter + 1));
-    //  endIter = speakEnd_.end() - 1;
-    //  startIter = speakStart_.end() - 1;
-    //  *startIter = fmax(*startIter - expandHeadThreshold, *(endIter - 1));
-    //  *endIter = std::fmin(*endIter + expandTailThreshold, audioLength);
-    //  for (int i = 1; i < speakStart_.size() - 1; ++i) {
-    //      speakStart_[i] = std::fmax(speakStart_[i] - expandHeadThreshold,
-    //      speakEnd_[i - 1]);
-    //      speakEnd_[i] = std::fmin(speakEnd_[i] + expandTailThreshold,
-    //      speakStart_[i + 1]);
-    //  }
-    //  // Merge very closed segments
-    //  startIter = speakStart_.begin() + 1;
-    //  endIter = speakEnd_.begin();
-    //  while (startIter != speakStart_.end()) {
-    //      if (*startIter - *endIter < mergeThreshold) {
-    //          startIter = speakStart_.erase(startIter);
-    //          endIter = speakEnd_.erase(endIter);
-    //      } else {
-    //          startIter++;
-    //          endIter++;
-    //      }
-    //  }
 
-    for (int i = 0; i < speakStart_.size(); ++i) {
-        json += "{\"s\":\"" + ConvertTime(speakStart_[i]) + "\",\"e\":\"" + ConvertTime(speakEnd_[i]) + "\"},";
+    for (int i = 0; i < speechStart_.size(); ++i) {
+        json += "{\"s\":\"" + ConvertTime(speechStart_[i]) + "\",\"e\":\"" + ConvertTime(speechEnd_[i]) + "\"},";
     }
     json.pop_back();
     json += "]";

@@ -123,8 +123,8 @@ class Vad : public fastdeploy::FastDeployModel {
     // MAX 4294967295 samples / 8sample per ms / 1000 / 60 = 8947 minutes
     float outputProb_;
 
-    std::vector<float> speakStart_;
-    mutable std::vector<float> speakEnd_;
+    std::vector<float> speechStart_;
+    mutable std::vector<float> speechEnd_;
 
     std::vector<State> states_;
 

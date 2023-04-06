@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "recognizer/recognizer_controller.h"
-//#include "recognizer/u2_recognizer.h"
 #include "nnet/u2_nnet.h"
 
 namespace ppspeech {

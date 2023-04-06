@@ -21,7 +21,6 @@ import codecs
 import os
 from pydub import AudioSegment
 import re
-import pdb
 
 from paddlespeech.cli.log import logger
 from paddlespeech.server.utils.audio_handler import ASRWsAudioHandler

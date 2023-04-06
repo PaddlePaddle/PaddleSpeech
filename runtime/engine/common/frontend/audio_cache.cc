@@ -56,28 +56,14 @@ bool AudioCache::Read(vector<BaseFloat>* waves) {
     kaldi::Timer timer;
     size_t chunk_size = waves->size();
     std::unique_lock<std::mutex> lock(mutex_);
-    while (chunk_size > size_) {
-        // when audio is empty and no more data feed
-        // ready_read_condition will block in dead lock,
-        // so replace with timeout_
-        // ready_read_condition_.wait(lock);
-        int32 elapsed = static_cast<int32>(timer.Elapsed() * 1000);
-        if (elapsed > timeout_) {
-            if (finished_ == true) {
-                // read last chunk data
-                break;
-            }
-            if (chunk_size > size_) {
-                return false;
-            }
-        }
-        usleep(100);  // sleep 0.1 ms
-    }
-
-    // read last chunk data
     if (chunk_size > size_) {
-        chunk_size = size_;
-        waves->resize(chunk_size);
+        if (finished_ == false) {
+            return false;
+        } else {
+            // read last chunk data
+            chunk_size = size_;
+            waves->resize(chunk_size);
+        }
     }
 
     for (size_t idx = 0; idx < chunk_size; ++idx) {

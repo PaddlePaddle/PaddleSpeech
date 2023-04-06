@@ -60,6 +60,7 @@ set(FETCHCONTENT_BASE_DIR ${fc_patch})
 ###############################################################################
 # https://github.com/google/brotli/pull/655
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 option(WITH_PPS_DEBUG "debug option" OFF)
 if (WITH_PPS_DEBUG)
     add_definitions("-DPPS_DEBUG")

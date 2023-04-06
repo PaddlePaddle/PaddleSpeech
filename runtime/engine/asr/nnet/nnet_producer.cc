@@ -24,42 +24,11 @@ using std::vector;
 NnetProducer::NnetProducer(std::shared_ptr<NnetBase> nnet,
                            std::shared_ptr<FrontendInterface> frontend)
     : nnet_(nnet), frontend_(frontend) {
-    abort_ = false;
     Reset();
-    if (nnet_ != nullptr) thread_ = std::thread(RunNnetEvaluation, this);
 }
 
 void NnetProducer::Accept(const std::vector<kaldi::BaseFloat>& inputs) {
     frontend_->Accept(inputs);
-    condition_variable_.notify_one();
-}
-
-void NnetProducer::WaitProduce() {
-    std::unique_lock<std::mutex> lock(read_mutex_);
-    while (frontend_->IsFinished() == false && cache_.empty()) {
-        condition_read_ready_.wait(lock);
-    }
-    return;
-}
-
-void NnetProducer::RunNnetEvaluation(NnetProducer* me) {
-    me->RunNnetEvaluationInteral();
-}
-
-void NnetProducer::RunNnetEvaluationInteral() {
-    bool result = false;
-    LOG(INFO) << "NnetEvaluationInteral begin";
-    while (!abort_) {
-        std::unique_lock<std::mutex> lock(mutex_);
-        condition_variable_.wait(lock);
-        do {
-            result = Compute();
-        } while (result);
-        if (frontend_->IsFinished() == true) {
-            if (cache_.empty()) finished_ = true;
-        }
-    }
-    LOG(INFO) << "NnetEvaluationInteral exit";
 }
 
 void NnetProducer::Acceptlikelihood(
@@ -76,14 +45,7 @@ void NnetProducer::Acceptlikelihood(
 
 bool NnetProducer::Read(std::vector<kaldi::BaseFloat>* nnet_prob) {
     bool flag = cache_.pop(nnet_prob);
-    condition_variable_.notify_one();
-    return flag;
-}
-
-bool NnetProducer::ReadandCompute(std::vector<kaldi::BaseFloat>* nnet_prob) {
-    Compute();
-    if (frontend_->IsFinished() && cache_.empty()) finished_ = true;
-    bool flag = cache_.pop(nnet_prob);
+    LOG(INFO) << "nnet cache_ size: " << cache_.size();
     return flag;
 }
 
@@ -91,7 +53,10 @@ bool NnetProducer::Compute() {
     vector<BaseFloat> features;
     if (frontend_ == NULL || frontend_->Read(&features) == false) {
         // no feat or frontend_ not init.
-        VLOG(2) << "no feat avalible";
+        LOG(INFO) << "no feat avalible";
+        if (frontend_->IsFinished() == true) {
+            finished_ = true;
+        }
         return false;
     }
     CHECK_GE(frontend_->Dim(), 0);
@@ -107,7 +72,6 @@ bool NnetProducer::Compute() {
             out.logprobs.data() + idx * vocab_dim,
             out.logprobs.data() + (idx + 1) * vocab_dim);
         cache_.push_back(logprob);
-        condition_read_ready_.notify_one();
     }
     return true;
 }

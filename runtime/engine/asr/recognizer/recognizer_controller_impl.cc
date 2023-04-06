@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+// Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "recognizer/u2_recognizer.h"
-
-#include "nnet/u2_nnet.h"
-#ifdef USE_ONNX
-#include "nnet/u2_onnx_nnet.h"
-#endif
+#include "recognizer/recognizer_controller_impl.h"
+#include "decoder/ctc_prefix_beam_search_decoder.h"
+#include "common/utils/strings.h"
 
 namespace ppspeech {
 
-using kaldi::BaseFloat;
-using std::unique_ptr;
-using std::vector;
-
-U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
-    : opts_(resource) {
+RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& resource)
+: opts_(resource) {
     BaseFloat am_scale = resource.acoustic_scale;
     const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
     std::shared_ptr<FeaturePipeline> feature_pipeline(
@@ -42,8 +35,9 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     }
 #endif
     nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline));
-    decodable_.reset(new Decodable(nnet_producer_, am_scale));
+    nnet_thread_ = std::thread(RunNnetEvaluation, this);
 
+    decodable_.reset(new Decodable(nnet_producer_, am_scale));
     CHECK_NE(resource.vocab_path, "");
     if (resource.decoder_opts.tlg_decoder_opts.fst_path.empty()) {
         LOG(INFO) << resource.decoder_opts.tlg_decoder_opts.fst_path;
@@ -55,21 +49,21 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource)
     }
 
     symbol_table_ = decoder_->WordSymbolTable();
-
     global_frame_offset_ = 0;
     input_finished_ = false;
     num_frames_ = 0;
-    result_.clear();
+    result_.clear(); 
 }
 
-U2Recognizer::U2Recognizer(const U2RecognizerResource& resource,
-                           std::shared_ptr<NnetBase> nnet)
-    : opts_(resource) {
+RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& resource,
+                                                   std::shared_ptr<NnetBase> nnet)
+    :opts_(resource) {
     BaseFloat am_scale = resource.acoustic_scale;
     const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
     std::shared_ptr<FeaturePipeline> feature_pipeline =
         std::make_shared<FeaturePipeline>(feature_opts);
-    nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline));
+    nnet_producer_ = std::make_shared<NnetProducer>(nnet, feature_pipeline);
+    nnet_thread_ = std::thread(RunNnetEvaluation, this);
     decodable_.reset(new Decodable(nnet_producer_, am_scale));
 
     CHECK_NE(resource.vocab_path, "");
@@ -88,21 +82,72 @@ U2Recognizer::U2Recognizer(const U2RecognizerResource& resource,
     result_.clear();
 }
 
-U2Recognizer::~U2Recognizer() {
-    SetInputFinished();
-    WaitDecodeFinished();
+RecognizerControllerImpl::~RecognizerControllerImpl() {
+    WaitFinished();
 }
 
-void U2Recognizer::WaitDecodeFinished() {
-    if (thread_.joinable()) thread_.join();
+void RecognizerControllerImpl::Reset() {
+    nnet_producer_->Reset();
 }
 
-void U2Recognizer::WaitFinished() {
-    if (thread_.joinable()) thread_.join();
-    nnet_producer_->Wait();
+void RecognizerControllerImpl::RunDecoder(RecognizerControllerImpl* me) {
+    me->RunDecoderInternal();
 }
 
-void U2Recognizer::InitDecoder() {
+void RecognizerControllerImpl::RunDecoderInternal() {
+    LOG(INFO) << "DecoderInternal begin";
+    while (!nnet_producer_->IsFinished()) {
+        nnet_condition_.notify_one();
+        decoder_->AdvanceDecode(decodable_);
+    }
+    decoder_->AdvanceDecode(decodable_);
+    UpdateResult(false);
+    LOG(INFO) << "DecoderInternal exit";
+}
+
+void RecognizerControllerImpl::WaitDecoderFinished() {
+    if (decoder_thread_.joinable()) decoder_thread_.join();
+}
+
+void RecognizerControllerImpl::RunNnetEvaluation(RecognizerControllerImpl* me) {
+    me->RunNnetEvaluationInternal();
+}
+
+void RecognizerControllerImpl::SetInputFinished() {
+    nnet_producer_->SetInputFinished();
+    nnet_condition_.notify_one();
+    LOG(INFO) << "Set Input Finished";
+}
+
+void RecognizerControllerImpl::WaitFinished() {
+    abort_ = true;
+    LOG(INFO) << "nnet wait finished";
+    nnet_condition_.notify_one();
+    if (nnet_thread_.joinable()) {
+        nnet_thread_.join();
+    }
+}
+
+void RecognizerControllerImpl::RunNnetEvaluationInternal() {
+    bool result = false;
+    LOG(INFO) << "NnetEvaluationInteral begin";
+    while (!abort_) {
+        std::unique_lock<std::mutex> lock(nnet_mutex_);
+        nnet_condition_.wait(lock);
+        do {
+            result = nnet_producer_->Compute();
+            decoder_condition_.notify_one();
+        } while (result);
+    }
+    LOG(INFO) << "NnetEvaluationInteral exit";    
+}
+
+void RecognizerControllerImpl::Accept(std::vector<float> data) {
+    nnet_producer_->Accept(data);
+    nnet_condition_.notify_one();
+}
+
+void RecognizerControllerImpl::InitDecoder() {
     global_frame_offset_ = 0;
     input_finished_ = false;
     num_frames_ = 0;
@@ -110,51 +155,56 @@ void U2Recognizer::InitDecoder() {
 
     decodable_->Reset();
     decoder_->Reset();
-    thread_ = std::thread(RunDecoderSearch, this);
+    decoder_thread_ = std::thread(RunDecoder, this);
 }
 
-void U2Recognizer::ResetContinuousDecoding() {
-    global_frame_offset_ = num_frames_;
-    num_frames_ = 0;
-    result_.clear();
+void RecognizerControllerImpl::AttentionRescoring() {
+    decoder_->FinalizeSearch();
+    UpdateResult(false);
 
-    decodable_->Reset();
-    decoder_->Reset();
-}
-
-void U2Recognizer::RunDecoderSearch(U2Recognizer* me) {
-    me->RunDecoderSearchInternal();
-}
-
-void U2Recognizer::RunDecoderSearchInternal() {
-    LOG(INFO) << "DecoderSearchInteral begin";
-    while (!nnet_producer_->IsFinished()) {
-        nnet_producer_->WaitProduce();
-        decoder_->AdvanceDecode(decodable_);
+    // No need to do rescoring
+    if (0.0 == opts_.decoder_opts.rescoring_weight) {
+        LOG_EVERY_N(WARNING, 3) << "Not do AttentionRescoring!";
+        return;
     }
-    decoder_->AdvanceDecode(decodable_);
-    UpdateResult(false);
-    LOG(INFO) << "DecoderSearchInteral exit";
+    LOG_EVERY_N(WARNING, 3) << "Do AttentionRescoring!";
+
+    // Inputs() returns N-best input ids, which is the basic unit for rescoring
+    // In CtcPrefixBeamSearch, inputs are the same to outputs
+    const auto& hypotheses = decoder_->Inputs();
+    int num_hyps = hypotheses.size();
+    if (num_hyps <= 0) {
+        return;
+    }
+
+    std::vector<float> rescoring_score;
+    decodable_->AttentionRescoring(
+        hypotheses, opts_.decoder_opts.reverse_weight, &rescoring_score);
+
+    // combine ctc score and rescoring score
+    for (size_t i = 0; i < num_hyps; i++) {
+        VLOG(3) << "hyp " << i << " rescoring_score: " << rescoring_score[i]
+                << " ctc_score: " << result_[i].score
+                << " rescoring_weight: " << opts_.decoder_opts.rescoring_weight
+                << " ctc_weight: " << opts_.decoder_opts.ctc_weight;
+        result_[i].score =
+            opts_.decoder_opts.rescoring_weight * rescoring_score[i] +
+            opts_.decoder_opts.ctc_weight * result_[i].score;
+
+        VLOG(3) << "hyp: " << result_[0].sentence
+                << " score: " << result_[0].score;
+    }
+
+    std::sort(result_.begin(), result_.end(), DecodeResult::CompareFunc);
+    VLOG(3) << "result: " << result_[0].sentence
+            << " score: " << result_[0].score;
 }
 
-void U2Recognizer::Accept(const vector<BaseFloat>& waves) {
-    kaldi::Timer timer;
-    nnet_producer_->Accept(waves);
-    VLOG(1) << "feed waves cost: " << timer.Elapsed() << " sec. "
-            << waves.size() << " samples.";
-}
+std::string RecognizerControllerImpl::GetFinalResult() { return result_[0].sentence; }
 
-void U2Recognizer::Decode() {
-    decoder_->AdvanceDecode(decodable_);
-    UpdateResult(false);
-}
+std::string RecognizerControllerImpl::GetPartialResult() { return result_[0].sentence; }
 
-void U2Recognizer::Rescoring() {
-    // Do attention Rescoring
-    AttentionRescoring();
-}
-
-void U2Recognizer::UpdateResult(bool finish) {
+void RecognizerControllerImpl::UpdateResult(bool finish) {
     const auto& hypotheses = decoder_->Outputs();
     const auto& inputs = decoder_->Inputs();
     const auto& likelihood = decoder_->Likelihood();
@@ -169,10 +219,9 @@ void U2Recognizer::UpdateResult(bool finish) {
         path.score = likelihood[i];
         for (size_t j = 0; j < hypothesis.size(); j++) {
             std::string word = symbol_table_->Find(hypothesis[j]);
-            // path.sentence += (" " + word); // todo SmileGoat: add blank
-            // processor
-            path.sentence += word;  // todo SmileGoat: add blank processor
+            path.sentence += (" " + word);
         }
+        path.sentence = DelBlank(path.sentence);
 
         // TimeStamp is only supported in final result
         // TimeStamp of the output of CtcWfstBeamSearch may be inaccurate due to
@@ -228,57 +277,5 @@ void U2Recognizer::UpdateResult(bool finish) {
         VLOG(1) << "Partial CTC result " << result_[0].sentence;
     }
 }
-
-void U2Recognizer::AttentionRescoring() {
-    decoder_->FinalizeSearch();
-    UpdateResult(false);
-
-    // No need to do rescoring
-    if (0.0 == opts_.decoder_opts.rescoring_weight) {
-        LOG_EVERY_N(WARNING, 3) << "Not do AttentionRescoring!";
-        return;
-    }
-    LOG_EVERY_N(WARNING, 3) << "Do AttentionRescoring!";
-
-    // Inputs() returns N-best input ids, which is the basic unit for rescoring
-    // In CtcPrefixBeamSearch, inputs are the same to outputs
-    const auto& hypotheses = decoder_->Inputs();
-    int num_hyps = hypotheses.size();
-    if (num_hyps <= 0) {
-        return;
-    }
-
-    std::vector<float> rescoring_score;
-    decodable_->AttentionRescoring(
-        hypotheses, opts_.decoder_opts.reverse_weight, &rescoring_score);
-
-    // combine ctc score and rescoring score
-    for (size_t i = 0; i < num_hyps; i++) {
-        VLOG(3) << "hyp " << i << " rescoring_score: " << rescoring_score[i]
-                << " ctc_score: " << result_[i].score
-                << " rescoring_weight: " << opts_.decoder_opts.rescoring_weight
-                << " ctc_weight: " << opts_.decoder_opts.ctc_weight;
-        result_[i].score =
-            opts_.decoder_opts.rescoring_weight * rescoring_score[i] +
-            opts_.decoder_opts.ctc_weight * result_[i].score;
-
-        VLOG(3) << "hyp: " << result_[0].sentence
-                << " score: " << result_[0].score;
-    }
-
-    std::sort(result_.begin(), result_.end(), DecodeResult::CompareFunc);
-    VLOG(3) << "result: " << result_[0].sentence
-            << " score: " << result_[0].score;
-}
-
-std::string U2Recognizer::GetFinalResult() { return result_[0].sentence; }
-
-std::string U2Recognizer::GetPartialResult() { return result_[0].sentence; }
-
-void U2Recognizer::SetInputFinished() {
-    nnet_producer_->SetInputFinished();
-    input_finished_ = true;
-}
-
 
 }  // namespace ppspeech

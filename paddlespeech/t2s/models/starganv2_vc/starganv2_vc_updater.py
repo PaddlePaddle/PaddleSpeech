@@ -169,7 +169,7 @@ class StarGANv2VCUpdater(StandardUpdater):
         # train the generator (by target reference)
         self.zero_grad()
         target_g_loss = compute_g_loss(
-            nets=self.model,
+            nets=self.models,
             x_real=x_real,
             y_org=y_org,
             y_trg=y_trg,
@@ -239,53 +239,66 @@ class StarGANv2VCEvaluator(StandardEvaluator):
         # logging.debug("Evaluate: ")
         self.msg = "Evaluate: "
         losses_dict = {}
-        wav, mel = batch
 
-        # Generator
+        x_real = batch['x_real']
+        y_org = batch['y_org']
+        x_ref = batch['x_ref']
+        x_ref2 = batch['x_ref2']
+        y_trg = batch['y_trg']
+        z_trg = batch['z_trg']
+        z_trg2 = batch['z_trg2']
 
-        wav_ = self.generator(mel)
+        # eval the discriminator
 
-        # initialize
-        gen_loss = 0.0
-        aux_loss = 0.0
+        random_d_loss = compute_d_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            z_trg=z_trg,
+            use_r1_reg=False,
+            use_adv_cls=use_adv_cls,
+            **self.d_loss_params)
 
-        ## Adversarial loss
-        p_ = self.discriminator(wav_)
-        adv_loss = self.criterion_gen_adv(p_)
-        report("eval/adversarial_loss", float(adv_loss))
-        losses_dict["adversarial_loss"] = float(adv_loss)
+        target_d_loss = compute_d_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            x_ref=x_ref,
+            use_r1_reg=False,
+            use_adv_cls=use_adv_cls,
+            **self.d_loss_params)
 
-        # feature matching loss
-        p = self.discriminator(wav)
-        fm_loss = self.criterion_feat_match(p_, p)
-        report("eval/feature_matching_loss", float(fm_loss))
-        losses_dict["feature_matching_loss"] = float(fm_loss)
-        adv_loss += self.lambda_feat_match * fm_loss
+        report("eval/random_d_loss", float(random_d_loss))
+        report("eval/target_d_loss", float(target_d_loss))
+        losses_dict["random_d_loss"] = float(random_d_loss)
+        losses_dict["target_d_loss"] = float(target_d_loss)
 
-        gen_loss += self.lambda_adv * adv_loss
+        # eval the generator
 
-        # mel spectrogram loss
-        mel_loss = self.criterion_mel(wav_, wav)
-        aux_loss += mel_loss
-        report("eval/mel_loss", float(mel_loss))
-        losses_dict["mel_loss"] = float(mel_loss)
+        random_g_loss = compute_g_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            z_trgs=[z_trg, z_trg2],
+            use_adv_cls=use_adv_cls,
+            **self.g_loss_params)
 
-        gen_loss += aux_loss * self.lambda_aux
+        target_g_loss = compute_g_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            x_refs=[x_ref, x_ref2],
+            use_adv_cls=use_adv_cls,
+            **self.g_loss_params)
 
-        report("eval/generator_loss", float(gen_loss))
-        losses_dict["generator_loss"] = float(gen_loss)
-
-        # Disctiminator
-        p = self.discriminator(wav)
-        real_loss, fake_loss = self.criterion_dis_adv(p_, p)
-        dis_loss = real_loss + fake_loss
-        report("eval/real_loss", float(real_loss))
-        report("eval/fake_loss", float(fake_loss))
-        report("eval/discriminator_loss", float(dis_loss))
-
-        losses_dict["real_loss"] = float(real_loss)
-        losses_dict["fake_loss"] = float(fake_loss)
-        losses_dict["discriminator_loss"] = float(dis_loss)
+        report("eval/random_g_loss", float(random_g_loss))
+        report("eval/target_g_loss", float(target_g_loss))
+        losses_dict["random_g_loss"] = float(random_g_loss)
+        losses_dict["target_g_loss"] = float(target_g_loss)
 
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())

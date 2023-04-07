@@ -24,9 +24,10 @@ fmax: 7600               # Maximum frequency in mel basis calculation. (Hz)
 #         GENERATOR NETWORK ARCHITECTURE SETTING          #
 ###########################################################
 generator_params:
-    use_istft: True                       # Use iSTFTNet
-    istft_layer_id: 2                     # Use istft after istft_layer_id layers of upsample layer if use_istft=True
-    overlap_ratio: 4                      # The ratio of istft_n_fft and istft_hop_size
+    use_istft: True                       # Use iSTFTNet.
+    istft_layer_id: 2                     # Use istft after istft_layer_id layers of upsample layer if use_istft=True.
+    n_fft: 2048                           # FFT size (samples) in feature extraction.
+    win_length: 1200                      # Window length (samples) in feature extraction.
     in_channels: 80                       # Number of input channels.
     out_channels: 1                       # Number of output channels.
     channels: 512                         # Number of initial channels.

@@ -50,7 +50,8 @@ class HiFiGANGenerator(nn.Layer):
             init_type: str="xavier_uniform",
             use_istft: bool=False,
             istft_layer_id: int=2,
-            overlap_ratio: float=4, ):
+            n_fft: int=2048,
+            win_length: int=1200, ):
         """Initialize HiFiGANGenerator module.
 
         Args:
@@ -87,8 +88,10 @@ class HiFiGANGenerator(nn.Layer):
                 If set to true, it will be a iSTFTNet based on hifigan.
             istft_layer_id (int):
                 Use istft after istft_layer_id layers of upsample layer if use_istft=True
-            overlap_ratio (float):
-                The ratio of istft_n_fft and istft_hop_size
+            n_fft (int):
+                Number of fft points in feature extraction
+            win_length (int):
+                Window length in feature extraction
         """
         super().__init__()
 
@@ -143,8 +146,14 @@ class HiFiGANGenerator(nn.Layer):
             self.istft_hop_size = 1
             for j in range(istft_layer_id, len(upsample_scales)):
                 self.istft_hop_size *= upsample_scales[j]
-            self.istft_n_fft = int(self.istft_hop_size * overlap_ratio)
-            self.istft_win_size = self.istft_n_fft
+            s = 1
+            for j in range(istft_layer_id):
+                s *= upsample_scales[j]
+            self.istft_n_fft = int(n_fft / s) if (
+                n_fft / s) % 2 == 0 else int((n_fft / s + 2) - n_fft / s % 2)
+            self.istft_win_length = int(win_length / s) if (
+                win_length /
+                s) % 2 == 0 else int((win_length / s + 2) - win_length / s % 2)
             self.reflection_pad = nn.Pad1D(padding=[1, 0], mode='reflect')
             self.output_conv = nn.Conv1D(
                 channels // (2**(i + 1)),
@@ -213,7 +222,7 @@ class HiFiGANGenerator(nn.Layer):
                 c,
                 n_fft=self.istft_n_fft,
                 hop_length=self.istft_hop_size,
-                win_length=self.istft_win_size)
+                win_length=self.istft_win_length)
             c = c.unsqueeze(1)
         else:
             c = self.output_conv(c)

@@ -13,22 +13,23 @@
 # limitations under the License.
 import paddle
 import paddle.nn.functional as F
-from munch import Munch
-from starganv2vc_paddle.transforms import build_transforms
+
+from .transforms import build_transforms
 
 
 # 这些都写到 updater 里
 def compute_d_loss(nets,
-                   args,
-                   x_real,
-                   y_org,
-                   y_trg,
-                   z_trg=None,
-                   x_ref=None,
+                   x_real: paddle.Tensor,
+                   y_org: paddle.Tensor,
+                   y_trg: paddle.Tensor,
+                   z_trg: paddle.Tensor=None,
+                   x_ref: paddle.Tensor=None,
                    use_r1_reg=True,
                    use_adv_cls=False,
-                   use_con_reg=False):
-    args = Munch(args)
+                   use_con_reg=False,
+                   lambda_reg: float=1.,
+                   lambda_adv_cls: float=0.1,
+                   lambda_con_reg: float=10.):
 
     assert (z_trg is None) != (x_ref is None)
     # with real audios
@@ -76,27 +77,30 @@ def compute_d_loss(nets,
     else:
         loss_real_adv_cls = paddle.zeros([1]).mean()
 
-    loss = loss_real + loss_fake + args.lambda_reg * loss_reg + \
-            args.lambda_adv_cls * loss_real_adv_cls + \
-            args.lambda_con_reg * loss_con_reg
+    loss = loss_real + loss_fake + lambda_reg * loss_reg + \
+            lambda_adv_cls * loss_real_adv_cls + \
+            lambda_con_reg * loss_con_reg
 
-    return loss, Munch(
-        real=loss_real.item(),
-        fake=loss_fake.item(),
-        reg=loss_reg.item(),
-        real_adv_cls=loss_real_adv_cls.item(),
-        con_reg=loss_con_reg.item())
+    return loss, loss_real, loss_fake, loss_reg, loss_real_adv_cls, loss_con_reg
 
 
 def compute_g_loss(nets,
-                   args,
-                   x_real,
-                   y_org,
-                   y_trg,
-                   z_trgs=None,
-                   x_refs=None,
-                   use_adv_cls=False):
-    args = Munch(args)
+                   x_real: paddle.Tensor,
+                   y_org: paddle.Tensor,
+                   y_trg: paddle.Tensor,
+                   z_trgs: paddle.Tensor=None,
+                   x_refs: paddle.Tensor=None,
+                   use_adv_cls: bool=False,
+                   lambda_sty: float=1.,
+                   lambda_cyc: float=5.,
+                   lambda_ds: float=1.,
+                   lambda_norm: float=1.,
+                   lambda_asr: float=10.,
+                   lambda_f0: float=5.,
+                   lambda_f0_sty: float=0.1,
+                   lambda_adv: float=2.,
+                   lambda_adv_cls: float=0.5,
+                   norm_bias: float=0.5):
 
     assert (z_trgs is None) != (x_refs is None)
     if z_trgs is not None:
@@ -127,15 +131,14 @@ def compute_g_loss(nets,
     # norm consistency loss
     x_fake_norm = log_norm(x_fake)
     x_real_norm = log_norm(x_real)
-    loss_norm = ((
-        paddle.nn.ReLU()(paddle.abs(x_fake_norm - x_real_norm) - args.norm_bias)
-    )**2).mean()
+    tmp = paddle.abs(x_fake_norm - x_real_norm) - norm_bias
+    loss_norm = ((paddle.nn.ReLU()(tmp))**2).mean()
 
     # F0 loss
     loss_f0 = f0_loss(F0_fake, F0_real)
 
     # style F0 loss (style initialization)
-    if x_refs is not None and args.lambda_f0_sty > 0 and not use_adv_cls:
+    if x_refs is not None and lambda_f0_sty > 0 and not use_adv_cls:
         F0_sty, _, _ = nets.f0_model(x_ref)
         loss_f0_sty = F.l1_loss(
             compute_mean_f0(F0_fake), compute_mean_f0(F0_sty))
@@ -165,10 +168,10 @@ def compute_g_loss(nets,
     x_rec = nets.generator(x_fake, s_org, masks=None, F0=GAN_F0_fake)
     loss_cyc = paddle.mean(paddle.abs(x_rec - x_real))
     # F0 loss in cycle-consistency loss
-    if args.lambda_f0 > 0:
+    if lambda_f0 > 0:
         _, _, cyc_F0_rec = nets.f0_model(x_rec)
         loss_cyc += F.smooth_l1_loss(cyc_F0_rec, cyc_F0_real)
-    if args.lambda_asr > 0:
+    if lambda_asr > 0:
         ASR_recon = nets.asr_model.get_feature(x_rec)
         loss_cyc += F.smooth_l1_loss(ASR_recon, ASR_real)
 
@@ -180,23 +183,15 @@ def compute_g_loss(nets,
     else:
         loss_adv_cls = paddle.zeros([1]).mean()
 
-    loss = args.lambda_adv * loss_adv + args.lambda_sty * loss_sty \
-           - args.lambda_ds * loss_ds + args.lambda_cyc * loss_cyc\
-           + args.lambda_norm * loss_norm \
-           + args.lambda_asr * loss_asr \
-           + args.lambda_f0 * loss_f0 \
-           + args.lambda_f0_sty * loss_f0_sty \
-           + args.lambda_adv_cls * loss_adv_cls
+    loss = lambda_adv * loss_adv + lambda_sty * loss_sty \
+           - lambda_ds * loss_ds + lambda_cyc * loss_cyc \
+           + lambda_norm * loss_norm \
+           + lambda_asr * loss_asr \
+           + lambda_f0 * loss_f0 \
+           + lambda_f0_sty * loss_f0_sty \
+           + lambda_adv_cls * loss_adv_cls
 
-    return loss, Munch(
-        adv=loss_adv.item(),
-        sty=loss_sty.item(),
-        ds=loss_ds.item(),
-        cyc=loss_cyc.item(),
-        norm=loss_norm.item(),
-        asr=loss_asr.item(),
-        f0=loss_f0.item(),
-        adv_cls=loss_adv_cls.item())
+    return loss, loss_adv, loss_sty, loss_ds, loss_cyc, loss_norm, loss_asr, loss_f0, loss_adv_cls
 
 
 # for norm consistency loss

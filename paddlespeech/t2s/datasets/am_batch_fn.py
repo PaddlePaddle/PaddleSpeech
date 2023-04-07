@@ -114,7 +114,7 @@ def erniesat_batch_fn(examples,
         ]
         span_bdy = paddle.to_tensor(span_bdy)
 
-    # dual_mask 的是混合中英时候同时 mask 语音和文本 
+    # dual_mask 的是混合中英时候同时 mask 语音和文本
     # ernie sat 在实现跨语言的时候都 mask 了
     if text_masking:
         masked_pos, text_masked_pos = phones_text_masking(
@@ -153,7 +153,7 @@ def erniesat_batch_fn(examples,
     batch = {
         "text": text,
         "speech": speech,
-        # need to generate 
+        # need to generate
         "masked_pos": masked_pos,
         "speech_mask": speech_mask,
         "text_mask": text_mask,
@@ -415,10 +415,13 @@ def fastspeech2_multi_spk_batch_fn(examples):
 
 
 def diffsinger_single_spk_batch_fn(examples):
-    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy"]
+    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", \
+    # "speech", "speech_lengths", "durations", "pitch", "energy"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     note = [np.array(item["note"], dtype=np.int64) for item in examples]
-    note_dur = [np.array(item["note_dur"], dtype=np.float32) for item in examples]
+    note_dur = [
+        np.array(item["note_dur"], dtype=np.float32) for item in examples
+    ]
     is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
     pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
@@ -471,10 +474,13 @@ def diffsinger_single_spk_batch_fn(examples):
 
 
 def diffsinger_multi_spk_batch_fn(examples):
-    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
+    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", \
+    # "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
     note = [np.array(item["note"], dtype=np.int64) for item in examples]
-    note_dur = [np.array(item["note_dur"], dtype=np.float32) for item in examples]
+    note_dur = [
+        np.array(item["note_dur"], dtype=np.float32) for item in examples
+    ]
     is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
     speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
     pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
@@ -660,6 +666,20 @@ def vits_multi_spk_batch_fn(examples):
         spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
         spk_id = paddle.to_tensor(spk_id)
         batch["spk_id"] = spk_id
+    return batch
+
+
+# 未完成
+def starganv2_vc_batch_fn(examples):
+    batch = {
+        "x_real": None,
+        "y_org": None,
+        "x_ref": None,
+        "x_ref2": None,
+        "y_trg": None,
+        "z_trg": None,
+        "z_trg2": None,
+    }
     return batch
 
 

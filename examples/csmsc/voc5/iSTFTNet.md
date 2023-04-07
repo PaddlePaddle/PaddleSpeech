@@ -117,7 +117,7 @@ optional arguments:
 
 The pretrained model can be downloaded here:
 
-- [iSTFTNet_csmsc_ckpt.zip](https://pan.baidu.com/s/1qTX2_Qvm6Pj2aMP7YwXRjw?pwd=eznd)
+- [iSTFTNet_csmsc_ckpt.zip](https://pan.baidu.com/s/1SNDlRWOGOcbbrKf5w-TJaA?pwd=r1e5)
 
 iSTFTNet checkpoint contains files listed below.
 
@@ -131,10 +131,10 @@ iSTFTNet_csmsc_ckpt
 A Comparison between iSTFTNet and Hifigan
 |  Model   |      Step      | eval/generator_loss | eval/mel_loss | eval/feature_matching_loss |  rtf   |
 |:--------:|:--------------:|:-------------------:|:-------------:|:--------------------------:| :---: |
-| hifigan  | 1(gpu) x 50000 |       13.989        |    0.14683    |           1.3484           |  0.01517   |
-| istftNet | 1(gpu) x 50000 |       12.815        |    0.14293    |          0.98067           |  0.00747   |
+| hifigan  | 1(gpu) x 50000 |       13.989        |    0.14683    |           1.3484           |  0.01767   |
+| istftNet | 1(gpu) x 50000 |       13.319        |    0.14818    |           1.1069           |  0.01069   |
 
-> Rtf is tested on the CSMSC test dataset, and the test environment is aistudio v100 16G 1GPU, the test command is `./run.sh --stage 3 --stop-stage 3`
+> Rtf is tested on the CSMSC test dataset, and the test environment is aistudio v100 16G 1GPU, the test command is `./run.sh --stage 2 --stop-stage 2`
 
 The pretained hifigan model int the comparison  can be downloaded here:
 

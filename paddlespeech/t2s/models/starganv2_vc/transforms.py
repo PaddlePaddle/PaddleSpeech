@@ -22,10 +22,10 @@ from paddle import nn
 ## 1. RandomTimeStrech
 class TimeStrech(nn.Layer):
     def __init__(self, scale):
-        super(TimeStrech, self).__init__()
+        super().__init__()
         self.scale = scale
 
-    def forward(self, x):
+    def forward(self, x: paddle.Tensor):
         mel_size = x.shape[-1]
 
         x = F.interpolate(
@@ -50,10 +50,10 @@ class TimeStrech(nn.Layer):
 ## 2. PitchShift
 class PitchShift(nn.Layer):
     def __init__(self, shift):
-        super(PitchShift, self).__init__()
+        super().__init__()
         self.shift = shift
 
-    def forward(self, x):
+    def forward(self, x: paddle.Tensor):
         if len(x.shape) == 2:
             x = x.unsqueeze(0)
         x = x.squeeze()
@@ -77,30 +77,30 @@ class PitchShift(nn.Layer):
 ## 3. ShiftBias
 class ShiftBias(nn.Layer):
     def __init__(self, bias):
-        super(ShiftBias, self).__init__()
+        super().__init__()
         self.bias = bias
 
-    def forward(self, x):
+    def forward(self, x: paddle.Tensor):
         return x + self.bias
 
 
 ## 4. Scaling
 class SpectScaling(nn.Layer):
     def __init__(self, scale):
-        super(SpectScaling, self).__init__()
+        super().__init__()
         self.scale = scale
 
-    def forward(self, x):
+    def forward(self, x: paddle.Tensor):
         return x * self.scale
 
 
 ## 5. Time Flip
 class TimeFlip(nn.Layer):
     def __init__(self, length):
-        super(TimeFlip, self).__init__()
+        super().__init__()
         self.length = round(length)
 
-    def forward(self, x):
+    def forward(self, x: paddle.Tensor):
         if self.length > 1:
             start = np.random.randint(0, x.shape[-1] - self.length)
             x_ret = x.clone()
@@ -111,12 +111,12 @@ class TimeFlip(nn.Layer):
 
 
 class PhaseShuffle2D(nn.Layer):
-    def __init__(self, n=2):
-        super(PhaseShuffle2D, self).__init__()
+    def __init__(self, n: int=2):
+        super().__init__()
         self.n = n
         self.random = random.Random(1)
 
-    def forward(self, x, move=None):
+    def forward(self, x: paddle.Tensor, move=None):
         # x.size = (B, C, M, L)
         if move is None:
             move = self.random.randint(-self.n, self.n)

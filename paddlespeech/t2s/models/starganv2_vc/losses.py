@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Any
+from typing import Dict
+
 import paddle
 import paddle.nn.functional as F
 
@@ -18,7 +21,7 @@ from .transforms import build_transforms
 
 
 # 这些都写到 updater 里
-def compute_d_loss(nets,
+def compute_d_loss(nets: Dict[str, Any],
                    x_real: paddle.Tensor,
                    y_org: paddle.Tensor,
                    y_trg: paddle.Tensor,
@@ -85,7 +88,7 @@ def compute_d_loss(nets,
     return loss
 
 
-def compute_g_loss(nets,
+def compute_g_loss(nets: Dict[str, Any],
                    x_real: paddle.Tensor,
                    y_org: paddle.Tensor,
                    y_trg: paddle.Tensor,
@@ -196,7 +199,7 @@ def compute_g_loss(nets,
 
 
 # for norm consistency loss
-def log_norm(x, mean=-4, std=4, axis=2):
+def log_norm(x: paddle.Tensor, mean: float=-4, std: float=4, axis: int=2):
     """
     normalized log mel -> mel -> norm -> log(norm)
     """
@@ -205,7 +208,7 @@ def log_norm(x, mean=-4, std=4, axis=2):
 
 
 # for adversarial loss
-def adv_loss(logits, target):
+def adv_loss(logits: paddle.Tensor, target: float):
     assert target in [1, 0]
     if len(logits.shape) > 1:
         logits = logits.reshape([-1])
@@ -216,7 +219,7 @@ def adv_loss(logits, target):
 
 
 # for R1 regularization loss
-def r1_reg(d_out, x_in):
+def r1_reg(d_out: paddle.Tensor, x_in: paddle.Tensor):
     # zero-centered gradient penalty for real images
     batch_size = x_in.shape[0]
     grad_dout = paddle.grad(
@@ -232,14 +235,14 @@ def r1_reg(d_out, x_in):
 
 
 # for F0 consistency loss
-def compute_mean_f0(f0):
+def compute_mean_f0(f0: paddle.Tensor):
     f0_mean = f0.mean(-1)
     f0_mean = f0_mean.expand((f0.shape[-1], f0_mean.shape[0])).transpose(
         (1, 0))  # (B, M)
     return f0_mean
 
 
-def f0_loss(x_f0, y_f0):
+def f0_loss(x_f0: paddle.Tensor, y_f0: paddle.Tensor):
     """
     x.shape = (B, 1, M, L): predict
     y.shape = (B, 1, M, L): target

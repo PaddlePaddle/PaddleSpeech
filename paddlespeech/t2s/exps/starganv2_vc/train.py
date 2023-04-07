@@ -38,9 +38,6 @@ from paddlespeech.t2s.models.starganv2_vc import MappingNetwork
 from paddlespeech.t2s.models.starganv2_vc import StarGANv2VCEvaluator
 from paddlespeech.t2s.models.starganv2_vc import StarGANv2VCUpdater
 from paddlespeech.t2s.models.starganv2_vc import StyleEncoder
-from paddlespeech.t2s.models.starganv2_vc.losses import adv_loss
-from paddlespeech.t2s.models.starganv2_vc.losses import f0_loss
-from paddlespeech.t2s.models.starganv2_vc.losses import r1_reg
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.extensions.visualizer import VisualDL
 from paddlespeech.t2s.training.seeding import seed_everything
@@ -65,10 +62,10 @@ def train_sp(args, config):
     print(
         f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
     )
-
+    # to edit
     fields = ["speech", "speech_lengths"]
-
     converters = {"speech": np.load}
+
     collate_fn = starganv2_vc_batch_fn
 
     # dataloader has been too verbose
@@ -139,12 +136,6 @@ def train_sp(args, config):
         discriminator = DataParallel(discriminator)
     print("models done!")
 
-    criterion_f0 = f0_loss
-    criterion_r1_reg = r1_reg
-    criterion_adv = adv_loss
-
-    print("criterions done!")
-
     lr_schedule_g = OneCycleLR(**config["generator_scheduler_params"])
     optimizer_g = AdamW(
         learning_rate=lr_schedule_g,
@@ -192,11 +183,6 @@ def train_sp(args, config):
             "mapping_network": optimizer_m,
             "discriminator": optimizer_d,
         },
-        criterions={
-            "f0": criterion_f0,
-            "r1_reg": criterion_r1_reg,
-            "adv": criterion_adv,
-        },
         schedulers={
             "generator": lr_schedule_g,
             "style_encoder": lr_schedule_s,
@@ -206,6 +192,8 @@ def train_sp(args, config):
         dataloader=train_dataloader,
         g_loss_params=config.loss_params.g_loss,
         d_loss_params=config.loss_params.d_loss,
+        adv_cls_epoch=config.loss_params.adv_cls_epoch,
+        con_reg_epoch=config.loss_params.con_reg_epoch,
         output_dir=output_dir)
 
     evaluator = StarGANv2VCEvaluator(
@@ -217,30 +205,22 @@ def train_sp(args, config):
             "F0_model": F0_model,
             "asr_model": asr_model,
         },
-        criterions={
-            "f0": criterion_f0,
-            "r1_reg": criterion_r1_reg,
-            "adv": criterion_adv,
-        },
         dataloader=dev_dataloader,
         g_loss_params=config.loss_params.g_loss,
         d_loss_params=config.loss_params.d_loss,
+        adv_cls_epoch=config.loss_params.adv_cls_epoch,
+        con_reg_epoch=config.loss_params.con_reg_epoch,
         output_dir=output_dir)
 
-    trainer = Trainer(
-        updater,
-        stop_trigger=(config.train_max_steps, "iteration"),
-        out=output_dir)
+    trainer = Trainer(updater, (config.max_epoch, 'epoch'), output_dir)
 
     if dist.get_rank() == 0:
-        trainer.extend(
-            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
-        trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
+        trainer.extend(evaluator, trigger=(1, "epoch"))
+        trainer.extend(VisualDL(output_dir), trigger=(1, "iteration"))
     trainer.extend(
-        Snapshot(max_size=config.num_snapshots),
-        trigger=(config.save_interval_steps, 'iteration'))
-
+        Snapshot(max_size=config.num_snapshots), trigger=(1, 'epoch'))
     print("Trainer Done!")
+
     trainer.run()
 
 

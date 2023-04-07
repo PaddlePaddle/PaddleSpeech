@@ -56,7 +56,11 @@ loss_params:
         lambda_reg: 1.
         lambda_adv_cls: 0.1
         lambda_con_reg: 10.
+
+    adv_cls_epoch: 50
+    con_reg_epoch: 30
         
+
 ###########################################################
 #                  DATA LOADER SETTING                    #
 ###########################################################

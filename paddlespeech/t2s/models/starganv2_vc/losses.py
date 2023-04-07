@@ -34,7 +34,8 @@ def compute_d_loss(nets,
     assert (z_trg is None) != (x_ref is None)
     # with real audios
     x_real.stop_gradient = False
-    out = nets.discriminator(x_real, y_org)
+
+    out = nets['discriminator'](x_real, y_org)
     loss_real = adv_loss(out, 1)
 
     # R1 regularizaition (https://arxiv.org/abs/1801.04406v4)
@@ -47,32 +48,32 @@ def compute_d_loss(nets,
     loss_con_reg = paddle.to_tensor([0.], dtype=paddle.float32)
     if use_con_reg:
         t = build_transforms()
-        out_aug = nets.discriminator(t(x_real).detach(), y_org)
+        out_aug = nets['discriminator'](t(x_real).detach(), y_org)
         loss_con_reg += F.smooth_l1_loss(out, out_aug)
 
     # with fake audios
     with paddle.no_grad():
         if z_trg is not None:
-            s_trg = nets.mapping_network(z_trg, y_trg)
+            s_trg = nets['mapping_network'](z_trg, y_trg)
         else:  # x_ref is not None
-            s_trg = nets.style_encoder(x_ref, y_trg)
+            s_trg = nets['style_encoder'](x_ref, y_trg)
 
-        F0 = nets.f0_model.get_feature_GAN(x_real)
-        x_fake = nets.generator(x_real, s_trg, masks=None, F0=F0)
-    out = nets.discriminator(x_fake, y_trg)
+        F0 = nets['F0_model'].get_feature_GAN(x_real)
+        x_fake = nets['generator'](x_real, s_trg, masks=None, F0=F0)
+    out = nets['discriminator'](x_fake, y_trg)
     loss_fake = adv_loss(out, 0)
     if use_con_reg:
-        out_aug = nets.discriminator(t(x_fake).detach(), y_trg)
+        out_aug = nets['discriminator'](t(x_fake).detach(), y_trg)
         loss_con_reg += F.smooth_l1_loss(out, out_aug)
 
     # adversarial classifier loss
     if use_adv_cls:
-        out_de = nets.discriminator.classifier(x_fake)
+        out_de = nets['discriminator'].classifier(x_fake)
         loss_real_adv_cls = F.cross_entropy(out_de[y_org != y_trg],
                                             y_org[y_org != y_trg])
 
         if use_con_reg:
-            out_de_aug = nets.discriminator.classifier(t(x_fake).detach())
+            out_de_aug = nets['discriminator'].classifier(t(x_fake).detach())
             loss_con_reg += F.smooth_l1_loss(out_de, out_de_aug)
     else:
         loss_real_adv_cls = paddle.zeros([1]).mean()
@@ -81,7 +82,7 @@ def compute_d_loss(nets,
             lambda_adv_cls * loss_real_adv_cls + \
             lambda_con_reg * loss_con_reg
 
-    return loss, loss_real, loss_fake, loss_reg, loss_real_adv_cls, loss_con_reg
+    return loss
 
 
 def compute_g_loss(nets,
@@ -110,23 +111,23 @@ def compute_g_loss(nets,
 
     # compute style vectors
     if z_trgs is not None:
-        s_trg = nets.mapping_network(z_trg, y_trg)
+        s_trg = nets['mapping_network'](z_trg, y_trg)
     else:
-        s_trg = nets.style_encoder(x_ref, y_trg)
+        s_trg = nets['style_encoder'](x_ref, y_trg)
 
     # compute ASR/F0 features (real)
     with paddle.no_grad():
-        F0_real, GAN_F0_real, cyc_F0_real = nets.f0_model(x_real)
-        ASR_real = nets.asr_model.get_feature(x_real)
+        F0_real, GAN_F0_real, cyc_F0_real = nets['F0_model'](x_real)
+        ASR_real = nets['asr_model'].get_feature(x_real)
 
     # adversarial loss
-    x_fake = nets.generator(x_real, s_trg, masks=None, F0=GAN_F0_real)
-    out = nets.discriminator(x_fake, y_trg)
+    x_fake = nets['generator'](x_real, s_trg, masks=None, F0=GAN_F0_real)
+    out = nets['discriminator'](x_fake, y_trg)
     loss_adv = adv_loss(out, 1)
 
     # compute ASR/F0 features (fake)
-    F0_fake, GAN_F0_fake, _ = nets.f0_model(x_fake)
-    ASR_fake = nets.asr_model.get_feature(x_fake)
+    F0_fake, GAN_F0_fake, _ = nets['F0_model'](x_fake)
+    ASR_fake = nets['asr_model'].get_feature(x_fake)
 
     # norm consistency loss
     x_fake_norm = log_norm(x_fake)
@@ -139,7 +140,7 @@ def compute_g_loss(nets,
 
     # style F0 loss (style initialization)
     if x_refs is not None and lambda_f0_sty > 0 and not use_adv_cls:
-        F0_sty, _, _ = nets.f0_model(x_ref)
+        F0_sty, _, _ = nets['F0_model'](x_ref)
         loss_f0_sty = F.l1_loss(
             compute_mean_f0(F0_fake), compute_mean_f0(F0_sty))
     else:
@@ -149,35 +150,35 @@ def compute_g_loss(nets,
     loss_asr = F.smooth_l1_loss(ASR_fake, ASR_real)
 
     # style reconstruction loss
-    s_pred = nets.style_encoder(x_fake, y_trg)
+    s_pred = nets['style_encoder'](x_fake, y_trg)
     loss_sty = paddle.mean(paddle.abs(s_pred - s_trg))
 
     # diversity sensitive loss
     if z_trgs is not None:
-        s_trg2 = nets.mapping_network(z_trg2, y_trg)
+        s_trg2 = nets['mapping_network'](z_trg2, y_trg)
     else:
-        s_trg2 = nets.style_encoder(x_ref2, y_trg)
-    x_fake2 = nets.generator(x_real, s_trg2, masks=None, F0=GAN_F0_real)
+        s_trg2 = nets['style_encoder'](x_ref2, y_trg)
+    x_fake2 = nets['generator'](x_real, s_trg2, masks=None, F0=GAN_F0_real)
     x_fake2 = x_fake2.detach()
-    _, GAN_F0_fake2, _ = nets.f0_model(x_fake2)
+    _, GAN_F0_fake2, _ = nets['F0_model'](x_fake2)
     loss_ds = paddle.mean(paddle.abs(x_fake - x_fake2))
     loss_ds += F.smooth_l1_loss(GAN_F0_fake, GAN_F0_fake2.detach())
 
     # cycle-consistency loss
-    s_org = nets.style_encoder(x_real, y_org)
-    x_rec = nets.generator(x_fake, s_org, masks=None, F0=GAN_F0_fake)
+    s_org = nets['style_encoder'](x_real, y_org)
+    x_rec = nets['generator'](x_fake, s_org, masks=None, F0=GAN_F0_fake)
     loss_cyc = paddle.mean(paddle.abs(x_rec - x_real))
     # F0 loss in cycle-consistency loss
     if lambda_f0 > 0:
-        _, _, cyc_F0_rec = nets.f0_model(x_rec)
+        _, _, cyc_F0_rec = nets['F0_model'](x_rec)
         loss_cyc += F.smooth_l1_loss(cyc_F0_rec, cyc_F0_real)
     if lambda_asr > 0:
-        ASR_recon = nets.asr_model.get_feature(x_rec)
+        ASR_recon = nets['asr_model'].get_feature(x_rec)
         loss_cyc += F.smooth_l1_loss(ASR_recon, ASR_real)
 
     # adversarial classifier loss
     if use_adv_cls:
-        out_de = nets.discriminator.classifier(x_fake)
+        out_de = nets['discriminator'].classifier(x_fake)
         loss_adv_cls = F.cross_entropy(out_de[y_org != y_trg],
                                        y_trg[y_org != y_trg])
     else:
@@ -191,7 +192,7 @@ def compute_g_loss(nets,
            + lambda_f0_sty * loss_f0_sty \
            + lambda_adv_cls * loss_adv_cls
 
-    return loss, loss_adv, loss_sty, loss_ds, loss_cyc, loss_norm, loss_asr, loss_f0, loss_adv_cls
+    return loss
 
 
 # for norm consistency loss

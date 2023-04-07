@@ -15,7 +15,6 @@ import logging
 from typing import Any
 from typing import Dict
 
-import paddle
 from paddle import distributed as dist
 from paddle.io import DataLoader
 from paddle.nn import Layer
@@ -37,7 +36,6 @@ class StarGANv2VCUpdater(StandardUpdater):
     def __init__(self,
                  models: Dict[str, Layer],
                  optimizers: Dict[str, Optimizer],
-                 criterions: Dict[str, Layer],
                  schedulers: Dict[str, LRScheduler],
                  dataloader: DataLoader,
                  g_loss_params: Dict[str, Any]={
@@ -57,25 +55,17 @@ class StarGANv2VCUpdater(StandardUpdater):
                      'lambda_adv_cls': 0.1,
                      'lambda_con_reg': 10.,
                  },
+                 adv_cls_epoch: int=50,
+                 con_reg_epoch: int=30,
+                 use_r1_reg: bool=False,
                  output_dir=None):
         self.models = models
-        self.generator = models['generator']
-        self.style_encoder = models['style_encoder']
-        self.mapping_network = models['mapping_network']
-        self.discriminator = models['discriminator']
-        self.F0_model = models['F0_model']
-        self.asr_model = models['asr_model']
 
         self.optimizers = optimizers
         self.optimizer_g = optimizers['optimizer_g']
         self.optimizer_s = optimizers['optimizer_s']
         self.optimizer_m = optimizers['optimizer_m']
         self.optimizer_d = optimizers['optimizer_d']
-
-        self.criterions = criterions
-        self.criterion_f0 = criterions['f0']
-        self.criterion_r1_reg = criterions['r1_reg']
-        self.criterion_adv = criterions["adv"]
 
         self.schedulers = schedulers
         self.scheduler_g = schedulers['generator']
@@ -88,6 +78,10 @@ class StarGANv2VCUpdater(StandardUpdater):
         self.g_loss_params = g_loss_params
         self.d_loss_params = d_loss_params
 
+        self.use_r1_reg = use_r1_reg
+        self.con_reg_epoch = con_reg_epoch
+        self.adv_cls_epoch = adv_cls_epoch
+
         self.state = UpdaterState(iteration=0, epoch=0)
         self.train_iterator = iter(self.dataloader)
 
@@ -97,92 +91,111 @@ class StarGANv2VCUpdater(StandardUpdater):
         self.logger = logger
         self.msg = ""
 
+    def zero_grad(self):
+        self.optimizer_d.clear_grad()
+        self.optimizer_g.clear_grad()
+        self.optimizer_m.clear_grad()
+        self.optimizer_s.clear_grad()
+
+    def scheduler(self):
+        self.scheduler_d.step()
+        self.scheduler_g.step()
+        self.scheduler_m.step()
+        self.scheduler_s.step()
+
     def update_core(self, batch):
         self.msg = "Rank: {}, ".format(dist.get_rank())
         losses_dict = {}
         # parse batch
-        x_real, y_org, x_ref, x_ref2, y_trg, z_trg, z_trg2 = batch
+        x_real = batch['x_real']
+        y_org = batch['y_org']
+        x_ref = batch['x_ref']
+        x_ref2 = batch['x_ref2']
+        y_trg = batch['y_trg']
+        z_trg = batch['z_trg']
+        z_trg2 = batch['z_trg2']
 
-        # Discriminator
+        use_con_reg = (self.state.epoch >= self.con_reg_epoch)
+        use_adv_cls = (self.state.epoch >= self.adv_cls_epoch)
+
+        # Discriminator loss
+        # train the discriminator (by random reference)
+        self.zero_grad()
+        random_d_loss = compute_d_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            z_trg=z_trg,
+            use_adv_cls=use_adv_cls,
+            use_con_reg=use_con_reg,
+            **self.d_loss_params)
+        random_d_loss.backward()
+        self.optimizer_d.step()
+        # train the discriminator (by target reference)
+        self.zero_grad()
+        target_d_loss = compute_d_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            x_ref=x_ref,
+            use_adv_cls=use_adv_cls,
+            use_con_reg=use_con_reg,
+            **self.d_loss_params)
+        target_d_loss.backward()
+        self.optimizer_d.step()
+        report("train/random_d_loss", float(random_d_loss))
+        report("train/target_d_loss", float(target_d_loss))
+        losses_dict["random_d_loss"] = float(random_d_loss)
+        losses_dict["target_d_loss"] = float(target_d_loss)
 
         # Generator
-        '''
-        if self.state.iteration > self.generator_train_start_steps:
+        # train the generator (by random reference)
+        self.zero_grad()
+        random_g_loss = compute_g_loss(
+            nets=self.models,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            z_trgs=[z_trg, z_trg2],
+            use_adv_cls=use_adv_cls,
+            **self.g_loss_params)
+        random_g_loss.backward()
+        self.optimizer_g.step()
+        self.optimizer_m.step()
+        self.optimizer_s.step()
 
-            wav_ = self.generator(mel)
+        # train the generator (by target reference)
+        self.zero_grad()
+        target_g_loss = compute_g_loss(
+            nets=self.model,
+            x_real=x_real,
+            y_org=y_org,
+            y_trg=y_trg,
+            x_refs=[x_ref, x_ref2],
+            use_adv_cls=use_adv_cls,
+            **self.g_loss_params)
+        target_g_loss.backward()
+        # 此处是否要 optimizer_g optimizer_m optimizer_s 都写上？
+        # 源码没写上后两个是否是疏忽？
+        self.optimizer_g.step()
+        # self.optimizer_m.step()
+        # self.optimizer_s.step()
+        report("train/random_g_loss", float(random_g_loss))
+        report("train/target_g_loss", float(target_g_loss))
+        losses_dict["random_g_loss"] = float(random_g_loss)
+        losses_dict["target_g_loss"] = float(target_g_loss)
 
-            # initialize
-            gen_loss = 0.0
-            aux_loss = 0.0
-
-            # mel spectrogram loss
-            mel_loss = self.criterion_mel(wav_, wav)
-            aux_loss += mel_loss
-            report("train/mel_loss", float(mel_loss))
-            losses_dict["mel_loss"] = float(mel_loss)
-
-            gen_loss += aux_loss * self.lambda_aux
-
-            # adversarial loss
-            if self.state.iteration > self.discriminator_train_start_steps:
-                p_ = self.discriminator(wav_)
-                adv_loss = self.criterion_gen_adv(p_)
-                report("train/adversarial_loss", float(adv_loss))
-                losses_dict["adversarial_loss"] = float(adv_loss)
-
-                # feature matching loss
-                # no need to track gradients
-                with paddle.no_grad():
-                    p = self.discriminator(wav)
-                fm_loss = self.criterion_feat_match(p_, p)
-                report("train/feature_matching_loss", float(fm_loss))
-                losses_dict["feature_matching_loss"] = float(fm_loss)
-
-                adv_loss += self.lambda_feat_match * fm_loss
-
-                gen_loss += self.lambda_adv * adv_loss
-
-            report("train/generator_loss", float(gen_loss))
-            losses_dict["generator_loss"] = float(gen_loss)
-
-            self.optimizer_g.clear_grad()
-            gen_loss.backward()
-
-            self.optimizer_g.step()
-            self.scheduler_g.step()
-
-        # Disctiminator
-        if self.state.iteration > self.discriminator_train_start_steps:
-            # re-compute wav_ which leads better quality
-            with paddle.no_grad():
-                wav_ = self.generator(mel)
-
-            p = self.discriminator(wav)
-            p_ = self.discriminator(wav_.detach())
-            real_loss, fake_loss = self.criterion_dis_adv(p_, p)
-            dis_loss = real_loss + fake_loss
-            report("train/real_loss", float(real_loss))
-            report("train/fake_loss", float(fake_loss))
-            report("train/discriminator_loss", float(dis_loss))
-            losses_dict["real_loss"] = float(real_loss)
-            losses_dict["fake_loss"] = float(fake_loss)
-            losses_dict["discriminator_loss"] = float(dis_loss)
-
-            self.optimizer_d.clear_grad()
-            dis_loss.backward()
-
-            self.optimizer_d.step()
-            self.scheduler_d.step()
+        self.scheduler()
 
         self.msg += ', '.join('{}: {:>.6f}'.format(k, v)
                               for k, v in losses_dict.items())
-        '''
 
 
 class StarGANv2VCEvaluator(StandardEvaluator):
     def __init__(self,
                  models: Dict[str, Layer],
-                 criterions: Dict[str, Layer],
                  dataloader: DataLoader,
                  g_loss_params: Dict[str, Any]={
                      'lambda_sty': 1.,
@@ -201,24 +214,20 @@ class StarGANv2VCEvaluator(StandardEvaluator):
                      'lambda_adv_cls': 0.1,
                      'lambda_con_reg': 10.,
                  },
+                 adv_cls_epoch: int=50,
+                 con_reg_epoch: int=30,
+                 use_r1_reg: bool=False,
                  output_dir=None):
         self.models = models
-        self.generator = models['generator']
-        self.style_encoder = models['style_encoder']
-        self.mapping_network = models['mapping_network']
-        self.discriminator = models['discriminator']
-        self.F0_model = models['F0_model']
-        self.asr_model = models['asr_model']
-
-        self.criterions = criterions
-        self.criterion_f0 = criterions['f0']
-        self.criterion_r1_reg = criterions['r1_reg']
-        self.criterion_adv = criterions["adv"]
 
         self.dataloader = dataloader
 
         self.g_loss_params = g_loss_params
         self.d_loss_params = d_loss_params
+
+        self.use_r1_reg = use_r1_reg
+        self.con_reg_epoch = con_reg_epoch
+        self.adv_cls_epoch = adv_cls_epoch
 
         log_file = output_dir / 'worker_{}.log'.format(dist.get_rank())
         self.filehandler = logging.FileHandler(str(log_file))

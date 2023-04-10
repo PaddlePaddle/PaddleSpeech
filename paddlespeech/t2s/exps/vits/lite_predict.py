@@ -21,6 +21,7 @@ from paddlespeech.t2s.exps.lite_syn_utils import get_lite_am_output
 from paddlespeech.t2s.exps.lite_syn_utils import get_lite_predictor
 from paddlespeech.t2s.exps.syn_utils import get_frontend
 from paddlespeech.t2s.exps.syn_utils import get_sentences
+from paddlespeech.t2s.utils import str2bool
 
 
 def parse_args():
@@ -75,12 +76,12 @@ def main():
     # frontend
     frontend = get_frontend(
         lang=args.lang,
-        phones_dict=args.phones_dict,
-        tones_dict=args.tones_dict)
+        phones_dict=args.phones_dict)
 
     # am_predictor
+    # vits can only run in arm
     am_predictor = get_lite_predictor(
-        model_dir=args.inference_dir, model_file=args.am + "_x86.nb")
+        model_dir=args.inference_dir, model_file=args.am + "_arm.nb")
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 

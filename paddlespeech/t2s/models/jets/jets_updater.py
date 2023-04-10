@@ -133,9 +133,7 @@ class JETSUpdater(StandardUpdater):
             # Generator
             if turn == "generator":
                 # parse outputs
-                speech_hat_, bin_loss, (
-                    log_p_attn,
-                    attn), start_idxs, d_outs, ds, p_outs, ps, e_outs, es = outs
+                speech_hat_, bin_loss, log_p_attn, start_idxs, d_outs, ds, p_outs, ps, e_outs, es = outs
                 speech_ = get_segments(
                     x=speech,
                     start_idxs=start_idxs *
@@ -192,7 +190,7 @@ class JETSUpdater(StandardUpdater):
 
                 if self.use_alignment_module == True:
                     forwardsum_loss = self.criterion_forwardsum(
-                        attn, text_lengths, feats_lengths)
+                        log_p_attn, text_lengths, feats_lengths)
                     align_loss = (
                         forwardsum_loss + bin_loss) * self.lambda_align
                     report("train/generator_alignment_loss", float(align_loss))
@@ -330,9 +328,7 @@ class JETSEvaluator(StandardEvaluator):
             # Generator
             if turn == "generator":
                 # parse outputs
-                speech_hat_, bin_loss, (
-                    log_p_attn,
-                    attn), start_idxs, d_outs, ds, p_outs, ps, e_outs, es = outs
+                speech_hat_, bin_loss, log_p_attn, start_idxs, d_outs, ds, p_outs, ps, e_outs, es = outs
                 speech_ = get_segments(
                     x=speech,
                     start_idxs=start_idxs *
@@ -389,7 +385,7 @@ class JETSEvaluator(StandardEvaluator):
 
                 if self.use_alignment_module == True:
                     forwardsum_loss = self.criterion_forwardsum(
-                        attn, text_lengths, feats_lengths)
+                        log_p_attn, text_lengths, feats_lengths)
                     align_loss = (
                         forwardsum_loss + bin_loss) * self.lambda_align
                     report("eval/generator_alignment_loss", float(align_loss))

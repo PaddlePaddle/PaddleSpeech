@@ -52,23 +52,20 @@ bool Assembler::Compute(vector<BaseFloat>* feats) {
         vector<BaseFloat> feature;
         bool result = base_extractor_->Read(&feature);
         if (result == false || feature.size() == 0) {
-            VLOG(3) << "result: " << result
+            VLOG(1) << "result: " << result
                     << " feature dim: " << feature.size();
             if (IsFinished() == false) {
-                VLOG(3) << "finished reading feature. cache size: "
+                VLOG(1) << "finished reading feature. cache size: "
                         << feature_cache_.size();
                 return false;
             } else {
-                VLOG(3) << "break";
+                VLOG(1) << "break";
                 break;
             }
         }
-
-        CHECK(feature.size() == dim_);
         feature_cache_.push(feature);
-
         nframes_ += 1;
-        VLOG(3) << "nframes: " << nframes_;
+        VLOG(1) << "nframes: " << nframes_;
     }
 
     if (feature_cache_.size() < receptive_filed_length_) {

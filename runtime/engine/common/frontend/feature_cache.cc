@@ -49,7 +49,8 @@ bool FeatureCache::Read(std::vector<kaldi::BaseFloat>* feats) {
     // read from cache
     *feats = cache_.front();
     cache_.pop();
-    VLOG(1) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
+    VLOG(2) << "FeatureCache::Read cost: " << timer.Elapsed() << " sec.";
+    VLOG(1) << "FeatureCache::size : " <<  cache_.size();
     return true;
 }
 
@@ -74,7 +75,7 @@ bool FeatureCache::Compute() {
         ++nframe_;
     }
 
-    VLOG(1) << "FeatureCache::Compute cost: " << timer.Elapsed() << " sec. "
+    VLOG(2) << "FeatureCache::Compute cost: " << timer.Elapsed() << " sec. "
             << num_chunk << " feats.";
     return true;
 }

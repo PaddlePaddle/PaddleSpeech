@@ -39,7 +39,7 @@ class AudioCache : public FrontendInterface {
         finished_ = true;
     }
 
-    virtual bool IsFinished() const { return finished_; }
+    virtual bool IsFinished() const { return finished_ && (size_ == 0); }
 
     void Reset() override {
         offset_ = 0;

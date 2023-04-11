@@ -1,28 +1,8 @@
-// Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #pragma once
 
-#include "decoder/common.h"
 #include "decoder/ctc_beam_search_opt.h"
-#include "decoder/ctc_prefix_beam_search_decoder.h"
 #include "decoder/ctc_tlg_decoder.h"
-#include "decoder/decoder_itf.h"
 #include "frontend/feature_pipeline.h"
-#include "fst/fstlib.h"
-#include "fst/symbol-table.h"
-#include "nnet/decodable.h"
 
 DECLARE_int32(nnet_decoder_chunk);
 DECLARE_int32(num_left_chunks);
@@ -87,7 +67,7 @@ struct DecodeOptions {
     }
 };
 
-struct U2RecognizerResource {
+struct RecognizerResource {
     kaldi::BaseFloat acoustic_scale{1.0};
     std::string vocab_path{};
 
@@ -95,8 +75,8 @@ struct U2RecognizerResource {
     ModelOptions model_opts{};
     DecodeOptions decoder_opts{};
 
-    static U2RecognizerResource InitFromFlags() {
-        U2RecognizerResource resource;
+    static RecognizerResource InitFromFlags() {
+        RecognizerResource resource;
         resource.vocab_path = FLAGS_vocab_path;
         resource.acoustic_scale = FLAGS_acoustic_scale;
         LOG(INFO) << "vocab path: " << resource.vocab_path;
@@ -113,68 +93,4 @@ struct U2RecognizerResource {
     }
 };
 
-
-class U2Recognizer {
-  public:
-    explicit U2Recognizer(const U2RecognizerResource& resouce);
-    explicit U2Recognizer(const U2RecognizerResource& resource,
-                          std::shared_ptr<NnetBase> nnet);
-    ~U2Recognizer();
-    void InitDecoder();
-    void ResetContinuousDecoding();
-
-    void Accept(const std::vector<kaldi::BaseFloat>& waves);
-    void Decode();
-    void Rescoring();
-
-    std::string GetFinalResult();
-    std::string GetPartialResult();
-
-    void SetInputFinished();
-    bool IsFinished() { return input_finished_; }
-    void WaitDecodeFinished();
-    void WaitFinished();
-
-    bool DecodedSomething() const {
-        return !result_.empty() && !result_[0].sentence.empty();
-    }
-
-    int FrameShiftInMs() const {
-        // one decoder frame length in ms, todo
-        return 1;
-        //    return decodable_->Nnet()->SubsamplingRate() *
-        //          feature_pipeline_->FrameShift();
-    }
-
-    const std::vector<DecodeResult>& Result() const { return result_; }
-    void AttentionRescoring();
-
-  private:
-    static void RunDecoderSearch(U2Recognizer* me);
-    void RunDecoderSearchInternal();
-    void UpdateResult(bool finish = false);
-
-  private:
-    U2RecognizerResource opts_;
-
-    std::shared_ptr<NnetProducer> nnet_producer_;
-    std::shared_ptr<Decodable> decodable_;
-    std::unique_ptr<DecoderBase> decoder_;
-
-    // e2e unit symbol table
-    std::shared_ptr<fst::SymbolTable> symbol_table_ = nullptr;
-
-    std::vector<DecodeResult> result_;
-
-    // global decoded frame offset
-    int global_frame_offset_;
-    // cur decoded frame num
-    int num_frames_;
-    // timestamp gap between words in a sentence
-    const int time_stamp_gap_ = 100;
-
-    bool input_finished_;
-    std::thread thread_;
-};
-
-}  // namespace ppspeech
+} //namespace ppspeech

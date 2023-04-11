@@ -19,7 +19,6 @@
 #include "frontend/wave-reader.h"
 #include "kaldi/util/table-types.h"
 #include "nnet/u2_nnet.h"
-#include "recognizer/u2_recognizer.h"
 #include "recognizer/recognizer_controller.h"
 
 DEFINE_string(wav_rspecifier, "", "test feature rspecifier");
@@ -69,9 +68,10 @@ void recognizer_func(ppspeech::RecognizerController* recognizer_controller,
         kaldi::WaveData wave_data;
         wave_data.Read(infile);
         int32 recog_id = -1;
-        while (recog_id != -1) {
+        while (recog_id == -1) {
             recog_id = recognizer_controller->GetRecognizerInstanceId();
         }
+        recognizer_controller->InitDecoder(recog_id);
         LOG(INFO) << "utt: " << utt;
         LOG(INFO) << "wav dur: " << wave_data.Duration() << " sec.";
         double dur = wave_data.Duration();
@@ -96,13 +96,10 @@ void recognizer_func(ppspeech::RecognizerController* recognizer_controller,
             }
 
             recognizer_controller->Accept(wav_chunk, recog_id);
-            if (cur_chunk_size < chunk_sample_size) {
-               recognizer_controller->SetInputFinished(recog_id);
-            }
-
             // no overlap
             sample_offset += cur_chunk_size;
         }
+        recognizer_controller->SetInputFinished(recog_id);
         CHECK(sample_offset == tot_samples);
         std::string result = recognizer_controller->GetFinalResult(recog_id);
         if (result.empty()) {
@@ -142,8 +139,8 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "chunk size (s): " << streaming_chunk;
     LOG(INFO) << "chunk size (sample): " << chunk_sample_size;
 
-    ppspeech::U2RecognizerResource resource =
-        ppspeech::U2RecognizerResource::InitFromFlags();
+    ppspeech::RecognizerResource resource =
+        ppspeech::RecognizerResource::InitFromFlags();
     ppspeech::RecognizerController recognizer_controller(njob, resource);
     ThreadPool threadpool(njob);
     vector<vector<string>> wavlist;

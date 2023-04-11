@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma once
+
 #include "base/common.h"
 #include "kaldi/decoder/decodable-itf.h"
 #include "matrix/kaldi-matrix.h"

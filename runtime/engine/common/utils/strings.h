@@ -25,6 +25,12 @@ std::vector<std::string> StrSplit(const std::string& str,
 
 std::string StrJoin(const std::vector<std::string>& strs, const char* delim);
 
+std::string DelBlank(const std::string& str);
+
+std::string AddBlank(const std::string& str);
+
+std::string ReverseFraction(const std::string& str);
+
 #ifdef _MSC_VER
 std::wstring ToWString(const std::string& str);
 #endif

@@ -1,0 +1,5 @@
+WORKROOT("..")
+COMPILER("gcc82")
+HEADERS("include/*", "$INC")
+SharedLibrary("fastdeploy", PreBuilt(True))
+OUTPUT(GLOB("lib/*.so*"), "$OUT/so")

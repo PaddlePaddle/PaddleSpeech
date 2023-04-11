@@ -1,0 +1,22 @@
+#edit-mode: -*- python -*-
+#coding:gbk
+
+WORKROOT('../../../')
+GCC('gcc82')
+
+CPPFLAGS('-g -DNDEBUG -pipe -W -Wall -Werror -fPIC -Wno-deprecated -Wno-unused-parameter -fno-omit-frame-pointer -D__const__= -std=c++11 -D__STDC_FORMAT_MACROS -DBAIDU_RPC_ENABLE_CPU_PROFILER -DBAIDU_RPC_ENABLE_HEAP_PROFILER')
+LDFLAGS('-lpthread -pthread -lrt -ldl -lz')
+
+CONFIGS('baidu/base/baidu-rpc@stable')
+CONFIGS('baidu/third-party/openssl@openssl_V1.0.2.10_GCC820_6U3_K2_GEN_PD_BL@git_tag')
+CONFIGS('baidu/third-party/tcmalloc@tcmalloc_V2.7.0.7_GCC820_4U3_K3_GEN_PD_BL@git_tag')
+CONFIGS("baidu/third-party/protobuf@protobuf_V2.6.1.1_GCC820_4U3_K3_GEN_PD_BL@git_tag")
+CONFIGS('baidu/base/ullib@stable')
+
+HEADERS(GLOB_GEN_SRCS('./proto/*.pb.h'), '$INC')
+PROTOC(ENV.WorkRoot() + '/third-64/protobuf/bin/protoc')
+PROTOFLAGS('-I../../../third-64/protobuf/include')
+PROTOFLAGS('--proto_path=.', '--cpp_out=.')
+
+
+Directory("paraformerCPP")

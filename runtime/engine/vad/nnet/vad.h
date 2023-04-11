@@ -70,7 +70,7 @@ class Vad : public fastdeploy::FastDeployModel {
 
     const State& Postprocess();
 
-    const std::vector<std::map<std::string, float>> GetResult(
+    int GetResult(char* result, int max_len,
         float removeThreshold = 0.0,
         float expandHeadThreshold = 0.0,
         float expandTailThreshold = 0,
@@ -103,6 +103,7 @@ class Vad : public fastdeploy::FastDeployModel {
 
   private:
     bool Initialize();
+    std::string ConvertTime(float time_s) const;
 
   private:
     std::mutex init_lock_;
@@ -122,8 +123,8 @@ class Vad : public fastdeploy::FastDeployModel {
     // MAX 4294967295 samples / 8sample per ms / 1000 / 60 = 8947 minutes
     float outputProb_;
 
-    std::vector<float> speakStart_;
-    mutable std::vector<float> speakEnd_;
+    std::vector<float> speechStart_;
+    mutable std::vector<float> speechEnd_;
 
     std::vector<State> states_;
 

@@ -100,8 +100,8 @@ void Vad::Reset() {
     temp_end_ = 0;
     current_sample_ = 0;
 
-    speakStart_.clear();
-    speakEnd_.clear();
+    speechStart_.clear();
+    speechEnd_.clear();
 
     states_.clear();
 }
@@ -176,34 +176,43 @@ const Vad::State& Vad::Postprocess() {
 
     if (outputProb_ < threshold_ && !triggerd_) {
         // 1. Silence
+#ifdef PPS_DEBUG
         DLOG(INFO) << "{ silence: " << 1.0 * current_sample_ / sample_rate_
                    << " s; prob: " << outputProb_ << " }";
+#endif
         states_.emplace_back(Vad::State::SIL);
     } else if (outputProb_ >= threshold_ && !triggerd_) {
         // 2. Start
         triggerd_ = true;
         speech_start_ =
             current_sample_ - current_chunk_size_ - speech_pad_left_samples_;
+        speech_start_ = std::max(int(speech_start_), 0);
         float start_sec = 1.0 * speech_start_ / sample_rate_;
-        speakStart_.emplace_back(start_sec);
+        speechStart_.emplace_back(start_sec);
+#ifdef PPS_DEBUG
         DLOG(INFO) << "{ speech start: " << start_sec
                    << " s; prob: " << outputProb_ << " }";
+#endif
         states_.emplace_back(Vad::State::START);
     } else if (outputProb_ >= threshold_ - beam_ && triggerd_) {
         // 3. Continue
 
         if (temp_end_ != 0) {
             // speech prob relaxation, speech continues again
+#ifdef PPS_DEBUG
             DLOG(INFO)
                 << "{ speech fake end(sil < min_silence_ms) to continue: "
                 << 1.0 * current_sample_ / sample_rate_
                 << " s; prob: " << outputProb_ << " }";
+#endif
             temp_end_ = 0;
         } else {
             // speech prob relaxation, keep tracking speech
+#ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech continue: "
                        << 1.0 * current_sample_ / sample_rate_
                        << " s; prob: " << outputProb_ << " }";
+#endif
         }
 
         states_.emplace_back(Vad::State::SPEECH);
@@ -216,9 +225,11 @@ const Vad::State& Vad::Postprocess() {
         // check possible speech end
         if (current_sample_ - temp_end_ < min_silence_samples_) {
             // a. silence < min_slience_samples, continue speaking
+#ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech fake end(sil < min_silence_ms): "
                        << 1.0 * current_sample_ / sample_rate_
                        << " s; prob: " << outputProb_ << " }";
+#endif
             states_.emplace_back(Vad::State::SIL);
         } else {
             // b. silence >= min_slience_samples, end speaking
@@ -226,9 +237,11 @@ const Vad::State& Vad::Postprocess() {
             temp_end_ = 0;
             triggerd_ = false;
             auto end_sec = 1.0 * speech_end_ / sample_rate_;
-            speakEnd_.emplace_back(end_sec);
+            speechEnd_.emplace_back(end_sec);
+#ifdef PPS_DEBUG
             DLOG(INFO) << "{ speech end: " << end_sec
                        << " s; prob: " << outputProb_ << " }";
+#endif
             states_.emplace_back(Vad::State::END);
         }
     }
@@ -236,66 +249,63 @@ const Vad::State& Vad::Postprocess() {
     return states_.back();
 }
 
-const std::vector<std::map<std::string, float>> Vad::GetResult(
+std::string Vad::ConvertTime(float time_s) const{
+    float seconds_tmp, minutes_tmp, hours_tmp;
+    float seconds;
+    int minutes, hours;
+ 
+	//	计算小时
+	hours_tmp = time_s / 60 / 60;  // 1
+	hours = (int)hours_tmp;
+ 
+	// 计算分钟
+	minutes_tmp = time_s / 60;
+	if (minutes_tmp >= 60) {
+		minutes = minutes_tmp - 60 * (double)hours;
+	}
+	else {
+		minutes = minutes_tmp;
+	}
+ 
+	// 计算秒数
+	seconds_tmp = (60 * 60 * hours) + (60 * minutes);
+	seconds = time_s - seconds_tmp;
+ 
+	// 输出格式
+    std::stringstream ss;
+    ss << hours << ":" << minutes << ":" << seconds;
+ 
+	return ss.str();
+}
+
+int Vad::GetResult(char* result, int max_len,
     float removeThreshold,
     float expandHeadThreshold,
     float expandTailThreshold,
     float mergeThreshold) const {
     float audioLength = 1.0 * current_sample_ / sample_rate_;
-    if (speakStart_.empty() && speakEnd_.empty()) {
+    if (speechStart_.empty() && speechEnd_.empty()) {
         return {};
     }
-    if (speakEnd_.size() != speakStart_.size()) {
+    if (speechEnd_.size() != speechStart_.size()) {
         // set the audio length as the last end
-        speakEnd_.emplace_back(audioLength);
+        speechEnd_.emplace_back(audioLength);
     }
-    // Remove too short segments
-    //  auto startIter = speakStart_.begin();
-    //  auto endIter = speakEnd_.begin();
-    //  while (startIter != speakStart_.end()) {
-    //      if (removeThreshold < audioLength &&
-    //          *endIter - *startIter < removeThreshold) {
-    //          startIter = speakStart_.erase(startIter);
-    //          endIter = speakEnd_.erase(endIter);
-    //      } else {
-    //          startIter++;
-    //          endIter++;
-    //      }
-    //  }
-    //  // Expand to avoid to tight cut.
-    //  startIter = speakStart_.begin();
-    //  endIter = speakEnd_.begin();
-    //  *startIter = std::fmax(0.f, *startIter - expandHeadThreshold);
-    //  *endIter = std::fmin(*endIter + expandTailThreshold, *(startIter + 1));
-    //  endIter = speakEnd_.end() - 1;
-    //  startIter = speakStart_.end() - 1;
-    //  *startIter = fmax(*startIter - expandHeadThreshold, *(endIter - 1));
-    //  *endIter = std::fmin(*endIter + expandTailThreshold, audioLength);
-    //  for (int i = 1; i < speakStart_.size() - 1; ++i) {
-    //      speakStart_[i] = std::fmax(speakStart_[i] - expandHeadThreshold,
-    //      speakEnd_[i - 1]);
-    //      speakEnd_[i] = std::fmin(speakEnd_[i] + expandTailThreshold,
-    //      speakStart_[i + 1]);
-    //  }
-    //  // Merge very closed segments
-    //  startIter = speakStart_.begin() + 1;
-    //  endIter = speakEnd_.begin();
-    //  while (startIter != speakStart_.end()) {
-    //      if (*startIter - *endIter < mergeThreshold) {
-    //          startIter = speakStart_.erase(startIter);
-    //          endIter = speakEnd_.erase(endIter);
-    //      } else {
-    //          startIter++;
-    //          endIter++;
-    //      }
-    //  }
+    
+    std::string json = "[";
 
-    std::vector<std::map<std::string, float>> result;
-    for (int i = 0; i < speakStart_.size(); ++i) {
-        result.emplace_back(std::map<std::string, float>(
-            {{"start", speakStart_[i]}, {"end", speakEnd_[i]}}));
+    for (int i = 0; i < speechStart_.size(); ++i) {
+        json += "{\"s\":\"" + ConvertTime(speechStart_[i]) + "\",\"e\":\"" + ConvertTime(speechEnd_[i]) + "\"},";
     }
-    return result;
+    json.pop_back();
+    json += "]";
+    
+    if(result != NULL){
+        snprintf(result, max_len, "%s", json.c_str());
+    } else {
+        DLOG(INFO) << "result is NULL";
+    }
+    return 0;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vad::State& s) {

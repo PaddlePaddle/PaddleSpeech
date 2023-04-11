@@ -92,3 +92,12 @@ int PPSVadReset(PPSHandle_t instance) {
     model->Reset();
     return 0;
 }
+
+int PPSVadGetResult(PPSHandle_t instance, char* result, int max_len){
+    ppspeech::Vad* model = static_cast<ppspeech::Vad*>(instance);
+    if (model == nullptr) {
+        printf("instance is null\n");
+        return -1;
+    }
+    return model->GetResult(result, max_len);
+};

@@ -70,12 +70,6 @@ int main(int argc, char* argv[]) {
 
     std::cout << "RTF=" << timer.Elapsed() / double(num_samples / sr)
               << std::endl;
-
-    std::vector<std::map<std::string, float>> result = vad.GetResult();
-    for (auto& res : result) {
-        std::cout << "speak start: " << res["start"]
-                  << " s, end: " << res["end"] << " s | ";
-    }
     std::cout << "\b\b " << std::endl;
 
     vad.Reset();

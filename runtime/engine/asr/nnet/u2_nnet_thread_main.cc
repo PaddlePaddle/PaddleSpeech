@@ -59,9 +59,6 @@ int main(int argc, char* argv[]) {
     kaldi::BaseFloatMatrixWriter nnet_out_writer(FLAGS_nnet_prob_wspecifier);
 
     ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
-#ifdef USE_ONNX
-    ppspeech::U2OnnxNnet::InitEngineThreads(1);
-#endif
     ppspeech::FeaturePipelineOptions feature_opts =
         ppspeech::FeaturePipelineOptions::InitFromFlags();
     feature_opts.assembler_opts.fill_zero = false;

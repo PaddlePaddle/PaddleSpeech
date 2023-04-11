@@ -87,7 +87,7 @@ include(pybind)
 
 #onnx
 if(WITH_ONNX)
-    include(onnx)
+    add_definitions(-DUSE_ONNX)
 endif()
 
 # gtest

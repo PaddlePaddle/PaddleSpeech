@@ -7,7 +7,7 @@ endif()
 add_library(nnet STATIC ${srcs})
 target_link_libraries(nnet utils)
 if(WITH_ONNX)
-    target_link_libraries(nnet onnxruntime)
+    target_link_libraries(nnet ${FASTDEPLOY_LIBS})
 endif()
 
 target_compile_options(nnet  PUBLIC ${PADDLE_COMPILE_FLAGS})

@@ -26,13 +26,10 @@ if(NOT FASTDEPLOY_INSTALL_DIR)
     else() # Linux
         FetchContent_Declare(
             fastdeploy
-            URL      https://bj.bcebos.com/fastdeploy/release/cpp/fastdeploy-linux-x64-1.0.4.tgz 
-            URL_HASH MD5=125df3bfce603521960cc5c8b47faab0
+            URL      https://paddlespeech.bj.bcebos.com/speechx/fastdeploy/fastdeploy-1.0.5-x86_64-onnx.tar.gz 
+            URL_HASH MD5=33900d986ea71aa78635e52f0733227c
             ${EXTERNAL_PROJECT_LOG_ARGS}
         )
-
-        add_definitions("-DUSE_PADDLE_INFERENCE_BACKEND")
-        # add_definitions("-DUSE_ORT_BACKEND")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -msse -msse2")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -msse -msse2 -mavx -O3")
     endif()

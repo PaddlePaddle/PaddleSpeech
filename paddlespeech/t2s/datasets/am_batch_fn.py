@@ -669,18 +669,72 @@ def vits_multi_spk_batch_fn(examples):
     return batch
 
 
-# 未完成
-def starganv2_vc_batch_fn(examples):
-    batch = {
-        "x_real": None,
-        "y_org": None,
-        "x_ref": None,
-        "x_ref2": None,
-        "y_trg": None,
-        "z_trg": None,
-        "z_trg2": None,
-    }
-    return batch
+# 因为要传参数，所以需要额外构建
+def build_starganv2_vc_collate_fn(latent_dim: int=16, max_mel_length: int=192):
+
+    return StarGANv2VCCollateFn(
+        latent_dim=latent_dim, max_mel_length=max_mel_length)
+
+
+class StarGANv2VCCollateFn:
+    """Functor class of common_collate_fn()"""
+
+    def __init__(self, latent_dim: int=16, max_mel_length: int=192):
+        self.latent_dim = latent_dim
+        self.max_mel_length = max_mel_length
+
+    def random_clip(self, mel: np.array):
+        # [80, T]
+        mel_length = mel.shape[1]
+        if mel_length > self.max_mel_length:
+            random_start = np.random.randint(0,
+                                             mel_length - self.max_mel_length)
+            mel = mel[:, random_start:random_start + self.max_mel_length]
+        return mel
+
+    def __call__(self, exmaples):
+        return self.starganv2_vc_batch_fn(exmaples)
+
+    def starganv2_vc_batch_fn(self, examples):
+        batch_size = len(examples)
+
+        label = [np.array(item["label"], dtype=np.int64) for item in examples]
+        ref_label = [
+            np.array(item["ref_label"], dtype=np.int64) for item in examples
+        ]
+
+        # 需要对 mel 进行裁剪
+        mel = [self.random_clip(item["mel"]) for item in examples]
+        ref_mel = [self.random_clip(item["ref_mel"]) for item in examples]
+        ref_mel_2 = [self.random_clip(item["ref_mel_2"]) for item in examples]
+
+        mel = batch_sequences(mel)
+        ref_mel = batch_sequences(ref_mel)
+        ref_mel_2 = batch_sequences(ref_mel_2)
+
+        # convert each batch to paddle.Tensor
+        # (B,)
+        label = paddle.to_tensor(label)
+        ref_label = paddle.to_tensor(ref_label)
+        # [B, 80, T] -> [B, 1, 80, T]
+        mel = paddle.to_tensor(mel)
+        ref_mel = paddle.to_tensor(ref_mel)
+        ref_mel_2 = paddle.to_tensor(ref_mel_2)
+
+        z_trg = paddle.randn(batch_size, self.latent_dim)
+        z_trg2 = paddle.randn(batch_size, self.latent_dim)
+
+        batch = {
+            "x_real": mels,
+            "y_org": labels,
+            "x_ref": ref_mels,
+            "x_ref2": ref_mels_2,
+            "y_trg": ref_labels,
+            "z_trg": z_trg,
+            "z_trg2": z_trg2
+        }
+
+        return batch
 
 
 # for PaddleSlim

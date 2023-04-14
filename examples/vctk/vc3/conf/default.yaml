@@ -2,11 +2,22 @@
 #                FEATURE EXTRACTION SETTING               #
 ###########################################################
 # 其实没用上，其实用的是 16000
-sr: 24000
+fs: 16000
 n_fft: 2048
-win_length: 1200
-hop_length: 300
+n_shift: 300
+win_length: 1200   # Window length.(in samples) 50ms
+                   # If set to null, it will be the same as fft_size.
+window: "hann"     # Window function.
+
+fmin: 0           # Minimum frequency of Mel basis.
+fmax: 8000        # Maximum frequency of Mel basis.  sr // 2
 n_mels: 80
+# only for StarGANv2 VC
+norm:             # None here
+htk: True
+power: 2.0
+
+
 ###########################################################
 #                       MODEL SETTING                     #
 ###########################################################

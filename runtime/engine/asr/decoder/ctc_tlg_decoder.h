@@ -18,6 +18,7 @@
 #include "decoder/decoder_itf.h"
 #include "kaldi/decoder/lattice-faster-online-decoder.h"
 #include "util/parse-options.h"
+#include "utils/file_utils.h"
 
 DECLARE_string(word_symbol_table);
 DECLARE_string(graph_path);
@@ -33,9 +34,10 @@ struct TLGDecoderOptions {
     // todo remove later, add into decode resource
     std::string word_symbol_table;
     std::string fst_path;
+    std::shared_ptr<fst::Fst<fst::StdArc>> fst_ptr;
     int nbest;
 
-    TLGDecoderOptions() : word_symbol_table(""), fst_path(""), nbest(10) {}
+    TLGDecoderOptions() : word_symbol_table(""), fst_path(""), fst_ptr(nullptr), nbest(10) {}
 
     static TLGDecoderOptions InitFromFlags() {
         TLGDecoderOptions decoder_opts;
@@ -43,6 +45,11 @@ struct TLGDecoderOptions {
         decoder_opts.fst_path = FLAGS_graph_path;
         LOG(INFO) << "fst path: " << decoder_opts.fst_path;
         LOG(INFO) << "fst symbole table: " << decoder_opts.word_symbol_table;
+
+        if (!decoder_opts.fst_path.empty()) {
+            CHECK(FileExists(decoder_opts.fst_path));
+            decoder_opts.fst_ptr.reset(fst::Fst<fst::StdArc>::Read(FLAGS_graph_path));
+        }
 
         decoder_opts.opts.max_active = FLAGS_max_active;
         decoder_opts.opts.beam = FLAGS_beam;

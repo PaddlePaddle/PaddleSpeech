@@ -33,23 +33,11 @@ namespace ppspeech {
 struct ModelOptions {
     // common
     int subsample_rate{1};
-    int thread_num{1};  // predictor thread pool size for ds2;
     bool use_gpu{false};
     std::string model_path;
 #ifdef USE_ONNX
     bool with_onnx_model{false};
 #endif
-
-    std::string param_path;
-
-    // ds2 for inference
-    std::string input_names{};
-    std::string output_names{};
-    std::string cache_names{};
-    std::string cache_shape{};
-    bool switch_ir_optim{false};
-    bool enable_fc_padding{false};
-    bool enable_profile{false};
 
     static ModelOptions InitFromFlags() {
         ModelOptions opts;
@@ -61,19 +49,6 @@ struct ModelOptions {
         opts.with_onnx_model = FLAGS_with_onnx_model;
         LOG(INFO) << "with onnx model: " << opts.with_onnx_model;
 #endif
-
-        opts.param_path = FLAGS_param_path;
-        LOG(INFO) << "param path: " << opts.param_path;
-
-        LOG(INFO) << "DS2 param: ";
-        opts.cache_names = FLAGS_model_cache_names;
-        LOG(INFO) << "  cache names: " << opts.cache_names;
-        opts.cache_shape = FLAGS_model_cache_shapes;
-        LOG(INFO) << "  cache shape: " << opts.cache_shape;
-        opts.input_names = FLAGS_model_input_names;
-        LOG(INFO) << "  input names: " << opts.input_names;
-        opts.output_names = FLAGS_model_output_names;
-        LOG(INFO) << "  output names: " << opts.output_names;
         return opts;
     }
 };
@@ -121,7 +96,7 @@ class NnetInterface {
 class NnetBase : public NnetInterface {
   public:
     int SubsamplingRate() const { return subsampling_rate_; }
-
+    virtual std::shared_ptr<NnetBase> Clone() const = 0;
   protected:
     int subsampling_rate_{1};
 };

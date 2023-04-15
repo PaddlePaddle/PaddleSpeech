@@ -12,7 +12,6 @@ DECLARE_double(reverse_weight);
 DECLARE_int32(nbest);
 DECLARE_int32(blank);
 DECLARE_double(acoustic_scale);
-DECLARE_string(vocab_path);
 DECLARE_string(word_symbol_table);
 
 namespace ppspeech {
@@ -52,6 +51,8 @@ struct DecodeOptions {
         decoder_opts.ctc_prefix_search_opts.blank = FLAGS_blank;
         decoder_opts.ctc_prefix_search_opts.first_beam_size = FLAGS_nbest;
         decoder_opts.ctc_prefix_search_opts.second_beam_size = FLAGS_nbest;
+        decoder_opts.ctc_prefix_search_opts.word_symbol_table = 
+            FLAGS_word_symbol_table;
         decoder_opts.tlg_decoder_opts =
             ppspeech::TLGDecoderOptions::InitFromFlags();
 
@@ -68,18 +69,17 @@ struct DecodeOptions {
 };
 
 struct RecognizerResource {
+    // decodable opt 
     kaldi::BaseFloat acoustic_scale{1.0};
-    std::string vocab_path{};
 
     FeaturePipelineOptions feature_pipeline_opts{};
     ModelOptions model_opts{};
     DecodeOptions decoder_opts{};
+    std::shared_ptr<NnetBase> nnet;
 
     static RecognizerResource InitFromFlags() {
         RecognizerResource resource;
-        resource.vocab_path = FLAGS_vocab_path;
         resource.acoustic_scale = FLAGS_acoustic_scale;
-        LOG(INFO) << "vocab path: " << resource.vocab_path;
         LOG(INFO) << "acoustic_scale: " << resource.acoustic_scale;
 
         resource.feature_pipeline_opts =
@@ -89,6 +89,15 @@ struct RecognizerResource {
                   << resource.feature_pipeline_opts.assembler_opts.fill_zero;
         resource.model_opts = ppspeech::ModelOptions::InitFromFlags();
         resource.decoder_opts = ppspeech::DecodeOptions::InitFromFlags();
+        #ifndef USE_ONNX
+            resource.nnet.reset(new U2Nnet(resource.model_opts));
+        #else
+            if (resource.model_opts.with_onnx_model){
+                resource.nnet.reset(new U2OnnxNnet(resource.model_opts));
+            } else {
+                resource.nnet.reset(new U2Nnet(resource.model_opts));
+            }
+        #endif
         return resource;
     }
 };

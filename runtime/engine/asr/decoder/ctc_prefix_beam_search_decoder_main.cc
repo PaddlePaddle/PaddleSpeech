@@ -23,7 +23,7 @@
 
 DEFINE_string(feature_rspecifier, "", "test feature rspecifier");
 DEFINE_string(result_wspecifier, "", "test result wspecifier");
-DEFINE_string(vocab_path, "", "vocab path");
+DEFINE_string(word_symbol_table, "", "vocab path");
 
 DEFINE_string(model_path, "", "paddle nnet model");
 
@@ -52,10 +52,10 @@ int main(int argc, char* argv[]) {
 
     CHECK_NE(FLAGS_result_wspecifier, "");
     CHECK_NE(FLAGS_feature_rspecifier, "");
-    CHECK_NE(FLAGS_vocab_path, "");
+    CHECK_NE(FLAGS_word_symbol_table, "");
     CHECK_NE(FLAGS_model_path, "");
     LOG(INFO) << "model path: " << FLAGS_model_path;
-    LOG(INFO) << "Reading vocab table " << FLAGS_vocab_path;
+    LOG(INFO) << "Reading vocab table " << FLAGS_word_symbol_table;
 
     kaldi::SequentialBaseFloatMatrixReader feature_reader(
         FLAGS_feature_rspecifier);
@@ -80,7 +80,8 @@ int main(int argc, char* argv[]) {
     opts.blank = 0;
     opts.first_beam_size = 10;
     opts.second_beam_size = 10;
-    ppspeech::CTCPrefixBeamSearch decoder(FLAGS_vocab_path, opts);
+    opts.word_symbol_table = FLAGS_word_symbol_table;
+    ppspeech::CTCPrefixBeamSearch decoder(opts);
 
 
     int32 chunk_size = FLAGS_receptive_field_length +

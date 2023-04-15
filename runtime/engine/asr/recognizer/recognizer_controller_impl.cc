@@ -26,24 +26,24 @@ RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& res
         new FeaturePipeline(feature_opts));
     std::shared_ptr<NnetBase> nnet;
 #ifndef USE_ONNX
-    nnet.reset(new U2Nnet(resource.model_opts));
+    nnet = resource.nnet->Clone();
 #else
     if (resource.model_opts.with_onnx_model){
         nnet.reset(new U2OnnxNnet(resource.model_opts));
     } else {
-        nnet.reset(new U2Nnet(resource.model_opts));
+        nnet = resource.nnet->Clone();
     }
 #endif
     nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline));
     nnet_thread_ = std::thread(RunNnetEvaluation, this);
 
     decodable_.reset(new Decodable(nnet_producer_, am_scale));
-    CHECK_NE(resource.vocab_path, "");
     if (resource.decoder_opts.tlg_decoder_opts.fst_path.empty()) {
-        LOG(INFO) << resource.decoder_opts.tlg_decoder_opts.fst_path;
+        LOG(INFO) << "Init PrefixBeamSearch Decoder";
         decoder_ = std::make_unique<CTCPrefixBeamSearch>(
-            resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts);
+            resource.decoder_opts.ctc_prefix_search_opts);
     } else {
+        LOG(INFO) << "Init TLGDecoder";
         decoder_ = std::make_unique<TLGDecoder>(
             resource.decoder_opts.tlg_decoder_opts);
     }
@@ -53,33 +53,6 @@ RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& res
     input_finished_ = false;
     num_frames_ = 0;
     result_.clear(); 
-}
-
-RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& resource,
-                                                   std::shared_ptr<NnetBase> nnet)
-    :opts_(resource) {
-    BaseFloat am_scale = resource.acoustic_scale;
-    const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
-    std::shared_ptr<FeaturePipeline> feature_pipeline =
-        std::make_shared<FeaturePipeline>(feature_opts);
-    nnet_producer_ = std::make_shared<NnetProducer>(nnet, feature_pipeline);
-    nnet_thread_ = std::thread(RunNnetEvaluation, this);
-    decodable_.reset(new Decodable(nnet_producer_, am_scale));
-
-    CHECK_NE(resource.vocab_path, "");
-    if (resource.decoder_opts.tlg_decoder_opts.fst_path == "") {
-        decoder_.reset(new CTCPrefixBeamSearch(
-            resource.vocab_path, resource.decoder_opts.ctc_prefix_search_opts));
-    } else {
-        decoder_.reset(new TLGDecoder(resource.decoder_opts.tlg_decoder_opts));
-    }
-
-    symbol_table_ = decoder_->WordSymbolTable();
-
-    global_frame_offset_ = 0;
-    input_finished_ = false;
-    num_frames_ = 0;
-    result_.clear();
 }
 
 RecognizerControllerImpl::~RecognizerControllerImpl() {

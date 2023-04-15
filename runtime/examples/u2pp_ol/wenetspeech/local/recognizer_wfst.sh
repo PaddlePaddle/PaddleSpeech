@@ -3,7 +3,7 @@ set -e
 
 data=data
 exp=exp
-nj=20
+nj=40
 
 . utils/parse_options.sh
 
@@ -15,22 +15,27 @@ text=$data/test/text
 
 ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
-utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer.log \
+lang_dir=./data/lang_test/
+graph=$lang_dir/TLG.fst
+word_table=$lang_dir/words.txt
+
+utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer_wfst.log \
 recognizer_main \
     --use_fbank=true \
     --num_bins=80 \
     --cmvn_file=$model_dir/mean_std.json \
     --model_path=$model_dir/export.jit \
-    --word_symbol_table=$model_dir/unit.txt \
+    --graph_path=$lang_dir/TLG.fst \
+    --word_symbol_table=$word_table \
     --nnet_decoder_chunk=16 \
     --receptive_field_length=7 \
     --subsampling_rate=4 \
     --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
-    --result_wspecifier=ark,t:$data/split${nj}/JOB/result_recognizer.ark
+    --result_wspecifier=ark,t:$data/split${nj}/JOB/result_recognizer_wfst.ark
 
 
-cat $data/split${nj}/*/result_recognizer.ark > $exp/aishell_recognizer
-utils/compute-wer.py --char=1 --v=1 $text $exp/aishell_recognizer > $exp/aishell.recognizer.err
+cat $data/split${nj}/*/result_recognizer_wfst.ark > $exp/aishell_recognizer_wfst
+utils/compute-wer.py --char=1 --v=1 $text $exp/aishell_recognizer_wfst > $exp/aishell.recognizer_wfst.err
 echo "recognizer test have finished!!!"
-echo "please checkout in $exp/aishell.recognizer.err"
-tail -n 7 $exp/aishell.recognizer.err
+echo "please checkout in $exp/aishell.recognizer_wfst.err"
+tail -n 7 $exp/aishell.recognizer_wfst.err

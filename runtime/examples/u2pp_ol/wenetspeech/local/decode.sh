@@ -14,7 +14,7 @@ text=$data/test/text
 utils/run.pl JOB=1:$nj $data/split${nj}/JOB/decoder.log \
 ctc_prefix_beam_search_decoder_main \
     --model_path=$model_dir/export.jit \
-    --vocab_path=$model_dir/unit.txt \
+    --word_symbol_table=$model_dir/unit.txt \
     --nnet_decoder_chunk=16 \
     --receptive_field_length=7 \
     --subsampling_rate=4 \

@@ -25,7 +25,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --config=${config_path} \
         --num-cpu=20 \
         --cut-sil=True \
-        --token_average
+        --token_average=True
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

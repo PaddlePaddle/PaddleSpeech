@@ -6,7 +6,7 @@ This example contains code used to train a [JETS](https://arxiv.org/abs/2203.168
 Download CSMSC from it's [Official Website](https://test.data-baker.com/data/index/source).
 
 ### Get MFA Result and Extract
-We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes adn durations for JETS.
+We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes and durations for JETS.
 You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started

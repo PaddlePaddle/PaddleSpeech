@@ -281,7 +281,8 @@ def main():
 
     parser.add_argument(
         "--token_average",
-        action="store_true",
+        type=str2bool,
+        default=False,
         help="Average the energy and pitch accroding to durations")
     args = parser.parse_args()
 
@@ -425,6 +426,7 @@ def main():
             mel_extractor=mel_extractor,
             pitch_extractor=pitch_extractor,
             energy_extractor=energy_extractor,
+            nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir,
             write_metadata_method=args.write_metadata_method,

@@ -506,7 +506,7 @@ def am_to_static(am_inference,
         am_inference = jit.to_static(
             am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
-    elif am_name == 'vits':
+    elif am_name == 'vits' or am_name == 'jets':
         if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
@@ -528,18 +528,6 @@ def am_to_static(am_inference,
                 InputSpec([-1], dtype=paddle.int64),  # is_slur
             ])
 
-    elif am_name == 'jets':
-        if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
-            am_inference = jit.to_static(
-                am_inference,
-                input_spec=[
-                    InputSpec([-1], dtype=paddle.int64),
-                    InputSpec([1], dtype=paddle.int64),
-                ])
-        else:
-            am_inference = jit.to_static(
-                am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
-                
     jit.save(am_inference, os.path.join(inference_dir, am))
     am_inference = jit.load(os.path.join(inference_dir, am))
 

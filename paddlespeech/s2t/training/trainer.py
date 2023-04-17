@@ -189,7 +189,7 @@ class Trainer():
             "step": self.iteration,
             "epoch": self.epoch,
             "lr": self.optimizer.get_lr(),
-            "scaler": self.scaler
+            "scaler": self.scaler.state_dict()
         })
         self.checkpoint.save_parameters(self.checkpoint_dir, self.iteration
                                         if tag is None else tag, self.model,

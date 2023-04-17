@@ -82,6 +82,7 @@ class U2Trainer(Trainer):
         with context():
             if scaler:
                 scaler.scale(loss).backward()
+                scaler.unscale_(self.optimizer)
             else:
                 loss.backward()
             layer_tools.print_grads(self.model, print_func=None)

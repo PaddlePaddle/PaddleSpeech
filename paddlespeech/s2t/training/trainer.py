@@ -110,6 +110,7 @@ class Trainer():
         self.rank = dist.get_rank()
         self.world_size = dist.get_world_size()
         self._train = True
+        self.scaler = None
 
         # print deps version
         all_version()
@@ -187,7 +188,8 @@ class Trainer():
         infos.update({
             "step": self.iteration,
             "epoch": self.epoch,
-            "lr": self.optimizer.get_lr()
+            "lr": self.optimizer.get_lr(),
+            "scaler": self.scaler
         })
         self.checkpoint.save_parameters(self.checkpoint_dir, self.iteration
                                         if tag is None else tag, self.model,
@@ -211,6 +213,8 @@ class Trainer():
             # lr will resotre from optimizer ckpt
             self.iteration = infos["step"]
             self.epoch = infos["epoch"]
+            self.scaler = paddle.amp.GradScaler()
+            self.scaler.load_state_dict(infos["scaler"])
             scratch = False
             logger.info(
                 f"Restore ckpt: epoch {self.epoch }, step {self.iteration}!")

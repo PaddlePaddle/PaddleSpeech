@@ -32,8 +32,6 @@ namespace ppspeech {
 class RecognizerControllerImpl {
   public:
     explicit RecognizerControllerImpl(const RecognizerResource& resource);
-    //explicit RecognizerControllerImpl(const RecognizerResource& resource, 
-     //                                 std::shared_ptr<NnetBase> nnet);
     ~RecognizerControllerImpl();
     void Accept(std::vector<float> data);
     void InitDecoder();

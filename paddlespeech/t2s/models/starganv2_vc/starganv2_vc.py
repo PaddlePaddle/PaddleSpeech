@@ -431,14 +431,13 @@ class MappingNetwork(nn.Layer):
         """Calculate forward propagation.
         Args:
             z(Tensor(float32)): 
-                Shape (B, 1, n_mels, T).
+                Shape (B, latent_dim).
             y(Tensor(float32)):
                 speaker label. Shape (B, ).    
         Returns:
             Tensor:
                 Shape (style_dim, )
         """
-
         h = self.shared(z)
         out = []
         for layer in self.unshared:

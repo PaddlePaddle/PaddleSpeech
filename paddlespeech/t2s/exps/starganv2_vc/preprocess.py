@@ -149,7 +149,7 @@ def main():
         dev_wav_files = []
         test_wav_files = []
         # only for test
-        for speaker in os.listdir(wav_dir)[:10]:
+        for speaker in os.listdir(wav_dir):
             wav_files = sorted(list((wav_dir / speaker).rglob("*_mic2.flac")))
             if len(wav_files) > 100:
                 train_wav_files += wav_files[:-sub_num_dev * 2]

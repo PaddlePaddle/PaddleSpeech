@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -lt 2 ] && [ $# -gt 3 ];then
+if [ $# -lt 2 ] || [ $# -gt 3 ];then
     echo "usage: CUDA_VISIBLE_DEVICES=0 ${0} config_path ckpt_name ips(optional)"
     exit -1
 fi

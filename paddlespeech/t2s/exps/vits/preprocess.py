@@ -321,6 +321,7 @@ def main():
             sentences=sentences,
             output_dir=dev_dump_dir,
             spec_extractor=spec_extractor,
+            nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
     if test_wav_files:

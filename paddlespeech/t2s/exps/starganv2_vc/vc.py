@@ -57,9 +57,10 @@ def get_mel_extractor():
 
 
 def preprocess(wave, mel_extractor):
+    # (T, 80)
     logmel = mel_extractor.get_log_mel_fbank(wave, base='e')
-    # [1, 80, 1011]
     mean, std = -4, 4
+    # [1, 80, T]
     mel_tensor = (paddle.to_tensor(logmel.T).unsqueeze(0) - mean) / std
     return mel_tensor
 
@@ -164,6 +165,15 @@ def voice_conversion(args, uncompress_path):
 
     wave, sr = librosa.load(args.source_path, sr=24000)
     source = preprocess(wave=wave, mel_extractor=mel_extractor)
+    # # 测试 preprocess.py 的输出是否 ok
+    # # 直接用 raw 然后 norm 的在这里 ok
+    # # 直接用 norm 在这里 ok
+    # import numpy as np
+    # source = np.load("~/PaddleSpeech_stargan_preprocess/PaddleSpeech/examples/vctk/vc3/dump/train/norm/p329_414_speech.npy")
+    # # ！！！对 mel_extractor norm 后的操作
+    # # [1, 80, T]
+    # source = paddle.to_tensor(source.T).unsqueeze(0)
+
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     orig_wav_name = str(output_dir / 'orig_voc.wav')

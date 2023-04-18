@@ -46,7 +46,10 @@ def process_sentence(config: Dict[str, Any],
     # 需要额外获取 speaker
     record = None
     # reading, resampling may occur
-    wav, _ = librosa.load(str(fp), sr=config.fs)
+    # 源码的 bug, 读取的时候按照 24000 读取，但是提取 mel 的时候按照 16000 提取
+    # 具体参考 https://github.com/PaddlePaddle/PaddleSpeech/blob/c7d24ba42c377fe4c0765c6b1faa202a9aeb136f/paddlespeech/t2s/exps/starganv2_vc/vc.py#L165
+    # 之后需要换成按照 24000 读取和按照 24000 提取 mel
+    wav, _ = librosa.load(str(fp), sr=24000)
     max_value = np.abs(wav).max()
     if max_value > 1.0:
         wav = wav / max_value
@@ -54,7 +57,8 @@ def process_sentence(config: Dict[str, Any],
     assert np.abs(
         wav).max() <= 1.0, f"{utt_id} is seems to be different that 16 bit PCM."
     # extract mel feats
-    logmel = mel_extractor.get_log_mel_fbank(wav)
+    # 注意这里 base = 'e', 后续需要换成 base='10', 我们其他 TTS 模型都是 base='10'
+    logmel = mel_extractor.get_log_mel_fbank(wav, base='e')
     mel_path = output_dir / (utt_id + "_speech.npy")
     np.save(mel_path, logmel)
     record = {"utt_id": utt_id, "speech": str(mel_path), "speaker": speaker}

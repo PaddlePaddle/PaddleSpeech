@@ -58,8 +58,6 @@ class Wav2vec2ASR(nn.Layer):
                            reduction='mean')
 
     def forward(self, wav, wavs_lens_rate, target, target_lens):
-        # import pdb
-        # pdb.set_trace()
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape)
 

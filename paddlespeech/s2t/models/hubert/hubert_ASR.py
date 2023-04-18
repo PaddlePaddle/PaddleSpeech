@@ -12,14 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from collections import defaultdict
-from typing import Dict
-from typing import List
-from typing import Tuple
-from typing import Any, Optional
+from typing import Dict, List, Tuple, Any
 from dataclasses import dataclass, field, is_dataclass
 from copy import deepcopy
-
-from omegaconf import II, MISSING, open_dict
 
 import paddle
 import paddle.nn as nn
@@ -323,7 +318,7 @@ class HubertASR(nn.Layer):
 
 
 class HubertBase(nn.Layer):
-    """Wav2vec2 model"""
+    """Hubert model"""
 
     def __init__(self, config: dict):
         super().__init__()

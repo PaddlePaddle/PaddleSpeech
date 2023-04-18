@@ -1,7 +1,7 @@
 ############################################
 #          Network Architecture           #
 ############################################
-freeze_hubert: True
+freeze_hubert: False
 normalize_wav: True
 output_norm: True
 init_type: kaiming_uniform # !Warning: need to convergence
@@ -14,11 +14,20 @@ ctc:
   enc_n_units: 1024
   blank_id: 0
   dropout_rate: 0.0
-hubert_params_path: "exp/hubert/pd_hubert.pdparams"
+hubert_params_path: "exp/hubert/pd_hubert_no_fintune.pdparams"
 
 
 task_cfg:
+  label_rate: 50.0
   sample_rate: 16000
+  normalize: True
+  enable_padding: False
+  max_keep_size: None
+  max_sample_size: 250000
+  min_sample_size: 32000
+  single_target: False
+  random_crop: True
+  pad_audio: False
 
 model_cfg:
   dropout_input: 0.0
@@ -37,7 +46,6 @@ model_cfg:
   mask_channel_selection: static
   mask_channel_other: 0.0
   no_mask_channel_overlap: False
-  freeze_finetune_updates: 10000
   feature_grad_mult: 0.0
   layerdrop: 0.1
   normalize: True
@@ -69,7 +77,7 @@ model_cfg:
 ###########################################
 #                   Data                  #
 ###########################################
-train_manifest: data/manifest.train
+train_manifest: data/manifest.train-clean-100
 dev_manifest: data/manifest.dev
 test_manifest: data/manifest.test-clean
 
@@ -81,7 +89,7 @@ unit_type: char
 mean_std_filepath: ""
 preprocess_config: conf/preprocess.yaml
 sortagrad: -1 # Feed samples from shortest to longest ; -1: enabled for all epochs 0: disabled other: enabled for other epochs 
-batch_size: 8  # Different batch_size may cause large differences in results
+batch_size: 2  # Different batch_size may cause large differences in results
 maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
 maxlen_out: 1500000  # if output length > maxlen-out batchsize is automatically reduced
 minibatches: 0 # for debug
@@ -102,12 +110,13 @@ return_lens_rate: True
 ############################################
 audio_augment:  # for raw audio 
   sample_rate: 16000
+  speeds: [95, 100, 105]
 
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 1
-accum_grad: 1
+n_epoch: 3
+accum_grad: 8
 global_grad_clip: 5.0
 model_optim: adadelta
 model_optim_conf:
@@ -120,7 +129,7 @@ model_scheduler_conf:
   lr_decay: 1.0
 hubert_optim: adadelta
 hubert_optim_conf:
-  lr: 0.9
+  lr: 1.0
   epsilon: 1.0e-6
   rho: 0.95
 hubert_scheduler: constantlr    

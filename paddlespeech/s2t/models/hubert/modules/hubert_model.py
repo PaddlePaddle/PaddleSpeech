@@ -6,14 +6,14 @@
 # S3PRL Team has no contribution to this file
 # The file was copied from fairseq to remove the dependency on the entire fairseq package
 
-import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import paddle
 import paddle.nn as nn
-
+from paddlespeech.s2t.modules.align import Linear
+from paddlespeech.s2t.modules.align import LayerNorm
 from paddlespeech.s2t.models.wav2vec2.modules.wav2vec2_model import (
     EXTRACTOR_MODE_CHOICES,
     LAYER_TYPE_CHOICES,
@@ -27,9 +27,9 @@ from paddlespeech.s2t.models.wav2vec2.modules.wav2vec2_model import (
     get_available_activation_fns,
     GLU,
 )
+from paddlespeech.s2t.utils.log import Log
 
-logger = logging.getLogger(__name__)
-
+logger = Log(__name__).getlog()
 
 @dataclass
 class HubertPretrainingConfig:
@@ -302,7 +302,7 @@ class HubertModel(nn.Layer):
         self.feat2tar_ratio = cfg.label_rate * feature_ds_rate / task_cfg.sample_rate
 
         self.post_extract_proj = (
-            nn.Linear(self.embed, cfg.encoder_embed_dim)
+            Linear(self.embed, cfg.encoder_embed_dim)
             if self.embed != cfg.encoder_embed_dim
             else None
         )
@@ -334,7 +334,7 @@ class HubertModel(nn.Layer):
         self.mask_emb = paddle.create_parameter(
             shape=[cfg.encoder_embed_dim],
             dtype='float32',
-            default_initializer=paddle.nn.initializer.Uniform(),
+            default_initializer=paddle.nn.initializer.Uniform(low=0),
         )
 
         self.encoder = TransformerEncoder(cfg)
@@ -343,16 +343,16 @@ class HubertModel(nn.Layer):
         self.target_glu = None
         if cfg.target_glu:
             self.target_glu = nn.Sequential(
-                nn.Linear(final_dim, final_dim * 2), GLU()
+                Linear(final_dim, final_dim * 2), GLU()
             )
 
         self.untie_final_proj = cfg.untie_final_proj
         if self.untie_final_proj:
-            self.final_proj = nn.Linear(
+            self.final_proj = Linear(
                 cfg.encoder_embed_dim, final_dim * len(dictionaries)
             )
         else:
-            self.final_proj = nn.Linear(cfg.encoder_embed_dim, final_dim)
+            self.final_proj = Linear(cfg.encoder_embed_dim, final_dim)
 
         # modules below are not needed during fine-tuning
         if any([d is None for d in dictionaries]):
@@ -362,13 +362,8 @@ class HubertModel(nn.Layer):
             self.label_embs_concat = paddle.create_parameter(
             shape=[sum(self.num_classes), final_dim],
             dtype='float32',
-            default_initializer=paddle.nn.initializer.Uniform(),
+            default_initializer=paddle.nn.initializer.Uniform(low=0),
         )
-    def upgrade_state_dict_named(self, state_dict, name):
-        """Upgrade a (possibly old) state dict for new versions of fairseq."""
-
-        super().upgrade_state_dict_named(state_dict, name)
-        return state_dict
 
     @classmethod
     def build_model(cls, cfg: HubertConfig, task):
@@ -417,7 +412,7 @@ class HubertModel(nn.Layer):
 
         return x, mask_indices
 
-    def compute_nce(x, pos, negs):
+    def compute_nce(self, x, pos, negs):
         neg_is_pos = (pos == negs).all(-1)
         pos = pos.unsqueeze(0)
         targets = paddle.concat([pos, negs], axis=0)

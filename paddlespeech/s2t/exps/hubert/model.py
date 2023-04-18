@@ -185,7 +185,7 @@ class HubertASRTrainer(Trainer):
             utt, wav, wavs_lens, target, target_lens = batch
             wavs_lens_rate = wavs_lens / wav.shape[1]
             wav = wav[:, :, 0]
-
+        logger.info('training utt ids: {}'.format(utt))
         if hasattr(train_conf, 'audio_augment'):
             wav = self.speech_augmentation(wav, wavs_lens_rate)
 

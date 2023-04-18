@@ -13,12 +13,14 @@
 // limitations under the License.
 
 #include "decoder/ctc_tlg_decoder.h"
+
 namespace ppspeech {
 
 TLGDecoder::TLGDecoder(TLGDecoderOptions opts) : opts_(opts) {
-    fst_.reset(fst::Fst<fst::StdArc>::Read(opts.fst_path));
+    fst_ = opts.fst_ptr;
     CHECK(fst_ != nullptr);
 
+    CHECK(!opts.word_symbol_table.empty());
     word_symbol_table_.reset(
         fst::SymbolTable::ReadText(opts.word_symbol_table));
 

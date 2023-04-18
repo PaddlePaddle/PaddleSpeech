@@ -22,51 +22,22 @@ namespace ppspeech {
 struct CTCBeamSearchOptions {
     // common
     int blank;
-
-    // ds2
-    std::string dict_file;
-    std::string lm_path;
-    int beam_size;
-    BaseFloat alpha;
-    BaseFloat beta;
-    BaseFloat cutoff_prob;
-    int cutoff_top_n;
-    int num_proc_bsearch;
+    std::string word_symbol_table;
 
     // u2
     int first_beam_size;
     int second_beam_size;
+    
     CTCBeamSearchOptions()
         : blank(0),
-          dict_file("vocab.txt"),
-          lm_path(""),
-          beam_size(300),
-          alpha(1.9f),
-          beta(5.0),
-          cutoff_prob(0.99f),
-          cutoff_top_n(40),
-          num_proc_bsearch(10),
+          word_symbol_table("vocab.txt"),
           first_beam_size(10),
           second_beam_size(10) {}
 
     void Register(kaldi::OptionsItf* opts) {
-        std::string module = "Ds2BeamSearchConfig: ";
-        opts->Register("dict", &dict_file, module + "vocab file path.");
-        opts->Register(
-            "lm-path", &lm_path, module + "ngram language model path.");
-        opts->Register("alpha", &alpha, module + "alpha");
-        opts->Register("beta", &beta, module + "beta");
-        opts->Register("beam-size",
-                       &beam_size,
-                       module + "beam size for beam search method");
-        opts->Register("cutoff-prob", &cutoff_prob, module + "cutoff probs");
-        opts->Register("cutoff-top-n", &cutoff_top_n, module + "cutoff top n");
-        opts->Register(
-            "num-proc-bsearch", &num_proc_bsearch, module + "num proc bsearch");
-
+        std::string module = "CTCBeamSearchOptions: ";
+        opts->Register("word_symbol_table", &word_symbol_table, module + "vocab file path.");
         opts->Register("blank", &blank, "blank id, default is 0.");
-
-        module = "U2BeamSearchConfig: ";
         opts->Register(
             "first-beam-size", &first_beam_size, module + "first beam size.");
         opts->Register("second-beam-size",

@@ -45,7 +45,7 @@ void NnetProducer::Acceptlikelihood(
 
 bool NnetProducer::Read(std::vector<kaldi::BaseFloat>* nnet_prob) {
     bool flag = cache_.pop(nnet_prob);
-    LOG(INFO) << "nnet cache_ size: " << cache_.size();
+    VLOG(1) << "nnet cache_ size: " << cache_.size();
     return flag;
 }
 
@@ -53,7 +53,6 @@ bool NnetProducer::Compute() {
     vector<BaseFloat> features;
     if (frontend_ == NULL || frontend_->Read(&features) == false) {
         // no feat or frontend_ not init.
-        LOG(INFO) << "no feat avalible";
         if (frontend_->IsFinished() == true) {
             finished_ = true;
         }

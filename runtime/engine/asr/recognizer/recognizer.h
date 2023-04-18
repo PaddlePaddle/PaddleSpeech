@@ -11,3 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#pragma once
+
+#include <string>
+#include <vector>
+
+bool InitRecognizer(const std::string& model_file, 
+                    const std::string& word_symbol_table_file,
+                    const std::string& fst_file,
+                    int num_instance);
+int GetRecognizerInstanceId();
+void InitDecoder(int instance_id);
+void AcceptData(const std::vector<float>& waves, int instance_id);
+void SetInputFinished(int instance_id);
+std::string GetFinalResult(int instance_id);

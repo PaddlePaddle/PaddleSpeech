@@ -18,10 +18,9 @@
 namespace ppspeech {
 
 RecognizerController::RecognizerController(int num_worker, RecognizerResource resource) {
-    nnet_ = std::make_shared<ppspeech::U2Nnet>(resource.model_opts); 
     recognizer_workers.resize(num_worker);
     for (size_t i = 0; i < num_worker; ++i) {
-        recognizer_workers[i].reset(new ppspeech::RecognizerControllerImpl(resource, nnet_->Clone())); 
+        recognizer_workers[i].reset(new ppspeech::RecognizerControllerImpl(resource)); 
         waiting_workers.push(i);
     }
 }

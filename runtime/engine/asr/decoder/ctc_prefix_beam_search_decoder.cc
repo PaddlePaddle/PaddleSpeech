@@ -30,11 +30,10 @@ using paddle::platform::TracerEventType;
 
 namespace ppspeech {
 
-CTCPrefixBeamSearch::CTCPrefixBeamSearch(const std::string& vocab_path,
-                                         const CTCBeamSearchOptions& opts)
+CTCPrefixBeamSearch::CTCPrefixBeamSearch(const CTCBeamSearchOptions& opts)
     : opts_(opts) {
     unit_table_ = std::shared_ptr<fst::SymbolTable>(
-        fst::SymbolTable::ReadText(vocab_path));
+        fst::SymbolTable::ReadText(opts.word_symbol_table));
     CHECK(unit_table_ != nullptr);
 
     Reset();

@@ -14,29 +14,29 @@
 
 #pragma once
 
-#include <queue>
-#include <memory>
-
-#include "recognizer/recognizer_controller_impl.h"
+#include "base/common.h"
+#include "recognizer/recognizer_controller.h"
 
 namespace ppspeech {
 
-class RecognizerController {
+class RecognizerInstance {
   public:
-    explicit RecognizerController(int num_worker, RecognizerResource resource);  
-    ~RecognizerController();
+    static RecognizerInstance& GetInstance();
+    RecognizerInstance() {}
+    ~RecognizerInstance() {}
+    bool Init(const std::string& model_file, 
+              const std::string& word_symbol_table_file,
+              const std::string& fst_file,
+              int num_instance);
     int GetRecognizerInstanceId();
     void InitDecoder(int idx);
-    void Accept(std::vector<float> data, int idx);
-    void SetInputFinished(int idx);
-    std::string GetFinalResult(int idx);
-    
+    void Accept(const std::vector<float>& waves, int idx) const; 
+    void SetInputFinished(int idx) const;
+    std::string GetResult(int idx) const;
+
   private:
-    std::queue<int> waiting_workers;  
-    std::mutex mutex_;
-    std::vector<std::unique_ptr<ppspeech::RecognizerControllerImpl>> recognizer_workers;
-  
-    DISALLOW_COPY_AND_ASSIGN(RecognizerController);
+    std::unique_ptr<RecognizerController> recognizer_controller_;
 };
 
-}
+
+}  // namespace ppspeech

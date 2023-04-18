@@ -14,6 +14,8 @@
 
 #include "utils/file_utils.h"
 
+#include <sys/stat.h>
+
 namespace ppspeech {
 
 bool ReadFileToVector(const std::string& filename,
@@ -40,4 +42,31 @@ std::string ReadFile2String(const std::string& path) {
     return std::string((std::istreambuf_iterator<char>(input_file)),
                        std::istreambuf_iterator<char>());
 }
+
+bool FileExists(const std::string& strFilename) { 
+    // this funciton if from:
+    // https://github.com/kaldi-asr/kaldi/blob/master/src/fstext/deterministic-fst-test.cc
+    struct stat stFileInfo; 
+    bool blnReturn; 
+    int intStat; 
+
+    // Attempt to get the file attributes 
+    intStat = stat(strFilename.c_str(), &stFileInfo); 
+    if (intStat == 0) { 
+      // We were able to get the file attributes 
+      // so the file obviously exists. 
+      blnReturn = true; 
+    } else { 
+      // We were not able to get the file attributes. 
+      // This may mean that we don't have permission to 
+      // access the folder which contains this file. If you 
+      // need to do that level of checking, lookup the 
+      // return values of stat which will give you 
+      // more details on why stat failed. 
+      blnReturn = false; 
+    } 
+   
+    return blnReturn; 
+}
+
 }  // namespace ppspeech

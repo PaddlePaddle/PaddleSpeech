@@ -37,28 +37,14 @@ DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 
 
 // nnet
-DEFINE_string(vocab_path, "", "nnet vocab path.");
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 #ifdef USE_ONNX
 DEFINE_bool(with_onnx_model, false, "True mean the model path is onnx model path");
 #endif
-DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
-DEFINE_string(
-    model_input_names,
-    "audio_chunk,audio_chunk_lens,chunk_state_h_box,chunk_state_c_box",
-    "model input names");
-DEFINE_string(model_output_names,
-              "softmax_0.tmp_0,tmp_5,concat_0.tmp_0,concat_1.tmp_0",
-              "model output names");
-DEFINE_string(model_cache_names,
-              "chunk_state_h_box,chunk_state_c_box",
-              "model cache names");
-DEFINE_string(model_cache_shapes, "5-1-1024,5-1-1024", "model cache shapes");
-
+//DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 
 // decoder
 DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
-
 DEFINE_string(graph_path, "", "decoder graph");
 DEFINE_string(word_symbol_table, "", "word symbol table");
 DEFINE_int32(max_active, 7500, "max active");

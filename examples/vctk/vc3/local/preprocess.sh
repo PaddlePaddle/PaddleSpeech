@@ -1,7 +1,7 @@
 #!/bin/bash
 
-stage=1
-stop_stage=1
+stage=0
+stop_stage=100
 
 config_path=$1
 
@@ -35,7 +35,3 @@ echo "Normalize ..."
         --speaker-dict=dump/speaker_id_map.txt
 
 fi
-
-# if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-
-# fi

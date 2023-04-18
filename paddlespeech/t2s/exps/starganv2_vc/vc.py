@@ -68,6 +68,7 @@ def preprocess(wave, mel_extractor):
 def compute_style(speaker_dicts, mel_extractor, style_encoder, mapping_network):
     reference_embeddings = {}
     for key, (path, speaker) in speaker_dicts.items():
+        # path = ''
         if path == '':
             label = paddle.to_tensor([speaker], dtype=paddle.int64)
             latent_dim = mapping_network.shared[0].weight.shape[0]

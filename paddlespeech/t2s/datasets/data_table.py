@@ -179,15 +179,6 @@ class StarGANv2VCDataTable(DataTable):
             'ref_mel_2': np.load(ref_data_2['speech']),
             'ref_label': int(ref_label)
         }
-        # not with converter
-        # new_example = {
-        #     'utt_id': data['utt_id'],
-        #     'mel': data['speech'],
-        #     'label': int(data['spk_id']),
-        #     'ref_mel': ref_data['speech'],
-        #     'ref_mel_2': ref_data_2['speech'],
-        #     'ref_label': int(ref_label)
-        # }
 
         if self.use_cache:
             self.caches[idx] = new_example

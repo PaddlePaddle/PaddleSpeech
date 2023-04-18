@@ -28,46 +28,36 @@ import yaml
 from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
+from paddlespeech.t2s.datasets.preprocess_utils import get_spk_id_map
+
+speaker_set = set()
 
 
 def process_sentence(config: Dict[str, Any],
                      fp: Path,
                      output_dir: Path,
-                     mel_extractor=None,
-                     pitch_extractor=None,
-                     energy_extractor=None,
-                     cut_sil: bool=True,
-                     spk_emb_dir: Path=None):
+                     mel_extractor=None):
     utt_id = fp.stem
     # for vctk
     if utt_id.endswith("_mic2"):
         utt_id = utt_id[:-5]
         speaker = utt_id.split('_')[0]
+        speaker_set.add(speaker)
     # 需要额外获取 speaker
     record = None
-    if utt_id in sentences:
-        # reading, resampling may occur
-        wav, _ = librosa.load(
-            str(fp), sr=config.fs,
-            mono=False) if "canton" in str(fp) else librosa.load(
-                str(fp), sr=config.fs)
-        max_value = np.abs(wav).max()
-        if max_value > 1.0:
-            wav = wav / max_value
-        assert len(wav.shape) == 1, f"{utt_id} is not a mono-channel audio."
-        assert np.abs(wav).max(
-        ) <= 1.0, f"{utt_id} is seems to be different that 16 bit PCM."
-        # extract mel feats
-        logmel = mel_extractor.get_log_mel_fbank(wav)
-
-        phones = sentences[utt_id][0]
-        num_frames = logmel.shape[0]
-        assert sum(durations) == num_frames
-        mel_dir = output_dir / "data_speech"
-        mel_dir.mkdir(parents=True, exist_ok=True)
-        mel_path = mel_dir / (utt_id + "_speech.npy")
-        np.save(mel_path, logmel)
-        record = {"utt_id": utt_id, "speech": str(mel_path), "speaker": speaker}
+    # reading, resampling may occur
+    wav, _ = librosa.load(str(fp), sr=config.fs)
+    max_value = np.abs(wav).max()
+    if max_value > 1.0:
+        wav = wav / max_value
+    assert len(wav.shape) == 1, f"{utt_id} is not a mono-channel audio."
+    assert np.abs(
+        wav).max() <= 1.0, f"{utt_id} is seems to be different that 16 bit PCM."
+    # extract mel feats
+    logmel = mel_extractor.get_log_mel_fbank(wav)
+    mel_path = output_dir / (utt_id + "_speech.npy")
+    np.save(mel_path, logmel)
+    record = {"utt_id": utt_id, "speech": str(mel_path), "speaker": speaker}
     return record
 
 
@@ -104,8 +94,7 @@ def process_sentences(
                         results.append(record)
 
     results.sort(key=itemgetter("utt_id"))
-    with jsonlines.open(output_dir / "metadata.jsonl",
-                        write_metadata_method) as writer:
+    with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
         for item in results:
             writer.write(item)
     print("Done")
@@ -131,7 +120,7 @@ def main():
         required=True,
         help="directory to dump feature files.")
 
-    parser.add_argument("--config", type=str, help="fastspeech2 config file.")
+    parser.add_argument("--config", type=str, help="StarGANv2VC config file.")
 
     parser.add_argument(
         "--num-cpu", type=int, default=1, help="number of process.")
@@ -144,13 +133,7 @@ def main():
     dumpdir = dumpdir.resolve()
     dumpdir.mkdir(parents=True, exist_ok=True)
 
-    if args.spk_emb_dir:
-        spk_emb_dir = Path(args.spk_emb_dir).expanduser().resolve()
-    else:
-        spk_emb_dir = None
-
     assert rootdir.is_dir()
-    assert dur_file.is_file()
 
     with open(args.config, 'rt') as f:
         config = CfgNode(yaml.safe_load(f))
@@ -161,7 +144,8 @@ def main():
         train_wav_files = []
         dev_wav_files = []
         test_wav_files = []
-        for speaker in os.listdir(wav_dir):
+        # only for test
+        for speaker in os.listdir(wav_dir)[:10]:
             wav_files = sorted(list((wav_dir / speaker).rglob("*_mic2.flac")))
             if len(wav_files) > 100:
                 train_wav_files += wav_files[:-sub_num_dev * 2]
@@ -171,7 +155,7 @@ def main():
                 train_wav_files += wav_files
 
     else:
-        print("dataset should in {baker, aishell3, ljspeech, vctk} now!")
+        print("dataset should in {vctk} now!")
 
     train_dump_dir = dumpdir / "train" / "raw"
     train_dump_dir.mkdir(parents=True, exist_ok=True)
@@ -200,7 +184,6 @@ def main():
         process_sentences(
             config=config,
             fps=train_wav_files,
-            sentences=sentences,
             output_dir=train_dump_dir,
             mel_extractor=mel_extractor,
             nprocs=args.num_cpu)
@@ -208,7 +191,6 @@ def main():
         process_sentences(
             config=config,
             fps=dev_wav_files,
-            sentences=sentences,
             output_dir=dev_dump_dir,
             mel_extractor=mel_extractor,
             nprocs=args.num_cpu)
@@ -216,10 +198,12 @@ def main():
         process_sentences(
             config=config,
             fps=test_wav_files,
-            sentences=sentences,
             output_dir=test_dump_dir,
             mel_extractor=mel_extractor,
             nprocs=args.num_cpu)
+
+    speaker_id_map_path = dumpdir / "speaker_id_map.txt"
+    get_spk_id_map(speaker_set, speaker_id_map_path)
 
 
 if __name__ == "__main__":

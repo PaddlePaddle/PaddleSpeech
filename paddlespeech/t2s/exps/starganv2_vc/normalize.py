@@ -19,7 +19,7 @@ from pathlib import Path
 
 import jsonlines
 import numpy as np
-from tqdm import tqdm
+import tqdm
 
 from paddlespeech.t2s.datasets.data_table import DataTable
 
@@ -61,12 +61,6 @@ def main():
         })
     logging.info(f"The number of files = {len(dataset)}.")
 
-    vocab_phones = {}
-    with open(args.phones_dict, 'rt') as f:
-        phn_id = [line.strip().split() for line in f.readlines()]
-    for phn, id in phn_id:
-        vocab_phones[phn] = int(id)
-
     vocab_speaker = {}
     with open(args.speaker_dict, 'rt') as f:
         spk_id = [line.strip().split() for line in f.readlines()]
@@ -76,7 +70,7 @@ def main():
     # process each file
     output_metadata = []
 
-    for item in tqdm(dataset):
+    for item in tqdm.tqdm(dataset):
         utt_id = item['utt_id']
         speech = item['speech']
 
@@ -84,10 +78,7 @@ def main():
         # 这里暂时写死
         mean, std = -4, 4
         speech = (speech - mean) / std
-
-        speech_dir = dumpdir / "data_speech"
-        speech_dir.mkdir(parents=True, exist_ok=True)
-        speech_path = speech_dir / f"{utt_id}_speech.npy"
+        speech_path = dumpdir / f"{utt_id}_speech.npy"
         np.save(speech_path, speech.astype(np.float32), allow_pickle=False)
 
         spk_id = vocab_speaker[item["speaker"]]

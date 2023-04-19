@@ -119,6 +119,38 @@ ssl_dynamic_pretrained_models = {
             'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
         },
     },
+    "hubert-en-16k": {
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/hubert-large-lv60_ckpt_1.4.0.model.tar.gz',
+            'md5':
+            '9f0bc943adb822789bf61e674b229d17',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'hubert-large-lv60',
+            'model':
+            'hubert-large-lv60.pdparams',
+            'params':
+            'hubert-large-lv60.pdparams',
+        },
+    },
+    "hubertASR_librispeech_100-en-16k": {
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/hubertASR-large-100h-librispeech_ckpt_1.4.0.model.tar.gz',
+            'md5':
+            '9f0bc943adb822789bf61e674b229d17',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/wav2vec2ASR/checkpoints/avg_1',
+            'model':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+            'params':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+        },
+    },
 }
 
 # ---------------------------------

@@ -49,7 +49,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
 
-
+# Todo: change this when paddle supports this api
 def clip_grad_norm_(
         parameters,
         max_norm,

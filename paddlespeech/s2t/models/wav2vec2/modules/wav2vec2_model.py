@@ -1,9 +1,19 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
-# S3PRL has no contribution to this file
-# The file was copied from fairseq to remove the dependency on the entire fairseq package
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+""" Paddle Wav2Vec2 model."""
+
 import math
 import uuid
 from dataclasses import dataclass
@@ -1246,18 +1256,18 @@ class Fp32LayerNorm(LayerNorm):
             self._epsilon, )
         return output.astype(input.dtype)
 
-
-class Fp32GroupNorm(nn.GroupNorm):
+# Todo: change this when paddle supports F.group_norm
+class Fp32GroupNorm(nn.Layer):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
+        self.group_norm = paddle.nn.GroupNorm(*args, **kwargs)
+        fp32_weight = paddle.create_parameter(shape=self.group_norm.weight.shape, dtype='float32', default_initializer=paddle.nn.initializer.Assign(self.group_norm.weight))
+        fp32_bias = paddle.create_parameter(shape=self.group_norm.bias.shape, dtype='float32', default_initializer=paddle.nn.initializer.Assign(self.group_norm.bias))
+        self.group_norm.weight = fp32_weight
+        self.group_norm.bias = fp32_bias
 
     def forward(self, input):
-        output = F.group_norm(
-            input.astype('float32'),
-            self._num_groups,
-            self.weight.astype('float32') if self.weight is not None else None,
-            self.bias.astype('float32') if self.bias is not None else None,
-            self._epsilon, )
+        output = self.group_norm(input.astype('float32'))
         return output.astype(input.dtype)
 
 
@@ -2275,8 +2285,6 @@ class ConvFeatureExtractionModel(nn.Layer):
 
         # BxT -> BxCxT
         x = x.unsqueeze(1)
-        # import pdb
-        # pdb.set_trace()
         for conv in self.conv_layers:
             x = conv(x)
 
@@ -2359,8 +2367,6 @@ class TransformerEncoder(nn.Layer):
 
     def forward(self, x, padding_mask=None, layer=None):
         x, layer_results = self.extract_features(x, padding_mask, layer)
-        # import pdb
-        # pdb.set_trace()
         if self.layer_norm_first and layer is None:
             x = self.layer_norm(x)
 
@@ -2372,9 +2378,6 @@ class TransformerEncoder(nn.Layer):
             padding_mask=None,
             tgt_layer=None,
             min_layer=0, ):
-
-        # import pdb
-        # pdb.set_trace()
         if padding_mask is not None:
             x = index_put(x, padding_mask, 0)
 

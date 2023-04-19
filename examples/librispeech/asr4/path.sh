@@ -10,4 +10,4 @@ export PYTHONPATH=${MAIN_ROOT}:${PYTHONPATH}
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib/
 
-export BIN_DIR=${MAIN_ROOT}/paddlespeech/s2t/exps/wav2vec2/bin
+export BIN_DIR=${MAIN_ROOT}/paddlespeech/s2t/exps/hubert/bin

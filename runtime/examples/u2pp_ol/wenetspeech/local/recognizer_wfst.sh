@@ -19,6 +19,15 @@ lang_dir=./data/lang_test/
 graph=$lang_dir/TLG.fst
 word_table=$lang_dir/words.txt
 
+if [ ! -f $graph ]; then
+    # download ngram, if you want to make graph by yourself, please refer local/run_build_tlg.sh
+    mkdir -p $lang_dir
+    pushd $lang_dir
+    wget -c https://paddlespeech.bj.bcebos.com/speechx/examples/ngram/zh/tlg.zip
+    unzip tlg.zip
+    popd
+fi
+
 utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer_wfst.log \
 recognizer_main \
     --use_fbank=true \
@@ -31,6 +40,8 @@ recognizer_main \
     --receptive_field_length=7 \
     --subsampling_rate=4 \
     --wav_rspecifier=scp:$data/split${nj}/JOB/${aishell_wav_scp} \
+    --rescoring_weight=0.0 \
+    --acoustic_scale=2 \
     --result_wspecifier=ark,t:$data/split${nj}/JOB/result_recognizer_wfst.ark
 
 

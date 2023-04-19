@@ -267,7 +267,7 @@ def to(x: paddle.Tensor, *args, **kwargs) -> paddle.Tensor:
 
 
 if not hasattr(paddle.Tensor, 'to'):
-    logger.debug("register user to to paddle.Tensor, remove this when fixed!")
+    logger.debug("register user to paddle.Tensor, remove this when fixed!")
     setattr(paddle.Tensor, 'to', to)
     setattr(paddle.static.Variable, 'to', to)
 

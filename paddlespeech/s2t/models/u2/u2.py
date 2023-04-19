@@ -560,7 +560,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             [len(hyp[0]) for hyp in hyps], place=device,
             dtype=paddle.long)  # (beam_size,)
         hyps_pad, _ = add_sos_eos(hyps_pad, self.sos, self.eos, self.ignore_id)
-        hyps_lens = hyps_lens + 1  # Add <sos> at begining
+        hyps_lens = hyps_lens + 1  # Add <sos> at beginning
         logger.debug(
             f"hyps pad: {hyps_pad} {self.sos} {self.eos} {self.ignore_id}")
 
@@ -709,7 +709,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             hypothesis from ctc prefix beam search and one encoder output
         Args:
             hyps (paddle.Tensor): hyps from ctc prefix beam search, already
-                pad sos at the begining, (B, T)
+                pad sos at the beginning, (B, T)
             hyps_lens (paddle.Tensor): length of each hyp in hyps, (B)
             encoder_out (paddle.Tensor): corresponding encoder output, (B=1, T, D)
         Returns:

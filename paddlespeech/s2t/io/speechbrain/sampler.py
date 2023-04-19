@@ -283,7 +283,7 @@ class DynamicBatchSampler(Sampler):
             num_quantiles, )
         # get quantiles using lognormal distribution
         quantiles = lognorm.ppf(latent_boundaries, 1)
-        # scale up to to max_batch_length
+        # scale up to max_batch_length
         bucket_boundaries = quantiles * max_batch_length / quantiles[-1]
         # compute resulting bucket length multipliers
         length_multipliers = [

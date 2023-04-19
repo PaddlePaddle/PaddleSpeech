@@ -182,7 +182,7 @@ class FrontEngineInterface : public TextNormalizer {
     std::string _jieba_idf_path;
     std::string _jieba_stop_word_path;
 
-    std::string _seperate_tone;
+    std::string _separate_tone;
     std::string _word2phone_path;
     std::string _phone2id_path;
     std::string _tone2id_path;

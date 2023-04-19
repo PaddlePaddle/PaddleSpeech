@@ -746,7 +746,7 @@ OnlinePitchFeatureImpl::OnlinePitchFeatureImpl(
   Vector<BaseFloat> lags_offset(lags_);
   // lags_offset equals lags_ (which are the log-spaced lag values we want to
   // measure the NCCF at) with nccf_first_lag_ / opts.resample_freq subtracted
-  // from each element, so we can treat the measured NCCF values as as starting
+  // from each element, so we can treat the measured NCCF values as starting
   // from sample zero in a signal that starts at the point start /
   // opts.resample_freq.  This is necessary because the ArbitraryResample code
   // assumes that the input signal starts from sample zero.

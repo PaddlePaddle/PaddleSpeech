@@ -11,30 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
- """HubertASR model."""
-
-
+"""HubertASR model."""
 from collections import defaultdict
-from typing import Dict, List, Tuple, Any
-from dataclasses import dataclass, field, is_dataclass
 from copy import deepcopy
+from dataclasses import dataclass
+from dataclasses import is_dataclass
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
-from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertConfig, HubertModel, HubertPretrainingConfig
 
-from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2ConfigPure
-from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2Model
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertConfig
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertModel
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertPretrainingConfig
 from paddlespeech.s2t.models.wav2vec2.modules.VanillaNN import VanillaNN
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import SpecAugment
 from paddlespeech.s2t.modules.ctc import CTCDecoderBase as CTC
 from paddlespeech.s2t.modules.initializer import DefaultInitializerContext
 from paddlespeech.s2t.utils.ctc_utils import remove_duplicates_and_blank
-from paddlespeech.s2t.utils.utility import log_add
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.s2t.utils.utility import log_add
 
 logger = Log(__name__).getlog()
+
 
 class HubertASR(nn.Layer):
     def __init__(self, config: dict):
@@ -44,8 +46,10 @@ class HubertASR(nn.Layer):
             self.config = config
             with open(config.vocab_filepath) as f:
                 dicts = [symbol.strip() for symbol in f.readlines()]
-            task_cfg = self.merge_with_parent(HubertPretrainingConfig, dict(self.config.task_cfg))
-            model_cfg = self.merge_with_parent(HubertConfig, dict(self.config.model_cfg))
+            task_cfg = self.merge_with_parent(HubertPretrainingConfig,
+                                              dict(self.config.task_cfg))
+            model_cfg = self.merge_with_parent(HubertConfig,
+                                               dict(self.config.model_cfg))
             hubert = HubertModel(model_cfg, task_cfg, dicts)
 
             self.normalize_wav = config.normalize_wav
@@ -326,11 +330,13 @@ class HubertBase(nn.Layer):
     def __init__(self, config: dict):
         super().__init__()
         with open(config.vocab_filepath) as f:
-                dicts = [symbol.strip() for symbol in f.readlines()]
-        task_cfg = self.merge_with_parent(HubertPretrainingConfig, dict(self.config.task_cfg))
-        model_cfg = self.merge_with_parent(HubertConfig, dict(self.config.model_cfg))
+            dicts = [symbol.strip() for symbol in f.readlines()]
+        task_cfg = self.merge_with_parent(HubertPretrainingConfig,
+                                          dict(self.config.task_cfg))
+        model_cfg = self.merge_with_parent(HubertConfig,
+                                           dict(self.config.model_cfg))
         hubert = HubertModel(model_cfg, task_cfg, dicts)
-        self.hubert= hubert
+        self.hubert = hubert
 
     @classmethod
     def from_config(cls, configs: dict):

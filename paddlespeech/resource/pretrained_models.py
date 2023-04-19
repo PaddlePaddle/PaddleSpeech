@@ -87,22 +87,22 @@ ssl_dynamic_pretrained_models = {
             'chinese-wav2vec2-large.pdparams',
         },
     },
-    "wav2vec2ASR_aishell1-zh-16k": {
-        '1.3': {
-            'url':
-            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz',
-            'md5':
-            'ac8fa0a6345e6a7535f6fabb5e59e218',
-            'cfg_path':
-            'model.yaml',
-            'ckpt_path':
-            'exp/wav2vec2ASR/checkpoints/avg_1',
-            'model':
-            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
-            'params':
-            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
-        },
-    },
+    # "wav2vec2ASR_aishell1-zh-16k": {
+    #     '1.3': {
+    #         'url':
+    #         'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz',
+    #         'md5':
+    #         'ac8fa0a6345e6a7535f6fabb5e59e218',
+    #         'cfg_path':
+    #         'model.yaml',
+    #         'ckpt_path':
+    #         'exp/wav2vec2ASR/checkpoints/avg_1',
+    #         'model':
+    #         'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+    #         'params':
+    #         'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+    #     },
+    # },
     "wav2vec2ASR_aishell1-zh-16k": {
         '1.4': {
             'url':

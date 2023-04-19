@@ -33,8 +33,8 @@ from paddlespeech.s2t.io.speechbrain import data_pipeline
 from paddlespeech.s2t.io.speechbrain import dataio
 from paddlespeech.s2t.io.speechbrain import dataset
 from paddlespeech.s2t.io.speechbrain.dataloader import make_dataloader
-from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
 from paddlespeech.s2t.models.hubert.hubert_ASR import HubertASR
+from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
 from paddlespeech.s2t.training.reporter import ObsScope
 from paddlespeech.s2t.training.reporter import report
@@ -48,6 +48,7 @@ from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
 
 logger = Log(__name__).getlog()
+
 
 # Todo: change this when paddle supports this api
 def clip_grad_norm_(
@@ -428,8 +429,7 @@ class HubertASRTrainer(Trainer):
                             report("epoch", self.epoch)
                             report('step', self.iteration)
                             report("model_lr", self.model_optimizer.get_lr())
-                            report("hubert_lr",
-                                   self.hubert_optimizer.get_lr())
+                            report("hubert_lr", self.hubert_optimizer.get_lr())
                             self.train_batch(batch_index, batch, msg)
                             self.after_train_batch()
                             report('iter', batch_index + 1)
@@ -532,6 +532,7 @@ class HubertASRTrainer(Trainer):
         # Defining tokenizer and loading it
         tokenizer = AutoTokenizer.from_pretrained('bert-base-chinese')
         self.tokenizer = tokenizer
+
         # 2. Define audio pipeline:
         @data_pipeline.takes("wav")
         @data_pipeline.provides("sig")
@@ -680,8 +681,7 @@ class HubertASRTrainer(Trainer):
         logger.info("optim_model:{},{}", model_optim_type, model_optim_conf)
         hubert_optim_type = train_config.hubert_optim
         hubert_optim_conf = train_config.hubert_optim_conf
-        logger.info("optim_model:{},{}", hubert_optim_type,
-                    hubert_optim_conf)
+        logger.info("optim_model:{},{}", hubert_optim_type, hubert_optim_conf)
 
         model_scheduler_type = train_config.model_scheduler
         model_scheduler_conf = train_config.model_scheduler_conf
@@ -739,7 +739,7 @@ class HubertASRTrainer(Trainer):
         model_optimizer = OptimizerFactory.from_args(model_optim_type,
                                                      model_optimizer_args)
         hubert_optimizer = OptimizerFactory.from_args(hubert_optim_type,
-                                                        hubert_optimizer_args)
+                                                      hubert_optimizer_args)
 
         self.model_optimizer = model_optimizer
         self.hubert_optimizer = hubert_optimizer

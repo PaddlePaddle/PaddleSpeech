@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ Paddle Wav2Vec2 model."""
-
 import math
 import uuid
 from dataclasses import dataclass
@@ -25,19 +24,22 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+
 import numpy as np
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 from paddle import Tensor
-from paddlespeech.s2t.modules.align import Linear
-from paddlespeech.s2t.modules.align import LayerNorm
+
 from paddlespeech.s2t.modules.align import Conv1D
 from paddlespeech.s2t.modules.align import Conv2D
 from paddlespeech.s2t.modules.align import Embedding
+from paddlespeech.s2t.modules.align import LayerNorm
+from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
+
 
 class GLU(nn.Layer):
     r"""Applies the gated linear unit function
@@ -226,7 +228,7 @@ def quant_noise(module, p, block_size):
                     mask = paddle.zeros(
                         [in_channels // block_size * out_channels],
                         dtype=paddle.bool)
-                    
+
                     # the implementation of bernoulli_, p=0.5
                     mask = paddle.ones_like(mask) * 0.5
                     mask = paddle.bernoulli(mask)
@@ -310,7 +312,7 @@ class MultiheadAttention(nn.Layer):
         assert not self.self_attention or self.qkv_same_dim, (
             "Self-attention requires query, key and "
             "value to be of the same size")
-        
+
         # Todo scaled initialization
         # Empirically observed the convergence to be much better with
         # the scaled initialization
@@ -319,19 +321,31 @@ class MultiheadAttention(nn.Layer):
         out_proj_bias_attr = nn.initializer.Constant(0)
 
         self.k_proj = quant_noise(
-            nn.Linear(self.kdim, embed_dim, weight_attr=weight_attr, bias_attr=bias if not bias else kv_proj_bias_attr), q_noise, qn_block_size
-        )
+            nn.Linear(
+                self.kdim,
+                embed_dim,
+                weight_attr=weight_attr,
+                bias_attr=bias
+                if not bias else kv_proj_bias_attr), q_noise, qn_block_size)
         self.v_proj = quant_noise(
-            nn.Linear(self.vdim, embed_dim, weight_attr=weight_attr, bias_attr=bias if not bias else kv_proj_bias_attr), q_noise, qn_block_size
-        )
+            nn.Linear(
+                self.vdim,
+                embed_dim,
+                weight_attr=weight_attr,
+                bias_attr=bias
+                if not bias else kv_proj_bias_attr), q_noise, qn_block_size)
         self.q_proj = quant_noise(
-            nn.Linear(embed_dim, embed_dim, weight_attr=weight_attr, bias_attr=bias), q_noise, qn_block_size
-        )
+            nn.Linear(
+                embed_dim, embed_dim, weight_attr=weight_attr, bias_attr=bias),
+            q_noise, qn_block_size)
 
         self.out_proj = quant_noise(
-            nn.Linear(embed_dim, embed_dim, weight_attr=weight_attr, bias_attr=bias if not bias else out_proj_bias_attr), q_noise, qn_block_size
-        )
-
+            nn.Linear(
+                embed_dim,
+                embed_dim,
+                weight_attr=weight_attr,
+                bias_attr=bias
+                if not bias else out_proj_bias_attr), q_noise, qn_block_size)
 
         #         nn.initializer.XavierUniform(self.k_proj.weight, gain=1 / math.sqrt(2))
         #         nn.initializer.XavierUniform(self.v_proj.weight, gain=1 / math.sqrt(2))
@@ -384,9 +398,12 @@ class MultiheadAttention(nn.Layer):
         if self.qkv_same_dim:
             # Empirically observed the convergence to be much better with
             # the scaled initialization
-            nn.initializer.XavierUniform(self.k_proj.weight, gain=1 / math.sqrt(2))
-            nn.initializer.XavierUniform(self.v_proj.weight, gain=1 / math.sqrt(2))
-            nn.initializer.XavierUniform(self.q_proj.weight, gain=1 / math.sqrt(2))
+            nn.initializer.XavierUniform(
+                self.k_proj.weight, gain=1 / math.sqrt(2))
+            nn.initializer.XavierUniform(
+                self.v_proj.weight, gain=1 / math.sqrt(2))
+            nn.initializer.XavierUniform(
+                self.q_proj.weight, gain=1 / math.sqrt(2))
         else:
             self.k_proj.weight = paddle.ParamAttr()
             nn.initializer.XavierUniform(self.k_proj.weight)
@@ -410,15 +427,18 @@ class MultiheadAttention(nn.Layer):
             start_idx = i * self.head_dim
             end_idx = (i + 1) * self.head_dim
             k_proj_heads_norm.append(
-                paddle.sum(paddle.abs(self.k_proj.weight[:, start_idx:end_idx]))
+                paddle.sum(
+                    paddle.abs(self.k_proj.weight[:, start_idx:end_idx]))
                 .tolist() + paddle.sum(
                     paddle.abs(self.k_proj.bias[start_idx:end_idx])).tolist())
             q_proj_heads_norm.append(
-                paddle.sum(paddle.abs(self.q_proj.weight[:, start_idx:end_idx]))
+                paddle.sum(
+                    paddle.abs(self.q_proj.weight[:, start_idx:end_idx]))
                 .tolist() + paddle.sum(
                     paddle.abs(self.q_proj.bias[start_idx:end_idx])).tolist())
             v_proj_heads_norm.append(
-                paddle.sum(paddle.abs(self.v_proj.weight[:, start_idx:end_idx]))
+                paddle.sum(
+                    paddle.abs(self.v_proj.weight[:, start_idx:end_idx]))
                 .tolist() + paddle.sum(
                     paddle.abs(self.v_proj.bias[start_idx:end_idx])).tolist())
 
@@ -464,8 +484,7 @@ class MultiheadAttention(nn.Layer):
         new_q_weight = paddle.concat(new_q_weight, axis=-1).detach()
         new_k_weight = paddle.concat(new_k_weight, axis=-1).detach()
         new_v_weight = paddle.concat(new_v_weight, axis=-1).detach()
-        new_out_proj_weight = paddle.concat(
-            new_out_proj_weight).detach()
+        new_out_proj_weight = paddle.concat(new_out_proj_weight).detach()
         new_q_weight.stop_gradient = False
         new_k_weight.stop_gradient = False
         new_v_weight.stop_gradient = False
@@ -898,10 +917,12 @@ class MultiheadAttention(nn.Layer):
         if prev_key_padding_mask is not None and static_kv:
             new_key_padding_mask = prev_key_padding_mask
         elif prev_key_padding_mask is not None and key_padding_mask is not None:
-            new_key_padding_mask = paddle.concat([
-                paddle.cast(prev_key_padding_mask, 'float32'),
-                paddle.cast(key_padding_mask, 'float32')
-            ], axis = 1)
+            new_key_padding_mask = paddle.concat(
+                [
+                    paddle.cast(prev_key_padding_mask, 'float32'),
+                    paddle.cast(key_padding_mask, 'float32')
+                ],
+                axis=1)
         # During incremental decoding, as the padding token enters and
         # leaves the frame, there will be a time when prev or current
         # is None
@@ -909,20 +930,24 @@ class MultiheadAttention(nn.Layer):
             if src_len > prev_key_padding_mask.shape[1]:
                 filler = paddle.zeros(
                     [batch_size, src_len - prev_key_padding_mask.shape[1]], )
-                new_key_padding_mask = paddle.concat([
-                    paddle.cast(prev_key_padding_mask, 'float32'),
-                    paddle.cast(filler, 'float32')
-                ], axis = 1)
+                new_key_padding_mask = paddle.concat(
+                    [
+                        paddle.cast(prev_key_padding_mask, 'float32'),
+                        paddle.cast(filler, 'float32')
+                    ],
+                    axis=1)
             else:
                 new_key_padding_mask = prev_key_padding_mask
         elif key_padding_mask is not None:
             if src_len > key_padding_mask.shape[1]:
                 filler = paddle.zeros(
                     [batch_size, src_len - key_padding_mask.shape[1]], )
-                new_key_padding_mask = paddle.concat([
-                    paddle.cast(filler, 'float32'),
-                    paddle.cast(key_padding_mask, 'float32')
-                ], axis = 1)
+                new_key_padding_mask = paddle.concat(
+                    [
+                        paddle.cast(filler, 'float32'),
+                        paddle.cast(key_padding_mask, 'float32')
+                    ],
+                    axis=1)
             else:
                 new_key_padding_mask = paddle.cast(key_padding_mask, 'float32')
         else:
@@ -1074,8 +1099,7 @@ class GumbelVectorQuantizer(nn.Layer):
         if weight_proj_depth > 1:
 
             def block(input_dim, output_dim):
-                return nn.Sequential(
-                    Linear(input_dim, output_dim), activation)
+                return nn.Sequential(Linear(input_dim, output_dim), activation)
 
             inner_dim = self.input_dim * weight_proj_factor
             self.weight_proj = nn.Sequential(
@@ -1085,7 +1109,11 @@ class GumbelVectorQuantizer(nn.Layer):
                 ],
                 Linear(inner_dim, groups * num_vars), )
         else:
-            self.weight_proj = Linear(self.input_dim, groups * num_vars, weight_attr=nn.initializer.Normal(mean=0, std=1), bias_attr=nn.initializer.Zero())
+            self.weight_proj = Linear(
+                self.input_dim,
+                groups * num_vars,
+                weight_attr=nn.initializer.Normal(mean=0, std=1),
+                bias_attr=nn.initializer.Zero())
 
         if isinstance(temp, str):
             import ast
@@ -1243,6 +1271,7 @@ class TransposeLast(nn.Layer):
         trans_dim[-1], trans_dim[-2] = trans_dim[-2], trans_dim[-1]
         return x.transpose(trans_dim)
 
+
 class Fp32LayerNorm(LayerNorm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1256,13 +1285,22 @@ class Fp32LayerNorm(LayerNorm):
             self._epsilon, )
         return output.astype(input.dtype)
 
+
 # Todo: change this when paddle supports F.group_norm
 class Fp32GroupNorm(nn.Layer):
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.group_norm = paddle.nn.GroupNorm(*args, **kwargs)
-        fp32_weight = paddle.create_parameter(shape=self.group_norm.weight.shape, dtype='float32', default_initializer=paddle.nn.initializer.Assign(self.group_norm.weight))
-        fp32_bias = paddle.create_parameter(shape=self.group_norm.bias.shape, dtype='float32', default_initializer=paddle.nn.initializer.Assign(self.group_norm.bias))
+        fp32_weight = paddle.create_parameter(
+            shape=self.group_norm.weight.shape,
+            dtype='float32',
+            default_initializer=paddle.nn.initializer.Assign(
+                self.group_norm.weight))
+        fp32_bias = paddle.create_parameter(
+            shape=self.group_norm.bias.shape,
+            dtype='float32',
+            default_initializer=paddle.nn.initializer.Assign(
+                self.group_norm.bias))
         self.group_norm.weight = fp32_weight
         self.group_norm.bias = fp32_bias
 
@@ -2299,7 +2337,7 @@ def make_conv_pos(e, k, g):
         e,
         kernel_size=k,
         padding=k // 2,
-        groups=g, 
+        groups=g,
         weight_attr=nn.initializer.Normal(mean=0, std=std),
         bias_attr=nn.initializer.Constant(0))
     pos_conv = nn.utils.weight_norm(pos_conv, name="weight", dim=2)

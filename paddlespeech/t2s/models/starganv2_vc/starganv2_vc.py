@@ -25,6 +25,8 @@ import paddle
 import paddle.nn.functional as F
 from paddle import nn
 
+from paddlespeech.t2s.modules.nets_utils import _reset_parameters
+
 
 class DownSample(nn.Layer):
     def __init__(self, layer_type: str):
@@ -355,6 +357,8 @@ class Generator(nn.Layer):
         if w_hpf > 0:
             self.hpf = HighPass(w_hpf)
 
+        self.reset_parameters()
+
     def forward(self,
                 x: paddle.Tensor,
                 s: paddle.Tensor,
@@ -399,6 +403,9 @@ class Generator(nn.Layer):
         out = self.to_out(x)
         return out
 
+    def reset_parameters(self):
+        self.apply(_reset_parameters)
+
 
 class MappingNetwork(nn.Layer):
     def __init__(self,
@@ -427,6 +434,8 @@ class MappingNetwork(nn.Layer):
                     nn.ReLU(), nn.Linear(hidden_dim, style_dim))
             ])
 
+        self.reset_parameters()
+
     def forward(self, z: paddle.Tensor, y: paddle.Tensor):
         """Calculate forward propagation.
         Args:
@@ -448,6 +457,9 @@ class MappingNetwork(nn.Layer):
         # (style_dim, )
         s = out[idx, y]
         return s
+
+    def reset_parameters(self):
+        self.apply(_reset_parameters)
 
 
 class StyleEncoder(nn.Layer):
@@ -490,6 +502,8 @@ class StyleEncoder(nn.Layer):
         for _ in range(num_domains):
             self.unshared.append(nn.Linear(dim_out, style_dim))
 
+        self.reset_parameters()
+
     def forward(self, x: paddle.Tensor, y: paddle.Tensor):
         """Calculate forward propagation.
         Args:
@@ -513,6 +527,9 @@ class StyleEncoder(nn.Layer):
         s = out[idx, y]
         return s
 
+    def reset_parameters(self):
+        self.apply(_reset_parameters)
+
 
 class Discriminator(nn.Layer):
     def __init__(self,
@@ -535,13 +552,28 @@ class Discriminator(nn.Layer):
             repeat_num=repeat_num)
         self.num_domains = num_domains
 
+        self.reset_parameters()
+
     def forward(self, x: paddle.Tensor, y: paddle.Tensor):
+        """Calculate forward propagation.
+        Args:
+            x(Tensor(float32)):
+                Shape (B, 1, 80, T).
+            y(Tensor(float32)):
+                Shape (B, ). 
+        Returns:
+            Tensor:
+                Shape (B, )
+        """
         out = self.dis(x, y)
         return out
 
     def classifier(self, x: paddle.Tensor):
         out = self.cls.get_feature(x)
         return out
+
+    def reset_parameters(self):
+        self.apply(_reset_parameters)
 
 
 class Discriminator2D(nn.Layer):

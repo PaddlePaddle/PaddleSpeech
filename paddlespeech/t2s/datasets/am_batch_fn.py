@@ -852,20 +852,21 @@ class StarGANv2VCCollateFn:
         # (B,)
         label = paddle.to_tensor(label)
         ref_label = paddle.to_tensor(ref_label)
-        # [B, 80, T] -> [B, 1, 80, T]
-        mel = paddle.to_tensor(mel)
-        ref_mel = paddle.to_tensor(ref_mel)
-        ref_mel_2 = paddle.to_tensor(ref_mel_2)
+        # [B, T, 80] -> [B, 1, 80, T]
+        mel = paddle.to_tensor(mel).transpose([0, 2, 1]).unsqueeze(1)
+        ref_mel = paddle.to_tensor(ref_mel).transpose([0, 2, 1]).unsqueeze(1)
+        ref_mel_2 = paddle.to_tensor(ref_mel_2).transpose(
+            [0, 2, 1]).unsqueeze(1)
 
-        z_trg = paddle.randn(batch_size, self.latent_dim)
-        z_trg2 = paddle.randn(batch_size, self.latent_dim)
+        z_trg = paddle.randn([batch_size, self.latent_dim])
+        z_trg2 = paddle.randn([batch_size, self.latent_dim])
 
         batch = {
-            "x_real": mels,
-            "y_org": labels,
-            "x_ref": ref_mels,
-            "x_ref2": ref_mels_2,
-            "y_trg": ref_labels,
+            "x_real": mel,
+            "y_org": label,
+            "x_ref": ref_mel,
+            "x_ref2": ref_mel_2,
+            "y_trg": ref_label,
             "z_trg": z_trg,
             "z_trg2": z_trg2
         }

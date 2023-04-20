@@ -166,7 +166,8 @@ class VITSUpdater(StandardUpdater):
                 gen_loss.backward()
 
                 self.optimizer_g.step()
-                self.scheduler_g.step()
+                if self.state.iteration % self.updates_per_epoch == 0:
+                    self.scheduler_g.step()
 
                 # reset cache
                 if self.model.reuse_cache_gen or not self.model.training:
@@ -202,7 +203,8 @@ class VITSUpdater(StandardUpdater):
                 dis_loss.backward()
 
                 self.optimizer_d.step()
-                self.scheduler_d.step()
+                if self.state.iteration % self.updates_per_epoch == 0:
+                    self.scheduler_d.step()
 
                 # reset cache
                 if self.model.reuse_cache_dis or not self.model.training:

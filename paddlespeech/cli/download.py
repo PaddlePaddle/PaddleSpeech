@@ -133,8 +133,8 @@ def _get_download(url, fullname):
     total_size = req.headers.get('content-length')
     with open(tmp_fullname, 'wb') as f:
         if total_size:
-            with tqdm(total=(int(total_size))) as pbar:
-                for chunk in req.iter_content(chunk_size=1024, unit='B', unit_scale=True):
+            with tqdm(total=(int(total_size)), unit='B', unit_scale=True) as pbar:
+                for chunk in req.iter_content(chunk_size=1024):
                     f.write(chunk)
                     pbar.update(len(chunk))
         else:

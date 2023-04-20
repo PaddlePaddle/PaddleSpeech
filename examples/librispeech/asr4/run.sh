@@ -7,7 +7,7 @@ set -e
 gpus=0
 stage=0
 stop_stage=4
-conf_path=conf/hubertASR.yaml
+conf_path=conf/wav2vec2ASR.yaml
 ips=            #xx.xx.xx.xx,xx.xx.xx.xx
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=1

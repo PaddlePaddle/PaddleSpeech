@@ -20,6 +20,44 @@ import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
+from paddlespeech.utils.initialize import _calculate_fan_in_and_fan_out
+from paddlespeech.utils.initialize import kaiming_uniform_
+from paddlespeech.utils.initialize import normal_
+from paddlespeech.utils.initialize import ones_
+from paddlespeech.utils.initialize import uniform_
+from paddlespeech.utils.initialize import zeros_
+
+
+# default init method of torch
+# copy from https://github.com/PaddlePaddle/PaddleSpeech/blob/9cf8c1985a98bb380c183116123672976bdfe5c9/paddlespeech/t2s/models/vits/vits.py#L506
+def _reset_parameters(module):
+    if isinstance(module, (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D,
+                           nn.Conv2DTranspose)):
+        kaiming_uniform_(module.weight, a=math.sqrt(5))
+        if module.bias is not None:
+            fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+            if fan_in != 0:
+                bound = 1 / math.sqrt(fan_in)
+                uniform_(module.bias, -bound, bound)
+
+    if isinstance(module,
+                  (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
+        ones_(module.weight)
+        zeros_(module.bias)
+
+    if isinstance(module, nn.Linear):
+        kaiming_uniform_(module.weight, a=math.sqrt(5))
+        if module.bias is not None:
+            fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            uniform_(module.bias, -bound, bound)
+
+    if isinstance(module, nn.Embedding):
+        normal_(module.weight)
+        if module._padding_idx is not None:
+            with paddle.no_grad():
+                module.weight[module._padding_idx] = 0
+
 
 def pad_list(xs, pad_value):
     """Perform padding for the list of tensors.

@@ -113,6 +113,16 @@ def train_sp(args, config):
     model_version = '1.0'
     uncompress_path = download_and_decompress(StarGANv2VC_source[model_version],
                                               MODEL_HOME)
+    # 根据 speaker 的个数修改 num_domains
+    # 源码的预训练模型和 default.yaml 里面默认是 20
+    if args.speaker_dict is not None:
+        with open(args.speaker_dict, 'rt', encoding='utf-8') as f:
+            spk_id = [line.strip().split() for line in f.readlines()]
+        spk_num = len(spk_id)
+        print("spk_num:", spk_num)
+        config['mapping_network_params']['num_domains'] = spk_num
+        config['style_encoder_params']['num_domains'] = spk_num
+        config['discriminator_params']['num_domains'] = spk_num
 
     generator = Generator(**config['generator_params'])
     mapping_network = MappingNetwork(**config['mapping_network_params'])
@@ -123,7 +133,7 @@ def train_sp(args, config):
     jdc_model_dir = os.path.join(uncompress_path, 'jdcnet.pdz')
     asr_model_dir = os.path.join(uncompress_path, 'asr.pdz')
 
-    F0_model = JDCNet(num_class=1, seq_len=192)
+    F0_model = JDCNet(num_class=1, seq_len=config['max_mel_length'])
     F0_model.set_state_dict(paddle.load(jdc_model_dir)['main_params'])
     F0_model.eval()
 
@@ -234,6 +244,11 @@ def main():
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+    parser.add_argument(
+        "--speaker-dict",
+        type=str,
+        default=None,
+        help="speaker id map file for multiple speaker model.")
 
     args = parser.parse_args()
 

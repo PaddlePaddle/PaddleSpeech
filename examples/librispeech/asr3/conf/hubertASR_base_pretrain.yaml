@@ -1,0 +1,135 @@
+############################################
+#          Network Architecture           #
+############################################
+freeze_hubert: True
+normalize_wav: True
+output_norm: True
+init_type: kaiming_uniform # !Warning: need to convergence
+enc:
+  input_shape: 1024
+  dnn_blocks: 2
+  dnn_neurons: 1024
+  activation: True
+ctc:
+  enc_n_units: 1024
+  blank_id: 0
+  dropout_rate: 0.0
+hubert_params_path: "exp/hubert/hubert_base_model_paddle.pdparams"
+km_path: "exp/hubert/hubert_base_ls960_L9_km500.bin"
+
+
+task_cfg:
+  sample_rate: 16000
+  #pretrain: True
+
+model_cfg:
+  dropout_input: 0.1
+  final_dropout: 0.0
+  dropout: 0.1
+  attention_dropout: 0.1
+  activation_dropout: 0.0
+  apply_mask: False
+  mask_length: 10
+  mask_prob: 0.5
+  mask_selection: static
+  mask_other: 0.0
+  no_mask_overlap: False
+  mask_channel_length: 10
+  mask_channel_prob: 0.0
+  mask_channel_selection: static
+  mask_channel_other: 0.0
+  no_mask_channel_overlap: False
+  freeze_finetune_updates: 10000
+  feature_grad_mult: 0.1
+  layerdrop: 0.1
+  normalize: True
+  fp16: True
+  label_rate: 50
+  extractor_mode: default
+  encoder_layers: 12
+  encoder_embed_dim: 768
+  encoder_ffn_embed_dim: 3072
+  encoder_attention_heads: 12
+  activation_fn: gelu
+  encoder_layerdrop: 0.05
+  dropout_features: 0.1
+  final_dim: 256
+  untie_final_proj: False
+  layer_norm_first: False
+  conv_feature_layers: "[(512,10,5)] + [(512,3,2)] * 4 + [(512,2,2)] * 2"
+  conv_bias: False
+  logit_temp: 0.1
+  target_glu: False
+  mask_min_space: 1
+  mask_channel_min_space: 1
+  conv_pos: 128
+  conv_pos_groups: 16
+  latent_temp: [2.0, 0.5, 0.999995]
+  skip_masked: False
+  skip_nomask: False
+
+###########################################
+#                   Data                  #
+###########################################
+train_manifest: data/manifest.train
+dev_manifest: data/manifest.dev
+test_manifest: data/manifest.test-clean
+
+###########################################
+#              Dataloader                 #
+###########################################
+vocab_filepath: data/lang_char/vocab.txt 
+unit_type: char
+mean_std_filepath: ""
+preprocess_config: conf/preprocess.yaml
+sortagrad: -1 # Feed samples from shortest to longest ; -1: enabled for all epochs 0: disabled other: enabled for other epochs 
+batch_size: 1  # Different batch_size may cause large differences in results
+maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
+maxlen_out: 1500000  # if output length > maxlen-out batchsize is automatically reduced
+minibatches: 0 # for debug
+batch_count: auto
+batch_bins: 0 
+batch_frames_in: 0
+batch_frames_out: 0
+batch_frames_inout: 0
+num_workers: 0
+subsampling_factor: 1
+num_encs: 1
+dist_sampler: True
+shortest_first: True
+return_lens_rate: True
+
+############################################
+#             Data Augmentation            #
+############################################
+audio_augment:  # for raw audio 
+  sample_rate: 16000
+
+###########################################
+#                 Training                #
+###########################################
+n_epoch: 1
+accum_grad: 1
+global_grad_clip: 5.0
+model_optim: adadelta
+model_optim_conf:
+  lr: 1.0
+  epsilon: 1.0e-6
+  rho: 0.95
+model_scheduler: constantlr    
+model_scheduler_conf:
+  warmup_steps: 25000
+  lr_decay: 1.0
+hubert_optim: adadelta
+hubert_optim_conf:
+  lr: 0.9
+  epsilon: 1.0e-6
+  rho: 0.95
+hubert_scheduler: constantlr    
+hubert_scheduler_conf:
+  warmup_steps: 25000
+  lr_decay: 1.0
+log_interval: 1
+checkpoint:
+  kbest_n: 50
+  latest_n: 5

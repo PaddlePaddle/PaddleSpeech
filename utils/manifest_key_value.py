@@ -6,8 +6,8 @@ from pathlib import Path
 
 import jsonlines
 
-from utils.utility import add_arguments
-from utils.utility import print_arguments
+from paddlespeech.utils.argparse import add_arguments
+from paddlespeech.utils.argparse import print_arguments
 
 
 def main(args):

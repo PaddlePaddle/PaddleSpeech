@@ -13,3 +13,7 @@
 # limitations under the License.
 import _locale
 _locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
+
+__version__ = '0.0.0'
+
+__commit__ = '9cf8c1985a98bb380c183116123672976bdfe5c9'

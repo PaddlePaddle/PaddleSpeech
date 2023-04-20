@@ -27,8 +27,8 @@ from multiprocessing.pool import Pool
 
 import soundfile
 
-from utils.utility import download
-from utils.utility import unpack
+from paddlespeech.dataset.download import download
+from paddlespeech.dataset.download import unpack
 
 URL_ROOT = "http://openslr.elda.org/resources/31"
 URL_TRAIN_CLEAN = URL_ROOT + "/train-clean-5.tar.gz"

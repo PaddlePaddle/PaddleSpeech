@@ -555,6 +555,16 @@ class Discriminator(nn.Layer):
         self.reset_parameters()
 
     def forward(self, x: paddle.Tensor, y: paddle.Tensor):
+        """Calculate forward propagation.
+        Args:
+            x(Tensor(float32)):
+                Shape (B, 1, 80, T).
+            y(Tensor(float32)):
+                Shape (B, ). 
+        Returns:
+            Tensor:
+                Shape (B, )
+        """
         out = self.dis(x, y)
         return out
 

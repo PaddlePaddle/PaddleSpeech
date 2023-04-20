@@ -18,7 +18,7 @@ Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.
 """
-from paddlespeech.dataset.aishell import aidatatang_200zh_main
+from paddlespeech.dataset.aidatatang_200zh import aidatatang_200zh_main
 
 if __name__ == '__main__':
     aidatatang_200zh_main()

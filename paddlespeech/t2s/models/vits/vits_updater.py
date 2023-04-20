@@ -166,6 +166,7 @@ class VITSUpdater(StandardUpdater):
                 gen_loss.backward()
 
                 self.optimizer_g.step()
+                # learning rate updates on each epoch.
                 if self.state.iteration % self.updates_per_epoch == 0:
                     self.scheduler_g.step()
 
@@ -203,6 +204,7 @@ class VITSUpdater(StandardUpdater):
                 dis_loss.backward()
 
                 self.optimizer_d.step()
+                # learning rate updates on each epoch.
                 if self.state.iteration % self.updates_per_epoch == 0:
                     self.scheduler_d.step()
 

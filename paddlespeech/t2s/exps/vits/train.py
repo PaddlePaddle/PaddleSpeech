@@ -231,7 +231,7 @@ def train_sp(args, config):
 
     trainer = Trainer(
         updater,
-        stop_trigger=(config.train_max_steps, "iteration"),
+        stop_trigger=(config.max_epoch, 'epoch'),
         out=output_dir)
 
     if dist.get_rank() == 0:

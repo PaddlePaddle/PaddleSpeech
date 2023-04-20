@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cls/nnet/panns_interface.h"
+#include "audio_classification/nnet/panns_interface.h"
 
-#include "cls/nnet/panns_nnet.h"
+#include "audio_classification/nnet/panns_nnet.h"
 #include "common/base/config.h"
 
 namespace ppspeech {

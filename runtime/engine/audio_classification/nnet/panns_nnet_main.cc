@@ -17,7 +17,7 @@
 
 #include "gflags/gflags.h"
 #include "glog/logging.h"
-#include "cls/nnet/panns_interface.h"
+#include "audio_classification/nnet/panns_interface.h"
 
 DEFINE_string(conf_path, "", "config path");
 DEFINE_string(scp_path, "", "wav scp path");

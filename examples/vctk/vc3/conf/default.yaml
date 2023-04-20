@@ -41,7 +41,7 @@ discriminator_params:
     dim_in: 64           # same as dim_in in generator_params
     num_domains: 20      # same as num_domains in mapping_network_params
     max_conv_dim: 512    # same as max_conv_dim in generator_params
-    n_repeat: 4
+    repeat_num: 4
 asr_params:
     input_dim: 80
     hidden_dim: 256
@@ -77,6 +77,7 @@ loss_params:
 ###########################################################
 batch_size: 5               # Batch size.
 num_workers: 2              # Number of workers in DataLoader.
+max_mel_length: 192
 
 ###########################################################
 #             OPTIMIZER & SCHEDULER SETTING               #
@@ -84,47 +85,47 @@ num_workers: 2              # Number of workers in DataLoader.
 generator_optimizer_params:
     beta1: 0.0
     beta2: 0.99
-    weight_decay: 1e-4                   
-    epsilon: 1e-9
+    weight_decay: 1.0e-4                   
+    epsilon: 1.0e-9
 generator_scheduler_params:
-    max_learning_rate: 2e-4
+    max_learning_rate: 2.0e-4
     phase_pct: 0.0
     divide_factor: 1
     total_steps: 200000                # train_max_steps
-    end_learning_rate: 2e-4
+    end_learning_rate: 2.0e-4
 style_encoder_optimizer_params:
     beta1: 0.0
     beta2: 0.99
-    weight_decay: 1e-4                 
-    epsilon: 1e-9
+    weight_decay: 1.0e-4                 
+    epsilon: 1.0e-9
 style_encoder_scheduler_params:
-    max_learning_rate: 2e-4
+    max_learning_rate: 2.0e-4
     phase_pct: 0.0
     divide_factor: 1
     total_steps: 200000                # train_max_steps
-    end_learning_rate: 2e-4
+    end_learning_rate: 2.0e-4
 mapping_network_optimizer_params:
     beta1: 0.0
     beta2: 0.99
-    weight_decay: 1e-4                 
-    epsilon: 1e-9
+    weight_decay: 1.0e-4                 
+    epsilon: 1.0e-9
 mapping_network_scheduler_params:
-    max_learning_rate: 2e-6
+    max_learning_rate: 2.0e-6
     phase_pct: 0.0
     divide_factor: 1
     total_steps: 200000                # train_max_steps
-    end_learning_rate: 2e-6
+    end_learning_rate: 2.0e-6
 discriminator_optimizer_params:
     beta1: 0.0
     beta2: 0.99
-    weight_decay: 1e-4                 
-    epsilon: 1e-9
+    weight_decay: 1.0e-4                 
+    epsilon: 1.0e-9
 discriminator_scheduler_params:
-    max_learning_rate: 2e-4
+    max_learning_rate: 2.0e-4
     phase_pct: 0.0
     divide_factor: 1
     total_steps: 200000                # train_max_steps
-    end_learning_rate: 2e-4        
+    end_learning_rate: 2.0e-4        
 
 ###########################################################
 #                    TRAINING SETTING                     #

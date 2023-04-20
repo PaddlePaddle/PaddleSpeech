@@ -21,10 +21,13 @@ from paddle.nn import Layer
 from paddle.optimizer import Optimizer
 from paddle.optimizer.lr import LRScheduler
 
+from paddlespeech.t2s.models.starganv2_vc.losses import compute_d_loss
+from paddlespeech.t2s.models.starganv2_vc.losses import compute_g_loss
 from paddlespeech.t2s.training.extensions.evaluator import StandardEvaluator
 from paddlespeech.t2s.training.reporter import report
 from paddlespeech.t2s.training.updaters.standard_updater import StandardUpdater
 from paddlespeech.t2s.training.updaters.standard_updater import UpdaterState
+
 logging.basicConfig(
     format='%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
     datefmt='[%Y-%m-%d %H:%M:%S]')
@@ -62,10 +65,10 @@ class StarGANv2VCUpdater(StandardUpdater):
         self.models = models
 
         self.optimizers = optimizers
-        self.optimizer_g = optimizers['optimizer_g']
-        self.optimizer_s = optimizers['optimizer_s']
-        self.optimizer_m = optimizers['optimizer_m']
-        self.optimizer_d = optimizers['optimizer_d']
+        self.optimizer_g = optimizers['generator']
+        self.optimizer_s = optimizers['style_encoder']
+        self.optimizer_m = optimizers['mapping_network']
+        self.optimizer_d = optimizers['discriminator']
 
         self.schedulers = schedulers
         self.scheduler_g = schedulers['generator']

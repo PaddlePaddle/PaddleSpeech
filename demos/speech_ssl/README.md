@@ -36,7 +36,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   ```
   Arguments:
   - `input`(required): Audio file to recognize.
-  - `model`: Model type of asr task. Default: `wav2vec2ASR_librispeech`.
+  - `model`: Model type of asr task. Default: `wav2vec2`, choices: [wav2vec2, hubert].
   - `task`: Output type. Default: `asr`.
   - `lang`: Model language. Default: `en`.
   - `sample_rate`: Sample rate of the model. Default: `16000`.
@@ -56,7 +56,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 
   # to recognize text 
   text = ssl_executor(
-      model='wav2vec2ASR_librispeech',
+      model='wav2vec2',
       task='asr',
       lang='en',
       sample_rate=16000,

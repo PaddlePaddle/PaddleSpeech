@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .hubert_ASR import HubertASR
-from .wav2vec2_ASR import Wav2vec2Base
+from .hubert_ASR import HubertBase
 
-__all__ = ["Wav2vec2ASR", "Wav2vec2Base"]
+__all__ = ["HubertASR", "HubertBase"]

@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # s2t utils binaries.
+from .avg_model import main as avg_ckpts_main
 from .build_vocab import main as build_vocab_main
 from .compute_mean_std import main as compute_mean_std_main
+from .compute_wer import main as compute_wer_main
 from .format_data import main as format_data_main
+from .format_rsl import main as format_rsl_main

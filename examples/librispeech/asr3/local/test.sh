@@ -31,7 +31,7 @@ python3 utils/format_rsl.py \
 
 for type in ctc_greedy_search; do
     echo "decoding ${type}"
-    batch_size=8
+    batch_size=16
     python3 -u ${BIN_DIR}/test.py \
         --ngpu ${ngpu} \
         --config ${config_path} \

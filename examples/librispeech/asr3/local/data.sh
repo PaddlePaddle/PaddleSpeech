@@ -1,6 +1,6 @@
 #!/bin/bash
 
-stage=0
+stage=-1
 stop_stage=100
 
 unit_type=char

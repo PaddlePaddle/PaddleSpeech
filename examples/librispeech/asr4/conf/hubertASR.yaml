@@ -14,7 +14,7 @@ ctc:
   enc_n_units: 1024
   blank_id: 0
   dropout_rate: 0.0
-hubert_params_path: "exp/hubert/pd_hubert_no_fintune.pdparams"
+hubert_params_path: "exp/hubert/hubert-large-lv60.pdparams"
 
 
 task_cfg:
@@ -89,9 +89,9 @@ unit_type: char
 mean_std_filepath: ""
 preprocess_config: conf/preprocess.yaml
 sortagrad: -1 # Feed samples from shortest to longest ; -1: enabled for all epochs 0: disabled other: enabled for other epochs 
-batch_size: 2  # Different batch_size may cause large differences in results
-maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
-maxlen_out: 1500000  # if output length > maxlen-out batchsize is automatically reduced
+batch_size: 4  # Different batch_size may cause large differences in results
+maxlen_in: 1500  # if input length  > maxlen-in batchsize is automatically reduced
+maxlen_out: 150  # if output length > maxlen-out batchsize is automatically reduced
 minibatches: 0 # for debug
 batch_count: auto
 batch_bins: 0 
@@ -129,7 +129,7 @@ model_scheduler_conf:
   lr_decay: 1.0
 hubert_optim: adadelta
 hubert_optim_conf:
-  lr: 1.0
+  lr: 0.95
   epsilon: 1.0e-6
   rho: 0.95
 hubert_scheduler: constantlr    

@@ -1646,7 +1646,7 @@ SubMatrix<Real>::SubMatrix(const MatrixBase<Real> &M,
                static_cast<UnsignedMatrixIndexT>(M.num_rows_ - ro) &&
                static_cast<UnsignedMatrixIndexT>(c) <=
                static_cast<UnsignedMatrixIndexT>(M.num_cols_ - co));
-  // point to the begining of window
+  // point to the beginning of window
   MatrixBase<Real>::num_rows_ = r;
   MatrixBase<Real>::num_cols_ = c;
   MatrixBase<Real>::stride_ = M.Stride();

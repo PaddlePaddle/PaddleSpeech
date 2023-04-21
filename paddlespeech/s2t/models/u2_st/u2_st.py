@@ -455,7 +455,7 @@ class U2STBaseModel(nn.Layer):
             hypothesis from ctc prefix beam search and one encoder output
         Args:
             hyps (paddle.Tensor): hyps from ctc prefix beam search, already
-                pad sos at the begining, (B, T)
+                pad sos at the beginning, (B, T)
             hyps_lens (paddle.Tensor): length of each hyp in hyps, (B)
             encoder_out (paddle.Tensor): corresponding encoder output, (B=1, T, D)
         Returns:

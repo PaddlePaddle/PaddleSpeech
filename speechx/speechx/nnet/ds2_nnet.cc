@@ -105,7 +105,7 @@ paddle_infer::Predictor* PaddleNnet::GetPredictor() {
 
     while (pred_id < pool_usages.size()) {
         if (pool_usages[pred_id] == false) {
-            predictor = pool->Retrive(pred_id);
+            predictor = pool->Retrieve(pred_id);
             break;
         }
         ++pred_id;

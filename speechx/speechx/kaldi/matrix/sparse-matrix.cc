@@ -998,7 +998,7 @@ void FilterCompressedMatrixRows(const CompressedMatrix &in,
   // iterating row-wise versus column-wise in compressed-matrix uncompression.
 
   if (num_kept_rows > heuristic * in.NumRows()) {
-    // if quite a few of the the rows are kept, it may be more efficient
+    // if quite a few of the rows are kept, it may be more efficient
     // to uncompress the entire compressed matrix, since per-column operation
     // is more efficient.
     Matrix<BaseFloat> full_mat(in);

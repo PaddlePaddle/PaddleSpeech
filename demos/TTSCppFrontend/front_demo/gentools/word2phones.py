@@ -20,7 +20,7 @@ worddict = "./dict/jieba_part.dict.utf8"
 newdict = "./dict/word_phones.dict"
 
 
-def GenPhones(initials, finals, seperate=True):
+def GenPhones(initials, finals, separate=True):
 
     phones = []
     for c, v in zip(initials, finals):
@@ -30,9 +30,9 @@ def GenPhones(initials, finals, seperate=True):
             elif c in ['zh', 'ch', 'sh', 'r']:
                 v = re.sub('i', 'iii', v)
         if c:
-            if seperate is True:
+            if separate is True:
                 phones.append(c + '0')
-            elif seperate is False:
+            elif separate is False:
                 phones.append(c)
             else:
                 print("Not sure whether phone and tone need to be separated")

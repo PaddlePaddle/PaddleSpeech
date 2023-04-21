@@ -51,7 +51,7 @@ def main(args, config):
     # stage0: set the training device, cpu or gpu
     paddle.set_device(args.device)
 
-    # stage1: we must call the paddle.distributed.init_parallel_env() api at the begining
+    # stage1: we must call the paddle.distributed.init_parallel_env() api at the beginning
     paddle.distributed.init_parallel_env()
     nranks = paddle.distributed.get_world_size()
     rank = paddle.distributed.get_rank()
@@ -146,7 +146,7 @@ def main(args, config):
     timer.start()
 
     for epoch in range(start_epoch + 1, config.epochs + 1):
-        # at the begining, model must set to train mode
+        # at the beginning, model must set to train mode
         model.train()
 
         avg_loss = 0

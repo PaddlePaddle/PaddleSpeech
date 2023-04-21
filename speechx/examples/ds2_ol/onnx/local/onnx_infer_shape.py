@@ -2078,7 +2078,7 @@ class SymbolicShapeInference:
         output_tensor_ranks = get_attribute(node, 'output_tensor_ranks')
         assert output_tensor_ranks
 
-        # set the context output seperately.
+        # set the context output separately.
         # The first output is autograd's context.
         vi = self.known_vi_[node.output[0]]
         vi.CopyFrom(

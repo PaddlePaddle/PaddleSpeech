@@ -12,7 +12,7 @@ if(WITH_ASR)
 endif()
 
 if(WITH_CLS)
-    add_subdirectory(cls)
+    add_subdirectory(audio_classification)
 endif()
 
 if(WITH_VAD)

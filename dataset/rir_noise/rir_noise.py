@@ -29,8 +29,8 @@ import os
 
 import soundfile
 
-from utils.utility import download
-from utils.utility import unzip
+from paddlespeech.dataset.download import download
+from paddlespeech.dataset.download import unzip
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 

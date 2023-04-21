@@ -28,8 +28,8 @@ from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.socket_server import AsrRequestHandler
 from paddlespeech.s2t.utils.socket_server import AsrTCPServer
 from paddlespeech.s2t.utils.socket_server import warm_up_test
-from paddlespeech.s2t.utils.utility import add_arguments
-from paddlespeech.s2t.utils.utility import print_arguments
+from paddlespeech.utils.argparse import add_arguments
+from paddlespeech.utils.argparse import print_arguments
 
 
 def init_predictor(args):

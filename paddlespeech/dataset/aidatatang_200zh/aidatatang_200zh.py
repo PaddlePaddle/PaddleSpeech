@@ -28,6 +28,7 @@ import soundfile
 
 from paddlespeech.dataset.download import download
 from paddlespeech.dataset.download import unpack
+from paddlespeech.utils.argparse import print_arguments
 
 DATA_HOME = os.path.expanduser('~/.cache/paddle/dataset/speech')
 
@@ -139,7 +140,7 @@ def prepare_dataset(url, md5sum, target_dir, manifest_path, subset):
 
 
 def main():
-    print(f"args: {args}")
+    print_arguments(args, globals())
     if args.target_dir.startswith('~'):
         args.target_dir = os.path.expanduser(args.target_dir)
 

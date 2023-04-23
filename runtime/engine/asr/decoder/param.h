@@ -35,13 +35,11 @@ DEFINE_int32(subsampling_rate,
              "two CNN(kernel=3) module downsampling rate.");
 DEFINE_int32(nnet_decoder_chunk, 1, "paddle nnet forward chunk");
 
-
 // nnet
 DEFINE_string(model_path, "avg_1.jit.pdmodel", "paddle nnet model");
 #ifdef USE_ONNX
 DEFINE_bool(with_onnx_model, false, "True mean the model path is onnx model path");
 #endif
-//DEFINE_string(param_path, "avg_1.jit.pdiparams", "paddle nnet model param");
 
 // decoder
 DEFINE_double(acoustic_scale, 1.0, "acoustic scale");
@@ -50,10 +48,9 @@ DEFINE_string(word_symbol_table, "", "word symbol table");
 DEFINE_int32(max_active, 7500, "max active");
 DEFINE_double(beam, 15.0, "decoder beam");
 DEFINE_double(lattice_beam, 7.5, "decoder beam");
-
+DEFINE_double(blank_threshold, 0.98, "blank skip threshold");
 
 // DecodeOptions flags
-// DEFINE_int32(chunk_size, -1, "decoding chunk size");
 DEFINE_int32(num_left_chunks, -1, "left chunks in decoding");
 DEFINE_double(ctc_weight,
               0.5,

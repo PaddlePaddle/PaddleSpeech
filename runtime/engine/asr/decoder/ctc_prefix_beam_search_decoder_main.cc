@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<ppspeech::DataCache> raw_data =
         std::make_shared<ppspeech::DataCache>();
     std::shared_ptr<ppspeech::NnetProducer> nnet_producer =
-        std::make_shared<ppspeech::NnetProducer>(nnet, raw_data);
+        std::make_shared<ppspeech::NnetProducer>(nnet, raw_data, 1.0);
     std::shared_ptr<ppspeech::Decodable> decodable =
         std::make_shared<ppspeech::Decodable>(nnet_producer);
 

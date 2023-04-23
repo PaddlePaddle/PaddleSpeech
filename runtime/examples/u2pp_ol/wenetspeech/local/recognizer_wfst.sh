@@ -3,7 +3,7 @@ set -e
 
 data=data
 exp=exp
-nj=40
+nj=20
 
 . utils/parse_options.sh
 

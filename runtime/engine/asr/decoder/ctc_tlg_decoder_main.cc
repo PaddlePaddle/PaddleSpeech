@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     ppspeech::ModelOptions model_opts = ppspeech::ModelOptions::InitFromFlags();
 
     std::shared_ptr<ppspeech::NnetProducer> nnet_producer =
-        std::make_shared<ppspeech::NnetProducer>(nullptr);
+        std::make_shared<ppspeech::NnetProducer>(nullptr, nullptr, 1.0);
     std::shared_ptr<ppspeech::Decodable> decodable(
         new ppspeech::Decodable(nnet_producer, FLAGS_acoustic_scale));
 

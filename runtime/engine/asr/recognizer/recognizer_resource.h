@@ -12,6 +12,7 @@ DECLARE_double(reverse_weight);
 DECLARE_int32(nbest);
 DECLARE_int32(blank);
 DECLARE_double(acoustic_scale);
+DECLARE_double(blank_threshold);
 DECLARE_string(word_symbol_table);
 
 namespace ppspeech {
@@ -71,6 +72,7 @@ struct DecodeOptions {
 struct RecognizerResource {
     // decodable opt 
     kaldi::BaseFloat acoustic_scale{1.0};
+    kaldi::BaseFloat blank_threshold{0.98};
 
     FeaturePipelineOptions feature_pipeline_opts{};
     ModelOptions model_opts{};
@@ -80,6 +82,7 @@ struct RecognizerResource {
     static RecognizerResource InitFromFlags() {
         RecognizerResource resource;
         resource.acoustic_scale = FLAGS_acoustic_scale;
+        resource.blank_threshold = FLAGS_blank_threshold;
         LOG(INFO) << "acoustic_scale: " << resource.acoustic_scale;
 
         resource.feature_pipeline_opts =

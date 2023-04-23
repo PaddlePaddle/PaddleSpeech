@@ -22,8 +22,9 @@ using kaldi::BaseFloat;
 using std::vector;
 
 NnetProducer::NnetProducer(std::shared_ptr<NnetBase> nnet,
-                           std::shared_ptr<FrontendInterface> frontend)
-    : nnet_(nnet), frontend_(frontend) {
+                           std::shared_ptr<FrontendInterface> frontend,
+                           float blank_threshold)
+    : nnet_(nnet), frontend_(frontend), blank_threshold_(blank_threshold) {
     Reset();
 }
 
@@ -70,7 +71,22 @@ bool NnetProducer::Compute() {
         std::vector<BaseFloat> logprob(
             out.logprobs.data() + idx * vocab_dim,
             out.logprobs.data() + (idx + 1) * vocab_dim);
-        cache_.push_back(logprob);
+        // process blank prob
+        float blank_prob = std::exp(logprob[0]);
+        if (blank_prob > blank_threshold_) {
+            last_frame_logprob_ = logprob;
+            is_last_frame_skip_ = true;
+            continue;
+        } else {
+            int cur_max = std::max(logprob.begin(), logprob.end()) - logprob.begin();
+            if (cur_max == last_max_elem_ && cur_max != 0 && is_last_frame_skip_) {
+                cache_.push_back(last_frame_logprob_);
+                last_max_elem_ = cur_max;
+            }
+            last_max_elem_ = cur_max;
+            is_last_frame_skip_ = false; 
+            cache_.push_back(logprob);
+        }
     }
     return true;
 }

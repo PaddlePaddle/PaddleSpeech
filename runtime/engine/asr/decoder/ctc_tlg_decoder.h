@@ -44,7 +44,7 @@ struct TLGDecoderOptions {
         decoder_opts.word_symbol_table = FLAGS_word_symbol_table;
         decoder_opts.fst_path = FLAGS_graph_path;
         LOG(INFO) << "fst path: " << decoder_opts.fst_path;
-        LOG(INFO) << "fst symbole table: " << decoder_opts.word_symbol_table;
+        LOG(INFO) << "symbole table: " << decoder_opts.word_symbol_table;
 
         if (!decoder_opts.fst_path.empty()) {
             CHECK(FileExists(decoder_opts.fst_path));

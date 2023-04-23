@@ -16,6 +16,8 @@ import os
 import sys
 from typing import Text
 
+import distutils
+
 __all__ = ["print_arguments", "add_arguments", "get_commandline_args"]
 
 

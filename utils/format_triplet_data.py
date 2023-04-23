@@ -22,8 +22,8 @@ import jsonlines
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.frontend.utility import load_cmvn
 from paddlespeech.s2t.io.utility import feat_type
-from paddlespeech.s2t.utils.utility import add_arguments
-from paddlespeech.s2t.utils.utility import print_arguments
+from paddlespeech.utils.argparse import add_arguments
+from paddlespeech.utils.argparse import print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

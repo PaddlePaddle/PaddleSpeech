@@ -19,8 +19,8 @@ import paddle.nn.functional as F
 
 from .transforms import build_transforms
 
-
 # 这些都写到 updater 里
+
 
 def compute_d_loss(
         nets: Dict[str, Any],
@@ -121,10 +121,10 @@ def compute_g_loss(nets: Dict[str, Any],
         s_trg = nets['style_encoder'](x_ref, y_trg)
 
     # compute ASR/F0 features (real)
-    with paddle.no_grad():
-        print("x_real.shape:", x_real.shape)
-        F0_real, GAN_F0_real, cyc_F0_real = nets['F0_model'](x_real)
-        ASR_real = nets['asr_model'].get_feature(x_real)
+    # 源码没有用 .eval(), 使用了 no_grad()
+    # 我们使用了 .eval(), 开启 with paddle.no_grad() 会报错
+    F0_real, GAN_F0_real, cyc_F0_real = nets['F0_model'](x_real)
+    ASR_real = nets['asr_model'].get_feature(x_real)
 
     # adversarial loss
     x_fake = nets['generator'](x_real, s_trg, masks=None, F0=GAN_F0_real)

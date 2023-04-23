@@ -844,9 +844,7 @@ class StarGANv2VCCollateFn:
         mel = [self.random_clip(item["mel"]) for item in examples]
         ref_mel = [self.random_clip(item["ref_mel"]) for item in examples]
         ref_mel_2 = [self.random_clip(item["ref_mel_2"]) for item in examples]
-        print("mel[0].shape after batch_sequences:", mel[0].shape)
         mel = batch_sequences(mel)
-        print("mel.shape after batch_sequences:", mel.shape)
         ref_mel = batch_sequences(ref_mel)
         ref_mel_2 = batch_sequences(ref_mel_2)
 

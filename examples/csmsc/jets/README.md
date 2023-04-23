@@ -96,3 +96,13 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_p
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+
+## Pretrained Model
+
+The pretrained model can be downloaded here:
+
+- [jets_csmsc_ckpt_1.5.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/jets_csmsc_ckpt_1.5.0.zip)
+
+The static model can be downloaded here:
+
+- [jets_csmsc_static_1.5.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/jets_csmsc_static_1.5.0.zip)

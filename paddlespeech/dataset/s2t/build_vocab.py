@@ -74,6 +74,9 @@ def build_vocab(manifest_paths="",
                 spm_vocab_size=0,
                 spm_model_prefix="",
                 spm_character_coverage=0.9995):
+    manifest_paths = [manifest_paths] if isinstance(manifest_paths,
+                                                    str) else manifest_paths
+
     fout = open(vocab_path, 'w', encoding='utf-8')
     fout.write(BLANK + "\n")  # 0 will be used for "blank" in CTC
     fout.write(UNK + '\n')  # <unk> must be 1

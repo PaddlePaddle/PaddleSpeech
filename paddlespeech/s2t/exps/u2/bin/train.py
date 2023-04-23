@@ -15,10 +15,10 @@
 import cProfile
 import os
 
-from yacs.config import CfgNode
-
 from paddlespeech.s2t.exps.u2.model import U2Trainer as Trainer
+from paddlespeech.s2t.training.cli import config_from_args
 from paddlespeech.s2t.training.cli import default_argument_parser
+from paddlespeech.s2t.training.cli import maybe_dump_config
 from paddlespeech.utils.argparse import print_arguments
 
 # from paddlespeech.s2t.exps.u2.trainer import U2Trainer as Trainer
@@ -39,17 +39,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print_arguments(args, globals())
 
-    # https://yaml.org/type/float.html
-    config = CfgNode(new_allowed=True)
-    if args.config:
-        config.merge_from_file(args.config)
-    if args.opts:
-        config.merge_from_list(args.opts)
-    config.freeze()
+    config = config_from_args(args)
     print(config)
-    if args.dump_config:
-        with open(args.dump_config, 'w') as f:
-            print(config, file=f)
+    maybe_dump_config(args.dump_path, config)
 
     # Setting for profiling
     pr = cProfile.Profile()

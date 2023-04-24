@@ -67,7 +67,7 @@ Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
 #### RTF
 ```
 I0417 08:07:15.300631 75784 recognizer_main.cc:113] total wav duration is: 36108.9 sec
-I0417 08:07:15.300642 75784 recognizer_main.cc:114] total decode cost:16353.7 sec
-I0417 08:07:15.300648 75784 recognizer_main.cc:115] total rescore cost:936.858 sec
-I0417 08:07:15.300653 75784 recognizer_main.cc:116] RTF is: 0.4529
+I0417 08:07:15.300642 75784 recognizer_main.cc:114] total decode cost:10247.7 sec
+I0417 08:07:15.300648 75784 recognizer_main.cc:115] total rescore cost:908.228 sec
+I0417 08:07:15.300653 75784 recognizer_main.cc:116] RTF is: 0.283
 ```

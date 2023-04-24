@@ -124,7 +124,15 @@ U2Nnet::U2Nnet(const U2Nnet& other) {
     offset_ = other.offset_;
 
     // copy model ptr
-    model_ = other.model_->Clone();
+    // model_ = other.model_->Clone();
+    // hack, fix later
+    #ifdef WITH_GPU
+        dev_ = phi::GPUPlace();
+    #else
+        dev_ = phi::CPUPlace();
+    #endif
+    paddle::jit::Layer model = paddle::jit::Load(other.opts_.model_path, dev_);
+    model_ = std::make_shared<paddle::jit::Layer>(std::move(model));
     ctc_activation_ = model_->Function("ctc_activation");
     subsampling_rate_ = model_->Attribute<int>("subsampling_rate");
     right_context_ = model_->Attribute<int>("right_context");
@@ -166,6 +174,7 @@ void U2Nnet::Reset() {
         std::move(paddle::zeros({0, 0, 0, 0}, paddle::DataType::FLOAT32));
 
     encoder_outs_.clear();
+    VLOG(1) << "FeedForward cost: " << cost_time_ << " sec. ";
     VLOG(3) << "u2nnet reset";
 }
 
@@ -185,8 +194,10 @@ void U2Nnet::FeedForward(const std::vector<BaseFloat>& features,
     std::vector<kaldi::BaseFloat> ctc_probs;
     ForwardEncoderChunkImpl(
         features, feature_dim, &out->logprobs, &out->vocab_dim);
-    VLOG(1) << "FeedForward cost: " << timer.Elapsed() << " sec. "
+    float forward_chunk_time = timer.Elapsed();
+    VLOG(1) << "FeedForward cost: " << forward_chunk_time << " sec. "
             << features.size() / feature_dim << " frames.";
+    cost_time_ += forward_chunk_time;
 }
 
 

@@ -46,7 +46,6 @@ void NnetProducer::Acceptlikelihood(
 
 bool NnetProducer::Read(std::vector<kaldi::BaseFloat>* nnet_prob) {
     bool flag = cache_.pop(nnet_prob);
-    VLOG(1) << "nnet cache_ size: " << cache_.size();
     return flag;
 }
 

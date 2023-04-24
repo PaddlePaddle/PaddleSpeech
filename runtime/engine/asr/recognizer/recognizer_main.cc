@@ -88,7 +88,8 @@ int main(int argc, char* argv[]) {
 
         kaldi::Timer timer;
         recognizer_ptr->AttentionRescoring();
-        tot_attention_rescore_time += timer.Elapsed();
+        float rescore_time = timer.Elapsed();
+        tot_attention_rescore_time += rescore_time;
 
         std::string result = recognizer_ptr->GetFinalResult();
         if (result.empty()) {
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]) {
         tot_decode_time += local_timer.Elapsed();
         LOG(INFO) << utt << " " << result;
         LOG(INFO) << " RTF: " << local_timer.Elapsed() / dur << " dur: " << dur
-                  << " cost: " << local_timer.Elapsed();
+                  << " cost: " << local_timer.Elapsed() << " rescore:" << rescore_time;
 
         result_writer.Write(utt, result);
 

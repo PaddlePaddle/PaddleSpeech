@@ -45,7 +45,7 @@ def rule(C, V, R, T):
     'u' in syllables when certain conditions are satisfied.
 
     'i' is distinguished when appeared in phonemes, and separated into 3 categories, 'i', 'ii' and 'iii'.
-    Erhua is possibly applied to every finals, except for finals that already ends with 'r'.
+    Erhua is is possibly applied to every finals, except for finals that already ends with 'r'.
     When a syllable is impossible or does not have any characters with this pronunciation, return None
     to filter it out.
     """

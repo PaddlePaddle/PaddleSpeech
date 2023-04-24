@@ -14,8 +14,8 @@
 from fastapi.testclient import TestClient
 from vpr_search import app
 
-from paddlespeech.dataset.download import download
-from paddlespeech.dataset.download import unpack
+from utils.utility import download
+from utils.utility import unpack
 
 client = TestClient(app)
 

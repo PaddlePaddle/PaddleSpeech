@@ -1,20 +1,14 @@
 #!/bin/bash
 
-set -e
-
-stage=0
-stop_stage=100
-
-source utils/parse_options.sh || exit 1;
-
-ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
-echo "using $ngpu gpus..."
-
-
 if [ $# != 3 ];then
     echo "usage: ${0} config_path decode_config_path ckpt_path_prefix"
     exit -1
 fi
+
+stage=0
+stop_stage=100
+ngpu=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
+echo "using $ngpu gpus..."
 
 config_path=$1
 decode_config_path=$2
@@ -98,7 +92,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 fi
 
 if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
-    echo "using sclite to compute cer..."
     # format the reference test file for sclite
     python utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \

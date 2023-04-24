@@ -1,1 +1,0 @@
-../../../csmsc/voc1/local/train.sh

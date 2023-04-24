@@ -2,7 +2,7 @@ FROM registry.baidubce.com/paddlepaddle/paddle:2.2.2
 LABEL maintainer="paddlesl@baidu.com"
 
 RUN apt-get update \
-  && apt-get install libsndfile-dev libsndfile1 \
+  && apt-get install libsndfile-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

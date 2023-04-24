@@ -260,7 +260,7 @@ async def websocket_endpoint_online(websocket: WebSocket):
                 #              and we break the loop
                 if message['signal'] == 'start':
                     resp = {"status": "ok", "signal": "server_ready"}
-                    # do something at beginning here
+                    # do something at begining here
                     # create the instance to process the audio
                     # connection_handler = chatbot.asr.connection_handler
                     connection_handler = PaddleASRConnectionHanddler(engine)

@@ -1,8 +1,0 @@
-# 目录
-build/
-output/
-libs/
-models/
-
-# 符号连接
-dict

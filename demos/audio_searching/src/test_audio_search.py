@@ -14,8 +14,8 @@
 from audio_search import app
 from fastapi.testclient import TestClient
 
-from paddlespeech.dataset.download import download
-from paddlespeech.dataset.download import unpack
+from utils.utility import download
+from utils.utility import unpack
 
 client = TestClient(app)
 

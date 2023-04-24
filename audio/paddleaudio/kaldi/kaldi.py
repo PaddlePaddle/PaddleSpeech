@@ -16,6 +16,7 @@ from paddleaudio._internal import module_utils
 
 __all__ = [
     'fbank',
+    'pitch',
 ]
 
 
@@ -32,6 +33,8 @@ def fbank(
         round_to_power_of_two: bool=True,
         blackman_coeff: float=0.42,
         snip_edges: bool=True,
+        allow_downsample: bool=False,
+        allow_upsample: bool=False,
         max_feature_vectors: int=-1,
         num_bins: int=23,
         low_freq: float=20,
@@ -59,6 +62,8 @@ def fbank(
     frame_opts.round_to_power_of_two = round_to_power_of_two
     frame_opts.blackman_coeff = blackman_coeff
     frame_opts.snip_edges = snip_edges
+    frame_opts.allow_downsample = allow_downsample
+    frame_opts.allow_upsample = allow_upsample
     frame_opts.max_feature_vectors = max_feature_vectors
 
     mel_opts.num_bins = num_bins
@@ -80,48 +85,48 @@ def fbank(
     return feat
 
 
-#@module_utils.requires_kaldi()
-#def pitch(wav,
-#samp_freq: int=16000,
-#frame_shift_ms: float=10.0,
-#frame_length_ms: float=25.0,
-#preemph_coeff: float=0.0,
-#min_f0: int=50,
-#max_f0: int=400,
-#soft_min_f0: float=10.0,
-#penalty_factor: float=0.1,
-#lowpass_cutoff: int=1000,
-#resample_freq: int=4000,
-#delta_pitch: float=0.005,
-#nccf_ballast: int=7000,
-#lowpass_filter_width: int=1,
-#upsample_filter_width: int=5,
-#max_frames_latency: int=0,
-#frames_per_chunk: int=0,
-#simulate_first_pass_online: bool=False,
-#recompute_frame: int=500,
-#nccf_ballast_online: bool=False,
-#snip_edges: bool=True):
-#pitch_opts = paddleaudio._paddleaudio.PitchExtractionOptions()
-#pitch_opts.samp_freq = samp_freq
-#pitch_opts.frame_shift_ms = frame_shift_ms
-#pitch_opts.frame_length_ms = frame_length_ms
-#pitch_opts.preemph_coeff = preemph_coeff
-#pitch_opts.min_f0 = min_f0
-#pitch_opts.max_f0 = max_f0
-#pitch_opts.soft_min_f0 = soft_min_f0
-#pitch_opts.penalty_factor = penalty_factor
-#pitch_opts.lowpass_cutoff = lowpass_cutoff
-#pitch_opts.resample_freq = resample_freq
-#pitch_opts.delta_pitch = delta_pitch
-#pitch_opts.nccf_ballast = nccf_ballast
-#pitch_opts.lowpass_filter_width = lowpass_filter_width
-#pitch_opts.upsample_filter_width = upsample_filter_width
-#pitch_opts.max_frames_latency = max_frames_latency
-#pitch_opts.frames_per_chunk = frames_per_chunk
-#pitch_opts.simulate_first_pass_online = simulate_first_pass_online
-#pitch_opts.recompute_frame = recompute_frame
-#pitch_opts.nccf_ballast_online = nccf_ballast_online
-#pitch_opts.snip_edges = snip_edges
-#pitch = paddleaudio._paddleaudio.ComputeKaldiPitch(pitch_opts, wav)
-#return pitch
+@module_utils.requires_kaldi()
+def pitch(wav,
+          samp_freq: int=16000,
+          frame_shift_ms: float=10.0,
+          frame_length_ms: float=25.0,
+          preemph_coeff: float=0.0,
+          min_f0: int=50,
+          max_f0: int=400,
+          soft_min_f0: float=10.0,
+          penalty_factor: float=0.1,
+          lowpass_cutoff: int=1000,
+          resample_freq: int=4000,
+          delta_pitch: float=0.005,
+          nccf_ballast: int=7000,
+          lowpass_filter_width: int=1,
+          upsample_filter_width: int=5,
+          max_frames_latency: int=0,
+          frames_per_chunk: int=0,
+          simulate_first_pass_online: bool=False,
+          recompute_frame: int=500,
+          nccf_ballast_online: bool=False,
+          snip_edges: bool=True):
+    pitch_opts = paddleaudio._paddleaudio.PitchExtractionOptions()
+    pitch_opts.samp_freq = samp_freq
+    pitch_opts.frame_shift_ms = frame_shift_ms
+    pitch_opts.frame_length_ms = frame_length_ms
+    pitch_opts.preemph_coeff = preemph_coeff
+    pitch_opts.min_f0 = min_f0
+    pitch_opts.max_f0 = max_f0
+    pitch_opts.soft_min_f0 = soft_min_f0
+    pitch_opts.penalty_factor = penalty_factor
+    pitch_opts.lowpass_cutoff = lowpass_cutoff
+    pitch_opts.resample_freq = resample_freq
+    pitch_opts.delta_pitch = delta_pitch
+    pitch_opts.nccf_ballast = nccf_ballast
+    pitch_opts.lowpass_filter_width = lowpass_filter_width
+    pitch_opts.upsample_filter_width = upsample_filter_width
+    pitch_opts.max_frames_latency = max_frames_latency
+    pitch_opts.frames_per_chunk = frames_per_chunk
+    pitch_opts.simulate_first_pass_online = simulate_first_pass_online
+    pitch_opts.recompute_frame = recompute_frame
+    pitch_opts.nccf_ballast_online = nccf_ballast_online
+    pitch_opts.snip_edges = snip_edges
+    pitch = paddleaudio._paddleaudio.ComputeKaldiPitch(pitch_opts, wav)
+    return pitch

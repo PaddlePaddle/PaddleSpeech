@@ -32,14 +32,14 @@ void ConnectionHandler::OnSpeechStart() {
     decode_thread_ = std::make_shared<std::thread>(
         &ConnectionHandler::DecodeThreadFunc, this);
     got_start_tag_ = true;
-    LOG(INFO) << "Server: Received speech start signal, start reading speech";
+    LOG(INFO) << "Server: Recieved speech start signal, start reading speech";
     json::value rv = {{"status", "ok"}, {"type", "server_ready"}};
     ws_.text(true);
     ws_.write(asio::buffer(json::serialize(rv)));
 }
 
 void ConnectionHandler::OnSpeechEnd() {
-    LOG(INFO) << "Server: Received speech end signal";
+    LOG(INFO) << "Server: Recieved speech end signal";
     if (recognizer_ != nullptr) {
         recognizer_->SetFinished();
     }
@@ -70,8 +70,8 @@ void ConnectionHandler::OnSpeechData(const beast::flat_buffer& buffer) {
         pcm_data(i) = static_cast<float>(*pdata);
         pdata++;
     }
-    VLOG(2) << "Server: Received " << num_samples << " samples";
-    LOG(INFO) << "Server: Received " << num_samples << " samples";
+    VLOG(2) << "Server: Recieved " << num_samples << " samples";
+    LOG(INFO) << "Server: Recieved " << num_samples << " samples";
     CHECK(recognizer_ != nullptr);
     recognizer_->Accept(pcm_data);
 

@@ -355,12 +355,12 @@ bool PruneLattice(BaseFloat beam, LatticeType *lat);
 //
 //
 // /// This function returns the number of words in the longest sentence in a
-// /// CompactLattice (i.e. the maximum of any path, of the count of
+// /// CompactLattice (i.e. the the maximum of any path, of the count of
 // /// olabels on that path).
 // int32 LongestSentenceLength(const Lattice &lat);
 //
 // /// This function returns the number of words in the longest sentence in a
-// /// CompactLattice, i.e. the maximum of any path, of the count of
+// /// CompactLattice, i.e. the the maximum of any path, of the count of
 // /// labels on that path... note, in CompactLattice, the ilabels and olabels
 // /// are identical because it is an acceptor.
 // int32 LongestSentenceLength(const CompactLattice &lat);
@@ -408,7 +408,7 @@ bool PruneLattice(BaseFloat beam, LatticeType *lat);
 //
 // /// This function computes the mapping from the pair
 // /// (frame-index, transition-id) to the pair
-// /// (sum-of-acoustic-scores, num-of-occurrences) over all occurrences of the
+// /// (sum-of-acoustic-scores, num-of-occurences) over all occurences of the
 // /// transition-id in that frame.
 // /// frame-index in the lattice.
 // /// This function is useful for retaining the acoustic scores in a
@@ -422,13 +422,13 @@ bool PruneLattice(BaseFloat beam, LatticeType *lat);
 // ///   @param [out] acoustic_scores
 // ///                     Pointer to a map from the pair (frame-index,
 // ///                     transition-id) to a pair (sum-of-acoustic-scores,
-// ///                     num-of-occurrences).
+// ///                     num-of-occurences).
 // ///                     Usually the acoustic scores for a pdf-id (and hence
 // ///                     transition-id) on a frame will be the same for all the
-// ///                     occurrences of the pdf-id in that frame.
+// ///                     occurences of the pdf-id in that frame.
 // ///                     But if not, we will take the average of the acoustic
 // ///                     scores. Hence, we store both the sum-of-acoustic-scores
-// ///                     and the num-of-occurrences of the transition-id in that
+// ///                     and the num-of-occurences of the transition-id in that
 // ///                     frame.
 // void ComputeAcousticScoresMap(
 //     const Lattice &lat,
@@ -440,8 +440,8 @@ bool PruneLattice(BaseFloat beam, LatticeType *lat);
 // ///
 // ///   @param [in] acoustic_scores
 // ///                      A map from the pair (frame-index, transition-id) to a
-// ///                      pair (sum-of-acoustic-scores, num-of-occurrences) of
-// ///                      the occurrences of the transition-id in that frame.
+// ///                      pair (sum-of-acoustic-scores, num-of-occurences) of
+// ///                      the occurences of the transition-id in that frame.
 // ///                      See the comments for ComputeAcousticScoresMap for
 // ///                      details.
 // ///   @param [out] lat   Pointer to the output lattice.

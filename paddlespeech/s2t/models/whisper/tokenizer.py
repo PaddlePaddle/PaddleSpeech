@@ -1,5 +1,5 @@
 # MIT License, Copyright (c) 2022 OpenAI.
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors and . All Rights Reserved.
 # 
 # Modified from OpenAI Whisper 2022 (https://github.com/openai/whisper/whisper/tokenizer.py)
 import os
@@ -155,10 +155,6 @@ class Tokenizer:
                 if ids < len(self.tokenizer):
                     ids_list.append(ids)
             token_ids = ids_list
-        elif len(token_ids) == 1:
-            token_ids = token_ids[0]
-        else:
-            raise ValueError(f"token_ids {token_ids} load error.")
 
         return self.tokenizer.decode(token_ids, **kwargs)
 

@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Modified from espnet(https://github.com/espnet/espnet)
-from typing import List
-from typing import Optional
-from typing import Union
-
 import librosa
 import numpy as np
 import pyworld
 from scipy.interpolate import interp1d
-from typing_extensions import Literal
 
 
 class LogMelFBank():
@@ -32,10 +27,7 @@ class LogMelFBank():
                  window: str="hann",
                  n_mels: int=80,
                  fmin: int=80,
-                 fmax: int=7600,
-                 norm: Optional[Union[Literal["slaney"], float]]="slaney",
-                 htk: bool=False,
-                 power: float=1.0):
+                 fmax: int=7600):
         self.sr = sr
         # stft
         self.n_fft = n_fft
@@ -44,14 +36,11 @@ class LogMelFBank():
         self.window = window
         self.center = True
         self.pad_mode = "reflect"
-        self.norm = norm
-        self.htk = htk
 
         # mel
         self.n_mels = n_mels
         self.fmin = 0 if fmin is None else fmin
         self.fmax = sr / 2 if fmax is None else fmax
-        self.power = power
 
         self.mel_filter = self._create_mel_filter()
 
@@ -61,9 +50,7 @@ class LogMelFBank():
             n_fft=self.n_fft,
             n_mels=self.n_mels,
             fmin=self.fmin,
-            fmax=self.fmax,
-            norm=self.norm,
-            htk=self.htk)
+            fmax=self.fmax)
         return mel_filter
 
     def _stft(self, wav: np.ndarray):
@@ -79,7 +66,7 @@ class LogMelFBank():
 
     def _spectrogram(self, wav: np.ndarray):
         D = self._stft(wav)
-        return np.abs(D)**self.power
+        return np.abs(D)
 
     def _mel_spectrogram(self, wav: np.ndarray):
         S = self._spectrogram(wav)
@@ -115,8 +102,9 @@ class Pitch():
 
     def _convert_to_continuous_f0(self, f0: np.ndarray) -> np.ndarray:
         if (f0 == 0).all():
-            print("All frames seems to be unvoiced, this utt will be removed.")
+            print("All frames seems to be unvoiced.")
             return f0
+
         # padding start and end of f0 sequence
         start_f0 = f0[f0 != 0][0]
         end_f0 = f0[f0 != 0][-1]
@@ -178,8 +166,6 @@ class Pitch():
         f0 = self._calculate_f0(wav, use_continuous_f0, use_log_f0)
         if use_token_averaged_f0 and duration is not None:
             f0 = self._average_by_duration(f0, duration)
-        else:
-            f0 = np.expand_dims(np.array(f0), 0).T
         return f0
 
 
@@ -238,8 +224,6 @@ class Energy():
         energy = self._calculate_energy(wav)
         if use_token_averaged_energy and duration is not None:
             energy = self._average_by_duration(energy, duration)
-        else:
-            energy = np.expand_dims(np.array(energy), 0).T
         return energy
 
 

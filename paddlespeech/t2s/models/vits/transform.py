@@ -18,7 +18,6 @@ This code is based on https://github.com/bayesiains/nflows.
 """
 import numpy as np
 import paddle
-from paddle import nn
 from paddle.nn import functional as F
 
 from paddlespeech.t2s.modules.nets_utils import paddle_gather
@@ -36,10 +35,9 @@ def piecewise_rational_quadratic_transform(
         inverse=False,
         tails=None,
         tail_bound=1.0,
-        # for dygraph-to-static
-        min_bin_width=1e-3,
-        min_bin_height=1e-3,
-        min_derivative=1e-3, ):
+        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
+        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
+        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
     if tails is None:
         spline_fn = rational_quadratic_spline
         spline_kwargs = {}
@@ -61,12 +59,8 @@ def piecewise_rational_quadratic_transform(
 
 
 def mask_preprocess(x, mask):
-    # bins.dtype = int32
     B, C, T, bins = paddle.shape(x)
-    mask_int = paddle.cast(mask, dtype='int64')
-    # paddle.sum 输入是 int32 或 bool 的时候，输出是 int64
-    # paddle.zeros (fill_constant) 的 shape 会被强制转成 int32 类型
-    new_x = paddle.zeros([paddle.sum(mask_int), bins])
+    new_x = paddle.zeros([mask.sum(), bins])
     for i in range(bins):
         new_x[:, i] = x[:, :, :, i][mask]
     return new_x
@@ -80,27 +74,23 @@ def unconstrained_rational_quadratic_spline(
         inverse=False,
         tails="linear",
         tail_bound=1.0,
-        # for dygraph-to-static
-        min_bin_width=1e-3,
-        min_bin_height=1e-3,
-        min_derivative=1e-3, ):
+        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
+        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
+        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
     inside_interval_mask = (inputs >= -tail_bound) & (inputs <= tail_bound)
     outside_interval_mask = ~inside_interval_mask
-    # for dygraph to static
-    # 这里用 paddle.shape(x) 然后调用 zeros 会得到一个全 -1 shape 的 var
-    # 如果用 x.shape 的话可以保留确定的维度
-    outputs = paddle.zeros(inputs.shape)
-    logabsdet = paddle.zeros(inputs.shape)
+
+    outputs = paddle.zeros(paddle.shape(inputs))
+    logabsdet = paddle.zeros(paddle.shape(inputs))
     if tails == "linear":
-        # 注意 padding 的参数顺序
-        pad2d = nn.Pad2D(padding=[1, 1, 0, 0], mode='constant')
-        unnormalized_derivatives = pad2d(unnormalized_derivatives)
+        unnormalized_derivatives = F.pad(
+            unnormalized_derivatives,
+            pad=[0] * (len(unnormalized_derivatives.shape) - 1) * 2 + [1, 1])
         constant = np.log(np.exp(1 - min_derivative) - 1)
         unnormalized_derivatives[..., 0] = constant
         unnormalized_derivatives[..., -1] = constant
-        # for dygraph to static
-        tmp = inputs[outside_interval_mask]
-        outputs[outside_interval_mask] = tmp
+
+        outputs[outside_interval_mask] = inputs[outside_interval_mask]
         logabsdet[outside_interval_mask] = 0
     else:
         raise RuntimeError("{} tails are not implemented.".format(tails))
@@ -140,30 +130,27 @@ def rational_quadratic_spline(
         right=1.0,
         bottom=0.0,
         top=1.0,
-        # for dygraph-to-static
-        min_bin_width=1e-3,
-        min_bin_height=1e-3,
-        min_derivative=1e-3, ):
-    # for dygraph to static
-    # if paddle.min(inputs) < left or paddle.max(inputs) > right:
-    #     raise ValueError("Input to a transform is not within its domain")
-    pad1d = nn.Pad1D(
-        padding=[1, 0],
-        mode='constant',
-        data_format='NCL', )
+        min_bin_width=DEFAULT_MIN_BIN_WIDTH,
+        min_bin_height=DEFAULT_MIN_BIN_HEIGHT,
+        min_derivative=DEFAULT_MIN_DERIVATIVE, ):
+    if paddle.min(inputs) < left or paddle.max(inputs) > right:
+        raise ValueError("Input to a transform is not within its domain")
 
     num_bins = unnormalized_widths.shape[-1]
-    # for dygraph to static
-    # if min_bin_width * num_bins > 1.0:
-    #     raise ValueError("Minimal bin width too large for the number of bins")
-    # if min_bin_height * num_bins > 1.0:
-    #     raise ValueError("Minimal bin height too large for the number of bins")
+
+    if min_bin_width * num_bins > 1.0:
+        raise ValueError("Minimal bin width too large for the number of bins")
+    if min_bin_height * num_bins > 1.0:
+        raise ValueError("Minimal bin height too large for the number of bins")
 
     widths = F.softmax(unnormalized_widths, axis=-1)
     widths = min_bin_width + (1 - min_bin_width * num_bins) * widths
     cumwidths = paddle.cumsum(widths, axis=-1)
-
-    cumwidths = pad1d(cumwidths.unsqueeze(0)).squeeze()
+    cumwidths = F.pad(
+        cumwidths,
+        pad=[0] * (len(cumwidths.shape) - 1) * 2 + [1, 0],
+        mode="constant",
+        value=0.0)
     cumwidths = (right - left) * cumwidths + left
     cumwidths[..., 0] = left
     cumwidths[..., -1] = right
@@ -174,7 +161,11 @@ def rational_quadratic_spline(
     heights = F.softmax(unnormalized_heights, axis=-1)
     heights = min_bin_height + (1 - min_bin_height * num_bins) * heights
     cumheights = paddle.cumsum(heights, axis=-1)
-    cumheights = pad1d(cumheights.unsqueeze(0)).squeeze()
+    cumheights = F.pad(
+        cumheights,
+        pad=[0] * (len(cumheights.shape) - 1) * 2 + [1, 0],
+        mode="constant",
+        value=0.0)
     cumheights = (top - bottom) * cumheights + bottom
     cumheights[..., 0] = bottom
     cumheights[..., -1] = top
@@ -244,7 +235,4 @@ def rational_quadratic_spline(
 
 def _searchsorted(bin_locations, inputs, eps=1e-6):
     bin_locations[..., -1] += eps
-    mask = inputs[..., None] >= bin_locations
-    mask_int = paddle.cast(mask, dtype='int64')
-    out = paddle.sum(mask_int, axis=-1) - 1
-    return out
+    return paddle.sum(inputs[..., None] >= bin_locations, axis=-1) - 1

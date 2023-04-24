@@ -29,7 +29,6 @@ from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
 from paddlespeech.t2s.datasets.preprocess_utils import get_phn_dur
-from paddlespeech.t2s.datasets.preprocess_utils import get_sentences_svs
 from paddlespeech.t2s.datasets.preprocess_utils import merge_silence
 from paddlespeech.t2s.utils import str2bool
 
@@ -193,15 +192,8 @@ def main():
     with open(args.config, 'rt') as f:
         config = CfgNode(yaml.safe_load(f))
 
-    if args.dataset == "opencpop":
-        sentences, speaker_set = get_sentences_svs(
-            dur_file,
-            dataset=args.dataset,
-            sample_rate=config.fs,
-            n_shift=config.n_shift, )
-    else:
-        sentences, speaker_set = get_phn_dur(dur_file)
-        merge_silence(sentences)
+    sentences, speaker_set = get_phn_dur(dur_file)
+    merge_silence(sentences)
 
     # split data into 3 sections
     if args.dataset == "baker":
@@ -248,33 +240,6 @@ def main():
                 test_wav_files += wav_files[-sub_num_dev:]
             else:
                 train_wav_files += wav_files
-    elif args.dataset == "opencpop":
-        wavdir = rootdir / "wavs"
-        # split data into 3 sections
-        train_file = rootdir / "train.txt"
-        train_wav_files = []
-        with open(train_file, "r") as f_train:
-            for line in f_train.readlines():
-                utt = line.split("|")[0]
-                wav_name = utt + ".wav"
-                wav_path = wavdir / wav_name
-                train_wav_files.append(wav_path)
-
-        test_file = rootdir / "test.txt"
-        dev_wav_files = []
-        test_wav_files = []
-        num_dev = 106
-        count = 0
-        with open(test_file, "r") as f_test:
-            for line in f_test.readlines():
-                count += 1
-                utt = line.split("|")[0]
-                wav_name = utt + ".wav"
-                wav_path = wavdir / wav_name
-                if count > num_dev:
-                    test_wav_files.append(wav_path)
-                else:
-                    dev_wav_files.append(wav_path)
     else:
         print("dataset should in {baker, ljspeech, vctk, aishell3} now!")
 

@@ -1,1 +1,0 @@
-../../../aishell3/tts3/local/synthesize.sh

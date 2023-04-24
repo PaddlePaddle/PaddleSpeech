@@ -69,8 +69,8 @@ class MultiLayeredConv1d(nn.Layer):
             Tensor: Batch of output tensors (B, T, in_chans).
         """
         x = self.relu(self.w_1(x.transpose([0, 2, 1]))).transpose([0, 2, 1])
-        out = self.w_2(self.dropout(x).transpose([0, 2, 1])).transpose([0, 2, 1])
-        return out
+        return self.w_2(self.dropout(x).transpose([0, 2, 1])).transpose(
+            [0, 2, 1])
 
 
 class Conv1dLinear(nn.Layer):

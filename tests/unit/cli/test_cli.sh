@@ -14,7 +14,7 @@ paddlespeech ssl --task asr --lang en --input ./en.wav
 paddlespeech ssl --task vector --lang en --input ./en.wav
 
 # Speech_recognition
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
@@ -26,7 +26,6 @@ paddlespeech asr --model deepspeech2offline_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2online_wenetspeech --input ./zh.wav
 paddlespeech asr --model deepspeech2online_aishell --input ./zh.wav
 paddlespeech asr --model deepspeech2offline_librispeech --lang en --input ./en.wav
-paddlespeech asr --model conformer_talcs --lang zh_en --codeswitch True --input ./ch_zh_mix.wav
 
 # Support editing num_decoding_left_chunks
 paddlespeech asr --model conformer_online_wenetspeech --num_decoding_left_chunks 3 --input ./zh.wav
@@ -59,10 +58,7 @@ paddlespeech tts --am fastspeech2_vctk --voc hifigan_vctk --input "Life was like
 paddlespeech tts --am tacotron2_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_csmsc --voc wavernn_csmsc --input "你好，欢迎使用百度飞桨深度学习框架！"
 paddlespeech tts --am tacotron2_ljspeech --voc pwgan_ljspeech --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
-paddlespeech tts --am fastspeech2_male --voc pwgan_male --lang zh --input "你好，欢迎使用百度飞桨深度学习框架！"
-paddlespeech tts --am fastspeech2_male --voc pwgan_male --lang en --input "Life was like a box of chocolates, you never know what you're gonna get."
-paddlespeech tts --am fastspeech2_canton --voc pwgan_aishell3 --input "各个国家有各个国家嘅国歌" --lang canton --spk_id 10
-
+paddlespeech tts --am fastspeech2_male --voc pwgan_male --input "你好，欢迎使用百度飞桨深度学习框架！"
 # mix tts
 # The `am` must be `fastspeech2_mix`!
 # The `lang` must be `mix`!
@@ -73,8 +69,6 @@ paddlespeech tts --am fastspeech2_mix --voc hifigan_aishell3 --lang mix --input 
 paddlespeech tts --am fastspeech2_mix --voc pwgan_csmsc --lang mix --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --spk_id 175 --output mix_spk175_pwgan.wav
 paddlespeech tts --am fastspeech2_mix --voc hifigan_csmsc --lang mix --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --spk_id 175 --output mix_spk175.wav
 
-# male mix tts
-paddlespeech tts --am fastspeech2_male --voc pwgan_male --lang mix --input "我们的声学模型使用了 Fast Speech Two, 声码器使用了 Parallel Wave GAN and Hifi GAN." --output male_mix_fs2_pwgan.wav
 
 # Speech Translation (only support linux)
 paddlespeech st --input ./en.wav

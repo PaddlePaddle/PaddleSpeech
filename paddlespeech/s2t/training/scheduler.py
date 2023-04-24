@@ -220,6 +220,7 @@ class NewBobScheduler(LRScheduler):
 
     def load(self, data):
         """Loads the needed information."""
+        data = paddle.load(data)
         self.last_epoch = data["current_epoch_index"]
         self.hyperparam_value = data["hyperparam_value"]
         self.metric_values = data["metric_values"]

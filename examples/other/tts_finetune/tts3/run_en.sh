@@ -7,6 +7,7 @@ input_dir=./input/ljspeech_mini
 newdir_name="newdir"
 new_dir=${input_dir}/${newdir_name}
 pretrained_model_dir=./pretrained_models/fastspeech2_vctk_ckpt_1.2.0
+mfa_tools=./tools
 mfa_dir=./mfa_result
 dump_dir=./dump
 output_dir=./exp/default

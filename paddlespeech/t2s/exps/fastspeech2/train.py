@@ -67,7 +67,7 @@ def train_sp(args, config):
     if args.speaker_dict is not None:
         print("multiple speaker fastspeech2!")
         collate_fn = fastspeech2_multi_spk_batch_fn
-        with open(args.speaker_dict, 'rt', encoding='utf-8') as f:
+        with open(args.speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
         fields += ["spk_id"]
@@ -123,7 +123,7 @@ def train_sp(args, config):
         num_workers=config.num_workers)
     print("dataloaders done!")
 
-    with open(args.phones_dict, 'rt', encoding='utf-8') as f:
+    with open(args.phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)

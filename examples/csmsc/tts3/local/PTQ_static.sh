@@ -5,4 +5,4 @@ python3 ${BIN_DIR}/../PTQ_static.py \
     --dev-metadata=dump/dev/norm/metadata.jsonl \
     --inference_dir ${train_output_path}/inference \
     --model_name ${model_name} \
-    --onnx_format=True
+    --onnx_forma=True

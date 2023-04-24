@@ -60,8 +60,7 @@ def evaluate(args):
         am_stat=args.am_stat,
         phones_dict=args.phones_dict,
         tones_dict=args.tones_dict,
-        speaker_dict=args.speaker_dict,
-        speech_stretchs=args.speech_stretchs, )
+        speaker_dict=args.speaker_dict)
     test_dataset = get_test_dataset(
         test_metadata=test_metadata,
         am=args.am,
@@ -108,20 +107,6 @@ def evaluate(args):
                     if args.voice_cloning and "spk_emb" in datum:
                         spk_emb = paddle.to_tensor(np.load(datum["spk_emb"]))
                     mel = am_inference(phone_ids, spk_emb=spk_emb)
-                elif am_name == 'diffsinger':
-                    phone_ids = paddle.to_tensor(datum["text"])
-                    note = paddle.to_tensor(datum["note"])
-                    note_dur = paddle.to_tensor(datum["note_dur"])
-                    is_slur = paddle.to_tensor(datum["is_slur"])
-                    # get_mel_fs2 = False, means mel from diffusion, get_mel_fs2 = True, means mel from fastspeech2.
-                    get_mel_fs2 = False
-                    # mel: [T, mel_bin]
-                    mel = am_inference(
-                        phone_ids,
-                        note=note,
-                        note_dur=note_dur,
-                        is_slur=is_slur,
-                        get_mel_fs2=get_mel_fs2)
                 # vocoder
                 wav = voc_inference(mel)
 
@@ -149,17 +134,9 @@ def parse_args():
         type=str,
         default='fastspeech2_csmsc',
         choices=[
-            'speedyspeech_csmsc',
-            'fastspeech2_csmsc',
-            'fastspeech2_ljspeech',
-            'fastspeech2_aishell3',
-            'fastspeech2_vctk',
-            'tacotron2_csmsc',
-            'tacotron2_ljspeech',
-            'tacotron2_aishell3',
-            'fastspeech2_mix',
-            'fastspeech2_canton',
-            'diffsinger_opencpop',
+            'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
+            'fastspeech2_aishell3', 'fastspeech2_vctk', 'tacotron2_csmsc',
+            'tacotron2_ljspeech', 'tacotron2_aishell3', 'fastspeech2_mix'
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -192,19 +169,10 @@ def parse_args():
         type=str,
         default='pwgan_csmsc',
         choices=[
-            'pwgan_csmsc',
-            'pwgan_ljspeech',
-            'pwgan_aishell3',
-            'pwgan_vctk',
-            'mb_melgan_csmsc',
-            'wavernn_csmsc',
-            'hifigan_csmsc',
-            'hifigan_ljspeech',
-            'hifigan_aishell3',
-            'hifigan_vctk',
-            'style_melgan_csmsc',
-            "pwgan_opencpop",
-            "hifigan_opencpop",
+            'pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3', 'pwgan_vctk',
+            'mb_melgan_csmsc', 'wavernn_csmsc', 'hifigan_csmsc',
+            'hifigan_ljspeech', 'hifigan_aishell3', 'hifigan_vctk',
+            'style_melgan_csmsc'
         ],
         help='Choose vocoder type of tts task.')
     parser.add_argument(
@@ -222,11 +190,6 @@ def parse_args():
         "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
-    parser.add_argument(
-        "--speech_stretchs",
-        type=str,
-        default=None,
-        help="The min and max values of the mel spectrum.")
 
     args = parser.parse_args()
     return args

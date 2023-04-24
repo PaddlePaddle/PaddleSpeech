@@ -138,18 +138,18 @@ class Frontend():
             "拐儿", "聋儿", "乞儿", "患儿", "幼儿", "孤儿", "婴儿", "婴幼儿", "连体儿", "脑瘫儿",
             "流浪儿", "体弱儿", "混血儿", "蜜雪儿", "舫儿", "祖儿", "美儿", "应采儿", "可儿", "侄儿",
             "孙儿", "侄孙儿", "女儿", "男儿", "红孩儿", "花儿", "虫儿", "马儿", "鸟儿", "猪儿", "猫儿",
-            "狗儿", "少儿"
+            "狗儿"
         }
 
         self.vocab_phones = {}
         self.vocab_tones = {}
         if phone_vocab_path:
-            with open(phone_vocab_path, 'rt', encoding='utf-8') as f:
+            with open(phone_vocab_path, 'rt') as f:
                 phn_id = [line.strip().split() for line in f.readlines()]
             for phn, id in phn_id:
                 self.vocab_phones[phn] = int(id)
         if tone_vocab_path:
-            with open(tone_vocab_path, 'rt', encoding='utf-8') as f:
+            with open(tone_vocab_path, 'rt') as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             for tone, id in tone_id:
                 self.vocab_tones[tone] = int(id)

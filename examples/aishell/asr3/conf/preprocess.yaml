@@ -1,3 +1,0 @@
-process:
-    # use raw audio
-  - type: wav_process

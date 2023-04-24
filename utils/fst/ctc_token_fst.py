@@ -6,7 +6,7 @@ def main(args):
     """Token Transducer"""
     # <eps> entry
     print('0 1 <eps> <eps>')
-    # skip beginning and ending <blank>
+    # skip begining and ending <blank>
     print('1 1 <blank> <eps>')
     print('2 2 <blank> <eps>')
     # <eps> exit

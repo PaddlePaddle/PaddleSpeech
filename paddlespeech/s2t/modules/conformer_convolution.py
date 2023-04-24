@@ -18,7 +18,6 @@ from typing import Tuple
 
 import paddle
 from paddle import nn
-from paddle.nn import initializer as I
 from typeguard import check_argument_types
 
 from paddlespeech.s2t.modules.align import BatchNorm1D
@@ -40,9 +39,7 @@ class ConvolutionModule(nn.Layer):
                  activation: nn.Layer=nn.ReLU(),
                  norm: str="batch_norm",
                  causal: bool=False,
-                 bias: bool=True,
-                 adaptive_scale: bool=False,
-                 init_weights: bool=False):
+                 bias: bool=True):
         """Construct an ConvolutionModule object.
         Args:
             channels (int): The number of channels of conv layers.
@@ -54,18 +51,6 @@ class ConvolutionModule(nn.Layer):
         """
         assert check_argument_types()
         super().__init__()
-        self.bias = bias
-        self.channels = channels
-        self.kernel_size = kernel_size
-        self.adaptive_scale = adaptive_scale
-        if self.adaptive_scale:
-            ada_scale = self.create_parameter(
-                [1, 1, channels], default_initializer=I.Constant(1.0))
-            self.add_parameter('ada_scale', ada_scale)
-            ada_bias = self.create_parameter(
-                [1, 1, channels], default_initializer=I.Constant(0.0))
-            self.add_parameter('ada_bias', ada_bias)
-
         self.pointwise_conv1 = Conv1D(
             channels,
             2 * channels,
@@ -120,28 +105,6 @@ class ConvolutionModule(nn.Layer):
         )
         self.activation = activation
 
-        if init_weights:
-            self.init_weights()
-
-    def init_weights(self):
-        pw_max = self.channels**-0.5
-        dw_max = self.kernel_size**-0.5
-        self.pointwise_conv1._param_attr = paddle.nn.initializer.Uniform(
-            low=-pw_max, high=pw_max)
-        if self.bias:
-            self.pointwise_conv1._bias_attr = paddle.nn.initializer.Uniform(
-                low=-pw_max, high=pw_max)
-        self.depthwise_conv._param_attr = paddle.nn.initializer.Uniform(
-            low=-dw_max, high=dw_max)
-        if self.bias:
-            self.depthwise_conv._bias_attr = paddle.nn.initializer.Uniform(
-                low=-dw_max, high=dw_max)
-        self.pointwise_conv2._param_attr = paddle.nn.initializer.Uniform(
-            low=-pw_max, high=pw_max)
-        if self.bias:
-            self.pointwise_conv2._bias_attr = paddle.nn.initializer.Uniform(
-                low=-pw_max, high=pw_max)
-
     def forward(
             self,
             x: paddle.Tensor,
@@ -160,9 +123,6 @@ class ConvolutionModule(nn.Layer):
             paddle.Tensor: Output tensor (#batch, time, channels).
             paddle.Tensor: Output cache tensor (#batch, channels, time')
         """
-        if self.adaptive_scale:
-            x = self.ada_scale * x + self.ada_bias
-
         # exchange the temporal dimension and the feature dimension
         x = x.transpose([0, 2, 1])  # [B, C, T]
 

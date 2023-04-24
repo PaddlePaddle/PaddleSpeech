@@ -296,7 +296,7 @@ sub tokenize
         $text =~ s/DOTMULTI\./DOTDOTMULTI/g;
     }
 
-    # separate out "," except if within numbers (5,300)
+    # seperate out "," except if within numbers (5,300)
     #$text =~ s/([^\p{IsN}])[,]([^\p{IsN}])/$1 , $2/g;
 
     # separate out "," except if within numbers (5,300)

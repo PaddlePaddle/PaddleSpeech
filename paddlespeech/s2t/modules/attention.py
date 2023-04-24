@@ -200,12 +200,7 @@ class MultiHeadedAttention(nn.Layer):
 class RelPositionMultiHeadedAttention(MultiHeadedAttention):
     """Multi-Head Attention layer with relative position encoding."""
 
-    def __init__(self,
-                 n_head,
-                 n_feat,
-                 dropout_rate,
-                 adaptive_scale=False,
-                 init_weights=False):
+    def __init__(self, n_head, n_feat, dropout_rate):
         """Construct an RelPositionMultiHeadedAttention object.
         Paper: https://arxiv.org/abs/1901.02860
         Args:
@@ -228,39 +223,6 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         pos_bias_v = self.create_parameter(
             (self.h, self.d_k), default_initializer=I.XavierUniform())
         self.add_parameter('pos_bias_v', pos_bias_v)
-        self.adaptive_scale = adaptive_scale
-        if self.adaptive_scale:
-            ada_scale = self.create_parameter(
-                [1, 1, n_feat], default_initializer=I.Constant(1.0))
-            self.add_parameter('ada_scale', ada_scale)
-            ada_bias = self.create_parameter(
-                [1, 1, n_feat], default_initializer=I.Constant(0.0))
-            self.add_parameter('ada_bias', ada_bias)
-        if init_weights:
-            self.init_weights()
-
-    def init_weights(self):
-        input_max = (self.h * self.d_k)**-0.5
-        self.linear_q._param_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_q._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_k._param_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_k._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_v._param_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_v._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_pos._param_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_pos._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_out._param_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
-        self.linear_out._bias_attr = paddle.nn.initializer.Uniform(
-            low=-input_max, high=input_max)
 
     def rel_shift(self, x, zero_triu: bool=False):
         """Compute relative positinal encoding.
@@ -311,11 +273,6 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
                 where `cache_t == chunk_size * num_decoding_left_chunks`
                 and `head * d_k == size`
         """
-        if self.adaptive_scale:
-            query = self.ada_scale * query + self.ada_bias
-            key = self.ada_scale * key + self.ada_bias
-            value = self.ada_scale * value + self.ada_bias
-
         q, k, v = self.forward_qkv(query, key, value)
         # q = q.transpose([0, 2, 1, 3])  # (batch, time1, head, d_k)
 

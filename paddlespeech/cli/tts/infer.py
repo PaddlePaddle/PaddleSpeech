@@ -39,25 +39,10 @@ from paddlespeech.t2s.utils import str2bool
 
 __all__ = ['TTSExecutor']
 ONNX_SUPPORT_SET = {
-    'speedyspeech_csmsc',
-    'fastspeech2_csmsc',
-    'fastspeech2_ljspeech',
-    'fastspeech2_aishell3',
-    'fastspeech2_vctk',
-    'fastspeech2_male',
-    'fastspeech2_mix',
-    'fastspeech2_canton',
-    'pwgan_csmsc',
-    'pwgan_ljspeech',
-    'pwgan_aishell3',
-    'pwgan_vctk',
-    'pwgan_male',
-    'mb_melgan_csmsc',
-    'hifigan_csmsc',
-    'hifigan_ljspeech',
-    'hifigan_aishell3',
-    'hifigan_vctk',
-    'hifigan_male',
+    'speedyspeech_csmsc', 'fastspeech2_csmsc', 'fastspeech2_ljspeech',
+    'fastspeech2_aishell3', 'fastspeech2_vctk', 'pwgan_csmsc', 'pwgan_ljspeech',
+    'pwgan_aishell3', 'pwgan_vctk', 'mb_melgan_csmsc', 'hifigan_csmsc',
+    'hifigan_ljspeech', 'hifigan_aishell3', 'hifigan_vctk'
 }
 
 
@@ -83,7 +68,6 @@ class TTSExecutor(BaseExecutor):
                 'tacotron2_csmsc',
                 'tacotron2_ljspeech',
                 'fastspeech2_male',
-                'fastspeech2_canton',
             ],
             help='Choose acoustic model type of tts task.')
         self.parser.add_argument(
@@ -140,7 +124,6 @@ class TTSExecutor(BaseExecutor):
                 'hifigan_vctk',
                 'wavernn_csmsc',
                 'pwgan_male',
-                'hifigan_male',
             ],
             help='Choose vocoder type of tts task.')
 
@@ -275,12 +258,8 @@ class TTSExecutor(BaseExecutor):
             use_pretrained_voc = False
         voc_lang = lang
         # When speaker is 174 (csmsc), use csmsc's vocoder is better than aishell3's
-        if lang == 'mix' or lang == 'canton':
-            voc_dataset = voc[voc.rindex('_') + 1:]
-            if voc_dataset in {"ljspeech", "vctk"}:
-                voc_lang = 'en'
-            else:
-                voc_lang = 'zh'
+        if lang == 'mix':
+            voc_lang = 'zh'
         voc_tag = voc + '-' + voc_lang
         self.task_resource.set_task_model(
             model_tag=voc_tag,
@@ -313,19 +292,19 @@ class TTSExecutor(BaseExecutor):
         with open(self.voc_config) as f:
             self.voc_config = CfgNode(yaml.safe_load(f))
 
-        with open(self.phones_dict, 'rt', encoding='utf-8') as f:
+        with open(self.phones_dict, "r") as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         vocab_size = len(phn_id)
 
         tone_size = None
         if self.tones_dict:
-            with open(self.tones_dict, 'rt', encoding='utf-8') as f:
+            with open(self.tones_dict, "r") as f:
                 tone_id = [line.strip().split() for line in f.readlines()]
             tone_size = len(tone_id)
 
         spk_num = None
         if self.speaker_dict:
-            with open(self.speaker_dict, 'rt', encoding='utf-8') as f:
+            with open(self.speaker_dict, 'rt') as f:
                 spk_id = [line.strip().split() for line in f.readlines()]
             spk_num = len(spk_id)
 
@@ -409,12 +388,9 @@ class TTSExecutor(BaseExecutor):
         else:
             use_pretrained_voc = False
         voc_lang = lang
-        if lang == 'mix' or lang == 'canton':
-            voc_dataset = voc[voc.rindex('_') + 1:]
-            if voc_dataset in {"ljspeech", "vctk"}:
-                voc_lang = 'en'
-            else:
-                voc_lang = 'zh'
+        # we must use ljspeech's voc for mix am now!
+        if lang == 'mix':
+            voc_lang = 'en'
         voc_tag = voc + '_onnx' + '-' + voc_lang
         self.task_resource.set_task_model(
             model_tag=voc_tag,
@@ -489,7 +465,7 @@ class TTSExecutor(BaseExecutor):
             # fastspeech2
             else:
                 # multi speaker
-                if am_dataset in {'aishell3', 'vctk', 'mix', 'canton'}:
+                if am_dataset in {'aishell3', 'vctk', 'mix'}:
                     mel = self.am_inference(
                         part_phone_ids, spk_id=paddle.to_tensor(spk_id))
                 else:
@@ -525,7 +501,7 @@ class TTSExecutor(BaseExecutor):
             merge_sentences=merge_sentences,
             get_tone_ids=get_tone_ids,
             lang=lang,
-            to_tensor=False, )
+            to_tensor=False)
         self.frontend_time = time.time() - frontend_st
         phone_ids = frontend_dict['phone_ids']
         self.am_time = 0
@@ -536,7 +512,7 @@ class TTSExecutor(BaseExecutor):
             part_phone_ids = phone_ids[i]
             if am_name == 'fastspeech2':
                 am_input_feed.update({'text': part_phone_ids})
-                if am_dataset in {"aishell3", "vctk", "mix", "canton"}:
+                if am_dataset in {"aishell3", "vctk"}:
                     # NOTE: 'spk_id' should be List[int] rather than int here!!
                     am_input_feed.update({'spk_id': [spk_id]})
             elif am_name == 'speedyspeech':

@@ -7,10 +7,3 @@ Run the following script to get started, for more detail, please see `run.sh`.
 # Rhythm tags for MFA
 If you want to get rhythm tags with duration through MFA tool, you may add flag `--rhy-with-duration` in the first two commands in `run.sh`
 Note that only CSMSC dataset is supported so far, and we replace `#` with `sp` in rhythm tags for MFA.
-
-# MFA for Cantonese language
-First, go download these datasets [Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-daily-use-sentence/) and [Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle](https://magichub.com/datasets/guangzhou-cantonese-scripted-speech-corpus-in-the-vehicle/) under `~/datasets/`.
-Then,
-```bash
-./run_canton.sh
-```

@@ -1,1 +1,0 @@
-../../tts3/local/paddle2onnx.sh

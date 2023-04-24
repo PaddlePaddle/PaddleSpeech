@@ -14,18 +14,20 @@
 
 #pragma once
 
-#include "paddleaudio/third_party/kaldi-native-fbank/csrc/feature-fbank.h"
+#include "base/kaldi-common.h"
+#include "feat/feature-fbank.h"
+
 #include "paddleaudio/src/pybind/kaldi/feature_common.h"
 
 namespace paddleaudio {
 namespace kaldi {
 
-typedef StreamingFeatureTpl<knf::FbankComputer> Fbank;
+typedef StreamingFeatureTpl<::kaldi::FbankComputer> Fbank;
 
 class KaldiFeatureWrapper {
   public:
     static KaldiFeatureWrapper* GetInstance();
-    bool InitFbank(knf::FbankOptions opts);
+    bool InitFbank(::kaldi::FbankOptions opts);
     py::array_t<float> ComputeFbank(const py::array_t<float> wav);
     int Dim() { return fbank_->Dim(); }
     void ResetFbank() { fbank_->Reset(); }

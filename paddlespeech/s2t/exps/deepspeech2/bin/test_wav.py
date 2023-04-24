@@ -27,8 +27,8 @@ from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils import mp_tools
 from paddlespeech.s2t.utils.checkpoint import Checkpoint
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.s2t.utils.utility import print_arguments
 from paddlespeech.s2t.utils.utility import UpdateConfig
-from paddlespeech.utils.argparse import print_arguments
 
 logger = Log(__name__).getlog()
 

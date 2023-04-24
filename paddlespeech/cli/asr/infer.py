@@ -25,9 +25,6 @@ import librosa
 import numpy as np
 import paddle
 import soundfile
-from paddlespeech.audio.transform.transformation import Transformation
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.utils.utility import UpdateConfig
 from yacs.config import CfgNode
 
 from ...utils.env import MODEL_HOME
@@ -37,6 +34,9 @@ from ..log import logger
 from ..utils import CLI_TIMER
 from ..utils import stats_wrapper
 from ..utils import timer_register
+from paddlespeech.audio.transform.transformation import Transformation
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
 
@@ -62,13 +62,8 @@ class ASRExecutor(BaseExecutor):
             '--lang',
             type=str,
             default='zh',
-            help='Choose model language. [zh, en, zh_en], zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k], zh_en:[conformer_talcs-codeswitch_zh_en-16k]'
+            help='Choose model language. zh or en, zh:[conformer_wenetspeech-zh-16k], en:[transformer_librispeech-en-16k]'
         )
-        self.parser.add_argument(
-            '--codeswitch',
-            type=bool,
-            default=False,
-            help='Choose whether use code-switch. True or False.')
         self.parser.add_argument(
             "--sample_rate",
             type=int,
@@ -132,7 +127,6 @@ class ASRExecutor(BaseExecutor):
     def _init_from_path(self,
                         model_type: str='wenetspeech',
                         lang: str='zh',
-                        codeswitch: bool=False,
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         decode_method: str='attention_rescoring',
@@ -150,12 +144,7 @@ class ASRExecutor(BaseExecutor):
 
         if cfg_path is None or ckpt_path is None:
             sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-            if lang == "zh_en" and codeswitch is True:
-                tag = model_type + '-' + 'codeswitch_' + lang + '-' + sample_rate_str
-            elif lang == "zh_en" or codeswitch is True:
-                raise Exception("codeswitch is true only in zh_en model")
-            else:
-                tag = model_type + '-' + lang + '-' + sample_rate_str
+            tag = model_type + '-' + lang + '-' + sample_rate_str
             self.task_resource.set_task_model(tag, version=None)
             self.res_path = self.task_resource.res_dir
 
@@ -434,7 +423,6 @@ class ASRExecutor(BaseExecutor):
 
         model = parser_args.model
         lang = parser_args.lang
-        codeswitch = parser_args.codeswitch
         sample_rate = parser_args.sample_rate
         config = parser_args.config
         ckpt_path = parser_args.ckpt_path
@@ -456,7 +444,6 @@ class ASRExecutor(BaseExecutor):
                     audio_file=input_,
                     model=model,
                     lang=lang,
-                    codeswitch=codeswitch,
                     sample_rate=sample_rate,
                     config=config,
                     ckpt_path=ckpt_path,
@@ -485,7 +472,6 @@ class ASRExecutor(BaseExecutor):
                  audio_file: os.PathLike,
                  model: str='conformer_u2pp_online_wenetspeech',
                  lang: str='zh',
-                 codeswitch: bool=False,
                  sample_rate: int=16000,
                  config: os.PathLike=None,
                  ckpt_path: os.PathLike=None,
@@ -499,8 +485,8 @@ class ASRExecutor(BaseExecutor):
         """
         audio_file = os.path.abspath(audio_file)
         paddle.set_device(device)
-        self._init_from_path(model, lang, codeswitch, sample_rate, config,
-                             decode_method, num_decoding_left_chunks, ckpt_path)
+        self._init_from_path(model, lang, sample_rate, config, decode_method,
+                             num_decoding_left_chunks, ckpt_path)
         if not self._check(audio_file, sample_rate, force_yes):
             sys.exit(-1)
         if rtf:

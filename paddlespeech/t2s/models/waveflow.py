@@ -236,7 +236,7 @@ class ResidualBlock(nn.Layer):
 
         Returns:
             res (Tensor): 
-                A row of the residual output. shape=(batch_size, channel, 1, width)
+                A row of the the residual output. shape=(batch_size, channel, 1, width)
             skip (Tensor): 
                 A row of the skip output. shape=(batch_size, channel, 1, width)
 
@@ -343,7 +343,7 @@ class ResidualNet(nn.LayerList):
             
         Returns:
             res (Tensor): 
-                A row of the residual output. shape=(batch_size, channel, 1, width) 
+                A row of the the residual output. shape=(batch_size, channel, 1, width) 
             skip (Tensor): 
                 A row of the skip output. shape=(batch_size, channel, 1, width)
                 
@@ -465,7 +465,7 @@ class Flow(nn.Layer):
         self.resnet.start_sequence()
 
     def inverse(self, z, condition):
-        """Sampling from the distrition p(X). It is done by sample form
+        """Sampling from the the distrition p(X). It is done by sample form
         p(Z) and transform the sample. It is a auto regressive transformation.
 
         Args:
@@ -600,7 +600,7 @@ class WaveFlow(nn.LayerList):
         return z, log_det_jacobian
 
     def inverse(self, z, condition):
-        """Sampling from the distrition p(X).
+        """Sampling from the the distrition p(X).
 
         It is done by sample a ``z`` form p(Z) and transform it into ``x``.
         Each Flow transform .. math:: `z_{i-1}` to .. math:: `z_{i}` in an

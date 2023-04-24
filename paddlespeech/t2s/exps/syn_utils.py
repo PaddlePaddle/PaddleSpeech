@@ -20,7 +20,6 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-import jsonlines
 import numpy as np
 import onnxruntime as ort
 import paddle
@@ -34,9 +33,7 @@ from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
 from paddlespeech.t2s.frontend import English
-from paddlespeech.t2s.frontend.canton_frontend import CantonFrontend
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
-from paddlespeech.t2s.frontend.sing_frontend import SingFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 from paddlespeech.t2s.modules.normalizer import ZScore
 from paddlespeech.utils.dynamic_import import dynamic_import
@@ -58,11 +55,6 @@ model_alias = {
     "paddlespeech.t2s.models.tacotron2:Tacotron2",
     "tacotron2_inference":
     "paddlespeech.t2s.models.tacotron2:Tacotron2Inference",
-    "diffsinger":
-    "paddlespeech.t2s.models.diffsinger:DiffSinger",
-    "diffsinger_inference":
-    "paddlespeech.t2s.models.diffsinger:DiffSingerInference",
-
     # voc
     "pwgan":
     "paddlespeech.t2s.models.parallel_wavegan:PWGGenerator",
@@ -114,31 +106,18 @@ def get_chunks(data, block_size: int, pad_size: int):
 def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     # construct dataset for evaluation
     sentences = []
-    with open(text_file, 'rt', encoding='utf-8') as f:
+    with open(text_file, 'rt') as f:
         for line in f:
             if line.strip() != "":
                 items = re.split(r"\s+", line.strip(), 1)
                 utt_id = items[0]
-                if lang in {'zh', 'canton'}:
+                if lang == 'zh':
                     sentence = "".join(items[1:])
                 elif lang == 'en':
                     sentence = " ".join(items[1:])
                 elif lang == 'mix':
                     sentence = " ".join(items[1:])
             sentences.append((utt_id, sentence))
-    return sentences
-
-
-# input for svs
-def get_sentences_svs(text_file: Optional[os.PathLike]):
-    # construct dataset for evaluation
-    sentences = []
-    with jsonlines.open(text_file, 'r') as reader:
-        svs_inputs = list(reader)
-    for svs_input in svs_inputs:
-        utt_id = svs_input['utt_id']
-        sentence = svs_input
-        sentences.append((utt_id, sentence))
     return sentences
 
 
@@ -153,8 +132,8 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
     converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk", "mix",
-                          "canton"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             fields += ["spk_id"]
         elif voice_cloning:
@@ -162,8 +141,6 @@ def get_test_dataset(test_metadata: List[Dict[str, Any]],
             fields += ["spk_emb"]
         else:
             print("single speaker fastspeech2!")
-    elif am_name == 'diffsinger':
-        fields = ["utt_id", "text", "note", "note_dur", "is_slur"]
     elif am_name == 'speedyspeech':
         fields = ["utt_id", "phones", "tones"]
     elif am_name == 'tacotron2':
@@ -200,8 +177,8 @@ def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
     converters = {}
     if am_name == 'fastspeech2':
         fields = ["utt_id", "text"]
-        if am_dataset in {"aishell3", "vctk", "mix",
-                          "canton"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
             print("multiple speaker fastspeech2!")
             collate_fn = fastspeech2_multi_spk_batch_fn_static
             fields += ["spk_id"]
@@ -283,37 +260,28 @@ def get_dev_dataloader(dev_metadata: List[Dict[str, Any]],
 def get_frontend(lang: str='zh',
                  phones_dict: Optional[os.PathLike]=None,
                  tones_dict: Optional[os.PathLike]=None,
-                 pinyin_phone: Optional[os.PathLike]=None,
                  use_rhy=False):
     if lang == 'zh':
         frontend = Frontend(
             phone_vocab_path=phones_dict,
             tone_vocab_path=tones_dict,
             use_rhy=use_rhy)
-    elif lang == 'canton':
-        frontend = CantonFrontend(phone_vocab_path=phones_dict)
     elif lang == 'en':
         frontend = English(phone_vocab_path=phones_dict)
     elif lang == 'mix':
         frontend = MixFrontend(
             phone_vocab_path=phones_dict, tone_vocab_path=tones_dict)
-    elif lang == 'sing':
-        frontend = SingFrontend(
-            pinyin_phone_path=pinyin_phone, phone_vocab_path=phones_dict)
     else:
         print("wrong lang!")
     return frontend
 
 
-def run_frontend(
-        frontend: object,
-        text: str,
-        merge_sentences: bool=False,
-        get_tone_ids: bool=False,
-        lang: str='zh',
-        to_tensor: bool=True,
-        add_blank: bool=False,
-        svs_input: Dict[str, str]=None, ):
+def run_frontend(frontend: object,
+                 text: str,
+                 merge_sentences: bool=False,
+                 get_tone_ids: bool=False,
+                 lang: str='zh',
+                 to_tensor: bool=True):
     outs = dict()
     if lang == 'zh':
         input_ids = {}
@@ -329,16 +297,11 @@ def run_frontend(
                 text,
                 merge_sentences=merge_sentences,
                 get_tone_ids=get_tone_ids,
-                to_tensor=to_tensor,
-                add_blank=add_blank)
+                to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
         if get_tone_ids:
             tone_ids = input_ids["tone_ids"]
             outs.update({'tone_ids': tone_ids})
-    elif lang == 'canton':
-        input_ids = frontend.get_input_ids(
-            text, merge_sentences=merge_sentences, to_tensor=to_tensor)
-        phone_ids = input_ids["phone_ids"]
     elif lang == 'en':
         input_ids = frontend.get_input_ids(
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
@@ -347,44 +310,32 @@ def run_frontend(
         input_ids = frontend.get_input_ids(
             text, merge_sentences=merge_sentences, to_tensor=to_tensor)
         phone_ids = input_ids["phone_ids"]
-    elif lang == 'sing':
-        input_ids = frontend.get_input_ids(
-            svs_input=svs_input, to_tensor=to_tensor)
-        phone_ids = input_ids["phone_ids"]
-        note_ids = input_ids["note_ids"]
-        note_durs = input_ids["note_durs"]
-        is_slurs = input_ids["is_slurs"]
-        outs.update({'note_ids': note_ids})
-        outs.update({'note_durs': note_durs})
-        outs.update({'is_slurs': is_slurs})
     else:
-        print("lang should in {'zh', 'en', 'mix', 'canton', 'sing'}!")
+        print("lang should in {'zh', 'en', 'mix'}!")
     outs.update({'phone_ids': phone_ids})
     return outs
 
 
 # dygraph
-def get_am_inference(
-        am: str='fastspeech2_csmsc',
-        am_config: CfgNode=None,
-        am_ckpt: Optional[os.PathLike]=None,
-        am_stat: Optional[os.PathLike]=None,
-        phones_dict: Optional[os.PathLike]=None,
-        tones_dict: Optional[os.PathLike]=None,
-        speaker_dict: Optional[os.PathLike]=None,
-        return_am: bool=False,
-        speech_stretchs: Optional[os.PathLike]=None, ):
-    with open(phones_dict, 'rt', encoding='utf-8') as f:
+def get_am_inference(am: str='fastspeech2_csmsc',
+                     am_config: CfgNode=None,
+                     am_ckpt: Optional[os.PathLike]=None,
+                     am_stat: Optional[os.PathLike]=None,
+                     phones_dict: Optional[os.PathLike]=None,
+                     tones_dict: Optional[os.PathLike]=None,
+                     speaker_dict: Optional[os.PathLike]=None,
+                     return_am: bool=False):
+    with open(phones_dict, "r") as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     tone_size = None
     if tones_dict is not None:
-        with open(tones_dict, 'rt', encoding='utf-8') as f:
+        with open(tones_dict, "r") as f:
             tone_id = [line.strip().split() for line in f.readlines()]
         tone_size = len(tone_id)
     spk_num = None
     if speaker_dict is not None:
-        with open(speaker_dict, 'rt', encoding='utf-8') as f:
+        with open(speaker_dict, 'rt') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
     odim = am_config.n_mels
@@ -396,19 +347,6 @@ def get_am_inference(
     if am_name == 'fastspeech2':
         am = am_class(
             idim=vocab_size, odim=odim, spk_num=spk_num, **am_config["model"])
-    elif am_name == 'diffsinger':
-        with open(speech_stretchs, "r") as f:
-            spec_min = np.load(speech_stretchs)[0]
-            spec_max = np.load(speech_stretchs)[1]
-            spec_min = paddle.to_tensor(spec_min)
-            spec_max = paddle.to_tensor(spec_max)
-        am_config["model"]["fastspeech2_params"]["spk_num"] = spk_num
-        am = am_class(
-            spec_min=spec_min,
-            spec_max=spec_max,
-            idim=vocab_size,
-            odim=odim,
-            **am_config["model"], )
     elif am_name == 'speedyspeech':
         am = am_class(
             vocab_size=vocab_size,
@@ -419,6 +357,8 @@ def get_am_inference(
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
     elif am_name == 'erniesat':
         am = am_class(idim=vocab_size, odim=odim, **am_config["model"])
+    else:
+        print("wrong am, please input right am!!!")
 
     am.set_state_dict(paddle.load(am_ckpt)["main_params"])
     am.eval()
@@ -471,8 +411,8 @@ def am_to_static(am_inference,
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     if am_name == 'fastspeech2':
-        if am_dataset in {"aishell3", "vctk", "mix",
-                          "canton"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -484,8 +424,8 @@ def am_to_static(am_inference,
                 am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
     elif am_name == 'speedyspeech':
-        if am_dataset in {"aishell3", "vctk", "mix",
-                          "canton"} and speaker_dict is not None:
+        if am_dataset in {"aishell3", "vctk",
+                          "mix"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,
                 input_spec=[
@@ -506,31 +446,8 @@ def am_to_static(am_inference,
         am_inference = jit.to_static(
             am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
-    elif am_name == 'vits' or am_name == 'jets':
-        if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
-            am_inference = jit.to_static(
-                am_inference,
-                input_spec=[
-                    InputSpec([-1], dtype=paddle.int64),
-                    InputSpec([1], dtype=paddle.int64),
-                ])
-        else:
-            am_inference = jit.to_static(
-                am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
-
-    elif am_name == 'diffsinger':
-        am_inference = jit.to_static(
-            am_inference,
-            input_spec=[
-                InputSpec([-1], dtype=paddle.int64),  # phone
-                InputSpec([-1], dtype=paddle.int64),  # note
-                InputSpec([-1], dtype=paddle.float32),  # note_dur
-                InputSpec([-1], dtype=paddle.int64),  # is_slur
-            ])
-
-    jit.save(am_inference, os.path.join(inference_dir, am))
-    am_inference = jit.load(os.path.join(inference_dir, am))
-
+    paddle.jit.save(am_inference, os.path.join(inference_dir, am))
+    am_inference = paddle.jit.load(os.path.join(inference_dir, am))
     return am_inference
 
 
@@ -541,118 +458,37 @@ def voc_to_static(voc_inference,
         voc_inference, input_spec=[
             InputSpec([-1, 80], dtype=paddle.float32),
         ])
-    jit.save(voc_inference, os.path.join(inference_dir, voc))
-    voc_inference = jit.load(os.path.join(inference_dir, voc))
+    paddle.jit.save(voc_inference, os.path.join(inference_dir, voc))
+    voc_inference = paddle.jit.load(os.path.join(inference_dir, voc))
     return voc_inference
 
 
 # inference
-def get_predictor(
-        model_dir: Optional[os.PathLike]=None,
-        model_file: Optional[os.PathLike]=None,
-        params_file: Optional[os.PathLike]=None,
-        device: str='cpu',
-        # for gpu
-        use_trt: bool=False,
-        device_id: int=0,
-        # for trt
-        use_dynamic_shape: bool=True,
-        min_subgraph_size: int=5,
-        # for cpu
-        cpu_threads: int=1,
-        use_mkldnn: bool=False,
-        # for trt or mkldnn
-        precision: int="fp32"):
-    """
-    Args:
-        model_dir (os.PathLike): root path of model.pdmodel and model.pdiparams.
-        model_file (os.PathLike): name of model_file.
-        params_file (os.PathLike): name of params_file.
-        device (str): Choose the device you want to run, it can be: cpu/gpu, default is cpu.
-        use_trt (bool): whether to use TensorRT or not in GPU.
-        device_id (int): Choose your device id, only valid when the device is gpu, default 0.
-        use_dynamic_shape (bool): use dynamic shape or not in TensorRT.
-        use_mkldnn (bool): whether to use MKLDNN or not in CPU.
-        cpu_threads (int): num of thread when use CPU.
-        precision (str): mode of running (fp32/fp16/bf16/int8).  
-    """
-    rerun_flag = False
-    if device != "gpu" and use_trt:
-        raise ValueError(
-            "Predict by TensorRT mode: {}, expect device=='gpu', but device == {}".
-            format(precision, device))
+def get_predictor(model_dir: Optional[os.PathLike]=None,
+                  model_file: Optional[os.PathLike]=None,
+                  params_file: Optional[os.PathLike]=None,
+                  device: str='cpu'):
 
     config = inference.Config(
         str(Path(model_dir) / model_file), str(Path(model_dir) / params_file))
-    config.enable_memory_optim()
-    config.switch_ir_optim(True)
     if device == "gpu":
-        config.enable_use_gpu(100, device_id)
-    else:
+        config.enable_use_gpu(100, 0)
+    elif device == "cpu":
         config.disable_gpu()
-        config.set_cpu_math_library_num_threads(cpu_threads)
-        if use_mkldnn:
-            # fp32
-            config.enable_mkldnn()
-            if precision == "int8":
-                config.enable_mkldnn_int8({
-                    "conv2d_transpose", "conv2d", "depthwise_conv2d", "pool2d",
-                    "transpose2", "elementwise_mul"
-                })
-                # config.enable_mkldnn_int8()
-            elif precision in {"fp16", "bf16"}:
-                config.enable_mkldnn_bfloat16()
-            print("MKLDNN with {}".format(precision))
-    if use_trt:
-        if precision == "bf16":
-            print("paddle trt does not support bf16, switching to fp16.")
-            precision = "fp16"
-        precision_map = {
-            "int8": inference.Config.Precision.Int8,
-            "fp32": inference.Config.Precision.Float32,
-            "fp16": inference.Config.Precision.Half,
-        }
-        assert precision in precision_map.keys()
-        pdtxt_name = model_file.split(".")[0] + "_" + precision + ".txt"
-        if use_dynamic_shape:
-            dynamic_shape_file = os.path.join(model_dir, pdtxt_name)
-            if os.path.exists(dynamic_shape_file):
-                config.enable_tuned_tensorrt_dynamic_shape(dynamic_shape_file,
-                                                           True)
-                # for fastspeech2
-                config.exp_disable_tensorrt_ops(["reshape2"])
-                print("trt set dynamic shape done!")
-            else:
-                # In order to avoid memory overflow when collecting dynamic shapes, it is changed to use CPU.
-                config.disable_gpu()
-                config.set_cpu_math_library_num_threads(10)
-                config.collect_shape_range_info(dynamic_shape_file)
-                print("Start collect dynamic shape...")
-                rerun_flag = True
-
-        if not rerun_flag:
-            print("Tensor RT with {}".format(precision))
-            config.enable_tensorrt_engine(
-                workspace_size=1 << 30,
-                max_batch_size=1,
-                min_subgraph_size=min_subgraph_size,
-                precision_mode=precision_map[precision],
-                use_static=True,
-                use_calib_mode=False, )
-
+    config.enable_memory_optim()
     predictor = inference.create_predictor(config)
     return predictor
 
 
-def get_am_output(input: str,
-                  am_predictor: paddle.nn.Layer,
-                  am: str,
-                  frontend: object,
-                  lang: str='zh',
-                  merge_sentences: bool=True,
-                  speaker_dict: Optional[os.PathLike]=None,
-                  spk_id: int=0,
-                  add_blank: bool=False):
+def get_am_output(
+        input: str,
+        am_predictor: paddle.nn.Layer,
+        am: str,
+        frontend: object,
+        lang: str='zh',
+        merge_sentences: bool=True,
+        speaker_dict: Optional[os.PathLike]=None,
+        spk_id: int=0, ):
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     am_input_names = am_predictor.get_input_names()
@@ -660,7 +496,7 @@ def get_am_output(input: str,
     get_tone_ids = False
     if am_name == 'speedyspeech':
         get_tone_ids = True
-    if am_dataset in {"aishell3", "vctk", "mix", "canton"} and speaker_dict:
+    if am_dataset in {"aishell3", "vctk", "mix"} and speaker_dict:
         get_spk_id = True
         spk_id = np.array([spk_id])
 
@@ -669,8 +505,7 @@ def get_am_output(input: str,
         text=input,
         merge_sentences=merge_sentences,
         get_tone_ids=get_tone_ids,
-        lang=lang,
-        add_blank=add_blank, )
+        lang=lang)
 
     if get_tone_ids:
         tone_ids = frontend_dict['tone_ids']

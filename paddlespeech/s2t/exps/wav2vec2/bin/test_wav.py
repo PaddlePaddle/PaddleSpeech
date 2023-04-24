@@ -18,7 +18,6 @@ from pathlib import Path
 
 import paddle
 import soundfile
-from paddlenlp.transformers import AutoTokenizer
 from yacs.config import CfgNode
 
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
@@ -34,15 +33,9 @@ class Wav2vec2Infer():
         self.args = args
         self.config = config
         self.audio_file = args.audio_file
-        self.tokenizer = config.get("tokenizer", None)
 
-        if self.tokenizer:
-            self.text_feature = AutoTokenizer.from_pretrained(
-                self.config.tokenizer)
-        else:
-            self.text_feature = TextFeaturizer(
-                unit_type=config.unit_type, vocab=config.vocab_filepath)
-
+        self.text_feature = TextFeaturizer(
+            unit_type=config.unit_type, vocab=config.vocab_filepath)
         paddle.set_device('gpu' if self.args.ngpu > 0 else 'cpu')
 
         # model
@@ -66,14 +59,14 @@ class Wav2vec2Infer():
             audio, _ = soundfile.read(
                 self.audio_file, dtype="int16", always_2d=True)
             logger.info(f"audio shape: {audio.shape}")
+
             xs = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
             decode_config = self.config.decode
             result_transcripts, result_tokenids = self.model.decode(
                 xs,
                 text_feature=self.text_feature,
                 decoding_method=decode_config.decoding_method,
-                beam_size=decode_config.beam_size,
-                tokenizer=self.tokenizer, )
+                beam_size=decode_config.beam_size)
             rsl = result_transcripts[0]
             utt = Path(self.audio_file).name
             logger.info(f"hyp: {utt} {rsl}")

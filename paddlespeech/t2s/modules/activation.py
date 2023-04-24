@@ -37,8 +37,7 @@ def get_activation(act, **kwargs):
         "selu": paddle.nn.SELU,
         "leakyrelu": paddle.nn.LeakyReLU,
         "swish": paddle.nn.Swish,
-        "glu": GLU,
-        "gelu": paddle.nn.GELU,
+        "glu": GLU
     }
 
     return activation_funcs[act](**kwargs)

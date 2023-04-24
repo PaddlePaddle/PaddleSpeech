@@ -29,7 +29,10 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["all_version", "UpdateConfig", "seed_all", "log_add"]
+__all__ = [
+    "all_version", "UpdateConfig", "seed_all", 'print_arguments',
+    'add_arguments', "log_add"
+]
 
 
 def all_version():
@@ -57,6 +60,51 @@ def seed_all(seed: int=20210329):
     paddle.seed(seed)
 
 
+def print_arguments(args, info=None):
+    """Print argparse's arguments.
+
+    Usage:
+
+    .. code-block:: python
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("name", default="Jonh", type=str, help="User name.")
+        args = parser.parse_args()
+        print_arguments(args)
+
+    :param args: Input argparse.Namespace for printing.
+    :type args: argparse.Namespace
+    """
+    filename = ""
+    if info:
+        filename = info["__file__"]
+    filename = os.path.basename(filename)
+    print(f"----------- {filename} Arguments -----------")
+    for arg, value in sorted(vars(args).items()):
+        print("%s: %s" % (arg, value))
+    print("-----------------------------------------------------------")
+
+
+def add_arguments(argname, type, default, help, argparser, **kwargs):
+    """Add argparse's argument.
+
+    Usage:
+
+    .. code-block:: python
+
+        parser = argparse.ArgumentParser()
+        add_argument("name", str, "Jonh", "User name.", parser)
+        args = parser.parse_args()
+    """
+    type = distutils.util.strtobool if type == bool else type
+    argparser.add_argument(
+        "--" + argname,
+        default=default,
+        type=type,
+        help=help + ' Default: %(default)s.',
+        **kwargs)
+
+
 def log_add(args: List[int]) -> float:
     """Stable log add
 
@@ -82,11 +130,8 @@ def get_subsample(config):
     Returns:
         int: subsample rate.
     """
-    if config['encoder'] == 'squeezeformer':
-        return 4
-    else:
-        input_layer = config["encoder_conf"]["input_layer"]
-        assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
+    input_layer = config["encoder_conf"]["input_layer"]
+    assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
     if input_layer == "conv2d":
         return 4
     elif input_layer == "conv2d6":

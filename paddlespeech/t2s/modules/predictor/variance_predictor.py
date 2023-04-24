@@ -96,7 +96,7 @@ class VariancePredictor(nn.Layer):
             xs = f(xs)
         # (B, Tmax, 1)
         xs = self.linear(xs.transpose([0, 2, 1]))
-    
+
         if x_masks is not None:
             xs = masked_fill(xs, x_masks, 0.0)
         return xs

@@ -79,8 +79,8 @@ checkpoint_name
 ├── snapshot_iter_*.pdz
 ├── speech_stats.npy
 ├── phone_id_map.txt
-├── spk_id_map.txt (optional)
-└── tone_id_map.txt (optional)
+├── spk_id_map.txt (optimal)
+└── tone_id_map.txt (optimal)
 ```
 **Vocoders:**
 ```text

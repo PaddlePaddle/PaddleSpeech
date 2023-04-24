@@ -28,7 +28,7 @@ from pathlib import Path
 
 import soundfile
 
-from paddlespeech.dataset.download import unzip
+from utils.utility import unzip
 
 URL_ROOT = ""
 MD5_DATA = "45c68037c7fdfe063a43c851f181fb2d"

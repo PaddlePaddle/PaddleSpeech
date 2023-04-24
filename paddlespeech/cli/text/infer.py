@@ -127,7 +127,7 @@ class TextExecutor(BaseExecutor):
         if self.task == 'punc':
             # punc list
             self._punc_list = []
-            with open(self.vocab_file, 'r', encoding='utf-8') as f:
+            with open(self.vocab_file, 'r') as f:
                 for line in f:
                     self._punc_list.append(line.strip())
 
@@ -178,12 +178,12 @@ class TextExecutor(BaseExecutor):
         if self.task == 'punc':
             # punc list
             self._punc_list = []
-            with open(self.vocab_file, 'r', encoding='utf-8') as f:
+            with open(self.vocab_file, 'r') as f:
                 for line in f:
                     self._punc_list.append(line.strip())
 
             # model
-            with open(self.cfg_path, 'r', encoding='utf-8') as f:
+            with open(self.cfg_path) as f:
                 config = CfgNode(yaml.safe_load(f))
             self.model = ErnieLinear(**config["model"])
 

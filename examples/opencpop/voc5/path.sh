@@ -1,1 +1,0 @@
-../../csmsc/voc5/path.sh

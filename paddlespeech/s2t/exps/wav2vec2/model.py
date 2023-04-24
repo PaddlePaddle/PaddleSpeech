@@ -1,4 +1,4 @@
-# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,17 @@ import math
 import os
 import re
 import time
+from collections import defaultdict
 from collections import OrderedDict
 from contextlib import nullcontext
 
 import jsonlines
 import numpy as np
 import paddle
-from hyperpyyaml import load_hyperpyyaml
 from paddle import distributed as dist
-from paddlenlp.transformers import AutoTokenizer
 
 from paddlespeech.s2t.frontend.featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import DataLoaderFactory
-from paddlespeech.s2t.io.speechbrain import data_pipeline
-from paddlespeech.s2t.io.speechbrain import dataio
-from paddlespeech.s2t.io.speechbrain import dataset
-from paddlespeech.s2t.io.speechbrain.dataloader import make_dataloader
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import TimeDomainSpecAugment
 from paddlespeech.s2t.models.wav2vec2.wav2vec2_ASR import Wav2vec2ASR
 from paddlespeech.s2t.training.optimizer import OptimizerFactory
@@ -50,96 +45,10 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 logger = Log(__name__).getlog()
 
 
-def clip_grad_norm_(
-        parameters,
-        max_norm,
-        norm_type=2.0,
-        error_if_nonfinite=False, ):
-    r"""Clips gradient norm of the iteratable parameters.
-
-    Norms are calculated together on all gradients, just as they are
-    connected into one vector. The gradient will be modified in place.
-
-    This API can only run in dynamic graph mode, not static graph mode.
-
-    Args:
-        parameters (Iterable[paddle.Tensor] or paddle.Tensor): Tensors or a single Tensor
-            that will be normalized gradients
-        max_norm (float or int): max norm of the gradients
-        norm_type (float or int): type of the used p-norm. Can be `inf` for
-            infinity norm.
-        error_if_nonfinite (bool): if True, throw an error if the total
-            norm of the gradients from :attr:`parameters` is `nan`,
-            `inf`, or `-inf`.
-
-    Returns:
-        Total norm of the parameter gradients (treated as a single vector).
-    Example:
-        .. code-block:: python
-            import paddle
-
-            x = paddle.uniform([10, 10], min=-1.0, max=1.0, dtype='float32')
-            max_norm = float(5.0)
-            linear = paddle.nn.Linear(in_features=10, out_features=10)
-            out = linear(x)
-            loss = paddle.mean(out)
-            loss.backward()
-
-            paddle.nn.utils.clip_grad_norm_(linear.parameters(), max_norm)
-
-            sdg = paddle.optimizer.SGD(learning_rate=0.1, parameters=linear.parameters())
-            sdg.step()
-    """
-    if not paddle.in_dynamic_mode():
-        raise RuntimeError('this API can only run in dynamic mode.')
-
-    if isinstance(parameters, paddle.Tensor):
-        parameters = [parameters]
-
-    support_norm_type = [float("inf"), 0, 1, 2]
-    if norm_type not in support_norm_type:
-        raise ValueError(f'norm_type only support {support_norm_type}')
-
-    grads = [p.grad for p in parameters if p.grad is not None]
-    max_norm = float(max_norm)
-    norm_type = float(norm_type)
-    if len(grads) == 0:
-        return paddle.to_tensor(0.0)
-    if norm_type == float("inf"):
-        norms = [g.detach().abs().max() for g in grads]
-        total_norm = (norms[0]
-                      if len(norms) == 1 else paddle.max(paddle.stack(norms)))
-    else:
-        total_norm = paddle.linalg.norm(
-            paddle.stack(
-                [paddle.linalg.norm(g.detach(), norm_type) for g in grads]),
-            norm_type, )
-
-    if error_if_nonfinite and paddle.logical_or(total_norm.isnan(),
-                                                total_norm.isinf()):
-        raise RuntimeError(
-            f'The total norm of {norm_type} order of the gradients from '
-            '`parameters` is non-finite, so it cannot be clipped. In any case, '
-            'disable this error and scale the gradient by non-finite norm, '
-            'set `error_if_nonfinite=False`')
-    clip_coef = max_norm / (total_norm + 1e-6)
-    # Note: when the coef is clamped to 1, it is redundant to multiply the clamped coef, but this
-    # avoids the `if clip_coef < 1:` condition.
-    clip_coef_clamped = paddle.clip(clip_coef, max=1.0)
-    with paddle.no_grad():
-        for _, p in enumerate(parameters):
-            g = p.grad
-            if g is not None:
-                p.grad = paddle.multiply(x=g, y=clip_coef_clamped)
-    return total_norm
-
-
 class Wav2Vec2ASRTrainer(Trainer):
     def __init__(self, config, args):
         super().__init__(config, args)
         self.avg_train_loss = 0.0
-        self.loss_isfinite = True  # while flag is 'False', loss in Nan or inf, and can not be avg
-        self.use_sb = True  # whether use speech brain dataloader
 
     def update_average(self, batch_index, loss):
         """Update running average of the loss.
@@ -153,9 +62,6 @@ class Wav2Vec2ASRTrainer(Trainer):
         if math.isfinite(loss):
             self.avg_train_loss -= self.avg_train_loss / (batch_index + 1)
             self.avg_train_loss += loss / (batch_index + 1)
-        else:
-            self.loss_isfinite = False
-            logger.info('loss:{} in Nan or inf, error'.format(loss))
 
     def before_train(self):
         from_scratch = self.resume_or_scratch()
@@ -175,22 +81,14 @@ class Wav2Vec2ASRTrainer(Trainer):
         start = time.time()
 
         # forward
-        ## sb data pipeline
-        if self.use_sb:
-            wav, wavs_lens_rate = batch['sig']
-            target, target_lens_rate = batch['tokens']
-            target_lens = (target_lens_rate *
-                           target.shape[1]).round().astype(paddle.int64)
-        else:
-            utt, wav, wavs_lens, target, target_lens = batch
-            wavs_lens_rate = wavs_lens / wav.shape[1]
-            wav = wav[:, :, 0]
+        utt, wav, wavs_lens, target, target_lens = batch
+        wavs_lens_rate = wavs_lens / wav.shape[1]
 
+        wav = wav[:, :, 0]
         if hasattr(train_conf, 'audio_augment'):
             wav = self.speech_augmentation(wav, wavs_lens_rate)
 
         loss = self.model(wav, wavs_lens_rate, target, target_lens)
-
         # loss div by `batch_size * accum_grad`
         loss /= train_conf.accum_grad
         # update self.avg_train_loss
@@ -210,15 +108,10 @@ class Wav2Vec2ASRTrainer(Trainer):
             context = nullcontext
         with context():
             loss.backward()
-
             layer_tools.print_grads(self.model, print_func=None)
 
         # optimizer step old
         if (batch_index + 1) % train_conf.accum_grad == 0:
-            #do global grad clip
-            if train_conf.global_grad_clip != 0:
-                clip_grad_norm_(self.model.parameters(),
-                                train_conf.global_grad_clip)
             self.model_optimizer.step()
             self.model_optimizer.clear_grad()
             if not train_conf.freeze_wav2vec2:
@@ -230,12 +123,10 @@ class Wav2Vec2ASRTrainer(Trainer):
                 if not train_conf.freeze_wav2vec2:
                     self.wav2vec2_lr_scheduler.step()
             self.iteration += 1
-
         losses_np = {'loss': self.avg_train_loss * train_conf.accum_grad}
         iteration_time = time.time() - start
         for k, v in losses_np.items():
             report(k, v)
-        report("loss_whitoutavg", float(loss))
         report("batch_size", self.config.batch_size)
         report("accum", train_conf.accum_grad)
         report("step_cost", iteration_time)
@@ -257,34 +148,24 @@ class Wav2Vec2ASRTrainer(Trainer):
         if not self.use_streamdata:
             logger.info(
                 f"Valid Total Examples: {len(self.valid_loader.dataset)}")
-        valid_losses = {}
-        step = 0
+        valid_losses = defaultdict(list)
+        num_seen_utts = 1
         total_loss = 0.0
-        num_seen_utts = 1  # use update_average and no need for num_seen_utts here
         for i, batch in enumerate(self.valid_loader):
-            if self.use_sb:
-                wav, wavs_lens_rate = batch['sig']
-                target, target_lens_rate = batch['tokens']
-                target_lens = (target_lens_rate *
-                               target.shape[1]).round().astype(paddle.int64)
-            else:
-                utt, wav, wavs_lens, target, target_lens = batch
-                wavs_lens_rate = wavs_lens / wav.shape[1]
-                wav = wav[:, :, 0]
-
+            utt, wav, wavs_lens, target, target_lens = batch
+            wavs_lens_rate = wavs_lens / wav.shape[1]
+            wav = wav[:, :, 0]
             loss = self.model(wav, wavs_lens_rate, target, target_lens)
-            # use update_average
-            total_loss -= total_loss / (step + 1)
-            total_loss += loss / (step + 1)
 
             if math.isfinite(float(loss)):
-                step += 1
-                valid_losses['val_loss'] = float(loss)
-            else:
-                logger.info('loss:{} in Nan or inf, error'.format(float(loss)))
+                num_utts = batch[1].shape[0]
+                num_seen_utts += num_utts
+                total_loss += float(loss) * num_utts
+                valid_losses['val_loss'].append(float(loss))
 
             if (i + 1) % self.config.log_interval == 0:
-                valid_losses['val_history_loss'] = float(total_loss)
+                valid_dump = {k: np.mean(v) for k, v in valid_losses.items()}
+                valid_dump['val_history_loss'] = total_loss / num_seen_utts
 
                 # logging
                 msg = f"Valid: Rank: {dist.get_rank()}, "
@@ -294,11 +175,11 @@ class Wav2Vec2ASRTrainer(Trainer):
                     msg += "batch: {}/{}, ".format(i + 1,
                                                    len(self.valid_loader))
                 msg += ', '.join('{}: {:>.6f}'.format(k, v)
-                                 for k, v in valid_losses.items())
+                                 for k, v in valid_dump.items())
                 logger.info(msg)
 
-        logger.info(
-            'Rank {} Val info val_loss {}'.format(dist.get_rank(), total_loss))
+        logger.info('Rank {} Val info val_loss {}'.format(
+            dist.get_rank(), total_loss / num_seen_utts))
         return total_loss, num_seen_utts
 
     @mp_tools.rank_zero_only
@@ -347,7 +228,7 @@ class Wav2Vec2ASRTrainer(Trainer):
             logger.info("Saved scheduler state to {}".format(scheduler_path))
         info_path = re.sub('.pdparams$', '.json', params_path)
         infos = {} if infos is None else infos
-        with open(info_path, 'w', encoding='utf8') as fout:
+        with open(info_path, 'w') as fout:
             data = json.dumps(infos)
             fout.write(data)
 
@@ -364,7 +245,7 @@ class Wav2Vec2ASRTrainer(Trainer):
             # lr will resotre from optimizer ckpt
             resume_json_path = os.path.join(self.checkpoint_dir,
                                             self.args.resume + '.json')
-            with open(resume_json_path, 'r', encoding='utf8') as f:
+            with open(resume_json_path, 'r') as f:
                 resume_json = json.load(f)
             self.iteration = 0
             self.epoch = resume_json["epoch"]
@@ -459,13 +340,14 @@ class Wav2Vec2ASRTrainer(Trainer):
                 total_loss, num_seen_utts = self.valid()
                 if dist.get_world_size() > 1:
                     num_seen_utts = paddle.to_tensor(num_seen_utts)
+                    # the default operator in all_reduce function is sum.
                     dist.all_reduce(num_seen_utts)
                     total_loss = paddle.to_tensor(total_loss)
                     dist.all_reduce(total_loss)
                     cv_loss = total_loss / num_seen_utts
                     cv_loss = float(cv_loss)
                 else:
-                    cv_loss = float(total_loss)
+                    cv_loss = total_loss / num_seen_utts
             logger.info(
                 'Epoch {} Val info val_loss {}'.format(self.epoch, cv_loss))
             if self.visualizer:
@@ -486,182 +368,45 @@ class Wav2Vec2ASRTrainer(Trainer):
                 if not self.config.freeze_wav2vec2:
                     self.wav2vec2_lr_scheduler.step(cv_loss)
             self.save(tag=self.epoch, infos={'val_loss': cv_loss})
-            self.avg_train_loss = 0.0
             self.new_epoch()
-
-    def dataio_prepare(self, hparams):
-        """This function prepares the datasets to be used in the brain class.
-        It also defines the data processing pipeline through user-defined functions."""
-        data_folder = hparams["data_folder"]
-
-        train_data = dataset.DynamicItemDataset.from_csv(
-            csv_path=hparams["train_data"],
-            replacements={"data_root": data_folder}, )
-
-        if hparams["sorting"] == "ascending":
-            # we sort training data to speed up training and get better results.
-            train_data = train_data.filtered_sorted(sort_key="duration")
-            # when sorting do not shuffle in dataloader ! otherwise is pointless
-            hparams["train_dataloader_opts"]["shuffle"] = False
-
-        elif hparams["sorting"] == "descending":
-            train_data = train_data.filtered_sorted(
-                sort_key="duration", reverse=True)
-            # when sorting do not shuffle in dataloader ! otherwise is pointless
-            hparams["train_dataloader_opts"]["shuffle"] = False
-
-        elif hparams["sorting"] == "random":
-            pass
-
-        else:
-            raise NotImplementedError(
-                "sorting must be random, ascending or descending")
-
-        valid_data = dataset.DynamicItemDataset.from_csv(
-            csv_path=hparams["valid_data"],
-            replacements={"data_root": data_folder}, )
-        valid_data = valid_data.filtered_sorted(sort_key="duration")
-
-        test_data = dataset.DynamicItemDataset.from_csv(
-            csv_path=hparams["test_data"],
-            replacements={"data_root": data_folder}, )
-        test_data = test_data.filtered_sorted(sort_key="duration")
-
-        datasets = [train_data, valid_data, test_data]
-
-        # Defining tokenizer and loading it
-        tokenizer = AutoTokenizer.from_pretrained('bert-base-chinese')
-        self.tokenizer = tokenizer
-        # 2. Define audio pipeline:
-        @data_pipeline.takes("wav")
-        @data_pipeline.provides("sig")
-        def audio_pipeline(wav):
-            sig = dataio.read_audio(wav)
-            return sig
-
-        dataset.add_dynamic_item(datasets, audio_pipeline)
-
-        # 3. Define text pipeline:
-        @data_pipeline.takes("transcript")
-        @data_pipeline.provides("wrd", "tokens_list", "tokens")
-        def text_pipeline(wrd):
-            wrd = "".join(wrd.split(" "))
-            yield wrd
-            tokens_list = tokenizer(wrd)["input_ids"]
-            yield tokens_list
-            tokens = np.array(tokens_list, dtype="int64")
-            # tokens = paddle.to_tensor(tokens_list, dtype="int64")
-            yield tokens
-
-        dataset.add_dynamic_item(datasets, text_pipeline)
-
-        # 4. Set output:
-        dataset.set_output_keys(
-            datasets,
-            ["id", "sig", "wrd", "tokens"], )
-
-        # 5. If Dynamic Batching is used, we instantiate the needed samplers.
-        train_batch_sampler = None
-        valid_batch_sampler = None
-        if hparams["dynamic_batching"]:
-            from sampler import DynamicBatchSampler  # noqa
-
-            dynamic_hparams = hparams["dynamic_batch_sampler"]
-            num_buckets = dynamic_hparams["num_buckets"]
-
-            train_batch_sampler = DynamicBatchSampler(
-                train_data,
-                dynamic_hparams["max_batch_len"],
-                num_buckets=num_buckets,
-                length_func=lambda x: x["duration"],
-                shuffle=dynamic_hparams["shuffle_ex"],
-                batch_ordering=dynamic_hparams["batch_ordering"], )
-
-            valid_batch_sampler = DynamicBatchSampler(
-                valid_data,
-                dynamic_hparams["max_batch_len"],
-                num_buckets=num_buckets,
-                length_func=lambda x: x["duration"],
-                shuffle=dynamic_hparams["shuffle_ex"],
-                batch_ordering=dynamic_hparams["batch_ordering"], )
-
-        return (train_data, valid_data, test_data, tokenizer,
-                train_batch_sampler, valid_batch_sampler, )
 
     def setup_dataloader(self):
         config = self.config.clone()
         self.use_streamdata = config.get("use_stream_data", False)
-        self.use_sb = config.get("use_sb_pipeline", False)
-        if self.use_sb:
-            hparams_file = config.sb_pipeline_conf
-            with open(hparams_file, 'r', encoding='utf8') as fin:
-                hparams = load_hyperpyyaml(fin, None)
-
-            (train_data, valid_data, test_data, tokenizer, train_bsampler,
-             valid_bsampler, ) = self.dataio_prepare(hparams)
-
-            train_dataloader_opts = hparams["train_dataloader_opts"]
-            valid_dataloader_opts = hparams["valid_dataloader_opts"]
-
-            if train_bsampler is not None:
-                train_dataloader_opts = {
-                    "batch_sampler": train_bsampler,
-                    "num_workers": hparams["num_workers"],
-                }
-
-            if valid_bsampler is not None:
-                valid_dataloader_opts = {"batch_sampler": valid_bsampler}
-
-            if self.train:
-                self.train_loader = make_dataloader(
-                    train_data, stage='train', **train_dataloader_opts)
-                self.valid_loader = make_dataloader(
-                    valid_data,
-                    stage='val',
-                    **valid_dataloader_opts, )
-                logger.info("Setup train/valid Dataloader!")
-            else:
-                self.test_loader = make_dataloader(
-                    test_data, stage='test', **hparams["test_dataloader_opts"])
+        if self.train:
+            self.train_loader = DataLoaderFactory.get_dataloader(
+                'train', config, self.args)
+            self.valid_loader = DataLoaderFactory.get_dataloader(
+                'valid', config, self.args)
+            logger.info("Setup train/valid Dataloader!")
         else:
-            if self.train:
-                self.train_loader = DataLoaderFactory.get_dataloader(
-                    'train', config, self.args)
-                self.valid_loader = DataLoaderFactory.get_dataloader(
-                    'valid', config, self.args)
-                logger.info("Setup train/valid Dataloader!")
-            else:
-                decode_batch_size = config.get('decode', dict()).get(
-                    'decode_batch_size', 1)
-                self.test_loader = DataLoaderFactory.get_dataloader(
-                    'test', config, self.args)
-                self.align_loader = DataLoaderFactory.get_dataloader(
-                    'align', config, self.args)
-                logger.info("Setup test/align Dataloader!")
+            decode_batch_size = config.get('decode', dict()).get(
+                'decode_batch_size', 1)
+            self.test_loader = DataLoaderFactory.get_dataloader('test', config,
+                                                                self.args)
+            self.align_loader = DataLoaderFactory.get_dataloader(
+                'align', config, self.args)
+            logger.info("Setup test/align Dataloader!")
 
     def setup_model(self):
         config = self.config
         model_conf = config
 
         with UpdateConfig(model_conf):
-            if self.use_sb:
-                model_conf.output_dim = self.tokenizer.vocab_size
+            if self.train:
+                model_conf.input_dim = self.train_loader.feat_dim
+                model_conf.output_dim = self.train_loader.vocab_size
             else:
-                if self.train:
-                    model_conf.input_dim = self.train_loader.feat_dim
-                    model_conf.output_dim = self.train_loader.vocab_size
-                else:
-                    model_conf.input_dim = self.test_loader.feat_dim
-                    model_conf.output_dim = self.test_loader.vocab_size
+                model_conf.input_dim = self.test_loader.feat_dim
+                model_conf.output_dim = self.test_loader.vocab_size
 
         model = Wav2vec2ASR.from_config(model_conf)
-
         model_dict = paddle.load(config.wav2vec2_params_path)
         model.wav2vec2.set_state_dict(model_dict)
 
         if self.parallel:
             model = paddle.DataParallel(model, find_unused_parameters=True)
-
+        logger.info(f"{model}")
         layer_tools.print_params(model, logger.info)
         self.model = model
         logger.info("Setup model!")
@@ -677,11 +422,8 @@ class Wav2Vec2ASRTrainer(Trainer):
         train_config = config
         model_optim_type = train_config.model_optim
         model_optim_conf = train_config.model_optim_conf
-        logger.info("optim_model:{},{}", model_optim_type, model_optim_conf)
-        wav2vec2_optim_type = train_config.wav2vec2_optim
+        wav2vec2_optim_type = train_config.model_optim
         wav2vec2_optim_conf = train_config.wav2vec2_optim_conf
-        logger.info("optim_model:{},{}", wav2vec2_optim_type,
-                    wav2vec2_optim_conf)
 
         model_scheduler_type = train_config.model_scheduler
         model_scheduler_conf = train_config.model_scheduler_conf
@@ -707,8 +449,11 @@ class Wav2Vec2ASRTrainer(Trainer):
                 optim_conf,
                 parameters,
                 lr_scheduler=None, ):
+            train_config = config
             optim_arg = dict(optim_conf)
             optim_arg.update({
+                "grad_clip":
+                train_config.global_grad_clip,
                 "learning_rate":
                 lr_scheduler if lr_scheduler else optim_conf.lr,
                 "parameters":
@@ -730,12 +475,10 @@ class Wav2Vec2ASRTrainer(Trainer):
                                                   'params':
                                                   model.ctc.parameters()
                                               }], model_lr_scheduler)
-
         wav2vec2_optimizer_args = optimizer_args(
             config, wav2vec2_optim_type, wav2vec2_optim_conf,
             model._layers.wav2vec2.parameters() if self.parallel else
             model.wav2vec2.parameters(), wav2vec2_lr_scheduler)
-
         model_optimizer = OptimizerFactory.from_args(model_optim_type,
                                                      model_optimizer_args)
         wav2vec2_optimizer = OptimizerFactory.from_args(wav2vec2_optim_type,
@@ -764,7 +507,12 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             trans.append(self.text_featurizer.defeaturize(ids.numpy().tolist()))
         return trans
 
-    def compute_metrics(self, id, audio, audio_len, texts, texts_len,
+    def compute_metrics(self,
+                        utts,
+                        audio,
+                        audio_len,
+                        texts,
+                        texts_len,
                         fout=None):
         decode_cfg = self.config.decode
         errors_sum, len_refs, num_ins = 0.0, 0, 0
@@ -781,7 +529,7 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
         decode_time = time.time() - start_time
 
         for utt, target, result, rec_tids in zip(
-                id, target_transcripts, result_transcripts, result_tokenids):
+                utts, target_transcripts, result_transcripts, result_tokenids):
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -808,49 +556,6 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
             num_frames=audio_len.sum().numpy().item(),
             decode_time=decode_time)
 
-    def sb_compute_metrics(self, id, sig, wrd, tokens, fout=None):
-        decode_cfg = self.config.decode
-        errors_sum, len_refs, num_ins = 0.0, 0, 0
-        errors_func = error_rate.char_errors if decode_cfg.error_rate_type == 'cer' else error_rate.word_errors
-        error_rate_func = error_rate.cer if decode_cfg.error_rate_type == 'cer' else error_rate.wer
-        start_time = time.time()
-        target_transcripts = wrd
-        result_transcripts, result_tokenids = self.model.decode(
-            sig[0],
-            text_feature=self.tokenizer,
-            decoding_method=decode_cfg.decoding_method,
-            beam_size=decode_cfg.beam_size,
-            sb_pipeline=True)
-        decode_time = time.time() - start_time
-
-        for utt, target, result, rec_tids in zip(
-                id, target_transcripts, result_transcripts, result_tokenids):
-            errors, len_ref = errors_func(target, result)
-            errors_sum += errors
-            len_refs += len_ref
-            num_ins += 1
-            if fout:
-                fout.write({
-                    "utt": utt,
-                    "refs": [target],
-                    "hyps": [result],
-                    "hyps_tokenid": [rec_tids],
-                })
-            logger.info(f"Utt: {utt}")
-            logger.info(f"Ref: {target}")
-            logger.info(f"Hyp: {result}")
-            logger.info("One example error rate [%s] = %f" % (
-                decode_cfg.error_rate_type, error_rate_func(target, result)))
-
-        return dict(
-            errors_sum=errors_sum,
-            len_refs=len_refs,
-            num_ins=num_ins,  # num examples
-            error_rate=errors_sum / len_refs,
-            error_rate_type=decode_cfg.error_rate_type,
-            num_frames=sig[1].sum().numpy().item(),
-            decode_time=decode_time)
-
     @mp_tools.rank_zero_only
     @paddle.no_grad()
     def test(self):
@@ -868,10 +573,7 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
 
         with jsonlines.open(self.args.result_file, 'w') as fout:
             for i, batch in enumerate(self.test_loader):
-                if self.use_sb:
-                    metrics = self.sb_compute_metrics(**batch, fout=fout)
-                else:
-                    metrics = self.compute_metrics(*batch, fout=fout)
+                metrics = self.compute_metrics(*batch, fout=fout)
                 num_frames += metrics['num_frames']
                 num_time += metrics["decode_time"]
                 errors_sum += metrics['errors_sum']
@@ -893,7 +595,7 @@ class Wav2Vec2ASRTester(Wav2Vec2ASRTrainer):
 
         err_meta_path = os.path.splitext(self.args.result_file)[0] + '.err'
         err_type_str = "{}".format(error_rate_type)
-        with open(err_meta_path, 'w', encoding='utf8') as f:
+        with open(err_meta_path, 'w') as f:
             data = json.dumps({
                 "epoch":
                 self.epoch,

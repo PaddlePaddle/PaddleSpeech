@@ -15,7 +15,6 @@
 *.egg-info
 build
 *output/
-.history
 
 audio/dist/
 audio/fc_patch/

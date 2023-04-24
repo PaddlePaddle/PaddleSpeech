@@ -100,7 +100,7 @@ class G2PWOnnxConverter:
         ]
         self.non_polyphonic = {
             '一', '不', '和', '咋', '嗲', '剖', '差', '攢', '倒', '難', '奔', '勁', '拗',
-            '肖', '瘙', '誒', '泊', '听', '噢'
+            '肖', '瘙', '誒', '泊', '听'
         }
         self.non_monophonic = {'似', '攢'}
         self.monophonic_chars = [

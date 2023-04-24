@@ -1587,7 +1587,7 @@ template<class Holder> class RandomAccessTableReaderImplBase {
 // this from a pipe.  In principle we could read it on-demand as for the
 // archives, but this would probably be overkill.
 
-// Note: the code for this class is similar to TableWriterScriptImpl:
+// Note: the code for this this class is similar to TableWriterScriptImpl:
 // try to keep them in sync.
 template<class Holder>
 class RandomAccessTableReaderScriptImpl:

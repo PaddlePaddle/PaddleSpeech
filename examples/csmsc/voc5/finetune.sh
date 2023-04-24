@@ -39,19 +39,16 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     python3 ${BIN_DIR}/../normalize.py \
         --metadata=dump_finetune/train/raw/metadata.jsonl \
         --dumpdir=dump_finetune/train/norm \
-        --stats=dump_finetune/train/feats_stats.npy \
-        --skip-wav-copy
+        --stats=dump_finetune/train/feats_stats.npy
     python3 ${BIN_DIR}/../normalize.py \
         --metadata=dump_finetune/dev/raw/metadata.jsonl \
         --dumpdir=dump_finetune/dev/norm \
-        --stats=dump_finetune/train/feats_stats.npy \
-        --skip-wav-copy
+        --stats=dump_finetune/train/feats_stats.npy
     
     python3 ${BIN_DIR}/../normalize.py \
         --metadata=dump_finetune/test/raw/metadata.jsonl \
         --dumpdir=dump_finetune/test/norm \
-        --stats=dump_finetune/train/feats_stats.npy \
-        --skip-wav-copy
+        --stats=dump_finetune/train/feats_stats.npy
 fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then

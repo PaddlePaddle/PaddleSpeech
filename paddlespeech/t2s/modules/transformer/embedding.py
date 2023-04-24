@@ -198,8 +198,7 @@ class RelPositionalEncoding(nn.Layer):
         x = x * self.xscale
         T = paddle.shape(x)[1]
         pe_size = paddle.shape(self.pe)
-        tmp = paddle.cast(paddle.floor(pe_size[1] / 2), dtype='int32')
-        pos_emb = self.pe[:, tmp - T + 1:tmp + T, ]
+        pos_emb = self.pe[:, pe_size[1] // 2 - T + 1:pe_size[1] // 2 + T, ]
         return self.dropout(x), self.dropout(pos_emb)
 
 

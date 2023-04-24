@@ -19,15 +19,15 @@ def get_lite_predictor(model_dir: Optional[os.PathLike]=None,
     return predictor
 
 
-def get_lite_am_output(input: str,
-                       am_predictor,
-                       am: str,
-                       frontend: object,
-                       lang: str='zh',
-                       merge_sentences: bool=True,
-                       speaker_dict: Optional[os.PathLike]=None,
-                       spk_id: int=0,
-                       add_blank: bool=False):
+def get_lite_am_output(
+        input: str,
+        am_predictor,
+        am: str,
+        frontend: object,
+        lang: str='zh',
+        merge_sentences: bool=True,
+        speaker_dict: Optional[os.PathLike]=None,
+        spk_id: int=0, ):
     am_name = am[:am.rindex('_')]
     am_dataset = am[am.rindex('_') + 1:]
     get_spk_id = False
@@ -43,8 +43,7 @@ def get_lite_am_output(input: str,
         text=input,
         merge_sentences=merge_sentences,
         get_tone_ids=get_tone_ids,
-        lang=lang,
-        add_blank=add_blank, )
+        lang=lang)
 
     if get_tone_ids:
         tone_ids = frontend_dict['tone_ids']

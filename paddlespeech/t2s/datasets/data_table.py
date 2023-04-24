@@ -11,14 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import random
 from multiprocessing import Manager
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
 
-import numpy as np
 from paddle.io import Dataset
 
 
@@ -133,54 +131,3 @@ class DataTable(Dataset):
             The length of the dataset
         """
         return len(self.data)
-
-
-class StarGANv2VCDataTable(DataTable):
-    def __init__(self, data: List[Dict[str, Any]]):
-        super().__init__(data)
-        raw_data = data
-        spk_id_set = list(set([item['spk_id'] for item in raw_data]))
-        data_list_per_class = {}
-        for spk_id in spk_id_set:
-            data_list_per_class[spk_id] = []
-        for item in raw_data:
-            for spk_id in spk_id_set:
-                if item['spk_id'] == spk_id:
-                    data_list_per_class[spk_id].append(item)
-        self.data_list_per_class = data_list_per_class
-
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
-        """Get an example given an index.
-        Args:
-            idx (int): Index of the example to get
-
-        Returns:
-            Dict[str, Any]: A converted example
-        """
-        if self.use_cache and self.caches[idx] is not None:
-            return self.caches[idx]
-
-        data = self._get_metadata(idx)
-
-        # 裁剪放到 batch_fn 里面
-        # 返回一个字典
-        """
-        {'utt_id': 'p225_111', 'spk_id': '1', 'speech': 'path of *.npy'}
-        """
-        ref_data = random.choice(self.data)
-        ref_label = ref_data['spk_id']
-        ref_data_2 = random.choice(self.data_list_per_class[ref_label])
-        # mel_tensor, label, ref_mel_tensor, ref2_mel_tensor, ref_label
-        new_example = {
-            'utt_id': data['utt_id'],
-            'mel': np.load(data['speech']),
-            'label': int(data['spk_id']),
-            'ref_mel': np.load(ref_data['speech']),
-            'ref_mel_2': np.load(ref_data_2['speech']),
-            'ref_label': int(ref_label)
-        }
-
-        if self.use_cache:
-            self.caches[idx] = new_example
-
-        return new_example

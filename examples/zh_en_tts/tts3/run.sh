@@ -46,7 +46,10 @@ fi
 
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # install paddle2onnx
-    pip install paddle2onnx --upgrade
+    version=$(echo `pip list |grep "paddle2onnx"` |awk -F" " '{print $2}')
+    if [[ -z "$version" || ${version} != '1.0.0' ]]; then
+        pip install paddle2onnx==1.0.0
+    fi
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx fastspeech2_mix
     # considering the balance between speed and quality, we recommend that you use hifigan as vocoder
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_aishell3

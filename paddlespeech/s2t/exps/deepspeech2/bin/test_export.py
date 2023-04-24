@@ -16,7 +16,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.deepspeech2.model import DeepSpeech2ExportTester as ExportTester
 from paddlespeech.s2t.training.cli import default_argument_parser
-from paddlespeech.utils.argparse import print_arguments
+from paddlespeech.s2t.utils.utility import print_arguments
 
 
 def main_sp(config, args):

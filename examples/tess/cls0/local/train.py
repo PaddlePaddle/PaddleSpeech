@@ -121,7 +121,7 @@ if __name__ == "__main__":
             optimizer.clear_grad()
 
             # Calculate loss
-            avg_loss += float(loss)
+            avg_loss += loss.numpy()[0]
 
             # Calculate metrics
             preds = paddle.argmax(logits, axis=1)

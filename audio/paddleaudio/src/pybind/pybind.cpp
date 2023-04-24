@@ -2,7 +2,7 @@
 
 #ifdef INCLUDE_KALDI
 #include "paddleaudio/src/pybind/kaldi/kaldi_feature.h"
-#include "paddleaudio/third_party/kaldi-native-fbank/csrc/feature-fbank.h"
+#include "paddleaudio/third_party/kaldi/feat/feature-fbank.h"
 #endif
 
 #ifdef INCLUDE_SOX
@@ -89,51 +89,53 @@ PYBIND11_MODULE(_paddleaudio, m) {
 
 #ifdef INCLUDE_KALDI
     m.def("ComputeFbank", &paddleaudio::kaldi::ComputeFbank, "compute fbank");
-    //py::class_<kaldi::PitchExtractionOptions>(m, "PitchExtractionOptions")
-        //.def(py::init<>())
-        //.def_readwrite("samp_freq", &kaldi::PitchExtractionOptions::samp_freq)
-        //.def_readwrite("frame_shift_ms", &kaldi::PitchExtractionOptions::frame_shift_ms)
-        //.def_readwrite("frame_length_ms", &kaldi::PitchExtractionOptions::frame_length_ms)
-        //.def_readwrite("preemph_coeff", &kaldi::PitchExtractionOptions::preemph_coeff)
-        //.def_readwrite("min_f0", &kaldi::PitchExtractionOptions::min_f0)
-        //.def_readwrite("max_f0", &kaldi::PitchExtractionOptions::max_f0)
-        //.def_readwrite("soft_min_f0", &kaldi::PitchExtractionOptions::soft_min_f0)
-        //.def_readwrite("penalty_factor", &kaldi::PitchExtractionOptions::penalty_factor)
-        //.def_readwrite("lowpass_cutoff", &kaldi::PitchExtractionOptions::lowpass_cutoff)
-        //.def_readwrite("resample_freq", &kaldi::PitchExtractionOptions::resample_freq)
-        //.def_readwrite("delta_pitch", &kaldi::PitchExtractionOptions::delta_pitch)
-        //.def_readwrite("nccf_ballast", &kaldi::PitchExtractionOptions::nccf_ballast)
-        //.def_readwrite("lowpass_filter_width", &kaldi::PitchExtractionOptions::lowpass_filter_width)
-        //.def_readwrite("upsample_filter_width", &kaldi::PitchExtractionOptions::upsample_filter_width)
-        //.def_readwrite("max_frames_latency", &kaldi::PitchExtractionOptions::max_frames_latency)
-        //.def_readwrite("frames_per_chunk", &kaldi::PitchExtractionOptions::frames_per_chunk)
-        //.def_readwrite("simulate_first_pass_online", &kaldi::PitchExtractionOptions::simulate_first_pass_online)
-        //.def_readwrite("recompute_frame", &kaldi::PitchExtractionOptions::recompute_frame)
-        //.def_readwrite("nccf_ballast_online", &kaldi::PitchExtractionOptions::nccf_ballast_online)
-        //.def_readwrite("snip_edges", &kaldi::PitchExtractionOptions::snip_edges);
-    //m.def("ComputeKaldiPitch", &paddleaudio::kaldi::ComputeKaldiPitch, "compute kaldi pitch");
-    py::class_<knf::FrameExtractionOptions>(m, "FrameExtractionOptions")
-        .def(py::init<>())            
-        .def_readwrite("samp_freq", &knf::FrameExtractionOptions::samp_freq)
-        .def_readwrite("frame_shift_ms", &knf::FrameExtractionOptions::frame_shift_ms)            
-        .def_readwrite("frame_length_ms", &knf::FrameExtractionOptions::frame_length_ms)
-        .def_readwrite("dither", &knf::FrameExtractionOptions::dither)            
-        .def_readwrite("preemph_coeff", &knf::FrameExtractionOptions::preemph_coeff)            
-        .def_readwrite("remove_dc_offset", &knf::FrameExtractionOptions::remove_dc_offset)            
-        .def_readwrite("window_type", &knf::FrameExtractionOptions::window_type)
-        .def_readwrite("round_to_power_of_two", &knf::FrameExtractionOptions::round_to_power_of_two)           
-        .def_readwrite("blackman_coeff", &knf::FrameExtractionOptions::blackman_coeff)          
-        .def_readwrite("snip_edges", &knf::FrameExtractionOptions::snip_edges)
-        .def_readwrite("max_feature_vectors", &knf::FrameExtractionOptions::max_feature_vectors);
-    py::class_<knf::MelBanksOptions>(m, "MelBanksOptions")
+    py::class_<kaldi::PitchExtractionOptions>(m, "PitchExtractionOptions")
         .def(py::init<>())
-        .def_readwrite("num_bins", &knf::MelBanksOptions::num_bins)
-        .def_readwrite("low_freq", &knf::MelBanksOptions::low_freq)
-        .def_readwrite("high_freq", &knf::MelBanksOptions::high_freq)
-        .def_readwrite("vtln_low", &knf::MelBanksOptions::vtln_low)
-        .def_readwrite("vtln_high", &knf::MelBanksOptions::vtln_high)
-        .def_readwrite("debug_mel", &knf::MelBanksOptions::debug_mel)
-        .def_readwrite("htk_mode", &knf::MelBanksOptions::htk_mode);
+        .def_readwrite("samp_freq", &kaldi::PitchExtractionOptions::samp_freq)
+        .def_readwrite("frame_shift_ms", &kaldi::PitchExtractionOptions::frame_shift_ms)
+        .def_readwrite("frame_length_ms", &kaldi::PitchExtractionOptions::frame_length_ms)
+        .def_readwrite("preemph_coeff", &kaldi::PitchExtractionOptions::preemph_coeff)
+        .def_readwrite("min_f0", &kaldi::PitchExtractionOptions::min_f0)
+        .def_readwrite("max_f0", &kaldi::PitchExtractionOptions::max_f0)
+        .def_readwrite("soft_min_f0", &kaldi::PitchExtractionOptions::soft_min_f0)
+        .def_readwrite("penalty_factor", &kaldi::PitchExtractionOptions::penalty_factor)
+        .def_readwrite("lowpass_cutoff", &kaldi::PitchExtractionOptions::lowpass_cutoff)
+        .def_readwrite("resample_freq", &kaldi::PitchExtractionOptions::resample_freq)
+        .def_readwrite("delta_pitch", &kaldi::PitchExtractionOptions::delta_pitch)
+        .def_readwrite("nccf_ballast", &kaldi::PitchExtractionOptions::nccf_ballast)
+        .def_readwrite("lowpass_filter_width", &kaldi::PitchExtractionOptions::lowpass_filter_width)
+        .def_readwrite("upsample_filter_width", &kaldi::PitchExtractionOptions::upsample_filter_width)
+        .def_readwrite("max_frames_latency", &kaldi::PitchExtractionOptions::max_frames_latency)
+        .def_readwrite("frames_per_chunk", &kaldi::PitchExtractionOptions::frames_per_chunk)
+        .def_readwrite("simulate_first_pass_online", &kaldi::PitchExtractionOptions::simulate_first_pass_online)
+        .def_readwrite("recompute_frame", &kaldi::PitchExtractionOptions::recompute_frame)
+        .def_readwrite("nccf_ballast_online", &kaldi::PitchExtractionOptions::nccf_ballast_online)
+        .def_readwrite("snip_edges", &kaldi::PitchExtractionOptions::snip_edges);
+    m.def("ComputeKaldiPitch", &paddleaudio::kaldi::ComputeKaldiPitch, "compute kaldi pitch");
+    py::class_<kaldi::FrameExtractionOptions>(m, "FrameExtractionOptions")
+        .def(py::init<>())            
+        .def_readwrite("samp_freq", &kaldi::FrameExtractionOptions::samp_freq)
+        .def_readwrite("frame_shift_ms", &kaldi::FrameExtractionOptions::frame_shift_ms)            
+        .def_readwrite("frame_length_ms", &kaldi::FrameExtractionOptions::frame_length_ms)
+        .def_readwrite("dither", &kaldi::FrameExtractionOptions::dither)            
+        .def_readwrite("preemph_coeff", &kaldi::FrameExtractionOptions::preemph_coeff)            
+        .def_readwrite("remove_dc_offset", &kaldi::FrameExtractionOptions::remove_dc_offset)            
+        .def_readwrite("window_type", &kaldi::FrameExtractionOptions::window_type)
+        .def_readwrite("round_to_power_of_two", &kaldi::FrameExtractionOptions::round_to_power_of_two)           
+        .def_readwrite("blackman_coeff", &kaldi::FrameExtractionOptions::blackman_coeff)          
+        .def_readwrite("snip_edges", &kaldi::FrameExtractionOptions::snip_edges)
+        .def_readwrite("allow_downsample", &kaldi::FrameExtractionOptions::allow_downsample)
+        .def_readwrite("allow_upsample", &kaldi::FrameExtractionOptions::allow_upsample)
+        .def_readwrite("max_feature_vectors", &kaldi::FrameExtractionOptions::max_feature_vectors);
+    py::class_<kaldi::MelBanksOptions>(m, "MelBanksOptions")
+        .def(py::init<>())
+        .def_readwrite("num_bins", &kaldi::MelBanksOptions::num_bins)
+        .def_readwrite("low_freq", &kaldi::MelBanksOptions::low_freq)
+        .def_readwrite("high_freq", &kaldi::MelBanksOptions::high_freq)
+        .def_readwrite("vtln_low", &kaldi::MelBanksOptions::vtln_low)
+        .def_readwrite("vtln_high", &kaldi::MelBanksOptions::vtln_high)
+        .def_readwrite("debug_mel", &kaldi::MelBanksOptions::debug_mel)
+        .def_readwrite("htk_mode", &kaldi::MelBanksOptions::htk_mode);
 
     py::class_<paddleaudio::kaldi::FbankOptions>(m, "FbankOptions")
         .def(py::init<>())

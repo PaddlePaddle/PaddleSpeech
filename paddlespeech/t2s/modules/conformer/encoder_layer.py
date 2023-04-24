@@ -113,6 +113,7 @@ class EncoderLayer(nn.Layer):
             x, pos_emb = x_input[0], x_input[1]
         else:
             x, pos_emb = x_input, None
+
         skip_layer = False
         # with stochastic depth, residual connection `x + f(x)` becomes
         # `x <- x + 1 / (1 - p) * f(x)` at training time.
@@ -120,12 +121,14 @@ class EncoderLayer(nn.Layer):
         if self.training and self.stochastic_depth_rate > 0:
             skip_layer = paddle.rand(1).item() < self.stochastic_depth_rate
             stoch_layer_coeff = 1.0 / (1 - self.stochastic_depth_rate)
+
         if skip_layer:
             if cache is not None:
                 x = paddle.concat([cache, x], axis=1)
             if pos_emb is not None:
                 return (x, pos_emb), mask
             return x, mask
+
         # whether to use macaron style
         if self.feed_forward_macaron is not None:
             residual = x
@@ -135,6 +138,7 @@ class EncoderLayer(nn.Layer):
                 self.feed_forward_macaron(x))
             if not self.normalize_before:
                 x = self.norm_ff_macaron(x)
+
         # multi-headed self-attention module
         residual = x
         if self.normalize_before:

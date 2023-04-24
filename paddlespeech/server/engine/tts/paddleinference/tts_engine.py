@@ -247,13 +247,11 @@ class TTSServerExecutor(TTSExecutor):
             else:
                 # multi speaker  do not have static model
                 if am_dataset in {"aishell3", "vctk"}:
-                    am_result = run_model(
-                        self.am_predictor,
-                        [part_phone_ids.numpy(), np.array([spk_id])])
+                    pass
                 else:
                     am_result = run_model(self.am_predictor,
                                           [part_phone_ids.numpy()])
-                mel = am_result[0]
+                    mel = am_result[0]
             self.am_time += (time.time() - am_st)
 
             # voc

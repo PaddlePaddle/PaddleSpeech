@@ -464,5 +464,5 @@ class DataLoaderFactory():
                 subsampling_factor=config.subsampling_factor,
                 load_aux_output=config.get('load_transcript', None),
                 num_encs=config.num_encs,
-                dist_sampler=config.get('dist_sampler', None),
+                dist_sampler=config.dist_sampler,
                 shortest_first=config.shortest_first)

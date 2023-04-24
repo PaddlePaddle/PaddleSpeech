@@ -280,7 +280,6 @@ def main():
             sentences=sentences,
             output_dir=dev_dump_dir,
             mel_extractor=mel_extractor,
-            nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             use_relative_path=args.use_relative_path)
     if test_wav_files:

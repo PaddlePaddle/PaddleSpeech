@@ -191,7 +191,7 @@ def soundfile_save(y: np.ndarray, sr: int, file: os.PathLike) -> None:
 
     if sr <= 0:
         raise ParameterError(
-            f'Sample rate should be larger than 0, recieved sr = {sr}')
+            f'Sample rate should be larger than 0, received sr = {sr}')
 
     if y.dtype not in ['int16', 'int8']:
         warnings.warn(

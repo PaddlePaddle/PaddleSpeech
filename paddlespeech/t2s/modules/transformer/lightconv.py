@@ -110,7 +110,7 @@ class LightweightConvolution(nn.Layer):
                 (batch, time1, time2) mask
 
         Return:
-            Tensor: ouput. (batch, time1, d_model) 
+            Tensor: output. (batch, time1, d_model) 
 
         """
         # linear -> GLU -> lightconv -> linear

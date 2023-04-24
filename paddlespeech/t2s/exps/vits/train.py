@@ -24,13 +24,13 @@ import yaml
 from paddle import DataParallel
 from paddle import distributed as dist
 from paddle.io import DataLoader
-from paddle.io import DistributedBatchSampler
-from paddle.optimizer import Adam
+from paddle.optimizer import AdamW
 from yacs.config import CfgNode
 
 from paddlespeech.t2s.datasets.am_batch_fn import vits_multi_spk_batch_fn
 from paddlespeech.t2s.datasets.am_batch_fn import vits_single_spk_batch_fn
 from paddlespeech.t2s.datasets.data_table import DataTable
+from paddlespeech.t2s.datasets.sampler import ErnieSATSampler
 from paddlespeech.t2s.models.vits import VITS
 from paddlespeech.t2s.models.vits import VITSEvaluator
 from paddlespeech.t2s.models.vits import VITSUpdater
@@ -78,7 +78,7 @@ def train_sp(args, config):
     if args.speaker_dict is not None:
         print("multiple speaker vits!")
         collate_fn = vits_multi_spk_batch_fn
-        with open(args.speaker_dict, 'rt') as f:
+        with open(args.speaker_dict, 'rt', encoding='utf-8') as f:
             spk_id = [line.strip().split() for line in f.readlines()]
         spk_num = len(spk_id)
         fields += ["spk_id"]
@@ -107,12 +107,12 @@ def train_sp(args, config):
         converters=converters, )
 
     # collate function and dataloader
-    train_sampler = DistributedBatchSampler(
+    train_sampler = ErnieSATSampler(
         train_dataset,
         batch_size=config.batch_size,
-        shuffle=True,
+        shuffle=False,
         drop_last=True)
-    dev_sampler = DistributedBatchSampler(
+    dev_sampler = ErnieSATSampler(
         dev_dataset,
         batch_size=config.batch_size,
         shuffle=False,
@@ -132,7 +132,7 @@ def train_sp(args, config):
         num_workers=config.num_workers)
     print("dataloaders done!")
 
-    with open(args.phones_dict, "r") as f:
+    with open(args.phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     vocab_size = len(phn_id)
     print("vocab_size:", vocab_size)
@@ -164,14 +164,14 @@ def train_sp(args, config):
 
     lr_schedule_g = scheduler_classes[config["generator_scheduler"]](
         **config["generator_scheduler_params"])
-    optimizer_g = Adam(
+    optimizer_g = AdamW(
         learning_rate=lr_schedule_g,
         parameters=gen_parameters,
         **config["generator_optimizer_params"])
 
     lr_schedule_d = scheduler_classes[config["discriminator_scheduler"]](
         **config["discriminator_scheduler_params"])
-    optimizer_d = Adam(
+    optimizer_d = AdamW(
         learning_rate=lr_schedule_d,
         parameters=dis_parameters,
         **config["discriminator_optimizer_params"])

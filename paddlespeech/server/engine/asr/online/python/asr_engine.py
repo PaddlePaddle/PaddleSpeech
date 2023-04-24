@@ -609,7 +609,7 @@ class PaddleASRConnectionHanddler:
             dtype=paddle.long)  # (beam_size,)
         hyps_pad, _ = add_sos_eos(hyps_pad, self.model.sos, self.model.eos,
                                   self.model.ignore_id)
-        hyps_lens = hyps_lens + 1  # Add <sos> at begining
+        hyps_lens = hyps_lens + 1  # Add <sos> at beginning
 
         # ctc score in ln domain
         # (beam_size, max_hyps_len, vocab_size)

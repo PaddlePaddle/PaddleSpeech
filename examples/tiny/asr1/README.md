@@ -37,7 +37,7 @@ It will support the way of using `--variable value` in the shell scripts.
 Some local variables are set in `run.sh`. 
 `gpus` denotes the GPU number you want to use. If you set `gpus=`, it means you only use CPU. 
 `stage` denotes the number of stage you want the start from in the experiments.
-`stop stage` denotes the number of stage you want the stop at in the expriments. 
+`stop stage` denotes the number of stage you want the stop at in the experiments. 
 `conf_path` denotes the config path of the model.
 `avg_num`denotes the number K of top-K models you want to average to get the final model.
 `ckpt` denotes the checkpoint prefix of the model, e.g. "transformerr"

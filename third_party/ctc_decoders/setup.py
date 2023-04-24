@@ -19,7 +19,8 @@ import os
 import platform
 import sys
 
-from setuptools import distutils
+import setuptools
+from distutils import ccompiler
 from setuptools import Extension
 from setuptools import setup
 
@@ -75,7 +76,7 @@ def compile_test(header, library):
 
 
 # hack compile to support parallel compiling
-distutils.ccompiler.CCompiler.compile = parallelCCompile
+ccompiler.CCompiler.compile = parallelCCompile
 
 FILES = glob.glob('kenlm/util/*.cc') \
     + glob.glob('kenlm/lm/*.cc') \
@@ -128,7 +129,7 @@ decoders_module = [
 
 setup(
     name='paddlespeech_ctcdecoders',
-    version='0.2.0',
+    version='0.2.2',
     description="CTC decoders in paddlespeech",
     author="PaddlePaddle Speech and Language Team",
     author_email="paddlesl@baidu.com",

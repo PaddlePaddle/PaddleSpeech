@@ -76,7 +76,7 @@ bool DecibelNormalizer::Compute(VectorBase<BaseFloat>* waves) const {
     if (gain > opts_.max_gain_db) {
         LOG(ERROR)
             << "Unable to normalize segment to " << opts_.target_db << "dB,"
-            << "because the the probable gain have exceeds opts_.max_gain_db"
+            << "because the probable gain has exceeded opts_.max_gain_db"
             << opts_.max_gain_db << "dB.";
         return false;
     }

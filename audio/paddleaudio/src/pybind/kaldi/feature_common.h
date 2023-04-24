@@ -16,7 +16,7 @@
 
 #include "pybind11/pybind11.h"
 #include "pybind11/numpy.h"
-#include "feat/feature-window.h"
+#include "kaldi-native-fbank/csrc/feature-window.h"
 
 namespace paddleaudio {
 namespace kaldi {
@@ -28,18 +28,18 @@ class StreamingFeatureTpl {
   public:
     typedef typename F::Options Options;
     StreamingFeatureTpl(const Options& opts);
-    bool ComputeFeature(const ::kaldi::VectorBase<::kaldi::BaseFloat>& wav,
-                        ::kaldi::Vector<::kaldi::BaseFloat>* feats);
-    void Reset() { remained_wav_.Resize(0); }
+    bool ComputeFeature(const std::vector<float>& wav,
+                        std::vector<float>* feats);
+    void Reset() { remained_wav_.resize(0); }
 
     int Dim() { return computer_.Dim(); }
 
   private:
-    bool Compute(const ::kaldi::Vector<::kaldi::BaseFloat>& waves,
-                 ::kaldi::Vector<::kaldi::BaseFloat>* feats);
+    bool Compute(const std::vector<float>& waves,
+                 std::vector<float>* feats);
     Options opts_;
-    ::kaldi::FeatureWindowFunction window_function_;
-    ::kaldi::Vector<::kaldi::BaseFloat> remained_wav_;
+    knf::FeatureWindowFunction window_function_;
+    std::vector<float> remained_wav_;
     F computer_;
 };
 

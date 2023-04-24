@@ -27,9 +27,9 @@ from pathlib import Path
 
 import soundfile
 
-from utils.utility import check_md5sum
-from utils.utility import download
-from utils.utility import unzip
+from paddlespeech.dataset.download import check_md5sum
+from paddlespeech.dataset.download import download
+from paddlespeech.dataset.download import unzip
 
 # all the data will be download in the current data/voxceleb directory default
 DATA_HOME = os.path.expanduser('.')

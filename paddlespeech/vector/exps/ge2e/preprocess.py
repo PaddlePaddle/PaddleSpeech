@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--skip_existing",
         action="store_true",
-        help="Whether to skip ouput files with the same name. Useful if this script was interrupted."
+        help="Whether to skip output files with the same name. Useful if this script was interrupted."
     )
     parser.add_argument(
         "--no_trim",

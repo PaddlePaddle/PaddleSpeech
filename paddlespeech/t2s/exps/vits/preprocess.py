@@ -166,7 +166,7 @@ def process_sentences(config,
                     if record:
                         results.append(record)
 
-    results.sort(key=itemgetter("utt_id"))
+    results.sort(key=itemgetter("feats_lengths"), reverse=True)
     with jsonlines.open(output_dir / "metadata.jsonl", 'w') as writer:
         for item in results:
             writer.write(item)
@@ -321,6 +321,7 @@ def main():
             sentences=sentences,
             output_dir=dev_dump_dir,
             spec_extractor=spec_extractor,
+            nprocs=args.num_cpu,
             cut_sil=args.cut_sil,
             spk_emb_dir=spk_emb_dir)
     if test_wav_files:

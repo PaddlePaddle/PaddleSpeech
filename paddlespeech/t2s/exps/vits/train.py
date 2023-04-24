@@ -234,7 +234,7 @@ def train_sp(args, config):
 
     if dist.get_rank() == 0:
         trainer.extend(
-            evaluator, trigger=(config.eval_interval_steps, 'iteration'))
+            evaluator, trigger=(config.eval_interval_epochs, 'epoch'))
         trainer.extend(VisualDL(output_dir), trigger=(1, 'iteration'))
     trainer.extend(
         Snapshot(max_size=config.num_snapshots),

@@ -259,7 +259,7 @@ class StarGANv2VCEvaluator(StandardEvaluator):
             y_org=y_org,
             y_trg=y_trg,
             z_trg=z_trg,
-            use_r1_reg=False,
+            use_r1_reg=self.use_r1_reg,
             use_adv_cls=use_adv_cls,
             **self.d_loss_params)
 
@@ -269,7 +269,7 @@ class StarGANv2VCEvaluator(StandardEvaluator):
             y_org=y_org,
             y_trg=y_trg,
             x_ref=x_ref,
-            use_r1_reg=False,
+            use_r1_reg=self.use_r1_reg,
             use_adv_cls=use_adv_cls,
             **self.d_loss_params)
 

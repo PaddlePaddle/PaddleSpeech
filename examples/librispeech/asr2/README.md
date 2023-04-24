@@ -153,7 +153,7 @@ After training the model, we need to get the final model for testing and inferen
 ```bash
  if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
      # avg n best model
-     avg.sh lastest exp/${ckpt}/checkpoints ${avg_num}
+     avg.sh latest exp/${ckpt}/checkpoints ${avg_num}
  fi
 ```
 The `avg.sh` is in the `../../../utils/` which is define in the `path.sh`.

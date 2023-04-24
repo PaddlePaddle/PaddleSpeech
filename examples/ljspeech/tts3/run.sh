@@ -45,10 +45,7 @@ fi
 # we have only tested the following models so far
 if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     # install paddle2onnx
-    version=$(echo `pip list |grep "paddle2onnx"` |awk -F" " '{print $2}')
-    if [[ -z "$version" || ${version} != '1.0.0' ]]; then
-        pip install paddle2onnx==1.0.0
-    fi
+    pip install paddle2onnx --upgrade
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx fastspeech2_ljspeech
     # considering the balance between speed and quality, we recommend that you use hifigan as vocoder
     ./local/paddle2onnx.sh ${train_output_path} inference inference_onnx pwgan_ljspeech

@@ -1,0 +1,224 @@
+# This configuration tested on 4 GPUs (V100) with 32GB GPU
+# memory. It takes around 2 weeks to finish the training
+# but 100k iters model should generate reasonable results.
+###########################################################
+#                FEATURE EXTRACTION SETTING               #
+###########################################################
+
+n_mels: 80
+fs: 22050         # sr
+n_fft: 1024        # FFT size (samples).
+n_shift: 256       # Hop size (samples). 12.5ms
+win_length: null   # Window length (samples). 50ms
+                   # If set to null, it will be the same as fft_size.
+window: "hann"     # Window function.
+fmin: 0            # minimum frequency for Mel basis
+fmax: null         # maximum frequency for Mel basis
+f0min: 80          # Minimum f0 for pitch extraction.
+f0max: 400         # Maximum f0 for pitch extraction.
+
+
+##########################################################
+#                  TTS MODEL SETTING                     #
+##########################################################
+model:
+    # generator related
+    generator_type: jets_generator
+    generator_params:
+        adim: 256         # attention dimension
+        aheads: 2         # number of attention heads
+        elayers: 4        # number of encoder layers
+        eunits: 1024      # number of encoder ff units
+        dlayers: 4        # number of decoder layers
+        dunits: 1024      # number of decoder ff units
+        positionwise_layer_type: conv1d   # type of position-wise layer
+        positionwise_conv_kernel_size: 3  # kernel size of position wise conv layer
+        duration_predictor_layers: 2      # number of layers of duration predictor
+        duration_predictor_chans: 256     # number of channels of duration predictor
+        duration_predictor_kernel_size: 3 # filter size of duration predictor
+        use_masking: True                 # whether to apply masking for padded part in loss calculation
+        encoder_normalize_before: True    # whether to perform layer normalization before the input
+        decoder_normalize_before: True    # whether to perform layer normalization before the input
+        encoder_type: transformer           # encoder type
+        decoder_type: transformer           # decoder type
+        conformer_rel_pos_type: latest               # relative positional encoding type
+        conformer_pos_enc_layer_type: rel_pos        # conformer positional encoding type
+        conformer_self_attn_layer_type: rel_selfattn # conformer self-attention type
+        conformer_activation_type: swish             # conformer activation type
+        use_macaron_style_in_conformer: true         # whether to use macaron style in conformer
+        use_cnn_in_conformer: true                   # whether to use CNN in conformer
+        conformer_enc_kernel_size: 7                 # kernel size in CNN module of conformer-based encoder
+        conformer_dec_kernel_size: 31                # kernel size in CNN module of conformer-based decoder
+        init_type: xavier_uniform                    # initialization type
+        init_enc_alpha: 1.0                          # initial value of alpha for encoder
+        init_dec_alpha: 1.0                          # initial value of alpha for decoder
+        transformer_enc_dropout_rate: 0.2            # dropout rate for transformer encoder layer
+        transformer_enc_positional_dropout_rate: 0.2 # dropout rate for transformer encoder positional encoding
+        transformer_enc_attn_dropout_rate: 0.2       # dropout rate for transformer encoder attention layer
+        transformer_dec_dropout_rate: 0.2            # dropout rate for transformer decoder layer
+        transformer_dec_positional_dropout_rate: 0.2 # dropout rate for transformer decoder positional encoding
+        transformer_dec_attn_dropout_rate: 0.2       # dropout rate for transformer decoder attention layer
+        pitch_predictor_layers: 5                    # number of conv layers in pitch predictor
+        pitch_predictor_chans: 256                   # number of channels of conv layers in pitch predictor
+        pitch_predictor_kernel_size: 5               # kernel size of conv leyers in pitch predictor
+        pitch_predictor_dropout: 0.5                 # dropout rate in pitch predictor
+        pitch_embed_kernel_size: 1                   # kernel size of conv embedding layer for pitch
+        pitch_embed_dropout: 0.0                     # dropout rate after conv embedding layer for pitch
+        stop_gradient_from_pitch_predictor: true     # whether to stop the gradient from pitch predictor to encoder
+        energy_predictor_layers: 2                   # number of conv layers in energy predictor
+        energy_predictor_chans: 256                  # number of channels of conv layers in energy predictor
+        energy_predictor_kernel_size: 3              # kernel size of conv leyers in energy predictor
+        energy_predictor_dropout: 0.5                # dropout rate in energy predictor
+        energy_embed_kernel_size: 1                  # kernel size of conv embedding layer for energy
+        energy_embed_dropout: 0.0                    # dropout rate after conv embedding layer for energy
+        stop_gradient_from_energy_predictor: false   # whether to stop the gradient from energy predictor to encoder
+        generator_out_channels: 1
+        generator_channels: 512
+        generator_global_channels: -1
+        generator_kernel_size: 7
+        generator_upsample_scales: [8, 8, 2, 2]
+        generator_upsample_kernel_sizes: [16, 16, 4, 4]
+        generator_resblock_kernel_sizes: [3, 7, 11]
+        generator_resblock_dilations: [[1, 3, 5], [1, 3, 5], [1, 3, 5]]
+        generator_use_additional_convs: true
+        generator_bias: true
+        generator_nonlinear_activation: "leakyrelu"
+        generator_nonlinear_activation_params:
+            negative_slope: 0.1
+        generator_use_weight_norm: true
+        segment_size: 64              # segment size for random windowed discriminator
+
+    # discriminator related
+    discriminator_type: hifigan_multi_scale_multi_period_discriminator
+    discriminator_params:
+        scales: 1
+        scale_downsample_pooling: "AvgPool1D"
+        scale_downsample_pooling_params:
+            kernel_size: 4
+            stride: 2
+            padding: 2
+        scale_discriminator_params:
+            in_channels: 1
+            out_channels: 1
+            kernel_sizes: [15, 41, 5, 3]
+            channels: 128
+            max_downsample_channels: 1024
+            max_groups: 16
+            bias: True
+            downsample_scales: [2, 2, 4, 4, 1]
+            nonlinear_activation: "leakyrelu"
+            nonlinear_activation_params:
+                negative_slope: 0.1
+            use_weight_norm: True
+            use_spectral_norm: False
+        follow_official_norm: False
+        periods: [2, 3, 5, 7, 11]
+        period_discriminator_params:
+            in_channels: 1
+            out_channels: 1
+            kernel_sizes: [5, 3]
+            channels: 32
+            downsample_scales: [3, 3, 3, 3, 1]
+            max_downsample_channels: 1024
+            bias: True
+            nonlinear_activation: "leakyrelu"
+            nonlinear_activation_params:
+                negative_slope: 0.1
+            use_weight_norm: True
+            use_spectral_norm: False
+    # others
+    sampling_rate: 22050          # needed in the inference for saving wav
+    cache_generator_outputs: True # whether to cache generator outputs in the training
+use_alignment_module: False       # whether to use alignment module
+      
+###########################################################
+#                        LOSS SETTING                     #
+###########################################################
+# loss function related
+generator_adv_loss_params:
+    average_by_discriminators: False # whether to average loss value by #discriminators
+    loss_type: mse                   # loss type, "mse" or "hinge"
+discriminator_adv_loss_params:
+    average_by_discriminators: False # whether to average loss value by #discriminators
+    loss_type: mse                   # loss type, "mse" or "hinge"
+feat_match_loss_params:
+    average_by_discriminators: False # whether to average loss value by #discriminators
+    average_by_layers: False         # whether to average loss value by #layers of each discriminator
+    include_final_outputs: True      # whether to include final outputs for loss calculation
+mel_loss_params:
+    fs: 22050          # must be the same as the training data
+    fft_size: 1024        # fft points
+    hop_size: 256    # hop size
+    win_length: null   # window length
+    window: hann       # window type
+    num_mels: 80         # number of Mel basis
+    fmin: 0            # minimum frequency for Mel basis
+    fmax: null         # maximum frequency for Mel basis
+    log_base: null     # null represent natural log
+
+###########################################################
+#               ADVERSARIAL LOSS SETTING                  #
+###########################################################
+lambda_adv: 1.0        # loss scaling coefficient for adversarial loss
+lambda_mel: 45.0       # loss scaling coefficient for Mel loss
+lambda_feat_match: 2.0 # loss scaling coefficient for feat match loss
+lambda_var: 1.0        # loss scaling coefficient for duration loss
+lambda_align: 2.0         # loss scaling coefficient for KL divergence loss
+# others
+sampling_rate: 22050          # needed in the inference for saving wav
+cache_generator_outputs: True # whether to cache generator outputs in the training
+
+
+# extra module for additional inputs
+pitch_extract: dio           # pitch extractor type
+pitch_extract_conf:
+    reduction_factor: 1
+    use_token_averaged_f0: false
+pitch_normalize: global_mvn  # normalizer for the pitch feature
+energy_extract: energy       # energy extractor type
+energy_extract_conf:
+    reduction_factor: 1
+    use_token_averaged_energy: false
+energy_normalize: global_mvn # normalizer for the energy feature
+
+
+###########################################################
+#                  DATA LOADER SETTING                    #
+###########################################################
+batch_size: 32              # Batch size.
+num_workers: 4              # Number of workers in DataLoader.
+
+##########################################################
+#            OPTIMIZER & SCHEDULER SETTING               #
+##########################################################
+# optimizer setting for generator
+generator_optimizer_params:
+    beta1: 0.8
+    beta2: 0.99
+    epsilon: 1.0e-9
+    weight_decay: 0.0
+generator_scheduler: exponential_decay
+generator_scheduler_params:
+    learning_rate: 2.0e-4
+    gamma: 0.999875                   
+
+# optimizer setting for discriminator
+discriminator_optimizer_params:
+    beta1: 0.8
+    beta2: 0.99
+    epsilon: 1.0e-9
+    weight_decay: 0.0
+discriminator_scheduler: exponential_decay
+discriminator_scheduler_params:
+    learning_rate: 2.0e-4          
+    gamma: 0.999875
+generator_first: True # whether to start updating generator first
+
+##########################################################
+#                OTHER TRAINING SETTING                  #
+##########################################################
+num_snapshots: 10            # max number of snapshots to keep while training
+train_max_steps: 350000      # Number of training steps. == total_iters / ngpus, total_iters = 1000000
+save_interval_steps: 1000    # Interval steps to save checkpoint.
+eval_interval_steps: 250     # Interval steps to evaluate the network.
+seed: 777                    # random seed number

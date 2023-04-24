@@ -45,7 +45,7 @@ class AugmentationPipeline():
     samples to make the model invariant to certain types of perturbations in the
     real world, improving model's generalization ability.
 
-    The pipeline is built according the the augmentation configuration in json
+    The pipeline is built according to the augmentation configuration in json
     string, e.g.
     
     .. code-block::

@@ -166,7 +166,7 @@ variable, sudo might not allow it to propagate to the command that it invokes."
 fi
 
 # The install variants, each in a function to simplify error reporting.
-# Each one invokes a subshell with a 'set -x' to to show system-modifying
+# Each one invokes a subshell with a 'set -x' to show system-modifying
 # commands it runs. The subshells simply limit the scope of this diagnostics
 # and avoid creating noise (if we were using 'set +x', it would be printed).
 Install_redhat () {

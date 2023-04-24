@@ -16,7 +16,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.u2_st.model import U2STTester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
-from paddlespeech.s2t.utils.utility import print_arguments
+from paddlespeech.utils.argparse import print_arguments
 
 
 def main_sp(config, args):

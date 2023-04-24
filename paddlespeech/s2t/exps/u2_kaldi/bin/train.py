@@ -19,7 +19,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
-from paddlespeech.s2t.utils.utility import print_arguments
+from paddlespeech.utils.argparse import print_arguments
 
 model_train_alias = {
     "u2": "paddlespeech.s2t.exps.u2.model:U2Trainer",

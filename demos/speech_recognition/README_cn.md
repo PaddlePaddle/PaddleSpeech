@@ -1,4 +1,5 @@
 (简体中文|[English](./README.md))
+ (简体中文|[English](./README.md))
 
 # 语音识别
 ## 介绍
@@ -16,7 +17,7 @@
 
 可以下载此 demo 的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 ### 3. 使用方法
 - 命令行 (推荐使用)
@@ -25,6 +26,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   paddlespeech asr --input ./zh.wav -v
   # 英文
   paddlespeech asr --model transformer_librispeech --lang en --input ./en.wav -v
+  #中英混合
+  paddlespeech asr --model conformer_talcs --lang zh_en --codeswitch True --input ./ch_zh_mix.wav -v 
   # 中文 + 标点恢复
   paddlespeech asr --input ./zh.wav -v | paddlespeech text --task punc -v
   ```
@@ -38,6 +41,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
   - `input`(必须输入)：用于识别的音频文件。
   - `model`：ASR 任务的模型，默认值：`conformer_wenetspeech`。
   - `lang`：模型语言，默认值：`zh`。
+  - `codeswitch`: 是否使用语言转换，默认值：`False`。
   - `sample_rate`：音频采样率，默认值：`16000`。
   - `config`：ASR 任务的参数文件，若不设置则使用预训练模型中的默认配置，默认值：`None`。
   - `ckpt_path`：模型参数文件，若不设置则下载预训练模型使用，默认值：`None`。
@@ -80,14 +84,15 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespee
 ### 4.预训练模型
 以下是 PaddleSpeech 提供的可以被命令行和 python API 使用的预训练模型列表：
 
-| 模型 | 语言 | 采样率
-| :--- | :---: | :---: |
-| conformer_wenetspeech | zh | 16k
-| conformer_online_multicn | zh | 16k
-| conformer_aishell | zh | 16k
-| conformer_online_aishell | zh | 16k
-| transformer_librispeech | en | 16k
-| deepspeech2online_wenetspeech | zh | 16k
-| deepspeech2offline_aishell| zh| 16k
-| deepspeech2online_aishell | zh | 16k
-| deepspeech2offline_librispeech | en | 16k
+| 模型 | 语言转换 | 语言 | 采样率
+| :--- | :---: | :---: | :---: |
+| conformer_wenetspeech | False | zh | 16k
+| conformer_online_multicn | False | zh | 16k
+| conformer_aishell | False | zh | 16k
+| conformer_online_aishell | False | zh | 16k
+| transformer_librispeech | False | en | 16k
+| deepspeech2online_wenetspeech | False | zh | 16k
+| deepspeech2offline_aishell | False | zh| 16k
+| deepspeech2online_aishell | False | zh | 16k
+| deepspeech2offline_librispeech | False | en | 16k
+| conformer_talcs | True | zh_en | 16k

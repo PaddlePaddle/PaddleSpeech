@@ -38,7 +38,7 @@ For now we are using feature under `develop` branch of paddle, so we need to ins
 For example: 
 ```
 source venv/bin/activate
-python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
+python -m pip install paddlepaddle==2.4.2 -i https://mirror.baidu.com/pypi/simple
 ./build.sh
 ```
 

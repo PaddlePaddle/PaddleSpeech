@@ -334,11 +334,12 @@ class ConvFlow(nn.Layer):
         unnorm_widths = h[..., :self.bins] / denom
         unnorm_heights = h[..., self.bins:2 * self.bins] / denom
         unnorm_derivatives = h[..., 2 * self.bins:]
+
         xb, logdet_abs = piecewise_rational_quadratic_transform(
-            xb,
-            unnorm_widths,
-            unnorm_heights,
-            unnorm_derivatives,
+            inputs=xb,
+            unnormalized_widths=unnorm_widths,
+            unnormalized_heights=unnorm_heights,
+            unnormalized_derivatives=unnorm_derivatives,
             inverse=inverse,
             tails="linear",
             tail_bound=self.tail_bound, )

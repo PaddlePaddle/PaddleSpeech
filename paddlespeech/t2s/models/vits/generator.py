@@ -279,6 +279,10 @@ class VITSGenerator(nn.Layer):
         from paddlespeech.t2s.models.vits.monotonic_align import maximum_path
 
         self.maximum_path = maximum_path
+        self.pad1d = nn.Pad1D(
+            padding=[1, 0],
+            mode='constant',
+            data_format='NLC', )
 
     def forward(
             self,
@@ -367,8 +371,9 @@ class VITSGenerator(nn.Layer):
             # (B, H, T_text)
             s_p_sq_r = paddle.exp(-2 * logs_p)
             # (B, 1, T_text)
+            tmp1 = -0.5 * math.log(2 * math.pi) - logs_p
             neg_x_ent_1 = paddle.sum(
-                -0.5 * math.log(2 * math.pi) - logs_p,
+                tmp1,
                 [1],
                 keepdim=True, )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
@@ -380,8 +385,9 @@ class VITSGenerator(nn.Layer):
                 z_p.transpose([0, 2, 1]),
                 (m_p * s_p_sq_r), )
             # (B, 1, T_text)
+            tmp2 = -0.5 * (m_p**2) * s_p_sq_r
             neg_x_ent_4 = paddle.sum(
-                -0.5 * (m_p**2) * s_p_sq_r,
+                tmp2,
                 [1],
                 keepdim=True, )
             # (B, T_feats, T_text)
@@ -399,7 +405,6 @@ class VITSGenerator(nn.Layer):
         w = attn.sum(2)
         dur_nll = self.duration_predictor(x, x_mask, w=w, g=g)
         dur_nll = dur_nll / paddle.sum(x_mask)
-
         # expand the length to match with the feature sequence
         # (B, T_feats, T_text) x (B, T_text, H) -> (B, H, T_feats)
         m_p = paddle.matmul(attn.squeeze(1),
@@ -507,8 +512,9 @@ class VITSGenerator(nn.Layer):
             # (B, H, T_text)
             s_p_sq_r = paddle.exp(-2 * logs_p)
             # (B, 1, T_text)
+            tmp3 = -0.5 * math.log(2 * math.pi) - logs_p
             neg_x_ent_1 = paddle.sum(
-                -0.5 * math.log(2 * math.pi) - logs_p,
+                tmp3,
                 [1],
                 keepdim=True, )
             # (B, T_feats, H) x (B, H, T_text) = (B, T_feats, T_text)
@@ -520,8 +526,9 @@ class VITSGenerator(nn.Layer):
                 z_p.transpose([0, 2, 1]),
                 (m_p * s_p_sq_r), )
             # (B, 1, T_text)
+            tmp4 = -0.5 * (m_p**2) * s_p_sq_r
             neg_x_ent_4 = paddle.sum(
-                -0.5 * (m_p**2) * s_p_sq_r,
+                tmp4,
                 [1],
                 keepdim=True, )
             # (B, T_feats, T_text)
@@ -552,8 +559,9 @@ class VITSGenerator(nn.Layer):
             y_lengths = paddle.cast(
                 paddle.clip(paddle.sum(dur, [1, 2]), min=1), dtype='int64')
             y_mask = make_non_pad_mask(y_lengths).unsqueeze(1)
-            attn_mask = paddle.unsqueeze(x_mask, 2) * paddle.unsqueeze(y_mask,
-                                                                       -1)
+            tmp_a = paddle.cast(paddle.unsqueeze(x_mask, 2), dtype='int64')
+            tmp_b = paddle.cast(paddle.unsqueeze(y_mask, -1), dtype='int64')
+            attn_mask = tmp_a * tmp_b
             attn = self._generate_path(dur, attn_mask)
 
             # expand the length to match with the feature sequence
@@ -685,5 +693,6 @@ class VITSGenerator(nn.Layer):
         '''
 
         path = paddle.cast(path, dtype='float32')
-        path = path - F.pad(path, [0, 0, 1, 0, 0, 0])[:, :-1]
+        pad_tmp = self.pad1d(path)[:, :-1]
+        path = path - pad_tmp
         return path.unsqueeze(1).transpose([0, 1, 3, 2]) * mask

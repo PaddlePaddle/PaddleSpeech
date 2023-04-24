@@ -30,6 +30,7 @@ __all__ = [
 ]
 
 # The tags for pretrained_models should be "{model_name}[_{dataset}][-{lang}][-...]".
+# Add code-switch and multilingual tag, "{model_name}[_{dataset}]-[codeswitch/multilingual][_{lang}][-...]".
 # e.g. "conformer_wenetspeech-zh-16k" and "panns_cnn6-32k".
 # Command line and python api use "{model_name}[_{dataset}]" as --model, usage:
 # "paddlespeech asr --model conformer_wenetspeech --lang zh --sr 16000 --input ./input.wav"
@@ -92,6 +93,20 @@ ssl_dynamic_pretrained_models = {
             'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.3.0.model.tar.gz',
             'md5':
             'ac8fa0a6345e6a7535f6fabb5e59e218',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/wav2vec2ASR/checkpoints/avg_1',
+            'model':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+            'params':
+            'exp/wav2vec2ASR/checkpoints/avg_1.pdparams',
+        },
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz',
+            'md5':
+            '150e51b8ea5d255ccce6b395de8d916a',
             'cfg_path':
             'model.yaml',
             'ckpt_path':
@@ -320,6 +335,18 @@ asr_dynamic_pretrained_models = {
             'https://deepspeech.bj.bcebos.com/en_lm/common_crawl_00.prune01111.trie.klm',
             'lm_md5':
             '099a601759d467cd0a8523ff939819c5'
+        },
+    },
+    "conformer_talcs-codeswitch_zh_en-16k": {
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/tal_cs/asr1/asr1_conformer_talcs_ckpt_1.4.0.model.tar.gz',
+            'md5':
+            '01962c5d0a70878fe41cacd4f61e14d1',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/conformer/checkpoints/avg_10'
         },
     },
 }
@@ -876,6 +903,24 @@ tts_dynamic_pretrained_models = {
             'phone_id_map.txt',
         },
     },
+    "fastspeech2_canton-canton": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_ckpt_1.4.0.zip',
+            'md5':
+            '504560c082deba82120927627c900374',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_140000.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+        },
+    },
     "fastspeech2_ljspeech-en": {
         '1.0': {
             'url':
@@ -981,13 +1026,45 @@ tts_dynamic_pretrained_models = {
     "fastspeech2_male-zh": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_ckpt_1.3.0.zip',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_zh_ckpt_1.4.0.zip',
             'md5':
-            'a4b1a2f667b878ec8f67375357b04282',
+            '43a9f4bc48a91f5a6f53017474e6c788',
             'config':
             'default.yaml',
             'ckpt':
             'snapshot_iter_76000.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+        },
+    },
+    "fastspeech2_male-en": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_en_ckpt_1.4.0.zip',
+            'md5':
+            'cc9f44f1f20a8173f63e2d1d41ef1a9c',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_100000.pdz',
+            'speech_stats':
+            'speech_stats.npy',
+            'phones_dict':
+            'phone_id_map.txt',
+        },
+    },
+    "fastspeech2_male-mix": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_mix_ckpt_1.4.0.zip',
+            'md5':
+            '6d48ad60ef0ab2cee89a5d8cfd93dd86',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_177000.pdz',
             'speech_stats':
             'speech_stats.npy',
             'phones_dict':
@@ -1087,9 +1164,9 @@ tts_dynamic_pretrained_models = {
     "pwgan_male-zh": {
         '1.0': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_male_ckpt_1.3.0.zip',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_male_ckpt_1.4.0.zip',
             'md5':
-            'c98cdb889c809973f8cc764437311132',
+            'a443d6253bf9be377f27ae5972a03c65',
             'config':
             'default.yaml',
             'ckpt':
@@ -1185,6 +1262,20 @@ tts_dynamic_pretrained_models = {
             'feats_stats.npy',
         },
     },
+    "hifigan_male-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_male_ckpt_1.4.0.zip',
+            'md5':
+            'a709830596e102c2b83f8adc26d41d85',
+            'config':
+            'default.yaml',
+            'ckpt':
+            'snapshot_iter_630000.pdz',
+            'speech_stats':
+            'feats_stats.npy',
+        },
+    },
     # wavernn
     "wavernn_csmsc-zh": {
         '1.0': {
@@ -1201,6 +1292,15 @@ tts_dynamic_pretrained_models = {
         },
     },
 }
+tts_dynamic_pretrained_models[
+    "fastspeech2_mix-zh"] = tts_dynamic_pretrained_models[
+        "fastspeech2_mix-en"] = tts_dynamic_pretrained_models[
+            "fastspeech2_mix-mix"]
+tts_dynamic_pretrained_models["pwgan_male-en"] = tts_dynamic_pretrained_models[
+    "pwgan_male-mix"] = tts_dynamic_pretrained_models["pwgan_male-zh"]
+tts_dynamic_pretrained_models[
+    "hifigan_male-en"] = tts_dynamic_pretrained_models[
+        "hifigan_male-mix"] = tts_dynamic_pretrained_models["hifigan_male-zh"]
 
 tts_static_pretrained_models = {
     # speedyspeech
@@ -1291,6 +1391,106 @@ tts_static_pretrained_models = {
             24000,
         },
     },
+    "fastspeech2_mix-mix": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_csmscljspeech_add-zhen_static.zip',
+            'md5':
+            'b5001f66cccafdde07707e1b6269fa58',
+            'model':
+            'fastspeech2_mix.pdmodel',
+            'params':
+            'fastspeech2_mix.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+        '2.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip',
+            'md5':
+            'c6dd138fab3ba261299c0b2efee51d5a',
+            'model':
+            'fastspeech2_mix.pdmodel',
+            'params':
+            'fastspeech2_mix.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_male-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_zh_static_1.4.0.zip',
+            'md5':
+            '9b7218829e7fa01aa33dbb2c5f6ef20f',
+            'model':
+            'fastspeech2_male-zh.pdmodel',
+            'params':
+            'fastspeech2_male-zh.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_male-en": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_en_static_1.4.0.zip',
+            'md5':
+            '33cea19b6821b371d242969ffd8b6cbf',
+            'model':
+            'fastspeech2_male-en.pdmodel',
+            'params':
+            'fastspeech2_male-en.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_male-mix": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_mix_static_1.4.0.zip',
+            'md5':
+            '66585b04c0ced72f3cb82ee85b814d80',
+            'model':
+            'fastspeech2_male-mix.pdmodel',
+            'params':
+            'fastspeech2_male-mix.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_canton-canton": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip',
+            'md5':
+            '5da80931666503b9b6aed25e894d2ade',
+            'model':
+            'fastspeech2_canton.pdmodel',
+            'params':
+            'fastspeech2_canton.pdiparams',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
     # pwgan
     "pwgan_csmsc-zh": {
         '1.0': {
@@ -1344,6 +1544,20 @@ tts_static_pretrained_models = {
             'pwgan_vctk.pdmodel',
             'params':
             'pwgan_vctk.pdiparams',
+            'sample_rate':
+            24000,
+        },
+    },
+    "pwgan_male-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_male_static_1.4.0.zip',
+            'md5':
+            '52a480ad35694b96603e0a92e9fb3f95',
+            'model':
+            'pwgan_male.pdmodel',
+            'params':
+            'pwgan_male.pdiparams',
             'sample_rate':
             24000,
         },
@@ -1420,7 +1634,32 @@ tts_static_pretrained_models = {
             24000,
         },
     },
+    "hifigan_male-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_male_static_1.4.0.zip',
+            'md5':
+            '9011fa2738b501e909d1a61054bed29b',
+            'model':
+            'hifigan_male.pdmodel',
+            'params':
+            'hifigan_male.pdiparams',
+            'sample_rate':
+            24000,
+        },
+    },
 }
+
+tts_static_pretrained_models[
+    "fastspeech2_mix-zh"] = tts_static_pretrained_models[
+        "fastspeech2_mix-en"] = tts_static_pretrained_models[
+            "fastspeech2_mix-mix"]
+tts_static_pretrained_models["pwgan_male-en"] = tts_static_pretrained_models[
+    "pwgan_male-mix"] = tts_static_pretrained_models["pwgan_male-zh"]
+tts_static_pretrained_models["hifigan_male-en"] = tts_static_pretrained_models[
+    "hifigan_male-mix"] = tts_static_pretrained_models["hifigan_male-zh"]
+tts_static_pretrained_models[
+    "pwgan_aishell3-canton"] = tts_static_pretrained_models["pwgan_aishell3-zh"]
 
 tts_onnx_pretrained_models = {
     # speedyspeech
@@ -1520,6 +1759,94 @@ tts_onnx_pretrained_models = {
             24000,
         },
     },
+    "fastspeech2_mix_onnx-mix": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_csmscljspeech_add-zhen_onnx.zip',
+            'md5':
+            '73052520202957920cf54700980933d0',
+            'ckpt':
+            'fastspeech2_mix.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+        '2.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_onnx_0.2.0.zip',
+            'md5':
+            '43b8ca5f85709c503777f808eb02a39e',
+            'ckpt':
+            'fastspeech2_mix.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_male_onnx-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_zh_onnx_1.4.0.zip',
+            'md5':
+            '46c66f5ab86f4fcb493d899d9901c863',
+            'ckpt':
+            'fastspeech2_male-zh.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_male_onnx-en": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_en_onnx_1.4.0.zip',
+            'md5':
+            '401fb5cc31fdb25e22e901c9acba79c8',
+            'ckpt':
+            'fastspeech2_male-en.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_male_onnx-mix": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_male_mix_onnx_1.4.0.zip',
+            'md5':
+            '07e51c5991c529b78603034547e9d0fa',
+            'ckpt':
+            'fastspeech2_male-mix.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
+    "fastspeech2_canton_onnx-canton": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip',
+            'md5':
+            '1c8d51ceb2f9bdd168e23be575c2ccf8',
+            'ckpt':
+            'fastspeech2_canton.onnx',
+            'phones_dict':
+            'phone_id_map.txt',
+            'speaker_dict':
+            'speaker_id_map.txt',
+            'sample_rate':
+            24000,
+        },
+    },
     # pwgan
     "pwgan_csmsc_onnx-zh": {
         '1.0': {
@@ -1565,6 +1892,18 @@ tts_onnx_pretrained_models = {
             '4e754d42cf85f6428f0af887c923d86c',
             'ckpt':
             'pwgan_vctk.onnx',
+            'sample_rate':
+            24000,
+        },
+    },
+    "pwgan_male_onnx-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_male_onnx_1.4.0.zip',
+            'md5':
+            '13163fd1326f555650dc7141d31767c3',
+            'ckpt':
+            'pwgan_male.onnx',
             'sample_rate':
             24000,
         },
@@ -1631,7 +1970,32 @@ tts_onnx_pretrained_models = {
             24000,
         },
     },
+    "hifigan_male_onnx-zh": {
+        '1.0': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_male_onnx_1.4.0.zip',
+            'md5':
+            'ec6b35417b1fe811d3b1641d4b527769',
+            'ckpt':
+            'hifigan_male.onnx',
+            'sample_rate':
+            24000,
+        },
+    },
 }
+
+tts_onnx_pretrained_models[
+    "fastspeech2_mix_onnx-zh"] = tts_onnx_pretrained_models[
+        "fastspeech2_mix_onnx-en"] = tts_onnx_pretrained_models[
+            "fastspeech2_mix_onnx-mix"]
+tts_onnx_pretrained_models["pwgan_male_onnx-en"] = tts_onnx_pretrained_models[
+    "pwgan_male_onnx-mix"] = tts_onnx_pretrained_models["pwgan_male_onnx-zh"]
+tts_onnx_pretrained_models["hifigan_male_onnx-en"] = tts_onnx_pretrained_models[
+    "hifigan_male_onnx-mix"] = tts_onnx_pretrained_models[
+        "hifigan_male_onnx-zh"]
+tts_onnx_pretrained_models[
+    "pwgan_aishell3_onnx-canton"] = tts_onnx_pretrained_models[
+        "pwgan_aishell3_onnx-zh"]
 
 # ---------------------------------
 # ------------ Vector -------------
@@ -1692,7 +2056,7 @@ g2pw_onnx_models = {
 }
 
 # ---------------------------------
-# ------------- Rhy_frontend ---------------
+# ---------- Rhy_frontend ---------
 # ---------------------------------
 rhy_frontend_models = {
     'rhy_e2e': {
@@ -1702,4 +2066,17 @@ rhy_frontend_models = {
             'md5': '6624a77393de5925d5a84400b363d8ef',
         },
     },
+}
+
+# ---------------------------------
+# ---------- StarGANv2VC ----------
+# ---------------------------------
+
+StarGANv2VC_source = {
+    '1.0': {
+        'url':
+        'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/starganv2vc/StarGANv2VC_source.zip',
+        'md5':
+        '195e169419163f5648030ba84c71f866',
+    }
 }

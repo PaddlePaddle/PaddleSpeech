@@ -48,13 +48,16 @@ class TextFeaturizer():
         self.unit_type = unit_type
         self.unk = UNK
         self.maskctc = maskctc
+        self.vocab_path_or_list = vocab
 
-        if vocab:
+        if self.vocab_path_or_list:
             self.vocab_dict, self._id2token, self.vocab_list, self.unk_id, self.eos_id, self.blank_id = self._load_vocabulary_from_file(
                 vocab, maskctc)
             self.vocab_size = len(self.vocab_list)
         else:
-            logger.warning("TextFeaturizer: not have vocab file or vocab list.")
+            logger.warning(
+                "TextFeaturizer: not have vocab file or vocab list. Only Tokenizer can use, can not convert to token idx"
+            )
 
         if unit_type == 'spm':
             spm_model = spm_model_prefix + '.model'
@@ -62,6 +65,7 @@ class TextFeaturizer():
             self.sp.Load(spm_model)
 
     def tokenize(self, text, replace_space=True):
+        """tokenizer split text into text tokens"""
         if self.unit_type == 'char':
             tokens = self.char_tokenize(text, replace_space)
         elif self.unit_type == 'word':
@@ -71,6 +75,7 @@ class TextFeaturizer():
         return tokens
 
     def detokenize(self, tokens):
+        """tokenizer convert text tokens back to text"""
         if self.unit_type == 'char':
             text = self.char_detokenize(tokens)
         elif self.unit_type == 'word':
@@ -88,6 +93,7 @@ class TextFeaturizer():
         Returns:
             List[int]: List of token indices.
         """
+        assert self.vocab_path_or_list, "toidx need vocab path or vocab list"
         tokens = self.tokenize(text)
         ids = []
         for token in tokens:
@@ -107,6 +113,7 @@ class TextFeaturizer():
         Returns:
             str: Text.
         """
+        assert self.vocab_path_or_list, "toidx need vocab path or vocab list"
         tokens = []
         for idx in idxs:
             if idx == self.eos_id:
@@ -127,10 +134,10 @@ class TextFeaturizer():
         """
         text = text.strip()
         if replace_space:
-            text_list = [SPACE if item == " " else item for item in list(text)]
+            tokens = [SPACE if item == " " else item for item in list(text)]
         else:
-            text_list = list(text)
-        return text_list
+            tokens = list(text)
+        return tokens
 
     def char_detokenize(self, tokens):
         """Character detokenizer.

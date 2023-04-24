@@ -42,6 +42,10 @@ def parse_args():
             'fastspeech2_vctk',
             'tacotron2_csmsc',
             'fastspeech2_mix',
+            'fastspeech2_male-zh',
+            'fastspeech2_male-en',
+            'fastspeech2_male-mix',
+            'fastspeech2_canton',
         ],
         help='Choose acoustic model type of tts task.')
     parser.add_argument(
@@ -71,6 +75,8 @@ def parse_args():
             'hifigan_ljspeech',
             'hifigan_vctk',
             'wavernn_csmsc',
+            'pwgan_male',
+            'hifigan_male',
         ],
         help='Choose vocoder type of tts task.')
     # other
@@ -88,20 +94,27 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, help="output dir")
     # inference
     parser.add_argument(
-        "--int8",
+        "--use_trt",
         type=str2bool,
         default=False,
-        help="Whether to use int8 inference.", )
+        help="whether to use TensorRT or not in GPU", )
     parser.add_argument(
-        "--fp16",
+        "--use_mkldnn",
         type=str2bool,
         default=False,
-        help="Whether to use float16 inference.", )
+        help="whether to use MKLDNN or not in CPU.", )
+    parser.add_argument(
+        "--precision",
+        type=str,
+        default='fp32',
+        choices=['fp32', 'fp16', 'bf16', 'int8'],
+        help="mode of running")
     parser.add_argument(
         "--device",
         default="gpu",
         choices=["gpu", "cpu"],
         help="Device selected for inference.", )
+    parser.add_argument('--cpu_threads', type=int, default=1)
 
     args, _ = parser.parse_known_args()
     return args
@@ -124,7 +137,11 @@ def main():
         model_dir=args.inference_dir,
         model_file=args.am + ".pdmodel",
         params_file=args.am + ".pdiparams",
-        device=args.device)
+        device=args.device,
+        use_trt=args.use_trt,
+        use_mkldnn=args.use_mkldnn,
+        cpu_threads=args.cpu_threads,
+        precision=args.precision)
     # model: {model_name}_{dataset}
     am_dataset = args.am[args.am.rindex('_') + 1:]
 
@@ -133,7 +150,11 @@ def main():
         model_dir=args.inference_dir,
         model_file=args.voc + ".pdmodel",
         params_file=args.voc + ".pdiparams",
-        device=args.device)
+        device=args.device,
+        use_trt=args.use_trt,
+        use_mkldnn=args.use_mkldnn,
+        cpu_threads=args.cpu_threads,
+        precision=args.precision)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -20,6 +20,44 @@ import paddle
 from paddle import nn
 from typeguard import check_argument_types
 
+from paddlespeech.utils.initialize import _calculate_fan_in_and_fan_out
+from paddlespeech.utils.initialize import kaiming_uniform_
+from paddlespeech.utils.initialize import normal_
+from paddlespeech.utils.initialize import ones_
+from paddlespeech.utils.initialize import uniform_
+from paddlespeech.utils.initialize import zeros_
+
+
+# default init method of torch
+# copy from https://github.com/PaddlePaddle/PaddleSpeech/blob/9cf8c1985a98bb380c183116123672976bdfe5c9/paddlespeech/t2s/models/vits/vits.py#L506
+def _reset_parameters(module):
+    if isinstance(module, (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D,
+                           nn.Conv2DTranspose)):
+        kaiming_uniform_(module.weight, a=math.sqrt(5))
+        if module.bias is not None:
+            fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+            if fan_in != 0:
+                bound = 1 / math.sqrt(fan_in)
+                uniform_(module.bias, -bound, bound)
+
+    if isinstance(module,
+                  (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
+        ones_(module.weight)
+        zeros_(module.bias)
+
+    if isinstance(module, nn.Linear):
+        kaiming_uniform_(module.weight, a=math.sqrt(5))
+        if module.bias is not None:
+            fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            uniform_(module.bias, -bound, bound)
+
+    if isinstance(module, nn.Embedding):
+        normal_(module.weight)
+        if module._padding_idx is not None:
+            with paddle.no_grad():
+                module.weight[module._padding_idx] = 0
+
 
 def pad_list(xs, pad_value):
     """Perform padding for the list of tensors.
@@ -145,18 +183,18 @@ def make_pad_mask(lengths, xs=None, length_dim=-1):
 
     bs = paddle.shape(lengths)[0]
     if xs is None:
-        maxlen = lengths.max()
+        maxlen = paddle.cast(lengths.max(), dtype=bs.dtype)
     else:
         maxlen = paddle.shape(xs)[length_dim]
 
     seq_range = paddle.arange(0, maxlen, dtype=paddle.int64)
+    # VITS 最后一个 expand 的位置
     seq_range_expand = seq_range.unsqueeze(0).expand([bs, maxlen])
     seq_length_expand = lengths.unsqueeze(-1)
     mask = seq_range_expand >= seq_length_expand.cast(seq_range_expand.dtype)
 
     if xs is not None:
         assert paddle.shape(xs)[0] == bs, (paddle.shape(xs)[0], bs)
-
         if length_dim < 0:
             length_dim = len(paddle.shape(xs)) + length_dim
         # ind = (:, None, ..., None, :, , None, ..., None)

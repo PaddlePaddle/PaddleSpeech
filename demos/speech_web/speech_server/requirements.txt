@@ -1,8 +1,6 @@
 aiofiles
 faiss-cpu
-praatio==5.0.0
+praatio>=5.0.0
 pydantic
 python-multipart
-scikit_learn
 starlette
-uvicorn

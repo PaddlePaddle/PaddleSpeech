@@ -24,6 +24,7 @@ from paddle import nn
 
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.transformer.encoder import ConformerEncoder as Encoder
+from paddlespeech.utils.initialize import normal_
 
 
 class TextEncoder(nn.Layer):
@@ -105,10 +106,6 @@ class TextEncoder(nn.Layer):
         # define modules
         self.emb = nn.Embedding(vocabs, attention_dim)
 
-        dist = paddle.distribution.Normal(loc=0.0, scale=attention_dim**-0.5)
-        w = dist.sample(self.emb.weight.shape)
-        self.emb.weight.set_value(w)
-
         self.encoder = Encoder(
             idim=-1,
             input_layer=None,
@@ -129,6 +126,8 @@ class TextEncoder(nn.Layer):
             use_cnn_module=use_conformer_conv,
             cnn_module_kernel=conformer_kernel_size, )
         self.proj = nn.Conv1D(attention_dim, attention_dim * 2, 1)
+
+        self.reset_parameters()
 
     def forward(
             self,
@@ -166,3 +165,9 @@ class TextEncoder(nn.Layer):
         m, logs = paddle.split(stats, 2, axis=1)
 
         return x, m, logs, x_mask
+
+    def reset_parameters(self):
+        normal_(self.emb.weight, mean=0.0, std=self.attention_dim**-0.5)
+        if self.emb._padding_idx is not None:
+            with paddle.no_grad():
+                self.emb.weight[self.emb._padding_idx] = 0

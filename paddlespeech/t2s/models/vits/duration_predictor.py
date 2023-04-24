@@ -155,12 +155,10 @@ class StochasticDurationPredictor(nn.Layer):
             z_u, z1 = paddle.split(z_q, [1, 1], 1)
             u = F.sigmoid(z_u) * x_mask
             z0 = (w - u) * x_mask
-            logdet_tot_q += paddle.sum(
-                (F.log_sigmoid(z_u) + F.log_sigmoid(-z_u)) * x_mask, [1, 2])
-            logq = (paddle.sum(-0.5 *
-                               (math.log(2 * math.pi) +
-                                (e_q**2)) * x_mask, [1, 2]) - logdet_tot_q)
-
+            tmp1 = (F.log_sigmoid(z_u) + F.log_sigmoid(-z_u)) * x_mask
+            logdet_tot_q += paddle.sum(tmp1, [1, 2])
+            tmp2 = -0.5 * (math.log(2 * math.pi) + (e_q**2)) * x_mask
+            logq = (paddle.sum(tmp2, [1, 2]) - logdet_tot_q)
             logdet_tot = 0
             z0, logdet = self.log_flow(z0, x_mask)
             logdet_tot += logdet
@@ -168,8 +166,8 @@ class StochasticDurationPredictor(nn.Layer):
             for flow in self.flows:
                 z, logdet = flow(z, x_mask, g=x, inverse=inverse)
                 logdet_tot = logdet_tot + logdet
-            nll = (paddle.sum(0.5 * (math.log(2 * math.pi) +
-                                     (z**2)) * x_mask, [1, 2]) - logdet_tot)
+            tmp3 = 0.5 * (math.log(2 * math.pi) + (z**2)) * x_mask
+            nll = (paddle.sum(tmp3, [1, 2]) - logdet_tot)
             # (B,)
             return nll + logq
         else:

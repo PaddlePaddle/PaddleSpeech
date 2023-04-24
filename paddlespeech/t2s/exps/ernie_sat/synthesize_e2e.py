@@ -437,7 +437,7 @@ if __name__ == '__main__':
 
     vocab_phones = {}
 
-    with open(args.phones_dict, 'rt') as f:
+    with open(args.phones_dict, 'rt', encoding='utf-8') as f:
         phn_id = [line.strip().split() for line in f.readlines()]
     for phn, id in phn_id:
         vocab_phones[phn] = int(id)

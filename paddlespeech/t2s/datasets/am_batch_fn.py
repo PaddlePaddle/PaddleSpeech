@@ -114,7 +114,7 @@ def erniesat_batch_fn(examples,
         ]
         span_bdy = paddle.to_tensor(span_bdy)
 
-    # dual_mask 的是混合中英时候同时 mask 语音和文本 
+    # dual_mask 的是混合中英时候同时 mask 语音和文本
     # ernie sat 在实现跨语言的时候都 mask 了
     if text_masking:
         masked_pos, text_masked_pos = phones_text_masking(
@@ -153,7 +153,7 @@ def erniesat_batch_fn(examples,
     batch = {
         "text": text,
         "speech": speech,
-        # need to generate 
+        # need to generate
         "masked_pos": masked_pos,
         "speech_mask": speech_mask,
         "text_mask": text_mask,
@@ -414,6 +414,135 @@ def fastspeech2_multi_spk_batch_fn(examples):
     return batch
 
 
+def diffsinger_single_spk_batch_fn(examples):
+    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", \
+    # "speech", "speech_lengths", "durations", "pitch", "energy"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    note = [np.array(item["note"], dtype=np.int64) for item in examples]
+    note_dur = [
+        np.array(item["note_dur"], dtype=np.float32) for item in examples
+    ]
+    is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
+    speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
+    pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
+    energy = [np.array(item["energy"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    speech_lengths = [
+        np.array(item["speech_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    note = batch_sequences(note)
+    note_dur = batch_sequences(note_dur)
+    is_slur = batch_sequences(is_slur)
+    pitch = batch_sequences(pitch)
+    speech = batch_sequences(speech)
+    durations = batch_sequences(durations)
+    energy = batch_sequences(energy)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    note = paddle.to_tensor(note)
+    note_dur = paddle.to_tensor(note_dur)
+    is_slur = paddle.to_tensor(is_slur)
+    pitch = paddle.to_tensor(pitch)
+    speech = paddle.to_tensor(speech)
+    durations = paddle.to_tensor(durations)
+    energy = paddle.to_tensor(energy)
+    text_lengths = paddle.to_tensor(text_lengths)
+    speech_lengths = paddle.to_tensor(speech_lengths)
+
+    batch = {
+        "text": text,
+        "note": note,
+        "note_dur": note_dur,
+        "is_slur": is_slur,
+        "text_lengths": text_lengths,
+        "durations": durations,
+        "speech": speech,
+        "speech_lengths": speech_lengths,
+        "pitch": pitch,
+        "energy": energy
+    }
+    return batch
+
+
+def diffsinger_multi_spk_batch_fn(examples):
+    # fields = ["text", "note", "note_dur", "is_slur", "text_lengths", "speech", \
+    # "speech_lengths", "durations", "pitch", "energy", "spk_id"/"spk_emb"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    note = [np.array(item["note"], dtype=np.int64) for item in examples]
+    note_dur = [
+        np.array(item["note_dur"], dtype=np.float32) for item in examples
+    ]
+    is_slur = [np.array(item["is_slur"], dtype=np.int64) for item in examples]
+    speech = [np.array(item["speech"], dtype=np.float32) for item in examples]
+    pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
+    energy = [np.array(item["energy"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    speech_lengths = [
+        np.array(item["speech_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    note = batch_sequences(note)
+    note_dur = batch_sequences(note_dur)
+    is_slur = batch_sequences(is_slur)
+    pitch = batch_sequences(pitch)
+    speech = batch_sequences(speech)
+    durations = batch_sequences(durations)
+    energy = batch_sequences(energy)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    note = paddle.to_tensor(note)
+    note_dur = paddle.to_tensor(note_dur)
+    is_slur = paddle.to_tensor(is_slur)
+    pitch = paddle.to_tensor(pitch)
+    speech = paddle.to_tensor(speech)
+    durations = paddle.to_tensor(durations)
+    energy = paddle.to_tensor(energy)
+    text_lengths = paddle.to_tensor(text_lengths)
+    speech_lengths = paddle.to_tensor(speech_lengths)
+
+    batch = {
+        "text": text,
+        "note": note,
+        "note_dur": note_dur,
+        "is_slur": is_slur,
+        "text_lengths": text_lengths,
+        "durations": durations,
+        "speech": speech,
+        "speech_lengths": speech_lengths,
+        "pitch": pitch,
+        "energy": energy
+    }
+    # spk_emb has a higher priority than spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
+        ]
+        spk_emb = batch_sequences(spk_emb)
+        spk_emb = paddle.to_tensor(spk_emb)
+        batch["spk_emb"] = spk_emb
+    elif "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = paddle.to_tensor(spk_id)
+        batch["spk_id"] = spk_id
+    return batch
+
+
 def transformer_single_spk_batch_fn(examples):
     # fields = ["text", "text_lengths", "speech", "speech_lengths"]
     text = [np.array(item["text"], dtype=np.int64) for item in examples]
@@ -538,6 +667,211 @@ def vits_multi_spk_batch_fn(examples):
         spk_id = paddle.to_tensor(spk_id)
         batch["spk_id"] = spk_id
     return batch
+
+
+def jets_single_spk_batch_fn(examples):
+    """
+    Returns:
+        Dict[str, Any]:
+            - text (Tensor): Text index tensor (B, T_text).
+            - text_lengths (Tensor): Text length tensor (B,).
+            - feats (Tensor): Feature tensor (B, T_feats, aux_channels).
+            - feats_lengths (Tensor): Feature length tensor (B,).
+            - durations (Tensor): Feature tensor (B, T_text,).
+            - durations_lengths (Tensor): Durations length tensor (B,).
+            - pitch (Tensor): Feature tensor (B, pitch_length,).
+            - energy (Tensor): Feature tensor (B, energy_length,).
+            - speech (Tensor): Speech waveform tensor (B, T_wav).
+
+    """
+    # fields = ["text", "text_lengths", "feats", "feats_lengths", "durations", "pitch", "energy", "speech"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    feats = [np.array(item["feats"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+    pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
+    energy = [np.array(item["energy"], dtype=np.float32) for item in examples]
+    speech = [np.array(item["wave"], dtype=np.float32) for item in examples]
+
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    feats_lengths = [
+        np.array(item["feats_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    feats = batch_sequences(feats)
+    durations = batch_sequences(durations)
+    pitch = batch_sequences(pitch)
+    energy = batch_sequences(energy)
+    speech = batch_sequences(speech)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    feats = paddle.to_tensor(feats)
+    durations = paddle.to_tensor(durations)
+    pitch = paddle.to_tensor(pitch)
+    energy = paddle.to_tensor(energy)
+    text_lengths = paddle.to_tensor(text_lengths)
+    feats_lengths = paddle.to_tensor(feats_lengths)
+
+    batch = {
+        "text": text,
+        "text_lengths": text_lengths,
+        "feats": feats,
+        "feats_lengths": feats_lengths,
+        "durations": durations,
+        "durations_lengths": text_lengths,
+        "pitch": pitch,
+        "energy": energy,
+        "speech": speech,
+    }
+    return batch
+
+
+def jets_multi_spk_batch_fn(examples):
+    """
+    Returns:
+        Dict[str, Any]:
+            - text (Tensor): Text index tensor (B, T_text).
+            - text_lengths (Tensor): Text length tensor (B,).
+            - feats (Tensor): Feature tensor (B, T_feats, aux_channels).
+            - feats_lengths (Tensor): Feature length tensor (B,).
+            - durations (Tensor): Feature tensor (B, T_text,).
+            - durations_lengths (Tensor): Durations length tensor (B,).
+            - pitch (Tensor): Feature tensor (B, pitch_length,).
+            - energy (Tensor): Feature tensor (B, energy_length,).
+            - speech (Tensor): Speech waveform tensor (B, T_wav).
+            - spk_id (Optional[Tensor]): Speaker index tensor (B,) or (B, 1).
+            - spk_emb (Optional[Tensor]): Speaker embedding tensor (B, spk_embed_dim).
+    """
+    # fields = ["text", "text_lengths", "feats", "feats_lengths", "durations", "pitch", "energy", "speech", "spk_id"/"spk_emb"]
+    text = [np.array(item["text"], dtype=np.int64) for item in examples]
+    feats = [np.array(item["feats"], dtype=np.float32) for item in examples]
+    durations = [
+        np.array(item["durations"], dtype=np.int64) for item in examples
+    ]
+    pitch = [np.array(item["pitch"], dtype=np.float32) for item in examples]
+    energy = [np.array(item["energy"], dtype=np.float32) for item in examples]
+    speech = [np.array(item["wave"], dtype=np.float32) for item in examples]
+    text_lengths = [
+        np.array(item["text_lengths"], dtype=np.int64) for item in examples
+    ]
+    feats_lengths = [
+        np.array(item["feats_lengths"], dtype=np.int64) for item in examples
+    ]
+
+    text = batch_sequences(text)
+    feats = batch_sequences(feats)
+    durations = batch_sequences(durations)
+    pitch = batch_sequences(pitch)
+    energy = batch_sequences(energy)
+    speech = batch_sequences(speech)
+
+    # convert each batch to paddle.Tensor
+    text = paddle.to_tensor(text)
+    feats = paddle.to_tensor(feats)
+    durations = paddle.to_tensor(durations)
+    pitch = paddle.to_tensor(pitch)
+    energy = paddle.to_tensor(energy)
+    text_lengths = paddle.to_tensor(text_lengths)
+    feats_lengths = paddle.to_tensor(feats_lengths)
+
+    batch = {
+        "text": text,
+        "text_lengths": text_lengths,
+        "feats": feats,
+        "feats_lengths": feats_lengths,
+        "durations": durations,
+        "durations_lengths": text_lengths,
+        "pitch": pitch,
+        "energy": energy,
+        "speech": speech,
+    }
+    # spk_emb has a higher priority than spk_id
+    if "spk_emb" in examples[0]:
+        spk_emb = [
+            np.array(item["spk_emb"], dtype=np.float32) for item in examples
+        ]
+        spk_emb = batch_sequences(spk_emb)
+        spk_emb = paddle.to_tensor(spk_emb)
+        batch["spk_emb"] = spk_emb
+    elif "spk_id" in examples[0]:
+        spk_id = [np.array(item["spk_id"], dtype=np.int64) for item in examples]
+        spk_id = paddle.to_tensor(spk_id)
+        batch["spk_id"] = spk_id
+    return batch
+
+
+# 因为要传参数，所以需要额外构建
+def build_starganv2_vc_collate_fn(latent_dim: int=16, max_mel_length: int=192):
+
+    return StarGANv2VCCollateFn(
+        latent_dim=latent_dim, max_mel_length=max_mel_length)
+
+
+class StarGANv2VCCollateFn:
+    """Functor class of common_collate_fn()"""
+
+    def __init__(self, latent_dim: int=16, max_mel_length: int=192):
+        self.latent_dim = latent_dim
+        self.max_mel_length = max_mel_length
+
+    def random_clip(self, mel: np.array):
+        # [T, 80]
+        mel_length = mel.shape[0]
+        if mel_length > self.max_mel_length:
+            random_start = np.random.randint(0,
+                                             mel_length - self.max_mel_length)
+
+            mel = mel[random_start:random_start + self.max_mel_length, :]
+        return mel
+
+    def __call__(self, exmaples):
+        return self.starganv2_vc_batch_fn(exmaples)
+
+    def starganv2_vc_batch_fn(self, examples):
+        batch_size = len(examples)
+
+        label = [np.array(item["label"], dtype=np.int64) for item in examples]
+        ref_label = [
+            np.array(item["ref_label"], dtype=np.int64) for item in examples
+        ]
+
+        # 需要对 mel 进行裁剪
+        mel = [self.random_clip(item["mel"]) for item in examples]
+        ref_mel = [self.random_clip(item["ref_mel"]) for item in examples]
+        ref_mel_2 = [self.random_clip(item["ref_mel_2"]) for item in examples]
+        mel = batch_sequences(mel)
+        ref_mel = batch_sequences(ref_mel)
+        ref_mel_2 = batch_sequences(ref_mel_2)
+
+        # convert each batch to paddle.Tensor
+        # (B,)
+        label = paddle.to_tensor(label)
+        ref_label = paddle.to_tensor(ref_label)
+        # [B, T, 80] -> [B, 1, 80, T]
+        mel = paddle.to_tensor(mel).transpose([0, 2, 1]).unsqueeze(1)
+        ref_mel = paddle.to_tensor(ref_mel).transpose([0, 2, 1]).unsqueeze(1)
+        ref_mel_2 = paddle.to_tensor(ref_mel_2).transpose(
+            [0, 2, 1]).unsqueeze(1)
+
+        z_trg = paddle.randn([batch_size, self.latent_dim])
+        z_trg2 = paddle.randn([batch_size, self.latent_dim])
+
+        batch = {
+            "x_real": mel,
+            "y_org": label,
+            "x_ref": ref_mel,
+            "x_ref2": ref_mel_2,
+            "y_trg": ref_label,
+            "z_trg": z_trg,
+            "z_trg2": z_trg2
+        }
+
+        return batch
 
 
 # for PaddleSlim

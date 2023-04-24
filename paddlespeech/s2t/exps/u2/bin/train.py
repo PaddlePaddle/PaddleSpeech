@@ -21,8 +21,6 @@ from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.training.cli import maybe_dump_config
 from paddlespeech.utils.argparse import print_arguments
 
-# from paddlespeech.s2t.exps.u2.trainer import U2Trainer as Trainer
-
 
 def main_sp(config, args):
     exp = Trainer(config, args)

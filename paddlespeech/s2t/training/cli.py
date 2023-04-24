@@ -75,7 +75,9 @@ def default_argument_parser(parser=None):
         "--debug",
         type=distutils.util.strtobool,
         default=False,
-        help="for debug.")
+        help="logging with debug mode.")
+    parser.add_argument(
+        "--dump_path", type=str, default=None, help="path to dump config file.")
 
     # train group
     train_group = parser.add_argument_group(

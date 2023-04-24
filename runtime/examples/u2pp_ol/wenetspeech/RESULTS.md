@@ -32,9 +32,6 @@ I1027 10:52:38.662876 51665 recognizer_main.cc:123] RTF is: 0.265234
 
 `local/recognizer_quant.sh`
 
-> RTF relative improve 12.8%, which count feature and decoder time.
-> Test under Paddle commit c331e2ce2031d68a553bc9469a07c30d718438f3  
-
 #### CER
 
 ```

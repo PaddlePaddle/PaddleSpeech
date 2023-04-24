@@ -87,9 +87,9 @@ void CTCPrefixBeamSearch::AdvanceDecode(
 
         VLOG(1) << "num_frame_decoded_: " << num_frame_decoded_;
     }
-    VLOG(1) << "AdvanceDecode feat + forward  cost: " << feat_nnet_cost
+    VLOG(2) << "AdvanceDecode feat + forward  cost: " << feat_nnet_cost
             << " sec.";
-    VLOG(1) << "AdvanceDecode search  cost: " << search_cost << " sec.";
+    VLOG(2) << "AdvanceDecode search  cost: " << search_cost << " sec.";
 }
 
 static bool PrefixScoreCompare(

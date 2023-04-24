@@ -16,7 +16,7 @@ text=$data/test/text
 ./local/split_data.sh $data $data/$aishell_wav_scp $aishell_wav_scp $nj
 
 utils/run.pl JOB=1:$nj $data/split${nj}/JOB/recognizer.quant.log \
-u2_recognizer_main \
+recognizer_main \
     --use_fbank=true \
     --num_bins=80 \
     --cmvn_file=$model_dir/mean_std.json \

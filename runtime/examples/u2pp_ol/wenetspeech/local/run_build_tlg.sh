@@ -7,13 +7,12 @@ set -eo pipefail
 # different acustic model has different vocab
 ckpt_dir=data/model/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model
 unit=$ckpt_dir/vocab.txt       # vocab file, line: char/spm_pice
-model_dir=$ckpt_dir/exp/deepspeech2_online/checkpoints/
 
 stage=2
 stop_stage=100
 corpus=aishell
 lexicon=data/lexicon.txt  # line: word ph0 ... phn, aishell/resource_aishell/lexicon.txt
-text=data/text            # line: utt text, aishell/data_aishell/transcript/aishell_transcript_v0.8.txt
+text=data/text            # line: utt text, aishell/data_aishell/transcript/aishell_transcript_v0.8.txt filter by data/train/text
 
 . utils/parse_options.sh
 

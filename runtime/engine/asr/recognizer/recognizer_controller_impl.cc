@@ -21,6 +21,7 @@ namespace ppspeech {
 RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& resource)
 : opts_(resource) {
     BaseFloat am_scale = resource.acoustic_scale;
+    BaseFloat blank_threshold = resource.blank_threshold;
     const FeaturePipelineOptions& feature_opts = resource.feature_pipeline_opts;
     std::shared_ptr<FeaturePipeline> feature_pipeline(
         new FeaturePipeline(feature_opts));
@@ -34,7 +35,7 @@ RecognizerControllerImpl::RecognizerControllerImpl(const RecognizerResource& res
         nnet = resource.nnet->Clone();
     }
 #endif
-    nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline));
+    nnet_producer_.reset(new NnetProducer(nnet, feature_pipeline, blank_threshold));
     nnet_thread_ = std::thread(RunNnetEvaluation, this);
 
     decodable_.reset(new Decodable(nnet_producer_, am_scale));

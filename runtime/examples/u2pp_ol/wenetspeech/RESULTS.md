@@ -4,7 +4,7 @@
 
 ## U2++ Attention Rescore
 
-> Intel(R) Xeon(R) Gold 6271C CPU @ 2.60GHz, support `avx512_vnni`
+> Intel(R) Xeon(R) Gold 6148 CPU @ 2.40GHz, support `avx512_vnni`
 > RTF with feature and decoder which is more end to end.
 
 ### FP32
@@ -23,17 +23,14 @@ Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
 #### RTF 
 
 ```
-I1027 10:52:38.662868 51665 u2_recognizer_main.cc:122] total wav duration is: 36108.9 sec
-I1027 10:52:38.662858 51665 u2_recognizer_main.cc:121] total cost:11169.1 sec
-I1027 10:52:38.662876 51665 u2_recognizer_main.cc:123] RTF is: 0.309318
+I1027 10:52:38.662868 51665 recognizer_main.cc:122] total wav duration is: 36108.9 sec
+I1027 10:52:38.662858 51665 recognizer_main.cc:121] total cost:9577.31 sec
+I1027 10:52:38.662876 51665 recognizer_main.cc:123] RTF is: 0.265234
 ```
 
 ### INT8
 
 `local/recognizer_quant.sh`
-
-> RTF relative improve 12.8%, which count feature and decoder time.
-> Test under Paddle commit c331e2ce2031d68a553bc9469a07c30d718438f3  
 
 #### CER
 
@@ -52,16 +49,22 @@ I1110 09:59:52.551717 37249 u2_recognizer_main.cc:123] total decode cost:9737.63
 I1110 09:59:52.551723 37249 u2_recognizer_main.cc:124] RTF is: 0.269674
 ```
 
-### CTC Prefix Beam Search
+### TLG decoder without attention rescore
 
-`local/decode.sh`
+`local/recognizer_wfst.sh`
 
 #### CER
 
 ```
-Overall -> 6.74 % N=104765 C=98106 S=6516 D=143 I=401
-Mandarin -> 6.74 % N=104762 C=98106 S=6513 D=143 I=401
-English -> 0.00 % N=0 C=0 S=0 D=0 I=0
+Overall -> 4.73 % N=104765 C=100001 S=4283 D=481 I=187
+Mandarin -> 4.72 % N=104762 C=100001 S=4280 D=481 I=187
 Other -> 100.00 % N=3 C=0 S=3 D=0 I=0
+```
 
+#### RTF
+```
+I0417 08:07:15.300631 75784 recognizer_main.cc:113] total wav duration is: 36108.9 sec
+I0417 08:07:15.300642 75784 recognizer_main.cc:114] total decode cost:10247.7 sec
+I0417 08:07:15.300648 75784 recognizer_main.cc:115] total rescore cost:908.228 sec
+I0417 08:07:15.300653 75784 recognizer_main.cc:116] RTF is: 0.283
 ```

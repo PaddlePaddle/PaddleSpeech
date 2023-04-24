@@ -113,8 +113,8 @@ class U2Nnet : public U2NnetBase {
     void EncoderOuts(
         std::vector<std::vector<kaldi::BaseFloat>>* encoder_out) const;
 
+    ModelOptions opts_; // hack, fix later
   private:
-    ModelOptions opts_;
 
     phi::Place dev_;
     std::shared_ptr<paddle::jit::Layer> model_{nullptr};
@@ -127,6 +127,7 @@ class U2Nnet : public U2NnetBase {
     paddle::jit::Function forward_encoder_chunk_;
     paddle::jit::Function forward_attention_decoder_;
     paddle::jit::Function ctc_activation_;
+    float cost_time_ = 0.0;
 };
 
 }  // namespace ppspeech

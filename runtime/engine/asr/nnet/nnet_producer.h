@@ -24,7 +24,8 @@ namespace ppspeech {
 class NnetProducer {
   public:
     explicit NnetProducer(std::shared_ptr<NnetBase> nnet,
-                          std::shared_ptr<FrontendInterface> frontend = NULL);
+                          std::shared_ptr<FrontendInterface> frontend,
+                          float blank_threshold);
     // Feed feats or waves
     void Accept(const std::vector<kaldi::BaseFloat>& inputs);
 
@@ -64,6 +65,10 @@ class NnetProducer {
     std::shared_ptr<FrontendInterface> frontend_;
     std::shared_ptr<NnetBase> nnet_;
     SafeQueue<std::vector<kaldi::BaseFloat>> cache_;
+    std::vector<BaseFloat> last_frame_logprob_;
+    bool is_last_frame_skip_ = false;
+    int last_max_elem_ = -1;
+    float blank_threshold_ = 0.0;
     bool finished_;
 
     DISALLOW_COPY_AND_ASSIGN(NnetProducer);

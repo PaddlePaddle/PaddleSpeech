@@ -13,15 +13,15 @@ paddlespeech version: 1.0.1
 
 ## Conformer Streaming
 paddle version: 2.2.2  
-paddlespeech version: 0.2.0  
+paddlespeech version: 1.4.1  
 Need set `decoding.decoding_chunk_size=16` when decoding.
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention | 16, -1 | - | 0.0551 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_greedy_search | 16, -1 | - | 0.0629 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_prefix_beam_search | 16, -1 | - | 0.0629 |  
-| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention_rescoring | 16, -1 |  - | 0.0544 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention | 16, -1 | - | 0.056102 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_greedy_search | 16, -1 | - | 0.058160 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | ctc_prefix_beam_search | 16, -1 | - | 0.058160 |  
+| conformer | 47.06M | conf/chunk_conformer.yaml | spec_aug | test | attention_rescoring | 16, -1 |  - | 0.051968 |  
 
 
 ## Transformer 

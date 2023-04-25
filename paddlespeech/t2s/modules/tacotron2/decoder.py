@@ -375,7 +375,7 @@ class Decoder(nn.Layer):
         self.prob_out = nn.Linear(iunits, reduction_factor)
 
     def _zero_state(self, hs):
-        init_hs = paddle.zeros([paddle.shape(hs)[0], self.lstm[0].hidden_size])
+        init_hs = paddle.zeros([paddle.shape(hs)[0:1], self.lstm[0].hidden_size])
         return init_hs
 
     def forward(self, hs, hlens, ys):
@@ -415,7 +415,7 @@ class Decoder(nn.Layer):
         for _ in range(1, len(self.lstm)):
             c_list.append(self._zero_state(hs))
             z_list.append(self._zero_state(hs))
-        prev_out = paddle.zeros([paddle.shape(hs)[0], self.odim])
+        prev_out = paddle.zeros([paddle.shape(hs)[0:1], self.odim])
 
         # initialize attention
         prev_att_ws = []
@@ -445,7 +445,7 @@ class Decoder(nn.Layer):
             zcs = (paddle.concat([z_list[-1], att_c], axis=1)
                    if self.use_concate else z_list[-1])
             outs.append(
-                self.feat_out(zcs).reshape([paddle.shape(hs)[0], self.odim, -1
+                self.feat_out(zcs).reshape([paddle.shape(hs)[0:1], self.odim, -1
                                             ]))
             logits.append(self.prob_out(zcs))
             att_ws.append(att_w)
@@ -466,7 +466,7 @@ class Decoder(nn.Layer):
         if self.reduction_factor > 1:
             # (B, odim, Lmax)
             before_outs = before_outs.reshape(
-                [paddle.shape(before_outs)[0], self.odim, -1])
+                [paddle.shape(before_outs)[0:1], self.odim, -1])
 
         if self.postnet is not None:
             # (B, odim, Lmax)
@@ -530,10 +530,10 @@ class Decoder(nn.Layer):
 
         assert len(paddle.shape(h)) == 2
         hs = h.unsqueeze(0)
-        ilens = paddle.shape(h)[0]
+        ilens = paddle.shape(h)[0:1]
         # 本来 maxlen 和 minlen 外面有 int()，防止动转静的问题此处删除
-        maxlen = paddle.shape(h)[0] * maxlenratio
-        minlen = paddle.shape(h)[0] * minlenratio
+        maxlen = paddle.shape(h)[0:1] * maxlenratio
+        minlen = paddle.shape(h)[0:1] * minlenratio
         # 本来是直接使用 threshold 的，此处为了防止动转静的问题把 threshold 转成 tensor
         threshold = paddle.ones([1]) * threshold
 
@@ -690,7 +690,7 @@ class Decoder(nn.Layer):
         for _ in range(1, len(self.lstm)):
             c_list.append(self._zero_state(hs))
             z_list.append(self._zero_state(hs))
-        prev_out = paddle.zeros([paddle.shape(hs)[0], self.odim])
+        prev_out = paddle.zeros([paddle.shape(hs)[0:1], self.odim])
 
         # initialize attention
         prev_att_w = None

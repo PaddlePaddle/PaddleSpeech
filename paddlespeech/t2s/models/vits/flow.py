@@ -46,7 +46,7 @@ class FlipFlow(nn.Layer):
         """
         x = paddle.flip(x, [1])
         if not inverse:
-            logdet = paddle.zeros(paddle.shape(x)[0], dtype=x.dtype)
+            logdet = paddle.zeros(paddle.shape(x)[0:1], dtype=x.dtype)
             return x, logdet
         else:
             return x

@@ -433,8 +433,8 @@ class Tacotron2Loss(nn.Layer):
             masks = make_non_pad_mask(olens).unsqueeze(-1)
             weights = masks.float() / masks.sum(axis=1, keepdim=True).float()
             out_weights = weights.divide(
-                paddle.shape(ys)[0] * paddle.shape(ys)[2])
-            logit_weights = weights.divide(paddle.shape(ys)[0])
+                paddle.shape(ys)[0:1] * paddle.shape(ys)[2:3])
+            logit_weights = weights.divide(paddle.shape(ys)[0:1])
 
             # apply weight
             l1_loss = l1_loss.multiply(out_weights)
@@ -907,7 +907,7 @@ class MelSpectrogram(nn.Layer):
         """
         if len(x.shape) == 3:
             # (B, C, T) -> (B*C, T)
-            x = x.reshape([-1, paddle.shape(x)[2]])
+            x = x.reshape([-1, paddle.shape(x)[2:3]])
 
         if self.window is not None:
             # calculate window

@@ -66,7 +66,7 @@ class MultiHeadedAttention(nn.Layer):
             Tensor: 
                 Transformed value tensor (#batch, n_head, time2, d_k).
         """
-        n_batch = paddle.shape(query)[0]
+        n_batch = paddle.shape(query)[0:1]
 
         q = paddle.reshape(
             self.linear_q(query), [n_batch, -1, self.h, self.d_k])
@@ -96,7 +96,7 @@ class MultiHeadedAttention(nn.Layer):
         Returns:
             Tensor: Transformed value (#batch, time1, d_model) weighted by the attention score (#batch, time1, time2).
         """
-        n_batch = paddle.shape(value)[0]
+        n_batch = paddle.shape(value)[0:1]
         softmax = paddle.nn.Softmax(axis=-1)
         if mask is not None:
             mask = mask.unsqueeze(1)
@@ -220,7 +220,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         q, k, v = self.forward_qkv(query, key, value)
         # (batch, time1, head, d_k)
         q = q.transpose([0, 2, 1, 3])
-        n_batch_pos = paddle.shape(pos_emb)[0]
+        n_batch_pos = paddle.shape(pos_emb)[0:1]
         p = self.linear_pos(pos_emb).reshape(
             [n_batch_pos, -1, self.h, self.d_k])
         # (batch, head, 2*time1-1, d_k)
@@ -318,7 +318,7 @@ class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):
         # (batch, time1, head, d_k)
         q = paddle.transpose(q, [0, 2, 1, 3])
 
-        n_batch_pos = paddle.shape(pos_emb)[0]
+        n_batch_pos = paddle.shape(pos_emb)[0:1]
         p = paddle.reshape(
             self.linear_pos(pos_emb), [n_batch_pos, -1, self.h, self.d_k])
         # (batch, head, time1, d_k)

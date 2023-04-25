@@ -255,7 +255,7 @@ class WaveRNN(nn.Layer):
         # weights are contiguous in GPU memory. Hence, we must call it again
         self._flatten_parameters()
 
-        bsize = paddle.shape(x)[0]
+        bsize = paddle.shape(x)[0:1]
         h1 = paddle.zeros([1, bsize, self.rnn_dims])
         h2 = paddle.zeros([1, bsize, self.rnn_dims])
         # c: [B, T, C_aux]
@@ -339,8 +339,8 @@ class WaveRNN(nn.Layer):
         # will not get TensorArray
         # see https://www.paddlepaddle.org.cn/documentation/docs/zh/guides/04_dygraph_to_static/case_analysis_cn.html#list-lodtensorarray
         # b_size, seq_len, _ = paddle.shape(c)
-        b_size = paddle.shape(c)[0]
-        seq_len = paddle.shape(c)[1]
+        b_size = paddle.shape(c)[0:1]
+        seq_len = paddle.shape(c)[1:2]
 
         h1 = paddle.zeros([b_size, self.rnn_dims])
         h2 = paddle.zeros([b_size, self.rnn_dims])

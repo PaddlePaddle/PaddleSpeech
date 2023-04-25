@@ -156,7 +156,7 @@ class StyleMelGANGenerator(nn.Layer):
         """
         # batch_max_steps(24000) == noise_upsample_factor(80) * upsample_factor(300)
         if z is None:
-            z = paddle.randn([paddle.shape(c)[0], self.in_channels, 1])
+            z = paddle.randn([paddle.shape(c)[0:1], self.in_channels, 1])
         # (B, in_channels, noise_upsample_factor).
         x = self.noise_upsample(z)
         for block in self.blocks:

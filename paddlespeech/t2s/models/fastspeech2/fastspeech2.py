@@ -696,7 +696,7 @@ class FastSpeech2(nn.Layer):
             zs, _ = self.decoder(hs, h_masks)
             # (B, Lmax, odim)
             before_outs = self.feat_out(zs).reshape(
-                (paddle.shape(zs)[0], -1, self.odim))
+                (paddle.shape(zs)[0:1], -1, self.odim))
 
         # postnet -> (B, Lmax//r * r, odim)
         if self.postnet is None:
@@ -718,7 +718,7 @@ class FastSpeech2(nn.Layer):
         # input of embedding must be int64
         x = paddle.cast(text, 'int64')
         # setup batch axis
-        ilens = paddle.shape(x)[0]
+        ilens = paddle.shape(x)[0:1]
 
         xs = x.unsqueeze(0)
 
@@ -783,7 +783,7 @@ class FastSpeech2(nn.Layer):
         x = paddle.cast(text, 'int64')
         d, p, e = durations, pitch, energy
         # setup batch axis
-        ilens = paddle.shape(x)[0]
+        ilens = paddle.shape(x)[0:1]
 
         xs = x.unsqueeze(0)
 
@@ -843,7 +843,7 @@ class FastSpeech2(nn.Layer):
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds and then apply projection
             spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
-                shape=[-1, paddle.shape(hs)[1], -1])
+                shape=[-1, paddle.shape(hs)[1:2], -1])
             hs = self.spk_projection(paddle.concat([hs, spk_emb], axis=-1))
         else:
             raise NotImplementedError("support only add or concat.")

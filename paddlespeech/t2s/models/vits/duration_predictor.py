@@ -145,7 +145,7 @@ class StochasticDurationPredictor(nn.Layer):
             h_w = self.post_pre(w)
             h_w = self.post_dds(h_w, x_mask)
             h_w = self.post_proj(h_w) * x_mask
-            e_q = (paddle.randn([paddle.shape(w)[0], 2, paddle.shape(w)[2]]) *
+            e_q = (paddle.randn([paddle.shape(w)[0:1], 2, paddle.shape(w)[2]]) *
                    x_mask)
             z_q = e_q
             logdet_tot_q = 0.0
@@ -174,7 +174,7 @@ class StochasticDurationPredictor(nn.Layer):
             flows = list(reversed(self.flows))
             # remove a useless vflow
             flows = flows[:-2] + [flows[-1]]
-            z = (paddle.randn([paddle.shape(x)[0], 2, paddle.shape(x)[2]]) *
+            z = (paddle.randn([paddle.shape(x)[0:1], 2, paddle.shape(x)[2]]) *
                  noise_scale)
             for flow in flows:
                 z = flow(z, x_mask, g=x, inverse=inverse)

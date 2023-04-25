@@ -56,7 +56,7 @@ def _apply_attention_constraint(e,
     forward_idx = paddle.cast(last_attended_idx + forward_window, dtype='int64')
     if backward_idx > 0:
         e[:, :backward_idx] = -float("inf")
-    if forward_idx < paddle.shape(e)[1]:
+    if forward_idx < paddle.shape(e)[1:2]:
         e[:, forward_idx:] = -float("inf")
     return e
 
@@ -153,12 +153,12 @@ class AttLoc(nn.Layer):
             Tensor: 
                 previous attention weights (B, T_max)
         """
-        batch = paddle.shape(enc_hs_pad)[0]
+        batch = paddle.shape(enc_hs_pad)[0:1]
         # pre-compute all h outside the decoder loop
         if self.pre_compute_enc_h is None or self.han_mode:
             # (utt, frame, hdim)
             self.enc_h = enc_hs_pad
-            self.h_length = paddle.shape(self.enc_h)[1]
+            self.h_length = paddle.shape(self.enc_h)[1:2]
             # (utt, frame, att_dim)
             self.pre_compute_enc_h = self.mlp_enc(self.enc_h)
 
@@ -294,7 +294,7 @@ class AttForward(nn.Layer):
         # pre-compute all h outside the decoder loop
         if self.pre_compute_enc_h is None:
             self.enc_h = enc_hs_pad  # utt x frame x hdim
-            self.h_length = paddle.shape(self.enc_h)[1]
+            self.h_length = paddle.shape(self.enc_h)[1:2]
             # utt x frame x att_dim
             self.pre_compute_enc_h = self.mlp_enc(self.enc_h)
 
@@ -445,7 +445,7 @@ class AttForwardTA(nn.Layer):
         # pre-compute all h outside the decoder loop
         if self.pre_compute_enc_h is None:
             self.enc_h = enc_hs_pad  # utt x frame x hdim
-            self.h_length = paddle.shape(self.enc_h)[1]
+            self.h_length = paddle.shape(self.enc_h)[1:2]
             # utt x frame x att_dim
             self.pre_compute_enc_h = self.mlp_enc(self.enc_h)
 

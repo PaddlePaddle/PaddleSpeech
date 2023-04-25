@@ -184,6 +184,6 @@ class Encoder(nn.Layer):
 
         """
         xs = x.unsqueeze(0)
-        ilens = paddle.shape(x)[0]
+        ilens = paddle.shape(x)[0:1]
 
         return self.forward(xs, ilens)[0][0]

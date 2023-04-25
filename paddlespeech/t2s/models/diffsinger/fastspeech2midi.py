@@ -308,7 +308,7 @@ class FastSpeech2MIDI(FastSpeech2):
             zs, _ = self.decoder(hs, h_masks)
             # (B, Lmax, odim)
             before_outs = self.feat_out(zs).reshape(
-                (paddle.shape(zs)[0], -1, self.odim))
+                (paddle.shape(zs)[0:1], -1, self.odim))
 
         # postnet -> (B, Lmax//r * r, odim)
         if self.postnet is None:
@@ -334,7 +334,7 @@ class FastSpeech2MIDI(FastSpeech2):
         note_dur = paddle.cast(note_dur, 'float32').unsqueeze(0)
         is_slur = paddle.cast(is_slur, 'int64').unsqueeze(0)
         # setup batch axis
-        ilens = paddle.shape(xs)[1]
+        ilens = paddle.shape(xs)[1:2]
 
         if spk_emb is not None:
             spk_emb = spk_emb.unsqueeze(0)
@@ -449,7 +449,7 @@ class FastSpeech2MIDI(FastSpeech2):
         is_slur = paddle.cast(is_slur, 'int64').unsqueeze(0)
         d, p, e = durations, pitch, energy
         # setup batch axis
-        ilens = paddle.shape(xs)[1]
+        ilens = paddle.shape(xs)[1:2]
 
         if spk_emb is not None:
             spk_emb = spk_emb.unsqueeze(0)

@@ -420,7 +420,7 @@ class VITS(nn.Layer):
         """
         # setup
         text = text[None]
-        text_lengths = paddle.to_tensor(paddle.shape(text)[1])
+        text_lengths = paddle.to_tensor(paddle.shape(text)[1:2])
 
         if durations is not None:
             durations = paddle.reshape(durations, [1, 1, -1])
@@ -429,7 +429,7 @@ class VITS(nn.Layer):
         if use_teacher_forcing:
             assert feats is not None
             feats = feats[None].transpose([0, 2, 1])
-            feats_lengths = paddle.to_tensor(paddle.shape(feats)[2])
+            feats_lengths = paddle.to_tensor(paddle.shape(feats)[2:3])
             wav, att_w, dur = self.generator.inference(
                 text=text,
                 text_lengths=text_lengths,
@@ -484,7 +484,7 @@ class VITS(nn.Layer):
         """
         assert feats is not None
         feats = feats[None].transpose([0, 2, 1])
-        feats_lengths = paddle.to_tensor(paddle.shape(feats)[2])
+        feats_lengths = paddle.to_tensor(paddle.shape(feats)[2:3])
 
         sids_none = sids_src is None and sids_tgt is None
         spembs_none = spembs_src is None and spembs_tgt is None

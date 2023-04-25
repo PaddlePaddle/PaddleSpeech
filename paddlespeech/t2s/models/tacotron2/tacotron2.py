@@ -286,7 +286,7 @@ class Tacotron2(nn.Layer):
         text = text[:, :text_lengths.max()]
         speech = speech[:, :speech_lengths.max()]
 
-        batch_size = paddle.shape(text)[0]
+        batch_size = paddle.shape(text)[0:1]
 
         # Add eos at the last of sequence
         xs = F.pad(text, [0, 0, 0, 1], "constant", self.padding_idx)
@@ -413,8 +413,8 @@ class Tacotron2(nn.Layer):
 
             xs, ys = x.unsqueeze(0), y.unsqueeze(0)
             spk_emb = None if spk_emb is None else spk_emb.unsqueeze(0)
-            ilens = paddle.shape(xs)[1]
-            olens = paddle.shape(ys)[1]
+            ilens = paddle.shape(xs)[1:2]
+            olens = paddle.shape(ys)[1:2]
             outs, _, _, att_ws = self._forward(
                 xs=xs,
                 ilens=ilens,
@@ -470,7 +470,7 @@ class Tacotron2(nn.Layer):
         elif self.spk_embed_integration_type == "concat":
             # concat hidden states with spk embeds
             spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
-                shape=[-1, paddle.shape(hs)[1], -1])
+                shape=[-1, paddle.shape(hs)[1:2], -1])
             hs = paddle.concat([hs, spk_emb], axis=-1)
         else:
             raise NotImplementedError("support only add or concat.")

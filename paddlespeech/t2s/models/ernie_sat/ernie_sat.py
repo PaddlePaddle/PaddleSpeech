@@ -485,11 +485,11 @@ class MLMEncAsDecoder(MLM):
             zs, _ = self.decoder(encoder_out, h_masks)
         else:
             zs = encoder_out
-        speech_hidden_states = zs[:, :paddle.shape(speech)[1], :]
+        speech_hidden_states = zs[:, :paddle.shape(speech)[1:2], :]
         if self.sfc is not None:
             before_outs = paddle.reshape(
                 self.sfc(speech_hidden_states),
-                (paddle.shape(speech_hidden_states)[0], -1, self.odim))
+                (paddle.shape(speech_hidden_states)[0:1], -1, self.odim))
         else:
             before_outs = speech_hidden_states
         if self.postnet is not None:
@@ -524,16 +524,16 @@ class MLMDualMaksing(MLM):
             zs, _ = self.decoder(encoder_out, h_masks)
         else:
             zs = encoder_out
-        speech_hidden_states = zs[:, :paddle.shape(speech)[1], :]
+        speech_hidden_states = zs[:, :paddle.shape(speech)[1:2], :]
         if self.text_sfc:
-            text_hiddent_states = zs[:, paddle.shape(speech)[1]:, :]
+            text_hiddent_states = zs[:, paddle.shape(speech)[1:2]:, :]
             text_outs = paddle.reshape(
                 self.text_sfc(text_hiddent_states),
-                (paddle.shape(text_hiddent_states)[0], -1, self.vocab_size))
+                (paddle.shape(text_hiddent_states)[0:1], -1, self.vocab_size))
         if self.sfc is not None:
             before_outs = paddle.reshape(
                 self.sfc(speech_hidden_states),
-                (paddle.shape(speech_hidden_states)[0], -1, self.odim))
+                (paddle.shape(speech_hidden_states)[0:1], -1, self.odim))
         else:
             before_outs = speech_hidden_states
         if self.postnet is not None:

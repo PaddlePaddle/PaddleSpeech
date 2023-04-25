@@ -223,7 +223,7 @@ class PWGGenerator(nn.Layer):
         """
         # when to static, can not input x, see https://github.com/PaddlePaddle/Parakeet/pull/132/files
         x = paddle.randn(
-            [1, self.in_channels, paddle.shape(c)[0] * self.upsample_factor])
+            [1, self.in_channels, paddle.shape(c)[0:1] * self.upsample_factor])
         c = paddle.transpose(c, [1, 0]).unsqueeze(0)  # pseudo batch
         c = nn.Pad1D(self.aux_context_window, mode='replicate')(c)
         out = self(x, c).squeeze(0).transpose([1, 0])

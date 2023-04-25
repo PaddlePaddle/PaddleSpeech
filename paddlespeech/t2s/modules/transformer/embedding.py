@@ -80,7 +80,7 @@ class PositionalEncoding(nn.Layer):
             Tensor: Encoded tensor (batch, time, `*`).
         """
         self.extend_pe(x)
-        T = paddle.shape(x)[1]
+        T = paddle.shape(x)[1:2]
         x = x * self.xscale + self.pe[:, :T]
         return self.dropout(x)
 
@@ -127,7 +127,7 @@ class ScaledPositionalEncoding(PositionalEncoding):
             Tensor: Encoded tensor (batch, time, `*`).
         """
         self.extend_pe(x)
-        T = paddle.shape(x)[1]
+        T = paddle.shape(x)[1:2]
         x = x + self.alpha * self.pe[:, :T]
         return self.dropout(x)
 
@@ -161,7 +161,7 @@ class RelPositionalEncoding(nn.Layer):
         if self.pe is not None:
             # self.pe contains both positive and negative parts
             # the length of self.pe is 2 * input_len - 1
-            if paddle.shape(self.pe)[1] >= paddle.shape(x)[1] * 2 - 1:
+            if paddle.shape(self.pe)[1:2] >= paddle.shape(x)[1:2] * 2 - 1:
                 return
         # Suppose `i` means to the position of query vecotr and `j` means the
         # position of key vector. We use position relative positions when keys
@@ -196,7 +196,7 @@ class RelPositionalEncoding(nn.Layer):
         """
         self.extend_pe(x)
         x = x * self.xscale
-        T = paddle.shape(x)[1]
+        T = paddle.shape(x)[1:2]
         pe_size = paddle.shape(self.pe)
         tmp = paddle.cast(paddle.floor(pe_size[1] / 2), dtype='int32')
         pos_emb = self.pe[:, tmp - T + 1:tmp + T, ]
@@ -235,16 +235,16 @@ class LegacyRelPositionalEncoding(PositionalEncoding):
     def extend_pe(self, x):
         """Reset the positional encodings."""
         if self.pe is not None:
-            if paddle.shape(self.pe)[1] >= paddle.shape(x)[1]:
+            if paddle.shape(self.pe)[1:2] >= paddle.shape(x)[1:2]:
                 return
-        pe = paddle.zeros((paddle.shape(x)[1], self.d_model))
+        pe = paddle.zeros((paddle.shape(x)[1:2], self.d_model))
         if self.reverse:
             position = paddle.arange(
-                paddle.shape(x)[1] - 1, -1, -1.0,
+                paddle.shape(x)[1:2] - 1, -1, -1.0,
                 dtype=paddle.float32).unsqueeze(1)
         else:
             position = paddle.arange(
-                0, paddle.shape(x)[1], dtype=paddle.float32).unsqueeze(1)
+                0, paddle.shape(x)[1:2], dtype=paddle.float32).unsqueeze(1)
         div_term = paddle.exp(
             paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
             -(math.log(10000.0) / self.d_model))
@@ -266,5 +266,5 @@ class LegacyRelPositionalEncoding(PositionalEncoding):
         """
         self.extend_pe(x)
         x = x * self.xscale
-        pos_emb = self.pe[:, :paddle.shape(x)[1]]
+        pos_emb = self.pe[:, :paddle.shape(x)[1:2]]
         return self.dropout(x), self.dropout(pos_emb)

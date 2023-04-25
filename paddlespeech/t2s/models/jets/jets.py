@@ -512,13 +512,13 @@ class JETS(nn.Layer):
         """
         # setup
         text = text[None]
-        text_lengths = paddle.to_tensor(paddle.shape(text)[1])
+        text_lengths = paddle.to_tensor(paddle.shape(text)[1:2])
 
         # inference
         if use_alignment_module:
             assert feats is not None
             feats = feats[None]
-            feats_lengths = paddle.to_tensor(paddle.shape(feats)[1])
+            feats_lengths = paddle.to_tensor(paddle.shape(feats)[1:2])
             pitch = pitch[None]
             energy = energy[None]
             wav, dur = self.generator.inference(

@@ -228,6 +228,16 @@ asr_dynamic_pretrained_models = {
             'ckpt_path':
             'exp/chunk_conformer/checkpoints/avg_30',
         },
+        '1.4': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_conformer_aishell_ckpt_1.5.0.model.tar.gz',
+            'md5':
+            'a0adb2b204902982718bc1d8917f7038',
+            'cfg_path':
+            'model.yaml',
+            'ckpt_path':
+            'exp/chunk_conformer/checkpoints/avg_30',
+        },
     },
     "transformer_librispeech-en-16k": {
         '1.0': {

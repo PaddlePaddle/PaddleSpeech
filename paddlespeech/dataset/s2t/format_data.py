@@ -58,6 +58,7 @@ def format_data(
     unit_type="char",
     vocab_path="examples/librispeech/data/vocab.txt",
     spm_model_prefix=""):
+    manifest_paths = [manifest_paths] if isinstance(manifest_paths, str) else manifest_paths
 
     fout = open(output_path, 'w', encoding='utf-8')
 

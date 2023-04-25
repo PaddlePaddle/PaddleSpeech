@@ -16,15 +16,14 @@ import os
 import sys
 from pathlib import Path
 
-import distutils
 import numpy as np
 import paddle
 import soundfile
-from yacs.config import CfgNode
 
 from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.models.u2 import U2Model
+from paddlespeech.s2t.training.cli import config_from_args
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.s2t.utils.utility import UpdateConfig
@@ -125,27 +124,7 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
-    parser.add_argument(
-        "--audio_file", type=str, help="path of the input audio file")
-    parser.add_argument(
-        "--debug",
-        type=distutils.util.strtobool,
-        default=False,
-        help="for debug.")
     args = parser.parse_args()
 
-    config = CfgNode(new_allowed=True)
-
-    if args.config:
-        config.merge_from_file(args.config)
-    if args.decode_cfg:
-        decode_confs = CfgNode(new_allowed=True)
-        decode_confs.merge_from_file(args.decode_cfg)
-        config.decode = decode_confs
-    if args.opts:
-        config.merge_from_list(args.opts)
-    config.freeze()
+    config = config_from_args(args)
     main(config, args)

@@ -1,0 +1,13 @@
+'''
+INSTALL
+'''
+执行目录为speechx根目录
+sh build_android.sh
+cp build/Android/arm64-v8a-api-21/vad-android-out/*.so examples/vad/vad-android-demo/vad/src/main/cpp/jniLibs/arm64-v8a
+cp build/Android/arm64-v8a-api-21/vad-android-out/vad_interface.h examples/vad/vad-android-demo/vad/src/main/cpp/includes/
+
+'''
+USEAGE
+'''
+1. 根据vad资源实际放在手机中的位置，更改vad-android-demo/app/src/main/cpp/vad/src/main/cpp/native-lib.cpp中的conf_path、fp_pcm_name、fp_log_name
+2. 在AndroidStudio中编译执行

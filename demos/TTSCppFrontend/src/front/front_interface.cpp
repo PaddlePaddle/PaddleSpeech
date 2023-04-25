@@ -126,7 +126,7 @@ int FrontEngineInterface::init() {
     }
 
     // 生成音调字典（音调到音调id的映射）
-    if (_seperate_tone == "true") {
+    if (_separate_tone == "true") {
         if (0 != GenDict(_tone2id_path, &tone_id_map)) {
             LOG(ERROR) << "Genarate tone2id dict failed";
             return -1;
@@ -168,7 +168,7 @@ int FrontEngineInterface::ReadConfFile() {
     _jieba_stop_word_path = conf_map["jieba_stop_word_path"];
 
     // dict path
-    _seperate_tone = conf_map["seperate_tone"];
+    _separate_tone = conf_map["separate_tone"];
     _word2phone_path = conf_map["word2phone_path"];
     _phone2id_path = conf_map["phone2id_path"];
     _tone2id_path = conf_map["tone2id_path"];
@@ -295,7 +295,7 @@ int FrontEngineInterface::GetWordsIds(
                     }
                 }
             } else {  // 标点符号
-                if (_seperate_tone == "true") {
+                if (_separate_tone == "true") {
                     phone = "sp0";  // speedyspeech
                 } else {
                     phone = "sp";  // fastspeech2
@@ -354,7 +354,7 @@ int FrontEngineInterface::Phone2Phoneid(const std::string &phone,
     std::string temp_phone;
     for (int i = 0; i < phone_vec.size(); i++) {
         temp_phone = phone_vec[i];
-        if (_seperate_tone == "true") {
+        if (_separate_tone == "true") {
             phoneid->push_back(atoi(
                 (phone_id_map[temp_phone.substr(0, temp_phone.length() - 1)])
                     .c_str()));

@@ -1,0 +1,7 @@
+engine/common/base/flags.h
+engine/common/base/log.h
+
+tools/valgrind*
+*log
+fc_patch/*
+test

@@ -20,7 +20,7 @@
 
 DEFINE_string(sentence, "你好，欢迎使用语音合成服务", "Text to be synthesized");
 DEFINE_string(front_conf, "./front_demo/front.conf", "Front conf file");
-// DEFINE_string(seperate_tone, "true", "If true, get phoneids and tonesid");
+// DEFINE_string(separate_tone, "true", "If true, get phoneids and tonesid");
 
 
 int main(int argc, char** argv) {

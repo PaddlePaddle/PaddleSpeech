@@ -184,6 +184,7 @@
 
 ### 近期更新
 - 👑 2023.04.25: 新增 [U2 conformer 的 AMP 训练](https://github.com/PaddlePaddle/PaddleSpeech/pull/3167).
+- 👑 2023.04.06: 新增 [srt格式字幕生成功能](./demos/streaming_asr_server)。
 - 🔥 2023.03.14: 新增基于 Opencpop 数据集的 SVS (歌唱合成) 示例，包含 [DiffSinger](./examples/opencpop/svs1)、[PWGAN](./examples/opencpop/voc1) 和 [HiFiGAN](./examples/opencpop/voc5)，效果持续优化中。
 - 👑 2023.03.09: 新增 [Wav2vec2ASR-zh](./examples/aishell/asr3)。
 - 🎉 2023.03.07: 新增 [TTS ARM Linux C++ 部署示例 (包含 C++ 中文文本前端模块)](./demos/TTSArmLinux)。

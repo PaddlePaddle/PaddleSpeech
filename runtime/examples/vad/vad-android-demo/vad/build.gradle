@@ -1,0 +1,67 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.gkonovalov'
+
+android {
+    compileSdkVersion 31
+    buildToolsVersion "29.0.3"
+
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 31
+        versionCode 2
+        versionName "1.0.1"
+
+        setProperty("archivesBaseName", "android-vad-v" + versionName)
+
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.10.2'
+        }
+    }
+
+    //我们将外部so库放在jniLibs文件夹下，因此要将它设置为jniLibs使工程在打包的时候能将它包含进去，否则app运行时会报无法找到so库的错误。
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/cpp/jniLibs']
+            resources { srcDirs = ['src/main/cpp/resources'] }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}

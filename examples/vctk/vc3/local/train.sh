@@ -9,5 +9,4 @@ python3 ${BIN_DIR}/train.py \
     --config=${config_path} \
     --output-dir=${train_output_path} \
     --ngpu=1 \
-    --phones-dict=dump/phone_id_map.txt \
     --speaker-dict=dump/speaker_id_map.txt

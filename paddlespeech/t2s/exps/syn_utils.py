@@ -506,7 +506,7 @@ def am_to_static(am_inference,
         am_inference = jit.to_static(
             am_inference, input_spec=[InputSpec([-1], dtype=paddle.int64)])
 
-    elif am_name == 'vits':
+    elif am_name == 'vits' or am_name == 'jets':
         if am_dataset in {"aishell3", "vctk"} and speaker_dict is not None:
             am_inference = jit.to_static(
                 am_inference,

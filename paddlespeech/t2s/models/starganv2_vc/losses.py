@@ -11,92 +11,102 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Any
+from typing import Dict
+
 import paddle
 import paddle.nn.functional as F
-from munch import Munch
-from starganv2vc_paddle.transforms import build_transforms
 
+from .transforms import build_transforms
 
 # 这些都写到 updater 里
-def compute_d_loss(nets,
-                   args,
-                   x_real,
-                   y_org,
-                   y_trg,
-                   z_trg=None,
-                   x_ref=None,
-                   use_r1_reg=True,
-                   use_adv_cls=False,
-                   use_con_reg=False):
-    args = Munch(args)
+
+
+def compute_d_loss(
+        nets: Dict[str, Any],
+        x_real: paddle.Tensor,
+        y_org: paddle.Tensor,
+        y_trg: paddle.Tensor,
+        z_trg: paddle.Tensor=None,
+        x_ref: paddle.Tensor=None,
+        # TODO: should be True here, but r1_reg has some bug now 
+        use_r1_reg: bool=False,
+        use_adv_cls: bool=False,
+        use_con_reg: bool=False,
+        lambda_reg: float=1.,
+        lambda_adv_cls: float=0.1,
+        lambda_con_reg: float=10.):
 
     assert (z_trg is None) != (x_ref is None)
     # with real audios
     x_real.stop_gradient = False
-    out = nets.discriminator(x_real, y_org)
+    out = nets['discriminator'](x_real, y_org)
     loss_real = adv_loss(out, 1)
-
     # R1 regularizaition (https://arxiv.org/abs/1801.04406v4)
     if use_r1_reg:
         loss_reg = r1_reg(out, x_real)
     else:
-        loss_reg = paddle.to_tensor([0.], dtype=paddle.float32)
+        # loss_reg = paddle.to_tensor([0.], dtype=paddle.float32)
+        loss_reg = paddle.zeros([1])
 
     # consistency regularization (bCR-GAN: https://arxiv.org/abs/2002.04724)
-    loss_con_reg = paddle.to_tensor([0.], dtype=paddle.float32)
+    loss_con_reg = paddle.zeros([1])
     if use_con_reg:
         t = build_transforms()
-        out_aug = nets.discriminator(t(x_real).detach(), y_org)
+        out_aug = nets['discriminator'](t(x_real).detach(), y_org)
         loss_con_reg += F.smooth_l1_loss(out, out_aug)
 
     # with fake audios
     with paddle.no_grad():
         if z_trg is not None:
-            s_trg = nets.mapping_network(z_trg, y_trg)
+            s_trg = nets['mapping_network'](z_trg, y_trg)
         else:  # x_ref is not None
-            s_trg = nets.style_encoder(x_ref, y_trg)
+            s_trg = nets['style_encoder'](x_ref, y_trg)
 
-        F0 = nets.f0_model.get_feature_GAN(x_real)
-        x_fake = nets.generator(x_real, s_trg, masks=None, F0=F0)
-    out = nets.discriminator(x_fake, y_trg)
+        F0 = nets['F0_model'].get_feature_GAN(x_real)
+        x_fake = nets['generator'](x_real, s_trg, masks=None, F0=F0)
+    out = nets['discriminator'](x_fake, y_trg)
     loss_fake = adv_loss(out, 0)
     if use_con_reg:
-        out_aug = nets.discriminator(t(x_fake).detach(), y_trg)
+        out_aug = nets['discriminator'](t(x_fake).detach(), y_trg)
         loss_con_reg += F.smooth_l1_loss(out, out_aug)
 
     # adversarial classifier loss
     if use_adv_cls:
-        out_de = nets.discriminator.classifier(x_fake)
+        out_de = nets['discriminator'].classifier(x_fake)
         loss_real_adv_cls = F.cross_entropy(out_de[y_org != y_trg],
                                             y_org[y_org != y_trg])
 
         if use_con_reg:
-            out_de_aug = nets.discriminator.classifier(t(x_fake).detach())
+            out_de_aug = nets['discriminator'].classifier(t(x_fake).detach())
             loss_con_reg += F.smooth_l1_loss(out_de, out_de_aug)
     else:
         loss_real_adv_cls = paddle.zeros([1]).mean()
 
-    loss = loss_real + loss_fake + args.lambda_reg * loss_reg + \
-            args.lambda_adv_cls * loss_real_adv_cls + \
-            args.lambda_con_reg * loss_con_reg
+    loss = loss_real + loss_fake + lambda_reg * loss_reg + \
+            lambda_adv_cls * loss_real_adv_cls + \
+            lambda_con_reg * loss_con_reg
 
-    return loss, Munch(
-        real=loss_real.item(),
-        fake=loss_fake.item(),
-        reg=loss_reg.item(),
-        real_adv_cls=loss_real_adv_cls.item(),
-        con_reg=loss_con_reg.item())
+    return loss
 
 
-def compute_g_loss(nets,
-                   args,
-                   x_real,
-                   y_org,
-                   y_trg,
-                   z_trgs=None,
-                   x_refs=None,
-                   use_adv_cls=False):
-    args = Munch(args)
+def compute_g_loss(nets: Dict[str, Any],
+                   x_real: paddle.Tensor,
+                   y_org: paddle.Tensor,
+                   y_trg: paddle.Tensor,
+                   z_trgs: paddle.Tensor=None,
+                   x_refs: paddle.Tensor=None,
+                   use_adv_cls: bool=False,
+                   lambda_sty: float=1.,
+                   lambda_cyc: float=5.,
+                   lambda_ds: float=1.,
+                   lambda_norm: float=1.,
+                   lambda_asr: float=10.,
+                   lambda_f0: float=5.,
+                   lambda_f0_sty: float=0.1,
+                   lambda_adv: float=2.,
+                   lambda_adv_cls: float=0.5,
+                   norm_bias: float=0.5):
 
     assert (z_trgs is None) != (x_refs is None)
     if z_trgs is not None:
@@ -106,37 +116,37 @@ def compute_g_loss(nets,
 
     # compute style vectors
     if z_trgs is not None:
-        s_trg = nets.mapping_network(z_trg, y_trg)
+        s_trg = nets['mapping_network'](z_trg, y_trg)
     else:
-        s_trg = nets.style_encoder(x_ref, y_trg)
+        s_trg = nets['style_encoder'](x_ref, y_trg)
 
     # compute ASR/F0 features (real)
-    with paddle.no_grad():
-        F0_real, GAN_F0_real, cyc_F0_real = nets.f0_model(x_real)
-        ASR_real = nets.asr_model.get_feature(x_real)
+    # 源码没有用 .eval(), 使用了 no_grad()
+    # 我们使用了 .eval(), 开启 with paddle.no_grad() 会报错
+    F0_real, GAN_F0_real, cyc_F0_real = nets['F0_model'](x_real)
+    ASR_real = nets['asr_model'].get_feature(x_real)
 
     # adversarial loss
-    x_fake = nets.generator(x_real, s_trg, masks=None, F0=GAN_F0_real)
-    out = nets.discriminator(x_fake, y_trg)
+    x_fake = nets['generator'](x_real, s_trg, masks=None, F0=GAN_F0_real)
+    out = nets['discriminator'](x_fake, y_trg)
     loss_adv = adv_loss(out, 1)
 
     # compute ASR/F0 features (fake)
-    F0_fake, GAN_F0_fake, _ = nets.f0_model(x_fake)
-    ASR_fake = nets.asr_model.get_feature(x_fake)
+    F0_fake, GAN_F0_fake, _ = nets['F0_model'](x_fake)
+    ASR_fake = nets['asr_model'].get_feature(x_fake)
 
     # norm consistency loss
     x_fake_norm = log_norm(x_fake)
     x_real_norm = log_norm(x_real)
-    loss_norm = ((
-        paddle.nn.ReLU()(paddle.abs(x_fake_norm - x_real_norm) - args.norm_bias)
-    )**2).mean()
+    tmp = paddle.abs(x_fake_norm - x_real_norm) - norm_bias
+    loss_norm = ((paddle.nn.ReLU()(tmp))**2).mean()
 
     # F0 loss
     loss_f0 = f0_loss(F0_fake, F0_real)
 
     # style F0 loss (style initialization)
-    if x_refs is not None and args.lambda_f0_sty > 0 and not use_adv_cls:
-        F0_sty, _, _ = nets.f0_model(x_ref)
+    if x_refs is not None and lambda_f0_sty > 0 and not use_adv_cls:
+        F0_sty, _, _ = nets['F0_model'](x_ref)
         loss_f0_sty = F.l1_loss(
             compute_mean_f0(F0_fake), compute_mean_f0(F0_sty))
     else:
@@ -146,61 +156,53 @@ def compute_g_loss(nets,
     loss_asr = F.smooth_l1_loss(ASR_fake, ASR_real)
 
     # style reconstruction loss
-    s_pred = nets.style_encoder(x_fake, y_trg)
+    s_pred = nets['style_encoder'](x_fake, y_trg)
     loss_sty = paddle.mean(paddle.abs(s_pred - s_trg))
 
     # diversity sensitive loss
     if z_trgs is not None:
-        s_trg2 = nets.mapping_network(z_trg2, y_trg)
+        s_trg2 = nets['mapping_network'](z_trg2, y_trg)
     else:
-        s_trg2 = nets.style_encoder(x_ref2, y_trg)
-    x_fake2 = nets.generator(x_real, s_trg2, masks=None, F0=GAN_F0_real)
+        s_trg2 = nets['style_encoder'](x_ref2, y_trg)
+    x_fake2 = nets['generator'](x_real, s_trg2, masks=None, F0=GAN_F0_real)
     x_fake2 = x_fake2.detach()
-    _, GAN_F0_fake2, _ = nets.f0_model(x_fake2)
+    _, GAN_F0_fake2, _ = nets['F0_model'](x_fake2)
     loss_ds = paddle.mean(paddle.abs(x_fake - x_fake2))
     loss_ds += F.smooth_l1_loss(GAN_F0_fake, GAN_F0_fake2.detach())
 
     # cycle-consistency loss
-    s_org = nets.style_encoder(x_real, y_org)
-    x_rec = nets.generator(x_fake, s_org, masks=None, F0=GAN_F0_fake)
+    s_org = nets['style_encoder'](x_real, y_org)
+    x_rec = nets['generator'](x_fake, s_org, masks=None, F0=GAN_F0_fake)
     loss_cyc = paddle.mean(paddle.abs(x_rec - x_real))
     # F0 loss in cycle-consistency loss
-    if args.lambda_f0 > 0:
-        _, _, cyc_F0_rec = nets.f0_model(x_rec)
+    if lambda_f0 > 0:
+        _, _, cyc_F0_rec = nets['F0_model'](x_rec)
         loss_cyc += F.smooth_l1_loss(cyc_F0_rec, cyc_F0_real)
-    if args.lambda_asr > 0:
-        ASR_recon = nets.asr_model.get_feature(x_rec)
+    if lambda_asr > 0:
+        ASR_recon = nets['asr_model'].get_feature(x_rec)
         loss_cyc += F.smooth_l1_loss(ASR_recon, ASR_real)
 
     # adversarial classifier loss
     if use_adv_cls:
-        out_de = nets.discriminator.classifier(x_fake)
+        out_de = nets['discriminator'].classifier(x_fake)
         loss_adv_cls = F.cross_entropy(out_de[y_org != y_trg],
                                        y_trg[y_org != y_trg])
     else:
         loss_adv_cls = paddle.zeros([1]).mean()
 
-    loss = args.lambda_adv * loss_adv + args.lambda_sty * loss_sty \
-           - args.lambda_ds * loss_ds + args.lambda_cyc * loss_cyc\
-           + args.lambda_norm * loss_norm \
-           + args.lambda_asr * loss_asr \
-           + args.lambda_f0 * loss_f0 \
-           + args.lambda_f0_sty * loss_f0_sty \
-           + args.lambda_adv_cls * loss_adv_cls
+    loss = lambda_adv * loss_adv + lambda_sty * loss_sty \
+           - lambda_ds * loss_ds + lambda_cyc * loss_cyc \
+           + lambda_norm * loss_norm \
+           + lambda_asr * loss_asr \
+           + lambda_f0 * loss_f0 \
+           + lambda_f0_sty * loss_f0_sty \
+           + lambda_adv_cls * loss_adv_cls
 
-    return loss, Munch(
-        adv=loss_adv.item(),
-        sty=loss_sty.item(),
-        ds=loss_ds.item(),
-        cyc=loss_cyc.item(),
-        norm=loss_norm.item(),
-        asr=loss_asr.item(),
-        f0=loss_f0.item(),
-        adv_cls=loss_adv_cls.item())
+    return loss
 
 
 # for norm consistency loss
-def log_norm(x, mean=-4, std=4, axis=2):
+def log_norm(x: paddle.Tensor, mean: float=-4, std: float=4, axis: int=2):
     """
     normalized log mel -> mel -> norm -> log(norm)
     """
@@ -209,7 +211,7 @@ def log_norm(x, mean=-4, std=4, axis=2):
 
 
 # for adversarial loss
-def adv_loss(logits, target):
+def adv_loss(logits: paddle.Tensor, target: float):
     assert target in [1, 0]
     if len(logits.shape) > 1:
         logits = logits.reshape([-1])
@@ -220,7 +222,7 @@ def adv_loss(logits, target):
 
 
 # for R1 regularization loss
-def r1_reg(d_out, x_in):
+def r1_reg(d_out: paddle.Tensor, x_in: paddle.Tensor):
     # zero-centered gradient penalty for real images
     batch_size = x_in.shape[0]
     grad_dout = paddle.grad(
@@ -236,14 +238,14 @@ def r1_reg(d_out, x_in):
 
 
 # for F0 consistency loss
-def compute_mean_f0(f0):
+def compute_mean_f0(f0: paddle.Tensor):
     f0_mean = f0.mean(-1)
     f0_mean = f0_mean.expand((f0.shape[-1], f0_mean.shape[0])).transpose(
         (1, 0))  # (B, M)
     return f0_mean
 
 
-def f0_loss(x_f0, y_f0):
+def f0_loss(x_f0: paddle.Tensor, y_f0: paddle.Tensor):
     """
     x.shape = (B, 1, M, L): predict
     y.shape = (B, 1, M, L): target

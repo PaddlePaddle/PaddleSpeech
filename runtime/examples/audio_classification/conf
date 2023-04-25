@@ -1,0 +1,15 @@
+[CONF]
+wav_normal=true
+wav_normal_type=linear
+wav_norm_mul_factor=1.0
+model_path=./inference.onnx
+param_path=
+dict_path=./label_list
+num_cpu_thread=1
+samp_freq=32000
+frame_length_ms=32
+frame_shift_ms=10
+num_bins=64
+low_freq=50
+high_freq=14000
+dither=0.0

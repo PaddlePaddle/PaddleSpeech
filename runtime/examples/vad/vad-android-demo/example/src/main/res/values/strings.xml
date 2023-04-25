@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Android VAD</string>
+    <string name="speech_detected">Speech detected!</string>
+    <string name="noise_detected">Noise detected!</string>
+    <string name="press_button_to_start">Press button to start VAD!</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="sample_rate">Sample Rate:</string>
+    <string name="frame_size">Frame Size:</string>
+    <string name="mode">Mode:</string>
+</resources>

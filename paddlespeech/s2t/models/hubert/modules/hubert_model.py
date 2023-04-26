@@ -377,7 +377,7 @@ class HubertModel(nn.Layer):
                 min_space=self.mask_channel_min_space, )
             mask_channel_indices = (paddle.to_tensor(
                 mask_channel_indices, dtype='int64', place=x.place).unsqueeze(1)
-                                    .expand(-1, T, -1))
+                                    .expand([-1, T, -1]))
             x[mask_channel_indices] = 0
 
         return x, mask_indices

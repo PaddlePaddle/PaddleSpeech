@@ -150,10 +150,10 @@ class SSLExecutor(BaseExecutor):
                         model_prefix = 'wav2vec2ASR_librispeech'
                     elif lang == 'zh':
                         model_prefix = 'wav2vec2ASR_aishell1'
-                    tag = model_prefix  + '-' + lang + '-' + sample_rate_str
+                    tag = model_prefix + '-' + lang + '-' + sample_rate_str
                 elif model_type == 'hubert':
                     if lang == 'en':
-                        model_prefix = 'hubertASR_librispeech_100'
+                        model_prefix = 'hubertASR_librispeech-100h'
                     elif lang == 'zh':
                         logger.error("zh hubertASR is not supported yet")
                     tag = model_prefix + '-' + lang + '-' + sample_rate_str
@@ -185,16 +185,17 @@ class SSLExecutor(BaseExecutor):
                     self.text_feature = TextFeaturizer(
                         unit_type=self.config.unit_type,
                         vocab=self.config.vocab_filepath)
+                    self.config.output_dim = len(self.config.vocab_filepath)
                 elif lang == 'zh':
                     self.text_feature = AutoTokenizer.from_pretrained(
                         self.config.tokenizer)
+                    self.config.output_dim = self.text_feature.vocab_size
                 self.config.decode.decoding_method = decode_method
-            model_name = model_type[:model_type.rindex(
+            model_name = model_prefix[:model_prefix.rindex(
                 '_')]  # model_type: {model_name}_{dataset}
         else:
             model_name = model_type
         model_class = self.task_resource.get_model_class(model_name)
-
         model_conf = self.config
         model = model_class.from_config(model_conf)
         self.model = model
@@ -264,8 +265,7 @@ class SSLExecutor(BaseExecutor):
         audio = self._inputs["audio"]
         if task == 'asr':
             cfg = self.config.decode
-            logger.debug(
-                f"we will use the {model_type}ASR like model.")
+            logger.debug(f"we will use the {model_type}ASR like model.")
             try:
                 result_transcripts = self.model.decode(
                     audio,
@@ -278,7 +278,8 @@ class SSLExecutor(BaseExecutor):
                 logger.exception(e)
         else:
             logger.debug(
-                f"we will use the {model_type} like model to extract audio feature.")
+                f"we will use the {model_type} like model to extract audio feature."
+            )
             try:
                 out_feature = self.model(audio[:, :, 0])
                 self._outputs["result"] = out_feature[0]
@@ -455,7 +456,7 @@ class SSLExecutor(BaseExecutor):
         if rtf:
             k = self.__class__.__name__
             CLI_TIMER[k]['start'].append(time.time())
-        self.preprocess(model, audio_file)
+        self.preprocess(audio_file)
         self.infer(model, task)
         res = self.postprocess()  # Retrieve result of asr.
 

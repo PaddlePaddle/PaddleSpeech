@@ -44,13 +44,11 @@ class HubertASR(nn.Layer):
         init_type = config.get("init_type", None)
         with DefaultInitializerContext(init_type):
             self.config = config
-            with open(config.vocab_filepath) as f:
-                dicts = [symbol.strip() for symbol in f.readlines()]
             task_cfg = self.merge_with_parent(HubertPretrainingConfig,
                                               dict(self.config.task_cfg))
             model_cfg = self.merge_with_parent(HubertConfig,
                                                dict(self.config.model_cfg))
-            hubert = HubertModel(model_cfg, task_cfg, dicts)
+            hubert = HubertModel(model_cfg, task_cfg, [None])
 
             self.normalize_wav = config.normalize_wav
             self.output_norm = config.output_norm
@@ -329,13 +327,12 @@ class HubertBase(nn.Layer):
 
     def __init__(self, config: dict):
         super().__init__()
-        with open(config.vocab_filepath) as f:
-            dicts = [symbol.strip() for symbol in f.readlines()]
+        self.config = config
         task_cfg = self.merge_with_parent(HubertPretrainingConfig,
                                           dict(self.config.task_cfg))
         model_cfg = self.merge_with_parent(HubertConfig,
                                            dict(self.config.model_cfg))
-        hubert = HubertModel(model_cfg, task_cfg, dicts)
+        hubert = HubertModel(model_cfg, task_cfg, [None])
         self.hubert = hubert
 
     @classmethod
@@ -351,6 +348,21 @@ class HubertBase(nn.Layer):
         model = cls(configs)
         return model
 
+    def merge_with_parent(self, dc: dataclass, cfg: dict):
+        assert is_dataclass(dc)
+        assert type(cfg) == dict
+        cfg = deepcopy(cfg)
+
+        def fix_cfg(cfg):
+            target_keys = set(dc.__dataclass_fields__.keys())
+            for k in list(cfg.keys()):
+                if k not in target_keys:
+                    del cfg[k]
+
+        fix_cfg(cfg)
+        assert len(cfg) > 0
+        return dc(**cfg)
+
     def forward(self, wav):
-        out = self.hubert(wav)
+        out = self.hubert.extract_features(wav)
         return out

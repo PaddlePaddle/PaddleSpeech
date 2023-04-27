@@ -253,7 +253,7 @@ class WhisperExecutor(BaseExecutor):
         # fbank
         audio = log_mel_spectrogram(audio, resource_path=self.resource_path)
 
-        audio_len = paddle.to_tensor(audio.shape[0])
+        audio_len = paddle.to_tensor(audio.shape[0]).unsqueeze(axis=0)
 
         self._inputs["audio"] = audio
         self._inputs["audio_len"] = audio_len

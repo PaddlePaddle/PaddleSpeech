@@ -36,7 +36,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   ```
   参数：
   - `input`(必须输入)：用于识别的音频文件。
-  - `model`：ASR 任务的模型，默认值：`wav2vec2ASR_librispeech`。
+  - `model`：ASR 任务的模型，默认值：`wav2vec2`, 可选项：[wav2vec2, hubert]。
   - `task`：输出类别，默认值：`asr`。
   - `lang`：模型语言，默认值：`en`。
   - `sample_rate`：音频采样率，默认值：`16000`。
@@ -56,7 +56,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 
   # 识别文本
   text = ssl_executor(
-      model='wav2vec2ASR_librispeech',
+      model='wav2vec2,
       task='asr',
       lang='en',
       sample_rate=16000,

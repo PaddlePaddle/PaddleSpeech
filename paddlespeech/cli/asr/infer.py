@@ -25,9 +25,6 @@ import librosa
 import numpy as np
 import paddle
 import soundfile
-from paddlespeech.audio.transform.transformation import Transformation
-from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
-from paddlespeech.s2t.utils.utility import UpdateConfig
 from yacs.config import CfgNode
 
 from ...utils.env import MODEL_HOME
@@ -37,6 +34,9 @@ from ..log import logger
 from ..utils import CLI_TIMER
 from ..utils import stats_wrapper
 from ..utils import timer_register
+from paddlespeech.audio.transform.transformation import Transformation
+from paddlespeech.s2t.frontend.featurizer.text_featurizer import TextFeaturizer
+from paddlespeech.s2t.utils.utility import UpdateConfig
 
 __all__ = ['ASRExecutor']
 

@@ -26,6 +26,8 @@ Model | Pre-Train Method | Pre-Train Data | Finetune Data | Size | Descriptions 
 [Wav2vec2ASR-large-960h-librispeech Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr3/wav2vec2ASR-large-960h-librispeech_ckpt_1.3.1.model.tar.gz) | wav2vec2 | Librispeech and LV-60k Dataset (5.3w h) | Librispeech (960 h) | 718 MB |Encoder: Wav2vec2.0, Decoder: CTC, Decoding method: Greedy search | - | 0.0189 | [Wav2vecASR Librispeech ASR3](../../examples/librispeech/asr3) |
 [Wav2vec2-large-wenetspeech-self Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2-large-wenetspeech-self_ckpt_1.3.0.model.tar.gz) | wav2vec2 | Wenetspeech Dataset (1w h) | - | 714 MB |Pre-trained Wav2vec2.0 Model | - | - | - | 
 [Wav2vec2ASR-large-aishell1 Model](https://paddlespeech.bj.bcebos.com/s2t/aishell/asr3/wav2vec2ASR-large-aishell1_ckpt_1.4.0.model.tar.gz) | wav2vec2 | Wenetspeech Dataset (1w h) | aishell1 (train set) | 1.18 GB |Encoder: Wav2vec2.0, Decoder: CTC, Decoding method: Greedy search | 0.0510 | - | - |
+[Hubert-large-lv60 Model](https://paddlespeech.bj.bcebos.com/hubert/hubert-large-lv60.pdparams) | hubert | LV-60k Dataset | - | 1.18 GB |Pre-trained hubert Model | - | - | - | 
+[Hubert-large-100h-librispeech Model](https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr4/hubertASR-large-100h-librispeech_ckpt_1.4.0.model.tar.gz) | hubert | LV-60k Dataset | librispeech train-clean-100 | 1.27 GB |Encoder: Hubert, Decoder: Linear + CTC, Decoding method: Greedy search | - | 0.0587 | [HubertASR Librispeech ASR4](../../examples/librispeech/asr4) |
 
 ### Whisper Model
 Demo Link | Training Data | Size | Descriptions | CER | Model 

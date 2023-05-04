@@ -11,7 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""HubertASR model."""
 from collections import defaultdict
+from copy import deepcopy
+from dataclasses import dataclass
+from dataclasses import is_dataclass
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -20,8 +24,9 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2ConfigPure
-from paddlespeech.s2t.models.wav2vec2.modules.modeling_wav2vec2 import Wav2Vec2Model
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertConfig
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertModel
+from paddlespeech.s2t.models.hubert.modules.hubert_model import HubertPretrainingConfig
 from paddlespeech.s2t.models.wav2vec2.modules.VanillaNN import VanillaNN
 from paddlespeech.s2t.models.wav2vec2.processing.speech_augmentation import SpecAugment
 from paddlespeech.s2t.modules.ctc import CTCDecoderBase as CTC
@@ -33,36 +38,56 @@ from paddlespeech.s2t.utils.utility import log_add
 logger = Log(__name__).getlog()
 
 
-class Wav2vec2ASR(nn.Layer):
+class HubertASR(nn.Layer):
     def __init__(self, config: dict):
         super().__init__()
         init_type = config.get("init_type", None)
         with DefaultInitializerContext(init_type):
             self.config = config
-            wav2vec2_config = Wav2Vec2ConfigPure(config)
-            wav2vec2 = Wav2Vec2Model(wav2vec2_config)
+            task_cfg = self.merge_with_parent(HubertPretrainingConfig,
+                                              dict(self.config.task_cfg))
+            model_cfg = self.merge_with_parent(HubertConfig,
+                                               dict(self.config.model_cfg))
+            hubert = HubertModel(model_cfg, task_cfg, [None])
+
             self.normalize_wav = config.normalize_wav
             self.output_norm = config.output_norm
             if hasattr(config, 'spec_augment'):
                 self.spec_augment = SpecAugment(**config.spec_augment)
 
-            if config.freeze_wav2vec2:
-                wav2vec2.eval()
-                for parm in wav2vec2.parameters():
+            if config.freeze_hubert:
+                hubert.eval()
+                for parm in hubert.parameters():
                     parm.trainable = False
-            self.wav2vec2 = wav2vec2
+            self.hubert = hubert
             self.enc = VanillaNN(**config.enc)
             self.ctc = CTC(**config.ctc,
                            odim=config.output_dim,
                            batch_average=False,
                            reduction='mean')
 
+    def merge_with_parent(self, dc: dataclass, cfg: dict):
+        assert is_dataclass(dc)
+        assert type(cfg) == dict
+        cfg = deepcopy(cfg)
+
+        def fix_cfg(cfg):
+            target_keys = set(dc.__dataclass_fields__.keys())
+            for k in list(cfg.keys()):
+                if k not in target_keys:
+                    del cfg[k]
+
+        fix_cfg(cfg)
+        assert len(cfg) > 0
+        return dc(**cfg)
+
     def forward(self, wav, wavs_lens_rate, target, target_lens):
+
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape)
 
         # Extract wav2vec output
-        out = self.wav2vec2(wav)[0]
+        out = self.hubert.extract_features(wav)[0]
         # We normalize the output if required
         if self.output_norm:
             out = F.layer_norm(out, out.shape)
@@ -179,7 +204,7 @@ class Wav2vec2ASR(nn.Layer):
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape[1:])
         # Extract wav2vec output
-        out = self.wav2vec2(wav)[0]
+        out = self.hubert.extract_features(wav)[0]
         # We normalize the output if required
         if self.output_norm:
             out = F.layer_norm(out, out.shape[1:])
@@ -221,7 +246,7 @@ class Wav2vec2ASR(nn.Layer):
         if self.normalize_wav:
             wav = F.layer_norm(wav, wav.shape[1:])
         # Extract wav2vec output
-        out = self.wav2vec2(wav)[0]
+        out = self.hubert.extract_features(wav)[0]
         # We normalize the output if required
         if self.output_norm:
             out = F.layer_norm(out, out.shape[1:])
@@ -297,14 +322,18 @@ class Wav2vec2ASR(nn.Layer):
         return hyps[0][0]
 
 
-class Wav2vec2Base(nn.Layer):
-    """Wav2vec2 model"""
+class HubertBase(nn.Layer):
+    """Hubert model"""
 
     def __init__(self, config: dict):
         super().__init__()
-        wav2vec2_config = Wav2Vec2ConfigPure(config)
-        wav2vec2 = Wav2Vec2Model(wav2vec2_config)
-        self.wav2vec2 = wav2vec2
+        self.config = config
+        task_cfg = self.merge_with_parent(HubertPretrainingConfig,
+                                          dict(self.config.task_cfg))
+        model_cfg = self.merge_with_parent(HubertConfig,
+                                           dict(self.config.model_cfg))
+        hubert = HubertModel(model_cfg, task_cfg, [None])
+        self.hubert = hubert
 
     @classmethod
     def from_config(cls, configs: dict):
@@ -314,11 +343,26 @@ class Wav2vec2Base(nn.Layer):
         Raises:
             ValueError: raise when using not support encoder type.
         Returns:
-            nn.Layer: Wav2Vec2Base
+            nn.Layer: HubertBase
         """
         model = cls(configs)
         return model
 
+    def merge_with_parent(self, dc: dataclass, cfg: dict):
+        assert is_dataclass(dc)
+        assert type(cfg) == dict
+        cfg = deepcopy(cfg)
+
+        def fix_cfg(cfg):
+            target_keys = set(dc.__dataclass_fields__.keys())
+            for k in list(cfg.keys()):
+                if k not in target_keys:
+                    del cfg[k]
+
+        fix_cfg(cfg)
+        assert len(cfg) > 0
+        return dc(**cfg)
+
     def forward(self, wav):
-        out = self.wav2vec2(wav)
+        out = self.hubert.extract_features(wav)
         return out

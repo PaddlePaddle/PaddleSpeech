@@ -274,7 +274,7 @@ class ASRExecutor(BaseExecutor):
             # fbank
             audio = preprocessing(audio, **preprocess_args)
 
-            audio_len = paddle.to_tensor(audio.shape[0])
+            audio_len = paddle.to_tensor(audio.shape[0]).unsqueeze(axis=0)
             audio = paddle.to_tensor(audio, dtype='float32').unsqueeze(axis=0)
 
             self._inputs["audio"] = audio

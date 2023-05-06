@@ -1,0 +1,22 @@
+syntax="proto2";
+package example;
+
+option cc_generic_services = true;
+
+
+
+message AudioRequest {
+      required string audio = 1;
+      required string extra = 2; 
+};
+
+message AudioResponse {
+      required int32 err_no = 1;
+      required string err_msg = 2;
+      required string result = 3;
+      required float cost_time = 4;
+};
+
+service EchoService {
+      rpc audiorecognition(AudioRequest) returns (AudioResponse);
+};

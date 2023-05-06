@@ -37,6 +37,8 @@
   paddlespeech_server start --config_file ./conf/application.yaml
   ```
 
+  > **注意：** 中英文混合语音识别请使用  `./conf/conformer_talcs_application.yaml` 配置文件
+
   使用方法：
   
   ```bash
@@ -79,6 +81,8 @@
   [2022-02-23 14:57:56] [INFO] [server.py:204] Uvicorn running on http://0.0.0.0:8090 (Press CTRL+C to quit)
   ```
 
+
+
 ### 4. ASR 客户端使用方法
 
 ASR 客户端的输入是一个 WAV 文件（`.wav`），并且采样率必须与模型的采样率相同。
@@ -87,6 +91,7 @@ ASR 客户端的输入是一个 WAV 文件（`.wav`），并且采样率必须�
 ```bash
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 
 **注意：** 初次使用客户端时响应时间会略长
@@ -94,8 +99,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
-  ```
+  ```bash
   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+  
+  # 中英文混合语音识别
+  paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./ch_zh_mix.wav
   ```
 
   使用帮助:

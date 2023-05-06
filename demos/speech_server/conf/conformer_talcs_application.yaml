@@ -1,0 +1,163 @@
+# This is the parameter configuration file for PaddleSpeech Offline Serving.
+
+#################################################################################
+#                             SERVER SETTING                                    #
+#################################################################################
+host: 0.0.0.0
+port: 8090
+
+# The task format in the engin_list is: <speech task>_<engine type>
+# task choices = ['asr_python', 'asr_inference', 'tts_python', 'tts_inference', 'cls_python', 'cls_inference', 'text_python', 'vector_python']
+protocol: 'http'
+engine_list: ['asr_python', 'tts_python', 'cls_python', 'text_python', 'vector_python']
+
+
+#################################################################################
+#                                ENGINE CONFIG                                  #
+#################################################################################
+
+################################### ASR #########################################
+################### speech task: asr; engine_type: python #######################
+asr_python:
+    model: 'conformer_talcs'
+    lang: 'zh_en'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    decode_method: 'attention_rescoring'
+    force_yes: True
+    codeswitch: True
+    device:  # set 'gpu:id' or 'cpu'
+
+################### speech task: asr; engine_type: inference #######################
+asr_inference:
+    # model_type choices=['deepspeech2offline_aishell']
+    model_type: 'deepspeech2offline_aishell'
+    am_model: # the pdmodel file of am static model [optional]
+    am_params:  # the pdiparams file of am static model [optional]
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: 
+    decode_method: 
+    force_yes: True
+
+    am_predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'
+        switch_ir_optim: True
+        glog_info: False  # True -> print glog
+        summary: True  # False -> do not show predictor config
+
+
+################################### TTS #########################################
+################### speech task: tts; engine_type: python #######################
+tts_python:
+    # am (acoustic model) choices=['speedyspeech_csmsc', 'fastspeech2_csmsc',
+    #                             'fastspeech2_ljspeech', 'fastspeech2_aishell3',
+    #                             'fastspeech2_vctk', 'fastspeech2_mix',
+    #                             'tacotron2_csmsc', 'tacotron2_ljspeech']
+    am: 'fastspeech2_csmsc'   
+    am_config: 
+    am_ckpt: 
+    am_stat: 
+    phones_dict: 
+    tones_dict: 
+    speaker_dict: 
+
+
+    # voc (vocoder) choices=['pwgan_csmsc', 'pwgan_ljspeech', 'pwgan_aishell3',
+    #                        'pwgan_vctk', 'mb_melgan_csmsc', 'style_melgan_csmsc',
+    #                        'hifigan_csmsc', 'hifigan_ljspeech', 'hifigan_aishell3',
+    #                        'hifigan_vctk', 'wavernn_csmsc']
+    voc: 'mb_melgan_csmsc'
+    voc_config: 
+    voc_ckpt: 
+    voc_stat: 
+
+    # others
+    lang: 'zh'
+    device:  # set 'gpu:id' or 'cpu'
+
+
+################### speech task: tts; engine_type: inference #######################
+tts_inference:
+    # am (acoustic model) choices=['speedyspeech_csmsc', 'fastspeech2_csmsc']
+    am: 'fastspeech2_csmsc'   
+    am_model: # the pdmodel file of your am static model (XX.pdmodel)
+    am_params: # the pdiparams file of your am static model (XX.pdipparams)
+    am_sample_rate: 24000
+    phones_dict: 
+    tones_dict: 
+    speaker_dict: 
+
+
+    am_predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'
+        switch_ir_optim: True
+        glog_info: False # True -> print glog
+        summary: True  # False -> do not show predictor config
+
+    # voc (vocoder) choices=['pwgan_csmsc', 'mb_melgan_csmsc','hifigan_csmsc']
+    voc: 'mb_melgan_csmsc'
+    voc_model: # the pdmodel file of your vocoder static model (XX.pdmodel)
+    voc_params: # the pdiparams file of your vocoder static model (XX.pdipparams)
+    voc_sample_rate: 24000
+
+    voc_predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'  
+        switch_ir_optim: True  
+        glog_info: False # True -> print glog
+        summary: True  # False -> do not show predictor config
+
+    # others
+    lang: 'zh'
+
+
+################################### CLS #########################################
+################### speech task: cls; engine_type: python #######################
+cls_python:
+    # model choices=['panns_cnn14', 'panns_cnn10', 'panns_cnn6']
+    model: 'panns_cnn14'
+    cfg_path: # [optional] Config of cls task.
+    ckpt_path: # [optional] Checkpoint file of model.
+    label_file: # [optional] Label file of cls task.
+    device:  # set 'gpu:id' or 'cpu'
+
+
+################### speech task: cls; engine_type: inference #######################
+cls_inference:
+    # model_type choices=['panns_cnn14', 'panns_cnn10', 'panns_cnn6']
+    model_type: 'panns_cnn14' 
+    cfg_path: 
+    model_path:  # the pdmodel file of am static model [optional]
+    params_path:  # the pdiparams file of am static model [optional]
+    label_file:  # [optional] Label file of cls task.
+
+    predictor_conf:
+        device:  # set 'gpu:id' or 'cpu'
+        switch_ir_optim: True
+        glog_info: False  # True -> print glog
+        summary: True  # False -> do not show predictor config
+
+
+################################### Text #########################################
+################### text task: punc; engine_type: python #######################
+text_python:
+    task: punc
+    model_type: 'ernie_linear_p3_wudao'
+    lang: 'zh'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    vocab_file: # [optional]
+    device:  # set 'gpu:id' or 'cpu'
+
+
+################################### Vector ######################################
+################### Vector task: spk; engine_type: python #######################
+vector_python:
+    task: spk
+    model_type: 'ecapatdnn_voxceleb12'
+    sample_rate: 16000
+    cfg_path: # [optional]
+    ckpt_path: # [optional]
+    device:  # set 'gpu:id' or 'cpu'

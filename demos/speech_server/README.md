@@ -34,6 +34,8 @@ Currently the engine type supports two forms: python and inference (Paddle Infer
   paddlespeech_server start --config_file ./conf/application.yaml
   ```
 
+  > **Note:** For mixed Chinese and English speech recognition, please use the `./conf/conformer_talcs_application.yaml` configuration file 
+
   Usage:
   
   ```bash
@@ -85,6 +87,7 @@ Here are sample files for this ASR client demo that can be downloaded:
 ```bash
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 
 **Note:** The response time will be slightly longer when using the client for the first time
@@ -92,8 +95,11 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 
    If `127.0.0.1` is not accessible, you need to use the actual service IP address.
 
-   ```
+   ```bash
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
+  
+   # Chinese and English mixed speech recognition
+   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./ch_zh_mix.wav
    ```
 
   Usage:

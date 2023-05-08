@@ -69,8 +69,8 @@ class ASREngine(BaseEngine):
 
         cs = False
 
-        if 'codeswitch' in self.config:
-            cs=self.config.codeswitch
+        if self.config.lang == "zh_en" :
+            cs=True
 
         self.executor._init_from_path(
             model_type=self.config.model,

@@ -102,7 +102,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
   ```bash
   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
   
-  # 中英文混合语音识别
+  # 中英文混合语音识别 , 请使用  `./conf/conformer_talcs_application.yaml` 配置文件
   paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./ch_zh_mix.wav
   ```
 

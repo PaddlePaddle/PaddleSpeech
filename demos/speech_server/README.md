@@ -98,7 +98,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
    ```bash
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./zh.wav
   
-   # Chinese and English mixed speech recognition
+   # Chinese and English mixed speech recognition,  using `./conf/conformer_talcs_application.yaml` config file
    paddlespeech_client asr --server_ip 127.0.0.1 --port 8090 --input ./ch_zh_mix.wav
    ```
 

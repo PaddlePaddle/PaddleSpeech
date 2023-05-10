@@ -69,6 +69,7 @@ base = [
     "webrtcvad",
     "yacs~=0.1.8",
     "zhon",
+    "numpy==1.23.5",
 ]
 
 server = ["pattern_singleton", "websockets"]

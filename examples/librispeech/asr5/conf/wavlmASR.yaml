@@ -1,0 +1,137 @@
+############################################
+#          Network Architecture           #
+############################################
+freeze_wavlm: False
+normalize_wav: True
+output_norm: True
+init_type: kaiming_uniform # !Warning: need to convergence
+enc:
+  input_shape: 768
+  dnn_blocks: 2
+  dnn_neurons: 768
+  activation: True
+  normalization: True
+  dropout_rate: [0.15, 0]
+ctc:
+  enc_n_units: 768
+  blank_id: 0
+  dropout_rate: 0.0
+wavlm_params_path: "/home/ubuntu/Documents/Github/wavlm_paddle/wavlm-paddle-ft.pth"
+
+
+task_cfg:
+  label_rate: 50.0
+  sample_rate: 16000
+  normalize: True
+  enable_padding: False
+  max_keep_size: None
+  max_sample_size: 250000
+  min_sample_size: 32000
+  dropout_input: 0.1
+  final_dropout: 0.0
+  dropout: 0.1
+  attention_dropout: 0.0
+  activation_dropout: 0.1
+  apply_mask: True
+  mask_length: 10
+  mask_prob: 0.5
+  mask_selection: static
+  mask_other: 0.0
+  no_mask_overlap: False
+  mask_channel_length: 10
+  mask_channel_prob: 0.0
+  mask_channel_selection: static
+  mask_channel_other: 0.0
+  no_mask_channel_overlap: False
+  feature_grad_mult: 0.0
+  layerdrop: 0.1
+  fp16: True
+  extractor_mode: layer_norm
+  encoder_layers: 12
+  encoder_embed_dim: 768
+  encoder_ffn_embed_dim: 3072
+  encoder_attention_heads: 12
+  activation_fn: gelu
+  encoder_layerdrop: 0.0
+  dropout_features: 0.0
+  final_dim: 768
+  untie_final_proj: True
+  layer_norm_first: True
+  conv_feature_layers: "[(512,10,5)] + [(512,3,2)] * 4 + [(512,2,2)] * 2"
+  conv_bias: False
+  logit_temp: 0.1
+  target_glu: False
+  mask_min_space: 1
+  mask_channel_min_space: 1
+  conv_pos: 128
+  conv_pos_groups: 16
+  latent_temp: [2.0, 0.5, 0.999995]
+  skip_masked: False
+  skip_nomask: True
+
+###########################################
+#                   Data                  #
+###########################################
+train_manifest: data/manifest.train
+dev_manifest: data/manifest.dev
+test_manifest: data/manifest.test-clean
+
+###########################################
+#              Dataloader                 #
+###########################################
+vocab_filepath: data/lang_char/vocab.txt 
+unit_type: char
+mean_std_filepath: ""
+preprocess_config: conf/preprocess.yaml
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs 0: disabled other: enabled for other epochs 
+batch_size: 8  # Different batch_size may cause large differences in results
+maxlen_in: 51200000000  # if input length  > maxlen-in batchsize is automatically reduced
+maxlen_out: 160000
+minibatches: 0 # for debug
+batch_count: auto
+batch_bins: 0 
+batch_frames_in: 0
+batch_frames_out: 0
+batch_frames_inout: 0
+num_workers: 0
+subsampling_factor: 1
+num_encs: 1
+dist_sampler: True
+shortest_first: False
+return_lens_rate: True
+  
+############################################
+#             Data Augmentation            #
+############################################
+audio_augment:  # for raw audio 
+  sample_rate: 16000
+  speeds: [90, 100, 110]
+
+###########################################
+#                 Training                #
+###########################################
+n_epoch: 10
+accum_grad: 8
+global_grad_clip: 5.0
+model_scheduler: newbobscheduler
+model_scheduler_conf:
+  improvement_threshold: 0.0025
+  annealing_factor: 0.8
+  patient: 0
+model_optim: adam
+model_optim_conf:
+  lr: 0.0001
+  weight_decay: 0.0
+# I changed this
+wavlm_optim: adam
+wavlm_optim_conf:
+  lr: 0.00005
+  weight_decay: 0.0
+wavlm_scheduler: constantlr    
+wavlm_scheduler_conf:
+  warmup_steps: 1000
+  lr_decay: 1.0
+log_interval: 1
+checkpoint:
+  kbest_n: 50
+  latest_n: 5

@@ -1,0 +1,9 @@
+{
+  "do_normalize": true,
+  "feature_extractor_type": "Wav2Vec2FeatureExtractor",
+  "feature_size": 1,
+  "padding_side": "right",
+  "padding_value": 0,
+  "return_attention_mask": true,
+  "sampling_rate": 16000
+}

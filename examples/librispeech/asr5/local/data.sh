@@ -101,10 +101,10 @@ fi
 
 echo "LibriSpeech Data preparation done."
 
-# if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-#     mkdir -p exp/hubert
-#     echo "Pretrained hubert model download"
-#     wget -P exp/hubert https://paddlespeech.bj.bcebos.com/hubert/hubert-large-lv60.pdparams
-# fi
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+    mkdir -p exp/wavlm
+    echo "Pretrained wavlm model download"
+    wget -P exp/wavlm https://paddlespeech.bj.bcebos.com/wavlm/wavlm-base-plus.pdparams
+fi
 
 exit 0

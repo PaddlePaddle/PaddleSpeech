@@ -16,7 +16,7 @@ ctc:
   enc_n_units: 768
   blank_id: 0
   dropout_rate: 0.0
-wavlm_params_path: "/home/ubuntu/Documents/Github/wavlm_paddle/wavlm-paddle-ft.pth"
+wavlm_params_path: exp/wavlm/wavlm-base-plus.pdparams
 
 
 task_cfg:

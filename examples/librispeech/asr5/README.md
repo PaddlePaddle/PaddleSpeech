@@ -1,5 +1,5 @@
-# Hubert2ASR with Librispeech
-This example contains code used to finetune [hubert](https://arxiv.org/abs/2106.07447) model with [Librispeech dataset](http://www.openslr.org/resources/12)
+# WavLM2ASR with Librispeech
+This example contains code used to finetune [WavLM](https://arxiv.org/abs/2110.13900) model with [Librispeech dataset](http://www.openslr.org/resources/12)
 ## Overview
 All the scripts you need are in `run.sh`. There are several stages in `run.sh`, and each stage has its function.
 | Stage | Function                                                     |
@@ -42,7 +42,7 @@ Some local variables are set in `run.sh`.
 `conf_path` denotes the config path of the model.
 `avg_num` denotes the number K of top-K models you want to average to get the final model.
 `audio file` denotes the file path of the single file you want to infer in stage 5
-`ckpt` denotes the checkpoint prefix of the model, e.g. "hubertASR"
+`ckpt` denotes the checkpoint prefix of the model, e.g. "WavLMASR"
 
 You can set the local variables (except `ckpt`) when you use `run.sh`
 
@@ -89,10 +89,10 @@ data/
 `-- train.meta
 ```
 
-Stage 0 also downloads the pre-trained [hubert](https://paddlespeech.bj.bcebos.com/hubert/hubert-large-lv60.pdparams) model.
+Stage 0 also downloads the pre-trained [wavlm](https://paddlespeech.bj.bcebos.com/wavlm/wavlm-base-plus.pdparams) model.
 ```bash
-mkdir -p exp/hubert
-wget -P exp/hubert https://paddlespeech.bj.bcebos.com/hubert/hubert-large-lv60.pdparams
+mkdir -p exp/wavlm
+wget -P exp/wavlm https://paddlespeech.bj.bcebos.com/wavlm/wavlm-base-plus.pdparams
 ```
 ## Stage 1: Model Training
 If you want to train the model. you can use stage 1 in `run.sh`. The code is shown below. 
@@ -111,10 +111,10 @@ or you can run these scripts in the command line (only use CPU).
 . ./path.sh
 . ./cmd.sh
 bash ./local/data.sh
-CUDA_VISIBLE_DEVICES= ./local/train.sh conf/hubertASR.yaml hubertASR
+CUDA_VISIBLE_DEVICES= ./local/train.sh conf/wavlmASR.yaml wavlmASR
 ```
 ## Stage 2: Top-k Models Averaging
-After training the model, we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the best model from them based on the validation loss or we can sort them and average the parameters of the top-k models to get the final model. We can use stage 2 to do this, and the code is shown below. Note: We only train one epoch for hubertASR, thus the `avg_num` is set to 1.
+After training the model, we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the best model from them based on the validation loss or we can sort them and average the parameters of the top-k models to get the final model. We can use stage 2 to do this, and the code is shown below. Note: We only train one epoch for wavlmASR, thus the `avg_num` is set to 1.
 ```bash
  if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
      # avg n best model
@@ -132,8 +132,8 @@ or you can run these scripts in the command line (only use CPU).
 . ./path.sh
 . ./cmd.sh
 bash ./local/data.sh
-CUDA_VISIBLE_DEVICES= ./local/train.sh conf/hubertASR.yaml hubertASR
-avg.sh best exp/hubertASR/checkpoints 1
+CUDA_VISIBLE_DEVICES= ./local/train.sh conf/wavlmASR.yaml wavlmASR
+avg.sh best exp/wavlmASR/checkpoints 1
 ```
 ## Stage 3: Model Testing
 The test stage is to evaluate the model performance. The code of test stage is shown below:
@@ -152,24 +152,24 @@ or you can run these scripts in the command line (only use CPU).
 . ./path.sh
 . ./cmd.sh
 bash ./local/data.sh
-CUDA_VISIBLE_DEVICES= ./local/train.sh conf/hubertASR.yaml hubertASR
-avg.sh best exp/hubertASR/checkpoints 1
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/hubertASR.yaml conf/tuning/decode.yaml exp/hubertASR/checkpoints/avg_1
+CUDA_VISIBLE_DEVICES= ./local/train.sh conf/wavlmASR.yaml wavlmASR
+avg.sh best exp/wavlmASR/checkpoints 1
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/wavlmASR.yaml conf/tuning/decode.yaml exp/wavlmASR/checkpoints/avg_1
 ```
 ## Pretrained Model
-You can get the pretrained hubertASR from [this](../../../docs/source/released_model.md).
+You can get the pretrained wavlmASR from [this](../../../docs/source/released_model.md).
 
 using the `tar` scripts to unpack the model and then you can use the script to test the model.
 
 For example:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/hubert/hubertASR-large-100h-librispeech_ckpt_1.4.0.model.tar.gz
-tar xzvf hubertASR-large-100h-librispeech_ckpt_1.4.0.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/wavlm/wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
+tar xzvf wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2 --stop_stage 2
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/hubertASR.yaml conf/tuning/decode.yaml exp/hubertASR/checkpoints/avg_1
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/wavlmASR.yaml conf/tuning/decode.yaml exp/wavlmASR/checkpoints/avg_1
 ```
 The performance of the released models are shown in [here](./RESULTS.md).
 
@@ -184,8 +184,8 @@ In some situations, you want to use the trained model to do the inference for th
 ```
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/hubert/hubertASR-large-100h-librispeech_ckpt_1.4.0.model.tar.gz
-tar xzvf hubertASR-large-100h-librispeech_ckpt_1.4.0.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/wavlm/wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
+tar xzvf wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
 ```
 You can download the audio demo:
 ```bash
@@ -193,5 +193,5 @@ wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.w
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/hubertASR.yaml conf/tuning/decode.yaml exp/hubertASR/checkpoints/avg_1 data/demo_002_en.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/wavlmASR.yaml conf/tuning/decode.yaml exp/wavlmASR/checkpoints/avg_1 data/demo_002_en.wav
 ```

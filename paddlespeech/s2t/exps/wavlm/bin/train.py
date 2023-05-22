@@ -19,53 +19,7 @@ from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.wavlm.model import WavLMASRTrainer as Trainer
 from paddlespeech.s2t.training.cli import default_argument_parser
-# from paddlespeech.utils.argparse import print_arguments
-
-import distutils.util
-
-def add_arguments(argname, type, default, help, argparser, **kwargs):
-    """Add argparse's argument.
-
-    Usage:
-
-    .. code-block:: python
-
-        parser = argparse.ArgumentParser()
-        add_argument("name", str, "Jonh", "User name.", parser)
-        args = parser.parse_args()
-    """
-    type = distutils.util.strtobool if type == bool else type
-    argparser.add_argument(
-        "--" + argname,
-        default=default,
-        type=type,
-        help=help + ' Default: %(default)s.',
-        **kwargs)
-
-def print_arguments(args, info=None):
-    """Print argparse's arguments.
-
-    Usage:
-
-    .. code-block:: python
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument("name", default="Jonh", type=str, help="User name.")
-        args = parser.parse_args()
-        print_arguments(args)
-
-    :param args: Input argparse.Namespace for printing.
-    :type args: argparse.Namespace
-    """
-    filename = ""
-    if info:
-        filename = info["__file__"]
-    filename = os.path.basename(filename)
-    print(f"----------- {filename} Configuration Arguments -----------")
-    for arg, value in sorted(vars(args).items()):
-        print("%s: %s" % (arg, value))
-    print("-----------------------------------------------------------")
-
+from paddlespeech.utils.argparse import print_arguments, add_arguments
 
 
 def main_sp(config, args):

@@ -783,7 +783,7 @@ class FastSpeech2(nn.Layer):
         x = paddle.cast(text, 'int64')
         d, p, e = durations, pitch, energy
         # setup batch axis
-        ilens = paddle.shape(x)[0]
+        ilens = paddle.shape(x)[0:1]
 
         xs = x.unsqueeze(0)
 

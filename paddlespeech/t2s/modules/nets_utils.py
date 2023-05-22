@@ -181,7 +181,7 @@ def make_pad_mask(lengths, xs=None, length_dim=-1):
     if length_dim == 0:
         raise ValueError("length_dim cannot be 0: {}".format(length_dim))
 
-    bs = paddle.shape(lengths)[0]
+    bs = paddle.shape(lengths)
     if xs is None:
         maxlen = paddle.cast(lengths.max(), dtype=bs.dtype)
     else:

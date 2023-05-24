@@ -25,6 +25,7 @@ model_alias = {
     "wav2vec2": ["paddlespeech.s2t.models.wav2vec2:Wav2vec2Base"],
     "hubertASR": ["paddlespeech.s2t.models.hubert:HubertASR"],
     "hubert": ["paddlespeech.s2t.models.hubert:HubertBase"],
+    "wavlmASR": ["paddlespeech.s2t.models.wavlm:WavLMASR"],
 
     # ---------------------------------
     # -------------- ASR --------------

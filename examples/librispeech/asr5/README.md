@@ -184,8 +184,8 @@ In some situations, you want to use the trained model to do the inference for th
 ```
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/wavlm/wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
-tar xzvf wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz
+tar xzvf wavlm_baseplus_libriclean_100h.tar.gz
 ```
 You can download the audio demo:
 ```bash

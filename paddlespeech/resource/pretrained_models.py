@@ -152,7 +152,7 @@ ssl_dynamic_pretrained_models = {
     "wavlmASR_librispeech-en-16k": {
         "1.0": {
             "url": "https://paddlespeech.bj.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz",
-            "md5": "cfa5157302d449f1dc960ad9719d72fa",
+            "md5": "f2238e982bb8bcf046e536201f5ea629",
             "cfg_path": "model.yaml",
             "ckpt_path": "exp/wavlmASR/checkpoints/46",
             "model": "exp/wavlmASR/checkpoints/46.pdparams",

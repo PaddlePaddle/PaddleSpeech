@@ -40,7 +40,7 @@ base = [
     "hyperpyyaml",
     "inflect",
     "jsonlines",
-    "librosa==0.8.1",
+    "librosa==0.10.0",
     "loguru",
     "matplotlib",
     "nara_wpe",

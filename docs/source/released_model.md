@@ -1,5 +1,7 @@
 # Released Models
 
+> !!! Since PaddlePaddle support 0-D tensor from 2.5.0, PaddleSpeech Static model will not work for it, please re-export static model.
+
 ## Speech-to-Text Models
 
 ### Speech Recognition Model

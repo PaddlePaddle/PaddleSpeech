@@ -252,7 +252,7 @@ class STExecutor(BaseExecutor):
             norm_feat = dict(kaldiio.load_ark(process.stdout))[utt_name]
             self._inputs["audio"] = paddle.to_tensor(norm_feat).unsqueeze(0)
             self._inputs["audio_len"] = paddle.to_tensor(
-                self._inputs["audio"].shape[1], dtype="int64")
+                self._inputs["audio"].shape[1:2], dtype="int64")
         else:
             raise ValueError("Wrong model type.")
 

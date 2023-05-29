@@ -491,7 +491,7 @@ class TTSExecutor(BaseExecutor):
                 # multi speaker
                 if am_dataset in {'aishell3', 'vctk', 'mix', 'canton'}:
                     mel = self.am_inference(
-                        part_phone_ids, spk_id=paddle.to_tensor(spk_id))
+                        part_phone_ids, spk_id=paddle.to_tensor([spk_id]))
                 else:
                     mel = self.am_inference(part_phone_ids)
             self.am_time += (time.time() - am_st)

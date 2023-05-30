@@ -274,7 +274,7 @@ asr_dynamic_pretrained_models = {
             'url':
             'https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_conformer_aishell_ckpt_1.5.0.model.tar.gz',
             'md5':
-            'a0adb2b204902982718bc1d8917f7038',
+            '38924b8adc28ef458847c3571e87e3cb',
             'cfg_path':
             'model.yaml',
             'ckpt_path':

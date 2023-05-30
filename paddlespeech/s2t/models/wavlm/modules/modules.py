@@ -60,19 +60,6 @@ class Fp32GroupNorm(nn.GroupNorm):
         return output.type_as(input)
 
 
-# class GradMultiply(torch.autograd.Function):
-# convert into paddle equivalent
-# class GradMultiply(torch.autograd.Function):
-    # @staticmethod
-    # def forward(ctx, x, scale):
-    #     ctx.scale = scale
-    #     res = x.new(x)
-    #     return res
-
-    # @staticmethod
-    # def backward(ctx, grad):
-    #     return grad * ctx.scale, None
-
 
 class SamePad(nn.Layer):
     def __init__(self, kernel_size, causal=False):
@@ -95,7 +82,6 @@ class Swish(nn.Layer):
     def __init__(self):
         """Construct an MultiHeadedAttention object."""
         super(Swish, self).__init__()
-        # self.act = torch.nn.Sigmoid()
         self.act = nn.Sigmoid()
 
     def forward(self, x):
@@ -162,7 +148,6 @@ def get_activation_fn(activation: str):
     elif activation == "gelu_accurate":
         return gelu_accurate
     elif activation == "tanh":
-        # return torch.tanh
         return paddle.tanh
     elif activation == "linear":
         return lambda x: x
@@ -170,44 +155,6 @@ def get_activation_fn(activation: str):
         return lambda x: x
     else:
         raise RuntimeError("--activation-fn {} not supported".format(activation))
-
-
-def init_bert_params(module):
-    """
-    Initialize the weights specific to the BERT Model.
-    This overrides the default initializations depending on the specified arguments.
-        1. If normal_init_linear_weights is set then weights of linear
-           layer will be initialized using the normal distribution and
-           bais will be set to the specified value.
-        2. If normal_init_embed_weights is set then weights of embedding
-           layer will be initialized using the normal distribution.
-        3. If normal_init_proj_weights is set then weights of
-           in_project_weight for MultiHeadAttention initialized using
-           the normal distribution (to be validated).
-    """
-
-    def normal_(data):
-        # with FSDP, module params will be on CUDA, so we cast them back to CPU
-        # so that the RNG is consistent with and without FSDP
-        data.copy_(
-            data.cpu().normal_(mean=0.0, std=0.02).to(data.device)
-        )
-
-    if isinstance(module, nn.Linear):
-        # normal_(module.weight.data)
-        if module.bias is not None:
-            # module.bias.data.zero_()
-            pass
-    if isinstance(module, nn.Embedding):
-        # normal_(module.weight.data)
-        if module.padding_idx is not None:
-            # module.weight.data[module.padding_idx].zero_()
-            pass
-    if isinstance(module, MultiheadAttention):
-        pass
-        # normal_(module.q_proj.weight.data)
-        # normal_(module.k_proj.weight.data)
-        # normal_(module.v_proj.weight.data)
 
 
 def quant_noise(module, p, block_size):
@@ -302,9 +249,8 @@ def quant_noise(module, p, block_size):
 
             # scale weights and apply mask
             mask = mask.to(
-                # torch.bool
                 paddle.bool
-            )  # x.bool() is not currently supported in TorchScript
+            )
             s = 1 / (1 - p)
             mod.weight.data = s * weight.masked_fill(mask, 0)
 
@@ -405,7 +351,6 @@ class MultiheadAttention(nn.Layer):
         self.gru_rel_pos = gru_rel_pos
         if self.gru_rel_pos:
             self.grep_linear = nn.Linear(self.q_head_dim, 8)
-            # self.grep_a = nn.Parameter(torch.ones(1, num_heads, 1, 1))
             self.grep_a = self.create_parameter(
                 shape=[1, num_heads, 1, 1], dtype="float32"
             )
@@ -415,48 +360,7 @@ class MultiheadAttention(nn.Layer):
 
     def reset_parameters(self):
         pass
-        # if self.qkv_same_dim:
-        #     # Empirically observed the convergence to be much better with
-        #     # the scaled initialization
-        #     # nn.init.xavier_uniform_(self.k_proj.weight, gain=1 / math.sqrt(2))
-        #     # self.k_proj.weight.set_value(
-        #     #     paddle.nn.initializer.XavierUniform(1, 1)(self.k_proj.weight.shape)
-        #     # )
-        #     # self.v_proj.weight.set_value(
-        #     #     paddle.nn.initializer.XavierUniform(1, 1)(self.v_proj.weight.shape)
-        #     # )
-        #     # self.q_proj.weight.set_value(
-        #     #     paddle.nn.initializer.XavierUniform(1, 1)(self.q_proj.weight.shape)
-        #     # )
-        #     pass
-        #     # nn.init.xavier_uniform_(self.v_proj.weight, gain=1 / math.sqrt(2))
-        #     # nn.init.xavier_uniform_(self.q_proj.weight, gain=1 / math.sqrt(2))
-        # else:
-        #     # nn.init.xavier_uniform_(self.k_proj.weight)
-        #     # nn.init.xavier_uniform_(self.v_proj.weight)
-        #     # nn.init.xavier_uniform_(self.q_proj.weight)
-        #     # self.k_proj.weight.set_value(
-        #     #     paddle.nn.initializer.XavierUniform()(self.k_proj.weight.shape)
-        #     # )
-        #     # self.v_proj.weight.set_value(
-        #     #     paddle.nn.initializer.XavierUniform()(self.v_proj.weight.shape)
-        #     # )
-        #     # self.q_proj.weight.set_value(
-        #     #     paddle.nn.initializer.XavierUniform()(self.q_proj.weight.shape)
-        #     # )
-        #     pass
-
-
-        # nn.init.xavier_uniform_(self.out_proj.weight)
-        # if self.out_proj.bias is not None:
-        #     nn.init.constant_(self.out_proj.bias, 0.0)
-        # if self.bias_k is not None:
-        #     nn.init.xavier_normal_(self.bias_k)
-        # if self.bias_v is not None:
-        #     nn.init.xavier_normal_(self.bias_v)
-        # if self.has_relative_attention_bias:
-        #     nn.init.xavier_normal_(self.relative_attention_bias.weight)
-
+        
     def _relative_positions_bucket(self, relative_positions, bidirectional=True):
         num_buckets = self.num_buckets
         max_distance = self.max_distance
@@ -544,7 +448,6 @@ class MultiheadAttention(nn.Layer):
             position_bias = paddle.concat([position_bias_ for _ in range(bsz)], axis=0)
             position_bias = position_bias.reshape([bsz * self.num_heads, tgt_len, src_len])
         if (
-                # not is_tpu  # don't use PyTorch version on TPUs
                 incremental_state is None
                 and not static_kv
                 and self.q_head_dim == self.head_dim
@@ -740,7 +643,6 @@ class MultiheadAttention(nn.Layer):
                 )
 
 
-        # attn_weights = torch.bmm(q, k.transpose(1, 2))
         attn_weights = paddle.bmm(q, k.transpose(1, 2))
         attn_weights = self.apply_sparse_mask(attn_weights, tgt_len, src_len, bsz)
 
@@ -753,16 +655,10 @@ class MultiheadAttention(nn.Layer):
         if key_padding_mask is not None:
             # don't attend to padding symbols
             attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len)
-            if not is_tpu:
-                attn_weights = attn_weights.masked_fill(
-                    # key_padding_mask.unsqueeze(1).unsqueeze(2).to(torch.bool),
-                    key_padding_mask.unsqueeze(1).unsqueeze(2).to(paddle.bool),
-                    float("-inf"),
-                )
-            else:
-                attn_weights = attn_weights.transpose(0, 2)
-                attn_weights = attn_weights.masked_fill(key_padding_mask, float("-inf"))
-                attn_weights = attn_weights.transpose(0, 2)
+            attn_weights = attn_weights.masked_fill(
+                key_padding_mask.unsqueeze(1).unsqueeze(2).to(paddle.bool),
+                float("-inf"),
+            )
             attn_weights = attn_weights.view(bsz * self.num_heads, tgt_len, src_len)
 
         if before_softmax:
@@ -772,8 +668,6 @@ class MultiheadAttention(nn.Layer):
             if self.gru_rel_pos == 1:
                 query_layer = q.view(bsz, self.num_heads, tgt_len, self.q_head_dim)
                 _B, _H, _L, __ = query_layer.shape
-                # gate_a, gate_b = torch.sigmoid(self.grep_linear(query_layer).view(
-                #     _B, _H, _L, 2, 4).sum(-1, keepdim=False)).chunk(2, dim=-1)
                 gate_a, gate_b = paddle.sigmoid(self.grep_linear(query_layer).view(
                     _B, _H, _L, 2, 4).sum(-1, keepdim=False)).chunk(2, axis=-1)
                 
@@ -791,7 +685,6 @@ class MultiheadAttention(nn.Layer):
         attn_probs = self.dropout_module(attn_weights)
 
         assert v is not None
-        # attn = torch.bmm(attn_probs, v)
         attn = paddle.bmm(attn_probs, v)
         assert list(attn.shape) == [bsz * self.num_heads, tgt_len, self.head_dim]
         attn = attn.transpose(0, 1).contiguous().view(tgt_len, bsz, embed_dim)
@@ -819,9 +712,6 @@ class MultiheadAttention(nn.Layer):
         if prev_key_padding_mask is not None and static_kv:
             new_key_padding_mask = prev_key_padding_mask
         elif prev_key_padding_mask is not None and key_padding_mask is not None:
-            # new_key_padding_mask = torch.cat(
-            #     [prev_key_padding_mask.float(), key_padding_mask.float()], dim=1
-            # )
             new_key_padding_mask = paddle.concat(
                 [prev_key_padding_mask.float(), key_padding_mask.float()], axis=1
             )
@@ -830,18 +720,10 @@ class MultiheadAttention(nn.Layer):
         # is None
         elif prev_key_padding_mask is not None:
             if src_len > prev_key_padding_mask.size(1):
-                # filler = torch.zeros(
-                #     (batch_size, src_len - prev_key_padding_mask.size(1)),
-                #     device=prev_key_padding_mask.device,
-                # )
                 filler = paddle.zeros(
                     (batch_size, src_len - prev_key_padding_mask.size(1)),
                     device=prev_key_padding_mask.device,
                 )
-
-                # new_key_padding_mask = torch.cat(
-                #     [prev_key_padding_mask.float(), filler.float()], dim=1
-                # )
                 new_key_padding_mask = paddle.concat(
                     [prev_key_padding_mask.float(), filler.float()], axis=1
                 )
@@ -850,17 +732,10 @@ class MultiheadAttention(nn.Layer):
                 new_key_padding_mask = prev_key_padding_mask.float()
         elif key_padding_mask is not None:
             if src_len > key_padding_mask.size(1):
-                # filler = torch.zeros(
-                #     (batch_size, src_len - key_padding_mask.size(1)),
-                #     device=key_padding_mask.device,
-                # )
                 filler = paddle.zeros(
                     (batch_size, src_len - key_padding_mask.size(1)),
                     device=key_padding_mask.device,
                 )
-                # new_key_padding_mask = torch.cat(
-                #     [filler.float(), key_padding_mask.float()], dim=1
-                # )
                 new_key_padding_mask = paddle.concat(
                     [filler.float(), key_padding_mask.float()], axis=1
                 )

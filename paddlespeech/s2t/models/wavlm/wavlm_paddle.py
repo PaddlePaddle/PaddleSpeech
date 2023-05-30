@@ -21,7 +21,6 @@ from paddle import Tensor
 from .modules.modules import (
     MultiheadAttention,
     SamePad,
-    init_bert_params,
     get_activation_fn,
     TransposeLast,
     GLU_Linear,

@@ -29,7 +29,7 @@ from paddlespeech.s2t.utils.utility import UpdateConfig
 logger = Log(__name__).getlog()
 
 
-class Wav2vec2Infer():
+class WavLMInfer():
     def __init__(self, config, args):
         self.args = args
         self.config = config
@@ -99,7 +99,7 @@ def check(audio_file):
 
 
 def main(config, args):
-    Wav2vec2Infer(config, args).run()
+    WavLMInfer(config, args).run()
 
 
 if __name__ == "__main__":

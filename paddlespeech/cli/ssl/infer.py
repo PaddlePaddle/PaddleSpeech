@@ -52,7 +52,7 @@ class SSLExecutor(BaseExecutor):
             '--model',
             type=str,
             default='wav2vec2',
-            choices=['wav2vec2', 'hubert'],
+            choices=['wav2vec2', 'hubert', "wavlm"],
             help='Choose model type of asr task.')
         self.parser.add_argument(
             '--task',
@@ -156,6 +156,12 @@ class SSLExecutor(BaseExecutor):
                         model_prefix = 'hubertASR_librispeech-100h'
                     elif lang == 'zh':
                         logger.error("zh hubertASR is not supported yet")
+                    tag = model_prefix + '-' + lang + '-' + sample_rate_str
+                elif model_type == 'wavlm':
+                    if lang == "en":
+                        model_prefix = "wavlmASR_librispeech"
+                    elif lang == "zh":
+                        logger.error("zh wavlmASR is not supported yet")
                     tag = model_prefix + '-' + lang + '-' + sample_rate_str
             else:
                 tag = model_type + '-' + lang + '-' + sample_rate_str

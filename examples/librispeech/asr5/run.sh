@@ -4,7 +4,7 @@ set -e
 . ./path.sh || exit 1;
 . ./cmd.sh || exit 1;
 
-gpus=1,2,3
+gpus=0,1,2
 stage=0
 stop_stage=3
 conf_path=conf/wavlmASR.yaml

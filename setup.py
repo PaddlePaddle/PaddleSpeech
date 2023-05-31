@@ -41,6 +41,7 @@ base = [
     "inflect",
     "jsonlines",
     "librosa==0.8.1",
+    "scipy>=1.4.0",
     "loguru",
     "matplotlib",
     "nara_wpe",

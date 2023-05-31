@@ -39,7 +39,7 @@ COMMITID = 'none'
 
 base = [
     "kaldiio",
-    "librosa==0.8.1",
+    "librosa>=0.10.0",
     "pathos",
     "pybind11",
     "parameterized",

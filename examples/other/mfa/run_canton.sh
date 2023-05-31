@@ -1,15 +1,14 @@
-EXP_DIR=exp
+exp=exp
 
-mkdir -p $EXP_DIR
+mkdir -p $exp
 LEXICON_NAME='canton'
-if [ ! -f "$EXP_DIR/$LEXICON_NAME.lexicon" ]; then
+MFA_DOWNLOAD_DIR=local/
+
+if [ ! -f "$exp/$LEXICON_NAME.lexicon" ]; then
     echo "generating lexicon and training data..."
-    python local/generate_canton_lexicon_wavlabs.py --output_lexicon "$EXP_DIR/$LEXICON_NAME.lexicon" --output_wavlabs "$EXP_DIR/$LEXICON_NAME"_wavlabs --inputs ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle
+    python local/generate_canton_lexicon_wavlabs.py --output_lexicon "$exp/$LEXICON_NAME.lexicon" --output_wavlabs "$exp/$LEXICON_NAME"_wavlabs --inputs ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_Daily_Use_Sentence ~/datasets/Guangzhou_Cantonese_Scripted_Speech_Corpus_in_Vehicle
     echo "lexicon and training data done"
 fi
-
-
-MFA_DOWNLOAD_DIR=local/
 
 if [ ! -f "$MFA_DOWNLOAD_DIR/montreal-forced-aligner_linux.tar.gz" ]; then
     echo "downloading mfa..."
@@ -24,11 +23,14 @@ if [ ! -d "$MFA_DOWNLOAD_DIR/montreal-forced-aligner" ]; then
 fi
 
 export PATH="$MFA_DOWNLOAD_DIR/montreal-forced-aligner/bin"
-if [ ! -d "$EXP_DIR/canton_alignment" ]; then
+if [ ! -d "$exp/canton_alignment" ]; then
     echo "Start MFA training..."
-    mfa_train_and_align "$EXP_DIR/$LEXICON_NAME"_wavlabs "$EXP_DIR/$LEXICON_NAME.lexicon" $EXP_DIR/canton_alignment -o $EXP_DIR/canton_model --clean --verbose --temp_directory $EXP_DIR/.mfa_train_and_align
+    PATH=$MFA_DOWNLOAD_DIR/montreal-forced-aligner/bin/:$PATH \
+    LD_LIBRARY_PATH=$MFA_DOWNLOAD_DIR/montreal-forced-aligner/lib/:$LD_LIBRARY_PATH \
+    ./$MFA_DOWNLOAD_DIR/montreal-forced-aligner/bin/mfa_train_and_align \
+        "$exp/$LEXICON_NAME"_wavlabs "$exp/$LEXICON_NAME.lexicon" $exp/canton_alignment -o $exp/canton_model --clean --verbose -j 10 --temp_directory $exp/.mfa_train_and_align
     echo "training done!"
-    echo "results: $EXP_DIR/canton_alignment"
-    echo "model: $EXP_DIR/canton_model"
+    echo "results: $exp/canton_alignment"
+    echo "model: $exp/canton_model"
 fi
 

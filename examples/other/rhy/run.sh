@@ -14,7 +14,7 @@ csmsc_data=000001-010000.txt
 
 conf_path=conf/default.yaml
 train_output_path=exp/default
-ckpt_name=snapshot_iter_2600.pdz
+ckpt_name=snapshot_iter_4680.pdz
 text=我们城市的复苏有赖于他强有力的政策。
 print_eval=false
 

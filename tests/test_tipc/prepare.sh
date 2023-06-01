@@ -29,11 +29,11 @@ if [[ ${MODE} = "benchmark_train" ]];then
     cd ${curPath}/../..
     echo "------------- install for speech  "
     apt-get install libsndfile1 -y 
-    pip install yacs -i https://pypi.tuna.tsinghua.edu.cn/simple
-    pip install pytest-runner  -i https://pypi.tuna.tsinghua.edu.cn/simple
-    pip install kaldiio  -i https://pypi.tuna.tsinghua.edu.cn/simple
-    pip install setuptools_scm -i https://pypi.tuna.tsinghua.edu.cn/simple 
-    pip install . -i https://pypi.tuna.tsinghua.edu.cn/simple 
+    pip install yacs #-i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install pytest-runner  #-i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install kaldiio  #-i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install setuptools_scm #-i https://pypi.tuna.tsinghua.edu.cn/simple 
+    pip install . #-i https://pypi.tuna.tsinghua.edu.cn/simple 
     pip install jsonlines
     pip list
     cd -

@@ -343,7 +343,8 @@ class Resample(nn.Layer):
         window_width = self.lowpass_filter_width / (2.0 * lowpass_cutoff)
 
         assert lowpass_cutoff < min(self.orig_freq, self.new_freq) / 2
-        output_t = paddle.arange(start=0.0, end=self.output_samples)
+        output_t = paddle.arange(
+            start=0.0, end=self.output_samples, dtype='int64')
         output_t /= self.new_freq
         min_t = output_t - window_width
         max_t = output_t + window_width

@@ -33,6 +33,18 @@ ec5a9b24acc35469229e41256ceaf77d  data/lang_char/input.txt
 ```
 
 ```
+==> data/lang_char/input.txt <==
+mister quilter is the apostle of the middle classes and we are glad to welcome his gospel
+nor is mister quilter's manner less interesting than his matter
+he tells us that at this festive season of the year with christmas and roast beef looming before us similes drawn from eating and its results occur most readily to the mind
+he has grave doubts whether sir frederick leighton's work is really greek after all and can discover in it but little of rocky ithaca
+linnell's pictures are a sort of up guards and at em paintings and mason's exquisite idylls are as national as a jingo poem mister birket foster's landscapes smile at one much in the same way that mister carker used to flash his teeth and mister john collier gives his sitter a cheerful slap on the back before he says like a shampooer in a turkish bath next man
+it is obviously unnecessary for us to point out how luminous these criticisms are how delicate in expression
+on the general principles of art mister quilter writes with equal lucidity
+painting he tells us is of a different quality to mathematics and finish in art is adding more fact
+as for etchings they are of two kinds british and foreign
+he laments most bitterly the divorce that has been made between decorative art and what we usually call pictures makes the customary appeal to the last judgment and reminds us that in the great days of art michael angelo was the furnishing upholsterer
+
 ==> data/lang_char/input.bpe <==
 ▁mi ster ▁quilter ▁ is ▁the ▁a p ost le ▁o f ▁the ▁mi d d le ▁c las s es ▁ and ▁we ▁ar e ▁g l a d ▁ to ▁we l c om e ▁h is ▁g o s pe l
 ▁ n or ▁ is ▁mi ster ▁quilter ' s ▁ma nne r ▁ l ess ▁in ter es t ing ▁tha n ▁h is ▁ma t ter
@@ -58,17 +70,6 @@ painting he tells us is of a different quality to mathematics and finish in art 
 as for etchings they are of two kinds british and foreign
 he laments most bitterly the divorce that has been made between decorative art and what we usually call pictures makes the customary appeal to the last judgment and reminds us that in the great days of art michael angelo was the furnishing upholsterer
 
-==> data/lang_char/input.txt <==
-mister quilter is the apostle of the middle classes and we are glad to welcome his gospel
-nor is mister quilter's manner less interesting than his matter
-he tells us that at this festive season of the year with christmas and roast beef looming before us similes drawn from eating and its results occur most readily to the mind
-he has grave doubts whether sir frederick leighton's work is really greek after all and can discover in it but little of rocky ithaca
-linnell's pictures are a sort of up guards and at em paintings and mason's exquisite idylls are as national as a jingo poem mister birket foster's landscapes smile at one much in the same way that mister carker used to flash his teeth and mister john collier gives his sitter a cheerful slap on the back before he says like a shampooer in a turkish bath next man
-it is obviously unnecessary for us to point out how luminous these criticisms are how delicate in expression
-on the general principles of art mister quilter writes with equal lucidity
-painting he tells us is of a different quality to mathematics and finish in art is adding more fact
-as for etchings they are of two kinds british and foreign
-he laments most bitterly the divorce that has been made between decorative art and what we usually call pictures makes the customary appeal to the last judgment and reminds us that in the great days of art michael angelo was the furnishing upholsterer
 
 ==> data/lang_char/train_unigram100_units.txt <==
 <blank> 0

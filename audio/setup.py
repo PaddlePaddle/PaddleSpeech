@@ -34,7 +34,7 @@ from tools import setup_helpers
 
 ROOT_DIR = Path(__file__).parent.resolve()
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 COMMITID = 'none'
 
 base = [

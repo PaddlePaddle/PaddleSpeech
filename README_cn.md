@@ -183,6 +183,8 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 ### 近期更新
+- 👑 2023.05.31: 新增 [WavLM ASR-en](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/librispeech/asr5), 基于WavLM的英语识别微调，使用LibriSpeech数据集
+- 👑 2023.05.04: 新增 [HuBERT ASR-en](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/librispeech/asr4), 基于HuBERT的英语识别微调，使用LibriSpeech数据集
 - ⚡ 2023.04.28: 修正 [0-d tensor](https://github.com/PaddlePaddle/PaddleSpeech/pull/3214), 配合PaddlePaddle2.5升级修改了0-d tensor的问题。
 - 👑 2023.04.25: 新增 [U2 conformer 的 AMP 训练](https://github.com/PaddlePaddle/PaddleSpeech/pull/3167).
 - 👑 2023.04.06: 新增 [srt格式字幕生成功能](./demos/streaming_asr_server)。

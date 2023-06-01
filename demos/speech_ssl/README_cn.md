@@ -36,7 +36,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
   ```
   参数：
   - `input`(必须输入)：用于识别的音频文件。
-  - `model`：ASR 任务的模型，默认值：`wav2vec2`, 可选项：[wav2vec2, hubert]。
+  - `model`：ASR 任务的模型，默认值：`wav2vec2`, 可选项：[wav2vec2, hubert, wavlm]。
   - `task`：输出类别，默认值：`asr`。
   - `lang`：模型语言，默认值：`en`。
   - `sample_rate`：音频采样率，默认值：`16000`。

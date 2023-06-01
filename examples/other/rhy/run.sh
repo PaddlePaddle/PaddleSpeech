@@ -6,9 +6,11 @@ gpus=0
 stage=0
 stop_stage=100
 
+data=data
+mkdir -p $data
+
 aishell_data=label_train-set.txt
 csmsc_data=000001-010000.txt
-processed_path=data
 
 conf_path=conf/default.yaml
 train_output_path=exp/default
@@ -23,7 +25,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # prepare data
-    ./local/data.sh ${aishell_data} ${csmsc_data} ${processed_path}
+    ./local/data.sh ${aishell_data} ${csmsc_data} ${data}
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then

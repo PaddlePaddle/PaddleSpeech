@@ -66,7 +66,7 @@ def train_sp(args, config):
     seed_everything(config.seed)
 
     print(
-        f"rank: {dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}",
+        f"rank:{dist.get_rank()}, pid: {os.getpid()}, parent_pid: {os.getppid()}"
     )
     # dataloader has been too verbose
     logging.getLogger("DataLoader").disabled = True

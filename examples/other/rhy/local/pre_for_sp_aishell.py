@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import os
 import re
@@ -8,7 +9,7 @@ replace_ = {"#1": "%", "#2": "`", "#3": "~", "#4": "$"}
 
 
 def replace_rhy_with_punc(line):
-    # r'[：、，；。？！,.:;"?!”’《》【】<=>{}()（）#&@“”^_|…\\]%*$', '', line)     #参考checkcheck_oov.py,
+    # r'[：、，；。？！,.:;"?!”’《》【】<=>{}()（）#&@“”^_|…\\]%*$', '', line)     #参考check_oov.py,
     line = re.sub(r'[：、，；。？！,.:;"?!’《》【】<=>{}()（）#&@“”^_|…\\]%*$', '', line)
     for r in replace_.keys():
         if r in line:

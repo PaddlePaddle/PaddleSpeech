@@ -248,7 +248,7 @@ fastspeech2_nosil_baker_ckpt_0.4
 ├── snapshot_iter_76000.pdz # 模型参数和优化器状态
 └── speech_stats.npy        # 训练 fastspeech2 时用于规范化频谱图的统计数据
 ```
-您可以使用以下脚本通过使用预训练的 fastspeech2 和 parallel wavegan 模型为 `${BIN_DIR}/../sentences.txt` 合成句子
+您可以使用以下脚本通过使用预训练的 fastspeech2 和 parallel wavegan 模型为 `${BIN_DIR}/../../assets/sentences.txt` 合成句子
 ```bash
 source path.sh
 
@@ -264,7 +264,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
   --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
   --lang=zh \
-  --text=${BIN_DIR}/../sentences.txt \
+  --text=${BIN_DIR}/../../assets/sentences.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
   --phones_dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt

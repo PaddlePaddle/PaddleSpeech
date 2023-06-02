@@ -10,7 +10,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     python3 ${BIN_DIR}/lite_predict.py \
         --inference_dir=${train_output_path}/pdlite \
         --am=vits_csmsc \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/lite_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --add-blank=${add_blank}

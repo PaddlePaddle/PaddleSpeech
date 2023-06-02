@@ -21,7 +21,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_ckpt=pwg_vctk_ckpt_0.1.1/snapshot_iter_1500000.pdz \
         --voc_stat=pwg_vctk_ckpt_0.1.1/feats_stats.npy \
         --lang=en \
-        --text=${BIN_DIR}/../sentences_en.txt \
+        --text=${BIN_DIR}/../../assets/sentences_en.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
@@ -43,7 +43,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --voc_ckpt=hifigan_vctk_ckpt_0.2.0/snapshot_iter_2500000.pdz \
         --voc_stat=hifigan_vctk_ckpt_0.2.0/feats_stats.npy \
         --lang=en \
-        --text=${BIN_DIR}/../sentences_en.txt \
+        --text=${BIN_DIR}/../../assets/sentences_en.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \

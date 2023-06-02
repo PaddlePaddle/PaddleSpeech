@@ -10,7 +10,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --am=fastspeech2_ljspeech \
         --voc=pwgan_ljspeech\
         --output_dir=${train_output_path}/onnx_infer_out_e2e \
-        --text=${BIN_DIR}/../sentences_en.txt  \
+        --text=${BIN_DIR}/../../assets/sentences_en.txt  \
         --phones_dict=dump/phone_id_map.txt \
         --device=cpu \
         --cpu_threads=2 \
@@ -24,7 +24,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am=fastspeech2_ljspeech \
         --voc=hifigan_ljspeech \
         --output_dir=${train_output_path}/onnx_infer_out_e2e \
-        --text=${BIN_DIR}/../sentences_en.txt  \
+        --text=${BIN_DIR}/../../assets/sentences_en.txt  \
         --phones_dict=dump/phone_id_map.txt \
         --device=cpu \
         --cpu_threads=2 \

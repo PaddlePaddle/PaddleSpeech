@@ -21,7 +21,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_ckpt=pwgan_opencpop_ckpt_1.4.0/snapshot_iter_100000.pdz \
         --voc_stat=pwgan_opencpop_ckpt_1.4.0/feats_stats.npy \
         --lang=sing \
-        --text=${BIN_DIR}/../sentences_sing.txt \
+        --text=${BIN_DIR}/../../assets/sentences_sing.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speech_stretchs=dump/train/speech_stretchs.npy \
@@ -44,7 +44,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --voc_ckpt=hifigan_opencpop_ckpt_1.4.0/snapshot_iter_625000.pdz \
         --voc_stat=hifigan_opencpop_ckpt_1.4.0/feats_stats.npy \
         --lang=sing \
-        --text=${BIN_DIR}/../sentences_sing.txt \
+        --text=${BIN_DIR}/../../assets/sentences_sing.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speech_stretchs=dump/train/speech_stretchs.npy \

@@ -21,7 +21,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
         --voc_stat=pwg_aishell3_ckpt_0.5/feats_stats.npy \
         --lang=zh \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
@@ -44,7 +44,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --voc_ckpt=hifigan_aishell3_ckpt_0.2.0/snapshot_iter_2500000.pdz \
         --voc_stat=hifigan_aishell3_ckpt_0.2.0/feats_stats.npy \
         --lang=zh \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \

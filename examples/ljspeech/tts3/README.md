@@ -254,7 +254,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --voc_ckpt=pwg_ljspeech_ckpt_0.5/pwg_snapshot_iter_400000.pdz  \
   --voc_stat=pwg_ljspeech_ckpt_0.5/pwg_stats.npy \
   --lang=en \
-  --text=${BIN_DIR}/../sentences_en.txt \
+  --text=${BIN_DIR}/../../assets/sentences_en.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
   --phones_dict=fastspeech2_nosil_ljspeech_ckpt_0.5/phone_id_map.txt

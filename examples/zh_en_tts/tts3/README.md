@@ -252,8 +252,10 @@ optional arguments:
 
 
 ## Pretrained Model
+
 Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip)
+- [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
 
 The static model can be downloaded here:
 - [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)
@@ -285,18 +287,18 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=fastspeech2_mix \
-  --am_config=fastspeech2_mix_ckpt_1.2.0/default.yaml \
-  --am_ckpt=fastspeech2_mix_ckpt_1.2.0/snapshot_iter_99200.pdz \
-  --am_stat=fastspeech2_mix_ckpt_1.2.0/speech_stats.npy \
-  --phones_dict=fastspeech2_mix_ckpt_1.2.0/phone_id_map.txt \
-  --speaker_dict=fastspeech2_mix_ckpt_1.2.0/speaker_id_map.txt \
+  --am_config=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/default.yaml \
+  --am_ckpt=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/snapshot_iter_99200.pdz \
+  --am_stat=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/speech_stats.npy \
+  --phones_dict=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/phone_id_map.txt \
+  --speaker_dict=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/speaker_id_map.txt \
   --spk_id=174 \
   --voc=pwgan_aishell3 \
-  --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \
-  --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
-  --voc_stat=pwg_aishell3_ckpt_0.5/feats_stats.npy \
+  --voc_config=exp/pretrain/pwg_aishell3_ckpt_0.5/default.yaml \
+  --voc_ckpt=exp/pretrain/pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
+  --voc_stat=exp/pretrain/pwg_aishell3_ckpt_0.5/feats_stats.npy \
   --lang=mix \
-  --text=${BIN_DIR}/../sentences_mix.txt \
+  --text=${BIN_DIR}/../../assets/sentences_mix.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference
 ```

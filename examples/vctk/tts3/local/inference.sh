@@ -10,7 +10,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --inference_dir=${train_output_path}/inference \
         --am=fastspeech2_vctk \
         --voc=pwgan_vctk \
-        --text=${BIN_DIR}/../sentences_en.txt \
+        --text=${BIN_DIR}/../../assets/sentences_en.txt \
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
@@ -23,7 +23,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --inference_dir=${train_output_path}/inference \
         --am=fastspeech2_vctk \
         --voc=hifigan_vctk \
-        --text=${BIN_DIR}/../sentences_en.txt \
+        --text=${BIN_DIR}/../../assets/sentences_en.txt \
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \

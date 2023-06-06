@@ -226,7 +226,7 @@ tacotron2_csmsc_ckpt_0.2.0
 ├── snapshot_iter_30600.pdz # model parameters and optimizer states
 └── speech_stats.npy        # statistics used to normalize spectrogram when training Tacotron2
 ```
-You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained Tacotron2 and parallel wavegan models.
+You can use the following scripts to synthesize for `${BIN_DIR}/../../assets/sentences.txt` using pretrained Tacotron2 and parallel wavegan models.
 ```bash
 source path.sh
 
@@ -242,7 +242,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
   --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
   --lang=zh \
-  --text=${BIN_DIR}/../sentences.txt \
+  --text=${BIN_DIR}/../../assets/sentences.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
   --phones_dict=tacotron2_csmsc_ckpt_0.2.0/phone_id_map.txt

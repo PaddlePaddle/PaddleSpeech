@@ -258,7 +258,7 @@ fastspeech2_nosil_baker_ckpt_0.4
 ├── snapshot_iter_76000.pdz # model parameters and optimizer states
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
 ```
-You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
+You can use the following scripts to synthesize for `${BIN_DIR}/../../assets/sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
 
 If you want to use fastspeech2_conformer, you must delete this line `--inference_dir=exp/default/inference \` to skip the step of dygraph to static graph, cause we haven't tested dygraph to static graph for fastspeech2_conformer till now.
 ```bash
@@ -276,7 +276,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --voc_ckpt=pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
   --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
   --lang=zh \
-  --text=${BIN_DIR}/../sentences.txt \
+  --text=${BIN_DIR}/../../assets/sentences.txt \
   --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference \
   --phones_dict=fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt

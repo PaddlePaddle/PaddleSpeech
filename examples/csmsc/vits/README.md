@@ -172,6 +172,6 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
     --ckpt=vits_csmsc_ckpt_1.4.0/snapshot_iter_150000.pdz \
     --phones_dict=vits_csmsc_ckpt_1.4.0/phone_id_map.txt \
     --output_dir=exp/default/test_e2e \
-    --text=${BIN_DIR}/../sentences.txt \
+    --text=${BIN_DIR}/../../assets/sentences.txt \
     --add-blank=${add_blank} 
 ```

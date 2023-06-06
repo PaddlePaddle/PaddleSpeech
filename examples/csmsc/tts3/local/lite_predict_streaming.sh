@@ -12,7 +12,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --am=fastspeech2_csmsc \
         --am_stat=dump/train/speech_stats.npy \
         --voc=pwgan_csmsc \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/lite_infer_out_streaming \
         --phones_dict=dump/phone_id_map.txt \
         --am_streaming=True
@@ -26,7 +26,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am=fastspeech2_csmsc \
         --am_stat=dump/train/speech_stats.npy \
         --voc=mb_melgan_csmsc \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/lite_infer_out_streaming \
         --phones_dict=dump/phone_id_map.txt \
         --am_streaming=True
@@ -39,7 +39,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --am=fastspeech2_csmsc \
         --am_stat=dump/train/speech_stats.npy \
         --voc=hifigan_csmsc \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/lite_infer_out_streaming \
         --phones_dict=dump/phone_id_map.txt \
         --am_streaming=True

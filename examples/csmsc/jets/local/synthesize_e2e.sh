@@ -17,6 +17,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --ckpt=${train_output_path}/checkpoints/${ckpt_name} \
         --phones_dict=dump/phone_id_map.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --inference_dir=${train_output_path}/inference
 fi

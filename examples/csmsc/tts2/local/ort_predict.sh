@@ -10,7 +10,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --am=speedyspeech_csmsc \
         --voc=pwgan_csmsc \
         --output_dir=${train_output_path}/onnx_infer_out_e2e \
-        --text=${BIN_DIR}/../csmsc_test.txt \
+        --text=${BIN_DIR}/../../assets/csmsc_test.txt \
         --phones_dict=dump/phone_id_map.txt \
         --tones_dict=dump/tone_id_map.txt \
         --device=cpu \
@@ -23,7 +23,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am=speedyspeech_csmsc \
         --voc=mb_melgan_csmsc \
         --output_dir=${train_output_path}/onnx_infer_out_e2e \
-        --text=${BIN_DIR}/../csmsc_test.txt \
+        --text=${BIN_DIR}/../../assets/csmsc_test.txt \
         --phones_dict=dump/phone_id_map.txt \
         --tones_dict=dump/tone_id_map.txt \
         --device=cpu \
@@ -36,7 +36,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --am=speedyspeech_csmsc \
         --voc=hifigan_csmsc \
         --output_dir=${train_output_path}/onnx_infer_out_e2e \
-        --text=${BIN_DIR}/../csmsc_test.txt \
+        --text=${BIN_DIR}/../../assets/csmsc_test.txt \
         --phones_dict=dump/phone_id_map.txt \
         --tones_dict=dump/tone_id_map.txt \
         --device=cpu \

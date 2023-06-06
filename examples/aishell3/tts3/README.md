@@ -241,7 +241,7 @@ fastspeech2_aishell3_ckpt_1.1.0
 ├── speaker_id_map.txt      # speaker id map file when training a multi-speaker fastspeech2
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
 ```
-You can use the following scripts to synthesize for `${BIN_DIR}/../sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
+You can use the following scripts to synthesize for `${BIN_DIR}/../../assets/sentences.txt` using pretrained fastspeech2 and parallel wavegan models.
 ```bash
 source path.sh
 
@@ -257,7 +257,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
   --voc_stat=pwg_aishell3_ckpt_0.5/feats_stats.npy \
   --lang=zh \
-  --text=${BIN_DIR}/../sentences.txt \
+  --text=${BIN_DIR}/../../assets/sentences.txt \
   --output_dir=exp/default/test_e2e \
   --phones_dict=fastspeech2_aishell3_ckpt_1.1.0/phone_id_map.txt \
   --speaker_dict=fastspeech2_aishell3_ckpt_1.1.0/speaker_id_map.txt \

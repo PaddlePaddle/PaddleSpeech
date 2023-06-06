@@ -12,7 +12,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --am=fastspeech2_canton \
         --voc=pwgan_aishell3 \
         --spk_id=10 \
-        --text=${BIN_DIR}/../sentences_canton.txt \
+        --text=${BIN_DIR}/../../assets/sentences_canton.txt \
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
@@ -27,7 +27,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --am=fastspeech2_canton \
         --voc=mb_melgan_csmsc \
         --spk_id=10 \
-        --text=${BIN_DIR}/../sentences_canton.txt \
+        --text=${BIN_DIR}/../../assets/sentences_canton.txt \
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
@@ -41,7 +41,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --am=fastspeech2_canton \
         --voc=hifigan_csmsc \
         --spk_id=10 \
-        --text=${BIN_DIR}/../sentences_canton.txt \
+        --text=${BIN_DIR}/../../assets/sentences_canton.txt \
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \
@@ -55,7 +55,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --am=fastspeech2_canton \
         --voc=wavernn_csmsc \
         --spk_id=10 \
-        --text=${BIN_DIR}/../sentences_canton.txt \
+        --text=${BIN_DIR}/../../assets/sentences_canton.txt \
         --output_dir=${train_output_path}/pd_infer_out \
         --phones_dict=dump/phone_id_map.txt \
         --speaker_dict=dump/speaker_id_map.txt \

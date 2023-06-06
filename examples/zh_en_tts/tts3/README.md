@@ -6,11 +6,11 @@ This example contains code used to train a [Fastspeech2](https://arxiv.org/abs/2
 
 ## Dataset
 ### Download and Extract
-Download all datasets and extract it to `~/datasets`:
-- The CSMSC dataset is in the directory `~/datasets/BZNSYP`
-- The Ljspeech dataset is in the directory `~/datasets/LJSpeech-1.1`
-- The aishell3 dataset is in the directory `~/datasets/data_aishell3`
-- The vctk dataset is in the directory `~/datasets/VCTK-Corpus-0.92`
+Download all datasets and extract it to `./data`:
+- The CSMSC dataset is in the directory `./data/BZNSYP`
+- The Ljspeech dataset is in the directory `./data/LJSpeech-1.1`
+- The aishell3 dataset is in the directory `./data/data_aishell3`
+- The vctk dataset is in the directory `./data/VCTK-Corpus-0.92`
  
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for the fastspeech2 training.
@@ -24,16 +24,16 @@ Or train your MFA model reference to [mfa example](https://github.com/PaddlePadd
 
 ## Get Started
 Assume the paths to the datasets are:
-- `~/datasets/BZNSYP`
-- `~/datasets/LJSpeech-1.1`
-- `~/datasets/data_aishell3` 
-- `~/datasets/VCTK-Corpus-0.92`
+- `./data/BZNSYP`
+- `./data/LJSpeech-1.1`
+- `./data/data_aishell3` 
+- `./data/VCTK-Corpus-0.92`
 
 Assume the path to the MFA results of the datasets are:
-- `./mfa_results/baker_alignment_tone`
-- `./mfa_results/ljspeech_alignment`
-- `./mfa_results/aishell3_alignment_tone`
-- `./mfa_results/vctk_alignment`
+- `./data/mfa/baker_alignment_tone`
+- `./data/mfa/ljspeech_alignment`
+- `./data/mfa/aishell3_alignment_tone`
+- `./data/mfa/vctk_alignment`
 
 Run the command below to
 1. **source path**.
@@ -252,8 +252,10 @@ optional arguments:
 
 
 ## Pretrained Model
+
 Pretrained FastSpeech2 model with no silence in the edge of audios:
 - [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip)
+- [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
 
 The static model can be downloaded here:
 - [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)
@@ -285,18 +287,18 @@ FLAGS_allocator_strategy=naive_best_fit \
 FLAGS_fraction_of_gpu_memory_to_use=0.01 \
 python3 ${BIN_DIR}/../synthesize_e2e.py \
   --am=fastspeech2_mix \
-  --am_config=fastspeech2_mix_ckpt_1.2.0/default.yaml \
-  --am_ckpt=fastspeech2_mix_ckpt_1.2.0/snapshot_iter_99200.pdz \
-  --am_stat=fastspeech2_mix_ckpt_1.2.0/speech_stats.npy \
-  --voc=pwgan_aishell3 \
-  --voc_config=pwg_aishell3_ckpt_0.5/default.yaml \
-  --voc_ckpt=pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
-  --voc_stat=pwg_aishell3_ckpt_0.5/feats_stats.npy \
-  --lang=mix \
-  --text=${BIN_DIR}/../sentences_mix.txt \
-  --output_dir=exp/default/test_e2e \
-  --phones_dict=fastspeech2_mix_ckpt_1.2.0/phone_id_map.txt \
-  --speaker_dict=fastspeech2_mix_ckpt_1.2.0/speaker_id_map.txt \
+  --am_config=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/default.yaml \
+  --am_ckpt=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/snapshot_iter_99200.pdz \
+  --am_stat=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/speech_stats.npy \
+  --phones_dict=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/phone_id_map.txt \
+  --speaker_dict=exp/pretrain/fastspeech2_mix_ckpt_1.2.0/speaker_id_map.txt \
   --spk_id=174 \
+  --voc=pwgan_aishell3 \
+  --voc_config=exp/pretrain/pwg_aishell3_ckpt_0.5/default.yaml \
+  --voc_ckpt=exp/pretrain/pwg_aishell3_ckpt_0.5/snapshot_iter_1000000.pdz \
+  --voc_stat=exp/pretrain/pwg_aishell3_ckpt_0.5/feats_stats.npy \
+  --lang=mix \
+  --text=${BIN_DIR}/../../assets/sentences_mix.txt \
+  --output_dir=exp/default/test_e2e \
   --inference_dir=exp/default/inference
 ```

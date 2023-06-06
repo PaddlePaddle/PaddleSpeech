@@ -20,6 +20,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --speaker_dict=dump/speaker_id_map.txt \
         --spk_id=0 \
         --output_dir=${train_output_path}/test_e2e \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=${BIN_DIR}/../../assets/sentences.txt \
         --add-blank=${add_blank}
 fi

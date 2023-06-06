@@ -271,7 +271,7 @@ python3 ${BIN_DIR}/../synthesize_e2e.py \
   --voc_ckpt=pwgan_opencpop_ckpt_1.4.0/snapshot_iter_100000.pdz \
   --voc_stat=pwgan_opencpop_ckpt_1.4.0/feats_stats.npy \
   --lang=sing \
-  --text=${BIN_DIR}/../sentences_sing.txt \
+  --text=${BIN_DIR}/../../assets/sentences_sing.txt \
   --output_dir=exp/default/test_e2e \
   --phones_dict=diffsinger_opencpop_ckpt_1.4.0/phone_id_map.txt \
   --pinyin_phone=diffsinger_opencpop_ckpt_1.4.0/pinyin_to_phone.txt \

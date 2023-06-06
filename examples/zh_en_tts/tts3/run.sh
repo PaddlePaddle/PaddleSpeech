@@ -7,8 +7,8 @@ gpus=0,1
 stage=0
 stop_stage=100
 
-datasets_root_dir=~/datasets
-mfa_root_dir=./mfa_results/
+datasets_root_dir=./data
+mfa_root_dir=./data/mfa
 conf_path=conf/default.yaml
 train_output_path=exp/default
 ckpt_name=snapshot_iter_99200.pdz

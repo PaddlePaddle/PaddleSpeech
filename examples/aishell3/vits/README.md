@@ -196,7 +196,7 @@ python3 ${BIN_DIR}/synthesize_e2e.py \
     --phones_dict=vits_aishell3_ckpt_1.1.0/phone_id_map.txt \
     --speaker_dict=vits_aishell3_ckpt_1.1.0/speaker_id_map.txt \
     --output_dir=exp/default/test_e2e \
-    --text=${BIN_DIR}/../sentences.txt \
+    --text=${BIN_DIR}/../../assets/sentences.txt \
     --add-blank=${add_blank} 
 ```
 -->

@@ -38,8 +38,10 @@ VERSION = '1.2.0'
 COMMITID = 'none'
 
 base = [
+    # paddleaudio align with librosa==0.8.1, which need numpy==1.23.x
+    "librosa==0.8.1",
+    "numpy==1.23.5",
     "kaldiio",
-    "librosa>=0.10.0",
     "pathos",
     "pybind11",
     "parameterized",

@@ -17,7 +17,6 @@ Note:  xml 有5种特殊字符， &<>"'
 '  &apos;
 例如：
 <TitleName>&quot;姓名&quot;</TitleName>
-
 '''
 
 
@@ -61,14 +60,23 @@ class MixTextProcessor():
         patn = re.compile(r'(.*\s*?)(<speak>.*?</speak>)(.*\s*)$', re.M | re.S)
         mat = re.match(patn, mixstr)
         if mat:
+            # pre <speak>
             pre_xml = mat.group(1)
+            # between <speak> ... </speak>
             in_xml = mat.group(2)
+            # post </speak>
             after_xml = mat.group(3)
 
+            # pre with none syllable
             ctlist.append([pre_xml, []])
+
+            # between with syllable
+            # [(sub sentence, [syllables]), ...]
             dom = DomXml(in_xml)
             pinyinlist = dom.get_pinyins_for_xml()
             ctlist = ctlist + pinyinlist
+
+            # post with none syllable
             ctlist.append([after_xml, []])
         else:
             ctlist.append([mixstr, []])

@@ -115,9 +115,9 @@ def evaluate(args):
         sentences = get_sentences_svs(text_file=args.text)
     else:
         sentences = get_sentences(text_file=args.text, lang=args.lang)
-    pprint(f"inputs: {sentences}")
 
     for utt_id, sentence in sentences:
+        print(f"{utt_id} {sentence} ...")
         with timer() as t:
             if am_name == "diffsinger":
                 text = ""

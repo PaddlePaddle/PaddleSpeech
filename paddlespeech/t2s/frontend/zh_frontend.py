@@ -14,6 +14,7 @@
 import os
 import re
 from operator import itemgetter
+from pprint import pprint
 from typing import Dict
 from typing import List
 
@@ -40,6 +41,9 @@ INITIALS = [
     'r', 'z', 'c', 's', 'j', 'q', 'x'
 ]
 INITIALS += ['y', 'w', 'sp', 'spl', 'spn', 'sil']
+
+# 0 for None, 5 for neutral
+TONES = ["0", "1", "2", "3", "4", "5"]
 
 
 def intersperse(lst, item):
@@ -597,11 +601,13 @@ class Frontend():
         all_phonemes = []
         for word_pinyin_item in ssml_inputs:
             phonemes = []
-            print("ssml inputs:", word_pinyin_item)
+
+            # ['你喜欢', []] -> 你喜欢 []
             sentence, pinyin_spec = itemgetter(0, 1)(word_pinyin_item)
-            print('ssml g2p:', sentence, pinyin_spec)
+
             # TN & Text Segmentation
             sentences = self.text_normalizer.normalize(sentence)
+
             if len(pinyin_spec) == 0:
                 # g2p word w/o specified <say-as>
                 phonemes = self._g2p(
@@ -635,6 +641,7 @@ class Frontend():
             print("g2p results:")
             print(all_phonemes[0])
             print("----------------------------")
+
         return [sum(all_phonemes, [])]
 
     def add_sp_if_no(self, phonemes):
@@ -711,10 +718,10 @@ class Frontend():
             to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
 
         # split setence by SSML tag.
-        l_inputs = MixTextProcessor.get_pinyin_split(sentence)
+        texts = MixTextProcessor.get_pinyin_split(sentence)
 
         phonemes = self.get_phonemes_ssml(
-            l_inputs,
+            texts,
             merge_sentences=merge_sentences,
             print_info=print_info,
             robot=robot)

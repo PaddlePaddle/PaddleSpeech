@@ -32,7 +32,7 @@ from paddlespeech.server.utils.errors import ErrorCode
 from paddlespeech.server.utils.exception import ServerBaseException
 from paddlespeech.server.utils.paddle_predictor import init_predictor
 from paddlespeech.server.utils.paddle_predictor import run_model
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.en_frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
 __all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']

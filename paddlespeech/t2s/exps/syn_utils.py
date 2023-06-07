@@ -33,8 +33,8 @@ from yacs.config import CfgNode
 from paddlespeech.t2s.datasets.am_batch_fn import *
 from paddlespeech.t2s.datasets.data_table import DataTable
 from paddlespeech.t2s.datasets.vocoder_batch_fn import Clip_static
-from paddlespeech.t2s.frontend import English
 from paddlespeech.t2s.frontend.canton_frontend import CantonFrontend
+from paddlespeech.t2s.frontend.en_frontend import English
 from paddlespeech.t2s.frontend.mix_frontend import MixFrontend
 from paddlespeech.t2s.frontend.sing_frontend import SingFrontend
 from paddlespeech.t2s.frontend.zh_frontend import Frontend

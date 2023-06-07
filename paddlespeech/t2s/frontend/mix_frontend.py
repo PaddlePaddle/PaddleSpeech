@@ -18,9 +18,9 @@ from typing import List
 import numpy as np
 import paddle
 
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.en_frontend import EnFrontend
 from paddlespeech.t2s.frontend.ssml.xml_processor import MixTextProcessor
-from paddlespeech.t2s.frontend.zh_frontend import Frontend
+from paddlespeech.t2s.frontend.zh_frontend import ZhFrontend
 
 
 class MixFrontend():
@@ -29,9 +29,9 @@ class MixFrontend():
                  phone_vocab_path=None,
                  tone_vocab_path=None):
 
-        self.zh_frontend = Frontend(
+        self.zh_frontend = ZhFrontend(
             phone_vocab_path=phone_vocab_path, tone_vocab_path=tone_vocab_path)
-        self.en_frontend = English(phone_vocab_path=phone_vocab_path)
+        self.en_frontend = EnFrontend(phone_vocab_path=phone_vocab_path)
         self.sp_id = self.zh_frontend.vocab_phones["sp"]
         self.sp_id_numpy = np.array([self.sp_id])
         self.sp_id_tensor = paddle.to_tensor([self.sp_id])

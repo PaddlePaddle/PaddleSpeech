@@ -86,8 +86,8 @@ class English(Phonetics):
                       sentence: str,
                       merge_sentences: bool=False,
                       to_tensor: bool=True) -> paddle.Tensor:
-        result = {}
         sentences = self.text_normalizer._split(sentence, lang="en")
+
         phones_list = []
         temp_phone_ids = []
         for sentence in sentences:
@@ -118,7 +118,10 @@ class English(Phonetics):
             if to_tensor:
                 phone_ids = paddle.to_tensor(phone_ids)
             temp_phone_ids.append(phone_ids)
+
+        result = {}
         result["phone_ids"] = temp_phone_ids
+
         return result
 
     def numericalize(self, phonemes):

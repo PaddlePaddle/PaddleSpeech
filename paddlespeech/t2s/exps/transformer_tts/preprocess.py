@@ -27,7 +27,7 @@ import yaml
 from yacs.config import CfgNode as Configuration
 
 from paddlespeech.t2s.datasets.get_feats import LogMelFBank
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.en_frontend import English
 
 
 def get_lj_sentences(file_name, frontend):

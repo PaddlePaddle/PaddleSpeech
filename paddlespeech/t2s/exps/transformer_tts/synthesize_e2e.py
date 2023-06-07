@@ -21,7 +21,7 @@ import soundfile as sf
 import yaml
 from yacs.config import CfgNode
 
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.en_frontend import English
 from paddlespeech.t2s.models.transformer_tts import TransformerTTS
 from paddlespeech.t2s.models.transformer_tts import TransformerTTSInference
 from paddlespeech.t2s.models.waveflow import ConditionalWaveFlow

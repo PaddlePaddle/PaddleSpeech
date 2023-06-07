@@ -19,8 +19,8 @@ import numpy as np
 import paddle
 
 from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.ssml.xml_processor import MixTextProcessor
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
-from paddlespeech.t2s.ssml.xml_processor import MixTextProcessor
 
 
 class MixFrontend():

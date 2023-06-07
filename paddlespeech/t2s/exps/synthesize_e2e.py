@@ -148,7 +148,7 @@ def evaluate(args):
                         # multi speaker
                         if am_dataset in {"aishell3", "vctk", "mix", "canton"}:
                             # multi-speaker
-                            spk_id = paddle.to_tensor(args.spk_id)
+                            spk_id = paddle.to_tensor([args.spk_id])
                             mel = am_inference(part_phone_ids, spk_id)
                         else:
                             # single-speaker
@@ -157,7 +157,7 @@ def evaluate(args):
                         part_tone_ids = frontend_dict['tone_ids'][i]
                         if am_dataset in {"aishell3", "vctk", "mix"}:
                             # multi-speaker
-                            spk_id = paddle.to_tensor(args.spk_id)
+                            spk_id = paddle.to_tensor([args.spk_id])
                             mel = am_inference(part_phone_ids, part_tone_ids,
                                                spk_id)
                         else:

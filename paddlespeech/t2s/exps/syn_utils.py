@@ -99,14 +99,23 @@ def norm(data, mean, std):
     return (data - mean) / std
 
 
-def get_chunks(data, block_size: int, pad_size: int):
-    data_len = data.shape[1]
+def get_chunks(mel, chunk_size: int, pad_size: int):
+    """
+    Split mel by chunk size with left and right context.
+
+    Args:
+        mel (paddle.Tensor): mel spectrogram, shape (B, T, D)
+        chunk_size (int): chunk size
+        pad_size (int): size for left and right context.
+    """
+    T = mel.shape[1]
+    n = math.ceil(T / chunk_size)
+
     chunks = []
-    n = math.ceil(data_len / block_size)
     for i in range(n):
-        start = max(0, i * block_size - pad_size)
-        end = min((i + 1) * block_size + pad_size, data_len)
-        chunks.append(data[:, start:end, :])
+        start = max(0, i * chunk_size - pad_size)
+        end = min((i + 1) * chunk_size + pad_size, T)
+        chunks.append(mel[:, start:end, :])
     return chunks
 
 
@@ -117,14 +126,10 @@ def get_sentences(text_file: Optional[os.PathLike], lang: str='zh'):
     with open(text_file, 'rt', encoding='utf-8') as f:
         for line in f:
             if line.strip() != "":
-                items = re.split(r"\s+", line.strip(), 1)
+                items = re.split(r"\s+", line.strip(), maxsplit=1)
+                assert len(items) == 2
                 utt_id = items[0]
-                if lang in {'zh', 'canton'}:
-                    sentence = "".join(items[1:])
-                elif lang == 'en':
-                    sentence = " ".join(items[1:])
-                elif lang == 'mix':
-                    sentence = " ".join(items[1:])
+                sentence = items[1]
             sentences.append((utt_id, sentence))
     return sentences
 
@@ -319,6 +324,7 @@ def run_frontend(
         input_ids = {}
         if text.strip() != "" and re.match(r".*?<speak>.*?</speak>.*", text,
                                            re.DOTALL):
+            # using ssml
             input_ids = frontend.get_input_ids_ssml(
                 text,
                 merge_sentences=merge_sentences,
@@ -359,6 +365,7 @@ def run_frontend(
         outs.update({'is_slurs': is_slurs})
     else:
         print("lang should in {'zh', 'en', 'mix', 'canton', 'sing'}!")
+
     outs.update({'phone_ids': phone_ids})
     return outs
 

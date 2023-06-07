@@ -90,12 +90,13 @@ class MixTextProcessor():
             dom = DomXml(in_xml)
             tags = dom.get_text_and_sayas_tags()
             ctlist.extend(tags)
-            
+
             ctlist.append(after_xml)
             return ctlist
         else:
             ctlist.append(mixstr)
         return ctlist
+
 
 class DomXml():
     def __init__(self, xmlstr):

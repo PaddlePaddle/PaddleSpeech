@@ -18,9 +18,9 @@ from typing import List
 import numpy as np
 import paddle
 
-from paddlespeech.t2s.frontend.en_frontend import EnFrontend
+from paddlespeech.t2s.frontend.en_frontend import English as EnFrontend
 from paddlespeech.t2s.frontend.ssml.xml_processor import MixTextProcessor
-from paddlespeech.t2s.frontend.zh_frontend import ZhFrontend
+from paddlespeech.t2s.frontend.zh_frontend import Frontend as ZhFrontend
 
 
 class MixFrontend():
@@ -28,7 +28,6 @@ class MixFrontend():
                  g2p_model="pypinyin",
                  phone_vocab_path=None,
                  tone_vocab_path=None):
-
         self.zh_frontend = ZhFrontend(
             phone_vocab_path=phone_vocab_path, tone_vocab_path=tone_vocab_path)
         self.en_frontend = EnFrontend(phone_vocab_path=phone_vocab_path)
@@ -55,15 +54,12 @@ class MixFrontend():
         else:
             return False
 
-    def get_segment(self, text: str) -> List[str]:
+    def split_by_lang(self, text: str) -> List[str]:
         # sentence --> [ch_part, en_part, ch_part, ...]
         segments = []
         types = []
-        flag = 0
-        temp_seg = ""
-        temp_lang = ""
 
-        # Determine the type of each character. type: blank, chinese, alphabet, number, unk and point.
+        # Determine the type of each character. type: chinese, alphabet, other.
         for ch in text:
             if self.is_chinese(ch):
                 types.append("zh")
@@ -74,31 +70,31 @@ class MixFrontend():
 
         assert len(types) == len(text)
 
-        for i in range(len(types)):
+        flag = 0
+        temp_seg = ""
+        temp_lang = ""
+
+        for i in range(len(text)):
             # find the first char of the seg
             if flag == 0:
                 temp_seg += text[i]
                 temp_lang = types[i]
                 flag = 1
-
             else:
                 if temp_lang == "other":
-                    if types[i] == temp_lang:
-                        temp_seg += text[i]
-                    else:
-                        temp_seg += text[i]
+                    # text start is not lang.
+                    temp_seg += text[i]
+                    if types[i] != temp_lang:
                         temp_lang = types[i]
-
                 else:
-                    if types[i] == temp_lang:
-                        temp_seg += text[i]
-                    elif types[i] == "other":
+                    if types[i] == temp_lang or types[i] == "other":
+                        # merge same lang or other
                         temp_seg += text[i]
                     else:
+                        # change lang
                         segments.append((temp_seg, temp_lang))
                         temp_seg = text[i]
-                        temp_lang = types[i]
-                        flag = 1
+                        temp_lang = types[i]  # new lang
 
         segments.append((temp_seg, temp_lang))
 
@@ -120,7 +116,7 @@ class MixFrontend():
             if instr.lower().startswith("<say-as"):
                 tmpSegments.append((instr, "zh"))
             else:
-                tmpSegments.extend(self.get_segment(instr))
+                tmpSegments.extend(self.split_by_lang(instr))
         ''' 2. 把zh的merge到一起，避免合成结果中间停顿
         '''
         segments = []

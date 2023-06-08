@@ -423,7 +423,7 @@ if __name__ == '__main__':
         segs = frontend.split_by_lang(text)
         print(segs)
 
-        # 对于SSML的xml标记处理不好。
+        # 对于SSML的xml标记处理不好。需要先解析SSML，后处理中英的划分。
         text = "<speak>我们的声学模型使用了 Fast Speech Two。前浪<say-as pinyin='dao3'>倒</say-as>在沙滩上,沙滩上倒了一堆<say-as pinyin='tu3'>土</say-as>。 想象<say-as pinyin='gan1 gan1'>干干</say-as>的树干<say-as pinyin='dao3'>倒</say-as>了, 里面有个干尸，不知是被谁<say-as pinyin='gan4'>干</say-as>死的。</speak>"
         print(text)
         # [('<speak>', 'en'), ('我们的声学模型使用了 ', 'zh'), ('Fast Speech Two。', 'en'), ('前浪<', 'zh'), ("say-as pinyin='dao3'>", 'en'), ('倒</', 'zh'), ('say-as>', 'en'), ('在沙滩上,沙滩上倒了一堆<', 'zh'), ("say-as pinyin='tu3'>", 'en'), ('土</', 'zh'), ('say-as>。 ', 'en'), ('想象<', 'zh'), ("say-as pinyin='gan1 gan1'>", 'en'), ('干干</', 'zh'), ('say-as>', 'en'), ('的树干<', 'zh'), ("say-as pinyin='dao3'>", 'en'), ('倒</', 'zh'), ('say-as>', 'en'), ('了, 里面有个干尸，不知是被谁<', 'zh'), ("say-as pinyin='gan4'>", 'en'), ('干</', 'zh'), ('say-as>', 'en'), ('死的。</', 'zh'), ('speak>', 'en')]

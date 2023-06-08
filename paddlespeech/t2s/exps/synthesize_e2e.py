@@ -117,7 +117,7 @@ def evaluate(args):
         sentences = get_sentences(text_file=args.text, lang=args.lang)
 
     for utt_id, sentence in sentences:
-        print(f"{utt_id} {sentence} ...")
+        print(f"{utt_id} {sentence}")
         with timer() as t:
             if am_name == "diffsinger":
                 text = ""
@@ -135,7 +135,7 @@ def evaluate(args):
                 lang=args.lang,
                 svs_input=svs_input)
             phone_ids = frontend_dict['phone_ids']
-            # pprint(f"process: {utt_id} {phone_ids}")
+            # pprint(f"{utt_id} {phone_ids}")
 
             with paddle.no_grad():
                 flags = 0

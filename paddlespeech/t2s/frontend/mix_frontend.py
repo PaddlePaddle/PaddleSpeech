@@ -106,76 +106,95 @@ class MixFrontend():
                       get_tone_ids: bool=False,
                       add_sp: bool=True,
                       to_tensor: bool=True) -> Dict[str, List[paddle.Tensor]]:
-        ''' 1. 添加SSML支持，先列出 文字 和 <say-as>标签内容，
-                然后添加到tmpSegments数组里
-        '''
-        d_inputs = MixTextProcessor.get_dom_split(sentence)
-        tmpSegments = []
-        for instr in d_inputs:
-            ''' 暂时只支持 say-as '''
-            if instr.lower().startswith("<say-as"):
-                tmpSegments.append((instr, "zh"))
+        # XML Document Object Model (DOM)
+        doms = MixTextProcessor.get_dom_split(sentence)
+
+        lang_splits = []
+        for dom in doms:
+            if dom.lower().startswith("<say-as pinyin="):
+                # `<say-as pinyin=` for zh lang
+                lang_splits.append((dom, "zh"))
             else:
-                tmpSegments.extend(self.split_by_lang(instr))
-        ''' 2. 把zh的merge到一起，避免合成结果中间停顿
-        '''
+                # process zh, en and zh/en
+                lang_splits.extend(self.split_by_lang(dom))
+
+        # merge adjacent zh segment
         segments = []
         currentSeg = ["", ""]
-        for seg in tmpSegments:
+        for seg in lang_splits:
             if seg[1] == "en" or seg[1] == "other":
                 if currentSeg[0] == '':
+                    # first see
                     segments.append(seg)
                 else:
+                    # zh
                     currentSeg[0] = "<speak>" + currentSeg[0] + "</speak>"
                     segments.append(tuple(currentSeg))
+                    # en
                     segments.append(seg)
+                    # reset
                     currentSeg = ["", ""]
             else:
+                # zh
                 if currentSeg[0] == '':
+                    # first see
                     currentSeg[0] = seg[0]
                     currentSeg[1] = seg[1]
                 else:
+                    # merge zh 
                     currentSeg[0] = currentSeg[0] + seg[0]
+
         if currentSeg[0] != '':
+            # last zh
             currentSeg[0] = "<speak>" + currentSeg[0] + "</speak>"
             segments.append(tuple(currentSeg))
 
         phones_list = []
         result = {}
 
+        # 008 我们要去云南 team building, 非常非常 happy.
+        # seg ('我们要去云南 ', 'zh')
+        # seg ('team building, ', 'en')
+        # seg ('非常非常 ', 'zh')
+        # seg ('happy.', 'en')
+        # [('<speak>我们要去云南 </speak>', 'zh'), ('team building, ', 'en'), ('<speak>非常非常 </speak>', 'zh'), ('happy.', 'en')]
         for seg in segments:
             content = seg[0]
             lang = seg[1]
-            if content != '':
-                if lang == "en":
-                    input_ids = self.en_frontend.get_input_ids(
-                        content, merge_sentences=False, to_tensor=to_tensor)
-                else:
-                    ''' 3. 把带speak tag的中文和普通文字分开处理
-                    '''
-                    if content.strip() != "" and \
-                        re.match(r".*?<speak>.*?</speak>.*", content, re.DOTALL):
-                        input_ids = self.zh_frontend.get_input_ids_ssml(
-                            content,
-                            merge_sentences=False,
-                            get_tone_ids=get_tone_ids,
-                            to_tensor=to_tensor)
-                    else:
-                        input_ids = self.zh_frontend.get_input_ids(
-                            content,
-                            merge_sentences=False,
-                            get_tone_ids=get_tone_ids,
-                            to_tensor=to_tensor)
-                if add_sp:
-                    if to_tensor:
-                        input_ids["phone_ids"][-1] = paddle.concat(
-                            [input_ids["phone_ids"][-1], self.sp_id_tensor])
-                    else:
-                        input_ids["phone_ids"][-1] = np.concatenate(
-                            (input_ids["phone_ids"][-1], self.sp_id_numpy))
 
-                for phones in input_ids["phone_ids"]:
-                    phones_list.append(phones)
+            if not content:
+                continue
+
+            if lang == "en":
+                input_ids = self.en_frontend.get_input_ids(
+                    content, merge_sentences=False, to_tensor=to_tensor)
+            else:
+                if content.strip() != "" and \
+                    re.match(r".*?<speak>.*?</speak>.*", content, re.DOTALL):
+                    # process ssml
+                    input_ids = self.zh_frontend.get_input_ids_ssml(
+                        content,
+                        merge_sentences=False,
+                        get_tone_ids=get_tone_ids,
+                        to_tensor=to_tensor)
+                else:
+                    # process plain text
+                    input_ids = self.zh_frontend.get_input_ids(
+                        content,
+                        merge_sentences=False,
+                        get_tone_ids=get_tone_ids,
+                        to_tensor=to_tensor)
+
+            if add_sp:
+                # add sp between zh and en
+                if to_tensor:
+                    input_ids["phone_ids"][-1] = paddle.concat(
+                        [input_ids["phone_ids"][-1], self.sp_id_tensor])
+                else:
+                    input_ids["phone_ids"][-1] = np.concatenate(
+                        (input_ids["phone_ids"][-1], self.sp_id_numpy))
+
+            phones_list.extend(input_ids["phone_ids"])
 
         if merge_sentences:
             merge_list = paddle.concat(phones_list)

@@ -55,7 +55,7 @@ class English(Phonetics):
         self.punctuations = get_punctuations("en")
         self.vocab = Vocab(self.phonemes + self.punctuations)
         self.vocab_phones = {}
-        self.punc = "：，；。？！“”‘’':,;.?!"
+        self.punc = "、：，；。？！“”‘’':,;.?!"
         self.text_normalizer = TextNormalizer()
         if phone_vocab_path:
             with open(phone_vocab_path, 'rt', encoding='utf-8') as f:

@@ -48,7 +48,7 @@ def jyuping_to_phonemes(cantons: List[str]):
 class CantonFrontend():
     def __init__(self, phone_vocab_path: str):
         self.text_normalizer = TextNormalizer()
-        self.punc = "：，；。？！“”‘’':,;.?!"
+        self.punc = "、：，；。？！“”‘’':,;.?!"
 
         self.vocab_phones = {}
         if phone_vocab_path:

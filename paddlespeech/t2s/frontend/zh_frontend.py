@@ -31,6 +31,7 @@ from pypinyin_dict.phrase_pinyin_data import large_pinyin
 
 from paddlespeech.t2s.frontend.g2pw import G2PWOnnxConverter
 from paddlespeech.t2s.frontend.generate_lexicon import generate_lexicon
+from paddlespeech.t2s.frontend.polyphonic import Polyphonic
 from paddlespeech.t2s.frontend.rhy_prediction.rhy_predictor import RhyPredictor
 from paddlespeech.t2s.frontend.ssml.xml_processor import MixTextProcessor
 from paddlespeech.t2s.frontend.tone_sandhi import ToneSandhi
@@ -68,26 +69,6 @@ def insert_after_character(lst, item):
     return result
 
 
-class Polyphonic():
-    def __init__(self):
-        with open(
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    'polyphonic.yaml'),
-                'r',
-                encoding='utf-8') as polyphonic_file:
-            # 解析yaml
-            polyphonic_dict = yaml.load(polyphonic_file, Loader=yaml.FullLoader)
-        self.polyphonic_words = polyphonic_dict["polyphonic"]
-
-    def correct_pronunciation(self, word, pinyin):
-        # 词汇被词典收录则返回纠正后的读音
-        if word in self.polyphonic_words.keys():
-            pinyin = self.polyphonic_words[word]
-        # 否则返回原读音
-        return pinyin
-
-
 class Frontend():
     def __init__(self,
                  g2p_model="g2pW",
@@ -95,7 +76,7 @@ class Frontend():
                  tone_vocab_path=None,
                  use_rhy=False):
 
-        self.punc = "：，；。？！“”‘’':,;.?!"
+        self.punc = "、：，；。？！“”‘’':,;.?!"
         self.rhy_phns = ['sp1', 'sp2', 'sp3', 'sp4']
         self.phrases_dict = {
             '开户行': [['ka1i'], ['hu4'], ['hang2']],
@@ -567,6 +548,7 @@ class Frontend():
 
         phones = []
         for c, v in zip(initials, finals):
+            # c for consonant, v for vowel
             # NOTE: post process for pypinyin outputs
             # we discriminate i, ii and iii
             if c and c not in self.punc:
@@ -633,16 +615,19 @@ class Frontend():
                 new_phonemes.append(new_sentence)
             all_phonemes = new_phonemes
 
+        if merge_sentences:
+            all_phonemes = [sum(all_phonemes, [])]
+
         if print_info:
             print("----------------------------")
             print("text norm results:")
             print(sentences)
             print("----------------------------")
             print("g2p results:")
-            print(all_phonemes[0])
+            print(all_phonemes)
             print("----------------------------")
 
-        return [sum(all_phonemes, [])]
+        return all_phonemes
 
     def add_sp_if_no(self, phonemes):
         """

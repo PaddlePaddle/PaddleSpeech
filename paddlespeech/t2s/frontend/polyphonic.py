@@ -30,9 +30,7 @@ class Polyphonic():
 
     def correct_pronunciation(self, word, pinyin):
         # 词汇被词典收录则返回纠正后的读音
-        print(word, pinyin)
         if word in self.polyphonic_words.keys():
             pinyin = self.polyphonic_words[word]
-        print('new', pinyin)
         # 否则返回原读音
         return pinyin

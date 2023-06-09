@@ -1,4 +1,17 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import re
 import xml.dom.minidom
 import xml.parsers.expat
@@ -17,7 +30,6 @@ Note:  xml 有5种特殊字符， &<>"'
 '  &apos;
 例如：
 <TitleName>&quot;姓名&quot;</TitleName>
-
 '''
 
 
@@ -61,17 +73,29 @@ class MixTextProcessor():
         patn = re.compile(r'(.*\s*?)(<speak>.*?</speak>)(.*\s*)$', re.M | re.S)
         mat = re.match(patn, mixstr)
         if mat:
+            # pre <speak>
             pre_xml = mat.group(1)
+            # between <speak> ... </speak>
             in_xml = mat.group(2)
+            # post </speak>
             after_xml = mat.group(3)
 
-            ctlist.append([pre_xml, []])
+            # pre with none syllable
+            if pre_xml:
+                ctlist.append([pre_xml, []])
+
+            # between with syllable
+            # [(sub sentence, [syllables]), ...]
             dom = DomXml(in_xml)
             pinyinlist = dom.get_pinyins_for_xml()
             ctlist = ctlist + pinyinlist
-            ctlist.append([after_xml, []])
+
+            # post with none syllable
+            if after_xml:
+                ctlist.append([after_xml, []])
         else:
             ctlist.append([mixstr, []])
+
         return ctlist
 
     @classmethod
@@ -86,16 +110,20 @@ class MixTextProcessor():
             in_xml = mat.group(2)
             after_xml = mat.group(3)
 
-            ctlist.append(pre_xml)
+            if pre_xml:
+                ctlist.append(pre_xml)
+
             dom = DomXml(in_xml)
             tags = dom.get_text_and_sayas_tags()
             ctlist.extend(tags)
-            
-            ctlist.append(after_xml)
-            return ctlist
+
+            if after_xml:
+                ctlist.append(after_xml)
         else:
             ctlist.append(mixstr)
+
         return ctlist
+
 
 class DomXml():
     def __init__(self, xmlstr):

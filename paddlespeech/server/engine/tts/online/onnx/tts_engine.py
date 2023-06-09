@@ -28,7 +28,7 @@ from paddlespeech.server.utils.audio_process import float2pcm
 from paddlespeech.server.utils.onnx_infer import get_sess
 from paddlespeech.server.utils.util import denorm
 from paddlespeech.server.utils.util import get_chunks
-from paddlespeech.t2s.frontend import English
+from paddlespeech.t2s.frontend.en_frontend import English
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
 __all__ = ['TTSEngine', 'PaddleTTSConnectionHandler']

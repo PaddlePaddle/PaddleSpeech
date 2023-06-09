@@ -47,15 +47,34 @@ class Phonetics(ABC):
 
 class English(Phonetics):
     """ Normalize the input text sequence and convert into pronunciation id sequence.
+
+    https://github.com/Kyubyong/g2p/blob/master/g2p_en/g2p.py
+
+    phonemes = ["<pad>", "<unk>", "<s>", "</s>"] + [   
+        'AA0', 'AA1', 'AA2', 'AE0', 'AE1', 'AE2', 'AH0', 'AH1', 'AH2', 'AO0',
+        'AO1', 'AO2', 'AW0', 'AW1', 'AW2', 'AY0', 'AY1', 'AY2', 'B', 'CH', 'D', 'DH',
+        'EH0', 'EH1', 'EH2', 'ER0', 'ER1', 'ER2', 'EY0', 'EY1',
+        'EY2', 'F', 'G', 'HH',
+        'IH0', 'IH1', 'IH2', 'IY0', 'IY1', 'IY2', 'JH', 'K', 'L',
+        'M', 'N', 'NG', 'OW0', 'OW1',
+        'OW2', 'OY0', 'OY1', 'OY2', 'P', 'R', 'S', 'SH', 'T', 'TH',
+        'UH0', 'UH1', 'UH2', 'UW',
+        'UW0', 'UW1', 'UW2', 'V', 'W', 'Y', 'Z', 'ZH']
     """
+
+    LEXICON = {
+        # key using lowercase
+        "AI".lower(): [["EY0", "AY1"]],
+    }
 
     def __init__(self, phone_vocab_path=None):
         self.backend = G2p()
+        self.backend.cmu.update(English.LEXICON)
         self.phonemes = list(self.backend.phonemes)
         self.punctuations = get_punctuations("en")
         self.vocab = Vocab(self.phonemes + self.punctuations)
         self.vocab_phones = {}
-        self.punc = "：，；。？！“”‘’':,;.?!"
+        self.punc = "、：，；。？！“”‘’':,;.?!"
         self.text_normalizer = TextNormalizer()
         if phone_vocab_path:
             with open(phone_vocab_path, 'rt', encoding='utf-8') as f:
@@ -86,8 +105,8 @@ class English(Phonetics):
                       sentence: str,
                       merge_sentences: bool=False,
                       to_tensor: bool=True) -> paddle.Tensor:
-        result = {}
         sentences = self.text_normalizer._split(sentence, lang="en")
+
         phones_list = []
         temp_phone_ids = []
         for sentence in sentences:
@@ -118,7 +137,10 @@ class English(Phonetics):
             if to_tensor:
                 phone_ids = paddle.to_tensor(phone_ids)
             temp_phone_ids.append(phone_ids)
+
+        result = {}
         result["phone_ids"] = temp_phone_ids
+
         return result
 
     def numericalize(self, phonemes):

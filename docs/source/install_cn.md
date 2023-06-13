@@ -91,7 +91,7 @@ bash
 ```
 然后你可以创建一个 conda 的虚拟环境：
 ```bash
-conda create -y -p tools/venv python=3.7
+conda create -y -p tools/venv python=3.8
 ```
 激活 conda 虚拟环境：
 ```bash
@@ -173,7 +173,7 @@ $HOME/miniconda3/bin/conda init
 # 激活 conda
 bash
 # 创建 Conda 虚拟环境
-conda create -y -p tools/venv python=3.7
+conda create -y -p tools/venv python=3.8
 # 激活 Conda 虚拟环境:
 conda activate tools/venv
 # 安装 Conda 包

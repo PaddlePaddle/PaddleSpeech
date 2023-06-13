@@ -2,7 +2,7 @@
 ## Environment
 
 We develop under:
-* python - 3.7
+* python - >=3.8
 * docker - `registry.baidubce.com/paddlepaddle/paddle:2.2.2-gpu-cuda10.2-cudnn7`
 * os - Ubuntu 16.04.7 LTS
 * gcc/g++/gfortran - 8.2.0
@@ -98,7 +98,7 @@ please install paddlepaddle >= 2.4rc
 
 
 ```
-cd $YOUR_ENV_PATH/lib/python3.7/site-packages/paddle/fluid
+cd $YOUR_ENV_PATH/lib/python3.8/site-packages/paddle/fluid
 patchelf --set-soname libpaddle.so libpaddle.so
 ```
 

@@ -8,7 +8,7 @@
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-red.svg"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/releases"><img src="https://img.shields.io/github/v/release/PaddlePaddle/PaddleSpeech?color=ffa"></a>
     <a href="support os"><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
-    <a href=""><img src="https://img.shields.io/badge/python-3.7+-aff.svg"></a>
+    <a href=""><img src="https://img.shields.io/badge/python-3.8+-aff.svg"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/graphs/contributors"><img src="https://img.shields.io/github/contributors/PaddlePaddle/PaddleSpeech?color=9ea"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/commits"><img src="https://img.shields.io/github/commit-activity/m/PaddlePaddle/PaddleSpeech?color=3af"></a>
     <a href="https://github.com/PaddlePaddle/PaddleSpeech/issues"><img src="https://img.shields.io/github/issues/PaddlePaddle/PaddleSpeech?color=9cc"></a>
@@ -241,8 +241,8 @@
 
 ### 相关依赖
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.4.1
-+ python >= 3.7
++ paddlepaddle >= 2.5.0
++ python >= 3.8
 + linux(推荐), mac, windows
 
 PaddleSpeech 依赖于 paddlepaddle，安装可以参考[ paddlepaddle 官网](https://www.paddlepaddle.org.cn/)，根据自己机器的情况进行选择。这里给出 cpu 版本示例，其它版本大家可以根据自己机器的情况进行安装。

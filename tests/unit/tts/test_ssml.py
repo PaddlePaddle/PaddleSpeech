@@ -72,3 +72,12 @@ if __name__ == '__main__':
     for i, sub in enumerate(outs):
         print(i, sub)
     print()
+
+    import json
+    import xmltodict
+    text = "<speak>我们的声学模型使用了 Fast Speech Two。前浪<say-as pinyin='dao3'>倒</say-as>在沙滩上,沙滩上倒了一堆<say-as pinyin='tu3'>土</say-as>。 想象<say-as pinyin='gan1 gan1'>干干</say-as>的树干<say-as pinyin='dao3'>倒</say-as>了, 里面有个干尸，不知是被谁<say-as pinyin='gan4'>干</say-as>死的。</speak>"
+    ssml = xmltodict.parse(text)
+    print(json.dumps(ssml))
+    print(ssml['speak'].keys())
+    print(ssml['speak']['#text'])
+    print(ssml['speak']['say-as'])

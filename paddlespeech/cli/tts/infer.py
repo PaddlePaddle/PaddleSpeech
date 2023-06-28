@@ -457,6 +457,16 @@ class TTSExecutor(BaseExecutor):
               text: str,
               lang: str='zh',
               am: str='fastspeech2_csmsc',
+              durations_scale: float=None,
+              durations_bias: float=None,
+              pitch_scale: float = None,
+              pitch_bias: float = None,
+              pitch_stats_mean: float = None,
+              pitch_stats_std: float = None,
+              energy_scale: float = None,
+              energy_bias: float = None,
+              energy_stats_mean: float = None,
+              energy_stats_std: float = None,
               spk_id: int=0):
         """
         Model inference and result stored in self.output.
@@ -493,7 +503,16 @@ class TTSExecutor(BaseExecutor):
                     mel = self.am_inference(
                         part_phone_ids, spk_id=paddle.to_tensor([spk_id]))
                 else:
-                    mel = self.am_inference(part_phone_ids)
+                    use_teacher_forcing = any([a is not None for a in [durations_scale, durations_bias,
+                                                                       pitch_scale, pitch_bias,
+                                                                       energy_scale, energy_bias]])
+                    mel = self.am_inference(part_phone_ids,
+                                            durations_scale=durations_scale, durations_bias=durations_bias,
+                                            pitch_scale=pitch_scale, pitch_bias=pitch_bias,
+                                            pitch_stats_mean=pitch_stats_mean, pitch_stats_std=pitch_stats_std,
+                                            energy_scale=energy_scale, energy_bias=energy_bias,
+                                            energy_stats_mean=energy_stats_mean, energy_stats_std=energy_stats_std,
+                                            use_teacher_forcing=use_teacher_forcing)
             self.am_time += (time.time() - am_st)
             # voc
             voc_st = time.time()
@@ -687,7 +706,17 @@ class TTSExecutor(BaseExecutor):
                  output: str='output.wav',
                  use_onnx: bool=False,
                  cpu_threads: int=2,
-                 fs: int=24000):
+                 fs: int=24000,
+                 durations_scale=None,
+                 durations_bias=None,
+                 pitch_scale=None,
+                 pitch_bias=None,
+                 pitch_stats_mean=None,
+                 pitch_stats_std=None,
+                 energy_scale=None,
+                 energy_bias=None,
+                 energy_stats_mean=None,
+                 energy_stats_std=None):
         """
         Python API to call an executor.
         """
@@ -707,7 +736,12 @@ class TTSExecutor(BaseExecutor):
                 voc_stat=voc_stat,
                 lang=lang)
 
-            self.infer(text=text, lang=lang, am=am, spk_id=spk_id)
+            self.infer(text=text, lang=lang, am=am, spk_id=spk_id,
+                       durations_scale=durations_scale, durations_bias=durations_bias,
+                       pitch_scale=pitch_scale, pitch_bias=pitch_bias,
+                       pitch_stats_mean=pitch_stats_mean, pitch_stats_std=pitch_stats_std,
+                       energy_scale=energy_scale, energy_bias=energy_bias,
+                       energy_stats_mean=energy_stats_mean, energy_stats_std=energy_stats_std)
             res = self.postprocess(output=output)
             return res
         else:

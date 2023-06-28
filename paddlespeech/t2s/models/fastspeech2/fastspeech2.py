@@ -596,6 +596,16 @@ class FastSpeech2(nn.Layer):
                  ds: paddle.Tensor=None,
                  ps: paddle.Tensor=None,
                  es: paddle.Tensor=None,
+                 durations_scale: float=None,
+                 durations_bias: float=None,
+                 pitch_scale: float = None,
+                 pitch_bias: float = None,
+                 pitch_stats_mean: float = None,
+                 pitch_stats_std: float = None,
+                 energy_scale: float = None,
+                 energy_bias: float = None,
+                 energy_stats_mean: float = None,
+                 energy_stats_std: float = None,
                  is_inference: bool=False,
                  return_after_enc=False,
                  alpha: float=1.0,
@@ -645,10 +655,32 @@ class FastSpeech2(nn.Layer):
                 d_outs = ds
             else:
                 d_outs = self.duration_predictor.inference(hs, d_masks)
+            if durations_scale is not None or durations_bias is not None:
+                durations_scale = durations_scale if durations_scale is not None else 1
+                durations_bias = durations_bias if durations_bias is not None else 0
+                d_outs = durations_scale * d_outs + durations_bias
+
+            # pitch控制
             if ps is not None:
                 p_outs = ps
+            elif pitch_scale is not None or pitch_bias is not None:
+                pitch_scale = pitch_scale if pitch_scale is not None else 1
+                pitch_bias = pitch_bias if pitch_bias is not None else 0
+                assert pitch_stats_mean is not None and pitch_stats_std is not None
+                p_outs = paddle.exp(p_outs * pitch_stats_std + pitch_stats_mean)
+                p_outs = p_outs * pitch_scale + pitch_bias
+                p_outs = (paddle.log(p_outs) - pitch_stats_mean) / pitch_stats_std
+
+            # energy控制
             if es is not None:
                 e_outs = es
+            elif energy_scale is not None or energy_bias is not None:
+                energy_scale = energy_scale if energy_scale is not None else 1
+                energy_bias = energy_bias if energy_bias is not None else 0
+                assert energy_stats_mean is not None and energy_stats_std is not None
+                e_outs = paddle.exp(e_outs * energy_stats_std + energy_stats_mean)
+                e_outs = e_outs * energy_scale + energy_bias
+                e_outs = (paddle.log(e_outs) - energy_stats_mean) / energy_stats_std
 
             # use prediction in inference
             # (B, Tmax, 1)
@@ -747,6 +779,16 @@ class FastSpeech2(nn.Layer):
             durations: paddle.Tensor=None,
             pitch: paddle.Tensor=None,
             energy: paddle.Tensor=None,
+            durations_scale: float = None,
+            durations_bias: float = None,
+            pitch_scale: float = None,
+            pitch_bias: float = None,
+            pitch_stats_mean: float = None,
+            pitch_stats_std: float = None,
+            energy_scale: float = None,
+            energy_bias: float = None,
+            energy_stats_mean: float = None,
+            energy_stats_std: float = None,
             alpha: float=1.0,
             use_teacher_forcing: bool=False,
             spk_emb=None,
@@ -764,6 +806,26 @@ class FastSpeech2(nn.Layer):
                 Groundtruth of token-averaged pitch (T, 1).
             energy(Tensor, optional): 
                 Groundtruth of token-averaged energy (T, 1).
+            durations_scale: (int, float, optional):
+                For duration control during infer
+            durations_bias: (int, float, optional):
+                For duration control during infer
+            pitch_scale:(int, float, optional):
+                For pitch control during infer
+            pitch_bias:(int, float, optional):
+                For pitch control during infer
+            pitch_stats_mean:(int, float, optional):
+                For pitch control during infer
+            pitch_stats_std:(int, float, optional):
+                For pitch control during infer
+            energy_scale:(int, float, optional):
+                For energy control during infer
+            energy_bias:(int, float, optional):
+                For energy control during infer
+            energy_stats_mean:(int, float, optional):
+                For energy control during infer
+            energy_stats_std:(int, float, optional):
+                For energy control during infer
             alpha(float, optional): 
                 Alpha to control the speed.
             use_teacher_forcing(bool, optional): 
@@ -806,9 +868,20 @@ class FastSpeech2(nn.Layer):
                 ds=ds,
                 ps=ps,
                 es=es,
+                durations_scale=durations_scale,
+                durations_bias=durations_bias,
+                pitch_scale=pitch_scale,
+                pitch_bias=pitch_bias,
+                pitch_stats_mean=pitch_stats_mean,
+                pitch_stats_std=pitch_stats_std,
+                energy_scale=energy_scale,
+                energy_bias=energy_bias,
+                energy_stats_mean=energy_stats_mean,
+                energy_stats_std=energy_stats_std,
                 spk_emb=spk_emb,
                 spk_id=spk_id,
                 tone_id=tone_id,
+                alpha=alpha,
                 is_inference=True)
         else:
             # (1, L, odim)
@@ -921,9 +994,15 @@ class FastSpeech2Inference(nn.Layer):
         self.normalizer = normalizer
         self.acoustic_model = model
 
-    def forward(self, text, spk_id=None, spk_emb=None):
+    def forward(self, text, spk_id=None, spk_emb=None, durations_scale=None, durations_bias=None, pitch_scale=None,
+                pitch_bias=None, pitch_stats_mean=None, pitch_stats_std=None, energy_scale=None, energy_bias=None,
+                energy_stats_mean=None, energy_stats_std=None, use_teacher_forcing=False):
         normalized_mel, d_outs, p_outs, e_outs = self.acoustic_model.inference(
-            text, spk_id=spk_id, spk_emb=spk_emb)
+            text, spk_id=spk_id, spk_emb=spk_emb,  durations_scale=durations_scale, durations_bias=durations_bias,
+            pitch_scale=pitch_scale, pitch_bias=pitch_bias, pitch_stats_mean=pitch_stats_mean,
+            pitch_stats_std=pitch_stats_std, energy_scale=energy_scale, energy_bias=energy_bias,
+            energy_stats_mean=energy_stats_mean, energy_stats_std=energy_stats_std,
+            use_teacher_forcing=use_teacher_forcing)
         logmel = self.normalizer.inverse(normalized_mel)
         return logmel
 

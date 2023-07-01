@@ -476,9 +476,9 @@ class TTSHttpHandler:
         html = requests.post(self.url, json.dumps(params), stream=True)
 
         # 3. Process the received response 
-        for chunk in html.iter_content(chunk_size=None):
+        for line in html.iter_lines():
             receive_time_list.append(time.time())
-            audio = base64.b64decode(chunk)  # bytes
+            audio = base64.b64decode(line)  # bytes
             if first_flag:
                 first_response = time.time() - st
                 first_flag = 0

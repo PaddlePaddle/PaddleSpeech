@@ -89,14 +89,17 @@ class PositionalEncoding(nn.Layer, PositionalEncodingInterface):
         self.max_len = max_len
         self.xscale = paddle.to_tensor(math.sqrt(self.d_model))
         self.dropout = nn.Dropout(p=dropout_rate)
+        self.base = 10000.0
         self.pe = paddle.zeros([1, self.max_len, self.d_model])  #[B=1,T,D]
 
         position = paddle.arange(
             0, self.max_len, dtype=paddle.float32).unsqueeze(1)  #[T, 1]
+        # base^{-2(i-1)/d)}, i \in (1,2...,d/2)
         div_term = paddle.exp(
-            paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
-            -(math.log(10000.0) / self.d_model))
+            -paddle.arange(0, self.d_model, 2, dtype=paddle.float32) *
+            (math.log(self.base) / self.d_model))
 
+        # [B,T,D]
         self.pe[:, :, 0::2] = paddle.sin(position * div_term)
         self.pe[:, :, 1::2] = paddle.cos(position * div_term)
 

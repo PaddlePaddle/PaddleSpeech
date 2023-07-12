@@ -18,7 +18,7 @@ encoder_conf:
     cnn_module_kernel: 15
     use_cnn_module: True
     activation_type: 'swish'
-    pos_enc_layer_type: 'rpoe_pos' # abs_pos, rel_pos, rope_pos
+    pos_enc_layer_type: 'rope_pos' # abs_pos, rel_pos, rope_pos
     selfattention_layer_type: 'rel_selfattn' # unused
     causal: true
     use_dynamic_chunk: true
@@ -30,7 +30,7 @@ decoder_conf:
     attention_heads: 4
     linear_units: 2048
     num_blocks: 6
-    r_num_blocks: 3    # only for bitransformer
+    r_num_blocks: 0    # only for bitransformer
     dropout_rate: 0.1  # sublayer output dropout
     positional_dropout_rate: 0.1
     self_attention_dropout_rate: 0.0
@@ -39,7 +39,7 @@ decoder_conf:
 model_conf:
     ctc_weight: 0.3
     lsm_weight: 0.1     # label smoothing option
-    reverse_weight: 0.3 # only for bitransformer
+    reverse_weight: 0.0 # only for bitransformer
     length_normalized_loss: false
     init_type: 'kaiming_uniform' # !Warning: need to convergence
 

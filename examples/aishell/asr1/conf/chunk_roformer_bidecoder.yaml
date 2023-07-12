@@ -18,7 +18,7 @@ encoder_conf:
     cnn_module_kernel: 15
     use_cnn_module: True
     activation_type: 'swish'
-    pos_enc_layer_type: 'rpoe_pos' # abs_pos, rel_pos, rope_pos
+    pos_enc_layer_type: 'rope_pos' # abs_pos, rel_pos, rope_pos
     selfattention_layer_type: 'rel_selfattn' # unused
     causal: true
     use_dynamic_chunk: true

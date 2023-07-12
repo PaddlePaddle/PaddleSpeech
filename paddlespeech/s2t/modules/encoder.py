@@ -477,9 +477,10 @@ class ConformerEncoder(BaseEncoder):
         activation = get_activation(activation_type)
 
         # self-attention module definition
+        encoder_dim = output_size
         if pos_enc_layer_type == "abs_pos":
             encoder_selfattn_layer = MultiHeadedAttention
-            encoder_selfattn_layer_args = (attention_heads, output_size,
+            encoder_selfattn_layer_args = (attention_heads, encoder_dim,
                                            attention_dropout_rate)
         elif pos_enc_layer_type == "rel_pos":
             encoder_selfattn_layer = RelPositionMultiHeadedAttention
@@ -495,16 +496,16 @@ class ConformerEncoder(BaseEncoder):
 
         # feed-forward module definition
         positionwise_layer = PositionwiseFeedForward
-        positionwise_layer_args = (output_size, linear_units, dropout_rate,
+        positionwise_layer_args = (encoder_dim, linear_units, dropout_rate,
                                    activation)
         # convolution module definition
         convolution_layer = ConvolutionModule
-        convolution_layer_args = (output_size, cnn_module_kernel, activation,
+        convolution_layer_args = (encoder_dim, cnn_module_kernel, activation,
                                   cnn_module_norm, causal)
 
         self.encoders = nn.LayerList([
             ConformerEncoderLayer(
-                size=output_size,
+                size=encoder_dim,
                 self_attn=encoder_selfattn_layer(*encoder_selfattn_layer_args),
                 feed_forward=positionwise_layer(*positionwise_layer_args),
                 feed_forward_macaron=positionwise_layer(

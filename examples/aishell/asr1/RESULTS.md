@@ -1,5 +1,20 @@
 # Aishell
 
+## RoFormer Streaming
+paddle version: 2.5.0  
+paddlespeech version: 1.5.0
+
+Need set `decoding.decoding_chunk_size=16` when decoding.
+
+> chunk_size=16, ((16 - 1) * 4 + 7) * 10ms = (16 * 4 + 3) * 10ms = 670ms
+
+| Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size & Left Chunks | Loss | CER |  
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |  
+| roformer | 44.80M | conf/chunk_roformer.yaml | spec_aug | test | attention | 16, -1 | - |  |  
+| roformer | 44.80M | conf/chunk_roformer.yaml | spec_aug | test | ctc_greedy_search | 16, -1 | - |  |  
+| roformer | 44.80M | conf/chunk_roformer.yaml | spec_aug | test | ctc_prefix_beam_search | 16, -1 | - |  |  
+| roformer | 44.80M | conf/chunk_roformer.yaml | spec_aug | test | attention_rescoring | 16, -1 |  - |  |  
+
 ## Conformer
 paddle version: 2.2.2  
 paddlespeech version: 1.0.1
@@ -7,7 +22,7 @@ paddlespeech version: 1.0.1
 | --- | --- | --- | --- | --- | --- | --- | --- | 
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention | - | 0.0522 |
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | ctc_greedy_search | - | 0.0481 |
-| conformer | 47.07M  | conf/conformer.yaml | spec_aug| test | ctc_prefix_beam_search | - | 0.0480 | 
+| conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | ctc_prefix_beam_search | - | 0.0480 | 
 | conformer | 47.07M  | conf/conformer.yaml | spec_aug | test | attention_rescoring | - | 0.0460 | 
 
 

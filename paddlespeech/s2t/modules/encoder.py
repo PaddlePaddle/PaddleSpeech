@@ -233,7 +233,7 @@ class BaseEncoder(nn.Layer):
             xs = self.global_cmvn(xs)
 
         # before embed, xs=(B, T, D1), pos_emb=(B=1, T, D)
-        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset=offset)
+        xs, _, _ = self.embed(xs, tmp_masks, offset=offset)
         # after embed, xs=(B=1, chunk_size, hidden-dim)
 
         elayers, _, cache_t1, _ = att_cache.shape

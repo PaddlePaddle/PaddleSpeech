@@ -20,30 +20,6 @@ import numpy as np
 import paddle
 
 
-def define_argparse():
-    parser = argparse.ArgumentParser(description='average model')
-    parser.add_argument('--dst_model', required=True, help='averaged model')
-    parser.add_argument(
-        '--ckpt_dir', required=True, help='ckpt model dir for average')
-    parser.add_argument(
-        '--val_best', action="store_true", help='averaged model')
-    parser.add_argument(
-        '--num', default=5, type=int, help='nums for averaged model')
-    parser.add_argument(
-        '--min_epoch',
-        default=0,
-        type=int,
-        help='min epoch used for averaging model')
-    parser.add_argument(
-        '--max_epoch',
-        default=65536,  # Big enough
-        type=int,
-        help='max epoch used for averaging model')
-
-    args = parser.parse_args()
-    return args
-
-
 def average_checkpoints(dst_model="",
                         ckpt_dir="",
                         val_best=True,
@@ -85,7 +61,7 @@ def average_checkpoints(dst_model="",
     print(path_list)
 
     avg = None
-    num = args.num
+    num = num
     assert num == len(path_list)
     for path in path_list:
         print(f'Processing {path}')
@@ -100,14 +76,14 @@ def average_checkpoints(dst_model="",
         if avg[k] is not None:
             avg[k] /= num
 
-    paddle.save(avg, args.dst_model)
-    print(f'Saving to {args.dst_model}')
+    paddle.save(avg, dst_model)
+    print(f'Saving to {dst_model}')
 
-    meta_path = os.path.splitext(args.dst_model)[0] + '.avg.json'
+    meta_path = os.path.splitext(dst_model)[0] + '.avg.json'
     with open(meta_path, 'w') as f:
         data = json.dumps({
-            "mode": 'val_best' if args.val_best else 'latest',
-            "avg_ckpt": args.dst_model,
+            "mode": 'val_best' if val_best else 'latest',
+            "avg_ckpt": dst_model,
             "val_loss_mean": avg_val_score,
             "ckpts": path_list,
             "epochs": selected_epochs.tolist(),
@@ -116,9 +92,40 @@ def average_checkpoints(dst_model="",
         f.write(data + "\n")
 
 
+def define_argparse():
+    parser = argparse.ArgumentParser(description='average model')
+    parser.add_argument('--dst_model', required=True, help='averaged model')
+    parser.add_argument(
+        '--ckpt_dir', required=True, help='ckpt model dir for average')
+    parser.add_argument(
+        '--val_best', action="store_true", help='averaged model')
+    parser.add_argument(
+        '--num', default=5, type=int, help='nums for averaged model')
+    parser.add_argument(
+        '--min_epoch',
+        default=0,
+        type=int,
+        help='min epoch used for averaging model')
+    parser.add_argument(
+        '--max_epoch',
+        default=65536,  # Big enough
+        type=int,
+        help='max epoch used for averaging model')
+
+    args = parser.parse_args()
+    print(args)
+    return args
+
+
 def main():
     args = define_argparse()
-    average_checkpoints(args)
+    average_checkpoints(
+        dst_model=args.dst_model,
+        ckpt_dir=args.ckpt_dir,
+        val_best=args.val_best,
+        num=args.num,
+        min_epoch=args.min_epoch,
+        max_epoch=args.max_epoch)
 
 
 if __name__ == '__main__':

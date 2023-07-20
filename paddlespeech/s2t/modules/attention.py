@@ -15,6 +15,7 @@
 # Modified from wenet(https://github.com/wenet-e2e/wenet)
 """Multi-Head Attention layer definition."""
 import math
+from typing import List
 from typing import Tuple
 
 import paddle
@@ -26,7 +27,10 @@ from paddlespeech.s2t.utils.log import Log
 
 logger = Log(__name__).getlog()
 
-__all__ = ["MultiHeadedAttention", "RelPositionMultiHeadedAttention"]
+__all__ = [
+    "MultiHeadedAttention", "RelPositionMultiHeadedAttention",
+    "RoPERelPositionMultiHeadedAttention"
+]
 
 # Relative Positional Encodings
 # https://www.jianshu.com/p/c0608efcc26f
@@ -165,6 +169,7 @@ class MultiHeadedAttention(nn.Layer):
                 and `head * d_k == size`
 
         """
+        # (B,T,D) -> (B,T,H,D/H)
         q, k, v = self.forward_qkv(query, key, value)
 
         #   when export onnx model, for 1st chunk, we feed
@@ -372,4 +377,140 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         scores = (matrix_ac + matrix_bd) / math.sqrt(
             self.d_k)  # (batch, head, time1, time2)
 
+        return self.forward_attention(v, scores, mask), new_cache
+
+
+class RoPERelPositionMultiHeadedAttention(MultiHeadedAttention):
+    """Multi-Head Attention layer with RoPE relative position encoding."""
+
+    def __init__(self,
+                 n_head,
+                 n_feat,
+                 dropout_rate,
+                 adaptive_scale=False,
+                 init_weights=False):
+        """Construct an RelPositionMultiHeadedAttention object.
+        Paper: https://arxiv.org/abs/1901.02860
+        Args:
+            n_head (int): The number of heads.
+            n_feat (int): The number of features.
+            dropout_rate (float): Dropout rate.
+        """
+        super().__init__(n_head, n_feat, dropout_rate)
+
+    def align(self, tensor: paddle.Tensor, axes: List[int], ndim=None):
+        """重新对齐tensor（批量版expand_dims）
+        axes：原来的第i维对齐新tensor的第axes[i]维；
+        ndim：新tensor的维度。
+        """
+        assert len(axes) == tensor.dim()
+        assert ndim or min(axes) >= 0
+
+        ndim = ndim or max(axes) + 1
+
+        # a[0, None, 1] = a[0, np.newaxis, 1]
+        indices = [None] * ndim
+        for i in axes:
+            # slice nothing, a[0, slice(None), 1] = a[0, :, 1]
+            indices[i] = slice(None)
+
+        return tensor[indices]
+
+    def apply_rotary_position_embeddings(self, sinusoidal, *tensors):
+        """应用RoPE到tensors中
+        其中，sinusoidal.shape=[B, T, D]，tensors为tensor的列表，而
+        tensor.shape=[B, T, ..., D], or (B,H,T,D/H)
+        """
+        assert len(tensors) > 0, 'at least one input tensor'
+        assert all(
+            [tensor.shape == tensors[0].shape
+             for tensor in tensors[1:]]), 'all tensors must have the same shape'
+
+        # (B,H,T,D)
+        ndim = tensors[0].dim()
+        _, H, T, D = tensors[0].shape
+
+        # sinusoidal shape same with tensors[0]
+        # [B,T,D] -> [B,T,H,D/H] -> (B,H,T,D/H)
+        # sinusoidal = self.align(sinusoidal, [0, 1, -1], ndim)
+        sinusoidal = sinusoidal.reshape((1, T, H, D)).transpose([0, 2, 1, 3])
+
+        # http://man.hubwiz.com/docset/TensorFlow.docset/Contents/Resources/Documents/api_docs/python/tf/keras/backend/repeat_elements.html
+        # like np.repeat, x (s1, s2, s3), axis 1, (s1, s2*rep, s3)
+        # [b,T, ..., d/2] -> [b,T, ..., d]
+        cos_pos = paddle.repeat_interleave(sinusoidal[..., 1::2], 2, axis=-1)
+        sin_pos = paddle.repeat_interleave(sinusoidal[..., 0::2], 2, axis=-1)
+        outputs = []
+        for tensor in tensors:
+            # x2 = [-x2, x1, -x4, x3, ..., -x_d, x_{d-1}]
+            tensor2 = paddle.stack([-tensor[..., 1::2], tensor[..., ::2]], ndim)
+            tensor2 = paddle.reshape(tensor2, paddle.shape(tensor))
+
+            # 公式 34, out = x * cos_pos + x2 * sin_pos
+            outputs.append(tensor * cos_pos + tensor2 * sin_pos)
+        return outputs[0] if len(outputs) == 1 else outputs
+
+    def forward(self,
+                query: paddle.Tensor,
+                key: paddle.Tensor,
+                value: paddle.Tensor,
+                mask: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
+                pos_emb: paddle.Tensor=paddle.empty([0]),
+                cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+                ) -> Tuple[paddle.Tensor, paddle.Tensor]:
+        """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
+        Ref: https://github.com/facebookresearch/llama/blob/main/llama/model.py
+        Args:
+            query (paddle.Tensor): Query tensor (#batch, time1, size).
+            key (paddle.Tensor): Key tensor (#batch, time2, size).
+            value (paddle.Tensor): Value tensor (#batch, time2, size).
+            mask (paddle.Tensor): Mask tensor (#batch, 1, time2) or
+                (#batch, time1, time2), (0, 0, 0) means fake mask.
+            pos_emb (paddle.Tensor): Positional embedding tensor
+                (#batch, time2, size).
+            cache (paddle.Tensor): Cache tensor (1, head, cache_t, d_k * 2),
+                where `cache_t == chunk_size * num_decoding_left_chunks`
+                and `head * d_k == size`
+        Returns:
+            paddle.Tensor: Output tensor (#batch, time1, d_model).
+            paddle.Tensor: Cache tensor (1, head, cache_t + time1, d_k * 2)
+                where `cache_t == chunk_size * num_decoding_left_chunks`
+                and `head * d_k == size`
+        """
+        q, k, v = self.forward_qkv(query, key, value)
+        # q = q.transpose([0, 2, 1, 3])  # (batch, time1, head, d_k)
+
+        # f{q,k}(x_m, m) = R^d_{\theta, m} W_{q,k} x_m, m is position index
+        # q_t always is chunk_size
+        q_t = q.shape[2]
+        q = self.apply_rotary_position_embeddings(pos_emb[:, -q_t:, :], q)
+        # k will increase when in streaming decoding.
+        k = self.apply_rotary_position_embeddings(pos_emb[:, -q_t:, :], k)
+
+        #   when export onnx model, for 1st chunk, we feed
+        #       cache(1, head, 0, d_k * 2) (16/-1, -1/-1, 16/0 mode)
+        #       or cache(1, head, real_cache_t, d_k * 2) (16/4 mode).
+        #       In all modes, `if cache.size(0) > 0` will alwayse be `True`
+        #       and we will always do splitting and
+        #       concatnation(this will simplify onnx export). Note that
+        #       it's OK to concat & split zero-shaped tensors(see code below).
+        #   when export jit  model, for 1st chunk, we always feed
+        #       cache(0, 0, 0, 0) since jit supports dynamic if-branch.
+        # >>> a = torch.ones((1, 2, 0, 4))
+        # >>> b = torch.ones((1, 2, 3, 4))
+        # >>> c = torch.cat((a, b), dim=2)
+        # >>> torch.equal(b, c)        # True
+        # >>> d = torch.split(a, 2, dim=-1)
+        # >>> torch.equal(d[0], d[1])  # True
+        if cache.shape[0] > 0:
+            # last dim `d_k * 2` for (key, val)
+            key_cache, value_cache = paddle.split(cache, 2, axis=-1)
+            k = paddle.concat([key_cache, k], axis=2)
+            v = paddle.concat([value_cache, v], axis=2)
+        # We do cache slicing in encoder.forward_chunk, since it's
+        #   non-trivial to calculate `next_cache_start` here.
+        new_cache = paddle.concat((k, v), axis=-1)
+
+        # dot(q, k)
+        scores = paddle.matmul(q, k, transpose_y=True) / math.sqrt(self.d_k)
         return self.forward_attention(v, scores, mask), new_cache

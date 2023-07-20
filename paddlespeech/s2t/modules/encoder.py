@@ -28,6 +28,7 @@ from paddlespeech.s2t.modules.align import LayerNorm
 from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.attention import MultiHeadedAttention
 from paddlespeech.s2t.modules.attention import RelPositionMultiHeadedAttention
+from paddlespeech.s2t.modules.attention import RoPERelPositionMultiHeadedAttention
 from paddlespeech.s2t.modules.conformer_convolution import ConvolutionModule
 from paddlespeech.s2t.modules.embedding import NoPositionalEncoding
 from paddlespeech.s2t.modules.embedding import PositionalEncoding
@@ -114,6 +115,8 @@ class BaseEncoder(nn.Layer):
         if pos_enc_layer_type == "abs_pos":
             pos_enc_class = PositionalEncoding
         elif pos_enc_layer_type == "rel_pos":
+            pos_enc_class = RelPositionalEncoding
+        elif pos_enc_layer_type == "rope_pos":
             pos_enc_class = RelPositionalEncoding
         elif pos_enc_layer_type == "no_pos":
             pos_enc_class = NoPositionalEncoding
@@ -230,14 +233,14 @@ class BaseEncoder(nn.Layer):
             xs = self.global_cmvn(xs)
 
         # before embed, xs=(B, T, D1), pos_emb=(B=1, T, D)
-        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset=offset)
+        xs, _, _ = self.embed(xs, tmp_masks, offset=offset)
         # after embed, xs=(B=1, chunk_size, hidden-dim)
 
         elayers, _, cache_t1, _ = att_cache.shape
         chunk_size = xs.shape[1]
         attention_key_size = cache_t1 + chunk_size
 
-        # only used when using `RelPositionMultiHeadedAttention`
+        # only used when using `RelPositionMultiHeadedAttention` and `RoPERelPositionMultiHeadedAttention`
         pos_emb = self.embed.position_encoding(
             offset=offset - cache_t1, size=attention_key_size)
 
@@ -474,21 +477,35 @@ class ConformerEncoder(BaseEncoder):
         activation = get_activation(activation_type)
 
         # self-attention module definition
-        encoder_selfattn_layer = RelPositionMultiHeadedAttention
-        encoder_selfattn_layer_args = (attention_heads, output_size,
-                                       attention_dropout_rate)
+        encoder_dim = output_size
+        if pos_enc_layer_type == "abs_pos":
+            encoder_selfattn_layer = MultiHeadedAttention
+            encoder_selfattn_layer_args = (attention_heads, encoder_dim,
+                                           attention_dropout_rate)
+        elif pos_enc_layer_type == "rel_pos":
+            encoder_selfattn_layer = RelPositionMultiHeadedAttention
+            encoder_selfattn_layer_args = (attention_heads, encoder_dim,
+                                           attention_dropout_rate)
+        elif pos_enc_layer_type == "rope_pos":
+            encoder_selfattn_layer = RoPERelPositionMultiHeadedAttention
+            encoder_selfattn_layer_args = (attention_heads, encoder_dim,
+                                           attention_dropout_rate)
+        else:
+            raise ValueError(
+                f"pos_enc_layer_type {pos_enc_layer_type} not supported.")
+
         # feed-forward module definition
         positionwise_layer = PositionwiseFeedForward
-        positionwise_layer_args = (output_size, linear_units, dropout_rate,
+        positionwise_layer_args = (encoder_dim, linear_units, dropout_rate,
                                    activation)
         # convolution module definition
         convolution_layer = ConvolutionModule
-        convolution_layer_args = (output_size, cnn_module_kernel, activation,
+        convolution_layer_args = (encoder_dim, cnn_module_kernel, activation,
                                   cnn_module_norm, causal)
 
         self.encoders = nn.LayerList([
             ConformerEncoderLayer(
-                size=output_size,
+                size=encoder_dim,
                 self_attn=encoder_selfattn_layer(*encoder_selfattn_layer_args),
                 feed_forward=positionwise_layer(*positionwise_layer_args),
                 feed_forward_macaron=positionwise_layer(
@@ -580,15 +597,23 @@ class SqueezeformerEncoder(nn.Layer):
         activation = get_activation(activation_type)
 
         # self-attention module definition
-        if pos_enc_layer_type != "rel_pos":
+        if pos_enc_layer_type == "abs_pos":
             encoder_selfattn_layer = MultiHeadedAttention
             encoder_selfattn_layer_args = (attention_heads, output_size,
                                            attention_dropout_rate)
-        else:
+        elif pos_enc_layer_type == "rel_pos":
             encoder_selfattn_layer = RelPositionMultiHeadedAttention
             encoder_selfattn_layer_args = (attention_heads, encoder_dim,
                                            attention_dropout_rate,
                                            adaptive_scale, init_weights)
+        elif pos_enc_layer_type == "rope_pos":
+            encoder_selfattn_layer = RoPERelPositionMultiHeadedAttention
+            encoder_selfattn_layer_args = (attention_heads, encoder_dim,
+                                           attention_dropout_rate,
+                                           adaptive_scale, init_weights)
+        else:
+            raise ValueError(
+                f"pos_enc_layer_type {pos_enc_layer_type} not supported.")
 
         # feed-forward module definition
         positionwise_layer = PositionwiseFeedForward

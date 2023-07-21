@@ -893,10 +893,6 @@ The Text-to-Speech module is originally called [Parakeet](https://github.com/Pad
 
 - **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
-</div>
-
 
 ## Citation
 

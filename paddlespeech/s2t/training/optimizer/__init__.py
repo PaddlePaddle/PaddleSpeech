@@ -102,8 +102,7 @@ class OptimizerFactory():
 
         grad_clip = paddle.nn.ClipGradByGlobalNorm(
             args['grad_clip']) if "grad_clip" in args else None
-        weight_decay = L2Decay(
-            args['weight_decay']) if "weight_decay" in args else None
+        weight_decay = args.get("weight_decay", None)
         if weight_decay:
             logger.info(f'<WeightDecay - {weight_decay}>')
         if grad_clip:

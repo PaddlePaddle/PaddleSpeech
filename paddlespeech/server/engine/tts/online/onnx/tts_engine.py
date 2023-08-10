@@ -164,7 +164,8 @@ class TTSServerExecutor(TTSExecutor):
         if lang == 'zh':
             self.frontend = Frontend(
                 phone_vocab_path=self.phones_dict,
-                tone_vocab_path=self.tones_dict)
+                tone_vocab_path=self.tones_dict
+                g2p_model='pypinyin')
 
         elif lang == 'en':
             self.frontend = English(phone_vocab_path=self.phones_dict)

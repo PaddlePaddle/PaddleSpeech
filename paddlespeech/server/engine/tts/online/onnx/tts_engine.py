@@ -86,7 +86,7 @@ class TTSServerExecutor(TTSExecutor):
             else:
                 self.am_ckpt = os.path.abspath(am_ckpt[0])
                 self.phones_dict = os.path.abspath(phones_dict)
-                self.am_res_path = os.path.dirname(os.path.abspath(am_ckpt))
+                self.am_res_path = os.path.dirname(os.path.abspath(am_ckpt[0]))
 
             # create am sess
             self.am_sess = get_sess(self.am_ckpt, am_sess_conf)

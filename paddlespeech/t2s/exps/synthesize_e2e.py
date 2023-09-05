@@ -299,7 +299,12 @@ def parse_args():
         default=None,
         help="dir to save inference models")
     parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu.")
+        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu or xpu.")
+    parser.add_argument(
+        "--nxpu",
+        type=int,
+        default=0,
+        help="if ngpu == 0 and nxpu == 0, use cpu.")
     parser.add_argument(
         "--text",
         type=str,
@@ -329,12 +334,14 @@ def parse_args():
 def main():
     args = parse_args()
 
-    if args.ngpu == 0:
+    if args.ngpu > 0:
+        paddle.set_device("npu")
+    elif args.xgpu > 0:
+        paddle.set_device("xpu")
+    elif args.ngpu == 0 and args.nxpu == 0:
         paddle.set_device("cpu")
-    elif args.ngpu > 0:
-        paddle.set_device("gpu")
     else:
-        print("ngpu should >= 0 !")
+        print("ngpu or nxpu should >= 0 !")
 
     evaluate(args)
 

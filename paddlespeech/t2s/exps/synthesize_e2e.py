@@ -335,8 +335,8 @@ def main():
     args = parse_args()
 
     if args.ngpu > 0:
-        paddle.set_device("npu")
-    elif args.xgpu > 0:
+        paddle.set_device("gpu")
+    elif args.nxpu > 0:
         paddle.set_device("xpu")
     elif args.ngpu == 0 and args.nxpu == 0:
         paddle.set_device("cpu")

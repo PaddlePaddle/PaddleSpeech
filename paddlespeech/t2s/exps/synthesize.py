@@ -224,7 +224,8 @@ def parse_args():
         "--nxpu",
         type=int,
         default=0,
-        help="if ngpu == 0 and nxpu == 0, use cpu.")
+        help="if wish to use xpu, set ngpu == 0 and nxpu > 0, and if ngpu == 0 and nxpu == 0, use cpu."
+    )
     parser.add_argument("--test_metadata", type=str, help="test metadata.")
     parser.add_argument("--output_dir", type=str, help="output dir.")
     parser.add_argument(

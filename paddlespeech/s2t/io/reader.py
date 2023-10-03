@@ -14,9 +14,12 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 from collections import OrderedDict
 
+import io
+import os
 import kaldiio
 import numpy as np
 import soundfile
+import h5py
 
 from .utility import feat_type
 from paddlespeech.audio.transform.transformation import Transformation

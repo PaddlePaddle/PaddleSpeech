@@ -99,7 +99,7 @@ class SoundHDF5File():
     def __contains__(self, item):
         return item in self.file
 
-    def __len__(self, item):
+    def __len__(self):
         return len(self.file)
 
     def __enter__(self):

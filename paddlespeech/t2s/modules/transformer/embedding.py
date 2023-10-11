@@ -48,7 +48,6 @@ class PositionalEncoding(nn.Layer):
         self.xscale = math.sqrt(self.d_model)
         self.dropout = nn.Dropout(p=dropout_rate)
         self.pe = None
-        self.dtype = dtype
         self.extend_pe(paddle.expand(paddle.zeros([1]), (1, max_len)))
 
     def extend_pe(self, x):

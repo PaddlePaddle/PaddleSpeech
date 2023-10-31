@@ -81,7 +81,7 @@ class TransformerEncoderLayer(nn.Layer):
             pos_emb: paddle.Tensor,
             mask_pad: paddle.Tensor=paddle.ones([0, 0, 0], dtype=paddle.bool),
             att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+            # cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
         Args:
@@ -125,8 +125,8 @@ class TransformerEncoderLayer(nn.Layer):
         if not self.normalize_before:
             x = self.norm2(x)
 
-        fake_cnn_cache = paddle.zeros([0, 0, 0], dtype=x.dtype)
-        return x, mask, new_att_cache, fake_cnn_cache
+        # fake_cnn_cache = paddle.zeros([0, 0, 0], dtype=x.dtype)
+        return x, mask, new_att_cache#, fake_cnn_cache
 
 
 class ConformerEncoderLayer(nn.Layer):

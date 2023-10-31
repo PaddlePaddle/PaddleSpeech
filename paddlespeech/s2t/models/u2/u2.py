@@ -651,7 +651,7 @@ class U2BaseModel(ASRInterface, nn.Layer):
             offset: int,
             required_cache_size: int,
             att_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0]),
-            cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
+            # cnn_cache: paddle.Tensor=paddle.zeros([0, 0, 0, 0])
     ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """ Export interface for c++ call, give input chunk xs, and return
             output from time 0 to current chunk.
@@ -685,7 +685,9 @@ class U2BaseModel(ASRInterface, nn.Layer):
                 same shape as the original cnn_cache.
         """
         return self.encoder.forward_chunk(xs, offset, required_cache_size,
-                                          att_cache, cnn_cache)
+                                          att_cache, 
+                                        #   cnn_cache
+                                          )
 
     # @jit.to_static
     def ctc_activation(self, xs: paddle.Tensor) -> paddle.Tensor:

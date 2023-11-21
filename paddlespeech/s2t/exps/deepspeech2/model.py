@@ -27,7 +27,6 @@ from paddlespeech.audio.text.text_featurizer import TextFeaturizer
 from paddlespeech.s2t.io.dataloader import BatchDataLoader
 from paddlespeech.s2t.models.ds2 import DeepSpeech2InferModel
 from paddlespeech.s2t.models.ds2 import DeepSpeech2Model
-from paddlespeech.s2t.training.gradclip import ClipGradByGlobalNormWithLog
 from paddlespeech.s2t.training.reporter import report
 from paddlespeech.s2t.training.timer import Timer
 from paddlespeech.s2t.training.trainer import Trainer
@@ -148,7 +147,7 @@ class DeepSpeech2Trainer(Trainer):
         if not self.train:
             return
 
-        grad_clip = ClipGradByGlobalNormWithLog(config.global_grad_clip)
+        grad_clip = paddle.nn.ClipGradByGlobalNorm(config.global_grad_clip)
         lr_scheduler = paddle.optimizer.lr.ExponentialDecay(
             learning_rate=config.lr, gamma=config.lr_decay, verbose=True)
         optimizer = paddle.optimizer.Adam(

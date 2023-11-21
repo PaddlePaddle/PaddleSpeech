@@ -29,7 +29,8 @@ INITIALS = [
 INITIALS += ['sp', 'spl', 'spn', 'sil']
 
 
-def get_lines(cantons: List[str]):
+def jyuping_to_phonemes(cantons: List[str]):
+    # jyuping to inital and final
     phones = []
     for canton in cantons:
         for consonant in INITIALS:
@@ -47,7 +48,7 @@ def get_lines(cantons: List[str]):
 class CantonFrontend():
     def __init__(self, phone_vocab_path: str):
         self.text_normalizer = TextNormalizer()
-        self.punc = "：，；。？！“”‘’':,;.?!"
+        self.punc = "、：，；。？！“”‘’':,;.?!"
 
         self.vocab_phones = {}
         if phone_vocab_path:
@@ -61,8 +62,11 @@ class CantonFrontend():
              merge_sentences: bool=True) -> List[List[str]]:
         phones_list = []
         for sentence in sentences:
+            # jyuping
+            # 'gam3 ngaam1 lou5 sai3 jiu1 kau4 keoi5 dang2 zan6 jiu3 hoi1 wui2, zing6 dai1 ge2 je5 ngo5 wui5 gaau2 dim6 ga3 laa3.'
             phones_str = ToJyutping.get_jyutping_text(sentence)
-            phones_split = get_lines(phones_str.split(' '))
+            # phonemes 
+            phones_split = jyuping_to_phonemes(phones_str.split(' '))
             phones_list.append(phones_split)
         return phones_list
 
@@ -78,8 +82,11 @@ class CantonFrontend():
                      sentence: str,
                      merge_sentences: bool=True,
                      print_info: bool=False) -> List[List[str]]:
+        # TN & Text Segmentation
         sentences = self.text_normalizer.normalize(sentence)
+        # G2P
         phonemes = self._g2p(sentences, merge_sentences=merge_sentences)
+
         if print_info:
             print("----------------------------")
             print("text norm results:")
@@ -88,6 +95,7 @@ class CantonFrontend():
             print("g2p results:")
             print(phonemes)
             print("----------------------------")
+
         return phonemes
 
     def get_input_ids(self,
@@ -98,9 +106,9 @@ class CantonFrontend():
 
         phonemes = self.get_phonemes(
             sentence, merge_sentences=merge_sentences, print_info=print_info)
+
         result = {}
         temp_phone_ids = []
-
         for phones in phonemes:
             if phones:
                 phone_ids = self._p2id(phones)
@@ -108,6 +116,8 @@ class CantonFrontend():
                 if to_tensor:
                     phone_ids = paddle.to_tensor(phone_ids)
                 temp_phone_ids.append(phone_ids)
+
         if temp_phone_ids:
             result["phone_ids"] = temp_phone_ids
+
         return result

@@ -38,23 +38,9 @@ class VoiceCloneGE2E():
         output_dir = os.path.dirname(out_wav)
         ngpu = get_ngpu()
 
-        cmd = f"""
-            python3 {self.BIN_DIR}/voice_cloning.py \
-                    --am={self.am} \
-                    --am_config={self.am_config} \
-                    --am_ckpt={self.am_ckpt} \
-                    --am_stat={self.am_stat} \
-                    --voc={self.voc} \
-                    --voc_config={self.voc_config} \
-                    --voc_ckpt={self.voc_ckpt} \
-                    --voc_stat={self.voc_stat} \
-                    --ge2e_params_path={self.ge2e_params_path} \
-                    --text="{text}" \
-                    --input-dir={ref_audio_dir} \
-                    --output-dir={output_dir} \
-                    --phones-dict={self.phones_dict} \
-                    --ngpu={ngpu}
-        """
+        cmd = f"""python {self.BIN_DIR}/voice_cloning.py --am={self.am} --am_config={self.am_config} --am_ckpt={self.am_ckpt} --am_stat={self.am_stat} --voc={self.voc} --voc_config={self.voc_config} --voc_ckpt={self.voc_ckpt} --voc_stat={self.voc_stat} --ge2e_params_path={self.ge2e_params_path} --text="{text}" --input-dir={ref_audio_dir} --output-dir={output_dir} --phones-dict={self.phones_dict} --ngpu={ngpu}"""
+
+        print(cmd)
 
         output_name = os.path.join(output_dir, full_file_name)
         return run_cmd(cmd, output_name=output_name)

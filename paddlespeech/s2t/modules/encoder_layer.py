@@ -48,7 +48,7 @@ class TransformerEncoderLayer(nn.Layer):
         Args:
             size (int): Input dimension.
             self_attn (nn.Layer): Self-attention module instance.
-                `MultiHeadedAttention` or `RelPositionMultiHeadedAttention`
+                `MultiHeadedAttention`, `RelPositionMultiHeadedAttention` or `RoPERelPositionMultiHeadedAttention`
                 instance can be used as the argument.
             feed_forward (nn.Layer): Feed-forward module instance.
                 `PositionwiseFeedForward`, instance can be used as the argument.
@@ -147,7 +147,7 @@ class ConformerEncoderLayer(nn.Layer):
         Args:
             size (int): Input dimension.
             self_attn (nn.Layer): Self-attention module instance.
-                `MultiHeadedAttention` or `RelPositionMultiHeadedAttention`
+                `MultiHeadedAttention`, `RelPositionMultiHeadedAttention` or `RoPERelPositionMultiHeadedAttention`
                 instance can be used as the argument.
             feed_forward (nn.Layer): Feed-forward module instance.
                 `PositionwiseFeedForward` instance can be used as the argument.
@@ -298,7 +298,7 @@ class SqueezeformerEncoderLayer(nn.Layer):
         Args:
             size (int): Input dimension.
             self_attn (paddle.nn.Layer): Self-attention module instance.
-                `MultiHeadedAttention` or `RelPositionMultiHeadedAttention`
+                `MultiHeadedAttention`, `RelPositionMultiHeadedAttention` or `RoPERelPositionMultiHeadedAttention`
                 instance can be used as the argument.
             feed_forward1 (paddle.nn.Layer): Feed-forward module instance.
                 `PositionwiseFeedForward` instance can be used as the argument.

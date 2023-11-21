@@ -165,8 +165,7 @@ docker run -it xxxxxx
 设置python：
 
 ```bash
-export PATH="/opt/python/cp37-cp37m/bin/:$PATH"
-#export PATH="/opt/python/cp38-cp38/bin/:$PATH"
+export PATH="/opt/python/cp38-cp38/bin/:$PATH"
 #export PATH="/opt/python/cp39-cp39/bin/:$PATH"
 ```
 

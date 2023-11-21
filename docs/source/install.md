@@ -95,7 +95,7 @@ bash
 ```
 Then you can create a conda virtual environment using the following command:
 ```bash
-conda create -y -p tools/venv python=3.7
+conda create -y -p tools/venv python=3.8
 ```
 Activate the conda virtual environment:
 ```bash
@@ -181,7 +181,7 @@ $HOME/miniconda3/bin/conda init
 # use the "bash" command to make the conda environment works
 bash
 # create a conda virtual environment
-conda create -y -p tools/venv python=3.7
+conda create -y -p tools/venv python=3.8
 # Activate the conda virtual environment:
 conda activate tools/venv
 # Install the conda packages

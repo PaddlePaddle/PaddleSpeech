@@ -29,7 +29,7 @@ class SingFrontend():
             pinyin_phone_path (str): pinyin to phone file path, a 'pinyin|phones' (like: ba|b a ) pair per line.
             phone_vocab_path (str): phone to phone id file path, a 'phone phone id' (like: a 4 ) pair per line.
         """
-        self.punc = '[：，；。？！“”‘’\':,;.?!]'
+        self.punc = '[、：，；。？！“”‘’\':,;.?!]'
 
         self.pinyin_phones = {'AP': 'AP', 'SP': 'SP'}
         if pinyin_phone_path:

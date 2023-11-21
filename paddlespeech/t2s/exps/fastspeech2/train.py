@@ -44,10 +44,17 @@ from paddlespeech.t2s.utils import str2bool
 def train_sp(args, config):
     # decides device type and whether to run in parallel
     # setup running environment correctly
-    if (not paddle.is_compiled_with_cuda()) or args.ngpu == 0:
+    if args.ngpu > 0 and paddle.is_compiled_with_cuda():
+        paddle.set_device("gpu")
+    elif args.nxpu > 0 and paddle.is_compiled_with_xpu():
+        paddle.set_device("xpu")
+    elif args.ngpu == 0 and args.nxpu == 0:
         paddle.set_device("cpu")
     else:
-        paddle.set_device("gpu")
+        raise ValueError(
+            "Please make sure that the paddle you installed matches the device type you set, "
+            "and that ngpu and nxpu cannot be negative at the same time.")
+
     world_size = paddle.distributed.get_world_size()
     if world_size > 1:
         paddle.distributed.init_parallel_env()
@@ -183,7 +190,12 @@ def main():
     parser.add_argument("--dev-metadata", type=str, help="dev data.")
     parser.add_argument("--output-dir", type=str, help="output dir.")
     parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu.")
+        "--ngpu", type=int, default=1, help="if ngpu=0, use cpu or xpu.")
+    parser.add_argument(
+        "--nxpu",
+        type=int,
+        default=0,
+        help="if ngpu=0 and nxpu > 0, use xpu. if ngpu=0 and nxpu=0, use cpu.")
     parser.add_argument(
         "--phones-dict", type=str, default=None, help="phone vocabulary file.")
     parser.add_argument(

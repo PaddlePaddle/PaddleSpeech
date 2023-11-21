@@ -227,13 +227,13 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.7* and *paddlepaddle>=2.4.1*.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.8* and *paddlepaddle<=2.5.1*. Some new versions of Paddle do not have support for adaptation in PaddleSpeech, so currently only versions 2.5.1 and earlier can be supported.
 
 ### **Dependency Introduction**
 
 + gcc >= 4.8.5
-+ paddlepaddle >= 2.4.1
-+ python >= 3.7
++ paddlepaddle <= 2.5.1
++ python >= 3.8
 + OS support:  Linux(recommend), Windows, Mac OSX
 
 PaddleSpeech depends on paddlepaddle. For installation, please refer to the official website of [paddlepaddle](https://www.paddlepaddle.org.cn/en) and choose according to your own machine. Here is an example of the cpu version.
@@ -892,10 +892,6 @@ The Text-to-Speech module is originally called [Parakeet](https://github.com/Pad
 - [PaddleSpeech Demo Video](https://paddlespeech.readthedocs.io/en/latest/demo_video.html)
 
 - **[VTuberTalk](https://github.com/jerryuhoo/VTuberTalk): Use PaddleSpeech TTS and ASR to clone voice from videos.**
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/jerryuhoo/VTuberTalk/main/gui/gui.png"  width = "500px"  />
-</div>
 
 
 ## Citation

@@ -145,7 +145,6 @@ class U2BaseModel(ASRInterface, nn.Layer):
                                 text_lengths)
             ctc_time = time.time() - start
             #logger.debug(f"ctc time: {ctc_time}")
-
         if loss_ctc is None:
             loss = loss_att
         elif loss_att is None:
@@ -916,6 +915,8 @@ class U2Model(U2DecodeModel):
         decoder_type = configs.get('decoder', 'transformer')
         logger.debug(f"U2 Decoder type: {decoder_type}")
         if decoder_type == 'transformer':
+            configs['model_conf'].pop('reverse_weight', None)
+            configs['decoder_conf'].pop('r_num_blocks', None)
             decoder = TransformerDecoder(vocab_size,
                                          encoder.output_size(),
                                          **configs['decoder_conf'])

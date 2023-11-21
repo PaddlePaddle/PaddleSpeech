@@ -20,6 +20,9 @@ from pypinyin import Style
 
 
 class ToneSandhi():
+    def __repr__(self):
+        return "MandarinToneSandhi"
+
     def __init__(self):
         self.must_neural_tone_words = {
             '麻烦', '麻利', '鸳鸯', '高粱', '骨头', '骆驼', '马虎', '首饰', '馒头', '馄饨', '风筝',
@@ -65,9 +68,22 @@ class ToneSandhi():
             '男子', '女子', '分子', '原子', '量子', '莲子', '石子', '瓜子', '电子', '人人', '虎虎',
             '幺幺', '干嘛', '学子', '哈哈', '数数', '袅袅', '局地', '以下', '娃哈哈', '花花草草', '留得',
             '耕地', '想想', '熙熙', '攘攘', '卵子', '死死', '冉冉', '恳恳', '佼佼', '吵吵', '打打',
-            '考考', '整整', '莘莘', '落地', '算子', '家家户户'
+            '考考', '整整', '莘莘', '落地', '算子', '家家户户', '青青'
         }
-        self.punc = "：，；。？！“”‘’':,;.?!"
+        self.punc = "、：，；。？！“”‘’':,;.?!"
+
+    def _split_word(self, word: str) -> List[str]:
+        word_list = jieba.cut_for_search(word)
+        word_list = sorted(word_list, key=lambda i: len(i), reverse=False)
+        first_subword = word_list[0]
+        first_begin_idx = word.find(first_subword)
+        if first_begin_idx == 0:
+            second_subword = word[len(first_subword):]
+            new_word_list = [first_subword, second_subword]
+        else:
+            second_subword = word[:-len(first_subword)]
+            new_word_list = [second_subword, first_subword]
+        return new_word_list
 
     # the meaning of jieba pos tag: https://blog.csdn.net/weixin_44174352/article/details/113731041
     # e.g.
@@ -154,18 +170,8 @@ class ToneSandhi():
                             finals[i] = finals[i][:-1] + "4"
         return finals
 
-    def _split_word(self, word: str) -> List[str]:
-        word_list = jieba.cut_for_search(word)
-        word_list = sorted(word_list, key=lambda i: len(i), reverse=False)
-        first_subword = word_list[0]
-        first_begin_idx = word.find(first_subword)
-        if first_begin_idx == 0:
-            second_subword = word[len(first_subword):]
-            new_word_list = [first_subword, second_subword]
-        else:
-            second_subword = word[:-len(first_subword)]
-            new_word_list = [second_subword, first_subword]
-        return new_word_list
+    def _all_tone_three(self, finals: List[str]) -> bool:
+        return all(x[-1] == "3" for x in finals)
 
     def _three_sandhi(self, word: str, finals: List[str]) -> List[str]:
 
@@ -206,9 +212,6 @@ class ToneSandhi():
                 finals += sub
 
         return finals
-
-    def _all_tone_three(self, finals: List[str]) -> bool:
-        return all(x[-1] == "3" for x in finals)
 
     # merge "不" and the word behind it
     # if don't merge, "不" sometimes appears alone according to jieba, which may occur sandhi error
@@ -336,6 +339,9 @@ class ToneSandhi():
 
     def pre_merge_for_modify(
             self, seg: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+        """
+            seg: [(word, pos), ...]
+        """
         seg = self._merge_bu(seg)
         seg = self._merge_yi(seg)
         seg = self._merge_reduplication(seg)
@@ -346,7 +352,11 @@ class ToneSandhi():
 
     def modified_tone(self, word: str, pos: str,
                       finals: List[str]) -> List[str]:
-
+        """
+            word: 分词
+            pos: 词性
+            finals: 带调韵母, [final1, ..., finaln]
+        """
         finals = self._bu_sandhi(word, finals)
         finals = self._yi_sandhi(word, finals)
         finals = self._neural_sandhi(word, pos, finals)

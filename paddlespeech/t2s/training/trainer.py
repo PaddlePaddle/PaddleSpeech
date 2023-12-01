@@ -20,7 +20,7 @@ from typing import List
 from typing import Union
 
 import six
-
+import paddle
 from paddlespeech.t2s.training.extension import Extension
 from paddlespeech.t2s.training.extension import PRIORITY_READER
 from paddlespeech.t2s.training.reporter import scope
@@ -162,8 +162,12 @@ class Trainer(object):
                     ) + "avg_batch_cost: {:.5f} sec, ".format(avg_batch_cost)
                     msg += "avg_samples: {}, ".format(
                         self.updater.
-                        batch_size) + "avg_ips: {:.5f} sequences/sec".format(
+                        batch_size) + "avg_ips: {:.5f} sequences/sec,".format(
                             self.updater.batch_size / avg_batch_cost)
+                    max_mem_reserved_str = f" max_mem_reserved: {paddle.device.cuda.max_memory_reserved()} B"
+                    max_mem_allocated_str = f" max_mem_allocated: {paddle.device.cuda.max_memory_allocated()} B"
+                    msg += max_mem_reserved_str + "," + max_mem_allocated_str
+
                     logger.info(msg)
 
                     # execute extension when necessary

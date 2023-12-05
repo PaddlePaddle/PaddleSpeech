@@ -164,9 +164,10 @@ class Trainer(object):
                         self.updater.
                         batch_size) + "avg_ips: {:.5f} sequences/sec,".format(
                             self.updater.batch_size / avg_batch_cost)
-                    max_mem_reserved_str = f" max_mem_reserved: {paddle.device.cuda.max_memory_reserved()} B"
-                    max_mem_allocated_str = f" max_mem_allocated: {paddle.device.cuda.max_memory_allocated()} B"
-                    msg += max_mem_reserved_str + "," + max_mem_allocated_str
+                    if paddle.device.is_compiled_with_cuda():
+                        max_mem_reserved_str = f" max_mem_reserved: {paddle.device.cuda.max_memory_reserved() // (1024 ** 2)} MB"
+                        max_mem_allocated_str = f" max_mem_allocated: {paddle.device.cuda.max_memory_allocated() // (1024 ** 2)} MB"
+                        msg += max_mem_reserved_str + "," + max_mem_allocated_str
 
                     logger.info(msg)
 

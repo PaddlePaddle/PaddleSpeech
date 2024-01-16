@@ -154,7 +154,7 @@ class TTSServerExecutor(TTSExecutor):
         self.voc_sess = get_sess(self.voc_ckpt, voc_sess_conf)
         logger.debug("Create voc sess successfully.")
 
-        with open(self.phones_dict, "r") as f:
+        with open(self.phones_dict, "r", encoding='utf-8') as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         self.vocab_size = len(phn_id)
         logger.debug(f"vocab_size: {self.vocab_size}")

@@ -18,4 +18,4 @@ This directory contains many speech applications in multiple scenarios.
 * style_fs2 - multi style control for FastSpeech2 model  
 * text_to_speech - convert text into speech 
 * self supervised pretraining - speech feature extraction and speech recognition based on wav2vec2
-* Wishper - speech recognize and translate based on Whisper model
+* Whisper - speech recognize and translate based on Whisper model

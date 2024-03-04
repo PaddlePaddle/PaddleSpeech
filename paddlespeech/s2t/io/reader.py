@@ -14,9 +14,12 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 from collections import OrderedDict
 
+import io
+import os
 import kaldiio
 import numpy as np
 import soundfile
+import h5py
 
 from .utility import feat_type
 from paddlespeech.audio.transform.transformation import Transformation
@@ -401,7 +404,7 @@ class SoundHDF5File():
     def __contains__(self, item):
         return item in self.file
 
-    def __len__(self, item):
+    def __len__(self):
         return len(self.file)
 
     def __enter__(self):

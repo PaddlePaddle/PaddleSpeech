@@ -27,6 +27,11 @@
   resolved "https://registry.npmmirror.com/@babel/parser/-/parser-7.17.9.tgz"
   integrity sha512-vqUSBLP8dQHFPdPi9bc5GK9vRkYHJ49fsZdtoJ8EQ8ibpwk5rPKfvNIwChB0KVXcIjcepEBBd2VHC5r9Gy8ueg==
 
+"@babel/parser@^7.20.15", "@babel/parser@^7.21.3":
+  version "7.22.7"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.22.7.tgz#df8cf085ce92ddbdbf668a7f186ce848c9036cae"
+  integrity sha512-7NF8pOkHP5o2vpmGgNGcfAeCvOYhGLyA3Z4eBQkT1RJlWu47n63bCs93QfJ2hIAFCil7L5P2IWhs1oToVgrL0Q==
+
 "@babel/runtime@^7.10.5":
   version "7.17.9"
   resolved "https://registry.npmmirror.com/@babel/runtime/-/runtime-7.17.9.tgz"
@@ -60,6 +65,11 @@
   integrity sha512-0Ulu3B/dqQplUUSqnTx0foSrlYuMN+GTtlJWvNJwt6Fr7/PqmlR/Y08o6/+bxDWr6p3roBJRaQ51MDZsNmEhhw==
   dependencies:
     "@floating-ui/core" "^0.6.1"
+
+"@jridgewell/sourcemap-codec@^1.4.15":
+  version "1.4.15"
+  resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz#d7c6e6755c78567a951e04ab52ef0fd26de59f32"
+  integrity sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==
 
 "@popperjs/core@^2.11.4":
   version "2.11.5"
@@ -101,6 +111,16 @@
     estree-walker "^2.0.2"
     source-map "^0.6.1"
 
+"@vue/compiler-core@3.3.4":
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.3.4.tgz#7fbf591c1c19e1acd28ffd284526e98b4f581128"
+  integrity sha512-cquyDNvZ6jTbf/+x+AgM2Arrp6G4Dzbb0R64jiG804HRMfRiFXWI6kqUVqZ6ZR0bQhIoQjB4+2bhNtVwndW15g==
+  dependencies:
+    "@babel/parser" "^7.21.3"
+    "@vue/shared" "3.3.4"
+    estree-walker "^2.0.2"
+    source-map-js "^1.0.2"
+
 "@vue/compiler-dom@3.2.32":
   version "3.2.32"
   resolved "https://registry.npmmirror.com/@vue/compiler-dom/-/compiler-dom-3.2.32.tgz"
@@ -108,6 +128,14 @@
   dependencies:
     "@vue/compiler-core" "3.2.32"
     "@vue/shared" "3.2.32"
+
+"@vue/compiler-dom@3.3.4":
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-dom/-/compiler-dom-3.3.4.tgz#f56e09b5f4d7dc350f981784de9713d823341151"
+  integrity sha512-wyM+OjOVpuUukIq6p5+nwHYtj9cFroz9cwkfmP9O1nzH68BenTTv0u7/ndggT8cIQlnBeOo6sUT/gvHcIkLA5w==
+  dependencies:
+    "@vue/compiler-core" "3.3.4"
+    "@vue/shared" "3.3.4"
 
 "@vue/compiler-sfc@3.2.32":
   version "3.2.32"
@@ -125,6 +153,22 @@
     postcss "^8.1.10"
     source-map "^0.6.1"
 
+"@vue/compiler-sfc@^3.1.0":
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-sfc/-/compiler-sfc-3.3.4.tgz#b19d942c71938893535b46226d602720593001df"
+  integrity sha512-6y/d8uw+5TkCuzBkgLS0v3lSM3hJDntFEiUORM11pQ/hKvkhSKZrXW6i69UyXlJQisJxuUEJKAWEqWbWsLeNKQ==
+  dependencies:
+    "@babel/parser" "^7.20.15"
+    "@vue/compiler-core" "3.3.4"
+    "@vue/compiler-dom" "3.3.4"
+    "@vue/compiler-ssr" "3.3.4"
+    "@vue/reactivity-transform" "3.3.4"
+    "@vue/shared" "3.3.4"
+    estree-walker "^2.0.2"
+    magic-string "^0.30.0"
+    postcss "^8.1.10"
+    source-map-js "^1.0.2"
+
 "@vue/compiler-ssr@3.2.32":
   version "3.2.32"
   resolved "https://registry.npmmirror.com/@vue/compiler-ssr/-/compiler-ssr-3.2.32.tgz"
@@ -132,6 +176,14 @@
   dependencies:
     "@vue/compiler-dom" "3.2.32"
     "@vue/shared" "3.2.32"
+
+"@vue/compiler-ssr@3.3.4":
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-ssr/-/compiler-ssr-3.3.4.tgz#9d1379abffa4f2b0cd844174ceec4a9721138777"
+  integrity sha512-m0v6oKpup2nMSehwA6Uuu+j+wEwcy7QmwMkVNVfrV9P2qE5KshC6RwOCq8fjGS/Eak/uNb8AaWekfiXxbBB6gQ==
+  dependencies:
+    "@vue/compiler-dom" "3.3.4"
+    "@vue/shared" "3.3.4"
 
 "@vue/reactivity-transform@3.2.32":
   version "3.2.32"
@@ -143,6 +195,17 @@
     "@vue/shared" "3.2.32"
     estree-walker "^2.0.2"
     magic-string "^0.25.7"
+
+"@vue/reactivity-transform@3.3.4":
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/@vue/reactivity-transform/-/reactivity-transform-3.3.4.tgz#52908476e34d6a65c6c21cd2722d41ed8ae51929"
+  integrity sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==
+  dependencies:
+    "@babel/parser" "^7.20.15"
+    "@vue/compiler-core" "3.3.4"
+    "@vue/shared" "3.3.4"
+    estree-walker "^2.0.2"
+    magic-string "^0.30.0"
 
 "@vue/reactivity@3.2.32":
   version "3.2.32"
@@ -180,6 +243,11 @@
   version "3.2.32"
   resolved "https://registry.npmmirror.com/@vue/shared/-/shared-3.2.32.tgz"
   integrity sha512-bjcixPErUsAnTQRQX4Z5IQnICYjIfNCyCl8p29v1M6kfVzvwOICPw+dz48nNuWlTOOx2RHhzHdazJibE8GSnsw==
+
+"@vue/shared@3.3.4":
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.3.4.tgz#06e83c5027f464eef861c329be81454bc8b70780"
+  integrity sha512-7OjdcV8vQ74eiz1TZLzZP4JwqM5fA94K6yntPS5Z25r9HDuGNzaGdgvwKYq6S+MxwF0TFRwe50fIR/MYnakdkQ==
 
 "@vueuse/core@^8.2.4":
   version "8.2.5"
@@ -573,6 +641,13 @@ magic-string@^0.25.7:
   dependencies:
     sourcemap-codec "^1.4.8"
 
+magic-string@^0.30.0:
+  version "0.30.1"
+  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.30.1.tgz#ce5cd4b0a81a5d032bd69aab4522299b2166284d"
+  integrity sha512-mbVKXPmS0z0G4XqFDCTllmDQ6coZzn94aMlb0o/A4HEHJCKcanlDZwYJgwnkmgD3jyWhUgj9VsPrfd972yPffA==
+  dependencies:
+    "@jridgewell/sourcemap-codec" "^1.4.15"
+
 make-dir@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmmirror.com/make-dir/-/make-dir-2.1.0.tgz"
@@ -605,6 +680,11 @@ nanoid@^3.3.1:
   version "3.3.2"
   resolved "https://registry.npmmirror.com/nanoid/-/nanoid-3.3.2.tgz"
   integrity sha512-CuHBogktKwpm5g2sRgv83jEy2ijFzBwMoYA60orPDR7ynsLijJDqgsi4RDGj3OJpy3Ieb+LYwiRmIOGyytgITA==
+
+nanoid@^3.3.6:
+  version "3.3.6"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
+  integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
 nanopop@^2.1.0:
   version "2.1.0"
@@ -650,12 +730,21 @@ pify@^4.0.1:
   resolved "https://registry.npmmirror.com/pify/-/pify-4.0.1.tgz"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-postcss@^8.1.10, postcss@^8.4.12:
+postcss@^8.1.10:
   version "8.4.12"
   resolved "https://registry.npmmirror.com/postcss/-/postcss-8.4.12.tgz"
   integrity sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg==
   dependencies:
     nanoid "^3.3.1"
+    picocolors "^1.0.0"
+    source-map-js "^1.0.2"
+
+postcss@^8.4.13:
+  version "8.4.25"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.25.tgz#4a133f5e379eda7f61e906c3b1aaa9b81292726f"
+  integrity sha512-7taJ/8t2av0Z+sQEvNzCkpDynl0tX3uJMCODi6nT3PfASC7dYCWV9aQ+uiCf+KBD4SEFcu+GvJdGdwzQ6OSjCw==
+  dependencies:
+    nanoid "^3.3.6"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
@@ -683,10 +772,10 @@ resolve@^1.22.0:
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
-rollup@^2.59.0:
-  version "2.70.1"
-  resolved "https://registry.npmmirror.com/rollup/-/rollup-2.70.1.tgz"
-  integrity sha512-CRYsI5EuzLbXdxC6RnYhOuRdtz4bhejPMSWjsFLfVM/7w/85n2szZv6yExqUXsBdz5KT8eoubeyDUDjhLHEslA==
+"rollup@>=2.59.0 <2.78.0":
+  version "2.77.3"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.77.3.tgz#8f00418d3a2740036e15deb653bed1a90ee0cc12"
+  integrity sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g==
   optionalDependencies:
     fsevents "~2.3.2"
 
@@ -708,9 +797,9 @@ scroll-into-view-if-needed@^2.2.25:
     compute-scroll-into-view "^1.0.17"
 
 semver@^5.6.0:
-  version "5.7.1"
-  resolved "https://registry.npmmirror.com/semver/-/semver-5.7.1.tgz"
-  integrity sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.2.tgz#48d55db737c3287cd4835e17fa13feace1c41ef8"
+  integrity sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==
 
 shallow-equal@^1.0.0:
   version "1.2.1"
@@ -747,15 +836,15 @@ use-strict@1.0.1:
   resolved "https://registry.npmmirror.com/use-strict/-/use-strict-1.0.1.tgz"
   integrity sha512-IeiWvvEXfW5ltKVMkxq6FvNf2LojMKvB2OCeja6+ct24S1XOmQw2dGr2JyndwACWAGJva9B7yPHwAmeA9QCqAQ==
 
-vite@^2.9.0:
-  version "2.9.1"
-  resolved "https://registry.npmmirror.com/vite/-/vite-2.9.1.tgz"
-  integrity sha512-vSlsSdOYGcYEJfkQ/NeLXgnRv5zZfpAsdztkIrs7AZHV8RCMZQkwjo4DS5BnrYTqoWqLoUe1Cah4aVO4oNNqCQ==
+vite@^2.9.13:
+  version "2.9.16"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.16.tgz#daf7ba50f5cc37a7bf51b118ba06bc36e97898e9"
+  integrity sha512-X+6q8KPyeuBvTQV8AVSnKDvXoBMnTx8zxh54sOwmmuOdxkjMmEJXH2UEchA+vTMps1xw9vL64uwJOWryULg7nA==
   dependencies:
     esbuild "^0.14.27"
-    postcss "^8.4.12"
+    postcss "^8.4.13"
     resolve "^1.22.0"
-    rollup "^2.59.0"
+    rollup ">=2.59.0 <2.78.0"
   optionalDependencies:
     fsevents "~2.3.2"
 

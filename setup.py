@@ -53,7 +53,7 @@ base = [
     "pandas",
     "paddleaudio>=1.1.0",
     "paddlenlp>=2.4.8",
-    "paddlepaddle==2.5.1"
+    "paddlepaddle==2.5.1",
     "paddleslim>=2.3.4",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",

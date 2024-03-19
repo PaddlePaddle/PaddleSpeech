@@ -58,6 +58,7 @@ base = [
     "paddlespeech_feat",
     "praatio>=5.0.0, <=5.1.1",
     "prettytable",
+    "pydantic>=1.10.14, < 2.0",
     "pypinyin<=0.44.0",
     "pypinyin-dict",
     "python-dateutil",

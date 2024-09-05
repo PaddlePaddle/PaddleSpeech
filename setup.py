@@ -45,7 +45,7 @@ base = [
     "librosa==0.8.1",
     "scipy>=1.4.0, <=1.12.0",
     "loguru",
-    "matplotlib",
+    "matplotlib<=3.8.4",
     "nara_wpe",
     "onnxruntime>=1.11.0",
     "opencc==1.1.6",

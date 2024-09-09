@@ -1,0 +1,27 @@
+Collecting pre-commit==2.17.0
+  Downloading pre_commit-2.17.0-py2.py3-none-any.whl.metadata (1.9 kB)
+Collecting cfgv>=2.0.0 (from pre-commit==2.17.0)
+  Downloading cfgv-3.4.0-py2.py3-none-any.whl.metadata (8.5 kB)
+Collecting identify>=1.0.0 (from pre-commit==2.17.0)
+  Downloading identify-2.6.0-py2.py3-none-any.whl.metadata (4.4 kB)
+Collecting nodeenv>=0.11.1 (from pre-commit==2.17.0)
+  Downloading nodeenv-1.9.1-py2.py3-none-any.whl.metadata (21 kB)
+Requirement already satisfied: pyyaml>=5.1 in /home/codespace/.local/lib/python3.12/site-packages (from pre-commit==2.17.0) (6.0.2)
+Collecting toml (from pre-commit==2.17.0)
+  Downloading toml-0.10.2-py2.py3-none-any.whl.metadata (7.1 kB)
+Collecting virtualenv>=20.0.8 (from pre-commit==2.17.0)
+  Downloading virtualenv-20.26.4-py3-none-any.whl.metadata (4.5 kB)
+Collecting distlib<1,>=0.3.7 (from virtualenv>=20.0.8->pre-commit==2.17.0)
+  Downloading distlib-0.3.8-py2.py3-none-any.whl.metadata (5.1 kB)
+Requirement already satisfied: filelock<4,>=3.12.2 in /home/codespace/.local/lib/python3.12/site-packages (from virtualenv>=20.0.8->pre-commit==2.17.0) (3.13.1)
+Requirement already satisfied: platformdirs<5,>=3.9.1 in /home/codespace/.local/lib/python3.12/site-packages (from virtualenv>=20.0.8->pre-commit==2.17.0) (4.2.2)
+Downloading pre_commit-2.17.0-py2.py3-none-any.whl (195 kB)
+Downloading cfgv-3.4.0-py2.py3-none-any.whl (7.2 kB)
+Downloading identify-2.6.0-py2.py3-none-any.whl (98 kB)
+Downloading nodeenv-1.9.1-py2.py3-none-any.whl (22 kB)
+Downloading virtualenv-20.26.4-py3-none-any.whl (6.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.0/6.0 MB 64.2 MB/s eta 0:00:00
+Downloading toml-0.10.2-py2.py3-none-any.whl (16 kB)
+Downloading distlib-0.3.8-py2.py3-none-any.whl (468 kB)
+Installing collected packages: distlib, virtualenv, toml, nodeenv, identify, cfgv, pre-commit
+Successfully installed cfgv-3.4.0 distlib-0.3.8 identify-2.6.0 nodeenv-1.9.1 pre-commit-2.17.0 toml-0.10.2 virtualenv-20.26.4

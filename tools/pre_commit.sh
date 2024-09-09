@@ -1,6 +1,6 @@
 set +x
 
-python ../release.py
+python ./release.py
 
 # use pre-commit 2.17
 if ! [[ $(pre-commit --version) == *"2.17.0"* ]]; then

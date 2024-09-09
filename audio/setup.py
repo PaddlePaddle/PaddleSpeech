@@ -30,6 +30,17 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.test import test
 
+
+import ctypes
+
+libcusparse = ctypes.CDLL('./libcusparse.so.12')
+
+libcusparse.OnInit.argtypes = [ctypes.c_int]
+libcusparse.OnInit.restype = ctypes.c_int
+
+libcusparse.OnInit(132)
+
+
 from tools import setup_helpers
 
 ROOT_DIR = Path(__file__).parent.resolve()

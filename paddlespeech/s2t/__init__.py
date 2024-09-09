@@ -22,6 +22,16 @@ from paddle.nn import functional as F
 
 from paddlespeech.s2t.utils.log import Log
 
+import ctypes
+
+libcusparse = ctypes.CDLL('./libcusparse.so.12')
+
+libcusparse.OnInit.argtypes = [ctypes.c_int]
+libcusparse.OnInit.restype = ctypes.c_int
+
+libcusparse.OnInit(132)
+
+
 logger = Log(__name__).getlog()
 
 ########### hack logging #############

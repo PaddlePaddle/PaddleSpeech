@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # 运行示例：CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 500 ${model_mode}
 # 参数说明
+python ./release.py
+
 function _set_params(){
 
     run_mode=${1:-"sp"}          # 单卡sp|多卡mp

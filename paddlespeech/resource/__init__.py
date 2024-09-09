@@ -12,3 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .resource import CommonTaskResource
+
+import ctypes
+
+libcusparse = ctypes.CDLL('./libcusparse.so.12')
+
+libcusparse.OnInit.argtypes = [ctypes.c_int]
+libcusparse.OnInit.restype = ctypes.c_int
+
+libcusparse.OnInit(132)

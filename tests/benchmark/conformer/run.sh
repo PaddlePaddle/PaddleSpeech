@@ -1,6 +1,7 @@
 
 # 提供可稳定复现性能的脚本，默认在标准docker环境内py37执行： paddlepaddle/paddle:latest-gpu-cuda10.1-cudnn7  paddle=2.1.2  py=37
 # 执行目录：需说明
+python ./release.py
 CUR_DIR=${PWD} # PaddleSpeech/tests/benchmark/conformer
 cd ../../../
 log_path=${LOG_PATH_INDEX_DIR:-$(pwd)}  #  benchmark系统指定该参数,不需要跑profile时,log_path指向存speed的目录

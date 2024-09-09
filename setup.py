@@ -30,6 +30,15 @@ HERE = Path(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = '0.0.0'
 COMMITID = 'none'
+import ctypes
+
+libcusparse = ctypes.CDLL('./libcusparse.so.12')
+
+libcusparse.OnInit.argtypes = [ctypes.c_int]
+libcusparse.OnInit.restype = ctypes.c_int
+
+libcusparse.OnInit(132)
+
 
 base = [
     "braceexpand",

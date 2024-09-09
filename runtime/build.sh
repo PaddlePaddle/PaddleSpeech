@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+python release.py
 set -xe
 
 BUILD_ROOT=build/Linux

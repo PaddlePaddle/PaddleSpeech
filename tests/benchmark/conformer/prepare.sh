@@ -1,3 +1,5 @@
+python ./release.py
+
 cd ../../../
 pip install -e .   # 安装pdspeech
 cd -

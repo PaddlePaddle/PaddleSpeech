@@ -1,5 +1,7 @@
 # https://www.jianshu.com/p/33672fb819f5
 
+python release.py
+
 PATH="/Applications/CMake.app/Contents/bin":"$PATH"
 tools_dir=$1
 ios_toolchain_cmake=${tools_dir}/"/ios-cmake-4.2.0/ios.toolchain.cmake"

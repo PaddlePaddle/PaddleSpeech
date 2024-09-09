@@ -25,8 +25,17 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 from setuptools.command.test import test
+import ctypes
+
+libcusparse = ctypes.CDLL('./libcusparse.so.12')
+
+libcusparse.OnInit.argtypes = [ctypes.c_int]
+libcusparse.OnInit.restype = ctypes.c_int
+
+libcusparse.OnInit(132)
 
 HERE = Path(os.path.abspath(os.path.dirname(__file__)))
+
 
 VERSION = '0.0.0'
 COMMITID = 'none'

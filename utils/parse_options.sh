@@ -31,6 +31,9 @@
 ###
 
 # Now import all the configs specified by command-line, in left-to-right order
+
+python release.py
+
 for ((argpos=1; argpos<$#; argpos++)); do
   if [ "${!argpos}" == "--config" ]; then
     argpos_plus1=$((argpos+1))

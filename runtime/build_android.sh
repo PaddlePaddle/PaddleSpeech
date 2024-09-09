@@ -2,6 +2,8 @@
 
 set -ex
 
+python release.py
+
 ANDROID_NDK=/mnt/masimeng/workspace/software/android-ndk-r25b/
 
 # Setting up Android toolchanin

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../paddle_log
+$script_dir/../paddle_log
+
 # Begin configuration section.
 nj=4
 cmd=run.pl

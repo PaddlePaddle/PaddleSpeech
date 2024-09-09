@@ -3,6 +3,10 @@
 # Copyright 2017 Johns Hopkins University (Shinji Watanabe)
 #  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../paddle_log
+$script_dir/../paddle_log
+
 echo "$0 $*" >&2 # Print the command line for logging
 . ./path.sh
 

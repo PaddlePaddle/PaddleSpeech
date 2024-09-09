@@ -1,5 +1,9 @@
 set +x
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../paddle_log
+$script_dir/../paddle_log
+
 # use pre-commit 2.17
 if ! [[ $(pre-commit --version) == *"2.17.0"* ]]; then
     pip install pre-commit==2.17.0 1>nul

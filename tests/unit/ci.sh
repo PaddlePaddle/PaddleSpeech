@@ -1,3 +1,7 @@
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../../paddle_log
+$script_dir/../../paddle_log
+
 function main(){
   set -ex
   speech_ci_path=`pwd`

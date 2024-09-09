@@ -1,6 +1,10 @@
 #!/bin/bash
 source test_tipc/common_func.sh
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../../paddle_log
+$script_dir/../../paddle_log
+
 # set env
 python=python
 export model_branch=`git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3`

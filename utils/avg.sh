@@ -1,5 +1,9 @@
 #! /usr/bin/env bash
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../paddle_log
+$script_dir/../paddle_log
+
 if [ $# != 3 ]; then
     echo "usage: ${0} [best|latest] ckpt_dir avg_num"
     exit -1

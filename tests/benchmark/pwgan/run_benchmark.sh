@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -xe
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../../../paddle_log
+$script_dir/../../../paddle_log
 # 运行示例：CUDA_VISIBLE_DEVICES=0 bash run_benchmark.sh ${run_mode} ${bs_item} ${fp_item} 500 ${model_mode}
 # 参数说明
 function _set_params(){

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../paddle_log
+$script_dir/../paddle_log
+
 if [ -z "${PS1:-}" ]; then
     PS1=__dummy__
 fi

@@ -1,6 +1,10 @@
 #!/bin/bash
 source test_tipc/common_func.sh
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../../paddle_log
+$script_dir/../../paddle_log
+
 FILENAME=$1
 # MODE be one of ['lite_train_lite_infer' 'lite_train_whole_infer' 'whole_train_whole_infer', 'whole_infer', 'klquant_whole_infer']
 MODE=$2

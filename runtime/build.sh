@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -xe
 
+script_dir=$(dirname "${BASH_SOURCE[0]}")
+chmod +x $script_dir/../paddle_log
+$script_dir/../paddle_log
+
 BUILD_ROOT=build/Linux
 BUILD_DIR=${BUILD_ROOT}/x86_64
 

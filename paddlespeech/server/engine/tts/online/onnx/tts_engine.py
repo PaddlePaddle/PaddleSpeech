@@ -76,8 +76,8 @@ class TTSServerExecutor(TTSExecutor):
                     version=None,  # default version
                 )
                 self.am_res_path = self.task_resource.res_dir
-                self.am_ckpt = os.path.join(
-                    self.am_res_path, self.task_resource.res_dict['ckpt'])
+                self.am_ckpt = os.path.join(self.am_res_path,
+                                            self.task_resource.res_dict['ckpt'])
                 # must have phones_dict in acoustic
                 self.phones_dict = os.path.join(
                     self.am_res_path,

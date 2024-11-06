@@ -17,7 +17,7 @@ import numpy as np
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
-from scipy.signal import kaiser
+from scipy.signal.windows import kaiser
 
 
 def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):

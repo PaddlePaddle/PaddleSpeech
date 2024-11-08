@@ -16,11 +16,12 @@ import sys
 from collections.abc import Sequence
 
 import numpy
-from distutils.util import strtobool as dist_strtobool
+
+from paddlespeech.utils.argparse import strtobool as dist_strtobool
 
 
 def strtobool(x):
-    # distutils.util.strtobool returns integer, but it's confusing,
+    # paddlespeech.utils.argparse.strtobool returns integer, but it's confusing,
     return bool(dist_strtobool(x))
 
 

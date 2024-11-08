@@ -30,6 +30,7 @@ import soundfile
 
 from paddlespeech.dataset.download import download
 from paddlespeech.dataset.download import unpack
+from paddlespeech.utils.argparse import strtobool
 
 URL_ROOT = "http://openslr.elda.org/resources/12"
 #URL_ROOT = "https://openslr.magicdatatech.com/resources/12"
@@ -63,7 +64,7 @@ parser.add_argument(
 parser.add_argument(
     "--full_download",
     default="True",
-    type=distutils.util.strtobool,
+    type=strtobool,
     help="Download all datasets for Librispeech."
     " If False, only download a minimal requirement (test-clean, dev-clean"
     " train-clean-100). (default: %(default)s)")

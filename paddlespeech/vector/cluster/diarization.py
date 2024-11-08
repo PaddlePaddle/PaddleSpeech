@@ -24,7 +24,6 @@ import warnings
 import numpy as np
 import scipy
 import sklearn
-from distutils.util import strtobool
 from scipy import linalg
 from scipy import sparse
 from scipy.sparse.csgraph import connected_components
@@ -33,6 +32,8 @@ from scipy.sparse.linalg import eigsh
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster._kmeans import k_means
 from sklearn.neighbors import kneighbors_graph
+
+from paddlespeech.utils.argparse import strtobool
 
 
 def _graph_connected_component(graph, node_id):

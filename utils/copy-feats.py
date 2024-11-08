@@ -2,13 +2,12 @@
 import argparse
 import logging
 
-from distutils.util import strtobool
-
 from paddlespeech.audio.transform.transformation import Transformation
 from paddlespeech.s2t.utils.cli_readers import file_reader_helper
 from paddlespeech.s2t.utils.cli_utils import get_commandline_args
 from paddlespeech.s2t.utils.cli_utils import is_scipy_wav_style
 from paddlespeech.s2t.utils.cli_writers import file_writer_helper
+from paddlespeech.utils.argparse import strtobool
 
 
 def get_parser():

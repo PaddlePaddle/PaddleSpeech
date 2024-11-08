@@ -28,7 +28,8 @@ import re
 import subprocess
 
 import numpy as np
-from distutils.util import strtobool
+
+from paddlespeech.utils.argparse import strtobool
 
 FILE_IDS = re.compile(r"(?<=Speaker Diarization for).+(?=\*\*\*)")
 SCORED_SPEAKER_TIME = re.compile(r"(?<=SCORED SPEAKER TIME =)[\d.]+")

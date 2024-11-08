@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
 import hashlib
 import os
 import sys
@@ -18,7 +19,9 @@ from typing import Text
 
 import distutils
 
-__all__ = ["print_arguments", "add_arguments", "get_commandline_args"]
+__all__ = [
+    "print_arguments", "add_arguments", "get_commandline_args", "strtobool"
+]
 
 
 def get_commandline_args():
@@ -80,6 +83,27 @@ def print_arguments(args, info=None):
     print("-----------------------------------------------------------")
 
 
+def strtobool(value):
+    """Convert a string value to an integer boolean (1 for True, 0 for False).
+
+    The function recognizes the following strings as True (case insensitive):
+    - "yes"
+    - "true"
+    - "1"
+
+    All other values are considered False.
+
+    NOTE: After Python 3.10, the distutils module, particularly distutils.util, has been partially deprecated. To maintain compatibility with existing code, the strtobool function implemented here.
+    """
+    if isinstance(value, bool):
+        return int(value)
+    value = value.strip().lower()
+    if value in ('yes', 'true', '1'):
+        return 1
+    else:
+        return 0
+
+
 def add_arguments(argname, type, default, help, argparser, **kwargs):
     """Add argparse's argument.
 
@@ -91,7 +115,7 @@ def add_arguments(argname, type, default, help, argparser, **kwargs):
         add_argument("name", str, "Jonh", "User name.", parser)
         args = parser.parse_args()
     """
-    type = distutils.util.strtobool if type == bool else type
+    type = strtobool if type == bool else type
     argparser.add_argument(
         "--" + argname,
         default=default,

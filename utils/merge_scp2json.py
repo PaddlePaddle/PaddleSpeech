@@ -7,9 +7,8 @@ import logging
 import sys
 from io import open
 
-from distutils.util import strtobool
-
 from paddlespeech.s2t.utils.cli_utils import get_commandline_args
+from paddlespeech.utils.argparse import strtobool
 
 PY2 = sys.version_info[0] == 2
 sys.stdin = codecs.getreader("utf-8")(sys.stdin if PY2 else sys.stdin.buffer)

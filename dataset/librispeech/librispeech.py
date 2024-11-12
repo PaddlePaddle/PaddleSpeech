@@ -32,6 +32,7 @@ from paddlespeech.dataset.download import download
 from paddlespeech.dataset.download import unpack
 from paddlespeech.utils.argparse import strtobool
 
+
 URL_ROOT = "http://openslr.elda.org/resources/12"
 #URL_ROOT = "https://openslr.magicdatatech.com/resources/12"
 URL_TEST_CLEAN = URL_ROOT + "/test-clean.tar.gz"

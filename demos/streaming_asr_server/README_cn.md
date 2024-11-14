@@ -428,7 +428,7 @@ bash server.sh
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
   ```bash
-  paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --input ./zh.wav
+  paddlespeech_client asr_online --server_ip 127.0.0.1 --port 8090 --punc.server_ip 127.0.0.1 --punc.port 8190 --input ./zh.wav
   ```
   输出:
   ```text
@@ -506,7 +506,7 @@ bash server.sh
   若 `127.0.0.1` 不能访问，则需要使用实际服务 IP 地址
 
   ```bash
-  python3 websocket_client.py --server_ip 127.0.0.1 --port 8290 --punc.server_ip 127.0.0.1 --punc.port 8190 --wavfile ./zh.wav
+  python3 local/websocket_client.py --server_ip 127.0.0.1 --port 8090 --punc.server_ip 127.0.0.1 --punc.port 8190 --wavfile ./zh.wav
   ```
   输出:
   ```text

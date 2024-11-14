@@ -16,6 +16,8 @@ import argparse
 import distutils
 from yacs.config import CfgNode
 
+from paddlespeech.utils.argparse import strtobool
+
 
 class ExtendAction(argparse.Action):
     """
@@ -73,7 +75,7 @@ def default_argument_parser(parser=None):
         '--conf', type=open, action=LoadFromFile, help="config file.")
     parser.add_argument(
         "--debug",
-        type=distutils.util.strtobool,
+        type=strtobool,
         default=False,
         help="logging with debug mode.")
     parser.add_argument(

@@ -10,11 +10,12 @@ paddlespeech cls --input ./cat.wav --topk 10
 paddlespeech text --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭 --model ernie_linear_p3_wudao_fast
 
 # Speech SSL
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 paddlespeech ssl --task asr --lang en --input ./en.wav
 paddlespeech ssl --task vector --lang en --input ./en.wav
 
 # Speech_recognition
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
@@ -110,5 +111,7 @@ paddlespeech whisper --task transcribe --input ./zh.wav
 # whisper recognize text and translate to English
 paddlespeech whisper --task translate --input ./zh.wav
 
+# to change model English-Only model
+paddlespeech whisper --lang en --size base --task transcribe  --input ./en.wav
 
 echo -e "\033[32mTest success !!!\033[0m"

@@ -171,10 +171,6 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument("--audio_file", type=str, help='audio file path')
-    # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
     args = parser.parse_args()
     print_arguments(args, globals())
     if not os.path.isfile(args.audio_file):

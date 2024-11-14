@@ -17,14 +17,14 @@ import os
 import numpy as np
 from paddle import inference
 from paddle.audio.datasets import ESC50
-from paddle.audio.features import MelSpectrogram
+from paddle.audio.features import LogMelSpectrogram
 from paddleaudio.backends import soundfile_load as load_audio
 from scipy.special import softmax
 
 # yapf: disable
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_dir", type=str, required=True, default="./export", help="The directory to static model.")
-parser.add_argument('--device', choices=['cpu', 'gpu', 'xpu'], default="gpu", help="Select which device to train model, defaults to gpu.")
+parser.add_argument('--device', choices=['cpu', 'gpu', 'xpu', 'gcu'], default="gpu", help="Select which device to train model, defaults to gpu.")
 parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.")
 parser.add_argument("--batch_size", type=int, default=1, help="Batch size per GPU/CPU for training.")
 parser.add_argument('--use_tensorrt', type=eval, default=False, choices=[True, False], help='Enable to use tensorrt to speed up.')
@@ -53,7 +53,10 @@ def extract_features(files: str, **kwargs):
             pad_width = max_length - len(waveforms[i])
             waveforms[i] = np.pad(waveforms[i], pad_width=(0, pad_width))
 
-        feat = MelSpectrogram(waveforms[i], sr, **kwargs).transpose()
+        feature_extractor = LogMelSpectrogram(sr, **kwargs)
+        feat = feature_extractor(paddle.to_tensor(waveforms[i]))
+        feat = paddle.transpose(feat, perm=[1, 0]).unsqueeze(0)
+
         feats.append(feat)
 
     return np.stack(feats, axis=0)

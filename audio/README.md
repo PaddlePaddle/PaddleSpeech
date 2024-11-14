@@ -14,7 +14,7 @@ Linux test build whl environment:
 * gcc/g++ - 8.2.0
 * cmake - 3.18.0 (need install)
 
-MAC：test build whl envrioment：
+MAC：test build whl environment：
 * os 
 * gcc/g++ 12.2.0
 * cpu Intel Xeon E5 x86_64

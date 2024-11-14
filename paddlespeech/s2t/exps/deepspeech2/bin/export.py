@@ -32,9 +32,6 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    # save jit model to
-    parser.add_argument(
-        "--export_path", type=str, help="path of the jit model to save")
     args = parser.parse_args()
     print_arguments(args)
 

@@ -56,7 +56,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
 
   # 识别文本
   text = ssl_executor(
-      model='wav2vec2,
+      model='wav2vec2',
       task='asr',
       lang='en',
       sample_rate=16000,

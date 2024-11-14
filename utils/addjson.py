@@ -11,8 +11,9 @@ import json
 import logging
 import sys
 
-from distutils.util import strtobool
 from espnet.utils.cli_utils import get_commandline_args
+
+from paddlespeech.utils.argparse import strtobool
 
 is_python2 = sys.version_info[0] == 2
 

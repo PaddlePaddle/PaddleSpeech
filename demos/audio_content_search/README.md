@@ -19,7 +19,7 @@ You can choose one way from meduim and hard to install paddlespeech.
 The dependency refers to the requirements.txt, and install the dependency as follows:
 
 ```
-pip install -r requriement.txt 
+pip install -r requirements.txt 
 ```
 
 ### 2. Prepare Input File
@@ -30,11 +30,20 @@ Here are sample files for this demo that can be downloaded:
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 ```
 
-### 3. Usage
+### 3. run paddlespeech_server
+Before using the client, it is necessary to start paddlespeech_servers.
+
+Here are sample server configuration：
+```bash
+bash demos/audio_content_search/run.sh
+```
+The logs of the two services will be recorded in 'acs.log' and 'streaming_asr.log' in this configuration.
+
+### 4. Usage
 - Command Line(Recommended)
   ```bash
   # Chinese
-  paddlespeech_client acs --server_ip 127.0.0.1 --port 8090 --input ./zh.wav 
+  paddlespeech_client acs --server_ip 127.0.0.1 --port 8490 --input ./zh.wav 
   ```
   
   Usage:

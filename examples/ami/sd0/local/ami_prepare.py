@@ -28,7 +28,8 @@ import xml.etree.ElementTree as et
 from ami_splits import get_AMI_split
 from dataio import load_pkl
 from dataio import save_pkl
-from distutils.util import strtobool
+
+from paddlespeech.utils.argparse import strtobool
 
 logger = logging.getLogger(__name__)
 SAMPLERATE = 16000

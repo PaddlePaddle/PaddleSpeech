@@ -21,7 +21,8 @@ import sys
 
 import configargparse
 import numpy as np
-from distutils.util import strtobool
+
+from paddlespeech.utils.argparse import strtobool
 
 
 def get_parser():

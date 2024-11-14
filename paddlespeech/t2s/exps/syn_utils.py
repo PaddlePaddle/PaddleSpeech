@@ -591,7 +591,8 @@ def get_predictor(
 
     config = inference.Config(
         str(Path(model_dir) / model_file), str(Path(model_dir) / params_file))
-    config.enable_memory_optim()
+    if paddle.__version__ <= "2.5.2" and paddle.__version__ != "0.0.0":
+        config.enable_memory_optim()
     config.switch_ir_optim(True)
     if device == "gpu":
         config.enable_use_gpu(100, device_id)

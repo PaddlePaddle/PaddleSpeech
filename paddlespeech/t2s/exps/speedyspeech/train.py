@@ -45,15 +45,20 @@ def train_sp(args, config):
     # decides device type and whether to run in parallel
     # setup running environment correctly
     world_size = paddle.distributed.get_world_size()
-    if (not paddle.is_compiled_with_cuda()) or args.ngpu == 0:
-        if (not paddle.is_compiled_with_xpu()) or args.nxpu == 0:
-            paddle.set_device("cpu")
-        else:
-            paddle.set_device("xpu")
-    else:
+    if paddle.is_compiled_with_cuda() and args.ngpu > 0:
         paddle.set_device("gpu")
         if world_size > 1:
             paddle.distributed.init_parallel_env()
+    elif paddle.is_compiled_with_xpu() and args.nxpu > 0:
+        paddle.device.set_device("xpu")
+    elif args.nnpu > 0:
+        paddle.device.set_device("npu")
+        if world_size > 1:
+            paddle.distributed.init_parallel_env()
+    elif args.nmlu > 0:
+        paddle.device.set_device("mlu")
+    else:
+        paddle.set_device("cpu")
 
     # set the random seed, it is a must for multiprocess training
     seed_everything(config.seed)
@@ -191,9 +196,25 @@ def main():
         "--nxpu",
         type=int,
         default=0,
-        help="if nxpu == 0 and ngpu == 0, use cpu.")
+        help="if wish to use xpu, set ngpu == 0 and nxpu > 0, otherwise use gpu, npu, mlu or cpu."
+    )
     parser.add_argument(
-        "--ngpu", type=int, default=1, help="if ngpu == 0, use cpu or xpu")
+        "--nnpu",
+        type=int,
+        default=0,
+        help="if wish to use npu, set ngpu == 0 and nnpu > 0, otherwise use gpu, xpu, mlu or cpu."
+    )
+    parser.add_argument(
+        "--nmlu",
+        type=int,
+        default=1,
+        help="if wish to use npu, set ngpu == 0 and nmlu > 0, otherwise use gpu, xpu, npu or cpu."
+    )
+    parser.add_argument(
+        "--ngpu",
+        type=int,
+        default=1,
+        help="if wish to use gpu, set ngpu > 0, otherwise use xpu, npu or cpu.")
 
     parser.add_argument(
         "--use-relative-path",

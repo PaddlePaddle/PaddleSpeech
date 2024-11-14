@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--text",
         type=str,
-        default="../../../../../../paddlespeech/t2s/exps/csmsc_test.txt",
+        default="../../../../../../paddlespeech/t2s/assets/csmsc_test.txt",
         help="text to synthesize, a 'utt_id sentence' pair per line")
     parser.add_argument('--spk_id', type=int, default=0, help='Speaker id')
     parser.add_argument('--speed', type=float, default=1.0, help='Audio speed')

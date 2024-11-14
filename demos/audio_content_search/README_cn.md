@@ -19,7 +19,7 @@
 依赖参见 requirements.txt, 安装依赖
 
 ```
-pip install -r requriement.txt 
+pip install -r requirements.txt
 ```
 
 ### 2. 准备输入
@@ -29,16 +29,26 @@ pip install -r requriement.txt
 ```bash
 wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 ```
-### 3. 使用方法
+
+### 3. 启动 server
+使用 client 之前需要先启动 paddlespeech_server。
+
+可以使用默认 server 配置：
+```bash
+bash demos/audio_content_search/run.sh
+```
+该配置下两个服务的日志会被记录在 `acs.log` 和 `streaming_asr.log` 中。
+
+### 4. 使用方法
 - 命令行 (推荐使用)
   ```bash
   # 中文
-  paddlespeech_client acs --server_ip 127.0.0.1 --port 8090 --input ./zh.wav 
+  paddlespeech_client acs --server_ip 127.0.0.1 --port 8490 --input ./zh.wav 
   ```
   
   使用方法：
   ```bash
-  paddlespeech acs --help
+  paddlespeech asr --help
   ```
   参数：
   - `input`(必须输入)：用于识别的音频文件。

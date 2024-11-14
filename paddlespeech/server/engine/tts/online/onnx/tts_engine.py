@@ -76,8 +76,8 @@ class TTSServerExecutor(TTSExecutor):
                     version=None,  # default version
                 )
                 self.am_res_path = self.task_resource.res_dir
-                self.am_ckpt = os.path.join(
-                    self.am_res_path, self.task_resource.res_dict['ckpt'][0])
+                self.am_ckpt = os.path.join(self.am_res_path,
+                                            self.task_resource.res_dict['ckpt'])
                 # must have phones_dict in acoustic
                 self.phones_dict = os.path.join(
                     self.am_res_path,
@@ -154,7 +154,7 @@ class TTSServerExecutor(TTSExecutor):
         self.voc_sess = get_sess(self.voc_ckpt, voc_sess_conf)
         logger.debug("Create voc sess successfully.")
 
-        with open(self.phones_dict, "r") as f:
+        with open(self.phones_dict, "r", encoding='utf-8') as f:
             phn_id = [line.strip().split() for line in f.readlines()]
         self.vocab_size = len(phn_id)
         logger.debug(f"vocab_size: {self.vocab_size}")

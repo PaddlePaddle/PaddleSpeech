@@ -18,8 +18,8 @@ import paddle
 from paddleaudio.functional.window import get_window
 
 from .base import FeatTest
-from paddlespeech.s2t.transform.spectrogram import IStft
-from paddlespeech.s2t.transform.spectrogram import Stft
+from paddlespeech.audio.transform.spectrogram import IStft
+from paddlespeech.audio.transform.spectrogram import Stft
 
 
 class TestIstft(FeatTest):

@@ -1,5 +1,7 @@
 #!/bin/bash
 # bash test_server_client.sh
+## require lsof to get server pid
+## apt-get install -y lsof
 
 StartService(){
     # Start service 

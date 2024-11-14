@@ -335,7 +335,12 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
             self.test_loader, self.config, self.args.checkpoint_path)
         infer_model.eval()
         static_model = infer_model.export()
-        logger.info(f"Export code: {static_model.forward.code}")
+        try:
+            logger.info(f"Export code: {static_model.forward.code}")
+        except:
+            logger.info(
+                f"Fail to print Export code, static_model.forward.code can not be run."
+            )
         paddle.jit.save(static_model, self.args.export_path)
 
 

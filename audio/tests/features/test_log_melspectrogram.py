@@ -18,7 +18,7 @@ import paddle
 import paddleaudio
 
 from .base import FeatTest
-from paddlespeech.s2t.transform.spectrogram import LogMelSpectrogram
+from paddlespeech.audio.transform.spectrogram import LogMelSpectrogram
 
 
 class TestLogMelSpectrogram(FeatTest):

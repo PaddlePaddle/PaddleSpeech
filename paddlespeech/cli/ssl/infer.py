@@ -119,6 +119,7 @@ class SSLExecutor(BaseExecutor):
             '--verbose',
             action='store_true',
             help='Increase logger verbosity of current task.')
+        self.last_call_params = None
 
     def _init_from_path(self,
                         model_type: str=None,
@@ -452,6 +453,23 @@ class SSLExecutor(BaseExecutor):
         """
         Python API to call an executor.
         """
+
+        current_call_params = {
+            "model": model,
+            "task": task,
+            "lang": lang,
+            "sample_rate": sample_rate,
+            "config": config,
+            "ckpt_path": ckpt_path,
+            "decode_method": decode_method,
+            "force_yes": force_yes,
+            "rtf": rtf,
+            "device": device
+        }
+        if self.last_call_params is not None and self.last_call_params != current_call_params and hasattr(
+                self, 'model'):
+            del self.model
+        self.last_call_params = current_call_params
 
         audio_file = os.path.abspath(audio_file)
         paddle.set_device(device)

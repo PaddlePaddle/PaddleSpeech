@@ -27,6 +27,7 @@ from paddlespeech.s2t.models.whisper import transcribe
 from paddlespeech.s2t.models.whisper import Whisper
 from paddlespeech.s2t.training.cli import default_argument_parser
 from paddlespeech.s2t.utils.log import Log
+from paddlespeech.utils.argparse import strtobool
 
 logger = Log(__name__).getlog()
 
@@ -103,10 +104,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--audio_file", type=str, help="path of the input audio file")
     parser.add_argument(
-        "--debug",
-        type=distutils.util.strtobool,
-        default=False,
-        help="for debug.")
+        "--debug", type=strtobool, default=False, help="for debug.")
     args = parser.parse_args()
 
     config = CfgNode(new_allowed=True)

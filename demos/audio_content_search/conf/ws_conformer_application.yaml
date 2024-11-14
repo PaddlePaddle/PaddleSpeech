@@ -26,8 +26,10 @@ asr_online:
     sample_rate: 16000
     cfg_path: 
     decode_method: 'attention_rescoring' 
+    num_decoding_left_chunks: -1  # number of left chunks for decoding. Defaults to -1.
     force_yes: True
     device: 'cpu' # cpu or gpu:id
+    continuous_decoding: False # disable continue decoding when endpoint detected
     am_predictor_conf:
         device:  # set 'gpu:id' or 'cpu'
         switch_ir_optim: True

@@ -32,7 +32,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --pwg-config=download/pwg_baker_ckpt_0.4/pwg_default.yaml \
         --pwg-checkpoint=download/pwg_baker_ckpt_0.4/pwg_snapshot_iter_400000.pdz \
         --pwg-stat=download/pwg_baker_ckpt_0.4/pwg_stats.npy \
-        --text=${BIN_DIR}/../sentences.txt \
+        --text=./sentences.txt \
         --output-dir=output \
         --phones-dict=download/fastspeech2_nosil_baker_ckpt_0.4/phone_id_map.txt
 fi

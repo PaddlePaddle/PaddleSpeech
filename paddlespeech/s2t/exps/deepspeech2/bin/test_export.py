@@ -32,12 +32,6 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
-    #load jit model from
-    parser.add_argument(
-        "--export_path", type=str, help="path of the jit model to save")
     parser.add_argument(
         "--enable-auto-log", action="store_true", help="use auto log")
     args = parser.parse_args()

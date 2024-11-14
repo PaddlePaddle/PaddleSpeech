@@ -35,6 +35,8 @@ if [[ ${MODE} = "benchmark_train" ]];then
     pip install setuptools_scm #-i https://pypi.tuna.tsinghua.edu.cn/simple 
     pip install . #-i https://pypi.tuna.tsinghua.edu.cn/simple 
     pip install jsonlines
+    pip install -U scipy==1.12.0  # 高版本数据处理部分报错
+    pip install -U matplotlib==3.7.1 # 高版本报错cannot import name 'get_cmap' from 'matplotlib.cm' 
     pip list
     cd -
     if [[ ${model_name} == "conformer" ]]; then

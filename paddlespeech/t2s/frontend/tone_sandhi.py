@@ -237,30 +237,25 @@ class ToneSandhi():
     # output seg: [['听一听', 'v']]
     def _merge_yi(self, seg: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
         new_seg = []
+        skip_next = False
         # function 1
         for i, (word, pos) in enumerate(seg):
-            if i - 1 >= 0 and word == "一" and i + 1 < len(seg) and seg[i - 1][
-                    0] == seg[i + 1][0] and seg[i - 1][1] == "v":
-                if i - 1 < len(new_seg):
-                    new_seg[i -
-                            1][0] = new_seg[i - 1][0] + "一" + new_seg[i - 1][0]
-                else:
-                    new_seg.append([word, pos])
-                    new_seg.append([seg[i + 1][0], pos])
+            if skip_next:
+                skip_next = False
+                continue
+            if i - 1 >= 0 and word == "一" and i + 1 < len(seg) and seg[i - 1][0] == seg[i + 1][0] and seg[i - 1][1] == "v":
+                new_seg[-1] = (new_seg[-1][0] + "一" + seg[i + 1][0], new_seg[-1][1])
+                skip_next = True
             else:
-                if i - 2 >= 0 and seg[i - 1][0] == "一" and seg[i - 2][
-                        0] == word and pos == "v":
-                    continue
-                else:
-                    new_seg.append([word, pos])
+                new_seg.append((word, pos))
         seg = new_seg
         new_seg = []
         # function 2
         for i, (word, pos) in enumerate(seg):
             if new_seg and new_seg[-1][0] == "一":
-                new_seg[-1][0] = new_seg[-1][0] + word
+                new_seg[-1] = (new_seg[-1][0] + word, new_seg[-1][1])
             else:
-                new_seg.append([word, pos])
+                new_seg.append((word, pos))
         return new_seg
 
     # the first and the second words are all_tone_three

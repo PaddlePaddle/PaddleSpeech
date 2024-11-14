@@ -32,9 +32,6 @@ def main(config, args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    # save asr result to
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
     args = parser.parse_args()
     print_arguments(args, globals())
 

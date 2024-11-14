@@ -103,12 +103,19 @@ If you want to train the model, you can use the script below to execute stage 0 
 ```bash
 bash run.sh --stage 0 --stop_stage 1
 ```
-or you can run these scripts in the command line (only use CPU).
+Or you can run these scripts in the command line (only use CPU).
 ```bash
 source path.sh
 bash ./local/data.sh
-CUDA_VISIBLE_DEVICES= ./local/train.sh conf/deepspeech2.yaml  deepspeech2
+CUDA_VISIBLE_DEVICES= ./local/train.sh conf/deepspeech2.yaml deepspeech2
 ```
+If you want to use GPU, you can run these scripts in the command line (suppose you have only 1 GPU).
+```bash
+source path.sh
+bash ./local/data.sh
+CUDA_VISIBLE_DEVICES=0 ./local/train.sh conf/deepspeech2.yaml deepspeech2
+```
+
 ## Stage 2:  Top-k Models Averaging
 After training the model,  we need to get the final model for testing and inference. In every epoch, the model checkpoint is saved, so we can choose the best model from them based on the validation loss or we can sort them and average the parameters of the top-k models to get the final model.  We can use stage 2 to do this, and the code is shown below:
 ```bash
@@ -148,7 +155,7 @@ source path.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/deepspeech2.yaml deepspeech2
 avg.sh best exp/deepspeech2/checkpoints 1
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_10
 ```
 ## Pretrained Model
 You can get the pretrained models from [this](../../../docs/source/released_model.md).
@@ -157,14 +164,14 @@ using the `tar` scripts to unpack the model and then you can use the script to t
 
 For example:
 ```
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
-tar xzvf asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_offline_aishell_ckpt_1.0.1.model.tar.gz
+tar xzvf asr0_deepspeech2_offline_aishell_ckpt_1.0.1.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2  --stop_stage 2
 
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_10
 ```
 The performance of the released models are shown in [this](./RESULTS.md)
 ## Stage 4: Static graph model Export
@@ -178,7 +185,7 @@ This stage is to transform dygraph to static graph.
 If you already have a dynamic graph model, you can run this script:
 ```bash
 source path.sh
-./local/export.sh deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 exp/deepspeech2/checkpoints/avg_1.jit offline
+./local/export.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_10 exp/deepspeech2/checkpoints/avg_10.jit
 ```
 ## Stage 5: Static graph Model Testing
 Similar to stage 3, the static graph model can also be tested.
@@ -190,7 +197,7 @@ Similar to stage 3, the static graph model can also be tested.
 ```
 If you already have exported the static graph, you can run this script:
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_export.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1.jit offline
+CUDA_VISIBLE_DEVICES= ./local/test_export.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_10.jit
 ```
 ## Stage 6: Single Audio File Inference
 In some situations, you want to use the trained model to do the inference for the single audio file. You can use stage  5. The code is shown below
@@ -202,8 +209,8 @@ if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
 ```
 you can train the model by yourself, or you can download the pretrained model by the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
-tar xzvf asr0_deepspeech2_aishell_ckpt_0.1.1.model.tar.gz
+wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_offline_aishell_ckpt_1.0.1.model.tar.gz
+tar asr0_deepspeech2_offline_aishell_ckpt_1.0.1.model.tar.gz
 ```
 You can download the audio demo:
 ```bash
@@ -211,5 +218,5 @@ wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wa
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_1 data/demo_01_03.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_10 data/demo_01_03.wav
 ```

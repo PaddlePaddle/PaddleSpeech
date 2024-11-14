@@ -48,7 +48,7 @@ class TestDeepSpeech2Model(unittest.TestCase):
             num_rnn_layers=3,
             rnn_size=1024,
             use_gru=False,
-            share_rnn_weights=False, )
+            rnn_direction="forward", )
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
@@ -60,7 +60,7 @@ class TestDeepSpeech2Model(unittest.TestCase):
             num_rnn_layers=3,
             rnn_size=1024,
             use_gru=True,
-            share_rnn_weights=False, )
+            rnn_direction="forward", )
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
@@ -72,7 +72,7 @@ class TestDeepSpeech2Model(unittest.TestCase):
             num_rnn_layers=3,
             rnn_size=1024,
             use_gru=False,
-            share_rnn_weights=True, )
+            rnn_direction="bidirect", )
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
@@ -84,7 +84,7 @@ class TestDeepSpeech2Model(unittest.TestCase):
             num_rnn_layers=3,
             rnn_size=1024,
             use_gru=True,
-            share_rnn_weights=True, )
+            rnn_direction="bidirect", )
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 
@@ -96,7 +96,7 @@ class TestDeepSpeech2Model(unittest.TestCase):
             num_rnn_layers=3,
             rnn_size=1024,
             use_gru=False,
-            share_rnn_weights=False, )
+            rnn_direction="forward", )
         loss = model(self.audio, self.audio_len, self.text, self.text_len)
         self.assertEqual(loss.numel(), 1)
 

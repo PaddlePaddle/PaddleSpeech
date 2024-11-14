@@ -248,7 +248,7 @@ def st_reverse_pad_list(ys_pad: paddle.Tensor,
     #   >>> tensor([[ 2,  1,  0],
     #   >>>         [ 2,  1,  0],
     #   >>>         [ 0, -1, -2]])
-    index = index * seq_mask
+    index = index * seq_mask.astype(index.dtype)
 
     #   >>> index
     #   >>> tensor([[2, 1, 0],

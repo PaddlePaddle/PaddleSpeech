@@ -17,11 +17,12 @@ from typing import Union
 import numpy as np
 import paddle
 import paddle.nn.functional as F
-import paddlespeech.s2t.modules.align as paddlespeech_nn
 import soundfile
 import tqdm
 from paddle import nn
 from paddle.distribution import Categorical
+
+import paddlespeech.s2t.modules.align as paddlespeech_nn
 from paddlespeech.s2t.models.whisper import utils
 from paddlespeech.s2t.models.whisper.tokenizer import get_tokenizer
 from paddlespeech.s2t.models.whisper.tokenizer import LANGUAGES
@@ -475,8 +476,8 @@ def transcribe(
     if dtype == np.float32:
         decode_options["fp16"] = False
 
-    if decode_options.get(
-            "language") == 'None' or decode_options.get("language", None) is None:
+    if decode_options.get("language") == 'None' or decode_options.get(
+            "language", None) is None:
         if not model.is_multilingual:
             decode_options["language"] = "en"
         else:
@@ -1206,8 +1207,9 @@ class DecodingTask:
                 DecodingResult(
                     audio_features=features,
                     language=language,
-                    language_probs=probs) for features, language, probs in
-                zip(audio_features, languages, language_probs)
+                    language_probs=probs)
+                for features, language, probs in zip(audio_features, languages,
+                                                     language_probs)
             ]
 
         # repeat the audio & text tensors by the group size, for beam search or best-of-n sampling

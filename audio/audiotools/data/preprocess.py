@@ -2,9 +2,9 @@ import csv
 import os
 from pathlib import Path
 
-from audio_signal import AudioSignal
+
 from tqdm import tqdm
-# from ..core import AudioSignal
+from ..core import AudioSignal
 
 
 def create_csv(audio_files: list,

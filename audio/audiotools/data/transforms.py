@@ -11,10 +11,8 @@ from flatten_dict import unflatten
 from numpy.random import RandomState
 
 # from .. import ml
-# from ..core import AudioSignal
-# from ..core import util
-from audio_signal import AudioSignal
-import util
+from ..core import AudioSignal
+from ..core import util
 from .datasets import AudioLoader
 
 tt = paddle.to_tensor

@@ -14,15 +14,17 @@ import librosa
 import numpy as np
 import paddle
 import soundfile
+
 from . import util
+from .dsp import DSPMixin
+from .effects import EffectMixin
+from .effects import ImpulseResponseMixin
+from .ffmpeg import FFMPEGMixin
+from .loudness import LoudnessMixin
 from .resample import resample_frac
 
 # from .display import DisplayMixin
-# from .dsp import DSPMixin
-# from .effects import EffectMixin
-# from .effects import ImpulseResponseMixin
-# from .ffmpeg import FFMPEGMixinx
-# from loudness import LoudnessMixin
+
 # from .playback import PlayMixin
 # from .whisper import WhisperMixin
 
@@ -89,13 +91,13 @@ STFTParams.__new__.__defaults__ = (None, None, None, None, None)
 
 
 class AudioSignal(
-        # EffectMixin,
-        # LoudnessMixin,
+        EffectMixin,
+        LoudnessMixin,
         # PlayMixin,
-        # ImpulseResponseMixin,
-        # DSPMixin,
+        ImpulseResponseMixin,
+        DSPMixin,
         # DisplayMixin,
-        # FFMPEGMixin,
+        FFMPEGMixin,
         # WhisperMixin,
 ):
     """This is the core object of this library. Audio is always
@@ -525,7 +527,7 @@ class AudioSignal(
         AudioSignal
             AudioSignal loaded from file
         """
-
+        # need `ffmpeg`
         data, sample_rate = librosa.load(
             audio_path,
             offset=offset,
@@ -967,8 +969,7 @@ class AudioSignal(
     def stft_data(self, data: typing.Union[paddle.Tensor, np.ndarray]):
         if data is not None:
             assert paddle.is_tensor(data) and paddle.is_complex(data)
-            if (self.stft_data is not None and
-                    self.stft_data.shape != data.shape):
+            if self.stft_data is not None and self.stft_data.shape != data.shape:
                 warnings.warn("stft_data changed shape")
         self._stft_data = data
         return
@@ -1139,8 +1140,7 @@ class AudioSignal(
         length = self.signal_length
 
         if match_stride:
-            assert (hop_length == window_length //
-                    4), "For match_stride, hop must equal n_fft // 4"
+            assert hop_length == window_length // 4, "For match_stride, hop must equal n_fft // 4"
             right_pad = math.ceil(length / hop_length) * hop_length - length
             pad = (window_length - hop_length) // 2
         else:
@@ -1192,16 +1192,13 @@ class AudioSignal(
         >>>     signal.stft()
 
         """
-        window_length = (self.stft_params.window_length
-                         if window_length is None else int(window_length))
-        hop_length = (self.stft_params.hop_length
-                      if hop_length is None else int(hop_length))
-        window_type = (self.stft_params.window_type
-                       if window_type is None else window_type)
-        match_stride = (self.stft_params.match_stride
-                        if match_stride is None else match_stride)
-        padding_type = (self.stft_params.padding_type
-                        if padding_type is None else padding_type)
+        window_length = self.stft_params.window_length if window_length is None else int(
+            window_length)
+        hop_length = self.stft_params.hop_length if hop_length is None else int(
+            hop_length)
+        window_type = self.stft_params.window_type if window_type is None else window_type
+        match_stride = self.stft_params.match_stride if match_stride is None else match_stride
+        padding_type = self.stft_params.padding_type if padding_type is None else padding_type
 
         window = self.get_window(window_type, window_length)
         # window = window.to(self.audio_data.device)
@@ -1269,14 +1266,12 @@ class AudioSignal(
         if self.stft_data is None:
             raise RuntimeError("Cannot do inverse STFT without self.stft_data!")
 
-        window_length = (self.stft_params.window_length
-                         if window_length is None else int(window_length))
-        hop_length = (self.stft_params.hop_length
-                      if hop_length is None else int(hop_length))
-        window_type = (self.stft_params.window_type
-                       if window_type is None else window_type)
-        match_stride = (self.stft_params.match_stride
-                        if match_stride is None else match_stride)
+        window_length = self.stft_params.window_length if window_length is None else int(
+            window_length)
+        hop_length = self.stft_params.hop_length if hop_length is None else int(
+            hop_length)
+        window_type = self.stft_params.window_type if window_type is None else window_type
+        match_stride = self.stft_params.match_stride if match_stride is None else match_stride
 
         window = self.get_window(window_type, window_length,
                                  self.stft_data.place)
@@ -1409,7 +1404,6 @@ class AudioSignal(
         paddle.Tensor [shape=(n_mels, n_mfcc)] T
             The dct transformation matrix.
         """
-        # from torchaudio.functional import create_dct
 
         return create_dct(n_mfcc, n_mels, norm)
 
@@ -1575,8 +1569,7 @@ class AudioSignal(
     # Representation
     def _info(self):
         # ✅
-        dur = (f"{self.signal_duration:0.3f}"
-               if self.signal_duration else "[unknown]")
+        dur = f"{self.signal_duration:0.3f}" if self.signal_duration else "[unknown]"
         info = {
             "duration":
             f"{dur} seconds",
@@ -1654,10 +1647,20 @@ class AudioSignal(
     def __eq__(self, other):
         for k, v in list(self.__dict__.items()):
             if paddle.is_tensor(v):
-                if not paddle.allclose(v, other.__dict__[k], atol=1e-6):
-                    max_error = (v - other.__dict__[k]).abs().max()
-                    print(f"Max abs error for {k}: {max_error}")
-                    return False
+
+                if paddle.is_complex(v):
+                    if not np.allclose(
+                            v.cpu().numpy(),
+                            other.__dict__[k].cpu().numpy(),
+                            atol=1e-6):
+                        max_error = (v - other.__dict__[k]).abs().max()
+                        print(f"Max abs error for {k}: {max_error}")
+                        return False
+                else:
+                    if not paddle.allclose(v, other.__dict__[k], atol=1e-6):
+                        max_error = (v - other.__dict__[k]).abs().max()
+                        print(f"Max abs error for {k}: {max_error}")
+                        return False
         return True
 
     # Indexing
@@ -1675,10 +1678,10 @@ class AudioSignal(
             # Future work: make this work for time-indexing
             # as well, using the hop length.
             audio_data = self.audio_data[key]
-            _loudness = (self._loudness[key]
-                         if self._loudness is not None else None)
-            stft_data = (self.stft_data[key]
-                         if self.stft_data is not None else None)
+            _loudness = self._loudness[
+                key] if self._loudness is not None else None
+            stft_data = self.stft_data[
+                key] if self.stft_data is not None else None
 
         sources = None
 
@@ -1707,7 +1710,12 @@ class AudioSignal(
             if self.audio_data is not None and value.audio_data is not None:
                 self.audio_data[key] = value.audio_data
             if self._loudness is not None and value._loudness is not None:
-                self._loudness[key] = value._loudness
+                if paddle.is_tensor(key) and key.dtype == paddle.bool:
+                    # FOR Paddle BOOL Index
+                    _key_no_bool = paddle.nonzero(key).flatten()
+                    self._loudness[_key_no_bool] = value._loudness
+                else:
+                    self._loudness[key] = value._loudness
             if self.stft_data is not None and value.stft_data is not None:
                 self.stft_data[key] = value.stft_data
             return

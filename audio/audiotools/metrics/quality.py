@@ -2,7 +2,8 @@ import os
 
 import numpy as np
 import paddle
-from audio_signal import AudioSignal
+
+from ..core import AudioSignal
 
 
 def visqol(

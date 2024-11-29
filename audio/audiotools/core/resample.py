@@ -168,15 +168,17 @@ class ResampleFrac(paddle.nn.Layer):
         if self.old_sr == self.new_sr:
             return x
         shape = x.shape
+        _dtype = x.dtype
         length = x.shape[-1]
         x = x.reshape([-1, length])
         x = F.pad(
             x.unsqueeze(1),
             [self._width, self._width + self.old_sr],
             mode="replicate",
-            data_format="NCL", )
+            data_format="NCL", ).astype(self.kernel.dtype)
         ys = F.conv1d(x, self.kernel, stride=self.old_sr, data_format="NCL")
-        y = ys.transpose([0, 2, 1]).reshape(list(shape[:-1]) + [-1])
+        y = ys.transpose(
+            [0, 2, 1]).reshape(list(shape[:-1]) + [-1]).astype(_dtype)
 
         float_output_length = paddle.to_tensor(
             self.new_sr * length / self.old_sr, dtype="float32")

@@ -1,5 +1,0 @@
-soundfile
-librosa
-scipy
-rich
-flatten_dict

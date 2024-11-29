@@ -3,13 +3,15 @@ import typing
 
 import paddle
 import paddle.distributed as dist
-from paddle.io import DataLoader, DistributedBatchSampler, SequentialSampler
+from paddle.io import DataLoader
+from paddle.io import DistributedBatchSampler
+from paddle.io import SequenceSampler
 
 
 class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
     """Distributed sampler that can be resumed from a given start index."""
 
-    def __init__(self, dataset, start_idx: int = None, **kwargs):
+    def __init__(self, dataset, start_idx: int=None, **kwargs):
         super().__init__(dataset, **kwargs)
         # Start index, allows to resume an experiment at the index it was
         self.start_idx = start_idx // self.num_replicas if start_idx is not None else 0
@@ -21,10 +23,10 @@ class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
         self.start_idx = 0  # set the index back to 0 so for the next epoch
 
 
-class ResumableSequentialSampler(SequentialSampler):  # pragma: no cover
+class ResumableSequentialSampler(SequenceSampler):  # pragma: no cover
     """Sequential sampler that can be resumed from a given start index."""
 
-    def __init__(self, dataset, start_idx: int = None, **kwargs):
+    def __init__(self, dataset, start_idx: int=None, **kwargs):
         super().__init__(dataset, **kwargs)
         # Start index, allows to resume an experiment at the index it was
         self.start_idx = start_idx if start_idx is not None else 0
@@ -57,7 +59,7 @@ class Accelerator:  # pragma: no cover
         (Note: This is a placeholder as PaddlePaddle doesn't have native support for AMP as of now)
     """
 
-    def __init__(self, amp: bool = False):
+    def __init__(self, amp: bool=False):
         trainer_id = os.getenv("PADDLE_TRAINER_ID", None)
         self.world_size = paddle.distributed.get_world_size()
 
@@ -139,13 +141,16 @@ class Accelerator:  # pragma: no cover
         optimizer : paddle.optimizer.Optimizer
             Optimizer to step forward.
         """
-        self.scaler.step(optimizer) 
+        self.scaler.step(optimizer)
 
     def update(self):
         # https://www.paddlepaddle.org.cn/documentation/docs/zh/2.6/api/paddle/amp/GradScaler_cn.html#step-optimizer
-        self.scaler.update() 
+        self.scaler.update()
 
-    def prepare_dataloader(self, dataset: typing.Iterable, start_idx: int = None, **kwargs):
+    def prepare_dataloader(self,
+                           dataset: typing.Iterable,
+                           start_idx: int=None,
+                           **kwargs):
         """Wraps a dataset with a DataLoader, using the correct sampler if DDP is
         enabled.
 
@@ -171,10 +176,10 @@ class Accelerator:  # pragma: no cover
                 shuffle=kwargs.get("shuffle", True),
                 drop_last=kwargs.get("drop_last", False),
                 num_replicas=self.world_size,
-                rank=self.local_rank,
-            )
+                rank=self.local_rank, )
             if "num_workers" in kwargs:
-                kwargs["num_workers"] = max(kwargs["num_workers"] // self.world_size, 1)
+                kwargs["num_workers"] = max(kwargs["num_workers"] //
+                                            self.world_size, 1)
         else:
             sampler = ResumableSequentialSampler(dataset, start_idx)
 
@@ -182,8 +187,7 @@ class Accelerator:  # pragma: no cover
             dataset,
             batch_sampler=sampler if self.use_ddp else None,
             sampler=sampler if not self.use_ddp else None,
-            **kwargs,
-        )
+            **kwargs, )
         return dataloader
 
     @staticmethod

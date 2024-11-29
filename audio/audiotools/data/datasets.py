@@ -5,10 +5,12 @@ from typing import List
 from typing import Union
 
 import numpy as np
-from audio_signal import AudioSignal
-import util
 import paddle
-from paddle.io import SequenceSampler, DistributedBatchSampler
+from paddle.io import DistributedBatchSampler
+from paddle.io import SequenceSampler
+
+from ..core import AudioSignal
+from ..core import util
 
 
 class AudioLoader:
@@ -41,20 +43,20 @@ class AudioLoader:
     """
 
     def __init__(
-        self,
-        sources: List[str] = None,
-        weights: List[float] = None,
-        transform: Callable = None,
-        relative_path: str = "",
-        ext: List[str] = util.AUDIO_EXTENSIONS,
-        shuffle: bool = True,
-        shuffle_state: int = 0,
-    ):
-        self.audio_lists = util.read_sources(sources, relative_path=relative_path, ext=ext)
+            self,
+            sources: List[str]=None,
+            weights: List[float]=None,
+            transform: Callable=None,
+            relative_path: str="",
+            ext: List[str]=util.AUDIO_EXTENSIONS,
+            shuffle: bool=True,
+            shuffle_state: int=0, ):
+        self.audio_lists = util.read_sources(
+            sources, relative_path=relative_path, ext=ext)
 
-        self.audio_indices = [
-            (src_idx, item_idx) for src_idx, src in enumerate(self.audio_lists) for item_idx in range(len(src))
-        ]
+        self.audio_indices = [(src_idx, item_idx)
+                              for src_idx, src in enumerate(self.audio_lists)
+                              for item_idx in range(len(src))]
         if shuffle:
             state = util.random_state(shuffle_state)
             state.shuffle(self.audio_indices)
@@ -64,27 +66,28 @@ class AudioLoader:
         self.transform = transform
 
     def __call__(
-        self,
-        state,
-        sample_rate: int,
-        duration: float,
-        loudness_cutoff: float = -40,
-        num_channels: int = 1,
-        offset: float = None,
-        source_idx: int = None,
-        item_idx: int = None,
-        global_idx: int = None,
-    ):
+            self,
+            state,
+            sample_rate: int,
+            duration: float,
+            loudness_cutoff: float=-40,
+            num_channels: int=1,
+            offset: float=None,
+            source_idx: int=None,
+            item_idx: int=None,
+            global_idx: int=None, ):
         if source_idx is not None and item_idx is not None:
             try:
                 audio_info = self.audio_lists[source_idx][item_idx]
             except:
                 audio_info = {"path": "none"}
         elif global_idx is not None:
-            source_idx, item_idx = self.audio_indices[global_idx % len(self.audio_indices)]
+            source_idx, item_idx = self.audio_indices[global_idx %
+                                                      len(self.audio_indices)]
             audio_info = self.audio_lists[source_idx][item_idx]
         else:
-            audio_info, source_idx, item_idx = util.choose_from_list_of_lists(state, self.audio_lists, p=self.weights)
+            audio_info, source_idx, item_idx = util.choose_from_list_of_lists(
+                state, self.audio_lists, p=self.weights)
 
         path = audio_info["path"]
         signal = AudioSignal.zeros(duration, sample_rate, num_channels)
@@ -95,14 +98,12 @@ class AudioLoader:
                     path,
                     duration=duration,
                     state=state,
-                    loudness_cutoff=loudness_cutoff,
-                )
+                    loudness_cutoff=loudness_cutoff, )
             else:
                 signal = AudioSignal(
                     path,
                     offset=offset,
-                    duration=duration,
-                )
+                    duration=duration, )
 
         if num_channels == 1:
             signal = signal.to_mono()
@@ -122,7 +123,8 @@ class AudioLoader:
             "path": str(path),
         }
         if self.transform is not None:
-            item["transform_args"] = self.transform.instantiate(state, signal=signal)
+            item["transform_args"] = self.transform.instantiate(
+                state, signal=signal)
         return item
 
 
@@ -130,7 +132,7 @@ def default_matcher(x, y):
     return Path(x).parent == Path(y).parent
 
 
-def align_lists(lists, matcher: Callable = default_matcher):
+def align_lists(lists, matcher: Callable=default_matcher):
     longest_list = lists[np.argmax([len(l) for l in lists])]
     for i, x in enumerate(longest_list):
         for l in lists:
@@ -347,20 +349,20 @@ class AudioDataset:
     """
 
     def __init__(
-        self,
-        loaders: Union[AudioLoader, List[AudioLoader], Dict[str, AudioLoader]],
-        sample_rate: int,
-        n_examples: int = 1000,
-        duration: float = 0.5,
-        offset: float = None,
-        loudness_cutoff: float = -40,
-        num_channels: int = 1,
-        transform: Callable = None,
-        aligned: bool = False,
-        shuffle_loaders: bool = False,
-        matcher: Callable = default_matcher,
-        without_replacement: bool = True,
-    ):
+            self,
+            loaders: Union[AudioLoader, List[AudioLoader], Dict[str,
+                                                                AudioLoader]],
+            sample_rate: int,
+            n_examples: int=1000,
+            duration: float=0.5,
+            offset: float=None,
+            loudness_cutoff: float=-40,
+            num_channels: int=1,
+            transform: Callable=None,
+            aligned: bool=False,
+            shuffle_loaders: bool=False,
+            matcher: Callable=default_matcher,
+            without_replacement: bool=True, ):
         # Internally we convert loaders to a dictionary
         if isinstance(loaders, list):
             loaders = {i: l for i, l in enumerate(loaders)}
@@ -415,13 +417,11 @@ class AudioDataset:
                 # Path mapper takes the current loader + everything
                 # returned by the first loader.
                 offset = item[keys[0]]["signal"].metadata["offset"]
-                loader_kwargs.update(
-                    {
-                        "offset": offset,
-                        "source_idx": item[keys[0]]["source_idx"],
-                        "item_idx": item[keys[0]]["item_idx"],
-                    }
-                )
+                loader_kwargs.update({
+                    "offset": offset,
+                    "source_idx": item[keys[0]]["source_idx"],
+                    "item_idx": item[keys[0]]["item_idx"],
+                })
             item[key] = loader(**loader_kwargs)
 
         # Sort dictionary back into original order
@@ -430,7 +430,8 @@ class AudioDataset:
 
         item["idx"] = idx
         if self.transform is not None:
-            item["transform_args"] = self.transform.instantiate(state=state, signal=item[keys[0]]["signal"])
+            item["transform_args"] = self.transform.instantiate(
+                state=state, signal=item[keys[0]]["signal"])
 
         # If there's only one loader, pop it up
         # to the main dictionary, instead of keeping it
@@ -444,7 +445,7 @@ class AudioDataset:
         return self.length
 
     @staticmethod
-    def collate(list_of_dicts: Union[list, dict], n_splits: int = None):
+    def collate(list_of_dicts: Union[list, dict], n_splits: int=None):
         """Collates items drawn from this dataset. Uses
         :py:func:`audiotools.core.util.collate`.
 
@@ -495,24 +496,29 @@ class ConcatDataset(AudioDataset):
 class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
     """Distributed sampler that can be resumed from a given start index."""
 
-    def __init__(
-        self, dataset, batch_size, start_idx: int = None, num_replicas=None, rank=None, shuffle=False, drop_last=False
-    ):
+    def __init__(self,
+                 dataset,
+                 batch_size,
+                 start_idx: int=None,
+                 num_replicas=None,
+                 rank=None,
+                 shuffle=False,
+                 drop_last=False):
         super().__init__(
             dataset=dataset,
             batch_size=batch_size,
             num_replicas=num_replicas,
             rank=rank,
             shuffle=shuffle,
-            drop_last=drop_last,
-        )
+            drop_last=drop_last, )
         # Start index, allows to resume an experiment at the index it was
         if start_idx is not None:
             self.start_idx = start_idx // self.num_replicas
         else:
             self.start_idx = 0
         # 重新计算样本总数，因为 DistributedBatchSampler 的 __len__ 方法是基于 shuffle 后的样本总数计算的
-        self.total_size = len(self.dataset) if not shuffle else len(self.indices)
+        self.total_size = len(self.dataset) if not shuffle else len(
+            self.indices)
 
     def __iter__(self):
         # 由于 Paddle 的 DistributedBatchSampler 直接返回 batch，我们需要将其展开为单个索引
@@ -536,7 +542,7 @@ class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
 class ResumableSequentialSampler(SequenceSampler):  # pragma: no cover
     """Sequential sampler that can be resumed from a given start index."""
 
-    def __init__(self, dataset, start_idx: int = None, **kwargs):
+    def __init__(self, dataset, start_idx: int=None, **kwargs):
         super().__init__(dataset, **kwargs)
         # Start index, allows to resume an experiment at the index it was
         self.start_idx = start_idx if start_idx is not None else 0

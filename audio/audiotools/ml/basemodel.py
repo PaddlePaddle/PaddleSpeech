@@ -106,7 +106,7 @@ class BaseModel(nn.Layer):
 
         if not package:
             state_dict = {"state_dict": self.state_dict(), "metadata": metadata}
-            paddle.save(state_dict, path)
+            paddle.save(state_dict, str(path))
         else:
             self._save_package(path, intern=intern, extern=extern, mock=mock)
 
@@ -118,7 +118,7 @@ class BaseModel(nn.Layer):
         the first parameter. May not be valid if model is split across
         multiple devices.
         """
-        return list(self.parameters())[0].device
+        return list(self.parameters())[0].place
 
     @classmethod
     def load(
@@ -152,7 +152,7 @@ class BaseModel(nn.Layer):
         try:
             model = cls._load_package(location, package_name=package_name)
         except:
-            model_dict = paddle.load(location, "cpu")
+            model_dict = paddle.load(location)
             metadata = model_dict["metadata"]
             metadata["kwargs"].update(kwargs)
 
@@ -163,7 +163,7 @@ class BaseModel(nn.Layer):
                     metadata["kwargs"].pop(k)
 
             model = cls(*args, **metadata["kwargs"])
-            model.load_state_dict(model_dict["state_dict"], strict=strict)
+            model.set_state_dict(model_dict["state_dict"])
             model.metadata = metadata
 
         return model
@@ -220,7 +220,7 @@ class BaseModel(nn.Layer):
         self.save(weights_path, package=False)
 
         for path, obj in extra_data.items():
-            paddle.save(obj, target_base / path)
+            paddle.save(obj, str(target_base / path))
 
         return target_base
 
@@ -257,7 +257,7 @@ class BaseModel(nn.Layer):
         model_pth = "package.pth" if package else "weights.pth"
         model_pth = folder / model_pth
 
-        model = cls.load(model_pth, strict=strict)
+        model = cls.load(str(model_pth))
         extra_data = {}
         excluded = ["package.pth", "weights.pth"]
         files = [
@@ -265,6 +265,6 @@ class BaseModel(nn.Layer):
             if x.is_file() and x.name not in excluded
         ]
         for f in files:
-            extra_data[f.name] = paddle.load(f, **kwargs)
+            extra_data[f.name] = paddle.load(str(f), **kwargs)
 
         return model, extra_data

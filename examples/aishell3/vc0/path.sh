@@ -1,1 +1,1 @@
-../../csmsc/tts0/path.sh
+source ../../csmsc/tts0/path.sh

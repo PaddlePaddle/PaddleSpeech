@@ -49,15 +49,12 @@ def main():
     print("frontend done!")
 
     speedyspeech_config = inference.Config(
-        str(Path(args.inference_dir) / "speedyspeech.pdmodel"),
-        str(Path(args.inference_dir) / "speedyspeech.pdiparams"))
+        str(Path(args.inference_dir)), "speedyspeech")
     speedyspeech_config.enable_use_gpu(100, 0)
     speedyspeech_config.enable_memory_optim()
     speedyspeech_predictor = inference.create_predictor(speedyspeech_config)
 
-    pwg_config = inference.Config(
-        str(Path(args.inference_dir) / "pwg.pdmodel"),
-        str(Path(args.inference_dir) / "pwg.pdiparams"))
+    pwg_config = inference.Config(str(Path(args.inference_dir)), "pwg")
     pwg_config.enable_use_gpu(100, 0)
     pwg_config.enable_memory_optim()
     pwg_predictor = inference.create_predictor(pwg_config)

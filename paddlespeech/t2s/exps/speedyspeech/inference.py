@@ -18,6 +18,7 @@ from pathlib import Path
 import soundfile as sf
 from paddle import inference
 
+import paddlespeech.utils
 from paddlespeech.t2s.frontend.zh_frontend import Frontend
 
 
@@ -49,7 +50,7 @@ def main():
     print("frontend done!")
 
     # after paddle 3.0, support new inference interface
-    if paddle.__version__ >= '3.0.0' or paddle.__version__ == '0.0.0':
+    if paddlespeech.utils.satisfy_paddle_version('3.0.0-beta'):
         speedyspeech_config = inference.Config(
             str(Path(args.inference_dir)), "speedyspeech")
     else:
@@ -62,7 +63,7 @@ def main():
     speedyspeech_predictor = inference.create_predictor(speedyspeech_config)
 
     # after paddle 3.0, support new inference interface
-    if paddle.__version__ >= '3.0.0' or paddle.__version__ == '0.0.0':
+    if paddlespeech.utils.satisfy_paddle_version('3.0.0-beta'):
         pwg_config = inference.Config(str(Path(args.inference_dir)), "pwg")
     else:
         pwg_config = inference.Config(

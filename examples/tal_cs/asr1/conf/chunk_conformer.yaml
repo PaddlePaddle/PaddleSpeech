@@ -6,8 +6,8 @@ cmvn_file_type: "json"
 # encoder related
 encoder: conformer
 encoder_conf:
-    output_size: 256    # dimension of attention
-    attention_heads: 4
+    output_size: 512    # dimension of attention
+    attention_heads: 8
     linear_units: 2048  # the number of units of position-wise feed forward
     num_blocks: 12      # the number of encoder blocks
     dropout_rate: 0.1   # sublayer output dropout
@@ -18,7 +18,7 @@ encoder_conf:
     cnn_module_kernel: 15
     use_cnn_module: True
     activation_type: 'swish'
-    pos_enc_layer_type: 'rel/ssd3/zhaoxi/repo/tmp/PaddleSpeech/examples/tal_cs/asr1/conf/chunk_conformer.yaml_pos'
+    pos_enc_layer_type: 'rel_pos'
     selfattention_layer_type: 'rel_selfattn'
     causal: true
     use_dynamic_chunk: true
@@ -27,7 +27,7 @@ encoder_conf:
 # decoder related
 decoder: transformer
 decoder_conf:
-    attention_heads: 4
+    attention_heads: 8
     linear_units: 2048
     num_blocks: 6
     dropout_rate: 0.1  # sublayer output dropout
@@ -55,12 +55,12 @@ test_manifest: data/manifest.test
 ###########################################
 
 vocab_filepath: data/lang_char/vocab.txt 
-spm_model_prefix: ''
-unit_type: 'char'
+spm_model_prefix: 'data/lang_char/bpe_bpe_11297'
+unit_type: 'spm'
 preprocess_config: conf/preprocess.yaml
 feat_dim: 80
-stride_ms: 10.0
-window_ms: 25.0
+stride_ms: 20.0
+window_ms: 30.0
 sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs 
 batch_size: 32
 maxlen_in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
@@ -78,13 +78,13 @@ num_encs: 1
 ###########################################
 #                 Training                #
 ###########################################
-n_epoch: 240 
-accum_grad: 1
+n_epoch: 100 
+accum_grad: 4
 global_grad_clip: 5.0
-dist_sampler: True
+dist_sampler: False
 optim: adam
 optim_conf:
-  lr: 0.001
+  lr: 0.002
   weight_decay: 1.0e-6
 scheduler: warmuplr
 scheduler_conf:

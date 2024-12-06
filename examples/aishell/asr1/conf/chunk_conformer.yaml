@@ -18,7 +18,7 @@ encoder_conf:
     cnn_module_kernel: 15
     use_cnn_module: True
     activation_type: 'swish'
-    pos_enc_layer_type: 'rel/ssd3/zhaoxi/repo/tmp/PaddleSpeech/examples/tal_cs/asr1/conf/chunk_conformer.yaml_pos'
+    pos_enc_layer_type: 'rel_pos'
     selfattention_layer_type: 'rel_selfattn'
     causal: true
     use_dynamic_chunk: true

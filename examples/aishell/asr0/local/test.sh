@@ -43,7 +43,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --origin_hyp ${ckpt_prefix}.rsl \
         --trans_hyp ${ckpt_prefix}.rsl.text
 
-    python3 ${MAIN_ROOT}/${MAIN_ROOT}/${MAIN_ROOT}/${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
+    python3 ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
         data/manifest.test.text ${ckpt_prefix}.rsl.text > ${ckpt_prefix}.error
 fi
 

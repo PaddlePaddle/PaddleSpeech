@@ -43,7 +43,7 @@ echo "chunk mode ${chunk_mode}"
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # format the reference test file
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_ref data/manifest.test-clean.raw \
         --trans_ref data/manifest.test-clean.text
 
@@ -68,11 +68,11 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
-        python3 utils/format_rsl.py \
+        python3 ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${ckpt_prefix}.${type}.rsl \
             --trans_hyp ${ckpt_prefix}.${type}.rsl.text
 
-        python3 utils/compute-wer.py --char=1 --v=1 \
+        python3 ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
             data/manifest.test-clean.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
         echo "decoding ${type} done."
     done
@@ -98,7 +98,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
-        python3 utils/format_rsl.py \
+        python3 ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${ckpt_prefix}.${type}.rsl \
             --trans_hyp ${ckpt_prefix}.${type}.rsl.text
 
@@ -125,25 +125,25 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
-        python3 utils/format_rsl.py \
+        python3 ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${ckpt_prefix}.${type}.rsl \
             --trans_hyp ${ckpt_prefix}.${type}.rsl.text
 
-        python3 utils/compute-wer.py --char=1 --v=1 \
+        python3 ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
             data/manifest.test-clean.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
         echo "decoding ${type} done."
     done
 fi
 
 if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_ref data/manifest.test-clean.raw \
         --trans_ref_sclite data/manifest.test.text-clean.sclite
 
 
     output_dir=${ckpt_prefix}
     for type in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
-        python utils/format_rsl.py \
+        python ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${output_dir}/${type}.rsl \
             --trans_hyp_sclite ${output_dir}/${type}.rsl.text.sclite
 

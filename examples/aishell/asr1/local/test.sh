@@ -34,7 +34,7 @@ fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # format the reference test file
-    python utils/format_rsl.py \
+    python ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \
         --trans_ref data/manifest.test.text
 
@@ -63,10 +63,10 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 
         fi
         # format the hyp file
-        python utils/format_rsl.py \
+        python ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${output_dir}/${type}.rsl \
             --trans_hyp ${output_dir}/${type}.rsl.text
-        python utils/compute-wer.py --char=1 --v=1 \
+        python ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
             data/manifest.test.text ${output_dir}/${type}.rsl.text > ${output_dir}/${type}.error 
 
     done
@@ -89,10 +89,10 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
             echo "Failed in evaluation!"
             exit 1
         fi
-        python utils/format_rsl.py \
+        python ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${output_dir}/${type}.rsl \
             --trans_hyp ${output_dir}/${type}.rsl.text
-        python utils/compute-wer.py --char=1 --v=1 \
+        python ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
             data/manifest.test.text ${output_dir}/${type}.rsl.text > ${output_dir}/${type}.error 
     done
 fi
@@ -100,13 +100,13 @@ fi
 if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
     echo "using sclite to compute cer..."
     # format the reference test file for sclite
-    python utils/format_rsl.py \
+    python ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \
         --trans_ref_sclite data/manifest.test.text.sclite
     
     output_dir=${ckpt_prefix}
     for type in attention ctc_greedy_search ctc_prefix_beam_search attention_rescoring; do
-        python utils/format_rsl.py \
+        python ${MAIN_ROOT}/utils/format_rsl.py \
             --origin_hyp ${output_dir}/${type}.rsl \
             --trans_hyp_sclite ${output_dir}/${type}.rsl.text.sclite
 

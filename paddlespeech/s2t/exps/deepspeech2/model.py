@@ -421,7 +421,6 @@ class DeepSpeech2ExportTester(DeepSpeech2Tester):
         else:
             raise Exception("wrong model type")
 
-        self.predictor.clear_intermediate_tensor()
         self.predictor.try_shrink_memory()
 
         #replace the <space> with ' '

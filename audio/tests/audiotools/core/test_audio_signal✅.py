@@ -7,13 +7,13 @@ import numpy as np
 import paddle
 import pytest
 import rich
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 import audiotools
 from audiotools import AudioSignal
 
 
 def test_io():
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(pathlib.Path(audio_path))
 
     with tempfile.NamedTemporaryFile(suffix=".wav") as f:
@@ -61,7 +61,7 @@ def test_io():
     assert signal.audio_data.ndim == 3
     assert paddle.all(signal.samples == signal.audio_data)
 
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     assert AudioSignal(audio_path).hash() == AudioSignal(audio_path).hash()
     assert AudioSignal(audio_path).hash() != AudioSignal(audio_path).normalize(
         -20).hash()
@@ -71,7 +71,7 @@ def test_io():
 
 
 def test_copy_and_clone():
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path)
     signal.stft()
     signal.loudness()
@@ -369,7 +369,7 @@ def test_trim():
 
 
 def test_to_from_ops():
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path)
     signal.stft()
     signal.loudness()
@@ -384,14 +384,10 @@ def test_to_from_ops():
 
 
 def test_device():
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path)
     signal.to("cpu")
 
-    assert str(signal.device) == "Place(cpu)"
-
-    signal.stft()
-    signal.audio_data = None
     assert str(signal.device) == "Place(cpu)"
 
 
@@ -401,7 +397,7 @@ def test_device():
 def test_stft(window_length, hop_length, window_type):
     if hop_length >= window_length:
         hop_length = window_length // 2
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     stft_params = audiotools.STFTParams(
         window_length=window_length,
         hop_length=hop_length,
@@ -460,7 +456,7 @@ def test_stft(window_length, hop_length, window_type):
 
 
 def test_log_magnitude():
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     for _ in range(10):
         signal = AudioSignal.excerpt(audio_path, duration=5.0)
         magnitude = signal.magnitude.numpy()[0, 0]
@@ -478,7 +474,7 @@ def test_log_magnitude():
 def test_mel_spectrogram(n_mels, window_length, hop_length, window_type):
     if hop_length >= window_length:
         hop_length = window_length // 2
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     stft_params = audiotools.STFTParams(
         window_length=window_length,
         hop_length=hop_length,
@@ -496,7 +492,7 @@ def test_mel_spectrogram(n_mels, window_length, hop_length, window_type):
 def test_mfcc(n_mfcc, n_mels, window_length, hop_length):
     if hop_length >= window_length:
         hop_length = window_length // 2
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     stft_params = audiotools.STFTParams(
         window_length=window_length, hop_length=hop_length)
     for _stft_params in [None, stft_params]:

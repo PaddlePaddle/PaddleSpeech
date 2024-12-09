@@ -1,0 +1,11 @@
+flatten_dict
+gradio
+IPython
+librosa
+markdown2
+pyloudnorm
+pytest
+pytest-xdist
+rich
+scipy
+soundfile

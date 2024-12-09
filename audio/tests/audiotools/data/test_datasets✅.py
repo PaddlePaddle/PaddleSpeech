@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 import paddle
 import audiotools
 from audiotools.data import transforms as tfm
@@ -45,7 +45,7 @@ def test_audio_dataset():
             tfm.Silence(prob=0.5),
         ], )
     loader = audiotools.data.datasets.AudioLoader(
-        sources=["tests/audio/spk.csv"],
+        sources=["tests/audiotools/audio/spk.csv"],
         transform=transform, )
     dataset = audiotools.data.datasets.AudioDataset(
         loader,
@@ -161,11 +161,11 @@ def test_loader_out_of_range():
 
 def test_dataset_pipeline():
     transform = tfm.Compose([
-        tfm.RoomImpulseResponse(sources=["tests/audio/irs.csv"]),
-        tfm.BackgroundNoise(sources=["tests/audio/noises.csv"]),
+        tfm.RoomImpulseResponse(sources=["tests/audiotools/audio/irs.csv"]),
+        tfm.BackgroundNoise(sources=["tests/audiotools/audio/noises.csv"]),
     ])
     loader = audiotools.data.datasets.AudioLoader(
-        sources=["tests/audio/spk.csv"])
+        sources=["tests/audiotools/audio/spk.csv"])
     dataset = audiotools.data.datasets.AudioDataset(
         loader,
         44100,

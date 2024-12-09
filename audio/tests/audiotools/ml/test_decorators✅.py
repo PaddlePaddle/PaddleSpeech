@@ -1,6 +1,6 @@
 import sys
 import time
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 import paddle
 from visualdl import LogWriter
 

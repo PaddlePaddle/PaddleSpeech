@@ -152,10 +152,11 @@ class Meter(paddle.nn.Layer):
         paddle.Tensor
             Filtered audio data.
         """
-        if data.place.is_gpu_place() or self.use_fir:
-            data = self.apply_filter_gpu(data)
-        else:
-            data = self.apply_filter_cpu(data)
+        # if data.place.is_gpu_place() or self.use_fir:
+        #     data = self.apply_filter_gpu(data)
+        # else:
+        #     data = self.apply_filter_cpu(data)
+        data = self.apply_filter_cpu(data)
         return data
 
     def forward(self, data: paddle.Tensor):
@@ -246,13 +247,13 @@ class Meter(paddle.nn.Layer):
         z_avg_gated[l <= Gamma_a] = 0
         z_avg_gated[l <= Gamma_r] = 0
         masked = (l > Gamma_a) * (l > Gamma_r)
-        z_avg_gated = z_avg_gated.sum(2) / masked.sum(2)
+        z_avg_gated = z_avg_gated.sum(2) / (masked.sum(2) + 10e-6)
 
-        # # Cannot use nan_to_num (pytorch 1.8 does not come with GCP-supported cuda version)
-        # z_avg_gated = torch.nan_to_num(z_avg_gated)
-        z_avg_gated = paddle.where(
-            paddle.isnan(z_avg_gated),
-            paddle.zeros_like(z_avg_gated), z_avg_gated)
+        # TODO Currently, paddle has a segmentation fault bug in this section of the code
+        # z_avg_gated = paddle.nan_to_num(z_avg_gated)
+        # z_avg_gated = paddle.where(
+        #     paddle.isnan(z_avg_gated),
+        #     paddle.zeros_like(z_avg_gated), z_avg_gated)
         z_avg_gated[z_avg_gated == float("inf")] = float(
             np.finfo(np.float32).max)
         z_avg_gated[z_avg_gated == -float("inf")] = float(

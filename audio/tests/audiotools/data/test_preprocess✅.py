@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 
 import paddle
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 from audiotools.core.util import find_audio
 from audiotools.core.util import read_sources
 from audiotools.data import preprocess
@@ -12,11 +12,13 @@ from audiotools.data import preprocess
 def test_create_csv():
     with tempfile.NamedTemporaryFile(suffix=".csv") as f:
         preprocess.create_csv(
-            find_audio("./tests/audio/spk", ext=["wav"]), f.name, loudness=True)
+            find_audio("./tests/audiotools/audio/spk", ext=["wav"]),
+            f.name,
+            loudness=True)
 
 
 def test_create_csv_with_empty_rows():
-    audio_files = find_audio("./tests/audio/spk", ext=["wav"])
+    audio_files = find_audio("./tests/audiotools/audio/spk", ext=["wav"])
     audio_files.insert(0, "")
     audio_files.insert(2, "")
 

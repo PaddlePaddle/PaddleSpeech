@@ -7,5 +7,6 @@ from .core import highpass_filter, highpass_filters
 from . import metrics
 from . import data
 from . import ml
+from . import post
 from .data import datasets
 from .data import transforms

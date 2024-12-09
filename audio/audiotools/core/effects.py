@@ -234,23 +234,23 @@ class EffectMixin:
         self.audio_data = self.audio_data * gain[:, None, None]
         return self
 
-    # def volume_change(self, db: typing.Union[paddle.Tensor, np.ndarray, float]):
-    #     """Change volume of signal by some amount, in dB.
+    def volume_change(self, db: typing.Union[paddle.Tensor, np.ndarray, float]):
+        """Change volume of signal by some amount, in dB.
 
-    #     Parameters
-    #     ----------
-    #     db : typing.Union[paddle.Tensor, np.ndarray, float]
-    #         Amount to change volume by.
+        Parameters
+        ----------
+        db : typing.Union[paddle.Tensor, np.ndarray, float]
+            Amount to change volume by.
 
-    #     Returns
-    #     -------
-    #     AudioSignal
-    #         Signal at new volume.
-    #     """
-    #     db = util.ensure_tensor(db, ndim=1).to(self.device)
-    #     gain = torch.exp(db * self.GAIN_FACTOR)
-    #     self.audio_data = self.audio_data * gain[:, None, None]
-    #     return self
+        Returns
+        -------
+        AudioSignal
+            Signal at new volume.
+        """
+        db = util.ensure_tensor(db, ndim=1)
+        gain = paddle.exp(db * self.GAIN_FACTOR)
+        self.audio_data = self.audio_data * gain[:, None, None]
+        return self
 
     # def _to_2d(self):
     #     waveform = self.audio_data.reshape(-1, self.signal_length)
@@ -411,7 +411,7 @@ class EffectMixin:
         paddle.Tensor
             Mel-filtered bands, with last axis being the band index.
         """
-        filterbank = SplitBands(self.sample_rate, n_bands).float()
+        filterbank = SplitBands(self.sample_rate, n_bands)
         filtered = filterbank(self.audio_data)
         return filtered.transpose([1, 2, 3, 0])
 
@@ -462,11 +462,11 @@ class EffectMixin:
             Audio signal with clipped audio data.
         """
         clip_percentile = util.ensure_tensor(clip_percentile, ndim=1)
-        clip_percentile = clip_percentile.item()
+        clip_percentile = clip_percentile.cpu().numpy()
         min_thresh = paddle.quantile(
-            self.audio_data, clip_percentile / 2, axis=-1)[None]
+            self.audio_data, (clip_percentile / 2).tolist(), axis=-1)[None]
         max_thresh = paddle.quantile(
-            self.audio_data, 1 - (clip_percentile / 2), axis=-1)[None]
+            self.audio_data, (1 - clip_percentile / 2).tolist(), axis=-1)[None]
 
         nc = self.audio_data.shape[1]
         min_thresh = min_thresh[:, :nc, :]

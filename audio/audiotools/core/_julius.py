@@ -552,49 +552,6 @@ def highpass_filter(_input: paddle.Tensor,
     return highpass_filters(_input, [cutoff], stride, pad, zeros, fft)[0]
 
 
-import paddle
-from typing import Optional, Sequence
-
-
-def hz_to_mel(freqs: paddle.Tensor):
-    """
-    Converts a Tensor of frequencies in hertz to the mel scale.
-    Uses the simple formula by O'Shaughnessy (1987).
-
-    Args:
-        freqs (paddle.Tensor): frequencies to convert.
-
-    """
-    return 2595 * paddle.log10(1 + freqs / 700)
-
-
-def mel_to_hz(mels: paddle.Tensor):
-    """
-    Converts a Tensor of mel scaled frequencies to Hertz.
-    Uses the simple formula by O'Shaughnessy (1987).
-
-    Args:
-        mels (paddle.Tensor): mel frequencies to convert.
-    """
-    return 700 * (10**(mels / 2595) - 1)
-
-
-def mel_frequencies(n_mels: int, fmin: float, fmax: float):
-    """
-    Return frequencies that are evenly spaced in mel scale.
-
-    Args:
-        n_mels (int): number of frequencies to return.
-        fmin (float): start from this frequency (in Hz).
-        fmax (float): finish at this frequency (in Hz).
-
-    """
-    low = hz_to_mel(paddle.to_tensor(float(fmin))).item()
-    high = hz_to_mel(paddle.to_tensor(float(fmax))).item()
-    mels = paddle.linspace(low, high, n_mels)
-    return mel_to_hz(mels)
-
-
 class SplitBands(paddle.nn.Layer):
     """
     Decomposes a signal over the given frequency bands in the waveform domain using
@@ -657,7 +614,8 @@ class SplitBands(paddle.nn.Layer):
             if not n_bands >= 1:
                 raise ValueError(
                     f"n_bands must be greater than one (got {n_bands})")
-            cutoffs = mel_frequencies(n_bands + 1, 0, sample_rate / 2)[1:-1]
+            cutoffs = paddle.audio.functional.mel_frequencies(
+                n_bands + 1, 0, sample_rate / 2)[1:-1]
         else:
             if max(cutoffs) > 0.5 * sample_rate:
                 raise ValueError(

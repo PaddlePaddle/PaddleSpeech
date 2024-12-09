@@ -214,95 +214,103 @@ class DSPMixin:
         self.stft_data = None
         return self
 
-    # def mask_frequencies(
-    #     self,
-    #     fmin_hz: typing.Union[paddle.Tensor, np.ndarray, float],
-    #     fmax_hz: typing.Union[paddle.Tensor, np.ndarray, float],
-    #     val: float = 0.0,
-    # ):
-    #     """Masks frequencies between ``fmin_hz`` and ``fmax_hz``, and fills them
-    #     with the value specified by ``val``. Useful for implementing SpecAug.
-    #     The min and max can be different for every item in the batch.
+    def mask_frequencies(
+            self,
+            fmin_hz: typing.Union[paddle.Tensor, np.ndarray, float],
+            fmax_hz: typing.Union[paddle.Tensor, np.ndarray, float],
+            val: float=0.0, ):
+        """Masks frequencies between ``fmin_hz`` and ``fmax_hz``, and fills them
+        with the value specified by ``val``. Useful for implementing SpecAug.
+        The min and max can be different for every item in the batch.
 
-    #     Parameters
-    #     ----------
-    #     fmin_hz : typing.Union[paddle.Tensor, np.ndarray, float]
-    #         Lower end of band to mask out.
-    #     fmax_hz : typing.Union[paddle.Tensor, np.ndarray, float]
-    #         Upper end of band to mask out.
-    #     val : float, optional
-    #         Value to fill in, by default 0.0
+        Parameters
+        ----------
+        fmin_hz : typing.Union[paddle.Tensor, np.ndarray, float]
+            Lower end of band to mask out.
+        fmax_hz : typing.Union[paddle.Tensor, np.ndarray, float]
+            Upper end of band to mask out.
+        val : float, optional
+            Value to fill in, by default 0.0
 
-    #     Returns
-    #     -------
-    #     AudioSignal
-    #         Signal with ``stft_data`` manipulated. Apply ``.istft()`` to get the
-    #         masked audio data.
-    #     """
-    #     # SpecAug
-    #     mag, phase = self.magnitude, self.phase
-    #     fmin_hz = util.ensure_tensor(fmin_hz, ndim=mag.ndim)
-    #     fmax_hz = util.ensure_tensor(fmax_hz, ndim=mag.ndim)
-    #     assert paddle.all(fmin_hz < fmax_hz)
+        Returns
+        -------
+        AudioSignal
+            Signal with ``stft_data`` manipulated. Apply ``.istft()`` to get the
+            masked audio data.
+        """
+        # SpecAug
+        mag, phase = self.magnitude, self.phase
+        fmin_hz = util.ensure_tensor(
+            fmin_hz,
+            ndim=mag.ndim, )
+        fmax_hz = util.ensure_tensor(
+            fmax_hz,
+            ndim=mag.ndim, )
+        assert paddle.all(fmin_hz < fmax_hz)
 
-    #     # build mask
-    #     nbins = mag.shape[-2]
-    #     bins_hz = paddle.linspace(0, self.sample_rate / 2, nbins, device=self.device)
-    #     bins_hz = bins_hz[None, None, :, None].repeat(
-    #         self.batch_size, 1, 1, mag.shape[-1]
-    #     )
-    #     mask = (fmin_hz <= bins_hz) & (bins_hz < fmax_hz)
-    #     mask = mask.to(self.device)
+        # build mask
+        nbins = mag.shape[-2]
+        bins_hz = paddle.linspace(
+            0,
+            self.sample_rate / 2,
+            nbins, )
+        bins_hz = bins_hz[None, None, :, None].tile(
+            [self.batch_size, 1, 1, mag.shape[-1]])
+        mask = (fmin_hz <= bins_hz) & (bins_hz < fmax_hz)
 
-    #     mag = mag.masked_fill(mask, val)
-    #     phase = phase.masked_fill(mask, val)
-    #     self.stft_data = mag * paddle.exp(1j * phase)
-    #     return self
+        mag = paddle.where(mask, paddle.full_like(mag, val), mag)
+        phase = paddle.where(mask, paddle.full_like(phase, val), phase)
+        self.stft_data = mag * paddle.exp(1j * phase)
+        return self
 
-    # def mask_timesteps(
-    #     self,
-    #     tmin_s: typing.Union[paddle.Tensor, np.ndarray, float],
-    #     tmax_s: typing.Union[paddle.Tensor, np.ndarray, float],
-    #     val: float = 0.0,
-    # ):
-    #     """Masks timesteps between ``tmin_s`` and ``tmax_s``, and fills them
-    #     with the value specified by ``val``. Useful for implementing SpecAug.
-    #     The min and max can be different for every item in the batch.
+    def mask_timesteps(
+            self,
+            tmin_s: typing.Union[paddle.Tensor, np.ndarray, float],
+            tmax_s: typing.Union[paddle.Tensor, np.ndarray, float],
+            val: float=0.0, ):
+        """Masks timesteps between ``tmin_s`` and ``tmax_s``, and fills them
+        with the value specified by ``val``. Useful for implementing SpecAug.
+        The min and max can be different for every item in the batch.
 
-    #     Parameters
-    #     ----------
-    #     tmin_s : typing.Union[paddle.Tensor, np.ndarray, float]
-    #         Lower end of timesteps to mask out.
-    #     tmax_s : typing.Union[paddle.Tensor, np.ndarray, float]
-    #         Upper end of timesteps to mask out.
-    #     val : float, optional
-    #         Value to fill in, by default 0.0
+        Parameters
+        ----------
+        tmin_s : typing.Union[paddle.Tensor, np.ndarray, float]
+            Lower end of timesteps to mask out.
+        tmax_s : typing.Union[paddle.Tensor, np.ndarray, float]
+            Upper end of timesteps to mask out.
+        val : float, optional
+            Value to fill in, by default 0.0
 
-    #     Returns
-    #     -------
-    #     AudioSignal
-    #         Signal with ``stft_data`` manipulated. Apply ``.istft()`` to get the
-    #         masked audio data.
-    #     """
-    #     # SpecAug
-    #     mag, phase = self.magnitude, self.phase
-    #     tmin_s = util.ensure_tensor(tmin_s, ndim=mag.ndim)
-    #     tmax_s = util.ensure_tensor(tmax_s, ndim=mag.ndim)
+        Returns
+        -------
+        AudioSignal
+            Signal with ``stft_data`` manipulated. Apply ``.istft()`` to get the
+            masked audio data.
+        """
+        # SpecAug
+        mag, phase = self.magnitude, self.phase
+        tmin_s = util.ensure_tensor(tmin_s, ndim=mag.ndim)
+        tmax_s = util.ensure_tensor(tmax_s, ndim=mag.ndim)
 
-    #     assert paddle.all(tmin_s < tmax_s)
+        assert paddle.all(tmin_s < tmax_s)
 
-    #     # build mask
-    #     nt = mag.shape[-1]
-    #     bins_t = paddle.linspace(0, self.signal_duration, nt, device=self.device)
-    #     bins_t = bins_t[None, None, None, :].repeat(
-    #         self.batch_size, 1, mag.shape[-2], 1
-    #     )
-    #     mask = (tmin_s <= bins_t) & (bins_t < tmax_s)
+        # build mask
+        nt = mag.shape[-1]
+        bins_t = paddle.linspace(
+            0,
+            self.signal_duration,
+            nt, )
+        bins_t = bins_t[None, None, None, :].tile(
+            [self.batch_size, 1, mag.shape[-2], 1])
+        mask = (tmin_s <= bins_t) & (bins_t < tmax_s)
 
-    #     mag = mag.masked_fill(mask, val)
-    #     phase = phase.masked_fill(mask, val)
-    #     self.stft_data = mag * paddle.exp(1j * phase)
-    #     return self
+        # mag = mag.masked_fill(mask, val)
+        # phase = phase.masked_fill(mask, val)
+        mag = paddle.where(mask, paddle.full_like(mag, val), mag)
+        phase = paddle.where(mask, paddle.full_like(phase, val), phase)
+
+        self.stft_data = mag * paddle.exp(1j * phase)
+        return self
 
     # def mask_low_magnitudes(
     #     self, db_cutoff: typing.Union[paddle.Tensor, np.ndarray, float], val: float = 0.0

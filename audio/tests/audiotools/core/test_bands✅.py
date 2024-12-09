@@ -5,7 +5,7 @@ import sys
 import unittest
 
 import paddle
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 from audiotools.core import pure_tone, SplitBands, split_bands
 
 

@@ -7,7 +7,7 @@ import numpy as np
 import paddle
 import pytest
 
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 from audiotools import util
 from audiotools.core.audio_signal import AudioSignal
 
@@ -66,7 +66,8 @@ def test_find_audio():
     assert not audio_files
 
     # Make sure it works with single audio files
-    audio_files = util.find_audio("tests/audio/spk//f10_script4_produced.wav")
+    audio_files = util.find_audio(
+        "tests/audiotools/audio/spk//f10_script4_produced.wav")
 
     # Make sure it works with globs
     audio_files = util.find_audio("tests/**/*.wav")

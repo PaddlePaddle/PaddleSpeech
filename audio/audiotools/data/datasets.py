@@ -200,7 +200,7 @@ class AudioDataset:
     >>>
     >>> loaders = [
     >>>     AudioLoader(
-    >>>         sources=[f"tests/audio/spk"],
+    >>>         sources=[f"tests/audiotools/audio/spk"],
     >>>         transform=tfm.Equalizer(),
     >>>         ext=["wav"],
     >>>     )

@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 from audiotools import AudioSignal
 from audiotools import post
 from audiotools import transforms
@@ -14,7 +14,7 @@ def test_audio_table():
 
     audio_dict["inputs"] = [
         AudioSignal.excerpt(
-            "tests/audio/spk/f10_script4_produced.wav", duration=5)
+            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=5)
         for _ in range(3)
     ]
     audio_dict["outputs"] = []

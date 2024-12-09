@@ -7,7 +7,7 @@ import numpy as np
 import paddle
 import pytest
 
-sys.path.append("/home/work/pdaudoio")
+sys.path.append("/home/aistudio/PaddleSpeech/audio")
 import audiotools
 from audiotools import AudioSignal
 from audiotools import util
@@ -49,13 +49,13 @@ def test_transform(transform_name):
 
     kwargs = {}
     if transform_name == "BackgroundNoise":
-        kwargs["sources"] = ["tests/audio/noises.csv"]
+        kwargs["sources"] = ["tests/audiotools/audio/noises.csv"]
     if transform_name == "RoomImpulseResponse":
-        kwargs["sources"] = ["tests/audio/irs.csv"]
+        kwargs["sources"] = ["tests/audiotools/audio/irs.csv"]
     if transform_name == "CrossTalk":
-        kwargs["sources"] = ["tests/audio/spk.csv"]
+        kwargs["sources"] = ["tests/audiotools/audio/spk.csv"]
 
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
     signal.metadata["loudness"] = AudioSignal(
         audio_path).ffmpeg_loudness().item()
@@ -99,18 +99,15 @@ def test_transform(transform_name):
     assert output_a == output_b
 
 
-# test_transform("FrequencyNoise")
-
-
 def test_compose_basic():
     seed = 0
 
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
     transform = tfm.Compose(
         [
-            tfm.RoomImpulseResponse(sources=["tests/audio/irs.csv"]),
-            tfm.BackgroundNoise(sources=["tests/audio/noises.csv"]),
+            tfm.RoomImpulseResponse(sources=["tests/audiotools/audio/irs.csv"]),
+            tfm.BackgroundNoise(sources=["tests/audiotools/audio/noises.csv"]),
         ], )
 
     kwargs = transform.instantiate(seed, signal)
@@ -146,7 +143,7 @@ def test_compose_with_duplicate_transforms():
     full_mul = np.prod(muls)
 
     kwargs = transform.instantiate(0)
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
 
     output = transform(signal.clone(), **kwargs)
@@ -165,7 +162,7 @@ def test_nested_compose():
     full_mul = np.prod(muls)
 
     kwargs = transform.instantiate(0)
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
 
     output = transform(signal.clone(), **kwargs)
@@ -179,7 +176,7 @@ def test_compose_filtering():
     transform = tfm.Compose([MulTransform(x, name=str(x)) for x in muls])
 
     kwargs = transform.instantiate(0)
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
 
     for s in range(len(muls)):
@@ -202,7 +199,7 @@ def test_sequential_compose():
     full_mul = np.prod(muls)
 
     kwargs = transform.instantiate(0)
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
 
     output = transform(signal.clone(), **kwargs)
@@ -213,11 +210,11 @@ def test_sequential_compose():
 
 def test_choose_basic():
     seed = 0
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
     transform = tfm.Choose([
-        tfm.RoomImpulseResponse(sources=["tests/audio/irs.csv"]),
-        tfm.BackgroundNoise(sources=["tests/audio/noises.csv"]),
+        tfm.RoomImpulseResponse(sources=["tests/audiotools/audio/irs.csv"]),
+        tfm.BackgroundNoise(sources=["tests/audiotools/audio/noises.csv"]),
     ])
 
     kwargs = transform.instantiate(seed, signal)
@@ -254,7 +251,7 @@ def test_choose_basic():
 
 def test_choose_weighted():
     seed = 0
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     transform = tfm.Choose(
         [
             MulTransform(0.0),
@@ -280,7 +277,7 @@ def test_choose_weighted():
 
 
 def test_choose_with_compose():
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
 
     transform = tfm.Choose([
@@ -299,7 +296,7 @@ def test_choose_with_compose():
 
 def test_repeat():
     seed = 0
-    audio_path = "tests/audio/spk/f10_script4_produced.wav"
+    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=2)
 
     kwargs = {}
@@ -359,7 +356,7 @@ class DummyData(paddle.io.Dataset):
 
 
 def test_masking():
-    dataset = DummyData("tests/audio/spk/f10_script4_produced.wav")
+    dataset = DummyData("tests/audiotools/audio/spk/f10_script4_produced.wav")
     dataloader = paddle.io.DataLoader(
         dataset,
         batch_size=16,
@@ -389,7 +386,7 @@ def test_nested_masking():
         prob=0.9, )
 
     loader = audiotools.data.datasets.AudioLoader(
-        sources=["tests/audio/spk.csv"])
+        sources=["tests/audiotools/audio/spk.csv"])
     dataset = audiotools.data.datasets.AudioDataset(
         loader,
         44100,

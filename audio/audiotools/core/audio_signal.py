@@ -16,17 +16,19 @@ import paddle
 import soundfile
 
 from . import util
+from ._julius import resample_frac
 from .dsp import DSPMixin
 from .effects import EffectMixin
 from .effects import ImpulseResponseMixin
 from .ffmpeg import FFMPEGMixin
 from .loudness import LoudnessMixin
-from .resample import resample_frac
 
 # from .display import DisplayMixin
 
 # from .playback import PlayMixin
 # from .whisper import WhisperMixin
+
+__all__ = ['STFTParams', 'AudioSignal']
 
 
 def create_dct(n_mfcc: int, n_mels: int, norm: Optional[str]) -> paddle.Tensor:

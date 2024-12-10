@@ -7,9 +7,9 @@ from ._julius import lowpass_filter
 from ._julius import LowPassFilter
 from ._julius import LowPassFilters
 from ._julius import pure_tone
+from ._julius import resample_frac
 from ._julius import split_bands
 from ._julius import SplitBands
 from .audio_signal import AudioSignal
 from .audio_signal import STFTParams
 from .loudness import Meter
-from .resample import resample_frac

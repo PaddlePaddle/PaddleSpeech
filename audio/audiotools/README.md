@@ -1,23 +1,13 @@
-# PaddleAudio
+Audiotools is a comprehensive toolkit designed for audio processing and analysis, providing robust solutions for audio signal processing, data management, model training, and evaluation.
 
-安装方式： pip install paddleaudio
+### Directory Structure
 
-目前支持的平台：Linux, Mac, Windows
+- **core directory**: Contains the core class AudioSignal, which is responsible for the fundamental representation and manipulation of audio signals.
 
-## Environment
+- **data directory**: Primarily dedicated to storing and processing datasets, including classes and functions for data preprocessing, ensuring efficient loading and transformation of audio data.
 
-## Build wheel
-cmd: python setup.py bdist_wheel
+- **metrics directory**: Implements functions for various audio evaluation metrics, enabling precise assessment of the performance of audio models and processing algorithms.
 
-Linux test build whl environment:
-* os - Ubuntu 16.04.7 LTS
-* gcc/g++ - 8.2.0
-* cmake - 3.18.0 (need install)
+- **ml directory**: Comprises classes and methods related to model training, supporting the construction, training, and optimization of machine learning models in the context of audio.
 
-MAC：test build whl environment：
-* os 
-* gcc/g++ 12.2.0
-* cpu Intel Xeon E5 x86_64
-
-Windows：
-not support paddleaudio C++ extension lib (sox io, kaldi native fbank)
+This project aims to provide developers and researchers with an efficient and flexible framework to foster innovation and exploration across various domains of audio technology.

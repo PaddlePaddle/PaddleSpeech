@@ -207,7 +207,8 @@ class EffectMixin:
         """
         peak = self.audio_data.abs().max(axis=-1, keepdim=True)
         peak_gain = paddle.ones_like(peak)
-        peak_gain[peak > _max] = _max / peak[peak > _max]
+        # peak_gain[peak > _max] = _max / peak[peak > _max]
+        peak_gain = paddle.where(peak > _max, _max / peak, peak_gain)
         self.audio_data = self.audio_data * peak_gain
         return self
 
@@ -476,70 +477,72 @@ class EffectMixin:
 
         return self
 
-    # def quantization(
-    #     self, quantization_channels: typing.Union[paddle.Tensor, np.ndarray, int]
-    # ):
-    #     """Applies quantization to the input waveform.
+    def quantization(self,
+                     quantization_channels: typing.Union[paddle.Tensor,
+                                                         np.ndarray, int]):
+        """Applies quantization to the input waveform.
 
-    #     Parameters
-    #     ----------
-    #     quantization_channels : typing.Union[paddle.Tensor, np.ndarray, int]
-    #         Number of evenly spaced quantization channels to quantize
-    #         to.
+        Parameters
+        ----------
+        quantization_channels : typing.Union[paddle.Tensor, np.ndarray, int]
+            Number of evenly spaced quantization channels to quantize
+            to.
 
-    #     Returns
-    #     -------
-    #     AudioSignal
-    #         Quantized AudioSignal.
-    #     """
-    #     quantization_channels = util.ensure_tensor(quantization_channels, ndim=3)
+        Returns
+        -------
+        AudioSignal
+            Quantized AudioSignal.
+        """
+        quantization_channels = util.ensure_tensor(
+            quantization_channels, ndim=3)
 
-    #     x = self.audio_data
-    #     x = (x + 1) / 2
-    #     x = x * quantization_channels
-    #     x = x.floor()
-    #     x = x / quantization_channels
-    #     x = 2 * x - 1
+        x = self.audio_data
+        x = (x + 1) / 2
+        x = x * quantization_channels
+        x = x.floor()
+        x = x / quantization_channels
+        x = 2 * x - 1
 
-    #     residual = (self.audio_data - x).detach()
-    #     self.audio_data = self.audio_data - residual
-    #     return self
+        residual = (self.audio_data - x).detach()
+        self.audio_data = self.audio_data - residual
+        return self
 
-    # def mulaw_quantization(
-    #     self, quantization_channels: typing.Union[paddle.Tensor, np.ndarray, int]
-    # ):
-    #     """Applies mu-law quantization to the input waveform.
+    def mulaw_quantization(self,
+                           quantization_channels: typing.Union[
+                               paddle.Tensor, np.ndarray, int]):
+        """Applies mu-law quantization to the input waveform.
 
-    #     Parameters
-    #     ----------
-    #     quantization_channels : typing.Union[paddle.Tensor, np.ndarray, int]
-    #         Number of mu-law spaced quantization channels to quantize
-    #         to.
+        Parameters
+        ----------
+        quantization_channels : typing.Union[paddle.Tensor, np.ndarray, int]
+            Number of mu-law spaced quantization channels to quantize
+            to.
 
-    #     Returns
-    #     -------
-    #     AudioSignal
-    #         Quantized AudioSignal.
-    #     """
-    #     mu = quantization_channels - 1.0
-    #     mu = util.ensure_tensor(mu, ndim=3)
+        Returns
+        -------
+        AudioSignal
+            Quantized AudioSignal.
+        """
+        mu = quantization_channels - 1.0
+        mu = util.ensure_tensor(mu, ndim=3)
 
-    #     x = self.audio_data
+        x = self.audio_data
 
-    #     # quantize
-    #     x = torch.sign(x) * torch.log1p(mu * torch.abs(x)) / torch.log1p(mu)
-    #     x = ((x + 1) / 2 * mu + 0.5).to(torch.int64)
+        # quantize
+        x = paddle.sign(x) * paddle.log1p(mu * paddle.abs(x)) / paddle.log1p(mu)
+        x = ((x + 1) / 2 * mu + 0.5).astype("int64")
 
-    #     # unquantize
-    #     x = (x / mu) * 2 - 1.0
-    #     x = torch.sign(x) * (torch.exp(torch.abs(x) * torch.log1p(mu)) - 1.0) / mu
+        # unquantize
+        x = (x / mu) * 2 - 1.0
+        x = paddle.sign(x) * (
+            paddle.exp(paddle.abs(x) * paddle.log1p(mu)) - 1.0) / mu
 
-    #     residual = (self.audio_data - x).detach()
-    #     self.audio_data = self.audio_data - residual
-    #     return self
+        residual = (self.audio_data - x).detach()
+        self.audio_data = self.audio_data - residual
+        return self
 
-    # def __matmul__(self, other):
-    #     return self.convolve(other)
+    def __matmul__(self, other):
+        return self.convolve(other)
 
 
 import paddle
@@ -591,13 +594,16 @@ class ImpulseResponseMixin:
         # direct path and windowed residual.
 
         window = paddle.zeros_like(self.audio_data)
+        window_idx = paddle.nonzero(early_idx)
         for idx in range(self.batch_size):
-            window_idx = early_idx[idx, 0]
+            # window_idx = early_idx[idx, 0]
 
             # ----- Just for this -----
             # window[idx, ..., window_idx] = self.get_window("hann", window_idx.sum().item())
-            indices = paddle.nonzero(window_idx).reshape(
-                [-1])  # shape: [num_true], dtype: int64            
+            # indices = paddle.nonzero(window_idx).reshape(
+            #     [-1])  # shape: [num_true], dtype: int64  
+            indices = window_idx[window_idx[:, 0] == idx][:, -1]
+
             temp_window = self.get_window("hann", indices.shape[0])
 
             window_slice = window[idx, 0]
@@ -639,9 +645,9 @@ class ImpulseResponseMixin:
         l_sq = late_field**2
         a = (wd_sq * e_sq).sum(axis=-1)
         b = (2 * (1 - wd) * wd * e_sq).sum(axis=-1)
-        c = (wd_sq_1 * e_sq).sum(axis=-1) - paddle.pow(
-            10 * paddle.ones_like(target_drr), target_drr / 10) * l_sq.sum(
-                axis=-1)
+        c = (wd_sq_1 * e_sq).sum(axis=-1) - paddle.pow(10 * paddle.ones_like(
+            target_drr, dtype="float32"), target_drr.cast("float32") /
+                                                       10) * l_sq.sum(axis=-1)
 
         expr = ((b**2) - 4 * a * c).sqrt()
         alpha = paddle.maximum(

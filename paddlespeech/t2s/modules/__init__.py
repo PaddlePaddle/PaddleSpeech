@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .conv import *
+from .fftconv1d import *
 from .geometry import *
 from .losses import *
 from .positional_encoding import *

@@ -19,10 +19,10 @@ import paddle
 from paddle.nn import Conv1D
 
 from paddlespeech.t2s.modules import fft_conv1d
-from paddlespeech.t2s.modules import FFTConv1d
+from paddlespeech.t2s.modules import FFTConv1D
 
 
-class TestFFTConv1d(unittest.TestCase):
+class TestFFTConv1D(unittest.TestCase):
     def setUp(self):
         self.batch_size = 4
         self.in_channels = 3
@@ -41,7 +41,7 @@ class TestFFTConv1d(unittest.TestCase):
             kernel_size,
             stride=stride,
             padding=padding)
-        fft_conv1d = FFTConv1d(
+        fft_conv1d = FFTConv1D(
             in_channels,
             out_channels,
             kernel_size,
@@ -109,7 +109,7 @@ class TestFFTConv1d(unittest.TestCase):
             stride=self.stride,
             padding=self.padding,
             bias_attr=False)
-        fft_conv1d = FFTConv1d(
+        fft_conv1d = FFTConv1D(
             self.in_channels,
             self.out_channels,
             self.kernel_size,

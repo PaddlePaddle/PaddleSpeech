@@ -161,7 +161,7 @@ class FFTConv1D(paddle.nn.Layer):
             stride of convolution.
         padding (int): 
             padding to apply to the _input.
-        bias (bool): 
+        bias_attr (bool): 
             if True, use a bias term.
 
     Examples: 
@@ -178,7 +178,7 @@ class FFTConv1D(paddle.nn.Layer):
             kernel_size: int,
             stride: int=1,
             padding: int=0,
-            bias: bool=True, ):
+            bias_attr: bool=True, ):
         super(FFTConv1D, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -193,9 +193,9 @@ class FFTConv1D(paddle.nn.Layer):
             kernel_size,
             stride=stride,
             padding=padding,
-            bias_attr=bias)
+            bias_attr=bias_attr)
         self.weight = conv.weight
-        if bias:
+        if bias_attr:
             self.bias = conv.bias
         else:
             self.bias = None

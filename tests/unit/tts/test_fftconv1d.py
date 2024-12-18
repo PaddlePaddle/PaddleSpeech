@@ -115,7 +115,7 @@ class TestFFTConv1D(unittest.TestCase):
             self.kernel_size,
             stride=self.stride,
             padding=self.padding,
-            bias=False)
+            bias_attr=False)
         fft_conv1d.weight.set_value(conv1d.weight.numpy())
         x = paddle.randn([self.batch_size, self.in_channels, self.input_length])
         out_conv1d = conv1d(x)

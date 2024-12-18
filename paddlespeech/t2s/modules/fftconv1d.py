@@ -22,7 +22,7 @@ import paddle.nn.functional as F
 
 __all__ = [
     "fft_conv1d",
-    "FFTConv1d",
+    "FFTConv1D",
 ]
 
 
@@ -137,7 +137,7 @@ def fft_conv1d(
     return out
 
 
-class FFTConv1d(paddle.nn.Layer):
+class FFTConv1D(paddle.nn.Layer):
     """
     Same as `paddle.nn.Conv1D` but based on a custom FFT-based convolution.
     Please check PaddlePaddle documentation for more information on `paddle.nn.Conv1D`.
@@ -165,7 +165,7 @@ class FFTConv1d(paddle.nn.Layer):
             if True, use a bias term.
 
     Examples: 
-        >>> fftconv = FFTConv1d(12, 24, 128, 4)
+        >>> fftconv = FFTConv1D(12, 24, 128, 4)
         >>> x = paddle.randn([4, 12, 1024])
         >>> print(list(fftconv(x).shape))
         [4, 24, 225]
@@ -179,7 +179,7 @@ class FFTConv1d(paddle.nn.Layer):
             stride: int=1,
             padding: int=0,
             bias: bool=True, ):
-        super(FFTConv1d, self).__init__()
+        super(FFTConv1D, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size
@@ -203,3 +203,10 @@ class FFTConv1d(paddle.nn.Layer):
     def forward(self, _input: paddle.Tensor):
         return fft_conv1d(_input, self.weight, self.bias, self.stride,
                           self.padding)
+
+
+version = paddle.__version__
+
+if version < '2.6':
+    fft_conv1d = F.conv1d
+    FFTConv1D = nn.Conv1D

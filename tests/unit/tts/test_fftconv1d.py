@@ -59,7 +59,7 @@ class TestFFTConv1D(unittest.TestCase):
         out_conv1d = conv1d(x)
         out_fft_conv1d = fft_conv1d(x)
         self.assertTrue(
-            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-5))
+            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-6))
 
     def test_fft_conv1d_vs_conv1d_no_padding(self):
         x, conv1d, fft_conv1d = self._init_models(
@@ -68,7 +68,7 @@ class TestFFTConv1D(unittest.TestCase):
         out_conv1d = conv1d(x)
         out_fft_conv1d = fft_conv1d(x)
         self.assertTrue(
-            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-5))
+            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-6))
 
     def test_fft_conv1d_vs_conv1d_large_kernel(self):
         kernel_size = 256
@@ -79,7 +79,7 @@ class TestFFTConv1D(unittest.TestCase):
         out_conv1d = conv1d(x)
         out_fft_conv1d = fft_conv1d(x)
         self.assertTrue(
-            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-5))
+            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-6))
 
     def test_fft_conv1d_vs_conv1d_stride_2(self):
         x, conv1d, fft_conv1d = self._init_models(
@@ -88,7 +88,7 @@ class TestFFTConv1D(unittest.TestCase):
         out_conv1d = conv1d(x)
         out_fft_conv1d = fft_conv1d(x)
         self.assertTrue(
-            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-5))
+            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-6))
 
     def test_fft_conv1d_vs_conv1d_different_input_length(self):
         input_length = 1024
@@ -99,7 +99,7 @@ class TestFFTConv1D(unittest.TestCase):
         out_conv1d = conv1d(x)
         out_fft_conv1d = fft_conv1d(x)
         self.assertTrue(
-            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-5))
+            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-6))
 
     def test_fft_conv1d_vs_conv1d_no_bias(self):
         conv1d = paddle.nn.Conv1D(
@@ -121,7 +121,7 @@ class TestFFTConv1D(unittest.TestCase):
         out_conv1d = conv1d(x)
         out_fft_conv1d = fft_conv1d(x)
         self.assertTrue(
-            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-5))
+            np.allclose(out_conv1d.numpy(), out_fft_conv1d.numpy(), atol=1e-6))
 
 
 if __name__ == '__main__':

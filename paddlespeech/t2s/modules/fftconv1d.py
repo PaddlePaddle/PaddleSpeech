@@ -205,6 +205,9 @@ class FFTConv1D(paddle.nn.Layer):
                           self.padding)
 
 
+# Currently, the API unfold in Paddle is extremely slow, so __unfold is implemented 
+# using the `.strides` and `.as_strided` APIs. However, these are only supported in 
+# Paddle version 2.6 and above, so F.conv1d and Conv1D are used as replacements.
 version = paddle.__version__
 
 if version < '2.6':

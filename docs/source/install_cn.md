@@ -17,7 +17,7 @@
 - 如果你是一个刚刚接触 `PaddleSpeech` 的新人并且想要很方便地体验一下该项目。我们建议你体验一下 [AI Studio](https://aistudio.baidu.com/aistudio/index)。我们在 AI Studio上面建立了一个让你一步一步运行体验来使用 `PaddleSpeech` 的[教程](https://aistudio.baidu.com/aistudio/education/group/info/25130)。
 - 如果你想使用 `PaddleSpeech` 的命令行功能，你需要跟随下面的步骤来安装 `PaddleSpeech`。如果你想了解更多关于使用 `PaddleSpeech` 命令行功能的信息，你可以参考 [cli](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/paddlespeech/cli)。
 ### 安装 Conda
-Conda是一个包管理的环境。你可以前往 [minicoda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。
+Conda是一个包管理的环境。你可以前往 [miniconda](https://docs.conda.io/en/latest/miniconda.html) 去下载并安装 conda（请下载 py>=3.7 的版本）。
 然后你需要安装 `paddlespeech` 的 conda 依赖:
 ```bash
 conda install -y -c conda-forge sox libsndfile bzip2

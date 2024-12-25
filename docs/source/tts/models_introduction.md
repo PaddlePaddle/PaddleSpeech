@@ -1,5 +1,5 @@
 # Models introduction
-TTS system mainly includes three modules: `Text Frontend`, `Acoustic model` and `Vocoder`. We introduce a rule-based Chinese text frontend in [cn_text_frontend.md](./cn_text_frontend.md). Here, we will introduce acoustic models and vocoders, which are trainable.
+TTS system mainly includes three modules: `Text Frontend`, `Acoustic model` and `Vocoder`. We introduce a rule-based Chinese text frontend in [zh_text_frontend](./zh_text_frontend.md). Here, we will introduce acoustic models and vocoders, which are trainable.
 
 The main processes of TTS include:
 1. Convert the original text into characters/phonemes, through the `text frontend` module.

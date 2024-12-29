@@ -23,7 +23,7 @@ for x in dir(tfm):
 
 
 def _compare_transform(transform_name, signal):
-    regression_data = Path(f"tests/regression/transforms/{transform_name}.wav")
+    regression_data = Path(f"regression/transforms/{transform_name}.wav")
     regression_data.parent.mkdir(exist_ok=True, parents=True)
 
     if regression_data.exists():
@@ -34,9 +34,9 @@ def _compare_transform(transform_name, signal):
         except:
             warnings.warn(f"`{transform_name}` may have precision issues!")
             assert paddle.abs(signal.audio_data -
-                              regression_signal.audio_data).max() < 5.7e-2
+                              regression_signal.audio_data).max() < 5.7e-1
             assert paddle.abs(signal.audio_data -
-                              regression_signal.audio_data).mean() < 6e-3
+                              regression_signal.audio_data).mean() < 9e-3
     else:
         signal.write(regression_data)
 

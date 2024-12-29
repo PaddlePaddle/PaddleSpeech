@@ -17,13 +17,12 @@ import soundfile
 
 from . import util
 from ._julius import resample_frac
+from .display import DisplayMixin
 from .dsp import DSPMixin
 from .effects import EffectMixin
 from .effects import ImpulseResponseMixin
 from .ffmpeg import FFMPEGMixin
 from .loudness import LoudnessMixin
-
-# from .display import DisplayMixin
 
 # from .playback import PlayMixin
 # from .whisper import WhisperMixin
@@ -98,7 +97,7 @@ class AudioSignal(
         # PlayMixin,
         ImpulseResponseMixin,
         DSPMixin,
-        # DisplayMixin,
+        DisplayMixin,
         FFMPEGMixin,
         # WhisperMixin,
 ):
@@ -1498,6 +1497,8 @@ class AudioSignal(
 
         amin = amin**2
         log_spec = 10.0 * paddle.log10(magnitude.pow(2).clip(min=amin))
+        if paddle.is_tensor(ref_value):
+            ref_value = ref_value.item()
         log_spec -= 10.0 * np.log10(np.maximum(amin, ref_value))
 
         if top_db is not None:

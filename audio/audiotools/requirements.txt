@@ -1,8 +1,8 @@
 flatten_dict
 gradio
 IPython
-librosa
-markdown2
+librosa==0.8.1markdown2
+numpy==1.23.5
 pyloudnorm
 pytest
 pytest-xdist

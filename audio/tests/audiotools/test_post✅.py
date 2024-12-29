@@ -13,8 +13,7 @@ def test_audio_table():
     audio_dict = {}
 
     audio_dict["inputs"] = [
-        AudioSignal.excerpt(
-            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=5)
+        AudioSignal.excerpt("./audio/spk/f10_script4_produced.wav", duration=5)
         for _ in range(3)
     ]
     audio_dict["outputs"] = []

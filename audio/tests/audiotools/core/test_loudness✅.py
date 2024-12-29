@@ -13,7 +13,7 @@ ATOL = 1e-1
 
 
 def test_loudness_against_pyln():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=5, duration=10)
     signal_loudness = signal.loudness()
 
@@ -24,7 +24,7 @@ def test_loudness_against_pyln():
 
 
 def test_loudness_short():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=0.25)
     signal_loudness = signal.loudness()
 
@@ -58,7 +58,7 @@ def test_batch_loudness():
 
 # Tests below are copied from pyloudnorm
 def test_integrated_loudness():
-    data, rate = sf.read("tests/audiotools/audio/loudness/sine_1000.wav")
+    data, rate = sf.read("./audio/loudness/sine_1000.wav")
     meter = Meter(rate)
     loudness = meter(data)
 
@@ -67,8 +67,7 @@ def test_integrated_loudness():
 
 
 def test_rel_gate_test():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_RelGateTest.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_RelGateTest.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -77,8 +76,7 @@ def test_rel_gate_test():
 
 
 def test_abs_gate_test():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_AbsGateTest.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_AbsGateTest.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -87,8 +85,7 @@ def test_abs_gate_test():
 
 
 def test_24LKFS_25Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_24LKFS_25Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_24LKFS_25Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -97,8 +94,7 @@ def test_24LKFS_25Hz_2ch():
 
 
 def test_24LKFS_100Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_24LKFS_100Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_24LKFS_100Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -107,8 +103,7 @@ def test_24LKFS_100Hz_2ch():
 
 
 def test_24LKFS_500Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_24LKFS_500Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_24LKFS_500Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -117,8 +112,7 @@ def test_24LKFS_500Hz_2ch():
 
 
 def test_24LKFS_1000Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_24LKFS_1000Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_24LKFS_1000Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -127,8 +121,7 @@ def test_24LKFS_1000Hz_2ch():
 
 
 def test_24LKFS_2000Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_24LKFS_2000Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_24LKFS_2000Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -137,8 +130,7 @@ def test_24LKFS_2000Hz_2ch():
 
 
 def test_24LKFS_10000Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_24LKFS_10000Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_24LKFS_10000Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -147,8 +139,7 @@ def test_24LKFS_10000Hz_2ch():
 
 
 def test_23LKFS_25Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_23LKFS_25Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_23LKFS_25Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -157,8 +148,7 @@ def test_23LKFS_25Hz_2ch():
 
 
 def test_23LKFS_100Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_23LKFS_100Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_23LKFS_100Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -167,8 +157,7 @@ def test_23LKFS_100Hz_2ch():
 
 
 def test_23LKFS_500Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_23LKFS_500Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_23LKFS_500Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -177,8 +166,7 @@ def test_23LKFS_500Hz_2ch():
 
 
 def test_23LKFS_1000Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_23LKFS_1000Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_23LKFS_1000Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -187,8 +175,7 @@ def test_23LKFS_1000Hz_2ch():
 
 
 def test_23LKFS_2000Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_23LKFS_2000Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_23LKFS_2000Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -197,8 +184,7 @@ def test_23LKFS_2000Hz_2ch():
 
 
 def test_23LKFS_10000Hz_2ch():
-    data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_23LKFS_10000Hz_2ch.wav")
+    data, rate = sf.read("./audio/loudness/1770-2_Comp_23LKFS_10000Hz_2ch.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -208,7 +194,7 @@ def test_23LKFS_10000Hz_2ch():
 
 def test_18LKFS_frequency_sweep():
     data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Comp_18LKFS_FrequencySweep.wav")
+        "./audio/loudness/1770-2_Comp_18LKFS_FrequencySweep.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -218,7 +204,7 @@ def test_18LKFS_frequency_sweep():
 
 def test_conf_stereo_vinL_R_23LKFS():
     data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Conf_Stereo_VinL+R-23LKFS.wav")
+        "./audio/loudness/1770-2_Conf_Stereo_VinL+R-23LKFS.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -228,8 +214,7 @@ def test_conf_stereo_vinL_R_23LKFS():
 
 def test_conf_monovoice_music_24LKFS():
     data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Conf_Mono_Voice+Music-24LKFS.wav"
-    )
+        "./audio/loudness/1770-2_Conf_Mono_Voice+Music-24LKFS.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -239,8 +224,7 @@ def test_conf_monovoice_music_24LKFS():
 
 def conf_monovoice_music_24LKFS():
     data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Conf_Mono_Voice+Music-24LKFS.wav"
-    )
+        "./audio/loudness/1770-2_Conf_Mono_Voice+Music-24LKFS.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -250,8 +234,7 @@ def conf_monovoice_music_24LKFS():
 
 def test_conf_monovoice_music_23LKFS():
     data, rate = sf.read(
-        "tests/audiotools/audio/loudness/1770-2_Conf_Mono_Voice+Music-23LKFS.wav"
-    )
+        "./audio/loudness/1770-2_Conf_Mono_Voice+Music-23LKFS.wav")
     meter = Meter(rate)
     loudness = meter.integrated_loudness(data)
 
@@ -266,7 +249,7 @@ def test_fir_accuracy():
         transforms.HighPass(prob=0.5),
         transforms.Equalizer(prob=0.5),
         prob=0.5, )
-    loader = datasets.AudioLoader(sources=["tests/audiotools/audio/spk.csv"])
+    loader = datasets.AudioLoader(sources=["./audio/spk.csv"])
     dataset = datasets.AudioDataset(
         loader,
         44100,

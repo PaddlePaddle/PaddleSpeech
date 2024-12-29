@@ -115,3 +115,4 @@ paddlespeech whisper --task translate --input ./zh.wav
 paddlespeech whisper --lang en --size base --task transcribe  --input ./en.wav
 
 echo -e "\033[32mTest success !!!\033[0m"
+

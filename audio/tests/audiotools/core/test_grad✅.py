@@ -9,8 +9,8 @@ from audiotools import AudioSignal
 
 
 def test_audio_grad():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
-    ir_path = "tests/audiotools/audio/ir/h179_Bar_1txts.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
+    ir_path = "./audio/ir/h179_Bar_1txts.wav"
 
     def _test_audio_grad(attr: str, target=True, kwargs: dict={}):
         signal = AudioSignal(audio_path)
@@ -153,7 +153,7 @@ def test_audio_grad():
 
 
 def test_batch_grad():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
 
     signal = AudioSignal(audio_path)
     signal.audio_data.stop_gradient = False

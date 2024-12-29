@@ -45,7 +45,7 @@ def test_audio_dataset():
             tfm.Silence(prob=0.5),
         ], )
     loader = audiotools.data.datasets.AudioLoader(
-        sources=["tests/audiotools/audio/spk.csv"],
+        sources=["./audio/spk.csv"],
         transform=transform, )
     dataset = audiotools.data.datasets.AudioDataset(
         loader,
@@ -161,11 +161,10 @@ def test_loader_out_of_range():
 
 def test_dataset_pipeline():
     transform = tfm.Compose([
-        tfm.RoomImpulseResponse(sources=["tests/audiotools/audio/irs.csv"]),
-        tfm.BackgroundNoise(sources=["tests/audiotools/audio/noises.csv"]),
+        tfm.RoomImpulseResponse(sources=["./audio/irs.csv"]),
+        tfm.BackgroundNoise(sources=["./audio/noises.csv"]),
     ])
-    loader = audiotools.data.datasets.AudioLoader(
-        sources=["tests/audiotools/audio/spk.csv"])
+    loader = audiotools.data.datasets.AudioLoader(sources=["./audio/spk.csv"])
     dataset = audiotools.data.datasets.AudioDataset(
         loader,
         44100,

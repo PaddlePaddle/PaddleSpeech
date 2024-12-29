@@ -8,7 +8,7 @@ from audiotools import AudioSignal
 
 
 def test_normalize():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=10)
     signal = signal.normalize()
     assert np.allclose(signal.loudness(), -24, atol=1e-1)
@@ -35,7 +35,7 @@ def test_normalize():
 
 
 def test_volume_change():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     signal = AudioSignal(audio_path, offset=10, duration=10)
 
     boost = 3
@@ -50,10 +50,10 @@ def test_volume_change():
 
 
 def test_mix():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=10)
 
-    audio_path = "tests/audiotools/audio/nz/f5_script2_ipad_balcony1_room_tone.wav"
+    audio_path = "./audio/nz/f5_script2_ipad_balcony1_room_tone.wav"
     nz = AudioSignal(audio_path, offset=10, duration=10)
 
     spk.deepcopy().mix(nz, snr=-10)
@@ -61,10 +61,10 @@ def test_mix():
     assert np.allclose(snr, -10, atol=1)
 
     # Test in batch
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=10)
 
-    audio_path = "tests/audiotools/audio/nz/f5_script2_ipad_balcony1_room_tone.wav"
+    audio_path = "./audio/nz/f5_script2_ipad_balcony1_room_tone.wav"
     nz = AudioSignal(audio_path, offset=10, duration=10)
 
     batch_size = 4
@@ -86,7 +86,7 @@ def test_mix():
 
 def test_convolve():
     np.random.seed(6)  # Found a failing seed
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=10)
 
     impulse = np.zeros((1, 16000), dtype="float32")
@@ -106,7 +106,7 @@ def test_convolve():
     assert convolved == spk_batch
 
     # Short duration
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=0.1)
 
     impulse = np.zeros((1, 16000), dtype="float32")
@@ -128,14 +128,14 @@ def test_convolve():
 
 def test_pipeline():
     # An actual IR, no batching
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=5)
 
-    audio_path = "tests/audiotools/audio/ir/h179_Bar_1txts.wav"
+    audio_path = "./audio/ir/h179_Bar_1txts.wav"
     ir = AudioSignal(audio_path)
     spk.deepcopy().convolve(ir)
 
-    audio_path = "tests/audiotools/audio/nz/f5_script2_ipad_balcony1_room_tone.wav"
+    audio_path = "./audio/nz/f5_script2_ipad_balcony1_room_tone.wav"
     nz = AudioSignal(audio_path, offset=10, duration=5)
 
     batch_size = 16
@@ -146,7 +146,7 @@ def test_pipeline():
 
 # def test_codec():
 
-#     audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+#     audio_path = "./audio/spk/f10_script4_produced.wav"
 #     spk = AudioSignal(audio_path, offset=10, duration=10)
 
 #     with pytest.raises(ValueError):
@@ -156,7 +156,7 @@ def test_pipeline():
 #     out = spk.deepcopy().apply_codec("8-bit")
 
 # def test_pitch_shift():
-#     audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+#     audio_path = "./audio/spk/f10_script4_produced.wav"
 #     spk = AudioSignal(audio_path, offset=10, duration=1)
 
 #     single = spk.deepcopy().pitch_shift(5)
@@ -169,7 +169,7 @@ def test_pipeline():
 #     assert np.allclose(batched[0].audio_data, single[0].audio_data)
 
 # def test_time_stretch():
-#     audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+#     audio_path = "./audio/spk/f10_script4_produced.wav"
 #     spk = AudioSignal(audio_path, offset=10, duration=1)
 
 #     single = spk.deepcopy().time_stretch(0.8)
@@ -184,7 +184,7 @@ def test_pipeline():
 
 @pytest.mark.parametrize("n_bands", [1, 2, 4, 8, 12, 16])
 def test_mel_filterbank(n_bands):
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=1)
     fbank = spk.deepcopy().mel_filterbank(n_bands)
 
@@ -192,8 +192,7 @@ def test_mel_filterbank(n_bands):
 
     # Check if it works in batches.
     spk_batch = AudioSignal.batch([
-        AudioSignal.excerpt(
-            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=2)
+        AudioSignal.excerpt("./audio/spk/f10_script4_produced.wav", duration=2)
         for _ in range(16)
     ])
     fbank = spk_batch.deepcopy().mel_filterbank(n_bands)
@@ -203,7 +202,7 @@ def test_mel_filterbank(n_bands):
 
 @pytest.mark.parametrize("n_bands", [1, 2, 4, 8, 12, 16])
 def test_equalizer(n_bands):
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=10)
 
     db = -3 + 1 * paddle.rand([n_bands])
@@ -212,15 +211,14 @@ def test_equalizer(n_bands):
     db = -3 + 1 * np.random.rand(n_bands)
     spk.deepcopy().equalizer(db)
 
-    audio_path = "tests/audiotools/audio/ir/h179_Bar_1txts.wav"
+    audio_path = "./audio/ir/h179_Bar_1txts.wav"
     ir = AudioSignal(audio_path)
     db = -3 + 1 * paddle.rand([n_bands])
 
     spk.deepcopy().convolve(ir.equalizer(db))
 
     spk_batch = AudioSignal.batch([
-        AudioSignal.excerpt(
-            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=2)
+        AudioSignal.excerpt("./audio/spk/f10_script4_produced.wav", duration=2)
         for _ in range(16)
     ])
 
@@ -231,13 +229,12 @@ def test_equalizer(n_bands):
 
 
 def test_clip_distortion():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=2)
     clipped = spk.deepcopy().clip_distortion(0.05)
 
     spk_batch = AudioSignal.batch([
-        AudioSignal.excerpt(
-            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=2)
+        AudioSignal.excerpt("./audio/spk/f10_script4_produced.wav", duration=2)
         for _ in range(16)
     ])
     percs = paddle.to_tensor(np.random.uniform(size=(16, ))).astype("float32")
@@ -249,7 +246,7 @@ def test_clip_distortion():
 
 @pytest.mark.parametrize("quant_ch", [2, 4, 8, 16, 32, 64, 128])
 def test_quantization(quant_ch):
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=2)
 
     quantized = spk.deepcopy().quantization(quant_ch)
@@ -260,8 +257,7 @@ def test_quantization(quant_ch):
     assert found_quant_ch <= quant_ch
 
     spk_batch = AudioSignal.batch([
-        AudioSignal.excerpt(
-            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=2)
+        AudioSignal.excerpt("./audio/spk/f10_script4_produced.wav", duration=2)
         for _ in range(16)
     ])
 
@@ -277,7 +273,7 @@ def test_quantization(quant_ch):
 
 @pytest.mark.parametrize("quant_ch", [2, 4, 8, 16, 32, 64, 128])
 def test_mulaw_quantization(quant_ch):
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
     spk = AudioSignal(audio_path, offset=10, duration=2)
 
     quantized = spk.deepcopy().mulaw_quantization(quant_ch)
@@ -288,8 +284,7 @@ def test_mulaw_quantization(quant_ch):
     assert found_quant_ch <= quant_ch
 
     spk_batch = AudioSignal.batch([
-        AudioSignal.excerpt(
-            "tests/audiotools/audio/spk/f10_script4_produced.wav", duration=2)
+        AudioSignal.excerpt("./audio/spk/f10_script4_produced.wav", duration=2)
         for _ in range(16)
     ])
 
@@ -304,7 +299,7 @@ def test_mulaw_quantization(quant_ch):
 
 
 def test_impulse_response_augmentation():
-    audio_path = "tests/audiotools/audio/ir/h179_Bar_1txts.wav"
+    audio_path = "./audio/ir/h179_Bar_1txts.wav"
     batch_size = 16
     ir = AudioSignal(audio_path)
     ir_batch = AudioSignal.batch([ir for _ in range(batch_size)])
@@ -330,8 +325,8 @@ def test_impulse_response_augmentation():
 
 
 def test_apply_ir():
-    audio_path = "tests/audiotools/audio/spk/f10_script4_produced.wav"
-    ir_path = "tests/audiotools/audio/ir/h179_Bar_1txts.wav"
+    audio_path = "./audio/spk/f10_script4_produced.wav"
+    ir_path = "./audio/ir/h179_Bar_1txts.wav"
 
     spk = AudioSignal(audio_path, offset=10, duration=2)
     ir = AudioSignal(ir_path)

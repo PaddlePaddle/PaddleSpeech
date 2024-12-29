@@ -12,13 +12,11 @@ from audiotools.data import preprocess
 def test_create_csv():
     with tempfile.NamedTemporaryFile(suffix=".csv") as f:
         preprocess.create_csv(
-            find_audio("./tests/audiotools/audio/spk", ext=["wav"]),
-            f.name,
-            loudness=True)
+            find_audio("././audio/spk", ext=["wav"]), f.name, loudness=True)
 
 
 def test_create_csv_with_empty_rows():
-    audio_files = find_audio("./tests/audiotools/audio/spk", ext=["wav"])
+    audio_files = find_audio("././audio/spk", ext=["wav"])
     audio_files.insert(0, "")
     audio_files.insert(2, "")
 

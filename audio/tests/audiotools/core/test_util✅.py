@@ -66,8 +66,7 @@ def test_find_audio():
     assert not audio_files
 
     # Make sure it works with single audio files
-    audio_files = util.find_audio(
-        "tests/audiotools/audio/spk//f10_script4_produced.wav")
+    audio_files = util.find_audio("./audio/spk//f10_script4_produced.wav")
 
     # Make sure it works with globs
     audio_files = util.find_audio("tests/**/*.wav")

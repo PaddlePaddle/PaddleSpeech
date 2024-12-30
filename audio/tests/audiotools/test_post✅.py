@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 from audiotools import AudioSignal
 from audiotools import post
 from audiotools import transforms

@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 
 from audiotools import AudioSignal
 from visualdl import LogWriter

@@ -3,7 +3,7 @@ import tempfile
 
 import paddle
 from paddle import nn
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 from audiotools import ml
 from audiotools import util
 

@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 import paddle
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 from audiotools.core import LowPassFilter, LowPassFilters, lowpass_filter, resample_frac
 
 

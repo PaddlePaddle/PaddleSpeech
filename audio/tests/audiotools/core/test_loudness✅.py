@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pyloudnorm
 import soundfile as sf
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 from audiotools import AudioSignal
 from audiotools import datasets
 from audiotools import Meter

@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 import paddle
 import audiotools
 from audiotools.data import transforms as tfm

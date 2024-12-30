@@ -7,7 +7,7 @@ import numpy as np
 import paddle
 import pytest
 import rich
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 import audiotools
 from audiotools import AudioSignal
 

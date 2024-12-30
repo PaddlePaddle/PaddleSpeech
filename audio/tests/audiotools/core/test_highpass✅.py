@@ -6,7 +6,7 @@ import sys
 import unittest
 
 import paddle
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 from audiotools.core import highpass_filter, highpass_filters
 
 

@@ -6,7 +6,7 @@ import unittest
 
 import paddle
 import paddle.nn.functional as F
-sys.path.append("/home/aistudio/PaddleSpeech/audio")
+sys.path.append("../..")
 from audiotools.core import fft_conv1d, FFTConv1d
 
 TOLERANCE = 1e-4  # as relative delta in percentage

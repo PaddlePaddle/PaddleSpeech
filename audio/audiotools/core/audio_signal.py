@@ -787,14 +787,15 @@ class AudioSignal(
             if device is None or "" == device:
                 return self
             elif 'cpu' == device:
-                device = paddle.to_tensor(
+                self.audio_data = paddle.to_tensor(
                     self.audio_data, place=paddle.CPUPlace())
             elif 'gpu' == device or 'cuda' == device:
-                device = paddle.to_tensor(
+                self.audio_data = paddle.to_tensor(
                     self.audio_data, place=paddle.CUDAPlace())
-            device = device.replace("cuda",
-                                    "gpu") if "cuda" in device else device
-            self.audio_data = self.audio_data.to(device)
+            else:
+                device = device.replace("cuda",
+                                        "gpu") if "cuda" in device else device
+                self.audio_data = self.audio_data.to(device)
         return self
 
     def float(self):

@@ -44,8 +44,8 @@ def _unfold1d(x, kernel_size, stride):
 
     unfolded = paddle.nn.functional.unfold(
         x,
-        kernel_sizes=(kernel_size, 1),
-        strides=(stride, 1), )
+        kernel_sizes=[kernel_size, 1],
+        strides=[stride, 1], )
 
     unfolded = unfolded.transpose([0, 2, 1])
     unfolded = unfolded.reshape([N, C, *unfolded.shape[1:]])

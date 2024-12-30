@@ -24,7 +24,7 @@ source ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 #    exit 1
 #fi
 
-python3 utils/format_rsl.py \
+python3 ${MAIN_ROOT}/utils/format_rsl.py \
     --origin_ref data/manifest.test-clean.raw \
     --trans_ref data/manifest.test-clean.text
 
@@ -45,11 +45,11 @@ for type in ctc_greedy_search; do
         echo "Failed in evaluation!"
         exit 1
     fi
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_hyp ${ckpt_prefix}.${type}.rsl \
         --trans_hyp ${ckpt_prefix}.${type}.rsl.text
 
-    python3 utils/compute-wer.py --char=1 --v=1 \
+    python3 ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
         data/manifest.test-clean.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
     echo "decoding ${type} done."
 done
@@ -70,11 +70,11 @@ for type in ctc_prefix_beam_search; do
         echo "Failed in evaluation!"
         exit 1
     fi
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_hyp ${ckpt_prefix}.${type}.rsl \
         --trans_hyp ${ckpt_prefix}.${type}.rsl.text
 
-    python3 utils/compute-wer.py --char=1 --v=1 \
+    python3 ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
         data/manifest.test-clean.text ${ckpt_prefix}.${type}.rsl.text > ${ckpt_prefix}.${type}.error
     echo "decoding ${type} done."
 done

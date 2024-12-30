@@ -4,6 +4,17 @@ This example contains code used to train a [HiFiGAN](https://arxiv.org/abs/2010.
 ### Download and Extract
 Download CSMSC from it's [official website](https://test.data-baker.com/data/index/TNtts/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/BZNSYP`.
 
+The structure of the folder is listed below.
+
+```text
+└─ Wave
+    └─ .wav files (audio speech)
+└─ PhoneLabeling
+    └─ .interval files (alignment between phoneme and duration)
+└─ ProsodyLabeling
+   └─ 000001-010000.txt (text with prosodic by pinyin)
+```
+
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
 You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
@@ -117,6 +128,9 @@ The pretrained model can be downloaded here:
 
 The static model can be downloaded here:
 - [hifigan_csmsc_static_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_static_0.1.1.zip)
+
+The PIR static model can be downloaded here:
+- [hifigan_csmsc_static_pir_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_static_pir_0.1.1.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
 
 The ONNX model can be downloaded here:
 - [hifigan_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_onnx_0.2.0.zip)

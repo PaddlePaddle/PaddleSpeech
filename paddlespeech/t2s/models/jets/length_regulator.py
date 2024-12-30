@@ -55,7 +55,9 @@ class GaussianUpsampling(nn.Layer):
         if h_masks is not None:
             t = t * paddle.to_tensor(h_masks, dtype="float32")
 
-        c = ds.cumsum(axis=-1) - ds / 2
+        ds_cumsum = ds.cumsum(axis=-1)
+        ds_half = ds / 2
+        c = ds_cumsum.astype(ds_half.dtype) - ds_half
         energy = -1 * self.delta * (t.unsqueeze(-1) - c.unsqueeze(1))**2
         if d_masks is not None:
             d_masks = ~(d_masks.unsqueeze(1))

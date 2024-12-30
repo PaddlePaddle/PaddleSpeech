@@ -26,7 +26,6 @@ The document below will describe the scripts in ```run.sh```in detail.
 The path.sh contains the environment variables. 
 ```bash
 . ./path.sh
-. ./cmd.sh
 ```
 This script needs to be run first. And another script is also needed:
 ```bash
@@ -64,7 +63,6 @@ bash run.sh --stage 0 --stop_stage 0
 You can also just run these scripts in your command line.
 ```bash
 . ./path.sh
-. ./cmd.sh
 bash ./local/data.sh
 ```
 After processing the data, the ``data`` directory will look like this:
@@ -100,7 +98,6 @@ bash run.sh --stage 0 --stop_stage 1
 or you can run these scripts in the command line (only use CPU).
 ```bash
 . ./path.sh
-. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 ```## Stage 2: Top-k Models Averaging
@@ -119,7 +116,6 @@ bash run.sh --stage 0 --stop_stage 2
 or you can run these scripts in the command line (only use CPU).
 ```bash
 . ./path.sh
-. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh best exp/transformer/checkpoints 1
@@ -139,7 +135,6 @@ bash run.sh --stage 0 --stop_stage 3
 or you can run these scripts in the command line (only use CPU).
 ```bash
 . ./path.sh
-. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh best exp/transformer/checkpoints 1
@@ -166,7 +161,6 @@ bash run.sh --stage 4 --stop_stage 4
 or you can also use these scripts in the command line (only use CPU).
 ```bash
 . ./path.sh
-. ./cmd.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/transformer.yaml transformer
 avg.sh best exp/transformer/checkpoints 1

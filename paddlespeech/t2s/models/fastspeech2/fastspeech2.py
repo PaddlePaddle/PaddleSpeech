@@ -841,6 +841,9 @@ class FastSpeech2(nn.Layer):
             spk_emb = self.spk_projection(F.normalize(spk_emb))
             hs = hs + spk_emb.unsqueeze(1)
         elif self.spk_embed_integration_type == "concat":
+            # one wave `spk_emb` under synthesize, the dim is `1`
+            if spk_emb.dim() == 1:
+                spk_emb = spk_emb.unsqueeze(0)
             # concat hidden states with spk embeds and then apply projection
             spk_emb = F.normalize(spk_emb).unsqueeze(1).expand(
                 shape=[-1, paddle.shape(hs)[1], -1])
@@ -900,14 +903,14 @@ class FastSpeech2(nn.Layer):
 
         # initialize alpha in scaled positional encoding
         if self.encoder_type == "transformer" and self.use_scaled_pos_enc:
-            init_enc_alpha = paddle.to_tensor(init_enc_alpha)
+            init_enc_alpha = paddle.to_tensor(init_enc_alpha).reshape([1])
             self.encoder.embed[-1].alpha = paddle.create_parameter(
                 shape=init_enc_alpha.shape,
                 dtype=str(init_enc_alpha.numpy().dtype),
                 default_initializer=paddle.nn.initializer.Assign(
                     init_enc_alpha))
         if self.decoder_type == "transformer" and self.use_scaled_pos_enc:
-            init_dec_alpha = paddle.to_tensor(init_dec_alpha)
+            init_dec_alpha = paddle.to_tensor(init_dec_alpha).reshape([1])
             self.decoder.embed[-1].alpha = paddle.create_parameter(
                 shape=init_dec_alpha.shape,
                 dtype=str(init_dec_alpha.numpy().dtype),

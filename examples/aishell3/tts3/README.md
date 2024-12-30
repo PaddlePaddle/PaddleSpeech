@@ -223,6 +223,9 @@ Pretrained FastSpeech2 model with no silence in the edge of audios:
 The static model can be downloaded here:
 - [fastspeech2_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_1.1.0.zip)
 
+The PIR static model can be downloaded here:
+- [fastspeech2_aishell3_static_pir_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+
 The ONNX model can be downloaded here:
 - [fastspeech2_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_onnx_1.1.0.zip)
 

@@ -88,7 +88,7 @@ def compute_amplitude(waveforms, lengths=None, amp_type="avg", scale="linear"):
             out = paddle.mean(paddle.abs(waveforms), axis=1, keepdim=True)
         else:
             wav_sum = paddle.sum(paddle.abs(waveforms), axis=1, keepdim=True)
-            out = wav_sum / lengths
+            out = wav_sum / lengths.astype(wav_sum.dtype)
     elif amp_type == "peak":
         out = paddle.max(paddle.abs(waveforms), axis=1, keepdim=True)[0]
     else:
@@ -248,4 +248,4 @@ def notch_filter(notch_freq, filter_width=101, notch_width=0.05):
     hhpf[pad] += 1
 
     # Adding filters creates notch filter
-    return (hlpf + hhpf).view(1, -1, 1)
+    return (hlpf + hhpf).reshape([1, -1, 1])

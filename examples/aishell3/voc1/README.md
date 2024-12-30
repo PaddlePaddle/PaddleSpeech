@@ -136,6 +136,9 @@ Pretrained models can be downloaded here:
 The static model can be downloaded here:
 - [pwgan_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_1.1.0.zip)
 
+The PIR static model can be downloaded here:
+- [pwgan_aishell3_static_pir_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+
 The ONNX model can be downloaded here:
 - [pwgan_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_onnx_1.1.0.zip)
 

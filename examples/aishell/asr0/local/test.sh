@@ -22,7 +22,7 @@ fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # format the reference test file
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \
         --trans_ref data/manifest.test.text
 
@@ -39,20 +39,20 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     fi
 
     # format the hyp file
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_hyp ${ckpt_prefix}.rsl \
         --trans_hyp ${ckpt_prefix}.rsl.text
 
-    python3 utils/compute-wer.py --char=1 --v=1 \
+    python3 ${MAIN_ROOT}/utils/compute-wer.py --char=1 --v=1 \
         data/manifest.test.text ${ckpt_prefix}.rsl.text > ${ckpt_prefix}.error
 fi
 
 if [ ${stage} -le 101 ] && [ ${stop_stage} -ge 101 ]; then
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_ref data/manifest.test.raw \
         --trans_ref_sclite data/manifest.test.text.sclite
 
-    python3 utils/format_rsl.py \
+    python3 ${MAIN_ROOT}/utils/format_rsl.py \
         --origin_hyp ${ckpt_prefix}.rsl \
         --trans_hyp_sclite ${ckpt_prefix}.rsl.text.sclite
 

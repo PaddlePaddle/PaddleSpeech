@@ -86,7 +86,7 @@ class CTCPrefixScorePD():
                 dtype=self.dtype, )  # (T, 2, B, W)
             r_prev[:, 1] = paddle.cumsum(self.x[0, :, :, self.blank],
                                          0).unsqueeze(2)
-            r_prev = r_prev.view(-1, 2, n_bh)  # (T, 2, BW)
+            r_prev = r_prev.reshape([-1, 2, n_bh])  # (T, 2, BW)
             s_prev = 0.0  # score
             f_min_prev = 0  # eq. 22-23
             f_max_prev = 1  # eq. 22-23
@@ -100,23 +100,23 @@ class CTCPrefixScorePD():
                 (n_bh, self.odim), -1, dtype=paddle.long)
             snum = self.scoring_num
             if self.idx_bh is None or n_bh > len(self.idx_bh):
-                self.idx_bh = paddle.arange(n_bh).view(-1, 1)  # (BW, 1)
+                self.idx_bh = paddle.arange(n_bh).reshape([-1, 1])  # (BW, 1)
             scoring_idmap[self.idx_bh[:n_bh], scoring_ids] = paddle.arange(snum)
             scoring_idx = (
-                scoring_ids + self.idx_bo.repeat(1, n_hyps).view(-1,
-                                                                 1)  # (BW,1)
-            ).view(-1)  # (BWO)
+                scoring_ids + self.idx_bo.repeat(1, n_hyps).reshape(
+                    [-1, 1])  # (BW,1)
+            ).reshape([-1])  # (BWO)
             # x_ shape (2, T, B*W, O)
             x_ = paddle.index_select(
-                self.x.view(2, -1, self.batch * self.odim), scoring_idx,
-                2).view(2, -1, n_bh, snum)
+                self.x.reshape([2, -1, self.batch * self.odim]), scoring_idx,
+                2).reshape([2, -1, n_bh, snum])
         else:
             scoring_ids = None
             scoring_idmap = None
             snum = self.odim
             # x_ shape (2, T, B*W, O)
-            x_ = self.x.unsqueeze(3).repeat(1, 1, 1, n_hyps, 1).view(2, -1,
-                                                                     n_bh, snum)
+            x_ = self.x.unsqueeze(3).repeat(1, 1, 1, n_hyps, 1).reshape(
+                [2, -1, n_bh, snum])
 
         # new CTC forward probs are prepared as a (T x 2 x BW x S) tensor
         # that corresponds to r_t^n(h) and r_t^b(h) in a batch.
@@ -154,8 +154,8 @@ class CTCPrefixScorePD():
         # compute forward probabilities log(r_t^n(h)) and log(r_t^b(h))
         for t in range(start, end):
             rp = r[t - 1]  # (2 x BW x O')
-            rr = paddle.stack([rp[0], log_phi[t - 1], rp[0], rp[1]]).view(
-                2, 2, n_bh, snum)  # (2,2,BW,O')
+            rr = paddle.stack([rp[0], log_phi[t - 1], rp[0], rp[1]]).reshape(
+                [2, 2, n_bh, snum])  # (2,2,BW,O')
             r[t] = paddle.logsumexp(rr, 1) + x_[:, t]
 
         # compute log prefix probabilities log(psi)
@@ -197,25 +197,27 @@ class CTCPrefixScorePD():
         # convert ids to BHO space
         n_bh = len(s)
         n_hyps = n_bh // self.batch
-        vidx = (best_ids + (self.idx_b *
-                            (n_hyps * self.odim)).view(-1, 1)).view(-1)
+        vidx = (best_ids +
+                (self.idx_b *
+                 (n_hyps * self.odim)).reshape([-1, 1])).reshape([-1])
         # select hypothesis scores
-        s_new = paddle.index_select(s.view(-1), vidx, 0)
-        s_new = s_new.view(-1, 1).repeat(1, self.odim).view(n_bh, self.odim)
+        s_new = paddle.index_select(s.reshape([-1]), vidx, 0)
+        s_new = s_new.reshape([-1, 1]).repeat(1, self.odim).reshape(
+            [n_bh, self.odim])
         # convert ids to BHS space (S: scoring_num)
         if scoring_idmap is not None:
             snum = self.scoring_num
             hyp_idx = (best_ids // self.odim +
-                       (self.idx_b * n_hyps).view(-1, 1)).view(-1)
-            label_ids = paddle.fmod(best_ids, self.odim).view(-1)
+                       (self.idx_b * n_hyps).reshape([-1, 1])).reshape([-1])
+            label_ids = paddle.fmod(best_ids, self.odim).reshape([-1])
             score_idx = scoring_idmap[hyp_idx, label_ids]
             score_idx[score_idx == -1] = 0
             vidx = score_idx + hyp_idx * snum
         else:
             snum = self.odim
         # select forward probabilities
-        r_new = paddle.index_select(r.view(-1, 2, n_bh * snum), vidx, 2).view(
-            -1, 2, n_bh)
+        r_new = paddle.index_select(r.reshape([-1, 2, n_bh * snum]), vidx,
+                                    2).reshape([-1, 2, n_bh])
         return r_new, s_new, f_min, f_max
 
     def extend_prob(self, x):

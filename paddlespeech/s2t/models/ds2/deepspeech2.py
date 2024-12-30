@@ -398,14 +398,15 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
                     paddle.static.InputSpec(
                         shape=[None, None, self.encoder.feat_size
                                ],  #[B, chunk_size, feat_dim]
-                        dtype='float32'),
+                        dtype='float32', ),
                     paddle.static.InputSpec(shape=[None],
                                             dtype='int64'),  # audio_length, [B]
                     paddle.static.InputSpec(
                         shape=[None, None, None], dtype='float32'),
                     paddle.static.InputSpec(
                         shape=[None, None, None], dtype='float32')
-                ])
+                ],
+                full_graph=True)
         elif self.encoder.rnn_direction == "bidirect":
             static_model = paddle.jit.to_static(
                 self,
@@ -415,7 +416,8 @@ class DeepSpeech2InferModel(DeepSpeech2Model):
                         dtype='float32'),  # audio, [B,T,D]
                     paddle.static.InputSpec(shape=[None],
                                             dtype='int64'),  # audio_length, [B]
-                ])
+                ],
+                full_graph=True)
         else:
             raise Exception("wrong model type")
         return static_model

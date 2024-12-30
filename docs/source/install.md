@@ -19,7 +19,7 @@ There are 3 ways to use `PaddleSpeech`. According to the degree of difficulty, t
 - If you are newer to `PaddleSpeech` and want to experience it easily without your machine. We recommend you to use [AI Studio](https://aistudio.baidu.com/aistudio/index) to experience it. There is a step-by-step [tutorial](https://aistudio.baidu.com/aistudio/education/group/info/25130) for `PaddleSpeech`, and you can use the basic function of `PaddleSpeech` with a free machine.
 - If you want to use the command line function of Paddlespeech, you need to complete the following steps to install `PaddleSpeech`. For more information about how to use the command line function, you can see the [cli](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/paddlespeech/cli).
 ### Install Conda
-Conda is a management system of the environment. You can go to [minicoda](https://docs.conda.io/en/latest/miniconda.html)  (select a version py>=3.7) to download and install the conda.
+Conda is a management system of the environment. You can go to [miniconda](https://docs.conda.io/en/latest/miniconda.html)  (select a version py>=3.7) to download and install the conda.
 And then Install  conda dependencies for `paddlespeech` :
 
 ```bash

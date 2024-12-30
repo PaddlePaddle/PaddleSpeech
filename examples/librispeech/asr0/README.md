@@ -144,7 +144,7 @@ source path.sh
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/deepspeech2.yaml deepspeech2
 avg.sh best exp/deepspeech2/checkpoints 1
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_1
 ```
 ## Stage 4: Static graph model Export
 This stage is to transform dygraph to static graph.
@@ -185,5 +185,5 @@ wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.w
 ```
 You can train a model by yourself, then you need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml exp/deepspeech2/checkpoints/avg_1 data/demo_002_en.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/deepspeech2.yaml conf/tuning/decode.yaml exp/deepspeech2/checkpoints/avg_1 data/demo_002_en.wav
 ```

@@ -4,6 +4,18 @@ This example contains code used to train a [parallel wavegan](http://arxiv.org/a
 ### Download and Extract
 Download CSMSC from it's [official website](https://test.data-baker.com/data/index/TNtts/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/BZNSYP`.
 
+After processing the data, the ``BZNSYP`` directory will look like this:
+```text
+BZNSYP
+├── Wave
+│    └─ *.wav files (audio speech)
+├── PhoneLabeling
+│    └─ *.interval files (alignment between phoneme and duration)
+└── ProsodyLabeling
+     └─ 000001-010000.txt (text with prosodic by pinyin)
+```
+This experiment only uses *.wav files from the Wave file
+
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
 You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
@@ -17,6 +29,7 @@ Run the command below to
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
+    - synthesize waveform from text file.
 ```bash
 ./run.sh
 ```
@@ -94,6 +107,18 @@ benchmark:
 4. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 ### Synthesizing
+We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) as the neural vocoder.
+Download pretrained parallel wavegan model from [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) and unzip it.
+```bash
+unzip pwg_baker_ckpt_0.4.zip
+```
+Parallel WaveGAN checkpoint contains files listed below.
+```text
+pwg_baker_ckpt_0.4
+├── pwg_default.yaml               # default config used to train parallel wavegan
+├── pwg_snapshot_iter_400000.pdz   # model parameters of parallel wavegan
+└── pwg_stats.npy                  # statistics used to normalize spectrogram when training parallel wavegan
+```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
@@ -126,18 +151,97 @@ optional arguments:
 4. `--output-dir` is the directory to save the synthesized audio files.
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
+We use [Fastspeech2](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3) as the acoustic model.
+Download pretrained fastspeech2_nosil model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)and unzip it.
+```bash
+unzip fastspeech2_nosil_baker_ckpt_0.4.zip
+```
+Fastspeech2 checkpoint contains files listed below.
+```text
+fastspeech2_nosil_baker_ckpt_0.4
+├── default.yaml            # default config used to train fastspeech2
+├── phone_id_map.txt        # phone vocabulary file when training fastspeech2
+├── snapshot_iter_76000.pdz # model parameters and optimizer states
+└── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
+```
+
+`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
+```bash
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+```
+```text
+usage: synthesize_e2e.py [-h]
+                         [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]
+                         [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                         [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                         [--tones_dict TONES_DICT]
+                         [--speaker_dict SPEAKER_DICT] [--spk_id SPK_ID]
+                         [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,wavernn_csmsc}]
+                         [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                         [--voc_stat VOC_STAT] [--lang LANG]
+                         [--inference_dir INFERENCE_DIR] [--ngpu NGPU]
+                         [--text TEXT] [--output_dir OUTPUT_DIR]
+
+Synthesize with acoustic model & vocoder
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}
+                        Choose acoustic model type of tts task.
+  --am_config AM_CONFIG
+                        Config of acoustic model.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
+                        phone vocabulary file.
+  --tones_dict TONES_DICT
+                        tone vocabulary file.
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --spk_id SPK_ID       spk id for multi speaker acoustic model
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,style_melgan_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,wavernn_csmsc}
+                        Choose vocoder type of tts task.
+  --voc_config VOC_CONFIG
+                        Config of voc.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
+  --lang LANG           Choose model language. zh or en
+  --inference_dir INFERENCE_DIR
+                        dir to save inference models
+  --ngpu NGPU           if ngpu == 0, use cpu.
+  --text TEXT           text to synthesize, a 'utt_id sentence' pair per line.
+  --output_dir OUTPUT_DIR
+                        output dir.
+
+```
+1. `--am` is acoustic model type with the format {model_name}_{dataset}
+2. `--am_config`, `--am_ckpt`, `--am_stat` and `--phones_dict` are arguments for acoustic model, which correspond to the 4 files in the fastspeech2 pretrained model.
+3. `--voc` is vocoder type with the format {model_name}_{dataset}
+4. `--voc_config`, `--voc_ckpt`, `--voc_stat` are arguments for vocoder, which correspond to the 3 files in the parallel wavegan pretrained model.
+5. `--lang` is the model language, which can be `zh` or `en`.
+6. `--test_metadata` should be the metadata file in the normalized subfolder of `test`  in the `dump` folder.
+7. `--text` is the text file, which contains sentences to synthesize.
+8. `--output_dir` is the directory to save synthesized audio files.
+9. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
+
 ## Pretrained Models
 The pretrained model can be downloaded here:
 - [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip)
+- [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
 
 The static model can be downloaded here:
 - [pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_static_0.4.zip)
+- [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip)
 
 The ONNX model can be downloaded here:
 - [pwgan_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_onnx_0.2.0.zip)
+- [fastspeech2_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_onnx_0.2.0.zip)
 
 The Paddle-Lite model can be downloaded here:
 - [pwgan_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_pdlite_1.3.0.zip)
+- [fastspeech2_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_pdlite_1.3.0.zip)
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss| eval/spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:
@@ -151,5 +255,16 @@ pwg_baker_ckpt_0.4
 ├── pwg_snapshot_iter_400000.pdz  # generator parameters of parallel wavegan
 └── pwg_stats.npy                 # statistics used to normalize spectrogram when training parallel wavegan
 ```
+
+FastSpeech2 checkpoint contains files listed below.
+
+```text
+fastspeech2_nosil_baker_ckpt_0.4
+├── default.yaml            # default config used to train fastspeech2
+├── phone_id_map.txt        # phone vocabulary file when training fastspeech2
+├── snapshot_iter_76000.pdz # model parameters and optimizer states
+└── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
+```
+
 ## Acknowledgement
 We adapted some code from https://github.com/kan-bayashi/ParallelWaveGAN.

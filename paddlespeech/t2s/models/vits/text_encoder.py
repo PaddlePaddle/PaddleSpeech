@@ -155,6 +155,7 @@ class TextEncoder(nn.Layer):
         """
         x = self.emb(x) * math.sqrt(self.attention_dim)
         x_mask = make_non_pad_mask(x_lengths).unsqueeze(1)
+        x_mask = x_mask.astype(x.dtype)
         # encoder assume the channel last (B, T_text, attention_dim)
         # but mask shape shoud be (B, 1, T_text)
         x, _ = self.encoder(x, x_mask)

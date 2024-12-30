@@ -75,7 +75,7 @@ class U2Infer():
                     feat = self.preprocessing(audio, **self.preprocess_args)
                     logger.info(f"feat shape: {feat.shape}")
 
-                    ilen = paddle.to_tensor(feat.shape[0])
+                    ilen = paddle.to_tensor(feat.shape[0]).unsqueeze(0)
                     xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
                     decode_config = self.config.decode
                     logger.info(f"decode cfg: {decode_config}")

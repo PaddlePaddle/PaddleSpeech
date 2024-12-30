@@ -148,7 +148,7 @@ or you can run these scripts in the command line (only use CPU).
 bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 avg.sh best exp/conformer/checkpoints 20
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml conf/tuning/decode.yaml exp/conformer/checkpoints/avg_20
 ```
 ## Pretrained Model
 You can get the pretrained transformer or conformer from [this](../../../docs/source/released_model.md).
@@ -163,7 +163,7 @@ source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
 bash local/data.sh --stage -1 --stop_stage -1
 bash local/data.sh --stage 2 --stop_stage 2
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml conf/tuning/decode.yaml exp/conformer/checkpoints/avg_20
 ```
 The performance of the released models are shown in [here](./RESULTS.md).
 
@@ -192,8 +192,8 @@ bash ./local/data.sh
 CUDA_VISIBLE_DEVICES= ./local/train.sh conf/conformer.yaml conformer
 avg.sh best exp/conformer/checkpoints 20
 # test stage is optional
-CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
-CUDA_VISIBLE_DEVICES= ./local/align.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20
+CUDA_VISIBLE_DEVICES= ./local/test.sh conf/conformer.yaml conf/tuning/decode.yaml exp/conformer/checkpoints/avg_20
+CUDA_VISIBLE_DEVICES= ./local/align.sh conf/conformer.yaml conf/tuning/decode.yaml exp/conformer/checkpoints/avg_20
 ```
 ## Stage 5: Single Audio File Inference
 In some situations, you want to use the trained model to do the inference for the single audio file. You can use stage 5. The code is shown below
@@ -214,5 +214,5 @@ wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.w
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash
-CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/conformer.yaml exp/conformer/checkpoints/avg_20 data/demo_002_en.wav
+CUDA_VISIBLE_DEVICES= ./local/test_wav.sh conf/conformer.yaml conf/tuning/decode.yaml exp/conformer/checkpoints/avg_20 data/demo_002_en.wav
 ```

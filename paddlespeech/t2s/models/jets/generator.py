@@ -751,10 +751,10 @@ class JETSGenerator(nn.Layer):
 
         # integrate with SID and LID embeddings
         if self.spks is not None:
-            sid_embs = self.sid_emb(sids.view(-1))
+            sid_embs = self.sid_emb(sids.reshape([-1]))
             hs = hs + sid_embs.unsqueeze(1)
         if self.langs is not None:
-            lid_embs = self.lid_emb(lids.view(-1))
+            lid_embs = self.lid_emb(lids.reshape([-1]))
             hs = hs + lid_embs.unsqueeze(1)
 
         # integrate speaker embedding

@@ -203,7 +203,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     echo "stage 3: Format the Json Data"
     for (( i=0; i<${#x[*]}; ++i)); do
         python3 ${MAIN_ROOT}/utils/espnet_json_to_manifest.py \
-         --json-file ${x[$i]}/data_${bpemode}${nbpe}.json 
+         --json-file ${x[$i]}/data_${bpemode}${nbpe}.json \
          --manifest-file data/manifest.${y[$i]}
     done
 fi

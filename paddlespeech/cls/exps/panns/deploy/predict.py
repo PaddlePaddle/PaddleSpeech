@@ -15,11 +15,14 @@ import argparse
 import os
 
 import numpy as np
+import paddle
 from paddle import inference
 from paddle.audio.datasets import ESC50
 from paddle.audio.features import LogMelSpectrogram
 from paddleaudio.backends import soundfile_load as load_audio
 from scipy.special import softmax
+
+import paddlespeech.utils
 
 # yapf: disable
 parser = argparse.ArgumentParser()
@@ -56,7 +59,6 @@ def extract_features(files: str, **kwargs):
         feature_extractor = LogMelSpectrogram(sr, **kwargs)
         feat = feature_extractor(paddle.to_tensor(waveforms[i]))
         feat = paddle.transpose(feat, perm=[1, 0]).unsqueeze(0)
-
         feats.append(feat)
 
     return np.stack(feats, axis=0)
@@ -73,13 +75,18 @@ class Predictor(object):
                  enable_mkldnn=False):
         self.batch_size = batch_size
 
-        model_file = os.path.join(model_dir, "inference.pdmodel")
-        params_file = os.path.join(model_dir, "inference.pdiparams")
+        if paddlespeech.utils.satisfy_paddle_version('3.0.0-beta'):
+            config = inference.Config(model_dir, 'inference')
+            config.disable_mkldnn()
+        else:
+            model_file = os.path.join(model_dir, 'inference.pdmodel')
+            params_file = os.path.join(model_dir, "inference.pdiparams")
 
-        assert os.path.isfile(model_file) and os.path.isfile(
-            params_file), 'Please check model and parameter files.'
+            assert os.path.isfile(model_file) and os.path.isfile(
+                params_file), 'Please check model and parameter files.'
 
-        config = inference.Config(model_file, params_file)
+            config = inference.Config(model_file, params_file)
+
         if device == "gpu":
             # set GPU configs accordingly
             # such as intialize the gpu memory, enable tensorrt

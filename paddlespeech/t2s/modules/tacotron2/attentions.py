@@ -171,7 +171,8 @@ class AttLoc(nn.Layer):
         if paddle.sum(att_prev) == 0:
             # if no bias, 0 0-pad goes 0
             att_prev = 1.0 - make_pad_mask(enc_hs_len)
-            att_prev = att_prev / enc_hs_len.unsqueeze(-1)
+            att_prev = att_prev / enc_hs_len.unsqueeze(-1).astype(
+                att_prev.dtype)
 
         # att_prev: (utt, frame) -> (utt, 1, 1, frame)
         # -> (utt, att_conv_chans, 1, frame)

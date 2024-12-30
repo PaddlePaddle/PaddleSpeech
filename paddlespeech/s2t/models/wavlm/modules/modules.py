@@ -6,17 +6,18 @@
 # Based on fairseq code bases
 # https://github.com/pytorch/fairseq
 # --------------------------------------------------------
-
 import math
 import warnings
-from typing import Dict, Optional, Tuple
-from .functional import multi_head_attention_forward_paddle
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 from paddle import Tensor
 
+from .functional import multi_head_attention_forward_paddle
 
 
 class TransposeLast(nn.Layer):
@@ -40,8 +41,7 @@ class Fp32LayerNorm(nn.LayerNorm):
             self.normalized_shape,
             self.weight.float() if self.weight is not None else None,
             self.bias.float() if self.bias is not None else None,
-            self.eps,
-        )
+            self.eps, )
         return output.type_as(input)
 
 
@@ -55,10 +55,8 @@ class Fp32GroupNorm(nn.GroupNorm):
             self.num_groups,
             self.weight.float() if self.weight is not None else None,
             self.bias.float() if self.bias is not None else None,
-            self.eps,
-        )
+            self.eps, )
         return output.type_as(input)
-
 
 
 class SamePad(nn.Layer):
@@ -71,7 +69,7 @@ class SamePad(nn.Layer):
 
     def forward(self, x):
         if self.remove > 0:
-            x = x[:, :, : -self.remove]
+            x = x[:, :, :-self.remove]
         return x
 
 
@@ -89,7 +87,11 @@ class Swish(nn.Layer):
 
 
 class GLU_Linear(nn.Layer):
-    def __init__(self, input_dim, output_dim, glu_type="sigmoid", bias_in_glu=True):
+    def __init__(self,
+                 input_dim,
+                 output_dim,
+                 glu_type="sigmoid",
+                 bias_in_glu=True):
         super(GLU_Linear, self).__init__()
 
         self.glu_type = glu_type
@@ -114,9 +116,11 @@ class GLU_Linear(nn.Layer):
         x = self.linear(x)
 
         if self.glu_type == "bilinear":
-            x = (x[:, :, 0:self.output_dim] * x[:, :, self.output_dim:self.output_dim * 2])
+            x = (x[:, :, 0:self.output_dim] *
+                 x[:, :, self.output_dim:self.output_dim * 2])
         else:
-            x = (x[:, :, 0:self.output_dim] * self.glu_act(x[:, :, self.output_dim:self.output_dim * 2]))
+            x = (x[:, :, 0:self.output_dim] *
+                 self.glu_act(x[:, :, self.output_dim:self.output_dim * 2]))
 
         return x
 
@@ -124,9 +128,8 @@ class GLU_Linear(nn.Layer):
 def gelu_accurate(x):
     if not hasattr(gelu_accurate, "_a"):
         gelu_accurate._a = math.sqrt(2 / math.pi)
-    return (
-        0.5 * x * (1 + paddle.tanh(gelu_accurate._a * (x + 0.044715 * paddle.pow(x, 3))))
-    )
+    return (0.5 * x * (1 + paddle.tanh(gelu_accurate._a *
+                                       (x + 0.044715 * paddle.pow(x, 3)))))
 
 
 def gelu(x: Tensor) -> Tensor:
@@ -142,8 +145,7 @@ def get_activation_fn(activation: str):
         return gelu
     elif activation == "gelu_fast":
         warnings.warn(
-            "--activation-fn=gelu_fast has been renamed to gelu_accurate"
-        )
+            "--activation-fn=gelu_fast has been renamed to gelu_accurate")
         return gelu_accurate
     elif activation == "gelu_accurate":
         return gelu_accurate
@@ -154,7 +156,8 @@ def get_activation_fn(activation: str):
     elif activation == "glu":
         return lambda x: x
     else:
-        raise RuntimeError("--activation-fn {} not supported".format(activation))
+        raise RuntimeError(
+            "--activation-fn {} not supported".format(activation))
 
 
 def quant_noise(module, p, block_size):
@@ -190,16 +193,15 @@ def quant_noise(module, p, block_size):
     # 2D matrix
     if not is_conv:
         assert (
-            module.weight.size(1) % block_size == 0
-        ), "Input features must be a multiple of block sizes"
+            module.weight.size(1) %
+            block_size == 0), "Input features must be a multiple of block sizes"
 
     # 4D matrix
     else:
         # 1x1 convolutions
         if module.kernel_size == (1, 1):
-            assert (
-                module.in_channels % block_size == 0
-            ), "Input channels must be a multiple of block sizes"
+            assert (module.in_channels % block_size == 0
+                    ), "Input channels must be a multiple of block sizes"
         # regular convolutions
         else:
             k = module.kernel_size[0] * module.kernel_size[1]
@@ -216,10 +218,11 @@ def quant_noise(module, p, block_size):
 
                 # split weight matrix into blocks and randomly drop selected blocks
                 mask = paddle.zeros(
-                    in_features // block_size * out_features, device=weight.device
-                )
+                    in_features // block_size * out_features,
+                    device=weight.device)
                 mask.bernoulli_(p)
-                mask = mask.repeat_interleave(block_size, -1).view(-1, in_features)
+                mask = mask.repeat_interleave(block_size, -1).reshape(
+                    [-1, in_features])
 
             else:
                 # gather weight and sizes
@@ -231,26 +234,21 @@ def quant_noise(module, p, block_size):
                 if mod.kernel_size == (1, 1):
                     mask = paddle.zeros(
                         int(in_channels // block_size * out_channels),
-                        device=weight.device,
-                    )
+                        device=weight.device, )
                     mask.bernoulli_(p)
-                    mask = mask.repeat_interleave(block_size, -1).view(-1, in_channels)
+                    mask = mask.repeat_interleave(block_size, -1).reshape(
+                        [-1, in_channels])
                 else:
                     mask = paddle.zeros(
-                        weight.size(0), weight.size(1), device=weight.device
-                    )
+                        weight.size(0), weight.size(1), device=weight.device)
 
                     mask.bernoulli_(p)
                     mask = (
-                        mask.unsqueeze(2)
-                        .unsqueeze(3)
-                        .repeat(1, 1, mod.kernel_size[0], mod.kernel_size[1])
-                    )
+                        mask.unsqueeze(2).unsqueeze(3)
+                        .repeat(1, 1, mod.kernel_size[0], mod.kernel_size[1]))
 
             # scale weights and apply mask
-            mask = mask.to(
-                paddle.bool
-            )
+            mask = mask.to(paddle.bool)
             s = 1 / (1 - p)
             mod.weight.data = s * weight.masked_fill(mask, 0)
 
@@ -282,8 +280,7 @@ class MultiheadAttention(nn.Layer):
             num_buckets=32,
             max_distance=128,
             gru_rel_pos=True,
-            rescale_init=False,
-    ):
+            rescale_init=False, ):
         super().__init__()
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
@@ -302,17 +299,16 @@ class MultiheadAttention(nn.Layer):
         self.head_dim = embed_dim // num_heads
         self.q_head_dim = self.head_dim
         self.k_head_dim = self.head_dim
-        assert (
-                self.head_dim * num_heads == self.embed_dim
-        ), "embed_dim must be divisible by num_heads"
-        self.scaling = self.head_dim ** -0.5
+        assert (self.head_dim * num_heads == self.embed_dim
+                ), "embed_dim must be divisible by num_heads"
+        self.scaling = self.head_dim**-0.5
 
         self.self_attention = self_attention
         self.encoder_decoder_attention = encoder_decoder_attention
 
         assert not self.self_attention or self.qkv_same_dim, (
-            "Self-attention requires query, key and " "value to be of the same size"
-        )
+            "Self-attention requires query, key and "
+            "value to be of the same size")
 
         k_bias = True
         if rescale_init:
@@ -322,26 +318,24 @@ class MultiheadAttention(nn.Layer):
         q_embed_dim = embed_dim
 
         self.k_proj = quant_noise(
-            nn.Linear(self.kdim, k_embed_dim, bias_attr=k_bias), q_noise, qn_block_size
-        )
+            nn.Linear(self.kdim, k_embed_dim, bias_attr=k_bias), q_noise,
+            qn_block_size)
         self.v_proj = quant_noise(
-            nn.Linear(self.vdim, embed_dim, bias_attr=bias), q_noise, qn_block_size
-        )
+            nn.Linear(self.vdim, embed_dim, bias_attr=bias), q_noise,
+            qn_block_size)
         self.q_proj = quant_noise(
-            nn.Linear(embed_dim, q_embed_dim, bias_attr=bias), q_noise, qn_block_size
-        )
+            nn.Linear(embed_dim, q_embed_dim, bias_attr=bias), q_noise,
+            qn_block_size)
 
         self.out_proj = quant_noise(
-            nn.Linear(embed_dim, embed_dim, bias_attr=bias), q_noise, qn_block_size
-        )
+            nn.Linear(embed_dim, embed_dim, bias_attr=bias), q_noise,
+            qn_block_size)
 
         if add_bias_kv:
             self.bias_k = self.create_parameter(
-                shape=[1, 1, embed_dim], dtype="float32"
-            )
+                shape=[1, 1, embed_dim], dtype="float32")
             self.bias_v = self.create_parameter(
-                shape=[1, 1, embed_dim], dtype="float32"
-            )
+                shape=[1, 1, embed_dim], dtype="float32")
 
         else:
             self.bias_k = self.bias_v = None
@@ -352,40 +346,41 @@ class MultiheadAttention(nn.Layer):
         if self.gru_rel_pos:
             self.grep_linear = nn.Linear(self.q_head_dim, 8)
             self.grep_a = self.create_parameter(
-                shape=[1, num_heads, 1, 1], dtype="float32"
-            )
-
+                shape=[1, num_heads, 1, 1], dtype="float32")
 
         self.reset_parameters()
 
     def reset_parameters(self):
         pass
-        
-    def _relative_positions_bucket(self, relative_positions, bidirectional=True):
+
+    def _relative_positions_bucket(self, relative_positions,
+                                   bidirectional=True):
         num_buckets = self.num_buckets
         max_distance = self.max_distance
         relative_buckets = 0
 
         if bidirectional:
             num_buckets = num_buckets // 2
-            relative_buckets += (relative_positions > 0).astype("int64") * num_buckets
+            relative_buckets += (
+                relative_positions > 0).astype("int64") * num_buckets
             relative_positions = paddle.abs(relative_positions)
         else:
-            relative_positions = -paddle.minimum(relative_positions, paddle.zeros_like(relative_positions))
+            relative_positions = -paddle.minimum(
+                relative_positions, paddle.zeros_like(relative_positions))
 
         max_exact = num_buckets // 2
         is_small = relative_positions < max_exact
 
         relative_postion_if_large = max_exact + (
-                paddle.log(relative_positions.astype("float32") / max_exact)
-                / math.log(max_distance / max_exact)
-                * (num_buckets - max_exact)
-        ).astype("int64")
+            paddle.log(relative_positions.astype("float32") /
+                       max_exact) / math.log(max_distance / max_exact) *
+            (num_buckets - max_exact)).astype("int64")
         relative_postion_if_large = paddle.minimum(
-            relative_postion_if_large, paddle.full_like(relative_postion_if_large, num_buckets - 1)
-        )
+            relative_postion_if_large,
+            paddle.full_like(relative_postion_if_large, num_buckets - 1))
 
-        relative_buckets += paddle.where(is_small, relative_positions, relative_postion_if_large)
+        relative_buckets += paddle.where(is_small, relative_positions,
+                                         relative_postion_if_large)
         return relative_buckets
 
     def compute_bias(self, query_length, key_length):
@@ -393,28 +388,26 @@ class MultiheadAttention(nn.Layer):
         memory_position = paddle.arange(key_length, dtype="int64")[None, :]
         relative_position = memory_position - context_position
         relative_position_bucket = self._relative_positions_bucket(
-            relative_position,
-            bidirectional=True
-        )
+            relative_position, bidirectional=True)
         # relative_position_bucket = relative_position_bucket.to(self.relative_attention_bias.weight.device)
         values = self.relative_attention_bias(relative_position_bucket)
         values = values.transpose([2, 0, 1])
         return values
 
-    def forward(
-            self,
-            query,
-            key: Optional[Tensor],
-            value: Optional[Tensor],
-            key_padding_mask: Optional[Tensor] = None,
-            incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]] = None,
-            need_weights: bool = True,
-            static_kv: bool = False,
-            attn_mask: Optional[Tensor] = None,
-            before_softmax: bool = False,
-            need_head_weights: bool = False,
-            position_bias: Optional[Tensor] = None
-    ) -> Tuple[Tensor, Optional[Tensor], Optional[Tensor]]:
+    def forward(self,
+                query,
+                key: Optional[Tensor],
+                value: Optional[Tensor],
+                key_padding_mask: Optional[Tensor]=None,
+                incremental_state: Optional[Dict[str, Dict[str, Optional[
+                    Tensor]]]]=None,
+                need_weights: bool=True,
+                static_kv: bool=False,
+                attn_mask: Optional[Tensor]=None,
+                before_softmax: bool=False,
+                need_head_weights: bool=False,
+                position_bias: Optional[Tensor]=None
+                ) -> Tuple[Tensor, Optional[Tensor], Optional[Tensor]]:
         """Input shape: Time x Batch x Channel
 
         Args:
@@ -441,17 +434,16 @@ class MultiheadAttention(nn.Layer):
         assert list(query.shape) == [tgt_len, bsz, embed_dim]
         if key is not None:
             src_len, key_bsz, _ = key.shape
-            
+
         if self.has_relative_attention_bias and position_bias is None:
             position_bias = self.compute_bias(tgt_len, src_len)
             position_bias_ = position_bias.unsqueeze(0)
-            position_bias = paddle.concat([position_bias_ for _ in range(bsz)], axis=0)
-            position_bias = position_bias.reshape([bsz * self.num_heads, tgt_len, src_len])
-        if (
-                incremental_state is None
-                and not static_kv
-                and self.q_head_dim == self.head_dim
-        ):
+            position_bias = paddle.concat(
+                [position_bias_ for _ in range(bsz)], axis=0)
+            position_bias = position_bias.reshape(
+                [bsz * self.num_heads, tgt_len, src_len])
+        if (incremental_state is None and not static_kv and
+                self.q_head_dim == self.head_dim):
             assert key is not None and value is not None
             assert attn_mask is None
 
@@ -465,17 +457,21 @@ class MultiheadAttention(nn.Layer):
                     query_layer = query_layer.transpose([0, 2, 1, 3])
                     _B, _H, _L, __ = query_layer.shape
 
-                    gate_a, gate_b = paddle.nn.functional.sigmoid(self.grep_linear(query_layer).reshape([_B, _H, _L, 2, 4]).sum(-1, keepdim=False)).chunk(2, axis=-1)
-                    
-                    gate_a_1 = gate_a * (gate_b * self.grep_a - 1.0) + 2.0
-                    attn_mask_rel_pos = gate_a_1.reshape([bsz * self.num_heads, -1, 1]) * position_bias
+                    gate_a, gate_b = paddle.nn.functional.sigmoid(
+                        self.grep_linear(query_layer).reshape(
+                            [_B, _H, _L, 2, 4]).sum(-1, keepdim=False)).chunk(
+                                2, axis=-1)
 
-                attn_mask_rel_pos = attn_mask_rel_pos.reshape((-1, tgt_len, tgt_len))
+                    gate_a_1 = gate_a * (gate_b * self.grep_a - 1.0) + 2.0
+                    attn_mask_rel_pos = gate_a_1.reshape(
+                        [bsz * self.num_heads, -1, 1]) * position_bias
+
+                attn_mask_rel_pos = attn_mask_rel_pos.reshape(
+                    (-1, tgt_len, tgt_len))
             k_proj_bias = self.k_proj.bias
             if k_proj_bias is None:
                 k_proj_bias = paddle.zeros_like(self.q_proj.bias)
 
-            
             x, attn = multi_head_attention_forward_paddle(
                 query,
                 key,
@@ -483,7 +479,9 @@ class MultiheadAttention(nn.Layer):
                 self.embed_dim,
                 self.num_heads,
                 paddle.empty([0]),
-                paddle.concat((self.q_proj.bias, self.k_proj.bias, self.v_proj.bias), axis=0),
+                paddle.concat(
+                    (self.q_proj.bias, self.k_proj.bias, self.v_proj.bias),
+                    axis=0),
                 self.bias_k,
                 self.bias_v,
                 self.add_zero_attn,
@@ -497,9 +495,8 @@ class MultiheadAttention(nn.Layer):
                 use_separate_proj_weight=True,
                 q_proj_weight=self.q_proj.weight,
                 k_proj_weight=self.k_proj.weight,
-                v_proj_weight=self.v_proj.weight,
-            )
-            
+                v_proj_weight=self.v_proj.weight, )
+
             return x, attn, position_bias
 
         if incremental_state is not None:
@@ -540,8 +537,8 @@ class MultiheadAttention(nn.Layer):
             v = paddle.concat([v, self.bias_v.repeat(1, bsz, 1)], axis=0)
             if attn_mask is not None:
                 attn_mask = paddle.concat(
-                    [attn_mask, attn_mask.new_zeros(attn_mask.size(0), 1)], axis=1
-                )
+                    [attn_mask, attn_mask.new_zeros(attn_mask.size(0), 1)],
+                    axis=1)
 
             if key_padding_mask is not None:
                 key_padding_mask = paddle.concat(
@@ -549,33 +546,27 @@ class MultiheadAttention(nn.Layer):
                         key_padding_mask,
                         key_padding_mask.new_zeros(key_padding_mask.size(0), 1),
                     ],
-                    axis=1,
-                )
+                    axis=1, )
 
-        q = (
-            q.contiguous()
-                .view(tgt_len, bsz * self.num_heads, self.q_head_dim)
-                .transpose([1, 0, 2])
-        )
+        q = (q.contiguous()
+             .reshape([tgt_len, bsz * self.num_heads, self.q_head_dim])
+             .transpose([1, 0, 2]))
         if k is not None:
-            k = (
-                k.contiguous()
-                    .view(-1, bsz * self.num_heads, self.k_head_dim)
-                    .transpose([1, 0, 2])
-            )
+            k = (k.contiguous()
+                 .reshape([-1, bsz * self.num_heads, self.k_head_dim])
+                 .transpose([1, 0, 2]))
         if v is not None:
-            v = (
-                v.contiguous()
-                    .view(-1, bsz * self.num_heads, self.head_dim)
-                    .transpose([1, 0, 2])
-            )
+            v = (v.contiguous()
+                 .reshape([-1, bsz * self.num_heads, self.head_dim])
+                 .transpose([1, 0, 2]))
 
         if saved_state is not None:
             # saved states are stored with shape (bsz, num_heads, seq_len, head_dim)
             if "prev_key" in saved_state:
                 _prev_key = saved_state["prev_key"]
                 assert _prev_key is not None
-                prev_key = _prev_key.view(bsz * self.num_heads, -1, self.head_dim)
+                prev_key = _prev_key.reshape(
+                    [bsz * self.num_heads, -1, self.head_dim])
                 if static_kv:
                     k = prev_key
                 else:
@@ -585,7 +576,8 @@ class MultiheadAttention(nn.Layer):
             if "prev_value" in saved_state:
                 _prev_value = saved_state["prev_value"]
                 assert _prev_value is not None
-                prev_value = _prev_value.view(bsz * self.num_heads, -1, self.head_dim)
+                prev_value = _prev_value.reshape(
+                    [bsz * self.num_heads, -1, self.head_dim])
                 if static_kv:
                     v = prev_value
                 else:
@@ -600,15 +592,17 @@ class MultiheadAttention(nn.Layer):
                 prev_key_padding_mask=prev_key_padding_mask,
                 batch_size=bsz,
                 src_len=k.size(1),
-                static_kv=static_kv,
-            )
+                static_kv=static_kv, )
 
-            saved_state["prev_key"] = k.view(bsz, self.num_heads, -1, self.head_dim)
-            saved_state["prev_value"] = v.view(bsz, self.num_heads, -1, self.head_dim)
+            saved_state["prev_key"] = k.reshape(
+                [bsz, self.num_heads, -1, self.head_dim])
+            saved_state["prev_value"] = v.reshape(
+                [bsz, self.num_heads, -1, self.head_dim])
             saved_state["prev_key_padding_mask"] = key_padding_mask
             # In this branch incremental_state is never None
             assert incremental_state is not None
-            incremental_state = self._set_input_buffer(incremental_state, saved_state)
+            incremental_state = self._set_input_buffer(incremental_state,
+                                                       saved_state)
         assert k is not None
         assert k.size(1) == src_len
 
@@ -624,30 +618,31 @@ class MultiheadAttention(nn.Layer):
         if self.add_zero_attn:
             assert v is not None
             src_len += 1
-            k = paddle.concat([k, k.new_zeros((k.size(0), 1) + k.shape[2:])], axis=1)
-            v = paddle.concat([v, v.new_zeros((v.size(0), 1) + v.shape[2:])], axis=1)
+            k = paddle.concat(
+                [k, k.new_zeros((k.size(0), 1) + k.shape[2:])], axis=1)
+            v = paddle.concat(
+                [v, v.new_zeros((v.size(0), 1) + v.shape[2:])], axis=1)
             if attn_mask is not None:
                 attn_mask = paddle.concat(
-                    [attn_mask, attn_mask.new_zeros(attn_mask.size(0), 1)], axis=1
-                )
+                    [attn_mask, attn_mask.new_zeros(attn_mask.size(0), 1)],
+                    axis=1)
 
             if key_padding_mask is not None:
                 key_padding_mask = paddle.concat(
                     [
                         key_padding_mask,
-                        paddle.zeros(key_padding_mask.size(0), 1).type_as(
-                            key_padding_mask
-                        ),
+                        paddle.zeros(key_padding_mask.size(0),
+                                     1).type_as(key_padding_mask),
                     ],
-                    axis=1,
-                )
-
+                    axis=1, )
 
         attn_weights = paddle.matmul(q, k.transpose([0, 2, 1]))
 
-        attn_weights = self.apply_sparse_mask(attn_weights, tgt_len, src_len, bsz)
+        attn_weights = self.apply_sparse_mask(attn_weights, tgt_len, src_len,
+                                              bsz)
 
-        assert list(attn_weights.shape) == [bsz * self.num_heads, tgt_len, src_len]
+        assert list(
+            attn_weights.shape) == [bsz * self.num_heads, tgt_len, src_len]
 
         if attn_mask is not None:
             attn_mask = attn_mask.unsqueeze(0)
@@ -655,46 +650,49 @@ class MultiheadAttention(nn.Layer):
 
         if key_padding_mask is not None:
             # don't attend to padding symbols
-            attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len)
+            attn_weights = attn_weights.reshape(
+                [bsz, self.num_heads, tgt_len, src_len])
             attn_weights = attn_weights.masked_fill(
                 key_padding_mask.unsqueeze(1).unsqueeze(2).to(paddle.bool),
-                float("-inf"),
-            )
-            attn_weights = attn_weights.view(bsz * self.num_heads, tgt_len, src_len)
+                float("-inf"), )
+            attn_weights = attn_weights.reshape(
+                [bsz * self.num_heads, tgt_len, src_len])
 
         if before_softmax:
             return attn_weights, v, position_bias
 
         if position_bias is not None:
             if self.gru_rel_pos == 1:
-                query_layer = q.view(bsz, self.num_heads, tgt_len, self.q_head_dim)
+                query_layer = q.reshape(
+                    [bsz, self.num_heads, tgt_len, self.q_head_dim])
                 _B, _H, _L, __ = query_layer.shape
-                gate_a, gate_b = paddle.sigmoid(self.grep_linear(query_layer).view(
-                    _B, _H, _L, 2, 4).sum(-1, keepdim=False)).chunk(2, axis=-1)
-                
-                gate_a_1 = gate_a * (gate_b * self.grep_a - 1.0) + 2.0
-                position_bias = gate_a_1.view(bsz * self.num_heads, -1, 1) * position_bias
+                gate_a, gate_b = paddle.sigmoid(
+                    self.grep_linear(query_layer).reshape([_B, _H, _L, 2, 4])
+                    .sum(-1, keepdim=False)).chunk(
+                        2, axis=-1)
 
-            position_bias = position_bias.view(attn_weights.shape)
+                gate_a_1 = gate_a * (gate_b * self.grep_a - 1.0) + 2.0
+                position_bias = gate_a_1.reshape(
+                    [bsz * self.num_heads, -1, 1]) * position_bias
+
+            position_bias = position_bias.reshape(attn_weights.shape)
 
             attn_weights = attn_weights + position_bias
 
-        attn_weights_float = F.softmax(
-            attn_weights, dim=-1
-        )
+        attn_weights_float = F.softmax(attn_weights, dim=-1)
         attn_weights = attn_weights_float.type_as(attn_weights)
         attn_probs = self.dropout_module(attn_weights)
 
         assert v is not None
         attn = paddle.bmm(attn_probs, v)
-        assert list(attn.shape) == [bsz * self.num_heads, tgt_len, self.head_dim]
+        assert list(
+            attn.shape) == [bsz * self.num_heads, tgt_len, self.head_dim]
         attn = attn.transpose([1, 0, 2]).reshape([tgt_len, bsz, embed_dim])
         attn = self.out_proj(attn)
         attn_weights: Optional[Tensor] = None
         if need_weights:
-            attn_weights = attn_weights_float.view(
-                bsz, self.num_heads, tgt_len, src_len
-            ).transpose([1, 0, 2, 3])
+            attn_weights = attn_weights_float.reshape(
+                [bsz, self.num_heads, tgt_len, src_len]).transpose([1, 0, 2, 3])
             if not need_head_weights:
                 # average attention weights over heads
                 attn_weights = attn_weights.mean(dim=0)
@@ -707,15 +705,14 @@ class MultiheadAttention(nn.Layer):
             prev_key_padding_mask: Optional[Tensor],
             batch_size: int,
             src_len: int,
-            static_kv: bool,
-    ) -> Optional[Tensor]:
+            static_kv: bool, ) -> Optional[Tensor]:
         # saved key padding masks have shape (bsz, seq_len)
         if prev_key_padding_mask is not None and static_kv:
             new_key_padding_mask = prev_key_padding_mask
         elif prev_key_padding_mask is not None and key_padding_mask is not None:
             new_key_padding_mask = paddle.concat(
-                [prev_key_padding_mask.float(), key_padding_mask.float()], axis=1
-            )
+                [prev_key_padding_mask.float(), key_padding_mask.float()],
+                axis=1)
         # During incremental decoding, as the padding token enters and
         # leaves the frame, there will be a time when prev or current
         # is None
@@ -723,11 +720,9 @@ class MultiheadAttention(nn.Layer):
             if src_len > prev_key_padding_mask.size(1):
                 filler = paddle.zeros(
                     (batch_size, src_len - prev_key_padding_mask.size(1)),
-                    device=prev_key_padding_mask.device,
-                )
+                    device=prev_key_padding_mask.device, )
                 new_key_padding_mask = paddle.concat(
-                    [prev_key_padding_mask.float(), filler.float()], axis=1
-                )
+                    [prev_key_padding_mask.float(), filler.float()], axis=1)
 
             else:
                 new_key_padding_mask = prev_key_padding_mask.float()
@@ -735,11 +730,9 @@ class MultiheadAttention(nn.Layer):
             if src_len > key_padding_mask.size(1):
                 filler = paddle.zeros(
                     (batch_size, src_len - key_padding_mask.size(1)),
-                    device=key_padding_mask.device,
-                )
+                    device=key_padding_mask.device, )
                 new_key_padding_mask = paddle.concat(
-                    [filler.float(), key_padding_mask.float()], axis=1
-                )
+                    [filler.float(), key_padding_mask.float()], axis=1)
 
             else:
                 new_key_padding_mask = key_padding_mask.float()
@@ -748,7 +741,8 @@ class MultiheadAttention(nn.Layer):
         return new_key_padding_mask
 
     def _get_input_buffer(
-            self, incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]]
+            self,
+            incremental_state: Optional[Dict[str, Dict[str, Optional[Tensor]]]]
     ) -> Dict[str, Optional[Tensor]]:
         result = self.get_incremental_state(incremental_state, "attn_state")
         if result is not None:
@@ -760,9 +754,13 @@ class MultiheadAttention(nn.Layer):
     def _set_input_buffer(
             self,
             incremental_state: Dict[str, Dict[str, Optional[Tensor]]],
-            buffer: Dict[str, Optional[Tensor]],
-    ):
-        return self.set_incremental_state(incremental_state, "attn_state", buffer)
+            buffer: Dict[str, Optional[Tensor]], ):
+        return self.set_incremental_state(incremental_state, "attn_state",
+                                          buffer)
 
-    def apply_sparse_mask(self, attn_weights, tgt_len: int, src_len: int, bsz: int):
+    def apply_sparse_mask(self,
+                          attn_weights,
+                          tgt_len: int,
+                          src_len: int,
+                          bsz: int):
         return attn_weights

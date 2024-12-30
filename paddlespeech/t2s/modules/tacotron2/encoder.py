@@ -162,6 +162,8 @@ class Encoder(nn.Layer):
             return xs.transpose([0, 2, 1])
         if not isinstance(ilens, paddle.Tensor):
             ilens = paddle.to_tensor(ilens)
+        if ilens.ndim == 0:
+            ilens = ilens.unsqueeze(0)
         xs = xs.transpose([0, 2, 1])
         # for dygraph to static graph
         # self.blstm.flatten_parameters()

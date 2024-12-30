@@ -3,7 +3,18 @@ This example contains code used to train a [JETS](https://arxiv.org/abs/2203.168
 
 ## Dataset
 ### Download and Extract
-Download CSMSC from it's [Official Website](https://test.data-baker.com/data/index/source).
+Download CSMSC from it's [official website](https://test.data-baker.com/data/index/TNtts/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/BZNSYP`.
+
+The structure of the folder is listed below.
+
+```text
+└─ Wave
+    └─ .wav files (audio speech)
+└─ PhoneLabeling
+    └─ .interval files (alignment between phoneme and duration)
+└─ ProsodyLabeling
+   └─ 000001-010000.txt (text with prosodic by pinyin)
+```
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes and durations for JETS.

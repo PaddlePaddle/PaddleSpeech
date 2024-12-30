@@ -161,6 +161,9 @@ The finetuned model can be downloaded here:
 The static model can be downloaded here:
 - [mb_melgan_csmsc_static_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_static_0.1.1.zip)
 
+The PIR static model can be downloaded here:
+- [mb_melgan_csmsc_static_pir_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_static_pir_0.1.1.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+
 The ONNX model can be downloaded here:
 - [mb_melgan_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_onnx_0.2.0.zip)
 

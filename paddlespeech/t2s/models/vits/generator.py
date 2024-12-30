@@ -577,8 +577,9 @@ class VITSGenerator(nn.Layer):
             # decoder
             z_p = m_p + paddle.randn(
                 paddle.shape(m_p)) * paddle.exp(logs_p) * noise_scale
-            z = self.flow(z_p, y_mask, g=g, inverse=True)
-            wav = self.decoder((z * y_mask)[:, :, :max_len], g=g)
+            z = self.flow(z_p, y_mask.astype(z_p.dtype), g=g, inverse=True)
+            wav = self.decoder(
+                (z * y_mask.astype(z.dtype))[:, :, :max_len], g=g)
 
         return wav.squeeze(1), attn.squeeze(1), dur.squeeze(1)
 
@@ -695,4 +696,5 @@ class VITSGenerator(nn.Layer):
         path = paddle.cast(path, dtype='float32')
         pad_tmp = self.pad1d(path)[:, :-1]
         path = path - pad_tmp
-        return path.unsqueeze(1).transpose([0, 1, 3, 2]) * mask
+        return path.unsqueeze(1).transpose(
+            [0, 1, 3, 2]) * mask.astype(path.dtype)

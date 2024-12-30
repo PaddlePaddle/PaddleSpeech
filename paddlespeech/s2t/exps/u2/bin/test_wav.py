@@ -78,7 +78,7 @@ class U2Infer():
             if self.args.debug:
                 np.savetxt("feat.transform.txt", feat)
 
-            ilen = paddle.to_tensor(feat.shape[0])
+            ilen = paddle.to_tensor(feat.shape[0]).unsqueeze(0)
             xs = paddle.to_tensor(feat, dtype='float32').unsqueeze(0)
             decode_config = self.config.decode
             logger.info(f"decode cfg: {decode_config}")

@@ -18,7 +18,8 @@ from yacs.config import CfgNode
 
 from paddlespeech.s2t.exps.wavlm.model import WavLMASRTester as Tester
 from paddlespeech.s2t.training.cli import default_argument_parser
-from paddlespeech.utils.argparse import print_arguments, add_arguments
+from paddlespeech.utils.argparse import add_arguments
+from paddlespeech.utils.argparse import print_arguments
 
 
 def main_sp(config, args):
@@ -37,8 +38,6 @@ if __name__ == "__main__":
     # save asr result to
     parser.add_argument(
         '--dict-path', type=str, default=None, help='dict path.')
-    parser.add_argument(
-        "--result_file", type=str, help="path of save the asr result")
     args = parser.parse_args()
     print_arguments(args, globals())
 

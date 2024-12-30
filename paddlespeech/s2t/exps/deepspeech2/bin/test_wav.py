@@ -75,7 +75,7 @@ class DeepSpeech2Tester_hub():
         feat = self.preprocessing(audio, **self.preprocess_args)
         logger.info(f"feat shape: {feat.shape}")
 
-        audio_len = paddle.to_tensor(feat.shape[0])
+        audio_len = paddle.to_tensor(feat.shape[0]).unsqueeze(0)
         audio = paddle.to_tensor(feat, dtype='float32').unsqueeze(axis=0)
 
         result_transcripts = self.compute_result_transcripts(

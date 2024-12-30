@@ -181,7 +181,12 @@ def make_pad_mask(lengths, xs=None, length_dim=-1):
     if length_dim == 0:
         raise ValueError("length_dim cannot be 0: {}".format(length_dim))
 
-    bs = paddle.shape(lengths)
+    # check if lengths is 0-dim tensor, if so, add a dimension
+    if lengths.ndim == 0:
+        bs = paddle.shape(lengths.unsqueeze(0))
+    else:
+        bs = paddle.shape(lengths)
+
     if xs is None:
         maxlen = paddle.cast(lengths.max(), dtype=bs.dtype)
     else:
@@ -348,7 +353,9 @@ def get_random_segments(
     """
     b, c, t = paddle.shape(x)
     max_start_idx = x_lengths - segment_size
-    start_idxs = paddle.cast(paddle.rand([b]) * max_start_idx, 'int64')
+    rand_number = paddle.rand([b])
+    start_idxs = paddle.cast(rand_number *
+                             max_start_idx.astype(rand_number.dtype), 'int64')
     segments = get_segments(x, start_idxs, segment_size)
 
     return segments, start_idxs
@@ -459,7 +466,7 @@ def phones_masking(xs_pad: paddle.Tensor,
                 for s, e in zip(masked_start, masked_end):
                     masked_pos[idx, s:e] = 1
     non_eos_mask = paddle.reshape(src_mask, paddle.shape(xs_pad)[:2])
-    masked_pos = masked_pos * non_eos_mask
+    masked_pos = masked_pos * non_eos_mask.astype(masked_pos.dtype)
     masked_pos = paddle.cast(masked_pos, 'bool')
 
     return masked_pos
@@ -543,10 +550,11 @@ def phones_text_masking(xs_pad: paddle.Tensor,
                 for s, e in zip(masked_start, masked_end):
                     masked_pos[idx, s:e] = 1
     non_eos_mask = paddle.reshape(src_mask, shape=paddle.shape(xs_pad)[:2])
-    masked_pos = masked_pos * non_eos_mask
+    masked_pos = masked_pos * non_eos_mask.astype(masked_pos.dtype)
     non_eos_text_mask = paddle.reshape(
         text_mask, shape=paddle.shape(text_pad)[:2])
-    text_masked_pos = text_masked_pos * non_eos_text_mask
+    text_masked_pos = text_masked_pos * non_eos_text_mask.astype(
+        text_masked_pos.dtype)
     masked_pos = paddle.cast(masked_pos, 'bool')
     text_masked_pos = paddle.cast(text_masked_pos, 'bool')
 

@@ -115,6 +115,10 @@ class TextFeaturizer():
         """
         assert self.vocab_path_or_list, "toidx need vocab path or vocab list"
         tokens = []
+        # unwrap `idxs`` like `[[1,2,3]]`
+        if idxs and isinstance(idxs[0], (list, tuple)) and len(idxs) == 1:
+            idxs = idxs[0]
+
         for idx in idxs:
             if idx == self.eos_id:
                 break

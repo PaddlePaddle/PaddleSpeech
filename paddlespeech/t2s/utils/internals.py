@@ -36,7 +36,7 @@ def convert_dtype_to_np_dtype_(dtype):
     elif dtype is core.VarDesc.VarType.FP16:
         return np.float16
     elif dtype is core.VarDesc.VarType.BOOL:
-        return np.bool
+        return np.bool_
     elif dtype is core.VarDesc.VarType.INT32:
         return np.int32
     elif dtype is core.VarDesc.VarType.INT64:

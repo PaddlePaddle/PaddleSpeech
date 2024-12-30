@@ -120,7 +120,11 @@ class SinusoidalPosEmb(nn.Layer):
         self.dim = dim
 
     def forward(self, x: paddle.Tensor):
-        x = paddle.cast(x, 'float32')
+        # check if x is 0-dim tensor, if so, add a dimension
+        if x.ndim == 0:
+            x = paddle.cast(x.unsqueeze(0), 'float32')
+        else:
+            x = paddle.cast(x, 'float32')
         half_dim = self.dim // 2
         emb = math.log(10000) / (half_dim - 1)
         emb = paddle.exp(paddle.arange(half_dim) * -emb)

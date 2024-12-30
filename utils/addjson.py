@@ -11,8 +11,6 @@ import json
 import logging
 import sys
 
-from espnet.utils.cli_utils import get_commandline_args
-
 from paddlespeech.utils.argparse import strtobool
 
 is_python2 = sys.version_info[0] == 2
@@ -44,7 +42,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.INFO, format=logfmt)
     else:
         logging.basicConfig(level=logging.WARN, format=logfmt)
-    logging.info(get_commandline_args())
+    logging.info(args)
 
     # make intersection set for utterance keys
     js = []

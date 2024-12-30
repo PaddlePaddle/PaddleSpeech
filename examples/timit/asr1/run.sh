@@ -9,7 +9,7 @@ stop_stage=50
 conf_path=conf/transformer.yaml
 decode_conf_path=conf/tuning/decode.yaml
 avg_num=10
-TIMIT_path=/path/to/TIMIT
+TIMIT_path=~/datasets/timit/data/lisa/data/timit/raw/TIMIT
 
 . ${MAIN_ROOT}/utils/parse_options.sh || exit 1;
 

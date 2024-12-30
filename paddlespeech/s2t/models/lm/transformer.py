@@ -122,10 +122,12 @@ class TransformerLM(nn.Layer, LMInterface, BatchScorerInterface):
         h, _ = self.encoder(emb, xlen)
         y = self.decoder(h)
         loss = F.cross_entropy(
-            y.view(-1, paddle.shape(y)[-1]), t.view(-1), reduction="none")
+            y.reshape([-1, paddle.shape(y)[-1]]),
+            t.reshape([-1]),
+            reduction="none")
         mask = xm.to(loss.dtype)
-        logp = loss * mask.view(-1)
-        nll = logp.view(batch_size, -1).sum(-1)
+        logp = loss * mask.reshape([-1])
+        nll = logp.reshape([batch_size, -1]).sum(-1)
         nll_count = mask.sum(-1)
         logp = logp.sum()
         count = mask.sum()

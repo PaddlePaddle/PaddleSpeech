@@ -404,6 +404,12 @@ class DataLoaderFactory():
                 config['subsampling_factor'] = 1
                 config['num_encs'] = 1
                 config['shortest_first'] = False
+                config['minibatches'] = 0
+                config['batch_count'] = 'auto'
+                config['batch_bins'] = 0
+                config['batch_frames_in'] = 0
+                config['batch_frames_out'] = 0
+                config['batch_frames_inout'] = 0
             elif mode == 'valid':
                 config['manifest'] = config.dev_manifest
                 config['train_mode'] = False

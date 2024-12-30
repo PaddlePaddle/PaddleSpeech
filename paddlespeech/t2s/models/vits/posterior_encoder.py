@@ -129,6 +129,7 @@ class PosteriorEncoder(nn.Layer):
 
         """
         x_mask = make_non_pad_mask(x_lengths).unsqueeze(1)
+        x_mask = x_mask.astype(x.dtype)
         x = self.input_conv(x) * x_mask
         x = self.encoder(x, x_mask, g=g)
         stats = self.proj(x) * x_mask

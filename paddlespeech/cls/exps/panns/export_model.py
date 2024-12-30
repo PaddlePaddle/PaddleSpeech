@@ -39,7 +39,8 @@ if __name__ == '__main__':
         input_spec=[
             paddle.static.InputSpec(
                 shape=[None, None, 64], dtype=paddle.float32)
-        ])
+        ],
+        full_graph=True)
 
     # Save in static graph model.
     paddle.jit.save(model, os.path.join(args.output_dir, "inference"))

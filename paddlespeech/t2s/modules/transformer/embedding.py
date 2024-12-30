@@ -67,7 +67,7 @@ class PositionalEncoding(nn.Layer):
         pe[:, 0::2] = paddle.sin(position * div_term)
         pe[:, 1::2] = paddle.cos(position * div_term)
         pe = pe.unsqueeze(0)
-        self.pe = pe
+        self.pe = paddle.assign(pe)
 
     def forward(self, x: paddle.Tensor):
         """Add positional encoding.

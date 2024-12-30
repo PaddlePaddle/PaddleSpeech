@@ -11,3 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from packaging.version import Version
+
+
+def satisfy_version(source: str, target: str, dev_allowed: bool=True) -> bool:
+    if dev_allowed and source.startswith('0.0.0'):
+        target_version = Version('0.0.0')
+    else:
+        target_version = Version(target)
+
+    source_version = Version(source)
+    return source_version >= target_version
+
+
+def satisfy_paddle_version(target: str, dev_allowed: bool=True) -> bool:
+    import paddle
+    return satisfy_version(paddle.__version__, target, dev_allowed)

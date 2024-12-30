@@ -135,7 +135,7 @@ class BatchScorerInterface(ScorerInterface):
             score, outstate = self.score(y, state, x)
             outstates.append(outstate)
             scores.append(score)
-        scores = paddle.cat(scores, 0).view(ys.shape[0], -1)
+        scores = paddle.cat(scores, 0).reshape([ys.shape[0], -1])
         return scores, outstates
 
 

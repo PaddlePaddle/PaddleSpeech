@@ -602,7 +602,7 @@ class Equalizer(BaseTransform):
 
 
 # class Quantization(BaseTransform):
-#     """❌Applies quantization to the input waveform. Corresponds
+#     """Applies quantization to the input waveform. Corresponds
 #     to :py:func:`audiotools.core.effects.EffectMixin.quantization`.
 
 #     Parameters

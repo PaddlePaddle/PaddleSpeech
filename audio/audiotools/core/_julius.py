@@ -9,6 +9,7 @@ evaluated with a stride of 1.
 """
 import inspect
 import math
+import sys
 import typing
 from typing import Optional
 from typing import Sequence
@@ -16,9 +17,12 @@ from typing import Sequence
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
+sys.path.append("/home/aistudio/PaddleSpeech")
+from paddlespeech.t2s.modules import fft_conv1d
+from paddlespeech.t2s.modules import FFTConv1D
 
 __all__ = [
-    'fft_conv1d', 'FFTConv1d', 'highpass_filter', 'highpass_filters',
+    'fft_conv1d', 'FFTConv1D', 'highpass_filter', 'highpass_filters',
     'lowpass_filter', 'LowPassFilter', 'LowPassFilters', 'pure_tone',
     'resample_frac', 'split_bands', 'SplitBands'
 ]
@@ -243,216 +247,209 @@ def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):
     return paddle.cos(2 * math.pi * freq * time)
 
 
-def unfold(_input, kernel_size: int, stride: int):
-    """1D only unfolding similar to the one from PyTorch.
-    However PyTorch unfold is extremely slow.
+# def unfold(_input, kernel_size: int, stride: int):
+#     """1D only unfolding similar to the one from PyTorch.
+#     However PyTorch unfold is extremely slow.
 
-    Given an _input tensor of size `[*, T]` this will return
-    a tensor `[*, F, K]` with `K` the kernel size, and `F` the number
-    of frames. The i-th frame is a view onto `i * stride: i * stride + kernel_size`.
-    This will automatically pad the _input to cover at least once all entries in `_input`.
+#     Given an _input tensor of size `[*, T]` this will return
+#     a tensor `[*, F, K]` with `K` the kernel size, and `F` the number
+#     of frames. The i-th frame is a view onto `i * stride: i * stride + kernel_size`.
+#     This will automatically pad the _input to cover at least once all entries in `_input`.
 
-    Args:
-        _input (Tensor): tensor for which to return the frames.
-        kernel_size (int): size of each frame.
-        stride (int): stride between each frame.
+#     Args:
+#         _input (Tensor): tensor for which to return the frames.
+#         kernel_size (int): size of each frame.
+#         stride (int): stride between each frame.
 
-    Shape:
+#     Shape:
 
-        - Inputs: `_input` is `[*, T]`
-        - Output: `[*, F, kernel_size]` with `F = 1 + ceil((T - kernel_size) / stride)`
+#         - Inputs: `_input` is `[*, T]`
+#         - Output: `[*, F, kernel_size]` with `F = 1 + ceil((T - kernel_size) / stride)`
 
+#     ..Warning:: unlike PyTorch unfold, this will pad the _input
+#         so that any position in `_input` is covered by at least one frame.
+#     """
+#     shape = list(_input.shape)
+#     length = shape.pop(-1)
+#     n_frames = math.ceil((max(length, kernel_size) - kernel_size) / stride) + 1
+#     tgt_length = (n_frames - 1) * stride + kernel_size
+#     padded = F.pad(_input, (0, tgt_length - length), data_format="NCL")
+#     strides: typing.List[int] = []
+#     for dim in range(padded.dim()):
+#         strides.append(padded.strides[dim])
+#     assert strides.pop(-1) == 1, "data should be contiguous"
+#     strides = strides + [stride, 1]
+#     return padded.as_strided(shape + [n_frames, kernel_size], strides)
 
-    ..Warning:: unlike PyTorch unfold, this will pad the _input
-        so that any position in `_input` is covered by at least one frame.
-    """
-    shape = list(_input.shape)
-    length = shape.pop(-1)
-    n_frames = math.ceil((max(length, kernel_size) - kernel_size) / stride) + 1
-    tgt_length = (n_frames - 1) * stride + kernel_size
-    padded = F.pad(_input, (0, tgt_length - length), data_format="NCL")
-    strides: typing.List[int] = []
-    for dim in range(padded.dim()):
-        strides.append(padded.strides[dim])
-    assert strides.pop(-1) == 1, "data should be contiguous"
-    strides = strides + [stride, 1]
-    return padded.as_strided(shape + [n_frames, kernel_size], strides)
+# def _new_rfft(x: paddle.Tensor):
+#     z = paddle.fft.rfft(x, axis=-1)
 
+#     z_real = paddle.real(z)
+#     z_imag = paddle.imag(z)
 
-def _new_rfft(x: paddle.Tensor):
-    z = paddle.fft.rfft(x, axis=-1)
+#     z_view_as_real = paddle.stack([z_real, z_imag], axis=-1)
+#     return z_view_as_real
 
-    z_real = paddle.real(z)
-    z_imag = paddle.imag(z)
+# def _new_irfft(x: paddle.Tensor, length: int):
+#     x_real = x[..., 0]
+#     x_imag = x[..., 1]
+#     x_view_as_complex = paddle.complex(x_real, x_imag)
+#     return paddle.fft.irfft(x_view_as_complex, n=length, axis=-1)
 
-    z_view_as_real = paddle.stack([z_real, z_imag], axis=-1)
-    return z_view_as_real
+# def _compl_mul_conjugate(a: paddle.Tensor, b: paddle.Tensor):
+#     """
+#     Given a and b two tensors of dimension 4
+#     with the last dimension being the real and imaginary part,
+#     returns a multiplied by the conjugate of b, the multiplication
+#     being with respect to the second dimension.
 
+#     PaddlePaddle does not have direct support for complex number operations
+#     using einsum in the same manner as PyTorch, but we can manually compute
+#     the equivalent result.
+#     """
+#     # Extract the real and imaginary parts of a and b
+#     real_a = a[..., 0]
+#     imag_a = a[..., 1]
+#     real_b = b[..., 0]
+#     imag_b = b[..., 1]
 
-def _new_irfft(x: paddle.Tensor, length: int):
-    x_real = x[..., 0]
-    x_imag = x[..., 1]
-    x_view_as_complex = paddle.complex(x_real, x_imag)
-    return paddle.fft.irfft(x_view_as_complex, n=length, axis=-1)
+#     # Compute the multiplication with respect to the second dimension manually
+#     real_part = paddle.einsum("bcft,dct->bdft", real_a, real_b) + paddle.einsum(
+#         "bcft,dct->bdft", imag_a, imag_b)
+#     imag_part = paddle.einsum("bcft,dct->bdft", imag_a, real_b) - paddle.einsum(
+#         "bcft,dct->bdft", real_a, imag_b)
 
+#     # Stack the real and imaginary parts together
+#     result = paddle.stack([real_part, imag_part], axis=-1)
+#     return result
 
-def _compl_mul_conjugate(a: paddle.Tensor, b: paddle.Tensor):
-    """
-    Given a and b two tensors of dimension 4
-    with the last dimension being the real and imaginary part,
-    returns a multiplied by the conjugate of b, the multiplication
-    being with respect to the second dimension.
+# def fft_conv1d(
+#         _input: paddle.Tensor,
+#         weight: paddle.Tensor,
+#         bias: Optional[paddle.Tensor]=None,
+#         stride: int=1,
+#         padding: int=0,
+#         block_ratio: float=5, ):
+#     """
+#     Same as `paddle.nn.functional.conv1d` but using FFT for the convolution.
+#     Please check PaddlePaddle documentation for more information.
 
-    PaddlePaddle does not have direct support for complex number operations
-    using einsum in the same manner as PyTorch, but we can manually compute
-    the equivalent result.
-    """
-    # Extract the real and imaginary parts of a and b
-    real_a = a[..., 0]
-    imag_a = a[..., 1]
-    real_b = b[..., 0]
-    imag_b = b[..., 1]
+#     Args:
+#         _input (Tensor): _input signal of shape `[B, C, T]`.
+#         weight (Tensor): weight of the convolution `[D, C, K]` with `D` the number
+#             of output channels.
+#         bias (Tensor or None): if not None, bias term for the convolution.
+#         stride (int): stride of convolution.
+#         padding (int): padding to apply to the _input.
+#         block_ratio (float): can be tuned for speed. The _input is splitted in chunks
+#             with a size of `int(block_ratio * kernel_size)`.
 
-    # Compute the multiplication with respect to the second dimension manually
-    real_part = paddle.einsum("bcft,dct->bdft", real_a, real_b) + paddle.einsum(
-        "bcft,dct->bdft", imag_a, imag_b)
-    imag_part = paddle.einsum("bcft,dct->bdft", imag_a, real_b) - paddle.einsum(
-        "bcft,dct->bdft", real_a, imag_b)
+#     Shape:
 
-    # Stack the real and imaginary parts together
-    result = paddle.stack([real_part, imag_part], axis=-1)
-    return result
+#         - Inputs: `_input` is `[B, C, T]`, `weight` is `[D, C, K]` and bias is `[D]`.
+#         - Output: `(*, T)`
 
+#     ..note::
+#         This function is faster than `paddle.nn.functional.conv1d` only in specific cases.
+#         Typically, the kernel size should be of the order of 256 to see any real gain,
+#         for a stride of 1.
 
-def fft_conv1d(
-        _input: paddle.Tensor,
-        weight: paddle.Tensor,
-        bias: Optional[paddle.Tensor]=None,
-        stride: int=1,
-        padding: int=0,
-        block_ratio: float=5, ):
-    """
-    Same as `paddle.nn.functional.conv1d` but using FFT for the convolution.
-    Please check PaddlePaddle documentation for more information.
+#     ..Warning::
+#         Dilation and groups are not supported at the moment. This function might use
+#         more memory than the default Conv1d implementation.
+#     """
+#     _input = F.pad(_input, (padding, padding), data_format="NCL")
+#     batch, channels, length = _input.shape
+#     out_channels, _, kernel_size = weight.shape
 
-    Args:
-        _input (Tensor): _input signal of shape `[B, C, T]`.
-        weight (Tensor): weight of the convolution `[D, C, K]` with `D` the number
-            of output channels.
-        bias (Tensor or None): if not None, bias term for the convolution.
-        stride (int): stride of convolution.
-        padding (int): padding to apply to the _input.
-        block_ratio (float): can be tuned for speed. The _input is splitted in chunks
-            with a size of `int(block_ratio * kernel_size)`.
+#     if length < kernel_size:
+#         raise RuntimeError(
+#             f"Input should be at least as large as the kernel size {kernel_size}, "
+#             f"but it is only {length} samples long.")
+#     if block_ratio < 1:
+#         raise RuntimeError("Block ratio must be greater than 1.")
 
-    Shape:
+#     block_size: int = min(int(kernel_size * block_ratio), length)
+#     fold_stride = block_size - kernel_size + 1
+#     weight = pad_to(weight, block_size)
+#     weight_z = _new_rfft(weight)
 
-        - Inputs: `_input` is `[B, C, T]`, `weight` is `[D, C, K]` and bias is `[D]`.
-        - Output: `(*, T)`
+#     # We pad the _input and get the different frames, on which
+#     frames = unfold(_input, block_size, fold_stride)
 
+#     frames_z = _new_rfft(frames)
+#     out_z = _compl_mul_conjugate(frames_z, weight_z)
+#     out = _new_irfft(out_z, block_size)
+#     # The last bit is invalid, because FFT will do a circular convolution.
+#     out = out[..., :-kernel_size + 1]
+#     out = out.reshape([batch, out_channels, -1])
+#     out = out[..., ::stride]
+#     target_length = (length - kernel_size) // stride + 1
+#     out = out[..., :target_length]
+#     if bias is not None:
+#         out += bias[:, None]
+#     return out
 
-    ..note::
-        This function is faster than `paddle.nn.functional.conv1d` only in specific cases.
-        Typically, the kernel size should be of the order of 256 to see any real gain,
-        for a stride of 1.
+# class FFTConv1d(paddle.nn.Layer):
+#     """
+#     Same as `paddle.nn.Conv1D` but based on a custom FFT-based convolution.
+#     Please check PaddlePaddle documentation for more information on `paddle.nn.Conv1D`.
 
-    ..Warning::
-        Dilation and groups are not supported at the moment. This function might use
-        more memory than the default Conv1d implementation.
-    """
-    _input = F.pad(_input, (padding, padding), data_format="NCL")
-    batch, channels, length = _input.shape
-    out_channels, _, kernel_size = weight.shape
+#     Args:
+#         in_channels (int): number of _input channels.
+#         out_channels (int): number of output channels.
+#         kernel_size (int): kernel size of convolution.
+#         stride (int): stride of convolution.
+#         padding (int): padding to apply to the _input.
+#         bias (bool): if True, use a bias term.
 
-    if length < kernel_size:
-        raise RuntimeError(
-            f"Input should be at least as large as the kernel size {kernel_size}, "
-            f"but it is only {length} samples long.")
-    if block_ratio < 1:
-        raise RuntimeError("Block ratio must be greater than 1.")
+#     ..note::
+#         This module is faster than `paddle.nn.Conv1D` only in specific cases.
+#         Typically, `kernel_size` should be of the order of 256 to see any real gain,
+#         for a stride of 1.
 
-    block_size: int = min(int(kernel_size * block_ratio), length)
-    fold_stride = block_size - kernel_size + 1
-    weight = pad_to(weight, block_size)
-    weight_z = _new_rfft(weight)
+#     ..warning::
+#         Dilation and groups are not supported at the moment. This module might use
+#         more memory than the default Conv1D implementation.
 
-    # We pad the _input and get the different frames, on which
-    frames = unfold(_input, block_size, fold_stride)
+#     >>> fftconv = FFTConv1d(12, 24, 128, 4)
+#     >>> x = paddle.randn([4, 12, 1024])
+#     >>> print(list(fftconv(x).shape))
+#     [4, 24, 225]
+#     """
 
-    frames_z = _new_rfft(frames)
-    out_z = _compl_mul_conjugate(frames_z, weight_z)
-    out = _new_irfft(out_z, block_size)
-    # The last bit is invalid, because FFT will do a circular convolution.
-    out = out[..., :-kernel_size + 1]
-    out = out.reshape([batch, out_channels, -1])
-    out = out[..., ::stride]
-    target_length = (length - kernel_size) // stride + 1
-    out = out[..., :target_length]
-    if bias is not None:
-        out += bias[:, None]
-    return out
+#     def __init__(
+#             self,
+#             in_channels: int,
+#             out_channels: int,
+#             kernel_size: int,
+#             stride: int=1,
+#             padding: int=0,
+#             bias: bool=True, ):
+#         super(FFTConv1d, self).__init__()
+#         self.in_channels = in_channels
+#         self.out_channels = out_channels
+#         self.kernel_size = kernel_size
+#         self.stride = stride
+#         self.padding = padding
 
+#         # Create a Conv1D layer to initialize weights and bias
+#         conv = paddle.nn.Conv1D(
+#             in_channels,
+#             out_channels,
+#             kernel_size,
+#             stride=stride,
+#             padding=padding,
+#             bias_attr=bias)
+#         self.weight = conv.weight
+#         if bias:
+#             self.bias = conv.bias
+#         else:
+#             self.bias = None
 
-class FFTConv1d(paddle.nn.Layer):
-    """
-    Same as `paddle.nn.Conv1D` but based on a custom FFT-based convolution.
-    Please check PaddlePaddle documentation for more information on `paddle.nn.Conv1D`.
-
-    Args:
-        in_channels (int): number of _input channels.
-        out_channels (int): number of output channels.
-        kernel_size (int): kernel size of convolution.
-        stride (int): stride of convolution.
-        padding (int): padding to apply to the _input.
-        bias (bool): if True, use a bias term.
-
-    ..note::
-        This module is faster than `paddle.nn.Conv1D` only in specific cases.
-        Typically, `kernel_size` should be of the order of 256 to see any real gain,
-        for a stride of 1.
-
-    ..warning::
-        Dilation and groups are not supported at the moment. This module might use
-        more memory than the default Conv1D implementation.
-
-    >>> fftconv = FFTConv1d(12, 24, 128, 4)
-    >>> x = paddle.randn([4, 12, 1024])
-    >>> print(list(fftconv(x).shape))
-    [4, 24, 225]
-    """
-
-    def __init__(
-            self,
-            in_channels: int,
-            out_channels: int,
-            kernel_size: int,
-            stride: int=1,
-            padding: int=0,
-            bias: bool=True, ):
-        super(FFTConv1d, self).__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.kernel_size = kernel_size
-        self.stride = stride
-        self.padding = padding
-
-        # Create a Conv1D layer to initialize weights and bias
-        conv = paddle.nn.Conv1D(
-            in_channels,
-            out_channels,
-            kernel_size,
-            stride=stride,
-            padding=padding,
-            bias_attr=bias)
-        self.weight = conv.weight
-        if bias:
-            self.bias = conv.bias
-        else:
-            self.bias = None
-
-    def forward(self, _input: paddle.Tensor):
-        return fft_conv1d(_input, self.weight, self.bias, self.stride,
-                          self.padding)
+#     def forward(self, _input: paddle.Tensor):
+#         return fft_conv1d(_input, self.weight, self.bias, self.stride,
+#                           self.padding)
 
 
 class LowPassFilters(nn.Layer):

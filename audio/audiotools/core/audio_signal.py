@@ -784,10 +784,12 @@ class AudioSignal(
         if self.stft_data is not None:
             self.stft_data = self.stft_data.to(device)
         if self.audio_data is not None:
-            if 'cpu' == device:
+            if device is None or "" == device:
+                return self
+            elif 'cpu' == device:
                 device = paddle.to_tensor(
                     self.audio_data, place=paddle.CPUPlace())
-            if 'gpu' == device or 'cuda' == device:
+            elif 'gpu' == device or 'cuda' == device:
                 device = paddle.to_tensor(
                     self.audio_data, place=paddle.CUDAPlace())
             device = device.replace("cuda",

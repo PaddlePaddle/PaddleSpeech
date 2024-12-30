@@ -1,4 +1,6 @@
 import copy
+import math
+import typing
 
 import numpy as np
 import paddle
@@ -6,6 +8,41 @@ import paddle.nn.functional as F
 import scipy
 
 from . import _julius
+
+
+def unfold(_input, kernel_size: int, stride: int):
+    """1D only unfolding similar to the one from PyTorch.
+    However PyTorch unfold is extremely slow.
+
+    Given an _input tensor of size `[*, T]` this will return
+    a tensor `[*, F, K]` with `K` the kernel size, and `F` the number
+    of frames. The i-th frame is a view onto `i * stride: i * stride + kernel_size`.
+    This will automatically pad the _input to cover at least once all entries in `_input`.
+
+    Args:
+        _input (Tensor): tensor for which to return the frames.
+        kernel_size (int): size of each frame.
+        stride (int): stride between each frame.
+
+    Shape:
+
+        - Inputs: `_input` is `[*, T]`
+        - Output: `[*, F, kernel_size]` with `F = 1 + ceil((T - kernel_size) / stride)`
+
+    ..Warning:: unlike PyTorch unfold, this will pad the _input
+        so that any position in `_input` is covered by at least one frame.
+    """
+    shape = list(_input.shape)
+    length = shape.pop(-1)
+    n_frames = math.ceil((max(length, kernel_size) - kernel_size) / stride) + 1
+    tgt_length = (n_frames - 1) * stride + kernel_size
+    padded = F.pad(_input, (0, tgt_length - length), data_format="NCL")
+    strides: typing.List[int] = []
+    for dim in range(padded.dim()):
+        strides.append(padded.strides[dim])
+    assert strides.pop(-1) == 1, "data should be contiguous"
+    strides = strides + [stride, 1]
+    return padded.as_strided(shape + [n_frames, kernel_size], strides)
 
 
 class Meter(paddle.nn.Layer):
@@ -181,8 +218,8 @@ class Meter(paddle.nn.Layer):
 
         kernel_size = int(T_g * self.rate)
         stride = int(T_g * self.rate * step)
-        unfolded = _julius.unfold(
-            input_data.transpose([0, 2, 1]), kernel_size, stride)
+        print("--", kernel_size, stride)
+        unfolded = unfold(input_data.transpose([0, 2, 1]), kernel_size, stride)
         unfolded = unfolded.transpose([0, 1, 3, 2])
 
         return unfolded

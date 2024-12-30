@@ -269,7 +269,7 @@ class AudioSignal(
             num_tries: int=8,
             state: typing.Union[np.random.RandomState, int]=None,
             **kwargs, ):
-        """❌Similar to AudioSignal.excerpt, except it extracts excerpts only
+        """Similar to AudioSignal.excerpt, except it extracts excerpts only
         if they are above a specified loudness threshold, which is computed via
         a fast LUFS routine.
 
@@ -315,7 +315,7 @@ class AudioSignal(
             num_try = 0
             while loudness <= loudness_cutoff:
                 excerpt = cls.excerpt(audio_path, state=state, **kwargs)
-                loudness = excerpt.loudness()  # <---- NOT IMPLEMENTED YET
+                loudness = excerpt.loudness()
                 num_try += 1
                 if num_tries is not None and num_try >= num_tries:
                     break
@@ -784,7 +784,14 @@ class AudioSignal(
         if self.stft_data is not None:
             self.stft_data = self.stft_data.to(device)
         if self.audio_data is not None:
-            device = "gpu" if "cuda" == device else device
+            if 'cpu' == device:
+                device = paddle.to_tensor(
+                    self.audio_data, place=paddle.CPUPlace())
+            if 'gpu' == device or 'cuda' == device:
+                device = paddle.to_tensor(
+                    self.audio_data, place=paddle.CUDAPlace())
+            device = device.replace("cuda",
+                                    "gpu") if "cuda" in device else device
             self.audio_data = self.audio_data.to(device)
         return self
 

@@ -390,7 +390,7 @@ def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):
 #         out += bias[:, None]
 #     return out
 
-# class FFTConv1d(paddle.nn.Layer):
+# class FFTConv1D(paddle.nn.Layer):
 #     """
 #     Same as `paddle.nn.Conv1D` but based on a custom FFT-based convolution.
 #     Please check PaddlePaddle documentation for more information on `paddle.nn.Conv1D`.
@@ -412,7 +412,7 @@ def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):
 #         Dilation and groups are not supported at the moment. This module might use
 #         more memory than the default Conv1D implementation.
 
-#     >>> fftconv = FFTConv1d(12, 24, 128, 4)
+#     >>> fftconv = FFTConv1D(12, 24, 128, 4)
 #     >>> x = paddle.randn([4, 12, 1024])
 #     >>> print(list(fftconv(x).shape))
 #     [4, 24, 225]
@@ -426,7 +426,7 @@ def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):
 #             stride: int=1,
 #             padding: int=0,
 #             bias: bool=True, ):
-#         super(FFTConv1d, self).__init__()
+#         super(FFTConv1D, self).__init__()
 #         self.in_channels = in_channels
 #         self.out_channels = out_channels
 #         self.kernel_size = kernel_size

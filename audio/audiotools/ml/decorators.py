@@ -29,7 +29,7 @@ def default_list():
 
 
 class Mean:
-    """✅Keeps track of the running mean, along with the latest
+    """Keeps track of the running mean, along with the latest
     value.
     """
 
@@ -51,7 +51,7 @@ class Mean:
 
 
 def when(condition):
-    """✅Runs a function only when the condition is met. The condition is
+    """Runs a function only when the condition is met. The condition is
     a function that is run.
 
     Parameters
@@ -89,7 +89,7 @@ def when(condition):
 
 
 def timer(prefix: str="time"):
-    """✅Adds execution time to the output dictionary of the decorated
+    """Adds execution time to the output dictionary of the decorated
     function. The function decorated by this must output a dictionary.
     The key added will follow the form "[prefix]/[name_of_function]"
 
@@ -116,7 +116,7 @@ def timer(prefix: str="time"):
 
 
 class Tracker:
-    """✅
+    """
     A tracker class that helps to monitor the progress of training and logging the metrics.
 
     Attributes

@@ -144,7 +144,7 @@ def align_lists(lists, matcher: Callable=default_matcher):
 
 
 class AudioDataset:
-    """✅Loads audio from multiple loaders (with associated transforms)
+    """Loads audio from multiple loaders (with associated transforms)
     for a specified number of samples. Excerpts are drawn randomly
     of the specified duration, above a specified loudness threshold
     and are resampled on the fly to the desired sample rate
@@ -466,7 +466,7 @@ class AudioDataset:
 
 
 class ConcatDataset(AudioDataset):
-    # ✅
+    # 
     def __init__(self, datasets: list):
         self.datasets = datasets
 

@@ -169,7 +169,7 @@ class AudioSignal(
             offset: float=0,
             duration: float=None,
             device: str=None, ):
-        # ✅
+        # 
         audio_path = None
         audio_array = None
 
@@ -208,7 +208,7 @@ class AudioSignal(
     @property
     def path_to_input_file(
             self, ):
-        """✅
+        """
         Path to input file, if it exists.
         Alias to ``path_to_file`` for backwards compatibility
         """
@@ -222,7 +222,7 @@ class AudioSignal(
             duration: float=None,
             state: typing.Union[np.random.RandomState, int]=None,
             **kwargs, ):
-        """✅Randomly draw an excerpt of ``duration`` seconds from an
+        """Randomly draw an excerpt of ``duration`` seconds from an
         audio file specified at ``audio_path``, between ``offset`` seconds
         and end of file. ``state`` can be used to seed the random draw.
 
@@ -329,7 +329,7 @@ class AudioSignal(
             num_channels: int=1,
             batch_size: int=1,
             **kwargs, ):
-        """✅Helper function create an AudioSignal of all zeros.
+        """Helper function create an AudioSignal of all zeros.
 
         Parameters
         ----------
@@ -368,7 +368,7 @@ class AudioSignal(
             num_channels: int=1,
             shape: str="sine",
             **kwargs, ):
-        """✅
+        """
         Generate a waveform of a given frequency and shape.
 
         Parameters
@@ -420,7 +420,7 @@ class AudioSignal(
             truncate_signals: bool=False,
             resample: bool=False,
             dim: int=0, ):
-        """✅Creates a batched AudioSignal from a list of AudioSignals.
+        """Creates a batched AudioSignal from a list of AudioSignals.
 
         Parameters
         ----------
@@ -509,7 +509,7 @@ class AudioSignal(
             offset: float,
             duration: float,
             device: str="cpu", ):
-        """✅Loads data from file. Used internally when AudioSignal
+        """Loads data from file. Used internally when AudioSignal
         is instantiated with a path to a file.
 
         Parameters
@@ -558,7 +558,7 @@ class AudioSignal(
             audio_array: typing.Union[paddle.Tensor, np.ndarray],
             sample_rate: int,
             device: str="cpu", ):
-        """✅Loads data from array, reshaping it to be exactly 3
+        """Loads data from array, reshaping it to be exactly 3
         dimensions. Used internally when AudioSignal is called
         with a tensor or an array.
 
@@ -594,7 +594,7 @@ class AudioSignal(
         return self
 
     def write(self, audio_path: typing.Union[str, Path]):
-        """✅Writes audio to a file. Only writes the audio
+        """Writes audio to a file. Only writes the audio
         that is in the very first item of the batch. To write other items
         in the batch, index the signal along the batch dimension
         before writing. After writing, the signal's ``path_to_file``
@@ -636,7 +636,7 @@ class AudioSignal(
         return self
 
     def deepcopy(self):
-        """✅Copies the signal and all of its attributes.
+        """Copies the signal and all of its attributes.
 
         Returns
         -------
@@ -646,7 +646,7 @@ class AudioSignal(
         return copy.deepcopy(self)
 
     def copy(self):
-        """✅Shallow copy of signal.
+        """Shallow copy of signal.
 
         Returns
         -------
@@ -656,7 +656,7 @@ class AudioSignal(
         return copy.copy(self)
 
     def clone(self):
-        """✅Clones all tensors contained in the AudioSignal,
+        """Clones all tensors contained in the AudioSignal,
         and returns a copy of the signal with everything
         cloned. Useful when using AudioSignal within autograd
         computation graphs.
@@ -682,7 +682,7 @@ class AudioSignal(
         return clone
 
     def detach(self):
-        """✅Detaches tensors contained in AudioSignal.
+        """Detaches tensors contained in AudioSignal.
 
         Relevant attributes are the stft data, the audio data,
         and the loudness of the file.
@@ -701,7 +701,7 @@ class AudioSignal(
         return self
 
     def hash(self):
-        """✅Writes the audio data to a temporary file, and then
+        """Writes the audio data to a temporary file, and then
         hashes it using hashlib. Useful for creating a file
         name based on the audio content.
 
@@ -732,7 +732,7 @@ class AudioSignal(
 
     # Signal operations
     def to_mono(self):
-        """✅Converts audio data to mono audio, by taking the mean
+        """Converts audio data to mono audio, by taking the mean
         along the channels dimension.
 
         Returns
@@ -744,7 +744,7 @@ class AudioSignal(
         return self
 
     def resample(self, sample_rate: int):
-        """✅Resamples the audio, using sinc interpolation. This works on both
+        """Resamples the audio, using sinc interpolation. This works on both
         cpu and gpu, and is much faster on gpu.
 
         Parameters
@@ -779,7 +779,7 @@ class AudioSignal(
 
     # Tensor operations
     def to(self, device: str):
-        """✅Moves all tensors contained in signal to the specified device.
+        """Moves all tensors contained in signal to the specified device.
 
         Parameters
         ----------
@@ -801,7 +801,7 @@ class AudioSignal(
         return self
 
     def float(self):
-        """✅Calls ``.float()`` on ``self.audio_data``.
+        """Calls ``.float()`` on ``self.audio_data``.
 
         Returns
         -------
@@ -811,7 +811,7 @@ class AudioSignal(
         return self
 
     def cpu(self):
-        """✅Moves AudioSignal to cpu.
+        """Moves AudioSignal to cpu.
 
         Returns
         -------
@@ -820,7 +820,7 @@ class AudioSignal(
         return self.to("cpu")
 
     def cuda(self):  # pragma: no cover
-        """✅Moves AudioSignal to cuda.
+        """Moves AudioSignal to cuda.
 
         Returns
         -------
@@ -829,7 +829,7 @@ class AudioSignal(
         return self.to("gpu")
 
     def numpy(self):
-        """✅Detaches ``self.audio_data``, moves to cpu, and converts to numpy.
+        """Detaches ``self.audio_data``, moves to cpu, and converts to numpy.
 
         Returns
         -------
@@ -839,7 +839,7 @@ class AudioSignal(
         return self.audio_data.detach().cpu().numpy()
 
     def zero_pad(self, before: int, after: int):
-        """✅Zero pads the audio_data tensor before and after.
+        """Zero pads the audio_data tensor before and after.
 
         Parameters
         ----------
@@ -858,7 +858,7 @@ class AudioSignal(
         return self
 
     def zero_pad_to(self, length: int, mode: str="after"):
-        """✅Pad with zeros to a specified length, either before or after
+        """Pad with zeros to a specified length, either before or after
         the audio data.
 
         Parameters
@@ -880,7 +880,7 @@ class AudioSignal(
         return self
 
     def trim(self, before: int, after: int):
-        """✅Trims the audio_data tensor before and after.
+        """Trims the audio_data tensor before and after.
 
         Parameters
         ----------
@@ -901,7 +901,7 @@ class AudioSignal(
         return self
 
     def truncate_samples(self, length_in_samples: int):
-        """✅Truncate signal to specified length.
+        """Truncate signal to specified length.
 
         Parameters
         ----------
@@ -918,7 +918,7 @@ class AudioSignal(
 
     @property
     def device(self):
-        """✅Get device that AudioSignal is on.
+        """Get device that AudioSignal is on.
 
         Returns
         -------
@@ -934,7 +934,7 @@ class AudioSignal(
     # Properties
     @property
     def audio_data(self):
-        """✅Returns the audio data tensor in the object.
+        """Returns the audio data tensor in the object.
 
         Audio data is always of the shape
         (batch_size, num_channels, num_samples). If value has less
@@ -968,7 +968,7 @@ class AudioSignal(
 
     @property
     def stft_data(self):
-        """✅Returns the STFT data inside the signal. Shape is
+        """Returns the STFT data inside the signal. Shape is
         (batch, channels, frequencies, time).
 
         Returns
@@ -989,7 +989,7 @@ class AudioSignal(
 
     @property
     def batch_size(self):
-        """✅Batch size of audio signal.
+        """Batch size of audio signal.
 
         Returns
         -------
@@ -1000,7 +1000,7 @@ class AudioSignal(
 
     @property
     def signal_length(self):
-        """✅Length of audio signal.
+        """Length of audio signal.
 
         Returns
         -------
@@ -1014,7 +1014,7 @@ class AudioSignal(
 
     @property
     def shape(self):
-        """✅Shape of audio data.
+        """Shape of audio data.
 
         Returns
         -------
@@ -1025,7 +1025,7 @@ class AudioSignal(
 
     @property
     def signal_duration(self):
-        """✅Length of audio signal in seconds.
+        """Length of audio signal in seconds.
 
         Returns
         -------
@@ -1039,7 +1039,7 @@ class AudioSignal(
 
     @property
     def num_channels(self):
-        """✅Number of audio channels.
+        """Number of audio channels.
 
         Returns
         -------
@@ -1052,7 +1052,7 @@ class AudioSignal(
     @staticmethod
     @functools.lru_cache(None)
     def get_window(window_type: str, window_length: int, device: str=None):
-        """✅Wrapper around scipy.signal.get_window so one can also get the
+        """Wrapper around scipy.signal.get_window so one can also get the
         popular sqrt-hann window. This function caches for efficiency
         using functools.lru\_cache.
 
@@ -1083,7 +1083,7 @@ class AudioSignal(
 
     @property
     def stft_params(self):
-        """✅Returns STFTParams object, which can be re-used to other
+        """Returns STFTParams object, which can be re-used to other
         AudioSignals.
 
         This property can be set as well. If values are not defined in STFTParams,
@@ -1106,7 +1106,7 @@ class AudioSignal(
 
     @stft_params.setter
     def stft_params(self, value: STFTParams):
-        # ✅
+        # 
         default_win_len = int(2**(np.ceil(np.log2(0.032 * self.sample_rate))))
         default_hop_len = default_win_len // 4
         default_win_type = "hann"
@@ -1133,7 +1133,7 @@ class AudioSignal(
                              window_length: int,
                              hop_length: int,
                              match_stride: bool):
-        """✅Compute how the STFT should be padded, based on match\_stride.
+        """Compute how the STFT should be padded, based on match\_stride.
 
         Parameters
         ----------
@@ -1169,7 +1169,7 @@ class AudioSignal(
             window_type: str=None,
             match_stride: bool=None,
             padding_type: str=None, ):
-        """✅Computes the short-time Fourier transform of the audio data,
+        """Computes the short-time Fourier transform of the audio data,
         with specified STFT parameters.
 
         Parameters
@@ -1250,7 +1250,7 @@ class AudioSignal(
             window_type: str=None,
             match_stride: bool=None,
             length: int=None, ):
-        """✅Computes inverse STFT and sets it to audio\_data.
+        """Computes inverse STFT and sets it to audio\_data.
 
         Parameters
         ----------
@@ -1325,7 +1325,7 @@ class AudioSignal(
                         n_mels: int,
                         fmin: float=0.0,
                         fmax: float=None):
-        """✅Create a Filterbank matrix to combine FFT bins into Mel-frequency bins.
+        """Create a Filterbank matrix to combine FFT bins into Mel-frequency bins.
 
         Parameters
         ----------
@@ -1360,7 +1360,7 @@ class AudioSignal(
             mel_fmin: float=0.0,
             mel_fmax: float=None,
             **kwargs, ):
-        """✅Computes a Mel spectrogram.
+        """Computes a Mel spectrogram.
 
         Parameters
         ----------
@@ -1397,7 +1397,7 @@ class AudioSignal(
     @staticmethod
     @functools.lru_cache(None)
     def get_dct(n_mfcc: int, n_mels: int, norm: str="ortho", device: str=None):
-        """✅Create a discrete cosine transform (DCT) transformation matrix with shape (``n_mels``, ``n_mfcc``),
+        """Create a discrete cosine transform (DCT) transformation matrix with shape (``n_mels``, ``n_mfcc``),
         it can be normalized depending on norm. For more information about dct:
         http://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II
 
@@ -1426,7 +1426,7 @@ class AudioSignal(
             n_mels: int=80,
             log_offset: float=1e-6,
             **kwargs, ):
-        """✅Computes mel-frequency cepstral coefficients (MFCCs).
+        """Computes mel-frequency cepstral coefficients (MFCCs).
 
         Parameters
         ----------
@@ -1455,7 +1455,7 @@ class AudioSignal(
 
     @property
     def magnitude(self):
-        """✅Computes and returns the absolute value of the STFT, which
+        """Computes and returns the absolute value of the STFT, which
         is the magnitude. This value can also be set to some tensor.
         When set, ``self.stft_data`` is manipulated so that its magnitude
         matches what this is set to, and modulated by the phase.
@@ -1486,7 +1486,7 @@ class AudioSignal(
                       ref_value: float=1.0,
                       amin: float=1e-5,
                       top_db: float=80.0):
-        """✅Computes the log-magnitude of the spectrogram.
+        """Computes the log-magnitude of the spectrogram.
 
         Parameters
         ----------
@@ -1519,7 +1519,7 @@ class AudioSignal(
 
     @property
     def phase(self):
-        """✅Computes and returns the phase of the STFT.
+        """Computes and returns the phase of the STFT.
         This value can also be set to some tensor.
         When set, ``self.stft_data`` is manipulated so that its phase
         matches what this is set to, we original magnitudeith th.
@@ -1543,7 +1543,7 @@ class AudioSignal(
 
     @phase.setter
     def phase(self, value):
-        # ✅
+        # 
         self.stft_data = self.magnitude * paddle.exp(1j * value)
         return
 
@@ -1583,7 +1583,7 @@ class AudioSignal(
 
     # Representation
     def _info(self):
-        # ✅
+        # 
         dur = f"{self.signal_duration:0.3f}" if self.signal_duration else "[unknown]"
         info = {
             "duration":
@@ -1607,7 +1607,7 @@ class AudioSignal(
         return info
 
     def markdown(self):
-        """✅Produces a markdown representation of AudioSignal, in a markdown table.
+        """Produces a markdown representation of AudioSignal, in a markdown table.
 
         Returns
         -------

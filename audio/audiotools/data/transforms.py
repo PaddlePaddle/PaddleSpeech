@@ -16,7 +16,7 @@ from .datasets import AudioLoader
 
 
 class BaseTransform:
-    """✅This is the base class for all transforms that are implemented
+    """This is the base class for all transforms that are implemented
     in this library. Transforms have two main operations: ``transform``
     and ``instantiate``.
 
@@ -272,13 +272,13 @@ class BaseTransform:
 
 
 class Identity(BaseTransform):
-    """✅This transform just returns the original signal."""
+    """This transform just returns the original signal."""
 
     pass
 
 
 class SpectralTransform(BaseTransform):
-    """✅Spectral transforms require STFT data to exist, since manipulations
+    """Spectral transforms require STFT data to exist, since manipulations
     of the STFT require the spectrogram. This just calls ``stft`` before
     the transform is called, and calls ``istft`` after the transform is
     called so that the audio data is written to after the spectral
@@ -293,7 +293,7 @@ class SpectralTransform(BaseTransform):
 
 
 class Compose(BaseTransform):
-    """✅Compose applies transforms in sequence, one after the other. The
+    """Compose applies transforms in sequence, one after the other. The
     transforms are passed in as positional arguments or as a list like so:
 
     >>> transform = tfm.Compose(
@@ -431,7 +431,7 @@ class Compose(BaseTransform):
 
 
 class Choose(Compose):
-    """✅Choose logic is the same as :py:func:`audiotools.data.transforms.Compose`,
+    """Choose logic is the same as :py:func:`audiotools.data.transforms.Compose`,
     but instead of applying all the transforms in sequence, it applies just a single transform,
     which is chosen for each item in the batch.
 
@@ -481,7 +481,7 @@ class Choose(Compose):
 
 
 class Repeat(Compose):
-    """✅Repeatedly applies a given transform ``n_repeat`` times."
+    """Repeatedly applies a given transform ``n_repeat`` times."
 
     Parameters
     ----------
@@ -504,7 +504,7 @@ class Repeat(Compose):
 
 
 class RepeatUpTo(Choose):
-    """✅Repeatedly applies a given transform up to ``max_repeat`` times."
+    """Repeatedly applies a given transform up to ``max_repeat`` times."
 
     Parameters
     ----------
@@ -532,7 +532,7 @@ class RepeatUpTo(Choose):
 
 
 class ClippingDistortion(BaseTransform):
-    """✅Adds clipping distortion to signal. Corresponds
+    """Adds clipping distortion to signal. Corresponds
     to :py:func:`audiotools.core.effects.EffectMixin.clip_distortion`.
 
     Parameters

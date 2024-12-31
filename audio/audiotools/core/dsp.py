@@ -391,7 +391,8 @@ class DSPMixin:
 
         db_cutoff = util.ensure_tensor(db_cutoff, ndim=mag.ndim)
         mask = log_mag < db_cutoff
-        mag = mag.masked_fill(mask, val)
+        # mag = mag.masked_fill(mask, val)
+        mag = paddle.where(mask, mag, val * paddle.ones_like(mag))
 
         self.magnitude = mag
         return self

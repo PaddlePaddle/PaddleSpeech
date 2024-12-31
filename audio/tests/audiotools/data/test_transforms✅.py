@@ -130,6 +130,10 @@ class MulTransform(tfm.BaseTransform):
         super().__init__(name=name, keys=["num"])
 
     def _transform(self, signal, num):
+
+        if not num.dim():
+            num = num.unsqueeze(axis=0)
+
         signal.audio_data = signal.audio_data * num[:, None, None]
         return signal
 

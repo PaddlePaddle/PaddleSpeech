@@ -1695,8 +1695,10 @@ class AudioSignal(
             audio_data = self.audio_data[key]
             _loudness = self._loudness[
                 key] if self._loudness is not None else None
-            stft_data = self.stft_data[
-                key] if self.stft_data is not None else None
+            # stft_data = self.stft_data[
+            #     key] if self.stft_data is not None else None
+            stft_data = util.bool_index_compat(
+                self.stft_data, key) if self.stft_data is not None else None
 
         sources = None
 
@@ -1732,7 +1734,9 @@ class AudioSignal(
                 else:
                     self._loudness[key] = value._loudness
             if self.stft_data is not None and value.stft_data is not None:
-                self.stft_data[key] = value.stft_data
+                # self.stft_data[key] = value.stft_data
+                self.stft_data = util.bool_setitem_compat(self.stft_data, key,
+                                                          value.stft_data)
             return
 
     def __ne__(self, other):

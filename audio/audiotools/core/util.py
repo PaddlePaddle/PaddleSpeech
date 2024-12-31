@@ -59,6 +59,64 @@ def exp_compat(x):
         return paddle.to_tensor(np.exp(x_np))
 
 
+def bool_index_compat(x, mask):
+    """
+    Perform boolean indexing on the input tensor `x` using the provided `mask`.
+
+    This function ensures compatibility with PaddlePaddle versions below 2.6, where boolean indexing
+    may not be fully supported. For older versions, the operation is performed using NumPy.
+
+    Args:
+        x (paddle.Tensor): The input tensor to be indexed.
+        mask (paddle.Tensor or int): The boolean mask or integer index used for indexing.
+
+    Returns:
+        paddle.Tensor: The result of the boolean indexing operation, as a PaddlePaddle tensor.
+
+    Notes:
+        - If the PaddlePaddle version is 2.6 or above, or if `mask` is an integer, the function uses
+          Paddle's native indexing directly.
+        - For versions below 2.6, the tensor and mask are converted to NumPy arrays, the indexing
+          operation is performed using NumPy, and the result is converted back to a PaddlePaddle tensor.
+    """
+    if satisfy_paddle_version("2.6") or isinstance(mask, (int, list)):
+        return x[mask]
+    else:
+        x_np = x.cpu().numpy()[mask.cpu().numpy()]
+        return paddle.to_tensor(x_np)
+
+
+def bool_setitem_compat(x, mask, y):
+    """
+    Perform boolean assignment on the input tensor `x` using the provided `mask` and values `y`.
+
+    This function ensures compatibility with PaddlePaddle versions below 2.6, where boolean assignment
+    may not be fully supported. For older versions, the operation is performed using NumPy.
+
+    Args:
+        x (paddle.Tensor): The input tensor to be modified.
+        mask (paddle.Tensor): The boolean mask used for assignment.
+        y (paddle.Tensor): The values to assign to the selected elements of `x`.
+
+    Returns:
+        paddle.Tensor: The modified tensor after the assignment operation.
+
+    Notes:
+        - If the PaddlePaddle version is 2.6 or above, the function uses Paddle's native assignment directly.
+        - For versions below 2.6, the tensor, mask, and values are converted to NumPy arrays, the assignment
+          operation is performed using NumPy, and the result is converted back to a PaddlePaddle tensor.
+    """
+    if satisfy_paddle_version("2.6"):
+
+        x[mask] = y
+        return x
+    else:
+        x_np = x.cpu().numpy()
+        x_np[mask.cpu().numpy()] = y.cpu().numpy()
+
+        return paddle.to_tensor(x_np)
+
+
 @dataclass
 class Info:
 

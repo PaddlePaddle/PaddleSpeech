@@ -313,7 +313,7 @@ class DSPMixin:
 
         mag = paddle.where(mask, paddle.full_like(mag, val), mag)
         phase = paddle.where(mask, paddle.full_like(phase, val), phase)
-        self.stft_data = mag * paddle.exp(1j * phase)
+        self.stft_data = mag * util.exp_compat(1j * phase)
         return self
 
     def mask_timesteps(
@@ -362,7 +362,7 @@ class DSPMixin:
         mag = paddle.where(mask, paddle.full_like(mag, val), mag)
         phase = paddle.where(mask, paddle.full_like(phase, val), phase)
 
-        self.stft_data = mag * paddle.exp(1j * phase)
+        self.stft_data = mag * util.exp_compat(1j * phase)
         return self
 
     def mask_low_magnitudes(

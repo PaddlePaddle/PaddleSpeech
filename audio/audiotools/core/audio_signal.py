@@ -1479,7 +1479,7 @@ class AudioSignal(
 
     @magnitude.setter
     def magnitude(self, value):
-        self.stft_data = value * paddle.exp(1j * self.phase)
+        self.stft_data = value * util.exp_compat(1j * self.phase)
         return
 
     def log_magnitude(self,
@@ -1544,7 +1544,7 @@ class AudioSignal(
     @phase.setter
     def phase(self, value):
         # 
-        self.stft_data = self.magnitude * paddle.exp(1j * value)
+        self.stft_data = self.magnitude * util.exp_compat(1j * value)
         return
 
     # Operator overloading

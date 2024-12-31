@@ -7,6 +7,7 @@ from visualdl import LogWriter
 from audiotools.ml.decorators import timer
 from audiotools.ml.decorators import Tracker
 from audiotools.ml.decorators import when
+from audiotools import util
 
 
 def test_all_decorators():
@@ -26,12 +27,16 @@ def test_all_decorators():
         i = tracker.step
         time.sleep(0.01)
         return {
-            "loss": paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
-            "mel": paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
-            "stft": paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
+            "loss":
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
+            "mel":
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
+            "stft":
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
             "waveform":
-            paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
-            "not_scalar": paddle.arange(start=0, end=10, step=1, dtype="int64"),
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
+            "not_scalar":
+            paddle.arange(start=0, end=10, step=1, dtype="int64"),
         }
 
     @tracker.track("val", len(val_data))
@@ -40,13 +45,18 @@ def test_all_decorators():
         i = tracker.step
         time.sleep(0.01)
         return {
-            "loss": paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
-            "mel": paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
-            "stft": paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
+            "loss":
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
+            "mel":
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
+            "stft":
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
             "waveform":
-            paddle.exp(paddle.to_tensor([-i / 100], dtype="float32")),
-            "not_scalar": paddle.arange(10, dtype="int64"),
-            "string": "string",
+            util.exp_compat(paddle.to_tensor([-i / 100], dtype="float32")),
+            "not_scalar":
+            paddle.arange(10, dtype="int64"),
+            "string":
+            "string",
         }
 
     @when(lambda: tracker.step % 1000 == 0 and rank == 0)

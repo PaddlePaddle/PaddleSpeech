@@ -28,8 +28,35 @@ from flatten_dict import flatten
 from flatten_dict import unflatten
 
 from .audio_signal import AudioSignal
+from paddlespeech.utils import satisfy_paddle_version
 
 # from ..data.preprocess import create_csv
+
+
+def exp_compat(x):
+    """
+    Compute the exponential of the input tensor `x`.
+
+    This function is designed to handle compatibility issues with PaddlePaddle versions below 2.6,
+    which do not support the `exp` operation for complex tensors. In such cases, the computation
+    is offloaded to NumPy.
+
+    Args:
+        x (paddle.Tensor): The input tensor for which to compute the exponential.
+
+    Returns:
+        paddle.Tensor: The result of the exponential operation, as a PaddlePaddle tensor.
+
+    Notes:
+        - If the PaddlePaddle version is 2.6 or above, the function uses `paddle.exp` directly.
+        - For versions below 2.6, the tensor is first converted to a NumPy array, the exponential
+          is computed using `np.exp`, and the result is then converted back to a PaddlePaddle tensor.
+    """
+    if satisfy_paddle_version("2.6"):
+        return paddle.exp(x)
+    else:
+        x_np = x.cpu().numpy()
+        return paddle.to_tensor(np.exp(x_np))
 
 
 @dataclass

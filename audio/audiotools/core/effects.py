@@ -182,7 +182,7 @@ class EffectMixin:
         # Use the input phase
         if use_original_phase:
             self.stft()
-            self.stft_data = self.magnitude * paddle.exp(1j * phase)
+            self.stft_data = self.magnitude * util.exp_compat(1j * phase)
             self.istft()
 
         # Rescale to the input's amplitude
@@ -230,7 +230,7 @@ class EffectMixin:
         db = util.ensure_tensor(db)
         ref_db = self.loudness()
         gain = db - ref_db
-        gain = paddle.exp(gain * self.GAIN_FACTOR)
+        gain = util.exp_compat(gain * self.GAIN_FACTOR)
 
         self.audio_data = self.audio_data * gain[:, None, None]
         return self
@@ -249,7 +249,7 @@ class EffectMixin:
             Signal at new volume.
         """
         db = util.ensure_tensor(db, ndim=1)
-        gain = paddle.exp(db * self.GAIN_FACTOR)
+        gain = util.exp_compat(db * self.GAIN_FACTOR)
         self.audio_data = self.audio_data * gain[:, None, None]
         return self
 
@@ -535,7 +535,7 @@ class EffectMixin:
         # unquantize
         x = (x / mu) * 2 - 1.0
         x = paddle.sign(x) * (
-            paddle.exp(paddle.abs(x) * paddle.log1p(mu)) - 1.0) / mu
+            util.exp_compat(paddle.abs(x) * paddle.log1p(mu)) - 1.0) / mu
 
         residual = (self.audio_data - x).detach()
         self.audio_data = self.audio_data - residual

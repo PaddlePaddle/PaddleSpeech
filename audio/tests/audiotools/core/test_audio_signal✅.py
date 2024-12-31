@@ -10,6 +10,7 @@ import rich
 sys.path.append("../..")
 import audiotools
 from audiotools import AudioSignal
+from audiotools import util
 
 
 def test_io():
@@ -421,7 +422,7 @@ def test_stft(window_length, hop_length, window_type):
         mag = signal.magnitude
         phase = signal.phase
 
-        recon_stft = mag * paddle.exp(1j * phase)
+        recon_stft = mag * util.exp_compat(1j * phase)
         # assert paddle.allclose(recon_stft, signal.stft_data)
         assert np.allclose(recon_stft.cpu().numpy(),
                            signal.stft_data.cpu().numpy())
@@ -431,7 +432,7 @@ def test_stft(window_length, hop_length, window_type):
         signal.stft_data = None
         phase = signal.phase
 
-        recon_stft = mag * paddle.exp(1j * phase)
+        recon_stft = mag * util.exp_compat(1j * phase)
         # assert paddle.allclose(recon_stft, signal.stft_data)
         assert np.allclose(recon_stft.cpu().numpy(),
                            signal.stft_data.cpu().numpy())

@@ -244,7 +244,9 @@ def test_indexing():
     indexed = sig1[mask]
 
     assert np.allclose(indexed.audio_data, sig1.audio_data[mask])
-    assert np.allclose(indexed.stft_data, sig1.stft_data[mask])
+    # assert np.allclose(indexed.stft_data, sig1.stft_data[mask])
+    assert np.allclose(indexed.stft_data,
+                       util.bool_index_compat(sig1.stft_data, mask))
     assert np.allclose(indexed._loudness, sig1._loudness[mask])
 
     # Set parts of signal using tensor
@@ -282,7 +284,9 @@ def test_indexing():
         a1 = getattr(sig1, k)
         a2 = getattr(sig2, k)
 
-        assert np.allclose(a1[mask], a2[mask])
+        # assert np.allclose(a1[mask], a2[mask])
+        assert np.allclose(
+            util.bool_index_compat(a1, mask), util.bool_index_compat(a2, mask))
 
 
 def test_zeros():

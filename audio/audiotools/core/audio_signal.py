@@ -764,19 +764,6 @@ class AudioSignal(
         self.sample_rate = sample_rate
         return self
 
-    @staticmethod
-    def move_to_device(data, device):
-        if device is None or device == "":
-            return data
-        elif device == 'cpu':
-            return paddle.to_tensor(data, place=paddle.CPUPlace())
-        elif device in ('gpu', 'cuda'):
-            return paddle.to_tensor(data, place=paddle.CUDAPlace())
-        else:
-            device = device.replace("cuda",
-                                    "gpu") if "cuda" in device else device
-            return data.to(device)
-
     # Tensor operations
     def to(self, device: str):
         """Moves all tensors contained in signal to the specified device.
@@ -793,11 +780,11 @@ class AudioSignal(
             AudioSignal with all tensors moved to specified device.
         """
         if self._loudness is not None:
-            self._loudness = self.move_to_device(self._loudness, device)
+            self._loudness = util.move_to_device(self._loudness, device)
         if self.stft_data is not None:
-            self.stft_data = self.move_to_device(self.stft_data, device)
+            self.stft_data = util.move_to_device(self.stft_data, device)
         if self.audio_data is not None:
-            self.audio_data = self.move_to_device(self.audio_data, device)
+            self.audio_data = util.move_to_device(self.audio_data, device)
         return self
 
     def float(self):

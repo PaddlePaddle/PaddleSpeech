@@ -26,8 +26,8 @@ def test_overlap_add(duration, sample_rate, window_duration):
 
         def _test(signal):
             hop_duration = window_duration / 2
-            windowed_signal = signal.deepcopy().collect_windows(window_duration,
-                                                                hop_duration)
+            windowed_signal = signal.clone().collect_windows(window_duration,
+                                                             hop_duration)
             recombined = windowed_signal.overlap_and_add(hop_duration)
 
             assert recombined == signal
@@ -55,11 +55,11 @@ def test_inplace_overlap_add(duration, sample_rate, window_duration):
 
         def _test(signal):
             hop_duration = window_duration / 2
-            windowed_signal = signal.deepcopy().collect_windows(window_duration,
-                                                                hop_duration)
+            windowed_signal = signal.clone().collect_windows(window_duration,
+                                                             hop_duration)
             # Compare in-place with unfold results
             for i, window in enumerate(
-                    signal.deepcopy().windows(window_duration, hop_duration)):
+                    signal.clone().windows(window_duration, hop_duration)):
                 assert np.allclose(window.audio_data,
                                    windowed_signal.audio_data[i])
 
@@ -75,17 +75,16 @@ def test_low_pass():
     window = AudioSignal.get_window("hann", sine_wave.shape[-1])
     sine_wave = sine_wave * window
     signal = AudioSignal(sine_wave.unsqueeze(0), sample_rate=sample_rate)
-    out = signal.deepcopy().low_pass(220)
+    out = signal.clone().low_pass(220)
     assert out.audio_data.abs().max() < 1e-4
 
-    out = signal.deepcopy().low_pass(880)
+    out = signal.clone().low_pass(880)
     assert (out - signal).audio_data.abs().max() < 1e-3
 
-    batch = AudioSignal.batch(
-        [signal.deepcopy(), signal.deepcopy(), signal.deepcopy()])
+    batch = AudioSignal.batch([signal.clone(), signal.clone(), signal.clone()])
 
     cutoffs = [220, 880, 220]
-    out = batch.deepcopy().low_pass(cutoffs)
+    out = batch.clone().low_pass(cutoffs)
 
     assert out.audio_data[0].abs().max() < 1e-4
     assert out.audio_data[2].abs().max() < 1e-4
@@ -100,7 +99,7 @@ def test_high_pass():
     window = AudioSignal.get_window("hann", sine_wave.shape[-1])
     sine_wave = sine_wave * window
     signal = AudioSignal(sine_wave.unsqueeze(0), sample_rate=sample_rate)
-    out = signal.deepcopy().high_pass(220)
+    out = signal.clone().high_pass(220)
     assert (signal - out).audio_data.abs().max() < 1e-4
 
 

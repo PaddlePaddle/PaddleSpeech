@@ -1225,7 +1225,7 @@ class AudioSignal(
             mode="reflect",
             data_format="NCL", )
         stft_data = paddle.signal.stft(
-            audio_data.reshape([-1, audio_data.shape[-1]]),
+            audio_data.reshape([-1, audio_data.shape[-1]]).astype("float32"),
             n_fft=window_length,
             hop_length=hop_length,
             window=window,

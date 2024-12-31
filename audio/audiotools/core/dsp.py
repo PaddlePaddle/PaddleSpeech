@@ -14,7 +14,8 @@ def _unfold(x, kernel_sizes, strides):
         x_zeros = paddle.zeros_like(x)
         x = paddle.concat([x, x_zeros], axis=2)
 
-        kernel_sizes = (2, kernel_sizes[1])
+        kernel_sizes = [2, kernel_sizes[1]]
+        strides = list(strides)
 
     unfolded = paddle.nn.functional.unfold(
         x,

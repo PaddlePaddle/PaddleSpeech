@@ -144,42 +144,9 @@ def test_pipeline():
     (spk @ ir).mix(nz, snr=tgt_snr)
 
 
-# def test_codec():
 
-#     audio_path = "./audio/spk/f10_script4_produced.wav"
-#     spk = AudioSignal(audio_path, offset=10, duration=10)
 
-#     with pytest.raises(ValueError):
-#         spk.apply_codec("unknown preset")
 
-#     out = spk.deepcopy().apply_codec("Ogg")
-#     out = spk.deepcopy().apply_codec("8-bit")
-
-# def test_pitch_shift():
-#     audio_path = "./audio/spk/f10_script4_produced.wav"
-#     spk = AudioSignal(audio_path, offset=10, duration=1)
-
-#     single = spk.deepcopy().pitch_shift(5)
-
-#     batch_size = 4
-#     spk_batch = AudioSignal.batch([spk.deepcopy() for _ in range(batch_size)])
-
-#     batched = spk_batch.deepcopy().pitch_shift(5)
-
-#     assert np.allclose(batched[0].audio_data, single[0].audio_data)
-
-# def test_time_stretch():
-#     audio_path = "./audio/spk/f10_script4_produced.wav"
-#     spk = AudioSignal(audio_path, offset=10, duration=1)
-
-#     single = spk.deepcopy().time_stretch(0.8)
-
-#     batch_size = 4
-#     spk_batch = AudioSignal.batch([spk.deepcopy() for _ in range(batch_size)])
-
-#     batched = spk_batch.deepcopy().time_stretch(0.8)
-
-#     assert np.allclose(batched[0].audio_data, single[0].audio_data)
 
 
 @pytest.mark.parametrize("n_bands", [1, 2, 4, 8, 12, 16])

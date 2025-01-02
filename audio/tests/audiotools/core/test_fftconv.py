@@ -63,16 +63,7 @@ class TestFFTConv1d(_BaseTest):
         w = paddle.randn([10, 5, 19])
         self.assertEqual(list(fft_conv1d(x, w).shape), [1, 10, 1])
 
-    # def test_block_ratio(self):
-    #     x = paddle.randn([1, 5, 1024])
-    #     w = paddle.randn([10, 5, 19])
-    #     ref = fft_conv1d(x, w)
-    #     for block_ratio in [1, 5, 10, 20]:
-    #         y = fft_conv1d(x, w, block_ratio=block_ratio)
-    #         self.assertSimilar(y, ref, msg=str(block_ratio))
 
-    #     with self.assertRaises(RuntimeError):
-    #         y = fft_conv1d(x, w, block_ratio=0.9)
 
     def test_module(self):
         x = paddle.randn([16, 4, 1024])

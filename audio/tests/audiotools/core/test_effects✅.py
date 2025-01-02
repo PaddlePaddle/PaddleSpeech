@@ -353,6 +353,3 @@ def test_ensure_max_of_audio():
     after = spk.deepcopy().ensure_max_of_audio()
 
     assert paddle.allclose(after.audio_data, spk.audio_data)
-
-
-test_normalize()

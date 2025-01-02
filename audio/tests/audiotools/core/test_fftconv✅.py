@@ -1,4 +1,3 @@
-# File under the MIT license, see https://github.com/your_repo/your_license for details.
 import random
 import sys
 import unittest

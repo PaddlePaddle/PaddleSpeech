@@ -1,5 +1,3 @@
-# File under the MIT license, see https://github.com/adefossez/julius/LICENSE for details.
-# Author: adefossez, 2020
 import random
 import sys
 import unittest

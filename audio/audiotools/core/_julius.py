@@ -1,5 +1,3 @@
-# File under the MIT license, see https://github.com/adefossez/julius/LICENSE for details.
-# Author: adefossez, 2020
 """
 Implementation of a FFT based 1D convolution in PaddlePaddle.
 While FFT is used in some cases for small kernel sizes, it is not the default for long ones, e.g. 512.

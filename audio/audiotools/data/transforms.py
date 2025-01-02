@@ -15,6 +15,28 @@ from ..core import util
 from .datasets import AudioLoader
 from paddlespeech.utils import satisfy_paddle_version
 
+__all__ = [
+    "Identity",
+    "SpectralTransform",
+    "Compose",
+    "Choose",
+    "Repeat",
+    "RepeatUpTo",
+    "ClippingDistortion",
+    "Equalizer",
+    "BackgroundNoise",
+    "RoomImpulseResponse",
+    "VolumeNorm",
+    "GlobalVolumeNorm",
+    "Silence",
+    "LowPass",
+    "HighPass",
+    "FrequencyMask",
+    "TimeMask",
+    "Smoothing",
+    "FrequencyNoise",
+]
+
 
 class BaseTransform:
     """This is the base class for all transforms that are implemented

@@ -397,11 +397,6 @@ class EffectMixin:
         return self.convolve(other)
 
 
-import paddle
-import typing
-import numpy as np
-
-
 class ImpulseResponseMixin:
     """These functions are generally only used with AudioSignals that are derived
     from impulse responses, not other sources like music or speech. These methods

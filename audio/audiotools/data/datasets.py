@@ -12,6 +12,11 @@ from paddle.io import SequenceSampler
 from ..core import AudioSignal
 from ..core import util
 
+__all__ = [
+    "AudioLoader", "AudioDataset", "ConcatDataset",
+    "ResumableDistributedSampler", "ResumableSequentialSampler"
+]
+
 
 class AudioLoader:
     """Loads audio endlessly from a list of audio sources

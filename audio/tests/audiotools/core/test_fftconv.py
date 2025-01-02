@@ -63,8 +63,6 @@ class TestFFTConv1d(_BaseTest):
         w = paddle.randn([10, 5, 19])
         self.assertEqual(list(fft_conv1d(x, w).shape), [1, 10, 1])
 
-
-
     def test_module(self):
         x = paddle.randn([16, 4, 1024])
         mod = FFTConv1D(4, 5, 8, bias_attr=True)

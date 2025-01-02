@@ -144,11 +144,6 @@ def test_pipeline():
     (spk @ ir).mix(nz, snr=tgt_snr)
 
 
-
-
-
-
-
 @pytest.mark.parametrize("n_bands", [1, 2, 4, 8, 12, 16])
 def test_mel_filterbank(n_bands):
     audio_path = "./audio/spk/f10_script4_produced.wav"

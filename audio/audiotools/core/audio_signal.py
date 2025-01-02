@@ -94,13 +94,10 @@ STFTParams.__new__.__defaults__ = (None, None, None, None, None)
 class AudioSignal(
         EffectMixin,
         LoudnessMixin,
-        # PlayMixin,
         ImpulseResponseMixin,
         DSPMixin,
         DisplayMixin,
-        FFMPEGMixin,
-        # WhisperMixin,
-):
+        FFMPEGMixin, ):
     """This is the core object of this library. Audio is always
     loaded into an AudioSignal, which then enables all the features
     of this library, including audio augmentations, I/O, playback,

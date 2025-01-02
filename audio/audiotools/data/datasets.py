@@ -478,21 +478,6 @@ class ConcatDataset(AudioDataset):
         return dataset[idx // len(self.datasets)]
 
 
-# class ResumableDistributedSampler(DistributedSampler):  # pragma: no cover
-#     """Distributed sampler that can be resumed from a given start index."""
-
-#     def __init__(self, dataset, start_idx: int = None, **kwargs):
-#         super().__init__(dataset, **kwargs)
-#         # Start index, allows to resume an experiment at the index it was
-#         self.start_idx = start_idx // self.num_replicas if start_idx is not None else 0
-
-#     def __iter__(self):
-#         for i, idx in enumerate(super().__iter__()):
-#             if i >= self.start_idx:
-#                 yield idx
-#         self.start_idx = 0  # set the index back to 0 so for the next epoch
-
-
 class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
     """Distributed sampler that can be resumed from a given start index."""
 

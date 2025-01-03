@@ -1,3 +1,4 @@
+ffmpeg-python
 flatten_dict
 gradio
 IPython

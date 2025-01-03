@@ -20,6 +20,7 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
+import ffmpeg
 import librosa
 import numpy as np
 import paddle
@@ -149,6 +150,30 @@ class Info:
         return self.num_frames / self.sample_rate
 
 
+def info_ffmpeg(audio_path: str):
+    """
+    Parameters
+    ----------
+    audio_path : str
+        Path to audio file.
+    """
+    probe = ffmpeg.probe(audio_path)
+    audio_streams = [
+        stream for stream in probe['streams'] if stream['codec_type'] == 'audio'
+    ]
+    if not audio_streams:
+        raise ValueError("No audio stream found in the file.")
+    audio_stream = audio_streams[0]
+
+    sample_rate = int(audio_stream['sample_rate'])
+    duration = float(audio_stream['duration'])
+
+    num_frames = int(duration * sample_rate)
+
+    info = Info(sample_rate=sample_rate, num_frames=num_frames)
+    return info
+
+
 def info(audio_path: str):
     """
 
@@ -157,8 +182,11 @@ def info(audio_path: str):
     audio_path : str
         Path to audio file.
     """
-    info = soundfile.info(str(audio_path))
-    info = Info(sample_rate=info.samplerate, num_frames=info.frames)
+    try:
+        info = soundfile.info(str(audio_path))
+        info = Info(sample_rate=info.samplerate, num_frames=info.frames)
+    except:
+        info = info_ffmpeg(str(audio_path))
 
     return info
 

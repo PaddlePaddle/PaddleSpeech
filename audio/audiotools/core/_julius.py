@@ -15,14 +15,14 @@ from typing import Sequence
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
-sys.path.append("/home/aistudio/PaddleSpeech")
+
 from paddlespeech.t2s.modules import fft_conv1d
 from paddlespeech.t2s.modules import FFTConv1D
+from paddlespeech.utils import satisfy_paddle_version
 
 __all__ = [
-    'fft_conv1d', 'FFTConv1D', 'highpass_filter', 'highpass_filters',
-    'lowpass_filter', 'LowPassFilter', 'LowPassFilters', 'pure_tone',
-    'resample_frac', 'split_bands', 'SplitBands'
+    'highpass_filter', 'highpass_filters', 'lowpass_filter', 'LowPassFilter',
+    'LowPassFilters', 'pure_tone', 'resample_frac', 'split_bands', 'SplitBands'
 ]
 
 
@@ -61,6 +61,9 @@ def sinc(x: paddle.Tensor):
 
     __Warning__: the input is not multiplied by `pi`!
     """
+    if satisfy_paddle_version("2.6"):
+        return paddle.sinc(x)
+
     return paddle.where(
         x == 0,
         paddle.to_tensor(1.0, dtype=x.dtype, place=x.place),
@@ -103,7 +106,7 @@ class ResampleFrac(paddle.nn.Layer):
         >>> print(len(resample(x)))
         1250
         """
-        super(ResampleFrac, self).__init__()
+        super().__init__()
         if not isinstance(old_sr, int) or not isinstance(new_sr, int):
             raise ValueError("old_sr and new_sr should be integers")
         gcd = math.gcd(old_sr, new_sr)
@@ -257,7 +260,7 @@ class LowPassFilters(nn.Layer):
                  zeros: float=8,
                  fft: Optional[bool]=None,
                  dtype="float32"):
-        super(LowPassFilters, self).__init__()
+        super().__init__()
         self.cutoffs = list(cutoffs)
         if min(self.cutoffs) < 0:
             raise ValueError("Minimum cutoff must be larger than zero.")
@@ -325,7 +328,7 @@ class LowPassFilter(nn.Layer):
                  pad: bool=True,
                  zeros: float=8,
                  fft: Optional[bool]=None):
-        super(LowPassFilter, self).__init__()
+        super().__init__()
         self._lowpasses = LowPassFilters([cutoff], stride, pad, zeros, fft)
 
     @property
@@ -583,7 +586,7 @@ class SplitBands(paddle.nn.Layer):
             pad: bool=True,
             zeros: float=8,
             fft: Optional[bool]=None, ):
-        super(SplitBands, self).__init__()
+        super().__init__()
         if (cutoffs is None) + (n_bands is None) != 1:
             raise ValueError(
                 "You must provide either n_bands, or cutoffs, but not both.")

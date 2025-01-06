@@ -587,7 +587,7 @@ class AudioSignal(
         self.original_signal_length = self.signal_length
 
         self.sample_rate = sample_rate
-        # return self.to(device)
+
         return self
 
     def write(self, audio_path: typing.Union[str, Path]):
@@ -1198,7 +1198,6 @@ class AudioSignal(
         padding_type = self.stft_params.padding_type if padding_type is None else padding_type
 
         window = self.get_window(window_type, window_length)
-        # window = window.to(self.audio_data.device)
 
         audio_data = self.audio_data
         right_pad, pad = self.compute_stft_padding(window_length, hop_length,
@@ -1362,6 +1361,26 @@ class AudioSignal(
         paddle.Tensor [shape=(batch, channels, mels, time)]
             Mel spectrogram.
         """
+        # from paddle.audio.compliance.librosa import melspectrogram
+        # # from ..compliance.librosa import melspectrogram
+        # return melspectrogram(
+        #     x=self.audio_data,
+        #     sr=self.sample_rate,
+        #     window_size: int=512,
+        #     hop_length: int=320,
+        #     n_mels: int=64,
+        #     fmin: float=50.0,
+        #     fmax: Optional[float]=None,
+        #     window: str='hann',
+        #     center: bool=True,
+        #     pad_mode: str='reflect',
+        #     power: float=2.0,
+        #     to_db: bool=True,
+        #     ref: float=1.0,
+        #     amin: float=1e-10,
+        #     top_db: Optional[float]=None
+        # )
+
         stft = self.stft(**kwargs)
         magnitude = paddle.abs(stft)
 
@@ -1428,6 +1447,9 @@ class AudioSignal(
         paddle.Tensor [shape=(batch, channels, mfccs, time)]
             MFCCs.
         """
+
+        # from paddle.audio.compliance.librosa import mfcc
+        # return mfcc(self.audio_data, self.sample_rate, n_mfcc=n_mfcc, n_mels=n_mels)
 
         mel_spectrogram = self.mel_spectrogram(n_mels, **kwargs)
         mel_spectrogram = paddle.log(mel_spectrogram + log_offset)

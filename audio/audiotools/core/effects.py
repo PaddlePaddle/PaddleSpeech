@@ -266,7 +266,7 @@ class EffectMixin:
         """
         db = util.ensure_tensor(db)
         ref_db = self.loudness()
-        gain = db - ref_db
+        gain = db.astype(ref_db.dtype) - ref_db
         gain = util.exp_compat(gain * self.GAIN_FACTOR)
 
         self.audio_data = self.audio_data * gain[:, None, None]
@@ -388,6 +388,7 @@ class EffectMixin:
             quantization_channels, ndim=3)
 
         x = self.audio_data
+        quantization_channels = quantization_channels.astype(x.dtype)
         x = (x + 1) / 2
         x = x * quantization_channels
         x = x.floor()
@@ -424,7 +425,7 @@ class EffectMixin:
         x = ((x + 1) / 2 * mu + 0.5).astype("int64")
 
         # unquantize
-        x = (x / mu) * 2 - 1.0
+        x = (x.astype(mu.dtype) / mu) * 2 - 1.0
         x = paddle.sign(x) * (
             util.exp_compat(paddle.abs(x) * paddle.log1p(mu)) - 1.0) / mu
 

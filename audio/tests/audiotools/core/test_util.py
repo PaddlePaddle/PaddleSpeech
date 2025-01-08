@@ -88,7 +88,7 @@ def test_seed():
 
 
 def test_hz_to_bin():
-    hz = paddle.to_tensor(np.array([100, 200, 300]))
+    hz = paddle.to_tensor(np.array([100, 200, 300]), dtype="float32")
     sr = 1000
     n_fft = 2048
 

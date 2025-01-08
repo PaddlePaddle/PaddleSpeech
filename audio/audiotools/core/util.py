@@ -338,7 +338,7 @@ def _close_temp_files(tmpfiles: list):
     _close()
 
 
-AUDIO_EXTENSIONS = [".wav", ".flac", ".mp3", ".mp4"]
+AUDIO_EXTENSIONS = [".wav", ".flac", ".mp3"]
 
 
 def find_audio(folder: str, ext: List[str]=AUDIO_EXTENSIONS):
@@ -869,7 +869,7 @@ def hz_to_bin(hz: paddle.Tensor, n_fft: int, sample_rate: int):
     shape = hz.shape
     hz = hz.reshape([-1])
     freqs = paddle.linspace(0, sample_rate / 2, 2 + n_fft // 2)
-    hz = paddle.clip(hz, max=sample_rate / 2)
+    hz = paddle.clip(hz, max=sample_rate / 2).astype(freqs.dtype)
 
     closest = (hz[None, :] - freqs[:, None]).abs()
     closest_bins = closest.argmin(axis=0)

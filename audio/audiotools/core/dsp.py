@@ -349,6 +349,9 @@ class DSPMixin:
             nbins, )
         bins_hz = bins_hz[None, None, :, None].tile(
             [self.batch_size, 1, 1, mag.shape[-1]])
+
+        fmin_hz, fmax_hz = fmin_hz.astype(bins_hz.dtype), fmax_hz.astype(
+            bins_hz.dtype)
         mask = (fmin_hz <= bins_hz) & (bins_hz < fmax_hz)
 
         mag = paddle.where(mask, paddle.full_like(mag, val), mag)
@@ -429,6 +432,7 @@ class DSPMixin:
         log_mag = self.log_magnitude()
 
         db_cutoff = util.ensure_tensor(db_cutoff, ndim=mag.ndim)
+        db_cutoff = db_cutoff.astype(log_mag.dtype)
         mask = log_mag < db_cutoff
         # mag = mag.masked_fill(mask, val)
         mag = paddle.where(mask, mag, val * paddle.ones_like(mag))
@@ -452,6 +456,7 @@ class DSPMixin:
             masked audio data.
         """
         shift = util.ensure_tensor(shift, ndim=self.phase.ndim)
+        shift = shift.astype(self.phase.dtype)
         self.phase = self.phase + shift
         return self
 

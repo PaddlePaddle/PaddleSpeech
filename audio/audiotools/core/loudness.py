@@ -317,7 +317,7 @@ class Meter(paddle.nn.Layer):
         z_avg_gated = z
         z_avg_gated[l <= Gamma_a] = 0
         masked = l > Gamma_a
-        z_avg_gated = z_avg_gated.sum(2) / masked.sum(2)
+        z_avg_gated = z_avg_gated.sum(2) / masked.sum(2).astype("float32")
 
         # calculate the relative threshold value (see eq. 6)
         Gamma_r = -0.691 + 10.0 * paddle.log10(

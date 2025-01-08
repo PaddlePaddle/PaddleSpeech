@@ -1,4 +1,3 @@
-from . import data
 from . import metrics
 from . import ml
 from . import post
@@ -9,4 +8,5 @@ from .core import Meter
 from .core import STFTParams
 from .core import util
 from .data import datasets
+from .data import preprocess
 from .data import transforms

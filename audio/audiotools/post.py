@@ -41,11 +41,13 @@ import tempfile
 import typing
 import zipfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from audiotools import AudioSignal
 import markdown2 as md
 import matplotlib.pyplot as plt
 import paddle
-from audiotools import AudioSignal
 from IPython.display import HTML
 
 

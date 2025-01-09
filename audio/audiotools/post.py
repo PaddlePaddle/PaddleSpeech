@@ -114,32 +114,3 @@ def in_notebook():
     except AttributeError:
         return False
     return True
-
-
-def disp(obj, **kwargs):
-    """Displays an object, depending on if its in a notebook
-    or not.
-
-    Parameters
-    ----------
-    obj : typing.Any
-        Any object to display.
-
-    """
-
-    IN_NOTEBOOK = in_notebook()
-
-    if isinstance(obj, AudioSignal):
-        audio_elem = obj.embed(display=False, return_html=True)
-        if IN_NOTEBOOK:
-            return HTML(audio_elem)
-        else:
-            print(audio_elem)
-    if isinstance(obj, dict):
-        table = audio_table(obj, **kwargs)
-        if IN_NOTEBOOK:
-            return HTML(md.markdown(table, extras=["tables"]))
-        else:
-            print(table)
-    if isinstance(obj, plt.Figure):
-        plt.show()

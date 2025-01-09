@@ -2,9 +2,7 @@ ffmpeg-python
 flatten_dict
 gradio
 IPython
-librosa==0.8.1
 markdown2
-numpy==1.23.5
 pyloudnorm
 pytest
 pytest-xdist

@@ -1,3 +1,4 @@
+# MIT License, Copyright (c) 2023-Present, Descript.
 # Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,32 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# This file contains code derived from [Descript]
-# (https://github.com/descriptinc/audiotools),
-# which is licensed under the MIT License:
-#
-# MIT License
-#
-# Copyright (c) 2023-Present, Descript
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Modified from audiotools(https://github.com/descriptinc/audiotools/blob/master/audiotools/ml/accelerator.py)
 import os
 import typing
 
@@ -47,7 +23,7 @@ from paddle.io import DistributedBatchSampler
 from paddle.io import SequenceSampler
 
 
-class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
+class ResumableDistributedSampler(DistributedBatchSampler):
     """Distributed sampler that can be resumed from a given start index."""
 
     def __init__(self, dataset, start_idx: int=None, **kwargs):
@@ -62,7 +38,7 @@ class ResumableDistributedSampler(DistributedBatchSampler):  # pragma: no cover
         self.start_idx = 0  # set the index back to 0 so for the next epoch
 
 
-class ResumableSequentialSampler(SequenceSampler):  # pragma: no cover
+class ResumableSequentialSampler(SequenceSampler):
     """Sequential sampler that can be resumed from a given start index."""
 
     def __init__(self, dataset, start_idx: int=None, **kwargs):
@@ -77,7 +53,7 @@ class ResumableSequentialSampler(SequenceSampler):  # pragma: no cover
         self.start_idx = 0  # set the index back to 0 so for the next epoch
 
 
-class Accelerator:  # pragma: no cover
+class Accelerator:
     """This class is used to prepare models and dataloaders for
     usage with DDP or DP. Use the functions prepare_model, prepare_dataloader to
     prepare the respective objects. In the case of models, they are moved to

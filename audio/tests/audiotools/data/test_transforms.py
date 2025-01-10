@@ -28,7 +28,7 @@ for x in dir(tfm):
                 "Choose",
                 "Repeat",
                 "RepeatUpTo",
-                # the above 4 transforms may have problems with precision
+                # The above 4 transforms are currently excluded from testing at 1e-4 precision due to potential accuracy issues
                 "BackgroundNoise",
                 "Equalizer",
                 "FrequencyNoise",
@@ -122,6 +122,8 @@ def test_compose_basic():
     kwargs = transform.instantiate(seed, signal)
     output = transform(signal, **kwargs)
 
+    # Due to precision issues with RoomImpulseResponse and BackgroundNoise used in the Compose test,
+    # we only perform logical testing for Compose and skip precision testing of the final output
     # _compare_transform("Compose", output)
 
     assert isinstance(transform[0], tfm.RoomImpulseResponse)
@@ -233,6 +235,8 @@ def test_choose_basic():
     kwargs = transform.instantiate(seed, signal)
     output = transform(signal.clone(), **kwargs)
 
+    # Due to precision issues with RoomImpulseResponse and BackgroundNoise used in the Choose test,
+    # we only perform logical testing for Choose and skip precision testing of the final output
     # _compare_transform("Choose", output)
 
     transform = tfm.Choose([

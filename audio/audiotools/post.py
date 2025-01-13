@@ -6,14 +6,13 @@ import tempfile
 import typing
 import zipfile
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from audio.audiotools import AudioSignal
 import markdown2 as md
 import matplotlib.pyplot as plt
 import paddle
 from IPython.display import HTML
+
+from audio.audiotools.core import AudioSignal
 
 
 def audio_table(

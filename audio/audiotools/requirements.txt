@@ -1,11 +1,9 @@
 ffmpeg-python
 flatten_dict
 gradio
-IPython
 markdown2
 pyloudnorm
 pytest
 pytest-xdist
 rich
 scipy
-soundfile

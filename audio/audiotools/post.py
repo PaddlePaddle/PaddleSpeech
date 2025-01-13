@@ -10,7 +10,6 @@ from pathlib import Path
 import markdown2 as md
 import matplotlib.pyplot as plt
 import paddle
-from IPython.display import HTML
 
 from audio.audiotools.core import AudioSignal
 

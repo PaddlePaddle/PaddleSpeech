@@ -1,9 +1,6 @@
 ffmpeg-python
 flatten_dict
-gradio
 markdown2
 pyloudnorm
 pytest
-pytest-xdist
 rich
-scipy

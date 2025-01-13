@@ -50,7 +50,6 @@ def audio_table(
     >>> audiotools.post.audio_zip(audio_dict)
 
     """
-    from audio.audiotools import AudioSignal
 
     output = []
     columns = None

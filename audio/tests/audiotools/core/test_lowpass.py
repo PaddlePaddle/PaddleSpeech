@@ -9,8 +9,11 @@ import unittest
 
 import numpy as np
 import paddle
-sys.path.append("../..")
-from audiotools.core import LowPassFilter, LowPassFilters, lowpass_filter, resample_frac
+
+from audio.audiotools.core import lowpass_filter
+from audio.audiotools.core import LowPassFilter
+from audio.audiotools.core import LowPassFilters
+from audio.audiotools.core import resample_frac
 
 
 def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):

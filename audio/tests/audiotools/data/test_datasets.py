@@ -7,12 +7,11 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
+import paddle
 import pytest
 
-sys.path.append("../..")
-import paddle
-import audiotools
-from audiotools.data import transforms as tfm
+from audio import audiotools
+from audio.audiotools.data import transforms as tfm
 
 
 def test_align_lists():

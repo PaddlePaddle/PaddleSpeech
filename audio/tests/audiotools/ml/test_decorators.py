@@ -4,14 +4,14 @@
 # Modified from audiotools(https://github.com/descriptinc/audiotools/blob/master/tests/ml/test_decorators.py)
 import sys
 import time
-sys.path.append("../..")
+
 import paddle
 from visualdl import LogWriter
 
-from audiotools.ml.decorators import timer
-from audiotools.ml.decorators import Tracker
-from audiotools.ml.decorators import when
-from audiotools import util
+from audio.audiotools import util
+from audio.audiotools.ml.decorators import timer
+from audio.audiotools.ml.decorators import Tracker
+from audio.audiotools.ml.decorators import when
 
 
 def test_all_decorators():

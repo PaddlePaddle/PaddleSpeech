@@ -6,10 +6,9 @@ import sys
 from pathlib import Path
 
 import numpy as np
-sys.path.append("../..")
-
-from audiotools import AudioSignal
 from visualdl import LogWriter
+
+from audio.audiotools import AudioSignal
 
 
 def test_specshow():

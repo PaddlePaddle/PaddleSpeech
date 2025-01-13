@@ -7,11 +7,11 @@ import sys
 import numpy as np
 import pyloudnorm
 import soundfile as sf
-sys.path.append("../..")
-from audiotools import AudioSignal
-from audiotools import datasets
-from audiotools import Meter
-from audiotools import transforms
+
+from audio.audiotools import AudioSignal
+from audio.audiotools import datasets
+from audio.audiotools import Meter
+from audio.audiotools import transforms
 
 ATOL = 1e-1
 

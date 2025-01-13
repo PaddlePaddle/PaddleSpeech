@@ -5,10 +5,9 @@
 import sys
 from pathlib import Path
 
-sys.path.append("../..")
-from audiotools import AudioSignal
-from audiotools import post
-from audiotools import transforms
+from audio.audiotools import AudioSignal
+from audio.audiotools import post
+from audio.audiotools import transforms
 
 
 def test_audio_table():

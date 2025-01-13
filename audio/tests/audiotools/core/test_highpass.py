@@ -8,8 +8,9 @@ import sys
 import unittest
 
 import paddle
-sys.path.append("../..")
-from audiotools.core import highpass_filter, highpass_filters
+
+from audio.audiotools.core import highpass_filter
+from audio.audiotools.core import highpass_filters
 
 
 def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):

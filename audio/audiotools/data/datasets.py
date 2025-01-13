@@ -202,9 +202,9 @@ class AudioDataset:
 
     Examples
     --------
-    >>> from audiotools.data.datasets import AudioLoader
-    >>> from audiotools.data.datasets import AudioDataset
-    >>> from audiotools import transforms as tfm
+    >>> from audio.audiotools.data.datasets import AudioLoader
+    >>> from audio.audiotools.data.datasets import AudioDataset
+    >>> from audio.audiotools import transforms as tfm
     >>> import numpy as np
     >>>
     >>> loaders = [
@@ -237,9 +237,9 @@ class AudioDataset:
 
     Below is an example of how one could load MUSDB multitrack data:
 
-    >>> import audiotools as at
+    >>> from audio import audiotools as at
     >>> from pathlib import Path
-    >>> from audiotools import transforms as tfm
+    >>> from audio.audiotools import transforms as tfm
     >>> import numpy as np
     >>> import torch
     >>>
@@ -296,9 +296,9 @@ class AudioDataset:
 
     Similarly, here's example code for loading Slakh data:
 
-    >>> import audiotools as at
+    >>> from audio import audiotools as at
     >>> from pathlib import Path
-    >>> from audiotools import transforms as tfm
+    >>> from audio.audiotools import transforms as tfm
     >>> import numpy as np
     >>> import torch
     >>> import glob

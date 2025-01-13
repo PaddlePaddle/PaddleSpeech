@@ -7,8 +7,10 @@ import sys
 import unittest
 
 import paddle
-sys.path.append("../..")
-from audiotools.core import pure_tone, SplitBands, split_bands
+
+from audio.audiotools.core import pure_tone
+from audio.audiotools.core import split_bands
+from audio.audiotools.core import SplitBands
 
 
 def delta(a, b, ref, fraction=0.9):

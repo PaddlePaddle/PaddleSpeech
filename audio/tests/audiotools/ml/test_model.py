@@ -7,9 +7,9 @@ import tempfile
 
 import paddle
 from paddle import nn
-sys.path.append("../..")
-from audiotools import ml
-from audiotools import util
+
+from audio.audiotools import ml
+from audio.audiotools import util
 from paddlespeech.vector.training.seeding import seed_everything
 SEED = 0
 

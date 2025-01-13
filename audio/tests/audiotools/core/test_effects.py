@@ -7,8 +7,8 @@ import sys
 import numpy as np
 import paddle
 import pytest
-sys.path.append("../..")
-from audiotools import AudioSignal
+
+from audio.audiotools import AudioSignal
 
 
 def test_normalize():

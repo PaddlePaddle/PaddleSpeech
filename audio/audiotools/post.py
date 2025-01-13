@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from audiotools import AudioSignal
+    from audio.audiotools import AudioSignal
 import markdown2 as md
 import matplotlib.pyplot as plt
 import paddle
@@ -50,7 +50,7 @@ def audio_table(
     >>> audiotools.post.audio_zip(audio_dict)
 
     """
-    from audiotools import AudioSignal
+    from audio.audiotools import AudioSignal
 
     output = []
     columns = None

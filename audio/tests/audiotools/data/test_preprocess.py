@@ -7,10 +7,10 @@ import tempfile
 from pathlib import Path
 
 import paddle
-sys.path.append("../..")
-from audiotools.core.util import find_audio
-from audiotools.core.util import read_sources
-from audiotools.data import preprocess
+
+from audio.audiotools.core.util import find_audio
+from audio.audiotools.core.util import read_sources
+from audio.audiotools.data import preprocess
 
 
 def test_create_csv():

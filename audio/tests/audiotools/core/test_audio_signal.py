@@ -11,10 +11,10 @@ import numpy as np
 import paddle
 import pytest
 import rich
-sys.path.append("../..")
-import audiotools
-from audiotools import AudioSignal
-from audiotools import util
+
+from audio import audiotools
+from audio.audiotools import AudioSignal
+from audio.audiotools import util
 
 
 def test_io():

@@ -11,9 +11,8 @@ import numpy as np
 import paddle
 import pytest
 
-sys.path.append("../..")
-from audiotools import util
-from audiotools.core.audio_signal import AudioSignal
+from audio.audiotools import util
+from audio.audiotools.core.audio_signal import AudioSignal
 from paddlespeech.vector.training.seeding import seed_everything
 
 

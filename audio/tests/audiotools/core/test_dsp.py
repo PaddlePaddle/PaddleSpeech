@@ -7,9 +7,9 @@ import sys
 import numpy as np
 import paddle
 import pytest
-sys.path.append("../..")
-from audiotools import AudioSignal
-from audiotools.core.util import sample_from_dist
+
+from audio.audiotools import AudioSignal
+from audio.audiotools.core.util import sample_from_dist
 
 
 @pytest.mark.parametrize("window_duration", [0.1, 0.25, 0.5, 1.0])

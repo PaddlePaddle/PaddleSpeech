@@ -1,6 +1,5 @@
 ffmpeg-python
 flatten_dict
-markdown2
 pyloudnorm
 pytest
 rich

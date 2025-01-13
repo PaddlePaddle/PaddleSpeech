@@ -2,13 +2,8 @@
 # Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
 #
 # Modified from audiotools(https://github.com/descriptinc/audiotools/blob/master/audiotools/post.py)
-import tempfile
 import typing
-import zipfile
-from pathlib import Path
 
-import markdown2 as md
-import matplotlib.pyplot as plt
 import paddle
 
 from audio.audiotools.core import AudioSignal

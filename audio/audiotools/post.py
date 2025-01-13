@@ -94,23 +94,3 @@ def audio_table(
 
     output = "\n" + "\n".join(output)
     return output
-
-
-def in_notebook():
-    """Determines if code is running in a notebook.
-
-    Returns
-    -------
-    bool
-        Whether or not this is running in a notebook.
-    """
-    try:
-        from IPython import get_ipython
-
-        if "IPKernelApp" not in get_ipython().config:
-            return False
-    except ImportError:
-        return False
-    except AttributeError:
-        return False
-    return True

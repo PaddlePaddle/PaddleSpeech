@@ -43,9 +43,9 @@ base = [
     # paddleaudio align with librosa==0.8.1, which need numpy==1.23.x
     "numpy==1.23.5",
     "librosa==0.8.1",
-    "scipy>=1.4.0, <=1.12.0",
+    "scipy",
     "loguru",
-    "matplotlib<=3.8.4",
+    "matplotlib",
     "nara_wpe",
     "onnxruntime>=1.11.0",
     "opencc==1.1.6",

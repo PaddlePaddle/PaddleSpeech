@@ -6,7 +6,7 @@ import typing
 
 import paddle
 
-from audio.audiotools.core import AudioSignal
+from paddlespeech.audiotools.core import AudioSignal
 
 
 def audio_table(

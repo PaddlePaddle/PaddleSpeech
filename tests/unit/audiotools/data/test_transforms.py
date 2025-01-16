@@ -197,7 +197,7 @@ def test_compose_filtering():
         for _ in range(10):
             _muls = np.random.choice(muls, size=s, replace=False).tolist()
             full_mul = np.prod(_muls)
-            with transform.filter(* [str(x) for x in _muls]):
+            with transform.filter(*[str(x) for x in _muls]):
                 output = transform(signal.clone(), **kwargs)
 
             expected_output = signal.audio_data * full_mul

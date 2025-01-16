@@ -112,7 +112,7 @@ base = [
     "ToJyutping",
     "typeguard",
     "webrtcvad",
-    "yacs~=0.1.8",
+    "yacs",
     "zhon",
 ]
 

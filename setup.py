@@ -51,6 +51,16 @@ def determine_opencc_version():
     return "opencc"  # default
 
 
+def determine_scipy_version():
+    # get python version
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+    # determine scipy version
+    if python_version == "3.8":
+        return "scipy>=1.4.0, <=1.12.0"  # Python3.8 need scipy>=1.4.0, <=1.12.0
+    return "scipy"  # default
+
+
 base = [
     "braceexpand",
     "editdistance",
@@ -63,7 +73,7 @@ base = [
     # paddleaudio align with librosa==0.8.1, which need numpy==1.23.x
     "numpy==1.23.5",
     "librosa==0.8.1",
-    "scipy",
+    determine_scipy_version(),  # scipy or scipy>=1.4.0, <=1.12.0
     "loguru",
     "matplotlib",
     "nara_wpe",

@@ -61,6 +61,16 @@ def determine_scipy_version():
     return "scipy"  # default
 
 
+def determine_matplotlib_version():
+    # get python version
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+    # determine matplotlib version
+    if python_version == "3.8" or python_version == "3.9":
+        return "matplotlib<=3.8.4"  # Python3.8/9 need matplotlib<=3.8.4
+    return "matplotlib"  # default
+
+
 base = [
     "braceexpand",
     "editdistance",
@@ -75,7 +85,7 @@ base = [
     "librosa==0.8.1",
     determine_scipy_version(),  # scipy or scipy>=1.4.0, <=1.12.0
     "loguru",
-    "matplotlib",
+    determine_matplotlib_version(),  # matplotlib or matplotlib<=3.8.4
     "nara_wpe",
     "onnxruntime>=1.11.0",
     determine_opencc_version(),  # opencc or opencc==1.1.6

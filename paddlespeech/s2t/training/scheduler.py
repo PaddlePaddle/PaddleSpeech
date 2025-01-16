@@ -19,7 +19,7 @@ from typing import Union
 
 import paddle
 from paddle.optimizer.lr import LRScheduler
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.s2t.utils.dynamic_import import dynamic_import
 from paddlespeech.s2t.utils.dynamic_import import instance_class
@@ -57,13 +57,13 @@ class WarmupLR(LRScheduler):
     Note that the maximum lr equals to optimizer.lr in this scheduler.
     """
 
+    @typechecked
     def __init__(self,
                  warmup_steps: Union[int, float]=25000,
                  learning_rate=1.0,
                  last_epoch=-1,
                  verbose=False,
                  **kwargs):
-        assert check_argument_types()
         self.warmup_steps = warmup_steps
         super().__init__(learning_rate, last_epoch, verbose)
 

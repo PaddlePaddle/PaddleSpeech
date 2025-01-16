@@ -21,7 +21,7 @@ from typing import Tuple
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.modules.nets_utils import initialize
 from paddlespeech.t2s.modules.nets_utils import make_pad_mask
@@ -44,6 +44,7 @@ class Tacotron2(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             # network structure related
@@ -67,7 +68,7 @@ class Tacotron2(nn.Layer):
             postnet_layers: int=5,
             postnet_chans: int=512,
             postnet_filts: int=5,
-            output_activation: str=None,
+            output_activation: Optional[str]=None,
             use_batch_norm: bool=True,
             use_concate: bool=True,
             use_residual: bool=False,
@@ -145,7 +146,6 @@ class Tacotron2(nn.Layer):
             zoneout_rate (float): 
                 Zoneout rate.
         """
-        assert check_argument_types()
         super().__init__()
 
         # store hyperparameters

@@ -21,7 +21,7 @@ from paddle import nn
 from paddle.nn import functional as F
 from scipy import signal
 from scipy.stats import betabinom
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.modules.nets_utils import make_non_pad_mask
 from paddlespeech.t2s.modules.predictor.duration_predictor import (
@@ -1137,6 +1137,7 @@ class MLMLoss(nn.Layer):
 
 
 class VarianceLoss(nn.Layer):
+    @typechecked
     def __init__(self, use_masking: bool=True,
                  use_weighted_masking: bool=False):
         """Initialize JETS variance loss module.
@@ -1147,7 +1148,6 @@ class VarianceLoss(nn.Layer):
                 calculation.
 
         """
-        assert check_argument_types()
         super().__init__()
 
         assert (use_masking != use_weighted_masking) or not use_masking

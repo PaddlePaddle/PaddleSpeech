@@ -15,6 +15,7 @@
 """Fastspeech2 related modules for paddle"""
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 from typing import Union
@@ -23,7 +24,7 @@ import numpy as np
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.modules.adversarial_loss.gradient_reversal import GradientReversalLayer
 from paddlespeech.t2s.modules.adversarial_loss.speaker_classifier import SpeakerClassifier
@@ -60,6 +61,7 @@ class FastSpeech2(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             # network structure related
@@ -131,12 +133,12 @@ class FastSpeech2(nn.Layer):
             pitch_embed_dropout: float=0.5,
             stop_gradient_from_pitch_predictor: bool=False,
             # spk emb
-            spk_num: int=None,
-            spk_embed_dim: int=None,
+            spk_num: Optional[int]=None,
+            spk_embed_dim: Optional[int]=None,
             spk_embed_integration_type: str="add",
             # tone emb
-            tone_num: int=None,
-            tone_embed_dim: int=None,
+            tone_num: Optional[int]=None,
+            tone_embed_dim: Optional[int]=None,
             tone_embed_integration_type: str="add",
             # training related
             init_type: str="xavier_uniform",
@@ -282,7 +284,6 @@ class FastSpeech2(nn.Layer):
                 The hidden layer dim of speaker classifier
     
         """
-        assert check_argument_types()
         super().__init__()
 
         # store hyperparameters
@@ -1070,6 +1071,7 @@ class StyleFastSpeech2Inference(FastSpeech2Inference):
 class FastSpeech2Loss(nn.Layer):
     """Loss function module for FastSpeech2."""
 
+    @typechecked
     def __init__(self, use_masking: bool=True,
                  use_weighted_masking: bool=False):
         """Initialize feed-forward Transformer loss module.
@@ -1079,7 +1081,6 @@ class FastSpeech2Loss(nn.Layer):
             use_weighted_masking (bool): 
                 Whether to weighted masking in loss calculation.
         """
-        assert check_argument_types()
         super().__init__()
 
         assert (use_masking != use_weighted_masking) or not use_masking

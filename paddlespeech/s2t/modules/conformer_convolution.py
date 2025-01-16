@@ -19,7 +19,7 @@ from typing import Tuple
 import paddle
 from paddle import nn
 from paddle.nn import initializer as I
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.s2t.modules.align import BatchNorm1D
 from paddlespeech.s2t.modules.align import Conv1D
@@ -34,6 +34,7 @@ __all__ = ['ConvolutionModule']
 class ConvolutionModule(nn.Layer):
     """ConvolutionModule in Conformer model."""
 
+    @typechecked
     def __init__(self,
                  channels: int,
                  kernel_size: int=15,
@@ -52,7 +53,6 @@ class ConvolutionModule(nn.Layer):
             causal (bool): Whether use causal convolution or not
             bias (bool): Whether Conv with bias or not
         """
-        assert check_argument_types()
         super().__init__()
         self.bias = bias
         self.channels = channels

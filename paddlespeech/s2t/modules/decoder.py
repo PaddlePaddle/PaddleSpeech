@@ -21,7 +21,7 @@ from typing import Tuple
 
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.s2t.decoders.scorers.scorer_interface import BatchScorerInterface
 from paddlespeech.s2t.modules.align import Embedding
@@ -61,6 +61,7 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
             False: x -> x + att(x)
     """
 
+    @typechecked
     def __init__(self,
                  vocab_size: int,
                  encoder_output_size: int,
@@ -76,8 +77,6 @@ class TransformerDecoder(BatchScorerInterface, nn.Layer):
                  normalize_before: bool=True,
                  concat_after: bool=False,
                  max_len: int=5000):
-
-        assert check_argument_types()
 
         nn.Layer.__init__(self)
         self.selfattention_layer_type = 'selfattn'
@@ -276,6 +275,7 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
             False: x -> x + att(x)
     """
 
+    @typechecked
     def __init__(self,
                  vocab_size: int,
                  encoder_output_size: int,
@@ -292,8 +292,6 @@ class BiTransformerDecoder(BatchScorerInterface, nn.Layer):
                  normalize_before: bool=True,
                  concat_after: bool=False,
                  max_len: int=5000):
-
-        assert check_argument_types()
 
         nn.Layer.__init__(self)
         self.left_decoder = TransformerDecoder(

@@ -18,7 +18,7 @@ from typing import Tuple
 import numpy as np
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.utils.initialize import _calculate_fan_in_and_fan_out
 from paddlespeech.utils.initialize import kaiming_uniform_
@@ -301,6 +301,7 @@ def make_non_pad_mask(lengths, xs=None, length_dim=-1):
     return paddle.logical_not(make_pad_mask(lengths, xs, length_dim))
 
 
+@typechecked
 def initialize(model: nn.Layer, init: str):
     """Initialize weights of a neural network module.
 
@@ -314,8 +315,6 @@ def initialize(model: nn.Layer, init: str):
         init (str):
             Method of initialization.
     """
-    assert check_argument_types()
-
     if init == "xavier_uniform":
         nn.initializer.set_global_initializer(nn.initializer.XavierUniform(),
                                               nn.initializer.Constant())

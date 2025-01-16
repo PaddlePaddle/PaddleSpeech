@@ -9,7 +9,7 @@ import numpy as np
 import paddle
 import pytest
 
-from audio.audiotools import AudioSignal
+from paddlespeech.audiotools import AudioSignal
 
 
 def test_audio_grad():

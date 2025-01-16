@@ -8,10 +8,10 @@ import time
 import paddle
 from visualdl import LogWriter
 
-from audio.audiotools import util
-from audio.audiotools.ml.decorators import timer
-from audio.audiotools.ml.decorators import Tracker
-from audio.audiotools.ml.decorators import when
+from paddlespeech.audiotools import util
+from paddlespeech.audiotools.ml.decorators import timer
+from paddlespeech.audiotools.ml.decorators import Tracker
+from paddlespeech.audiotools.ml.decorators import when
 
 
 def test_all_decorators():

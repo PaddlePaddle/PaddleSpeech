@@ -20,7 +20,7 @@ from typing import Tuple
 import numpy as np
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.models.diffsinger.fastspeech2midi import FastSpeech2MIDI
 from paddlespeech.t2s.modules.diffnet import DiffNet
@@ -40,6 +40,7 @@ class DiffSinger(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             # min and max spec for stretching before diffusion
@@ -157,7 +158,6 @@ class DiffSinger(nn.Layer):
             denoiser_params (Dict[str, Any]): Parameter dict for dinoiser module.
             diffusion_params (Dict[str, Any]): Parameter dict for diffusion module.
         """
-        assert check_argument_types()
         super().__init__()
         self.fs2 = FastSpeech2MIDI(
             idim=idim,
@@ -336,6 +336,7 @@ class DiffSingerInference(nn.Layer):
 class DiffusionLoss(nn.Layer):
     """Loss function module for Diffusion module on DiffSinger."""
 
+    @typechecked
     def __init__(self, use_masking: bool=True,
                  use_weighted_masking: bool=False):
         """Initialize feed-forward Transformer loss module.
@@ -345,7 +346,6 @@ class DiffusionLoss(nn.Layer):
             use_weighted_masking (bool): 
                 Whether to weighted masking in loss calculation.
         """
-        assert check_argument_types()
         super().__init__()
 
         assert (use_masking != use_weighted_masking) or not use_masking

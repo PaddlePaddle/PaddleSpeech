@@ -19,7 +19,7 @@ from typing import Tuple
 
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.models.fastspeech2 import FastSpeech2
 from paddlespeech.t2s.models.fastspeech2 import FastSpeech2Loss
@@ -33,6 +33,7 @@ class FastSpeech2MIDI(FastSpeech2):
     """The Fastspeech2 module of DiffSinger.
     """
 
+    @typechecked
     def __init__(
             self,
             # fastspeech2 network structure related
@@ -57,7 +58,6 @@ class FastSpeech2MIDI(FastSpeech2):
                 is_slur_ids will be provided as the input
     
         """
-        assert check_argument_types()
         super().__init__(idim=idim, odim=odim, **fastspeech2_params)
         self.use_energy_pred = use_energy_pred
         self.use_postnet = use_postnet
@@ -495,6 +495,7 @@ class FastSpeech2MIDI(FastSpeech2):
 class FastSpeech2MIDILoss(FastSpeech2Loss):
     """Loss function module for DiffSinger."""
 
+    @typechecked
     def __init__(self, use_masking: bool=True,
                  use_weighted_masking: bool=False):
         """Initialize feed-forward Transformer loss module.
@@ -504,7 +505,6 @@ class FastSpeech2MIDILoss(FastSpeech2Loss):
             use_weighted_masking (bool): 
                 Whether to weighted masking in loss calculation.
         """
-        assert check_argument_types()
         super().__init__(use_masking, use_weighted_masking)
 
     def forward(

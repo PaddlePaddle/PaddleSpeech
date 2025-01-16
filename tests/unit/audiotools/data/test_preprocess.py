@@ -8,9 +8,9 @@ from pathlib import Path
 
 import paddle
 
-from audio.audiotools.core.util import find_audio
-from audio.audiotools.core.util import read_sources
-from audio.audiotools.data import preprocess
+from paddlespeech.audiotools.core.util import find_audio
+from paddlespeech.audiotools.core.util import read_sources
+from paddlespeech.audiotools.data import preprocess
 
 
 def test_create_csv():

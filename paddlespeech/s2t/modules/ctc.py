@@ -17,7 +17,7 @@ from typing import Union
 import paddle
 from paddle import nn
 from paddle.nn import functional as F
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.s2t.modules.align import Linear
 from paddlespeech.s2t.modules.loss import CTCLoss
@@ -48,6 +48,7 @@ __all__ = ['CTCDecoder']
 
 
 class CTCDecoderBase(nn.Layer):
+    @typechecked
     def __init__(self,
                  odim,
                  enc_n_units,
@@ -66,7 +67,6 @@ class CTCDecoderBase(nn.Layer):
             batch_average (bool): do batch dim wise average.
             grad_norm_type (str): Default, None. one of 'instance', 'batch', 'frame', None.
         """
-        assert check_argument_types()
         super().__init__()
 
         self.blank_id = blank_id

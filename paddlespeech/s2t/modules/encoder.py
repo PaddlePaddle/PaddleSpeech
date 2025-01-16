@@ -21,7 +21,7 @@ from typing import Union
 
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.s2t.modules.activation import get_activation
 from paddlespeech.s2t.modules.align import LayerNorm
@@ -58,6 +58,7 @@ __all__ = [
 
 
 class BaseEncoder(nn.Layer):
+    @typechecked
     def __init__(self,
                  input_size: int,
                  output_size: int=256,
@@ -73,7 +74,7 @@ class BaseEncoder(nn.Layer):
                  concat_after: bool=False,
                  static_chunk_size: int=0,
                  use_dynamic_chunk: bool=False,
-                 global_cmvn: paddle.nn.Layer=None,
+                 global_cmvn: Optional[nn.Layer]=None,
                  use_dynamic_left_chunk: bool=False,
                  max_len: int=5000):
         """
@@ -108,7 +109,6 @@ class BaseEncoder(nn.Layer):
             use_dynamic_left_chunk (bool): whether use dynamic left chunk in
                 dynamic chunk training
         """
-        assert check_argument_types()
         super().__init__()
         self._output_size = output_size
 
@@ -349,6 +349,7 @@ class BaseEncoder(nn.Layer):
 class TransformerEncoder(BaseEncoder):
     """Transformer encoder module."""
 
+    @typechecked
     def __init__(
             self,
             input_size: int,
@@ -365,12 +366,11 @@ class TransformerEncoder(BaseEncoder):
             concat_after: bool=False,
             static_chunk_size: int=0,
             use_dynamic_chunk: bool=False,
-            global_cmvn: nn.Layer=None,
+            global_cmvn: Optional[nn.Layer]=None,
             use_dynamic_left_chunk: bool=False, ):
         """ Construct TransformerEncoder
         See Encoder for the meaning of each parameter.
         """
-        assert check_argument_types()
         super().__init__(input_size, output_size, attention_heads, linear_units,
                          num_blocks, dropout_rate, positional_dropout_rate,
                          attention_dropout_rate, input_layer,
@@ -424,6 +424,7 @@ class TransformerEncoder(BaseEncoder):
 class ConformerEncoder(BaseEncoder):
     """Conformer encoder module."""
 
+    @typechecked
     def __init__(self,
                  input_size: int,
                  output_size: int=256,
@@ -439,7 +440,7 @@ class ConformerEncoder(BaseEncoder):
                  concat_after: bool=False,
                  static_chunk_size: int=0,
                  use_dynamic_chunk: bool=False,
-                 global_cmvn: nn.Layer=None,
+                 global_cmvn: Optional[nn.Layer]=None,
                  use_dynamic_left_chunk: bool=False,
                  positionwise_conv_kernel_size: int=1,
                  macaron_style: bool=True,
@@ -466,8 +467,6 @@ class ConformerEncoder(BaseEncoder):
             causal (bool): whether to use causal convolution or not.
             cnn_module_norm (str): cnn conv norm type, Optional['batch_norm','layer_norm']
         """
-        assert check_argument_types()
-
         super().__init__(input_size, output_size, attention_heads, linear_units,
                          num_blocks, dropout_rate, positional_dropout_rate,
                          attention_dropout_rate, input_layer,
@@ -519,6 +518,7 @@ class ConformerEncoder(BaseEncoder):
 
 
 class SqueezeformerEncoder(nn.Layer):
+    @typechecked
     def __init__(self,
                  input_size: int,
                  encoder_dim: int=256,
@@ -541,7 +541,7 @@ class SqueezeformerEncoder(nn.Layer):
                  adaptive_scale: bool=True,
                  activation_type: str="swish",
                  init_weights: bool=True,
-                 global_cmvn: paddle.nn.Layer=None,
+                 global_cmvn: Optional[nn.Layer]=None,
                  normalize_before: bool=False,
                  use_dynamic_chunk: bool=False,
                  concat_after: bool=False,
@@ -572,7 +572,6 @@ class SqueezeformerEncoder(nn.Layer):
             init_weights (bool): Whether to initialize weights.
             causal (bool): whether to use causal convolution or not.
         """
-        assert check_argument_types()
         super().__init__()
         self.global_cmvn = global_cmvn
         self.reduce_idx: Optional[Union[int, List[int]]] = [reduce_idx] \

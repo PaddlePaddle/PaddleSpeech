@@ -24,7 +24,7 @@ from typing import Optional
 
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.models.hifigan import HiFiGANMultiPeriodDiscriminator
 from paddlespeech.t2s.models.hifigan import HiFiGANMultiScaleDiscriminator
@@ -64,6 +64,7 @@ class JETS(nn.Layer):
         Text-to-Speech`: https://arxiv.org/abs/2203.16852v1
     """
 
+    @typechecked
     def __init__(
             self,
             # generator related
@@ -225,7 +226,6 @@ class JETS(nn.Layer):
             cache_generator_outputs (bool):
                 Whether to cache generator outputs.
         """
-        assert check_argument_types()
         super().__init__()
 
         # define modules
@@ -279,8 +279,7 @@ class JETS(nn.Layer):
             lids: Optional[paddle.Tensor]=None,
             forward_generator: bool=True,
             use_alignment_module: bool=False,
-            **kwargs,
-    ) -> Dict[str, Any]:
+            **kwargs, ) -> Dict[str, Any]:
         """Perform generator forward.
         Args:
             text (Tensor):

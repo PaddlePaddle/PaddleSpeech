@@ -34,7 +34,7 @@ function main(){
   echo "End server"
 
   echo "Start testing audiotools"
-  cd ${speech_ci_path}/../../audio/tests/audiotools
+  cd ${speech_ci_path}/audiotools
   bash test_audiotools.sh
   echo "End testing audiotools"
 

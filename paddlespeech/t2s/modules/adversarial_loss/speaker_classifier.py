@@ -14,16 +14,16 @@
 # Modified from Cross-Lingual-Voice-Cloning(https://github.com/deterministic-algorithms-lab/Cross-Lingual-Voice-Cloning)
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 
 class SpeakerClassifier(nn.Layer):
+    @typechecked
     def __init__(
             self,
             idim: int,
             hidden_sc_dim: int,
             spk_num: int, ):
-        assert check_argument_types()
         super().__init__()
         # store hyperparameters
         self.idim = idim

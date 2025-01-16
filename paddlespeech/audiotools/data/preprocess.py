@@ -37,7 +37,7 @@ def create_csv(audio_files: list,
 
     You can produce a CSV file from a directory of audio files via:
 
-    >>> from audio import audiotools
+    >>> from paddlespeech import audiotools
     >>> directory = ...
     >>> audio_files = audiotools.util.find_audio(directory)
     >>> output_path = "train.csv"

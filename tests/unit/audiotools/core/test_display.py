@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 from visualdl import LogWriter
 
-from audio.audiotools import AudioSignal
+from paddlespeech.audiotools import AudioSignal
 
 
 def test_specshow():

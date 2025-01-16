@@ -1,16 +1,19 @@
 # MIT License, Copyright (c) 2020 Alexandre Défossez.
 # Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
 #
-# Modified from julius(https://github.com/adefossez/julius/blob/main/tests/test_filters.py)
+# Modified from julius(https://github.com/adefossez/julius/blob/main/tests/test_lowpass.py)
 import math
 import random
 import sys
 import unittest
 
+import numpy as np
 import paddle
 
-from audio.audiotools.core import highpass_filter
-from audio.audiotools.core import highpass_filters
+from paddlespeech.audiotools.core import lowpass_filter
+from paddlespeech.audiotools.core import LowPassFilter
+from paddlespeech.audiotools.core import LowPassFilters
+from paddlespeech.audiotools.core import resample_frac
 
 
 def pure_tone(freq: float, sr: float=128, dur: float=4, device=None):
@@ -44,7 +47,7 @@ class _BaseTest(unittest.TestCase):
         self.assertLessEqual(delta(a, b, ref), tol, msg)
 
 
-class TestHighPassFilters(_BaseTest):
+class TestLowPassFilters(_BaseTest):
     def setUp(self):
         paddle.seed(1234)
         random.seed(1234)
@@ -59,45 +62,47 @@ class TestHighPassFilters(_BaseTest):
             tol = 5
             zeros = 16
 
+            # If cutoff frequency is under freq, output should be zero
+            y_killed = lowpass_filter(tone, 0.9 * freq, zeros=zeros)
+            self.assertSimilar(
+                y_killed, 0 * y_killed, tone, f"freq={freq}, kill", tol=tol)
+
             # If cutoff frequency is under freq, output should be input
-            y_pass = highpass_filter(tone, 0.9 * freq, zeros=zeros)
+            y_pass = lowpass_filter(tone, 1.1 * freq, zeros=zeros)
             self.assertSimilar(
                 y_pass, tone, tone, f"freq={freq}, pass", tol=tol)
 
-            # If cutoff frequency is over freq, output should be zero
-            y_killed = highpass_filter(tone, 1.1 * freq, zeros=zeros)
-            self.assertSimilar(
-                y_killed, 0 * tone, tone, f"freq={freq}, kill", tol=tol)
+    def test_same_as_downsample(self):
+        for _ in range(10):
+            x = paddle.randn([2 * 3 * 4 * 100])
+            x = paddle.ones_like(x)
+            np.random.seed(1234)
+            x = paddle.to_tensor(
+                np.random.randn(2 * 3 * 4 * 100), dtype="float32")
+            rolloff = 0.945
+            for old_sr in [2, 3, 4]:
+                y_resampled = resample_frac(
+                    x, old_sr, 1, rolloff=rolloff, zeros=16)
+                y_lowpass = lowpass_filter(
+                    x, rolloff / old_sr / 2, stride=old_sr, zeros=16)
+                self.assertSimilar(y_resampled, y_lowpass, x,
+                                   f"old_sr={old_sr}")
 
     def test_fft_nofft(self):
         for _ in range(10):
             x = paddle.randn([1024])
             freq = random.uniform(0.01, 0.5)
-            y_fft = highpass_filter(x, freq, fft=True)
-            y_ref = highpass_filter(x, freq, fft=False)
+            y_fft = lowpass_filter(x, freq, fft=True)
+            y_ref = lowpass_filter(x, freq, fft=False)
             self.assertSimilar(y_fft, y_ref, x, f"freq={freq}", tol=0.01)
 
     def test_constant(self):
         x = paddle.ones([2048])
         for zeros in [4, 10]:
             for freq in [0.01, 0.1]:
-                y_high = highpass_filter(x, freq, zeros=zeros)
-                self.assertLessEqual(y_high.abs().mean(), 1e-6, (zeros, freq))
-
-    def test_stride(self):
-        x = paddle.randn([1024])
-
-        y = highpass_filters(x, [0.1, 0.2], stride=1)[:, ::3]
-        y2 = highpass_filters(x, [0.1, 0.2], stride=3)
-
-        self.assertEqual(y.shape, y2.shape)
-        self.assertSimilar(y, y2, x)
-
-        y = highpass_filters(x, [0.1, 0.2], stride=1, pad=False)[:, ::3]
-        y2 = highpass_filters(x, [0.1, 0.2], stride=3, pad=False)
-
-        self.assertEqual(y.shape, y2.shape)
-        self.assertSimilar(y, y2, x)
+                y_low = lowpass_filter(x, freq, zeros=zeros)
+                self.assertLessEqual((y_low - 1).abs().mean(), 1e-6,
+                                     (zeros, freq))
 
 
 if __name__ == "__main__":

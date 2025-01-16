@@ -11,11 +11,11 @@ import numpy as np
 import paddle
 import pytest
 
-from audio import audiotools
-from audio.audiotools import AudioSignal
-from audio.audiotools import util
-from audio.audiotools.data import transforms as tfm
-from audio.audiotools.data.datasets import AudioDataset
+from paddlespeech import audiotools
+from paddlespeech.audiotools import AudioSignal
+from paddlespeech.audiotools import util
+from paddlespeech.audiotools.data import transforms as tfm
+from paddlespeech.audiotools.data.datasets import AudioDataset
 from paddlespeech.vector.training.seeding import seed_everything
 
 non_deterministic_transforms = ["TimeNoise", "FrequencyNoise"]

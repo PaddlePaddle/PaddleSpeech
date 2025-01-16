@@ -8,9 +8,9 @@ import unittest
 
 import paddle
 
-from audio.audiotools.core import pure_tone
-from audio.audiotools.core import split_bands
-from audio.audiotools.core import SplitBands
+from paddlespeech.audiotools.core import pure_tone
+from paddlespeech.audiotools.core import split_bands
+from paddlespeech.audiotools.core import SplitBands
 
 
 def delta(a, b, ref, fraction=0.9):

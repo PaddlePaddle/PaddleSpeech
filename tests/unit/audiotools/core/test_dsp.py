@@ -8,8 +8,8 @@ import numpy as np
 import paddle
 import pytest
 
-from audio.audiotools import AudioSignal
-from audio.audiotools.core.util import sample_from_dist
+from paddlespeech.audiotools import AudioSignal
+from paddlespeech.audiotools.core.util import sample_from_dist
 
 
 @pytest.mark.parametrize("window_duration", [0.1, 0.25, 0.5, 1.0])

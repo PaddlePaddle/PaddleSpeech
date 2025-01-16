@@ -8,10 +8,10 @@ import numpy as np
 import pyloudnorm
 import soundfile as sf
 
-from audio.audiotools import AudioSignal
-from audio.audiotools import datasets
-from audio.audiotools import Meter
-from audio.audiotools import transforms
+from paddlespeech.audiotools import AudioSignal
+from paddlespeech.audiotools import datasets
+from paddlespeech.audiotools import Meter
+from paddlespeech.audiotools import transforms
 
 ATOL = 1e-1
 

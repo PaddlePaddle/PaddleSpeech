@@ -10,8 +10,8 @@ import numpy as np
 import paddle
 import pytest
 
-from audio import audiotools
-from audio.audiotools.data import transforms as tfm
+from paddlespeech import audiotools
+from paddlespeech.audiotools.data import transforms as tfm
 
 
 def test_align_lists():

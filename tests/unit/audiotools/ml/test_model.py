@@ -8,10 +8,10 @@ import tempfile
 import paddle
 from paddle import nn
 
-from audio.audiotools import ml
-from audio.audiotools import util
+from paddlespeech.audiotools import ml
+from paddlespeech.audiotools import util
 from paddlespeech.vector.training.seeding import seed_everything
-SEED = 0
+SEED = 1024
 
 
 def seed_and_run(model, *args, **kwargs):

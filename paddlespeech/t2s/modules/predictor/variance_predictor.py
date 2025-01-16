@@ -15,7 +15,7 @@
 """Variance predictor related modules."""
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.modules.layer_norm import LayerNorm
 from paddlespeech.t2s.modules.masked_fill import masked_fill
@@ -32,6 +32,7 @@ class VariancePredictor(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             idim: int,
@@ -54,7 +55,6 @@ class VariancePredictor(nn.Layer):
             dropout_rate (float, optional): 
                 Dropout rate.
         """
-        assert check_argument_types()
         super().__init__()
         self.conv = nn.LayerList()
         for idx in range(n_layers):
@@ -96,7 +96,7 @@ class VariancePredictor(nn.Layer):
             xs = f(xs)
         # (B, Tmax, 1)
         xs = self.linear(xs.transpose([0, 2, 1]))
-    
+
         if x_masks is not None:
             xs = masked_fill(xs, x_masks, 0.0)
         return xs

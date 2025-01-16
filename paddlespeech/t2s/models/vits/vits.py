@@ -20,7 +20,7 @@ from typing import Optional
 
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.models.hifigan import HiFiGANMultiPeriodDiscriminator
 from paddlespeech.t2s.models.hifigan import HiFiGANMultiScaleDiscriminator
@@ -60,6 +60,7 @@ class VITS(nn.Layer):
         Text-to-Speech`: https://arxiv.org/abs/2006.04558
     """
 
+    @typechecked
     def __init__(
             self,
             # generator related
@@ -181,7 +182,6 @@ class VITS(nn.Layer):
             cache_generator_outputs (bool):
                 Whether to cache generator outputs.
         """
-        assert check_argument_types()
         super().__init__()
 
         # define modules
@@ -504,8 +504,9 @@ class VITS(nn.Layer):
 
     def reset_parameters(self):
         def _reset_parameters(module):
-            if isinstance(module,
-                        (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D, nn.Conv2DTranspose)):
+            if isinstance(
+                    module,
+                (nn.Conv1D, nn.Conv1DTranspose, nn.Conv2D, nn.Conv2DTranspose)):
                 kaiming_uniform_(module.weight, a=math.sqrt(5))
                 if module.bias is not None:
                     fan_in, _ = _calculate_fan_in_and_fan_out(module.weight)
@@ -513,8 +514,9 @@ class VITS(nn.Layer):
                         bound = 1 / math.sqrt(fan_in)
                         uniform_(module.bias, -bound, bound)
 
-            if isinstance(module,
-                          (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
+            if isinstance(
+                    module,
+                (nn.BatchNorm1D, nn.BatchNorm2D, nn.GroupNorm, nn.LayerNorm)):
                 ones_(module.weight)
                 zeros_(module.bias)
 
@@ -533,13 +535,13 @@ class VITS(nn.Layer):
 
         self.apply(_reset_parameters)
 
+
 class VITSInference(nn.Layer):
     def __init__(self, model):
         super().__init__()
         self.acoustic_model = model
 
     def forward(self, text, sids=None):
-        out = self.acoustic_model.inference(
-            text, sids=sids)
+        out = self.acoustic_model.inference(text, sids=sids)
         wav = out['wav']
         return wav

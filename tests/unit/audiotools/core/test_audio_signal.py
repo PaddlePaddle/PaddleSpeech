@@ -12,9 +12,9 @@ import paddle
 import pytest
 import rich
 
-from audio import audiotools
-from audio.audiotools import AudioSignal
-from audio.audiotools import util
+from paddlespeech import audiotools
+from paddlespeech.audiotools import AudioSignal
+from paddlespeech.audiotools import util
 
 
 def test_io():

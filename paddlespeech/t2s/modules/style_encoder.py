@@ -17,7 +17,7 @@ from typing import Sequence
 
 import paddle
 from paddle import nn
-from typeguard import check_argument_types
+from typeguard import typechecked
 
 from paddlespeech.t2s.modules.transformer.attention import MultiHeadedAttention as BaseMultiHeadedAttention
 
@@ -58,6 +58,7 @@ class StyleEncoder(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             idim: int=80,
@@ -71,7 +72,6 @@ class StyleEncoder(nn.Layer):
             gru_layers: int=1,
             gru_units: int=128, ):
         """Initilize global style encoder module."""
-        assert check_argument_types()
         super().__init__()
 
         self.ref_enc = ReferenceEncoder(
@@ -132,6 +132,7 @@ class ReferenceEncoder(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             idim=80,
@@ -142,7 +143,6 @@ class ReferenceEncoder(nn.Layer):
             gru_layers: int=1,
             gru_units: int=128, ):
         """Initilize reference encoder module."""
-        assert check_argument_types()
         super().__init__()
 
         # check hyperparameters are valid
@@ -232,6 +232,7 @@ class StyleTokenLayer(nn.Layer):
 
     """
 
+    @typechecked
     def __init__(
             self,
             ref_embed_dim: int=128,
@@ -240,7 +241,6 @@ class StyleTokenLayer(nn.Layer):
             gst_heads: int=4,
             dropout_rate: float=0.0, ):
         """Initilize style token layer module."""
-        assert check_argument_types()
         super().__init__()
 
         gst_embs = paddle.randn(shape=[gst_tokens, gst_token_dim // gst_heads])

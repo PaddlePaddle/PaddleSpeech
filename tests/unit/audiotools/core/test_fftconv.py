@@ -9,8 +9,8 @@ import unittest
 import paddle
 import paddle.nn.functional as F
 
-from audio.audiotools.core import fft_conv1d
-from audio.audiotools.core import FFTConv1D
+from paddlespeech.audiotools.core import fft_conv1d
+from paddlespeech.audiotools.core import FFTConv1D
 
 TOLERANCE = 1e-4  # as relative delta in percentage
 

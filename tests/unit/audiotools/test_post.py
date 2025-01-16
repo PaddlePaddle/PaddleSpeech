@@ -5,9 +5,9 @@
 import sys
 from pathlib import Path
 
-from audio.audiotools import AudioSignal
-from audio.audiotools import post
-from audio.audiotools import transforms
+from paddlespeech.audiotools import AudioSignal
+from paddlespeech.audiotools import post
+from paddlespeech.audiotools import transforms
 
 
 def test_audio_table():

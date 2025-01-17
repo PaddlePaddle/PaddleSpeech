@@ -14,16 +14,16 @@
 import paddle
 import torch
 from paddle.device.cuda import synchronize
+from parallel_wavegan import models as pwgan
 from parallel_wavegan.layers import residual_block
 from parallel_wavegan.layers import upsample
-from parallel_wavegan.models import parallel_wavegan as pwgan
 from timer import timer
 
 from paddlespeech.t2s.models.parallel_wavegan import ConvInUpsampleNet
 from paddlespeech.t2s.models.parallel_wavegan import PWGDiscriminator
 from paddlespeech.t2s.models.parallel_wavegan import PWGGenerator
-from paddlespeech.t2s.models.parallel_wavegan import ResidualBlock
 from paddlespeech.t2s.models.parallel_wavegan import ResidualPWGDiscriminator
+from paddlespeech.t2s.modules.residual_block import WaveNetResidualBlock
 from paddlespeech.t2s.utils.layer_tools import summary
 
 paddle.set_device("gpu:0")
@@ -79,8 +79,8 @@ def test_convin_upsample_net():
 
 
 def test_residual_block():
-    net = ResidualBlock(dilation=9)
-    net2 = residual_block.ResidualBlock(dilation=9)
+    net = WaveNetResidualBlock(dilation=9)
+    net2 = residual_block.WaveNetResidualBlock(dilation=9)
     summary(net)
     summary(net2)
     for k, v in net2.named_parameters():

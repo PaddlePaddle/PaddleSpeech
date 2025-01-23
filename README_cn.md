@@ -238,11 +238,11 @@
 <a name="安装"></a>
 ## 安装
 
-我们强烈建议用户在 **Linux** 环境下，*3.8* 以上版本的 *python* 上安装 PaddleSpeech。同时，有一些Paddle新版本的内容没有在做适配的支持，因此目前只能使用2.5.1及之前的版本。
+我们强烈建议用户在 **Linux** 环境下，*3.8* 以上版本的 *python* 上安装 PaddleSpeech。
 
 ### 相关依赖
 + gcc >= 4.8.5
-+ paddlepaddle <= 2.5.1
++ paddlepaddle
 + python >= 3.8
 + linux(推荐), mac, windows
 

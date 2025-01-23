@@ -228,12 +228,12 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 
 ## Installation
 
-We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.8* and *paddlepaddle<=2.5.1*. Some new versions of Paddle do not have support for adaptation in PaddleSpeech, so currently only versions 2.5.1 and earlier can be supported.
+We strongly recommend our users to install PaddleSpeech in **Linux** with *python>=3.8*. 
 
 ### **Dependency Introduction**
 
 + gcc >= 4.8.5
-+ paddlepaddle <= 2.5.1
++ paddlepaddle
 + python >= 3.8
 + OS support:  Linux(recommend), Windows, Mac OSX
 

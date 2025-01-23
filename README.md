@@ -265,6 +265,8 @@ git clone https://github.com/PaddlePaddle/PaddleSpeech.git
 cd PaddleSpeech
 pip install pytest-runner
 pip install .
+# If you need to install in editable mode, you need to use --use-pep517. The command is as follows:
+# pip install -e . --use-pep517
 ```
 
 For more installation problems, such as conda environment, librosa-dependent, gcc problems, kaldi installation, etc., you can refer to this [installation document](./docs/source/install.md). If you encounter problems during installation, you can leave a message on [#2150](https://github.com/PaddlePaddle/PaddleSpeech/issues/2150) and find related problems

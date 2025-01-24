@@ -22,8 +22,8 @@ def compute_eer(labels: np.ndarray, scores: np.ndarray) -> List[float]:
     """Compute EER and return score threshold.
 
     Args:
-        labels (np.ndarray): the trial label, shape: [N], one-dimention, N refer to the samples num
-        scores (np.ndarray): the trial scores, shape: [N], one-dimention, N refer to the samples num
+        labels (np.ndarray): the trial label, shape: [N], one-dimension, N refer to the samples num
+        scores (np.ndarray): the trial scores, shape: [N], one-dimension, N refer to the samples num
 
     Returns:
         List[float]: eer and the specific threshold

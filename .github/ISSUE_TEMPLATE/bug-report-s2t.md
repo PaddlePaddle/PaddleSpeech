@@ -33,7 +33,7 @@ If applicable, add screenshots to help explain your problem.
  - Python Version [e.g. 3.7]
  - PaddlePaddle Version [e.g. 2.0.0]
  - Model Version [e.g. 2.0.0]
- - GPU/DRIVER Informationo [e.g. Tesla V100-SXM2-32GB/440.64.00]
+ - GPU/DRIVER Information [e.g. Tesla V100-SXM2-32GB/440.64.00]
  - CUDA/CUDNN Version [e.g. cuda-10.2]
  - MKL Version
 - TensorRT Version

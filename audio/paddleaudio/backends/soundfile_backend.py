@@ -61,7 +61,7 @@ def resample(y: np.ndarray,
     if mode == 'kaiser_best':
         warnings.warn(
             f'Using resampy in kaiser_best to {src_sr}=>{target_sr}. This function is pretty slow, \
-        we recommend the mode kaiser_fast in large scale audio trainning')
+        we recommend the mode kaiser_fast in large scale audio training')
 
     if not isinstance(y, np.ndarray):
         raise ParameterError(

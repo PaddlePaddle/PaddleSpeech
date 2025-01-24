@@ -8,9 +8,9 @@ set(patch_dir ${CMAKE_CURRENT_SOURCE_DIR}/../patches)
 set(COMMON_ARGS --quiet --disable-shared --enable-static --prefix=${INSTALL_DIR} --with-pic --disable-dependency-tracking --disable-debug --disable-examples --disable-doc)
 
 # To pass custom environment variables to ExternalProject_Add command,
-# we need to do `${CMAKE_COMMAND} -E env ${envs} <COMMANAD>`.
+# we need to do `${CMAKE_COMMAND} -E env ${envs} <COMMAND>`.
 # https://stackoverflow.com/a/62437353
-# We constrcut the custom environment variables here
+# We construct the custom environment variables here
 set(envs
   "PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig"
   "LDFLAGS=-L${INSTALL_DIR}/lib $ENV{LDFLAGS}"

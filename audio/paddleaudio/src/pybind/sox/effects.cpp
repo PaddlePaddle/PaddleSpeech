@@ -12,9 +12,9 @@ using namespace paddleaudio::sox_utils;
 namespace paddleaudio::sox_effects {
 
 // Streaming decoding over file-like object is tricky because libsox operates on
-// FILE pointer. The folloing is what `sox` and `play` commands do
+// FILE pointer. The following is what `sox` and `play` commands do
 //  - file input -> FILE pointer
-//  - URL input -> call wget in suprocess and pipe the data -> FILE pointer
+//  - URL input -> call wget in subprocess and pipe the data -> FILE pointer
 //  - stdin -> FILE pointer
 //
 // We want to, instead, fetch byte strings chunk by chunk, consume them, and
@@ -127,12 +127,12 @@ namespace {
 
 enum SoxEffectsResourceState { NotInitialized, Initialized, ShutDown };
 SoxEffectsResourceState SOX_RESOURCE_STATE = NotInitialized;
-std::mutex SOX_RESOUCE_STATE_MUTEX;
+std::mutex SOX_RESOURCE_STATE_MUTEX;
 
 } // namespace
 
 void initialize_sox_effects() {
-  const std::lock_guard<std::mutex> lock(SOX_RESOUCE_STATE_MUTEX);
+  const std::lock_guard<std::mutex> lock(SOX_RESOURCE_STATE_MUTEX);
 
   switch (SOX_RESOURCE_STATE) {
     case NotInitialized:
@@ -150,7 +150,7 @@ void initialize_sox_effects() {
 };
 
 void shutdown_sox_effects() {
-  const std::lock_guard<std::mutex> lock(SOX_RESOUCE_STATE_MUTEX);
+  const std::lock_guard<std::mutex> lock(SOX_RESOURCE_STATE_MUTEX);
 
   switch (SOX_RESOURCE_STATE) {
     case NotInitialized:

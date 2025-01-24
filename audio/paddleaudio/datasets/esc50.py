@@ -117,7 +117,7 @@ class ESC50(AudioClassificationDataset):
             split (:obj:`int`, `optional`, defaults to 1):
                 It specify the fold of dev dataset.
             feat_type (:obj:`str`, `optional`, defaults to `raw`):
-                It identifies the feature type that user wants to extrace of an audio file.
+                It identifies the feature type that user wants to extract of an audio file.
         """
         files, labels = self._get_data(mode, split)
         super(ESC50, self).__init__(

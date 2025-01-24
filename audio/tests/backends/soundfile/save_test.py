@@ -103,7 +103,7 @@ class MockedSaveTest(unittest.TestCase):
             encoding=encoding,
             bits_per_sample=bits_per_sample, )
 
-        # on +Py3.8 call_args.kwargs is more descreptive
+        # on +Py3.8 call_args.kwargs is more descriptive
         args = mocked_write.call_args[1]
         assert args["file"] == filepath
         assert args["samplerate"] == sample_rate
@@ -191,7 +191,7 @@ class SaveTestBase(TempDirMixin, unittest.TestCase):
     def _assert_non_wav(self, fmt, dtype, sample_rate, num_channels):
         """`soundfile_backend.save` can save non-wav format.
 
-        Due to precision missmatch, and the lack of alternative way to decode the
+        Due to precision mismatch, and the lack of alternative way to decode the
         resulting files without using soundfile, only meta data are validated.
         """
         num_frames = sample_rate * 3

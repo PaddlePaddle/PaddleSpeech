@@ -132,7 +132,7 @@ def create_manifest(data_dir, manifest_path):
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path):
-    """Download, unpack and create summmary manifest file.
+    """Download, unpack and create summary manifest file.
     """
     if not os.path.exists(os.path.join(target_dir, "LibriSpeech")):
         # download

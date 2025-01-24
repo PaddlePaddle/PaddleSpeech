@@ -123,7 +123,7 @@ def read_algin(filepath: str) -> str:
         filepath (str): [description]
 
     Returns:
-        str: token sepearte by <space>
+        str: token separate by <space>
     """
     aligns = []  # (start, end, token)
     with open(filepath, 'r') as f:

@@ -13,7 +13,7 @@
 # limitations under the License.
 """Prepare TIMIT dataset (Standard split from Kaldi)
 
-Create manifest files from splited datased.
+Create manifest files from splited dataset.
 Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)
 of each audio file in the data set.

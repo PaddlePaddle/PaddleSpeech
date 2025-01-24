@@ -19,7 +19,7 @@ Note：this demo uses the [CN-Celeb](http://openslr.org/82/) dataset of at least
 ### 1. Prepare PaddleSpeech
 Audio vector extraction requires PaddleSpeech training model, so please make sure that PaddleSpeech has been installed before running. Specific installation steps: See [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).  
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 ### 2. Prepare MySQL and Milvus services by docker-compose
 The audio similarity search system requires Milvus, MySQL services. We can start these containers with one click through [docker-compose.yaml](./docker-compose.yaml), so please make sure you have [installed Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) before running. then

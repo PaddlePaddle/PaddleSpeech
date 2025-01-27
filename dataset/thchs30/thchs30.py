@@ -71,7 +71,7 @@ def read_trn(filepath):
     with open(filepath, 'r') as f:
         lines = f.read().strip().split('\n')
         assert len(lines) == 3, lines
-    # charactor text, remove withespace
+    # character text, remove whitespace
     texts.append(''.join(lines[0].split()))
     texts.extend(lines[1:])
     return texts
@@ -127,7 +127,7 @@ def create_manifest(data_dir, manifest_path_prefix):
                             'utt2spk': spk,
                             'feat': audio_path,
                             'feat_shape': (duration, ),  # second
-                            'text': word_text,  # charactor
+                            'text': word_text,  # character
                             'syllable': syllable_text,
                             'phone': phone_text,
                         },

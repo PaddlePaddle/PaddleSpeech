@@ -247,7 +247,7 @@ def create_dct(n_mfcc: int,
     Args:
         n_mfcc (int): Number of mel frequency cepstral coefficients. 
         n_mels (int): Number of mel filterbanks.
-        norm (Optional[str], optional): Normalizaiton type. Defaults to 'ortho'.
+        norm (Optional[str], optional): Normalization type. Defaults to 'ortho'.
         dtype (str, optional): The data type of the return matrix. Defaults to 'float32'.
 
     Returns:

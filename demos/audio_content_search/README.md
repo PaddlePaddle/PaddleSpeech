@@ -14,7 +14,7 @@ Now, the search word in demo is:
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from meduim and hard to install paddlespeech.
+You can choose one way from medium and hard to install paddlespeech.
 
 The dependency refers to the requirements.txt, and install the dependency as follows:
 

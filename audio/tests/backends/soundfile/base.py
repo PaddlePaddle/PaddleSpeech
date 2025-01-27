@@ -30,5 +30,5 @@ class BackendTest(unittest.TestCase):
                 urllib.request.urlretrieve(url, os.path.basename(url))
             self.files.append(os.path.basename(url))
 
-    def initParmas(self):
+    def initParams(self):
         raise NotImplementedError

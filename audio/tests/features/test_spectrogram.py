@@ -22,7 +22,7 @@ from paddlespeech.audio.transform.spectrogram import Spectrogram
 
 
 class TestSpectrogram(FeatTest):
-    def initParmas(self):
+    def initParams(self):
         self.n_fft = 512
         self.hop_length = 128
 

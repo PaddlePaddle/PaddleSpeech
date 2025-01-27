@@ -22,7 +22,7 @@ from paddlespeech.audio.transform.spectrogram import Stft
 
 
 class TestStft(FeatTest):
-    def initParmas(self):
+    def initParams(self):
         self.n_fft = 512
         self.hop_length = 128
         self.window_str = 'hann'
@@ -30,7 +30,7 @@ class TestStft(FeatTest):
     def test_stft(self):
         ps_stft = Stft(self.n_fft, self.hop_length)
         ps_res = ps_stft(
-            self.waveform.T).squeeze(1).T  # (n_fft//2 + 1, n_frmaes)
+            self.waveform.T).squeeze(1).T  # (n_fft//2 + 1, n_frames)
 
         x = paddle.to_tensor(self.waveform)
         window = get_window(self.window_str, self.n_fft, dtype=x.dtype)

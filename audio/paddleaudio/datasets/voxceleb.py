@@ -262,8 +262,8 @@ class VoxCeleb(Dataset):
                      split_chunks: bool=True):
         print(f'Generating csv: {output_file}')
         header = ["id", "duration", "wav", "start", "stop", "spk_id"]
-        # Note: this may occurs c++ execption, but the program will execute fine
-        # so we can ignore the execption 
+        # Note: this may occurs c++ exception, but the program will execute fine
+        # so we can ignore the exception 
         with Pool(cpu_count()) as p:
             infos = list(
                 tqdm(

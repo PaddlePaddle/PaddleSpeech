@@ -167,7 +167,7 @@ def prepare_dataset(base_url, data_list, target_dir, manifest_path,
 
         # check the target zip file md5sum
         if not check_md5sum(target_name, target_md5sum):
-            raise RuntimeError("{} MD5 checkssum failed".format(target_name))
+            raise RuntimeError("{} MD5 checksum failed".format(target_name))
         else:
             print("Check {} md5sum successfully".format(target_name))
 

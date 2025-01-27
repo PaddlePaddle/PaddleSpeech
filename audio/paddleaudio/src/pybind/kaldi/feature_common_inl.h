@@ -26,7 +26,7 @@ template <class F>
 bool StreamingFeatureTpl<F>::ComputeFeature(
     const std::vector<float>& wav,
     std::vector<float>* feats) {
-    // append remaned waves
+    // append remained waves
     int wav_len = wav.size();
     if (wav_len == 0) return false;
     int left_len = remained_wav_.size();
@@ -38,7 +38,7 @@ bool StreamingFeatureTpl<F>::ComputeFeature(
                 wav.data(),
                 wav_len * sizeof(float));
 
-    // cache remaned waves
+    // cache remained waves
     knf::FrameExtractionOptions frame_opts = computer_.GetFrameOptions();
     int num_frames = knf::NumFrames(waves.size(), frame_opts);
     int frame_shift = frame_opts.WindowShift();

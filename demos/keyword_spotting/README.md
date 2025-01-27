@@ -10,7 +10,7 @@ This demo is an implementation to recognize keyword from a specific audio file. 
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.

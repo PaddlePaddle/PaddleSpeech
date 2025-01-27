@@ -24,7 +24,7 @@ wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
 
 class FeatTest(unittest.TestCase):
     def setUp(self):
-        self.initParmas()
+        self.initParams()
         self.initWavInput()
         self.setUpDevice()
 
@@ -44,5 +44,5 @@ class FeatTest(unittest.TestCase):
         if dim == 1:
             self.waveform = np.expand_dims(self.waveform, 0)
 
-    def initParmas(self):
+    def initParams(self):
         raise NotImplementedError

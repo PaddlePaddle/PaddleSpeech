@@ -58,7 +58,7 @@ log_config = {
 
 class Logger(object):
     '''
-    Deafult logger in PaddleAudio
+    Default logger in PaddleAudio
     Args:
         name(str) : Logger name, default is 'PaddleAudio'
     '''

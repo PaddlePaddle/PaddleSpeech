@@ -121,8 +121,8 @@ def apply_effects_tensor(
 
     """
     tensor_np = tensor.numpy()
-    ret = paddleaudio._paddleaudio.sox_effects_apply_effects_tensor(tensor_np, sample_rate,
-                                                       effects, channels_first)
+    ret = paddleaudio._paddleaudio.sox_effects_apply_effects_tensor(
+        tensor_np, sample_rate, effects, channels_first)
     if ret is not None:
         return (paddle.to_tensor(ret[0]), ret[1])
     raise RuntimeError("Failed to apply sox effect")
@@ -139,7 +139,7 @@ def apply_effects_file(
 
     Note:
         This function works in the way very similar to ``sox`` command, however there are slight
-        differences. For example, ``sox`` commnad adds certain effects automatically (such as
+        differences. For example, ``sox`` command adds certain effects automatically (such as
         ``rate`` effect after ``speed``, ``pitch`` etc), but this function only applies the given
         effects. Therefore, to actually apply ``speed`` effect, you also need to give ``rate``
         effect with desired sampling rate, because internally, ``speed`` effects only alter sampling
@@ -228,14 +228,14 @@ def apply_effects_file(
         >>>     pass
     """
     if hasattr(path, "read"):
-        ret = paddleaudio._paddleaudio.apply_effects_fileobj(path, effects, normalize,
-                                                channels_first, format)
+        ret = paddleaudio._paddleaudio.apply_effects_fileobj(
+            path, effects, normalize, channels_first, format)
         if ret is None:
             raise RuntimeError("Failed to load audio from {}".format(path))
         return (paddle.to_tensor(ret[0]), ret[1])
     path = os.fspath(path)
-    ret = paddleaudio._paddleaudio.sox_effects_apply_effects_file(path, effects, normalize,
-                                                     channels_first, format)
+    ret = paddleaudio._paddleaudio.sox_effects_apply_effects_file(
+        path, effects, normalize, channels_first, format)
     if ret is not None:
         return (paddle.to_tensor(ret[0]), ret[1])
     raise RuntimeError("Failed to load audio from {}".format(path))

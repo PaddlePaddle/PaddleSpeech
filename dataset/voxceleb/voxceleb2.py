@@ -179,7 +179,7 @@ def download_dataset(base_url, data_list, target_data, target_dir, dataset):
 
         # check the target zip file md5sum
         if not check_md5sum(target_name, target_md5sum):
-            raise RuntimeError("{} MD5 checkssum failed".format(target_name))
+            raise RuntimeError("{} MD5 checksum failed".format(target_name))
         else:
             print("Check {} md5sum successfully".format(target_name))
 
@@ -187,7 +187,7 @@ def download_dataset(base_url, data_list, target_data, target_dir, dataset):
             # we need make the test directory
             unzip(target_name, os.path.join(target_dir, "test"))
         else:
-            # upzip dev zip pacakge and will create the dev directory
+            # unzip dev zip package and will create the dev directory
             unzip(target_name, target_dir)
 
 

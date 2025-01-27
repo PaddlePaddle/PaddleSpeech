@@ -18,7 +18,7 @@ see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/doc
 
 It is recommended to use **paddlepaddle 2.4rc** or above.
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 **If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to 
 

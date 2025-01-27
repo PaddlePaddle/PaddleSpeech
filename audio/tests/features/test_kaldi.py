@@ -18,12 +18,11 @@ import paddle
 import paddleaudio
 import torch
 import torchaudio
-
 from base import FeatTest
 
 
 class TestKaldi(FeatTest):
-    def initParmas(self):
+    def initParams(self):
         self.window_size = 1024
         self.dtype = 'float32'
 

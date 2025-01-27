@@ -23,7 +23,7 @@ from paddlespeech.audio.transform.spectrogram import Stft
 
 
 class TestIstft(FeatTest):
-    def initParmas(self):
+    def initParams(self):
         self.n_fft = 512
         self.hop_length = 128
         self.window_str = 'hann'

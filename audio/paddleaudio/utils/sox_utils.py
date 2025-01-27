@@ -55,7 +55,7 @@ def set_use_threads(use_threads: bool):
 
     Args:
         use_threads (bool): When ``True``, enables ``libsox``'s parallel effects channels processing.
-            To use mutlithread, the underlying ``libsox`` has to be compiled with OpenMP support.
+            To use multithread, the underlying ``libsox`` has to be compiled with OpenMP support.
 
     See Also:
         http://sox.sourceforge.net/sox.html

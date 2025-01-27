@@ -162,7 +162,7 @@ py::dtype get_dtype(
         }
       default:
         // default to float32 for the other formats, including
-        // 32-bit flaoting-point WAV,
+        // 32-bit floating-point WAV,
         // MP3,
         // FLAC,
         // VORBIS etc...
@@ -177,7 +177,7 @@ py::array convert_to_tensor(
     const py::dtype dtype,
     const bool normalize,
     const bool channels_first) {
-  // todo refector later(SGoat)
+  // todo refactor later(SGoat)
   py::array t;
   uint64_t dummy = 0;
   SOX_SAMPLE_LOCALS;

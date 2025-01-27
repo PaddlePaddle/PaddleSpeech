@@ -13,7 +13,7 @@
 # limitations under the License.
 """Prepare Ted-En-Zh speech translation dataset
 
-Create manifest files from splited datased. 
+Create manifest files from splited dataset. 
 dev set: tst2010, test set: tst2015
 Manifest file is a json-format file with each line containing the
 meta data (i.e. audio filepath, transcript and audio duration)

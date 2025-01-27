@@ -76,7 +76,7 @@ py::dtype get_dtype(
 /// Tensor.
 /// @param dtype Target dtype. Determines the output dtype and value range in
 /// conjunction with normalization.
-/// @param noramlize Perform normalization. Only effective when dtype is not
+/// @param normalize Perform normalization. Only effective when dtype is not
 /// kFloat32. When effective, the output tensor is kFloat32 type and value range
 /// is [-1.0, 1.0]
 /// @param channels_first When True, output Tensor has shape of [num_channels,

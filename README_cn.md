@@ -272,6 +272,8 @@ git clone https://github.com/PaddlePaddle/PaddleSpeech.git
 cd PaddleSpeech
 pip install pytest-runner
 pip install .
+# 如果需要在可编辑模式下安装，需要使用 --use-pep517，命令如下
+# pip install -e . --use-pep517
 ```
 
 更多关于安装问题，如 conda 环境，librosa 依赖的系统库，gcc 环境问题，kaldi 安装等，可以参考这篇[安装文档](docs/source/install_cn.md)，如安装上遇到问题可以在 [#2150](https://github.com/PaddlePaddle/PaddleSpeech/issues/2150) 上留言以及查找相关问题

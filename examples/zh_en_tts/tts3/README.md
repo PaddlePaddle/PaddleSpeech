@@ -260,6 +260,9 @@ Pretrained FastSpeech2 model with no silence in the edge of audios:
 The static model can be downloaded here:
 - [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)
 
+The PIR static model can be downloaded here:
+- [fastspeech2_mix_static_pir_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_pir_0.2.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+
 The ONNX model can be downloaded here:
 - [fastspeech2_mix_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_onnx_0.2.0.zip)
 

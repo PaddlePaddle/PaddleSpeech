@@ -183,7 +183,7 @@ def soundfile_save(y: np.ndarray, sr: int, file: os.PathLike) -> None:
     Args:
         y (np.ndarray): Input waveform array in 1D or 2D.
         sr (int): Sample rate.
-        file (os.PathLike): Path of auido file to save.
+        file (os.PathLike): Path of audio file to save.
     """
     if not file.endswith('.wav'):
         raise ParameterError(
@@ -216,10 +216,10 @@ def soundfile_load(
         duration: Optional[int]=None,
         dtype: str='float32',
         resample_mode: str='kaiser_fast') -> Tuple[np.ndarray, int]:
-    """Load audio file from disk. This function loads audio from disk using using audio beackend.
+    """Load audio file from disk. This function loads audio from disk using using audio backend.
 
     Args:
-        file (os.PathLike): Path of auido file to load.
+        file (os.PathLike): Path of audio file to load.
         sr (Optional[int], optional): Sample rate of loaded waveform. Defaults to None.
         mono (bool, optional): Return waveform with mono channel. Defaults to True.
         merge_type (str, optional): Merge type of multi-channels waveform. Defaults to 'average'.
@@ -250,14 +250,14 @@ def soundfile_load(
     if normal:
         y = normalize(y, norm_type, norm_mul_factor)
     elif dtype in ['int8', 'int16']:
-        # still need to do normalization, before depth convertion
+        # still need to do normalization, before depth conversion
         y = normalize(y, 'linear', 1.0)
 
     y = depth_convert(y, dtype)
     return y, r
 
 
-#the code below token form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py with modificaion.
+#the code below token form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py with modification.
 
 
 def _get_subtype_for_wav(dtype: paddle.dtype,
@@ -382,7 +382,7 @@ def save(
         channels_first (bool, optional): If ``True``, the given tensor is interpreted as `[channel, time]`,
             otherwise `[time, channel]`.
         compression (float of None, optional): Not used.
-            It is here only for interface compatibility reson with "sox_io" backend.
+            It is here only for interface compatibility reason with "sox_io" backend.
         format (str or None, optional): Override the audio format.
             When ``filepath`` argument is path-like object, audio format is
             inferred from file extension. If the file extension is missing or
@@ -394,8 +394,8 @@ def save(
             Valid values are ``"wav"``, ``"ogg"``, ``"vorbis"``,
             ``"flac"`` and ``"sph"``.
         encoding (str or None, optional): Changes the encoding for supported formats.
-            This argument is effective only for supported formats, sush as
-            ``"wav"``, ``""flac"`` and ``"sph"``. Valid values are;
+            This argument is effective only for supported formats, such as
+            ``"wav"``, ``""flac"`` and ``"sph"``. Valid values are:
 
                 - ``"PCM_S"`` (signed integer Linear PCM)
                 - ``"PCM_U"`` (unsigned integer Linear PCM)

@@ -449,7 +449,7 @@ unsigned get_precision(const std::string filetype, py::dtype dtype) {
     return SOX_UNSPEC;
   if (filetype == "wav" || filetype == "amb") {
     switch (dtype.num()) {
-      case 1: // byte in numpy dype num
+      case 1: // byte in numpy dtype num
         return 8;
       case 3: // short, in numpy dtype num
         return 16;

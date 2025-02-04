@@ -626,7 +626,7 @@ def mu_decode(y: np.ndarray, mu: int=255, quantized: bool=True) -> np.ndarray:
 def _randint(high: int) -> int:
     """Generate one random integer in range [0 high)
 
-     This is a helper function for random data augmentaiton
+     This is a helper function for random data augmentation
     """
     return int(np.random.randint(0, high=high))
 
@@ -659,7 +659,7 @@ def depth_augment(y: np.ndarray,
 def adaptive_spect_augment(spect: np.ndarray,
                            tempo_axis: int=0,
                            level: float=0.1) -> np.ndarray:
-    """Do adpative spectrogram augmentation. The level of the augmentation is gowern by the paramter level, ranging from 0 to 1, with 0 represents no augmentation.
+    """Do adaptive spectrogram augmentation. The level of the augmentation is govern by the parameter level, ranging from 0 to 1, with 0 represents no augmentation.
 
     Args:
         spect (np.ndarray): Input spectrogram.
@@ -711,9 +711,9 @@ def spect_augment(spect: np.ndarray,
         spect (np.ndarray): Input spectrogram.
         tempo_axis (int, optional): Indicate the tempo axis. Defaults to 0.
         max_time_mask (int, optional): Maximum number of time masking. Defaults to 3.
-        max_freq_mask (int, optional): Maximum number of frenquence masking. Defaults to 3.
+        max_freq_mask (int, optional): Maximum number of frequency masking. Defaults to 3.
         max_time_mask_width (int, optional): Maximum width of time masking. Defaults to 30.
-        max_freq_mask_width (int, optional): Maximum width of frenquence masking. Defaults to 20.
+        max_freq_mask_width (int, optional): Maximum width of frequency masking. Defaults to 20.
 
     Returns:
         np.ndarray: The augmented spectrogram.

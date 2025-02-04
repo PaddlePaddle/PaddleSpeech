@@ -58,7 +58,7 @@ class MockedSaveTest(unittest.TestCase):
             encoding=encoding,
             bits_per_sample=bits_per_sample, )
 
-        # on +Py3.8 call_args.kwargs is more descreptive
+        # on +Py3.8 call_args.kwargs is more descriptive
         args = mocked_write.call_args[1]
         assert args["file"] == filepath
         assert args["samplerate"] == sample_rate

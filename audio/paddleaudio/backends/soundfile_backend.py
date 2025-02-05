@@ -257,7 +257,7 @@ def soundfile_load(
     return y, r
 
 
-#the code below token form: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py with modification.
+#The code below is taken from: https://github.com/pytorch/audio/blob/main/torchaudio/backend/soundfile_backend.py, with some modifications.
 
 
 def _get_subtype_for_wav(dtype: paddle.dtype,

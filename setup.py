@@ -121,7 +121,7 @@ base = [
     "webrtcvad",
     "yacs>=0.1.8",
     "zhon",
-    "sklearn",
+    "scikit-learn",
 ]
 
 server = ["pattern_singleton", "websockets"]

@@ -18,4 +18,3 @@ from . import functional
 from . import streamdata
 from . import text
 from . import transform
-from . import utils

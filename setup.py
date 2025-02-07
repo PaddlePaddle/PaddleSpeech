@@ -123,6 +123,7 @@ base = [
     "zhon",
     "scikit-learn",
     "pathos",
+    "kaldiio",
 ]
 
 server = ["pattern_singleton", "websockets"]

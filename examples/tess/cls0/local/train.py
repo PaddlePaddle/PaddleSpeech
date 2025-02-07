@@ -16,9 +16,9 @@ import os
 
 import paddle
 import yaml
-from paddleaudio.utils import logger
-from paddleaudio.utils import Timer
 
+from paddlespeech.audio.utils import logger
+from paddlespeech.audio.utils.time import Timer
 from paddlespeech.cls.models import SoundClassifier
 from paddlespeech.utils.dynamic_import import dynamic_import
 

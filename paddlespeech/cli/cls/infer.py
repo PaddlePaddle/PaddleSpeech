@@ -22,11 +22,11 @@ import numpy as np
 import paddle
 import yaml
 from paddle.audio.features import LogMelSpectrogram
-from paddleaudio.backends import soundfile_load as load
 
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
+from paddlespeech.audio.backends import soundfile_load as load
 
 __all__ = ['CLSExecutor']
 

@@ -20,12 +20,12 @@ from typing import Union
 
 import paddle
 import yaml
-from paddleaudio.backends import soundfile_load as load_audio
-from paddleaudio.compliance.kaldi import fbank as kaldi_fbank
 
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
+from paddlespeech.audio.backends import soundfile_load as load_audio
+from paddlespeech.audio.compliance.kaldi import fbank as kaldi_fbank
 
 __all__ = ['KWSExecutor']
 

@@ -304,13 +304,11 @@ def paddle_audio(key, data):
     if extension not in ["flac", "mp3", "sox", "wav", "m4a", "ogg", "wma"]:
         return None
 
-    import paddleaudio
-
     with tempfile.TemporaryDirectory() as dirname:
         fname = os.path.join(dirname, f"file.{extension}")
         with open(fname, "wb") as stream:
             stream.write(data)
-        return paddleaudio.backends.soundfile_load(fname)
+        return paddlespeech.audio.backends.soundfile_load(fname)
 
 
 ################################################################

@@ -13,9 +13,9 @@
 # limitations under the License.
 import paddle
 import paddle.nn.functional as F
-import paddleaudio.functional as audio_F
 from paddle import nn
 
+from paddlespeech.audio.functional import create_dct
 from paddlespeech.utils.initialize import _calculate_gain
 from paddlespeech.utils.initialize import xavier_uniform_
 
@@ -243,7 +243,7 @@ class MFCC(nn.Layer):
         self.n_mfcc = n_mfcc
         self.n_mels = n_mels
         self.norm = 'ortho'
-        dct_mat = audio_F.create_dct(self.n_mfcc, self.n_mels, self.norm)
+        dct_mat = create_dct(self.n_mfcc, self.n_mels, self.norm)
         self.register_buffer('dct_mat', dct_mat)
 
     def forward(self, mel_specgram: paddle.Tensor):

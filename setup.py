@@ -99,7 +99,6 @@ base = [
     determine_opencc_version(),  # opencc or opencc==1.1.6
     "opencc-python-reimplemented",
     "pandas",
-    "paddleaudio>=1.1.0",
     "paddlenlp>=2.4.8",
     "paddleslim>=2.3.4",
     "ppdiffusers>=0.9.0",
@@ -122,6 +121,7 @@ base = [
     "webrtcvad",
     "yacs>=0.1.8",
     "zhon",
+    "sklearn",
 ]
 
 server = ["pattern_singleton", "websockets"]

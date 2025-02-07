@@ -122,6 +122,7 @@ base = [
     "yacs>=0.1.8",
     "zhon",
     "scikit-learn",
+    "pathos",
 ]
 
 server = ["pattern_singleton", "websockets"]

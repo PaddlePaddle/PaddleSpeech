@@ -26,14 +26,14 @@ def test_io():
         signal_from_file = AudioSignal(f.name)
 
     mp3_signal = AudioSignal(audio_path.replace("wav", "mp3"))
-    print(mp3_signal)
 
     assert signal == signal_from_file
-    print(signal)
-    print(signal.markdown())
 
     mp3_signal = AudioSignal.excerpt(
         audio_path.replace("wav", "mp3"), offset=5, duration=5)
+
+    assert mp3_signal.sample_rate == 44100
+    assert mp3_signal.signal_length == 220500
     assert mp3_signal.signal_duration == 5.0
     assert mp3_signal.duration == 5.0
     assert mp3_signal.length == mp3_signal.signal_length

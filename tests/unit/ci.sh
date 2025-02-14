@@ -1,6 +1,7 @@
 function main(){
   set -ex
   speech_ci_path=`pwd`
+  pip install ffmpeg flatten_dict ffmpy
 
   echo "Start asr"
   cd ${speech_ci_path}/asr
@@ -16,6 +17,7 @@ function main(){
   python test_enfrontend.py
   python test_fftconv1d.py
   python test_mixfrontend.py
+  python test_losses.py
   echo "End TTS"
 
   echo "Start Vector"

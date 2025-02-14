@@ -32,7 +32,6 @@ import soundfile
 from flatten_dict import flatten
 from flatten_dict import unflatten
 
-from .audio_signal import AudioSignal
 from paddlespeech.utils import satisfy_paddle_version
 from paddlespeech.vector.training.seeding import seed_everything
 
@@ -232,7 +231,7 @@ def ensure_tensor(
 
 def _get_value(other):
     # 
-    from . import AudioSignal
+    from .audio_signal import AudioSignal
 
     if isinstance(other, AudioSignal):
         return other.audio_data
@@ -873,7 +872,7 @@ def generate_chord_dataset(
 
     """
     import librosa
-    from . import AudioSignal
+    from .audio_signal import AudioSignal
     from ..data.preprocess import create_csv
 
     min_midi = librosa.note_to_midi(min_note)

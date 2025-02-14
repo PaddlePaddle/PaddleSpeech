@@ -20,8 +20,6 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from paddlespeech.t2s.modules import fft_conv1d
-from paddlespeech.t2s.modules import FFTConv1D
 from paddlespeech.utils import satisfy_paddle_version
 
 __all__ = [
@@ -312,6 +310,7 @@ class LowPassFilters(nn.Layer):
                 mode="replicate",
                 data_format="NCL")
         if self.fft:
+            from paddlespeech.t2s.modules import fft_conv1d
             out = fft_conv1d(_input, self.filters, stride=self.stride)
         else:
             out = F.conv1d(_input, self.filters, stride=self.stride)

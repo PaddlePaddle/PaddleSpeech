@@ -4,10 +4,9 @@ import numpy as np
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
+from paddle.nn.utils import weight_norm
 
-from .layers import WNConv1d
-
-# from dac.nn.layers import WNConv1d
+from paddlespeech.codec.models.dac_.nn.layers import WNConv1d
 
 
 class VectorQuantize(nn.Layer):
@@ -106,7 +105,8 @@ class ResidualVectorQuantize(nn.Layer):
             z_q_i, commitment_loss_i, codebook_loss_i, indices_i, z_e_i = quantizer(
                 residual)
 
-            mask = paddle.full((z.shape[0], ), fill_value=i) < n_quantizers
+            mask = (paddle.full(
+                (z.shape[0], ), fill_value=i) < n_quantizers).astype("float32")
             z_q = z_q + z_q_i * mask[:, None, None]
             residual = residual - z_q_i
 

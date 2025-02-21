@@ -3,18 +3,18 @@ import warnings
 from pathlib import Path
 
 import argbind
-import torch
-from audiotools import AudioSignal
-from audiotools.core import util
-from dac.utils import load_model
+import paddle
 from tqdm import tqdm
+
+from dac.utils import load_model
+from paddlespeech.audiotools import AudioSignal
+from paddlespeech.audiotools.core import util
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
 @argbind.bind(group="encode", positional=True, without_prefix=True)
-@torch.inference_mode()
-@torch.no_grad()
+@paddle.no_grad()
 def encode(
         input: str,
         output: str="",
@@ -22,7 +22,6 @@ def encode(
         model_tag: str="latest",
         model_bitrate: str="8kbps",
         n_quantizers: int=None,
-        device: str="cuda",
         model_type: str="44khz",
         win_duration: float=5.0,
         verbose: bool=False, ):
@@ -53,7 +52,6 @@ def encode(
         model_bitrate=model_bitrate,
         tag=model_tag,
         load_path=weights_path, )
-    generator.to(device)
     generator.eval()
     kwargs = {"n_quantizers": n_quantizers}
 

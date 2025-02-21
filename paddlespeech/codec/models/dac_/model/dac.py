@@ -1,7 +1,4 @@
-import math
 from functools import partial
-from typing import List
-from typing import Union
 
 import numpy as np
 import paddle
@@ -9,7 +6,6 @@ import paddle.nn.functional as F
 from paddle import nn
 
 from paddlespeech.audiotools import AudioSignal
-from paddlespeech.audiotools.ml import BaseModel
 from paddlespeech.codec.models.dac_.model.base import CodecMixin
 from paddlespeech.codec.models.dac_.nn.layers import Snake1d
 from paddlespeech.codec.models.dac_.nn.layers import WNConv1d
@@ -195,7 +191,7 @@ class DAC(nn.Layer, CodecMixin):
         length = audio_data.shape[-1]
         right_pad = np.ceil(length / self.hop_length) * self.hop_length - length
         audio_data = F.pad(
-            audio_data, [0, right_pad],
+            audio_data, [0, int(right_pad)],
             mode='constant',
             value=0,
             data_format="NCL")

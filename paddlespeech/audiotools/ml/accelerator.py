@@ -42,6 +42,23 @@ class ResumableSequentialSampler(SequenceSampler):
         self.start_idx = 0  # set the index back to 0 so for the next epoch
 
 
+class DummyScaler:
+    def __init__(self):
+        pass
+
+    def step(self, optimizer):
+        optimizer.step()
+
+    def scale(self, loss):
+        return loss
+
+    def unscale_(self, optimizer):
+        return optimizer
+
+    def update(self):
+        pass
+
+
 class Accelerator:
     """This class is used to prepare models and dataloaders for
     usage with DDP or DP. Use the functions prepare_model, prepare_dataloader to
@@ -77,22 +94,6 @@ class Accelerator:
 
         self.local_rank = 0 if trainer_id is None else int(trainer_id)
         self.amp = amp
-
-        class DummyScaler:
-            def __init__(self):
-                pass
-
-            def step(self, optimizer):
-                optimizer.step()
-
-            def scale(self, loss):
-                return loss
-
-            def unscale_(self, optimizer):
-                return optimizer
-
-            def update(self):
-                pass
 
         self.scaler = paddle.amp.GradScaler() if self.amp else DummyScaler()
 

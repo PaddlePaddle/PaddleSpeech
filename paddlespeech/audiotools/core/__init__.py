@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from . import util
-from ._julius import fft_conv1d
-from ._julius import FFTConv1D
+# from ._julius import fft_conv1d
+# from ._julius import FFTConv1D
 from ._julius import highpass_filter
 from ._julius import highpass_filters
 from ._julius import lowpass_filter

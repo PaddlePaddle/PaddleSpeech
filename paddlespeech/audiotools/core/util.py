@@ -13,12 +13,9 @@ import typing
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 from typing import Callable
 from typing import Dict
-from typing import Iterable
 from typing import List
-from typing import NamedTuple
 from typing import Optional
 from typing import Tuple
 from typing import Type
@@ -34,7 +31,6 @@ from flatten_dict import unflatten
 
 from .audio_signal import AudioSignal
 from paddlespeech.utils import satisfy_paddle_version
-from paddlespeech.vector.training.seeding import seed_everything
 
 __all__ = [
     "exp_compat",

@@ -3,17 +3,17 @@ from pathlib import Path
 
 import argbind
 import numpy as np
-import torch
+import paddle
+from tqdm import tqdm
+
 from dac import DACFile
 from dac.utils import load_model
-from tqdm import tqdm
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
 @argbind.bind(group="decode", positional=True, without_prefix=True)
-@torch.inference_mode()
-@torch.no_grad()
+@paddle.no_grad()
 def decode(
         input: str,
         output: str="",
@@ -49,7 +49,6 @@ def decode(
         model_bitrate=model_bitrate,
         tag=model_tag,
         load_path=weights_path, )
-    generator.to(device)
     generator.eval()
 
     # Find all .dac files in input directory
@@ -64,7 +63,7 @@ def decode(
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
 
-    for i in tqdm(range(len(input_files)), desc=f"Decoding files"):
+    for i in tqdm(range(len(input_files)), desc="Decoding files"):
         # Load file
         artifact = DACFile.load(input_files[i])
 

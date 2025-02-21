@@ -801,6 +801,7 @@ def collate(list_of_dicts: list, n_splits: int=None):
         batch = {}
         for k, v in dict_of_lists.items():
             if isinstance(v, list):
+                from .audio_signal import AudioSignal
                 if all(isinstance(s, AudioSignal) for s in v):
                     batch[k] = AudioSignal.batch(v, pad_signals=True)
                 else:

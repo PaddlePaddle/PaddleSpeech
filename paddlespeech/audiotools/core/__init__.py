@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from . import util
+from ...t2s.modules import fft_conv1d
+from ...t2s.modules import FFTConv1D
 from ._julius import highpass_filter
 from ._julius import highpass_filters
 from ._julius import lowpass_filter
@@ -24,5 +26,3 @@ from ._julius import SplitBands
 from .audio_signal import AudioSignal
 from .audio_signal import STFTParams
 from .loudness import Meter
-from ...t2s.modules import fft_conv1d
-from ...t2s.modules import FFTConv1D

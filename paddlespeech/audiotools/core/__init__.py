@@ -24,5 +24,5 @@ from ._julius import SplitBands
 from .audio_signal import AudioSignal
 from .audio_signal import STFTParams
 from .loudness import Meter
-from paddlespeech.t2s.modules import fft_conv1d
-from paddlespeech.t2s.modules import FFTConv1D
+from ...t2s.modules import fft_conv1d
+from ...t2s.modules import FFTConv1D

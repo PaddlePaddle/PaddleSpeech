@@ -1554,7 +1554,7 @@ class SISDRLoss(nn.Layer):
         noise = (e_res**2).sum(axis=1)
         sdr = -10 * paddle.log10(signal / noise + eps)
 
-        if self.clip_min is not None:
+        if self.clip_min != None:
             sdr = paddle.clip(sdr, min=self.clip_min)
 
         if self.reduction == "mean":

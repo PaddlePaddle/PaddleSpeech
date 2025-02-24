@@ -1,7 +1,7 @@
 function main(){
   set -ex
   speech_ci_path=`pwd`
-  pip install ffmpeg flatten_dict ffmpy
+  python -m pip install -r ../../paddlespeech/audiotools/requirements.txt
 
   echo "Start asr"
   cd ${speech_ci_path}/asr

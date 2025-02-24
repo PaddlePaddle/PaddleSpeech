@@ -19,7 +19,7 @@ import numpy as np
 import paddle
 import soundfile
 
-from . import util
+from .util import random_state, info as utilinfo, ensure_tensor, move_to_device, exp_compat, _get_value, bool_setitem_compat, bool_index_compat
 from ._julius import resample_frac
 from .display import DisplayMixin
 from .dsp import DSPMixin
@@ -245,10 +245,10 @@ class AudioSignal(
         --------
         >>> signal = AudioSignal.excerpt("path/to/audio", duration=5)
         """
-        info = util.info(audio_path)
+        info = utilinfo(audio_path)
         total_duration = info.duration
 
-        state = util.random_state(state)
+        state = random_state(state)
         lower_bound = 0 if offset is None else offset
         upper_bound = max(total_duration - duration, 0)
         offset = state.uniform(lower_bound, upper_bound)
@@ -305,7 +305,7 @@ class AudioSignal(
                 duration=5
             )
         """
-        state = util.random_state(state)
+        state = random_state(state)
         if loudness_cutoff is None:
             excerpt = cls.excerpt(audio_path, state=state, **kwargs)
         else:
@@ -533,7 +533,7 @@ class AudioSignal(
             duration=duration,
             sr=None,
             mono=False, )
-        data = util.ensure_tensor(data)
+        data = ensure_tensor(data)
         if data.shape[-1] == 0:
             raise RuntimeError(
                 f"Audio file {audio_path} with offset {offset} and duration {duration} is empty!"
@@ -574,7 +574,7 @@ class AudioSignal(
         AudioSignal
             AudioSignal loaded from array
         """
-        audio_data = util.ensure_tensor(audio_array)
+        audio_data = ensure_tensor(audio_array)
 
         if str(audio_data.dtype) == paddle.float64:
             audio_data = audio_data.astype("float32")
@@ -778,11 +778,11 @@ class AudioSignal(
             AudioSignal with all tensors moved to specified device.
         """
         if self._loudness is not None:
-            self._loudness = util.move_to_device(self._loudness, device)
+            self._loudness = move_to_device(self._loudness, device)
         if self.stft_data is not None:
-            self.stft_data = util.move_to_device(self.stft_data, device)
+            self.stft_data = move_to_device(self.stft_data, device)
         if self.audio_data is not None:
-            self.audio_data = util.move_to_device(self.audio_data, device)
+            self.audio_data = move_to_device(self.audio_data, device)
         return self
 
     def float(self):
@@ -1486,7 +1486,7 @@ class AudioSignal(
 
     @magnitude.setter
     def magnitude(self, value):
-        self.stft_data = value * util.exp_compat(1j * self.phase)
+        self.stft_data = value * exp_compat(1j * self.phase)
         return
 
     def log_magnitude(self,
@@ -1551,17 +1551,17 @@ class AudioSignal(
     @phase.setter
     def phase(self, value):
         # 
-        self.stft_data = self.magnitude * util.exp_compat(1j * value)
+        self.stft_data = self.magnitude * exp_compat(1j * value)
         return
 
     # Operator overloading
     def __add__(self, other):
         new_signal = self.clone()
-        new_signal.audio_data += util._get_value(other)
+        new_signal.audio_data += _get_value(other)
         return new_signal
 
     def __iadd__(self, other):
-        self.audio_data += util._get_value(other)
+        self.audio_data += _get_value(other)
         return self
 
     def __radd__(self, other):
@@ -1569,20 +1569,20 @@ class AudioSignal(
 
     def __sub__(self, other):
         new_signal = self.clone()
-        new_signal.audio_data -= util._get_value(other)
+        new_signal.audio_data -= _get_value(other)
         return new_signal
 
     def __isub__(self, other):
-        self.audio_data -= util._get_value(other)
+        self.audio_data -= _get_value(other)
         return self
 
     def __mul__(self, other):
         new_signal = self.clone()
-        new_signal.audio_data *= util._get_value(other)
+        new_signal.audio_data *= _get_value(other)
         return new_signal
 
     def __imul__(self, other):
-        self.audio_data *= util._get_value(other)
+        self.audio_data *= _get_value(other)
         return self
 
     def __rmul__(self, other):
@@ -1704,7 +1704,7 @@ class AudioSignal(
                 key] if self._loudness is not None else None
             # stft_data = self.stft_data[
             #     key] if self.stft_data is not None else None
-            stft_data = util.bool_index_compat(
+            stft_data = bool_index_compat(
                 self.stft_data, key) if self.stft_data is not None else None
 
         sources = None
@@ -1742,7 +1742,7 @@ class AudioSignal(
                     self._loudness[key] = value._loudness
             if self.stft_data is not None and value.stft_data is not None:
                 # self.stft_data[key] = value.stft_data
-                self.stft_data = util.bool_setitem_compat(self.stft_data, key,
+                self.stft_data = bool_setitem_compat(self.stft_data, key,
                                                           value.stft_data)
             return
 

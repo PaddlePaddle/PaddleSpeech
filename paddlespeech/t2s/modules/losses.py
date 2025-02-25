@@ -1408,6 +1408,16 @@ class MultiScaleSTFTLoss(nn.Layer):
         Returns:
             paddle.Tensor
                 Multi-scale STFT loss.
+        
+        Example:
+            >>> from paddlespeech.audiotools.core.audio_signal import AudioSignal
+            >>> import paddle
+
+            >>> x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav", 2_05)
+            >>> y = x * 0.01
+            >>> loss = MultiScaleSTFTLoss()
+            >>> loss(x, y).numpy()
+            7.562150
         """
         for s in self.stft_params:
             x.stft(s.window_length, s.hop_length, s.window_type)
@@ -1425,6 +1435,29 @@ class GANLoss(nn.Layer):
     generated waveforms/spectrograms compared to ground truth
     waveforms/spectrograms. Computes the loss for both the
     discriminator and the generator in separate functions.
+
+    Example:
+    >>> from paddlespeech.audiotools.core.audio_signal import AudioSignal
+    >>> import paddle
+
+    >>> x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav", 2_05)
+    >>> y = x * 0.01
+    >>> class My_discriminator0:
+    >>>     def __call__(self, x):
+    >>>         return x.sum()
+    >>> loss = GANLoss(My_discriminator0())
+    >>> [loss(x, y)[0].numpy(), loss(x, y)[1].numpy()]
+    [-0.102722, -0.001027]
+
+    >>> class My_discriminator1:
+    >>>     def __call__(self, x):
+    >>>         return x.sum()
+    >>> loss = GANLoss(My_discriminator1())
+    >>> [loss.generator_loss(x, y)[0].numpy(), loss.generator_loss(x, y)[1].numpy()]
+    [1.00019, 0]
+
+    >>> loss.discriminator_loss(x, y)
+    1.000200
     """
 
     def __init__(self, discriminator):
@@ -1480,6 +1513,16 @@ class SISDRLoss(nn.Layer):
     of estimated and reference audio signals or aligned features.
 
     Implementation copied from: https://github.com/descriptinc/audiotools/blob/master/audiotools/metrics/distance.py
+
+    Example:
+    >>> from paddlespeech.audiotools.core.audio_signal import AudioSignal
+    >>> import paddle
+
+    >>> x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav", 2_05)
+    >>> y = x * 0.01
+    >>> sisdr = SISDRLoss()
+    >>> sisdr(x, y).numpy()
+    -145.377640
     """
 
     def __init__(

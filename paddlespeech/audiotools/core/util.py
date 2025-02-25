@@ -231,7 +231,6 @@ def ensure_tensor(
 
 def _get_value(other):
     # 
-    from .audio_signal import AudioSignal
     if isinstance(other, AudioSignal):
         return other.audio_data
     return other
@@ -800,7 +799,6 @@ def collate(list_of_dicts: list, n_splits: int=None):
         batch = {}
         for k, v in dict_of_lists.items():
             if isinstance(v, list):
-                from .audio_signal import AudioSignal
                 if all(isinstance(s, AudioSignal) for s in v):
                     batch[k] = AudioSignal.batch(v, pad_signals=True)
                 else:
@@ -872,7 +870,6 @@ def generate_chord_dataset(
 
     """
     import librosa
-    from .audio_signal import AudioSignal
     from ..data.preprocess import create_csv
 
     min_midi = librosa.note_to_midi(min_note)

@@ -89,7 +89,7 @@ base = [
     "inflect",
     "jsonlines",
     "numpy",
-    "librosa",
+    "librosa>=0.9",
     determine_scipy_version(),  # scipy or scipy>=1.4.0, <=1.12.0
     "loguru",
     determine_matplotlib_version(),  # matplotlib or matplotlib<=3.8.4

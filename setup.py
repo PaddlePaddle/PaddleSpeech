@@ -123,6 +123,11 @@ base = [
     "scikit-learn",
     "pathos",
     "kaldiio",
+    "ffmpeg-python",
+    "ffmpy",
+    "flatten_dict",
+    "pyloudnorm",
+    "rich",
 ]
 
 server = ["pattern_singleton", "websockets"]

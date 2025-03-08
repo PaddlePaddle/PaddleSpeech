@@ -10,7 +10,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.9",
     "ant-design-vue": "^2.2.8",
-    "axios": "^0.26.1",
+    "axios": "^1.8.2",
     "element-plus": "^2.1.9",
     "js-audio-recorder": "0.5.7",
     "lamejs": "^1.2.1",

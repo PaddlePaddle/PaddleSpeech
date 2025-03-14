@@ -37,6 +37,7 @@ Run the command below to
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
+    - `--stage` controls the vocoder model during synthesis (0 = pwgan, 1 = hifigan).
     - synthesize waveform from text file.
 ```bash
 ./run.sh

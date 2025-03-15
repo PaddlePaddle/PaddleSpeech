@@ -14,11 +14,13 @@ Remember in our repo, you should add `--rhy-with-duration` flag to obtain the rh
 Assume the path to the dataset is `~/datasets/BZNSYP`.
 Assume the path to the MFA result of CSMSC is `./baker_alignment_tone`.
 Run the command below to
+
 1. **source path**.
 2. preprocess the dataset.
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
+    - select vocoder type via `--stage` (0 = pwgan, 1 = hifigan)
     - synthesize waveform from a text file.
 5. inference using the static model.
 ```bash

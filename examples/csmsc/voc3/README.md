@@ -86,7 +86,7 @@ Download pretrained MultiBand MelGAN model from [mb_melgan_csmsc_ckpt_0.1.1.zip]
 ```bash
 unzip mb_melgan_csmsc_ckpt_0.1.1.zip
 ```
-MultiBand MelGAN checkpoint contains files listed below.
+HiFiGAN checkpoint contains files listed below.
 ```text
 mb_melgan_csmsc_ckpt_0.1.1
 ├── default.yaml                    # default config used to train MultiBand MelGAN

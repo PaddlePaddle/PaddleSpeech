@@ -16,7 +16,7 @@ Download VCTK-0.92 from it's [Official Website](https://datashare.ed.ac.uk/handl
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [vctk_alignment.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/other/mfa/local/reorganize_vctk.py)):
 1. `p315`, because of no text for it.
 2. `p280` and `p362`, because no *_mic2.flac (which is better than *_mic1.flac) for  them.
@@ -72,7 +72,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/train.sh ${conf_path} ${train_output_path}
 ### Synthesizing
 We use [HiFiGAN](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/voc5) as the neural vocoder.
 
-Download pretrained HiFiGAN model from [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) and unzip it.
+Download pretrained HiFiGAN model from [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) and unzip it.
 ```bash
 unzip hifigan_vctk_ckpt_0.2.0.zip
 ```
@@ -103,10 +103,10 @@ ln -snf libpython3.6m.so.1.0 libpython3.6m.so
 cd -
 # download align models and dicts
 cd aligner
-wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/aishell3_model.zip
-wget https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/simple.lexicon
-wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip
-wget https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/cmudict-0.7b
+wget https://paddlespeech.cdn.bcebos.com/MFA/ernie_sat/aishell3_model.zip
+wget https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/simple.lexicon
+wget https://paddlespeech.cdn.bcebos.com/MFA/ernie_sat/vctk_model.zip
+wget https://paddlespeech.cdn.bcebos.com/MFA/LJSpeech-1.1/cmudict-0.7b
 cd ../../
 ```
 **prepare pretrained FastSpeech2 models**
@@ -115,8 +115,8 @@ ERNIE-SAT use FastSpeech2 as phoneme duration predictor:
 ```bash
 mkdir download
 cd download
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_ljspeech_ckpt_0.5.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_ljspeech_ckpt_0.5.zip
 unzip fastspeech2_conformer_baker_ckpt_0.5.zip
 unzip fastspeech2_nosil_ljspeech_ckpt_0.5.zip
 cd ../
@@ -125,13 +125,13 @@ cd ../
 ```bash
 mkdir source
 cd source
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/SSB03540307.wav
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/SSB03540428.wav
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/LJ050-0278.wav
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/p243_313.wav
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/p299_096.wav
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/this_was_not_the_show_for_me.wav
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/source/README.md
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/SSB03540307.wav
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/SSB03540428.wav
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/LJ050-0278.wav
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/p243_313.wav
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/p299_096.wav
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/this_was_not_the_show_for_me.wav
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/source/README.md
 cd ../
 ```
 You can check the text of downloaded wavs in `source/README.md`.
@@ -144,7 +144,7 @@ You can check the text of downloaded wavs in `source/README.md`.
 You can modify `--wav_path`、`--old_str` and `--new_str` yourself, `--old_str` should be the text corresponding to the audio of  `--wav_path`, `--new_str` should be designed according to `--task_name`, both `--source_lang` and `--target_lang` should be `en` for model trained with VCTK dataset.
 ## Pretrained Model
 Pretrained ErnieSAT model:
-- [erniesat_vctk_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_vctk_ckpt_1.2.0.zip)
+- [erniesat_vctk_ckpt_1.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_vctk_ckpt_1.2.0.zip)
 
 Model | Step | eval/mlm_loss | eval/loss
 :-------------:| :------------:| :-----: | :-----:

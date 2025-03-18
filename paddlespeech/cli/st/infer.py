@@ -38,7 +38,7 @@ __all__ = ["STExecutor"]
 
 kaldi_bins = {
     "url":
-    "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
+    "https://paddlespeech.cdn.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
     "md5":
     "c0682303b3f3393dbf6ed4c4e35a53eb",
 }

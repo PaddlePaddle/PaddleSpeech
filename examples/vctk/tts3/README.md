@@ -7,7 +7,7 @@ Download VCTK-0.92 from it's [Official Website](https://datashare.ed.ac.uk/handl
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [vctk_alignment.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/other/mfa/local/reorganize_vctk.py)):
 1. `p315`, because of no text for it.
 2. `p280` and `p362`, because no *_mic2.flac (which is better than *_mic1.flac) for  them.
@@ -95,7 +95,7 @@ optional arguments:
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/voc1) as the neural vocoder.
 
-Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip) and unzip it.
 ```bash
 unzip pwg_vctk_ckpt_0.1.1.zip
 ```
@@ -216,19 +216,19 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios:
-- [fastspeech2_vctk_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip)
+- [fastspeech2_vctk_ckpt_1.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip)
 
 The static model can be downloaded here:
-- [fastspeech2_vctk_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_static_1.1.0.zip)
+- [fastspeech2_vctk_static_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_static_1.1.0.zip)
 
 The PIR static model can be downloaded here:
- - [fastspeech2_vctk_static_pir_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+ - [fastspeech2_vctk_static_pir_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
 
 The ONNX model can be downloaded here:
-- [fastspeech2_vctk_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_onnx_1.1.0.zip)
+- [fastspeech2_vctk_onnx_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_onnx_1.1.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [fastspeech2_vctk_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_pdlite_1.3.0.zip)
+- [fastspeech2_vctk_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_pdlite_1.3.0.zip)
 
 FastSpeech2 checkpoint contains files listed below.
 ```text

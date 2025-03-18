@@ -74,9 +74,9 @@ if [[ ${MODE} = "benchmark_train" ]];then
         wget -nc https://paddle-wheel.bj.bcebos.com/benchmark/BZNSYP.rar
         mkdir -p BZNSYP
         unrar x BZNSYP.rar BZNSYP
-        wget -nc https://paddlespeech.bj.bcebos.com/Parakeet/benchmark/durations.txt
+        wget -nc https://paddlespeech.cdn.bcebos.com/Parakeet/benchmark/durations.txt
         # 避免网络问题导致的 nltk_data 无法下载使程序 hang 住
-        wget -nc https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz
+        wget -nc https://paddlespeech.cdn.bcebos.com/Parakeet/tools/nltk_data.tar.gz
         tar -xzf nltk_data.tar.gz -C ${HOME}
         # 数据预处理
         python ../paddlespeech/t2s/exps/gan_vocoder/preprocess.py --rootdir=BZNSYP/ --dumpdir=dump --num-cpu=20 --cut-sil=True --dur-file=durations.txt --config=../examples/csmsc/voc1/conf/default.yaml
@@ -92,8 +92,8 @@ if [[ ${MODE} = "benchmark_train" ]];then
 
     if [[ ${model_name} == "mdtc" ]]; then
         # 下载 Snips 数据集并解压缩
-        wget https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.1 
-	wget https://paddlespeech.bj.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.2
+        wget https://paddlespeech.cdn.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.1 
+	wget https://paddlespeech.cdn.bcebos.com/datasets/hey_snips_kws_4.0.tar.gz.2
         cat hey_snips_kws_4.0.tar.gz.* > hey_snips_kws_4.0.tar.gz
         rm hey_snips_kws_4.0.tar.gz.*
         tar -xzf hey_snips_kws_4.0.tar.gz

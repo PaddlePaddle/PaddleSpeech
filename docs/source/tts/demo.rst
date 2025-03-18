@@ -44,7 +44,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 
@@ -52,7 +52,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_0.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_0.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -63,7 +63,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -72,7 +72,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
              <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_1.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_1.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
             </audio>
@@ -83,7 +83,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -91,7 +91,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_2.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_2.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -102,7 +102,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -110,7 +110,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_3.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_3.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -121,7 +121,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/ljspeech_gt/LJ001-0005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -129,7 +129,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_4.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/waveflow_res128_ljspeech_samples_1.0/step_2000k_sentence_4.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -155,7 +155,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009901.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009901.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -163,7 +163,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009901.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009901.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -174,7 +174,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009902.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009902.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -182,7 +182,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009902.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009902.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -193,7 +193,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009903.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009903.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -201,7 +201,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009903.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009903.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -212,7 +212,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009904.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009904.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -220,7 +220,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009904.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009904.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -232,7 +232,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009905.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/baker_gt_24k/009905.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -240,7 +240,7 @@ Audio samples generated from ground-truth spectrograms with a vocoder.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009905.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/pwg_baker_ckpt_0.4/009905.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -273,7 +273,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                         <source
-                            src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/001.wav"
+                            src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/001.wav"
                             type="audio/wav">
                         Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -281,7 +281,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
                 <audio controls="controls" style="width: 220px;">
                         <source
-                            src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav"
+                            src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav"
                             type="audio/wav">
                         Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -292,7 +292,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                         <source
-                            src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/002.wav"
+                            src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/002.wav"
                             type="audio/wav">
                         Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -300,7 +300,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
             <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_2.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_2.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -311,7 +311,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
             <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -320,7 +320,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
             <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_3.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_3.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -332,7 +332,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -341,7 +341,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_4.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_4.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -352,7 +352,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -361,7 +361,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
             <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_5.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_5.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -372,7 +372,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -381,7 +381,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_6.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_6.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -392,7 +392,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -401,7 +401,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
             <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_7.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_7.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -412,7 +412,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -421,7 +421,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_8.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_8.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -432,7 +432,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/transformer_tts_ljspeech_ckpt_0.4_waveflow_ljspeech_ckpt_0.3/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -441,7 +441,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td> 
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_9.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_9.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -467,7 +467,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -475,7 +475,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -486,7 +486,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -494,7 +494,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -505,7 +505,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -513,7 +513,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -525,7 +525,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -533,7 +533,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -544,7 +544,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -552,7 +552,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -563,7 +563,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -571,7 +571,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -582,7 +582,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -590,7 +590,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -601,7 +601,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -609,7 +609,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -620,7 +620,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speedyspeech_baker_ckpt_0.4_pwg_baker_ckpt_0.4/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -628,7 +628,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_nosil_baker_ckpt_0.4_parallel_wavegan_baker_ckpt_0.4/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -647,7 +647,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -657,7 +657,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -667,7 +667,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -678,7 +678,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -688,7 +688,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -698,7 +698,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -708,7 +708,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -718,7 +718,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -728,7 +728,7 @@ Audio samples generated by a TTS system. Text is first transformed into spectrog
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fastspeech2_conformer_baker_ckpt_0.5_pwg_baker_ckpt_0.4/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -758,7 +758,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/0.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/0.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -766,25 +766,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/0_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/1.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/1_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/0_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -794,7 +776,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/2.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/1.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -802,25 +784,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/2_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/3.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/3_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/1_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -830,7 +794,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/4.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/2.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -838,25 +802,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/4_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/5.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/5_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/2_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -866,7 +812,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/6.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/3.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -874,25 +820,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/6_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/7.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/7_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/3_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -902,7 +830,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/8.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/4.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -910,25 +838,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/8_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/9.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/9_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/4_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -938,7 +848,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/10.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/5.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -946,25 +856,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/10_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/11.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/11_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/5_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -974,7 +866,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/12.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/6.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -982,25 +874,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/12_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/13.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/13_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/6_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1010,7 +884,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/14.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/7.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1018,25 +892,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/14_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/15.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/15_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/7_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1046,7 +902,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/16.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/8.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1054,25 +910,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/16_002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/17.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/17_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/8_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1082,7 +920,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/18.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/9.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1090,7 +928,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/18_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/9_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1100,7 +938,7 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/19.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/10.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1108,7 +946,169 @@ PaddleSpeech also support Multi-Speaker TTS, we provide the audio demos generate
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/19_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/10_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/11.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/11_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/12.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/12_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/13.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/13_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/14.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/14_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/15.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/15_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/16.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/16_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/17.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/17_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/18.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/18_002.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/target/19.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/fs2_aishell3_demos/generated/19_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1144,7 +1144,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1152,7 +1152,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1160,7 +1160,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1170,7 +1170,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1178,7 +1178,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1186,7 +1186,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1196,7 +1196,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1204,7 +1204,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1212,7 +1212,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1222,7 +1222,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1230,7 +1230,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1238,7 +1238,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1248,7 +1248,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1256,7 +1256,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1264,7 +1264,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1274,7 +1274,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1282,7 +1282,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1290,7 +1290,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1300,7 +1300,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1308,7 +1308,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1316,7 +1316,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1326,7 +1326,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
              <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x0.8_009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x0.8_009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1334,7 +1334,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1_009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1_009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1342,7 +1342,7 @@ The duration control in FastSpeech2 can control the speed of audios will keep th
             <td>
                 <audio controls="controls" style="width: 250px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/speed/x1.2_009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/speed/x1.2_009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1376,7 +1376,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1384,25 +1384,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice/001.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/002.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1412,7 +1394,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1420,25 +1402,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice/003.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/004.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1448,7 +1412,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1456,25 +1420,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//005.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/007.wav"
-                        type="audio/wav">
-                    Your browser does not support the <code>audio</code> element.
-                </audio>
-            </td>
-            <td>
-                <audio controls="controls" style="width: 220px;">
-                    <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1484,7 +1430,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1492,7 +1438,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice//004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1502,7 +1448,7 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/robot/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1510,7 +1456,61 @@ The nomal audios are in the second column of the previous table.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/child_voice//009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice//005.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/007.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice//007.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/008.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice//008.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/robot/009.wav"
+                        type="audio/wav">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </td>
+            <td>
+                <audio controls="controls" style="width: 220px;">
+                    <source
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/child_voice//009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1544,7 +1544,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1552,7 +1552,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1563,7 +1563,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1571,7 +1571,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1582,7 +1582,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1590,7 +1590,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1601,7 +1601,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1609,7 +1609,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1620,7 +1620,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1628,7 +1628,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1639,7 +1639,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1647,7 +1647,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1658,7 +1658,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1666,7 +1666,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1677,7 +1677,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1685,7 +1685,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1696,7 +1696,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1704,7 +1704,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1715,7 +1715,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/with_frontend/010.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/with_frontend/010.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1723,7 +1723,7 @@ We use ``FastSpeech2`` + ``ParallelWaveGAN`` here.
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/without_frontend/010.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/without_frontend/010.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1751,7 +1751,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
     <br>
     <audio controls="controls" style="width: 220px;">
         <source
-            src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/ref_fastspeech2_csmsc_hifigan_aishell3.wav"
+            src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/ref_fastspeech2_csmsc_hifigan_aishell3.wav"
             type="audio/wav">
         Your browser does not support the <code>audio</code> element.
     </audio>
@@ -1770,7 +1770,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train10_bn10_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train10_bn10_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1778,7 +1778,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train18_bn18_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train18_bn18_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1786,7 +1786,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train97_bn64_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train97_bn64_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1794,7 +1794,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train196_bn64_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train196_bn64_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1805,7 +1805,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train10_fr_encoder_bn10_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train10_fr_encoder_bn10_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1813,7 +1813,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train18_fr_encoder_bn18_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train18_fr_encoder_bn18_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1821,7 +1821,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train97_fr_encoder_bn64_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train97_fr_encoder_bn64_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1829,7 +1829,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train196_fr_encoder_bn64_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train196_fr_encoder_bn64_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1840,7 +1840,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train10_fr_encoder_duration_bn10_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train10_fr_encoder_duration_bn10_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1848,7 +1848,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train18_fr_encoder_duration_bn18_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train18_fr_encoder_duration_bn18_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1856,7 +1856,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train97_fr_encoder_duration_bn64_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train97_fr_encoder_duration_bn64_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -1864,7 +1864,7 @@ When finetuning for CSMSC, we thought ``Freeze encoder`` > ``Non Frozen`` > ``Fr
             <td>
                 <audio controls="controls" style="width: 150px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/finetune/train196_fr_encoder_duration_bn64_epoch100_lr0.0001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/finetune/train196_fr_encoder_duration_bn64_epoch100_lr0.0001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>

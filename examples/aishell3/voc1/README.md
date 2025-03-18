@@ -8,7 +8,7 @@ Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishe
 
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
-You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
@@ -131,19 +131,19 @@ optional arguments:
 
 ## Pretrained Models
 Pretrained models can be downloaded here:
-- [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
+- [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
 
 The static model can be downloaded here:
-- [pwgan_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_1.1.0.zip)
+- [pwgan_aishell3_static_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_1.1.0.zip)
 
 The PIR static model can be downloaded here:
-- [pwgan_aishell3_static_pir_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+- [pwgan_aishell3_static_pir_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
 
 The ONNX model can be downloaded here:
-- [pwgan_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_onnx_1.1.0.zip)
+- [pwgan_aishell3_onnx_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_onnx_1.1.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [pwgan_aishell3_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_pdlite_1.3.0.zip)
+- [pwgan_aishell3_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_aishell3_pdlite_1.3.0.zip)
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss:| eval/spectral_convergence_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------:

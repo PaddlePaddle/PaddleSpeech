@@ -1,5 +1,5 @@
 # download the test wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav 
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav 
 
 # read the wav and pass it to only streaming asr service
 # If `127.0.0.1` is not accessible, you need to use the actual service IP address.

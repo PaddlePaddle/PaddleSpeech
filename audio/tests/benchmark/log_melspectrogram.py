@@ -21,7 +21,7 @@ import paddleaudio
 import torch
 import torchaudio
 
-wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
+wav_url = 'https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav'
 if not os.path.isfile(os.path.basename(wav_url)):
     urllib.request.urlretrieve(wav_url, os.path.basename(wav_url))
 

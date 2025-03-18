@@ -3,7 +3,7 @@
 # 一、常见基础
 ## 1.1 简谱和音名（note）
 <p align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/seven.png" width="300"/>
+  <img src="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/seven.png" width="300"/>
 </p>
 
 上图从左往右的黑键音名分别是：C#/Db，D#/Db，F#/Db，G#/Ab，A#/Bb
@@ -11,20 +11,20 @@
 钢琴八度音就是12345671八个音，最后一个音是高1。**遵循：全全半全全全半** 就会得到 1 2 3 4 5 6 7 (高)1 的音
 
 <p align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/piano_88.png" />
+  <img src="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/piano_88.png" />
 </p>
 
 ## 1.2 十二大调
 “#”表示升调
 
 <p align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/up.png" />
+  <img src="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/up.png" />
 </p>
 
 “b”表示降调
 
 <p align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/down.png" />
+  <img src="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/down.png" />
 </p>
 
 什么大调表示Do(简谱1) 这个音从哪个键开始，例如D大调，则用D这个键来表示 Do这个音。
@@ -39,7 +39,7 @@
 Tempo 用于表示速度（Speed of the beat/pulse），一分钟里面有几拍（beats per mimute BPM）
 
 <p align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/note_beat.png" width="450"/>
+  <img src="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/note_beat.png" width="450"/>
 </p>
 
 whole note -->  4 beats</br>
@@ -54,7 +54,7 @@ sixteenth note --> 1/4 beat</br>
 music scores 包含：note，note_dur，is_slur
 
 <p align="left">
-  <img src="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/pu.png" width="600"/>
+  <img src="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/pu.png" width="600"/>
 </p>
 
 从左上角的谱信息 *bE* 可以得出该谱子是 **降E大调**，可以对应1.2小节十二大调简谱音名对照表根据 简谱获取对应的note
@@ -111,7 +111,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 1 </td>
       <td > 原始 opencpop 标注的 notes，note_durs，is_slurs，升F大调，起始在小字组（第3组） </td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test1.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test1.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -119,7 +119,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 2 </td>
       <td > 原始 opencpop 标注的 notes 和 is_slurs，note_durs 改变（从谱子获取） </td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test2.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test2.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -127,7 +127,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 3 </td>
       <td > 原始 opencpop 标注的 notes 去掉 rest（毛字一拍），is_slurs 和 note_durs 改变（从谱子获取） </td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test3.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test3.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -135,7 +135,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 4 </td>
       <td > 从谱子获取 notes，note durs，is_slurs，不含 rest（毛字一拍），起始在小字一组（第3组） </td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test4.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test4.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -143,7 +143,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 5 </td>
       <td > 从谱子获取 notes，note durs，is_slurs，加上 rest （毛字半拍，rest半拍），起始在小字一组（第3组）</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test5.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test5.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -151,7 +151,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 6 </td>
       <td > 从谱子获取 notes， is_slurs，包含 rest，note_durs 从原始标注获取，起始在小字一组（第3组） </td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test6.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test6.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -159,7 +159,7 @@ music scores 包含：note，note_dur，is_slur
       <td > 7 </td>
       <td > 从谱子获取 notes，note durs，is_slurs，不含 rest（毛字一拍），起始在小字一组（第4组） </td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/t2s/svs/svs_music_scores/test7.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/t2s/svs/svs_music_scores/test7.wav" rel="nofollow">
             <img align="center" src="../../../docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
     </tr>

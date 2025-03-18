@@ -17,7 +17,7 @@ The input of this demo should be a WAV file(`.wav`), and the sample rate must be
 
 Here are sample files for this demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/kws/hey_snips.wav https://paddlespeech.bj.bcebos.com/kws/non-keyword.wav
+wget -c https://paddlespeech.cdn.bcebos.com/kws/hey_snips.wav https://paddlespeech.cdn.bcebos.com/kws/non-keyword.wav
 ```
 
 ### 3. Usage

@@ -15,7 +15,7 @@ fi
 if [ ! -f data/model/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz ]; then
     mkdir -p data/model
     pushd data/model
-    wget -c https://paddlespeech.bj.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
+    wget -c https://paddlespeech.cdn.bcebos.com/s2t/aishell/asr0/asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
     tar xzfv asr0_deepspeech2_online_aishell_ckpt_0.2.0.model.tar.gz
     popd
 fi

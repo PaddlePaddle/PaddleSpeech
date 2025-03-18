@@ -20,7 +20,7 @@ Run the command below to
 3. train the model.
 4. synthesize wavs.
     - synthesize waveform from `metadata.jsonl`.
-    - select vocoder type via `--stage` (0 = pwgan, 1 = hifigan)
+    - select vocoder type via `--stage` (0 = pwgan, 1 = multi band melgan, 3 = hifigan, 4 = wavernn)
     - synthesize waveform from a text file.
 5. inference using the static model.
 ```bash

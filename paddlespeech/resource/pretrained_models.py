@@ -151,12 +151,18 @@ ssl_dynamic_pretrained_models = {
     },
     "wavlmASR_librispeech-en-16k": {
         "1.0": {
-            "url": "https://paddlespeech.cdn.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz",
-            "md5": "f2238e982bb8bcf046e536201f5ea629",
-            "cfg_path": "model.yaml",
-            "ckpt_path": "exp/wavlmASR/checkpoints/46",
-            "model": "exp/wavlmASR/checkpoints/46.pdparams",
-            "params": "exp/wavlmASR/checkpoints/46.pdparams",
+            "url":
+            "https://paddlespeech.cdn.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz",
+            "md5":
+            "f2238e982bb8bcf046e536201f5ea629",
+            "cfg_path":
+            "model.yaml",
+            "ckpt_path":
+            "exp/wavlmASR/checkpoints/46",
+            "model":
+            "exp/wavlmASR/checkpoints/46.pdparams",
+            "params":
+            "exp/wavlmASR/checkpoints/46.pdparams",
         }
     }
 }

@@ -27,12 +27,18 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-    # synthesize, vocoder is pwgan by default stage 0, stage 1 will use hifigan as vocoder
+    # synthesize, vocoder is pwgan by default stage 0
+    # stage 1 will use multi band melgan as vocoder
+    # stage 2 will use style melgan as vocoder
+    # stage 3 will use hifigan as vocoer
     CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    # synthesize_e2e, vocoder is pwgan by default stage 0, stage 1 will use hifigan as vocoder
+    # synthesize_e2e, vocoder is pwgan by default stage 0
+    # stage 1 will use multi band melgan as vocoder
+    # stage 3 will use  hifigan as vocoder
+    # stage 4 will use wavernn as vocoder
     CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
 fi
 

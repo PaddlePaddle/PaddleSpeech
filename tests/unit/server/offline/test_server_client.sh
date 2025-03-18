@@ -77,7 +77,7 @@ if [ "$pid" != "" ]; then
 fi
 
 # download test audios for ASR client
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 
 
 target_start_num=0  # the number of start service

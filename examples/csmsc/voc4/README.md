@@ -6,7 +6,7 @@ Download CSMSC from it's [official website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -113,7 +113,7 @@ optional arguments:
 
 ## Pretrained Models
 The pretrained model can be downloaded here:
-- [style_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/style_melgan/style_melgan_csmsc_ckpt_0.1.1.zip)
+- [style_melgan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/style_melgan/style_melgan_csmsc_ckpt_0.1.1.zip)
 
 The static model of Style MelGAN is not available now.
 

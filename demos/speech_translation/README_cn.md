@@ -17,7 +17,7 @@
 
 这里给出一些样例文件供 Demo 使用：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 ```
 
 ### 3. 使用方法 (暂不支持Windows)

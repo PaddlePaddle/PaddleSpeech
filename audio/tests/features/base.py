@@ -19,7 +19,7 @@ import numpy as np
 import paddle
 from paddleaudio.backends import soundfile_load as load
 
-wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
+wav_url = 'https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav'
 
 
 class FeatTest(unittest.TestCase):

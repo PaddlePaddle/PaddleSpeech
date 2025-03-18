@@ -31,8 +31,8 @@ export LANGUAGE="zh_CN:zh:en_US:en"
 #### 1.3 Download models(inside the docker)
 ```bash
 cd /models/streaming_tts_serving/1
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_onnx_0.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_onnx_0.2.0.zip
 unzip fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip
 unzip mb_melgan_csmsc_onnx_0.2.0.zip
 ```

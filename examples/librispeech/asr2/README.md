@@ -219,7 +219,7 @@ using the `tar` scripts to unpack the model and then you can use the script to t
 
 For example:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/librispeech/asr2/asr2_transformer_librispeech_ckpt_0.1.1.model.tar.gz
+wget https://paddlespeech.cdn.bcebos.com/s2t/librispeech/asr2/asr2_transformer_librispeech_ckpt_0.1.1.model.tar.gz
 tar xzvf asr2_transformer_librispeech_ckpt_0.1.1.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps

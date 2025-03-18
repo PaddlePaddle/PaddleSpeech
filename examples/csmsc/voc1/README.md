@@ -18,7 +18,7 @@ This experiment only uses *.wav files from the Wave file
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -108,7 +108,7 @@ benchmark:
 
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwg_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) and unzip it.
 ```bash
 unzip pwg_baker_ckpt_0.4.zip
 ```
@@ -152,7 +152,7 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 
 We use [Fastspeech2](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/tts3) as the acoustic model.
-Download pretrained fastspeech2_nosil model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)and unzip it.
+Download pretrained fastspeech2_nosil model from [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)and unzip it.
 ```bash
 unzip fastspeech2_nosil_baker_ckpt_0.4.zip
 ```
@@ -228,20 +228,20 @@ optional arguments:
 
 ## Pretrained Models
 The pretrained model can be downloaded here:
-- [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip)
-- [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
+- [pwg_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip)
+- [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
 
 The static model can be downloaded here:
-- [pwg_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_static_0.4.zip)
-- [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip)
+- [pwg_baker_static_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_static_0.4.zip)
+- [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip)
 
 The ONNX model can be downloaded here:
-- [pwgan_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_onnx_0.2.0.zip)
-- [fastspeech2_csmsc_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_onnx_0.2.0.zip)
+- [pwgan_csmsc_onnx_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_onnx_0.2.0.zip)
+- [fastspeech2_csmsc_onnx_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_onnx_0.2.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [pwgan_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_pdlite_1.3.0.zip)
-- [fastspeech2_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_pdlite_1.3.0.zip)
+- [pwgan_csmsc_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_csmsc_pdlite_1.3.0.zip)
+- [fastspeech2_csmsc_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_csmsc_pdlite_1.3.0.zip)
 
 Model | Step | eval/generator_loss | eval/log_stft_magnitude_loss| eval/spectral_convergence_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:

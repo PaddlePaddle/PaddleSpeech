@@ -42,7 +42,7 @@ kenlm.done:
 
 
 mfa.done:
-	test -d montreal-forced-aligner || $(WGET) https://paddlespeech.bj.bcebos.com/Parakeet/montreal-forced-aligner_linux.tar.gz
+	test -d montreal-forced-aligner || $(WGET) https://paddlespeech.cdn.bcebos.com/Parakeet/montreal-forced-aligner_linux.tar.gz
 	tar xvf montreal-forced-aligner_linux.tar.gz
 	touch mfa.done
 

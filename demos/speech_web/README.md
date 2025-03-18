@@ -100,43 +100,43 @@ cd speech_server
 mkdir -p source/model
 cd source
 # 下载 & 解压 wav （包含VC测试音频）
-wget https://paddlespeech.bj.bcebos.com/demos/speech_web/wav_vc.zip
+wget https://paddlespeech.cdn.bcebos.com/demos/speech_web/wav_vc.zip
 unzip wav_vc.zip
 
 cd model
 # 下载 GE2E 相关模型
 wget https://bj.bcebos.com/paddlespeech/Parakeet/released_models/ge2e/ge2e_ckpt_0.3.zip
 unzip ge2e_ckpt_0.3.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip
 unzip pwg_aishell3_ckpt_0.5.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
 unzip fastspeech2_nosil_aishell3_vc1_ckpt_0.5.zip
 
 # 下载 ECAPA-TDNN 相关模型
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
 unzip fastspeech2_aishell3_ckpt_vc2_1.2.0.zip
 
 # 下载 ERNIE-SAT 相关模型
 # aishell3 ERNIE-SAT
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_ckpt_1.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_ckpt_1.2.0.zip
 unzip erniesat_aishell3_ckpt_1.2.0.zip
 
 # vctk ERNIE-SAT
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_vctk_ckpt_1.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_vctk_ckpt_1.2.0.zip
 unzip erniesat_vctk_ckpt_1.2.0.zip
 
 # aishell3_vctk ERNIE-SAT
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_vctk_ckpt_1.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/ernie_sat/erniesat_aishell3_vctk_ckpt_1.2.0.zip
 unzip erniesat_aishell3_vctk_ckpt_1.2.0.zip
 
 # 下载 finetune 相关模型
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip
 unzip fastspeech2_aishell3_ckpt_1.1.0.zip
 
 # 下载声码器
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
 unzip hifigan_aishell3_ckpt_0.2.0.zip
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
 unzip hifigan_vctk_ckpt_0.2.0.zip
 
 cd ../../../

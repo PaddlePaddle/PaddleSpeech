@@ -19,13 +19,13 @@ fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # download pretrained tts models and unzip
-    wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
+    wget -P download https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip
     unzip -d download download/pwg_baker_ckpt_0.4.zip
-    wget -P download https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
+    wget -P download https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip
     unzip -d download download/fastspeech2_nosil_baker_ckpt_0.4.zip
     # download sources
-    wget -P download https://paddlespeech.bj.bcebos.com/demos/story_talker/simfang.ttf
-    wget -P download/imgs https://paddlespeech.bj.bcebos.com/demos/story_talker/000.jpg
+    wget -P download https://paddlespeech.cdn.bcebos.com/demos/story_talker/simfang.ttf
+    wget -P download/imgs https://paddlespeech.cdn.bcebos.com/demos/story_talker/000.jpg
 fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

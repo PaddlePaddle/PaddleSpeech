@@ -10,7 +10,7 @@ Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishe
 
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes for VITS, the durations of MFA are not needed here.
-You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
@@ -169,7 +169,7 @@ optional arguments:
 
 The pretrained model can be downloaded here:
 
-- [vits_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/vits/vits_aishell3_ckpt_1.1.0.zip) (add_blank=true)
+- [vits_aishell3_ckpt_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/vits/vits_aishell3_ckpt_1.1.0.zip) (add_blank=true)
 
 VITS checkpoint contains files listed below.
 ```text

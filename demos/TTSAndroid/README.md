@@ -70,8 +70,8 @@ TTSAndroid/app/src/main/java/com/baidu/paddle/lite/demo/tts/Predictor.java
 ```
 
 2. `fastspeech2_csmsc_arm.nb`  和 `mb_melgan_csmsc_arm.nb`: 模型文件 (opt 工具转化后 Paddle Lite 模型)
-   ，分别来自 [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)
-   和 [mb_melgan_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_pdlite_1.3.0.zip)。
+   ，分别来自 [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)
+   和 [mb_melgan_csmsc_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_pdlite_1.3.0.zip)。
 
 ```bash
 # 位置：
@@ -161,7 +161,7 @@ Android 示例基于 Java API 开发，调用 Paddle Lite `Java API` 包括以�
 - C++ 中文前端 [lym0302/paddlespeech_tts_cpp](https://github.com/lym0302/paddlespeech_tts_cpp)
 - C++ 英文 g2p [yazone/g2pE_mobile](https://github.com/yazone/g2pE_mobile)
 
-`phone_id_map.txt` 请参考 [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)。
+`phone_id_map.txt` 请参考 [fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_pdlite_1.3.0.zip)。
 
 ## 通过 setting 界面更新语音合成的相关参数
 
@@ -186,7 +186,7 @@ Android 示例基于 Java API 开发，调用 Paddle Lite `Java API` 包括以�
 
 ## Release
 
-[2022-11-29-app-release.apk](https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/2022-11-29-app-release.apk)
+[2022-11-29-app-release.apk](https://paddlespeech.cdn.bcebos.com/demos/TTSAndroid/2022-11-29-app-release.apk)
 
 ## More
 本 Demo 合并自 [yt605155624/TTSAndroid](https://github.com/yt605155624/TTSAndroid)。

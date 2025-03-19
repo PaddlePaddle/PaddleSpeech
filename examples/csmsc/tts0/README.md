@@ -99,6 +99,55 @@ pwg_baker_ckpt_0.4
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+```
+`--stage` controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.
+```text
+usage: synthesize.py [-h]
+                     [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}]
+                     [--am_config AM_CONFIG] [--am_ckpt AM_CKPT]
+                     [--am_stat AM_STAT] [--phones_dict PHONES_DICT]
+                     [--tones_dict TONES_DICT] [--speaker_dict SPEAKER_DICT]
+                     [--voice-cloning VOICE_CLONING]
+                     [--voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,wavernn_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,style_melgan_csmsc}]
+                     [--voc_config VOC_CONFIG] [--voc_ckpt VOC_CKPT]
+                     [--voc_stat VOC_STAT] [--ngpu NGPU]
+                     [--test_metadata TEST_METADATA] [--output_dir OUTPUT_DIR]
+
+Synthesize with acoustic model & vocoder
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}
+                        Choose acoustic model type of tts task.
+  --am_config AM_CONFIG
+                        Config of acoustic model.
+  --am_ckpt AM_CKPT     Checkpoint file of acoustic model.
+  --am_stat AM_STAT     mean and standard deviation used to normalize
+                        spectrogram when training acoustic model.
+  --phones_dict PHONES_DICT
+                        phone vocabulary file.
+  --tones_dict TONES_DICT
+                        tone vocabulary file.
+  --speaker_dict SPEAKER_DICT
+                        speaker id map file.
+  --voice-cloning VOICE_CLONING
+                        whether training voice cloning model.
+  --voc {pwgan_csmsc,pwgan_ljspeech,pwgan_aishell3,pwgan_vctk,mb_melgan_csmsc,wavernn_csmsc,hifigan_csmsc,hifigan_ljspeech,hifigan_aishell3,hifigan_vctk,style_melgan_csmsc}
+                        Choose vocoder type of tts task.
+  --voc_config VOC_CONFIG
+                        Config of voc.
+  --voc_ckpt VOC_CKPT   Checkpoint file of voc.
+  --voc_stat VOC_STAT   mean and standard deviation used to normalize
+                        spectrogram when training voc.
+  --ngpu NGPU           if ngpu == 0, use cpu.
+  --test_metadata TEST_METADATA
+                        test metadata.
+  --output_dir OUTPUT_DIR
+                        output dir.
+```
+`./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
+```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
 `--stage` controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.

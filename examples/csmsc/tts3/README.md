@@ -110,7 +110,7 @@ pwg_baker_ckpt_0.4
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-`--stage` controls the vocoder model during synthesis, which can be one of the following values: `0`, `1`, `2`, `3`, or `4`, representing the use of `pwgan`, `multi band melgan`, `style melgan`, `hifigan`, or `wavernn` model as vocoder respectively.
+`--stage` controls the vocoder model during synthesis, which can use stage `0-4` to select the vocoder to use {`pwgan`, `multi band melgan`, `style melgan`, `hifigan`, `wavernn`}
 
 ```text
 usage: synthesize.py [-h]
@@ -161,7 +161,7 @@ optional arguments:
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-`--stage` controls the vocoder model during synthesis, which can be one of the following values: `0`, `1`,  `3`, or `4`, representing the use of `pwgan`, `multi band melgan`, `hifigan`, or `wavernn` model as vocoder respectively.
+`--stage` controls the vocoder model during synthesis, which can use stage `0,1,3,4` to select the vocoder to use {`pwgan`, `multi band melgan`, `hifigan`, `wavernn`}
 
 ```text
 usage: synthesize_e2e.py [-h]

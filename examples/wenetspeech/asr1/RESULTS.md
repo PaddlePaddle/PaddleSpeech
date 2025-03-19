@@ -38,7 +38,7 @@ Pretrain model from http://mobvoi-speech-public.ufile.ucloud.cn/public/wenet/wen
 
 ## Conformer Steaming Pretrained Model
 
-Pretrain model from https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz
+Pretrain model from https://paddlespeech.cdn.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_wenetspeech_ckpt_1.0.0a.model.tar.gz
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -57,7 +57,7 @@ Pretrain model from https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1
 
 ## U2PP Steaming Pretrained Model
 
-Pretrain model from https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.3.0.model.tar.gz
+Pretrain model from https://paddlespeech.cdn.bcebos.com/s2t/wenetspeech/asr1/asr1_chunk_conformer_u2pp_wenetspeech_ckpt_1.3.0.model.tar.gz
 
 | Model | Params | Config | Augmentation| Test set | Decode method | Chunk Size | CER |  
 | --- | --- | --- | --- | --- | --- | --- | --- |

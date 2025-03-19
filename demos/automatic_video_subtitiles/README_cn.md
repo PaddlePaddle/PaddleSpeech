@@ -13,7 +13,7 @@
 ### 2. 准备输入
 获取包含特定语言语音的视频文件：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/demos/asr_demos/subtitle_demo1.mp4
+wget -c https://paddlespeech.cdn.bcebos.com/demos/asr_demos/subtitle_demo1.mp4
 ```
 从视频文件中提取单通道的 16kHz 采样率的 `.wav` 文件：
 ```bash

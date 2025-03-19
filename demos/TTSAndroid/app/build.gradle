@@ -31,7 +31,7 @@ dependencies {
     implementation files('libs/PaddlePredictor.jar')
 }
 
-def paddleLiteLibs = 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/paddle_lite_libs_68b66fd3.tar.gz'
+def paddleLiteLibs = 'https://paddlespeech.cdn.bcebos.com/demos/TTSAndroid/paddle_lite_libs_68b66fd3.tar.gz'
 task downloadAndExtractPaddleLiteLibs(type: DefaultTask) {
     doFirst {
         println "Downloading and extracting Paddle Lite libs"
@@ -73,7 +73,7 @@ task downloadAndExtractPaddleLiteLibs(type: DefaultTask) {
 }
 preBuild.dependsOn downloadAndExtractPaddleLiteLibs
 
-def paddleLiteModels = [['src' : 'https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz',
+def paddleLiteModels = [['src' : 'https://paddlespeech.cdn.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz',
                          'dest': 'src/main/assets/models'],]
 task downloadAndExtractPaddleLiteModels(type: DefaultTask) {
     doFirst {

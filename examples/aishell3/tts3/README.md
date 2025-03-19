@@ -10,7 +10,7 @@ Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishe
  
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
-You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
@@ -96,7 +96,7 @@ optional arguments:
 
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
-Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash
 unzip pwg_aishell3_ckpt_0.5.zip
 ```
@@ -219,20 +219,20 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios:
-- [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip)
-- [fastspeech2_conformer_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_aishell3_ckpt_0.2.0.zip) (Thanks for [@awmmmm](https://github.com/awmmmm)'s contribution)
+- [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip)
+- [fastspeech2_conformer_aishell3_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_aishell3_ckpt_0.2.0.zip) (Thanks for [@awmmmm](https://github.com/awmmmm)'s contribution)
 
 The static model can be downloaded here:
-- [fastspeech2_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_1.1.0.zip)
+- [fastspeech2_aishell3_static_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_1.1.0.zip)
 
 The PIR static model can be downloaded here:
-- [fastspeech2_aishell3_static_pir_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+- [fastspeech2_aishell3_static_pir_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
 
 The ONNX model can be downloaded here:
-- [fastspeech2_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_onnx_1.1.0.zip)
+- [fastspeech2_aishell3_onnx_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_onnx_1.1.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [fastspeech2_aishell3_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_pdlite_1.3.0.zip)
+- [fastspeech2_aishell3_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_pdlite_1.3.0.zip)
 
 FastSpeech2 checkpoint contains files listed below.
 

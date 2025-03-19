@@ -17,7 +17,7 @@
 
 可以下载此 demo 的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 ```
 ### 3. 使用方法
 - 命令行 (推荐使用)

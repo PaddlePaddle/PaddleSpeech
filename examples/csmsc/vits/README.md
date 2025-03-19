@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes for VITS, the durations of MFA are not needed here.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -147,7 +147,7 @@ optional arguments:
 
 The pretrained model can be downloaded here:
 
-- [vits_csmsc_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/vits/vits_csmsc_ckpt_1.4.0.zip) (add_blank=true)
+- [vits_csmsc_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/vits/vits_csmsc_ckpt_1.4.0.zip) (add_blank=true)
 
 VITS checkpoint contains files listed below.
 ```text

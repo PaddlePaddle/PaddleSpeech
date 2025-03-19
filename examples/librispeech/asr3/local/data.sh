@@ -104,7 +104,7 @@ echo "LibriSpeech Data preparation done."
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     mkdir -p exp/wav2vec2
     echo "Pretrained wav2vec2 model download"
-    wget -P exp/wav2vec2 https://paddlespeech.bj.bcebos.com/wav2vec/wav2vec2-large-960h-lv60-self.pdparams
+    wget -P exp/wav2vec2 https://paddlespeech.cdn.bcebos.com/wav2vec/wav2vec2-large-960h-lv60-self.pdparams
 fi
 
 exit 0

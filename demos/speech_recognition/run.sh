@@ -1,8 +1,8 @@
 #!/bin/bash
 
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/ch_zh_mix.wav
 
 # asr
 paddlespeech asr --input ./zh.wav

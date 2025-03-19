@@ -1,6 +1,6 @@
 #!/bin/bash
 
-video_url=https://paddlespeech.bj.bcebos.com/demos/asr_demos/subtitle_demo1.mp4
+video_url=https://paddlespeech.cdn.bcebos.com/demos/asr_demos/subtitle_demo1.mp4
 video_file=$(basename ${video_url})
 audio_file=$(echo ${video_file} | awk -F'.' '{print $1}').wav
 num_channels=1

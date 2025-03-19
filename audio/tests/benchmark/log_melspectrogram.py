@@ -21,11 +21,12 @@ import paddleaudio
 import torch
 import torchaudio
 
-wav_url = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
+wav_url = 'https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav'
 if not os.path.isfile(os.path.basename(wav_url)):
     urllib.request.urlretrieve(wav_url, os.path.basename(wav_url))
 
-waveform, sr = paddleaudio.backends.soundfile_load(os.path.abspath(os.path.basename(wav_url)))
+waveform, sr = paddleaudio.backends.soundfile_load(
+    os.path.abspath(os.path.basename(wav_url)))
 waveform_tensor = paddle.to_tensor(waveform).unsqueeze(0)
 waveform_tensor_torch = torch.from_numpy(waveform).unsqueeze(0)
 

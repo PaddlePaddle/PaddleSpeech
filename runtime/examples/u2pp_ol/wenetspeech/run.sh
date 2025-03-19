@@ -30,7 +30,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
         mkdir -p $ckpt_dir
         pushd $ckpt_dir
 
-        wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
+        wget -c https://paddlespeech.cdn.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
         tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_1.3.0.model.tar.gz
 
         popd
@@ -41,7 +41,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
         mkdir -p $ckpt_dir
         pushd $ckpt_dir
 
-        wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
+        wget -c https://paddlespeech.cdn.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
         tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_quant_1.3.0.model.tar.gz
 
         popd
@@ -51,7 +51,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     if [ ! -f data/wav.scp ]; then
         mkdir -p $data
         pushd $data
-        wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+        wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
         echo "utt1 " $PWD/zh.wav > wav.scp
         popd 
     fi
@@ -59,7 +59,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ];then
     # aishell wav scp
     if [ ! -d $data/test ]; then
         pushd $data
-        wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/aishell_test.zip
+        wget -c https://paddlespeech.cdn.bcebos.com/s2t/paddle_asr_online/aishell_test.zip
         unzip  aishell_test.zip
         popd
 

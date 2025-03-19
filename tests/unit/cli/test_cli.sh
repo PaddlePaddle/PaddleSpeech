@@ -3,19 +3,19 @@ set -e
 echo -e "\e[1;31monly if you see 'Test success !!!', the cli testing is successful\e[0m"
 
 # Audio classification
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/dog.wav
 paddlespeech cls --input ./cat.wav --topk 10
 
 # Punctuation_restoration
 paddlespeech text --input 今天的天气真不错啊你下午有空吗我想约你一起去吃饭 --model ernie_linear_p3_wudao_fast
 
 # Speech SSL
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 paddlespeech ssl --task asr --lang en --input ./en.wav
 paddlespeech ssl --task vector --lang en --input ./en.wav
 
 # Speech_recognition
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/ch_zh_mix.wav
 paddlespeech asr --input ./zh.wav
 paddlespeech asr --model conformer_aishell --input ./zh.wav
 paddlespeech asr --model conformer_online_aishell --input ./zh.wav
@@ -34,7 +34,7 @@ paddlespeech asr --model conformer_online_wenetspeech --num_decoding_left_chunks
 
 # long audio restriction
 {
-wget -c https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
+wget -c https://paddlespeech.cdn.bcebos.com/datasets/single_wav/zh/test_long_audio_01.wav
 paddlespeech asr --model deepspeech2online_wenetspeech --input test_long_audio_01.wav -y
 if [ $? -ne 255 ]; then
    echo -e "\e[1;31mTime restriction not passed\e[0m"
@@ -81,7 +81,7 @@ paddlespeech tts --am fastspeech2_male --voc pwgan_male --lang mix --input "我�
 paddlespeech st --input ./en.wav
 
 # Speaker Verification
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/85236145389.wav
 paddlespeech vector --task spk --input 85236145389.wav
 
 # batch process

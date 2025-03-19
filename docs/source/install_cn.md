@@ -65,7 +65,7 @@ pip install paddlepaddle==2.3.1 -i https://mirror.baidu.com/pypi/simple
 # 安装 develop 版本
 pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
 ```
-> 如果您在使用 paddlespeech 的过程中遇到关于下载 **nltk_data** 的问题，可能是您的网络不佳，我们建议您下载我们提供的 [nltk_data](https://paddlespeech.bj.bcebos.com/Parakeet/tools/nltk_data.tar.gz) 并解压缩到您的 `${HOME}` 目录下。
+> 如果您在使用 paddlespeech 的过程中遇到关于下载 **nltk_data** 的问题，可能是您的网络不佳，我们建议您下载我们提供的 [nltk_data](https://paddlespeech.cdn.bcebos.com/Parakeet/tools/nltk_data.tar.gz) 并解压缩到您的 `${HOME}` 目录下。
 
 > 如果出现 paddlespeech-ctcdecoders 无法安装的问题，无须担心，这个只影响 deepspeech2 模型的推理，不影响其他模型的使用。
 

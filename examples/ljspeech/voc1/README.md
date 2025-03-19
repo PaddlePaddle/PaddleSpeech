@@ -5,7 +5,7 @@ This example contains code used to train a [parallel wavegan](http://arxiv.org/a
 Download LJSpeech-1.1 from it's [Official Website](https://keithito.com/LJ-Speech-Dataset/) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/LJSpeech-1.1`.
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
-You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [ljspeech_alignment.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/LJSpeech-1.1`.
@@ -128,16 +128,16 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained models can be downloaded here:
-- [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_ljspeech_ckpt_0.5.zip)
+- [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_ljspeech_ckpt_0.5.zip)
 
 The static model can be downloaded here:
-- [pwgan_ljspeech_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_static_1.1.0.zip)
+- [pwgan_ljspeech_static_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_static_1.1.0.zip)
 
 The ONNX model can be downloaded here:
-- [pwgan_ljspeech_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_onnx_1.1.0.zip)
+- [pwgan_ljspeech_onnx_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_onnx_1.1.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [pwgan_ljspeech_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_pdlite_1.3.0.zip)
+- [pwgan_ljspeech_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_ljspeech_pdlite_1.3.0.zip)
 
 
 Parallel WaveGAN checkpoint contains files listed below.

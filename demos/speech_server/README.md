@@ -85,9 +85,9 @@ The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate 
 
 Here are sample files for this ASR client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 
 **Note:** The response time will be slightly longer when using the client for the first time
@@ -204,7 +204,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 
 Here are sample files for this CLS Client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav 
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav 
 ```
 
 **Note:** The response time will be slightly longer when using the client for the first time
@@ -257,8 +257,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 Here are sample files for this Speaker Verification Client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/123456789.wav
 ```
 
 #### 7.1 Extract speaker embedding

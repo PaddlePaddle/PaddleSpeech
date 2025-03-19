@@ -19,7 +19,7 @@ device=gpu
 
 if [ $stage -le 1 ]; then
     # Download the pretrained model
-    wget https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_1.tar.gz
+    wget https://paddlespeech.cdn.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_1.tar.gz
     mkdir -p ${save_folder} && tar -xvf sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_1.tar.gz -C ${save_folder}
     rm -rf sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_1.tar.gz
     echo "download the pretrained ECAPA-TDNN Model to path: "${pretraind_model_dir}

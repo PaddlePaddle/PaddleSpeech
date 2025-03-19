@@ -7,7 +7,7 @@ Download CSMSC from it's [Official Website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for fastspeech2.
-You can directly download the rhythm version of MFA result from here [baker_alignment_tone.zip](https://paddlespeech.bj.bcebos.com/Rhy_e2e/baker_alignment_tone.zip), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can directly download the rhythm version of MFA result from here [baker_alignment_tone.zip](https://paddlespeech.cdn.bcebos.com/Rhy_e2e/baker_alignment_tone.zip), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 Remember in our repo, you should add `--rhy-with-duration` flag to obtain the rhythm information.
 
 ## Get Started
@@ -59,7 +59,7 @@ Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file tha
 
 ## Pretrained Model
 Pretrained FastSpeech2 model for end-to-end rhythm version:
-- [fastspeech2_rhy_csmsc_ckpt_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_rhy_csmsc_ckpt_1.3.0.zip)
+- [fastspeech2_rhy_csmsc_ckpt_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_rhy_csmsc_ckpt_1.3.0.zip)
 
 This FastSpeech2 checkpoint contains files listed below.
 ```text

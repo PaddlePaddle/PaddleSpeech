@@ -23,7 +23,7 @@ if [ ! -f $graph ]; then
     # download ngram, if you want to make graph by yourself, please refer local/run_build_tlg.sh
     mkdir -p $lang_dir
     pushd $lang_dir
-    wget -c https://paddlespeech.bj.bcebos.com/speechx/examples/ngram/zh/tlg.zip
+    wget -c https://paddlespeech.cdn.bcebos.com/speechx/examples/ngram/zh/tlg.zip
     unzip tlg.zip
     popd
 fi

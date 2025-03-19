@@ -7,7 +7,7 @@ Download VCTK-0.92 from it's [Official Website](https://datashare.ed.ac.uk/handl
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut the silence in the edge of audio.
-You can download from here [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [vctk_alignment.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 ps: we remove three speakers in VCTK-0.92 (see [reorganize_vctk.py](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/other/mfa/local/reorganize_vctk.py)):
 1. `p315`, because of no text for it.
 2. `p280` and `p362`, because no *_mic2.flac (which is better than *_mic1.flac) for  them.
@@ -133,16 +133,16 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained models can be downloaded here:
-- [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip)
+- [pwg_vctk_ckpt_0.1.1.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_vctk_ckpt_0.1.1.zip)
 
 The static model can be downloaded here:
-- [pwgan_vctk_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_static_1.1.0.zip)
+- [pwgan_vctk_static_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_static_1.1.0.zip)
 
 The ONNX model can be downloaded here:
-- [pwgan_vctk_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_onnx_1.1.0.zip)
+- [pwgan_vctk_onnx_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_onnx_1.1.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [pwgan_vctk_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_pdlite_1.3.0.zip)
+- [pwgan_vctk_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwgan_vctk_pdlite_1.3.0.zip)
 
 
 Parallel WaveGAN checkpoint contains files listed below.

@@ -23,7 +23,7 @@ if [ $stage -le -1 ] && [ $stop_stage -ge -1 ]; then
     if [ ! -f $data/speech.ngram.zh.tar.gz ];then
         # download ngram
         pushd $data
-        wget -c http://paddlespeech.bj.bcebos.com/speechx/examples/ngram/zh/speech.ngram.zh.tar.gz
+        wget -c http://paddlespeech.cdn.bcebos.com/speechx/examples/ngram/zh/speech.ngram.zh.tar.gz
         tar xvzf speech.ngram.zh.tar.gz
         popd
     fi

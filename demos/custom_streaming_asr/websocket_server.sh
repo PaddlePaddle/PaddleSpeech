@@ -14,7 +14,7 @@ cmvn=./data/cmvn.ark
 
 #paddle_asr_online/resource.tar.gz
 if [ ! -f $cmvn ]; then
-    wget -c https://paddlespeech.bj.bcebos.com/s2t/paddle_asr_online/resource.tar.gz
+    wget -c https://paddlespeech.cdn.bcebos.com/s2t/paddle_asr_online/resource.tar.gz
     tar xzfv resource.tar.gz
     ln -s ./resource/data .
 fi

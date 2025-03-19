@@ -77,7 +77,7 @@ optional arguments:
 
 ## Synthesizing
 We use [waveflow](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/ljspeech/voc0) as the neural vocoder.
-Download Pretrained WaveFlow Model with residual channel equals 128 from [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip) and unzip it.
+Download Pretrained WaveFlow Model with residual channel equals 128 from [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip) and unzip it.
 ```bash
 unzip waveflow_ljspeech_ckpt_0.3.zip
 ```
@@ -169,7 +169,7 @@ optional arguments:
 
 ## Pretrained Model
 Pretrained Model can be downloaded here:
-- [transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/transformer_tts/transformer_tts_ljspeech_ckpt_0.4.zip)
+- [transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/transformer_tts/transformer_tts_ljspeech_ckpt_0.4.zip)
 
 TransformerTTS  checkpoint contains files listed below.
 ```text

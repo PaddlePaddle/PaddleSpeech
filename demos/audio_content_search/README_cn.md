@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 可以下载此 demo 的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 ```
 
 ### 3. 启动 server

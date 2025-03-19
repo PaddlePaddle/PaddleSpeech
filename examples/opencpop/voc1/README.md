@@ -124,7 +124,7 @@ optional arguments:
 
 ## Pretrained Models
 The pretrained model can be downloaded here:
-- [pwgan_opencpop_ckpt_1.4.0](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip)
+- [pwgan_opencpop_ckpt_1.4.0](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip)
 
 
 Parallel WaveGAN checkpoint contains files listed below.

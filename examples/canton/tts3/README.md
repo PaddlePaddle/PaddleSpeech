@@ -27,7 +27,7 @@ After that, it should be look like:
 ### Get MFA Result and Extract
 We use [MFA1.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for canton_fastspeech2.
 You can train your MFA model reference to [canton_mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
-We here provide the MFA results of these two datasets. [canton_alignment.zip](https://paddlespeech.bj.bcebos.com/MFA/Canton/canton_alignment.zip)
+We here provide the MFA results of these two datasets. [canton_alignment.zip](https://paddlespeech.cdn.bcebos.com/MFA/Canton/canton_alignment.zip)
 
 ## Get Started
 Assume the path to the Cantonese MFA result of the two datsets mentioned above is `./canton_alignment`.
@@ -77,13 +77,13 @@ Also, there is a `metadata.jsonl` in each subfolder. It is a table-like file tha
 
 ## Pretrained Model
 Pretrained FastSpeech2 model with no silence in the edge of audios:
-- [fastspeech2_canton_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_ckpt_1.4.0.zip)
+- [fastspeech2_canton_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_ckpt_1.4.0.zip)
 
 The static model can be downloaded here:
-- [fastspeech2_canton_static_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip)
+- [fastspeech2_canton_static_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_static_1.4.0.zip)
 
 The ONNX model can be downloaded here:  
-- [fastspeech2_canton_onnx_1.4.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip)
+- [fastspeech2_canton_onnx_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_canton_onnx_1.4.0.zip)
 
 FastSpeech2 checkpoint contains files listed below.
 
@@ -98,7 +98,7 @@ fastspeech2_canton_ckpt_1.4.0
 └── speech_stats.npy        # statistics used to normalize spectrogram when training fastspeech2
 ```
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
-Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash
 unzip pwg_aishell3_ckpt_0.5.zip
 ```

@@ -24,7 +24,7 @@ def download_audio_data():
     """
     Download audio data
     """
-    url = "https://paddlespeech.bj.bcebos.com/vector/audio/example_audio.tar.gz"
+    url = "https://paddlespeech.cdn.bcebos.com/vector/audio/example_audio.tar.gz"
     md5sum = "52ac69316c1aa1fdef84da7dd2c67b39"
     target_dir = "./"
     filepath = download(url, md5sum, target_dir)

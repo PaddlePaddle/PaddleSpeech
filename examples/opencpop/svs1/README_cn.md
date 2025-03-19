@@ -104,7 +104,7 @@ optional arguments:
 
 ### 合成
 我们使用 parallel opencpop 作为神经声码器（vocoder）。
-从 [pwgan_opencpop_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip) 下载预训练的 parallel wavegan 模型并将其解压。
+从 [pwgan_opencpop_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip) 下载预训练的 parallel wavegan 模型并将其解压。
 
 ```bash
 unzip pwgan_opencpop_ckpt_1.4.0.zip
@@ -246,7 +246,7 @@ optional arguments:
 
 ## 预训练模型
 预先训练的 DiffSinger 模型：
-- [diffsinger_opencpop_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/diffsinger_opencpop_ckpt_1.4.0.zip)
+- [diffsinger_opencpop_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/diffsinger_opencpop_ckpt_1.4.0.zip)
 
 
 DiffSinger 检查点包含下列文件。

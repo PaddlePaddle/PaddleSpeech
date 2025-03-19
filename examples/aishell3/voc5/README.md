@@ -7,7 +7,7 @@ AISHELL-3 is a large-scale and high-fidelity multi-speaker Mandarin speech corpu
 Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishell_3) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/data_aishell3`.
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
-You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/data_aishell3`.
@@ -114,19 +114,19 @@ optional arguments:
 5. `--ngpu` is the number of gpus to use, if ngpu == 0, use cpu.
 ## Pretrained Models
 The pretrained model can be downloaded here:
-- [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip)
+- [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip)
 
 The static model can be downloaded here:
-- [hifigan_aishell3_static_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_static_1.1.0.zip)
+- [hifigan_aishell3_static_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_static_1.1.0.zip)
 
 The PIR static model can be downloaded here:
-- [hifigan_aishell3_static_pir_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+- [hifigan_aishell3_static_pir_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_static_pir_1.1.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
 
 The ONNX model can be downloaded here:
-- [hifigan_aishell3_onnx_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_onnx_1.1.0.zip)
+- [hifigan_aishell3_onnx_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_onnx_1.1.0.zip)
 
 The Paddle-Lite model can be downloaded here:
-- [hifigan_aishell3_pdlite_1.3.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_pdlite_1.3.0.zip)
+- [hifigan_aishell3_pdlite_1.3.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_pdlite_1.3.0.zip)
 
 Model | Step | eval/generator_loss | eval/mel_loss| eval/feature_matching_loss
 :-------------:| :------------:| :-----: | :-----: | :--------:

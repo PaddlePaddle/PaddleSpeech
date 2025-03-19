@@ -18,7 +18,7 @@
 
 可以下载此 demo 的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/dog.wav
 ```
 
 ### 3. 使用方法

@@ -29,7 +29,7 @@ class CMVN : public FrontendInterface {
     // the length of feats = feature_row * feature_dim,
     // the Matrix is squashed into Vector
     virtual bool Read(std::vector<kaldi::BaseFloat>* feats);
-    // the dim_ is the feautre dim.
+    // the dim_ is the feature dim.
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }

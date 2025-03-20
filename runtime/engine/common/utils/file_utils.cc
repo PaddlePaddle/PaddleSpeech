@@ -44,7 +44,7 @@ std::string ReadFile2String(const std::string& path) {
 }
 
 bool FileExists(const std::string& strFilename) { 
-    // this funciton if from:
+    // this function if from:
     // https://github.com/kaldi-asr/kaldi/blob/master/src/fstext/deterministic-fst-test.cc
     struct stat stFileInfo; 
     bool blnReturn; 

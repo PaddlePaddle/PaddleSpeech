@@ -34,7 +34,7 @@ bash run.sh --stop_stage 4
 
 ## Display Model with [Netron](https://github.com/lutzroeder/netron)  
 
-If you have a model, we can using this commnd to show model graph.
+If you have a model, we can using this commend to show model graph.
 
 For example:
 ```

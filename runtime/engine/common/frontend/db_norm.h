@@ -47,7 +47,7 @@ class DecibelNormalizer : public FrontendInterface {
         std::unique_ptr<FrontendInterface> base_extractor);
     virtual void Accept(const kaldi::VectorBase<kaldi::BaseFloat>& waves);
     virtual bool Read(kaldi::Vector<kaldi::BaseFloat>* waves);
-    // noramlize audio, the dim is 1.
+    // normalize audio, the dim is 1.
     virtual size_t Dim() const { return dim_; }
     virtual void SetFinished() { base_extractor_->SetFinished(); }
     virtual bool IsFinished() const { return base_extractor_->IsFinished(); }

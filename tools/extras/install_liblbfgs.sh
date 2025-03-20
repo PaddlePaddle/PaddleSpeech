@@ -17,7 +17,7 @@ cd liblbfgs-$VER
 ./configure --prefix=`pwd`
 make
 # due to the liblbfgs project directory structure, we have to use -i
-# but the erros are completely harmless
+# but the errors are completely harmless
 make -i install
 cd ..
 

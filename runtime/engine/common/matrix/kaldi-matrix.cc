@@ -244,8 +244,8 @@ void MatrixBase<Real>::SymAddMat2(const Real alpha,
   /// function will produce NaN in the output. This is a bug in the
   /// ATLAS library. To overcome this, the AddMatMat function, which calls
   /// cblas_Xgemm(...) rather than cblas_Xsyrk(...), is used in this special
-  /// sitation.
-  /// Wei Shi: Note this bug is observerd for single precision matrix
+  /// situation.
+  /// Wei Shi: Note this bug is observed for single precision matrix
   /// on a 64-bit machine
 #ifdef HAVE_ATLAS
   if (transA == kTrans && num_rows_ >= 56) {
@@ -683,7 +683,7 @@ empty.
   if (V_in == NULL) tmpV.Resize(1, this->num_cols_);  // work-space if V_in
 empty.
 
-  /// Impementation notes:
+  /// Implementation notes:
   /// Lapack works in column-order, therefore the dimensions of *this are
   /// swapped as well as the U and V matrices.
 
@@ -2378,7 +2378,7 @@ bool ReadHtk(std::istream &is, Matrix<Real> *M_ptr, HtkHeader *header_ptr)
   Matrix<Real> &M = *M_ptr;
   HtkHeader htk_hdr;
 
-  // TODO(arnab): this fails if the HTK file has CRC cheksum or is compressed.
+  // TODO(arnab): this fails if the HTK file has CRC checksum or is compressed.
   is.read((char*)&htk_hdr, sizeof(htk_hdr));  // we're being really POSIX here!
   if (is.fail()) {
     KALDI_WARN << "Could not read header from HTK feature file ";

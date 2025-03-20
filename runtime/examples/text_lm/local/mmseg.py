@@ -253,7 +253,6 @@ class Analysis:
                             # print(word3.length, word3.text)
                             if word3.length == -1:
                                 chunk = Chunk(word1, word2)
-                                # print("True")
                             else:
                                 chunk = Chunk(word1, word2, word3)
                             chunks.append(chunk)

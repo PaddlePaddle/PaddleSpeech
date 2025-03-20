@@ -916,11 +916,11 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
         if (find(must_neural_tone_words.begin(),
                  must_neural_tone_words.end(),
                  word) != must_neural_tone_words.end() ||
-            (word_num >= 2 &&
-             find(must_neural_tone_words.begin(),
-                  must_neural_tone_words.end(),
-                  ppspeech::wstring2utf8string(word_wstr.substr(
-                      word_num - 2))) != must_neural_tone_words.end())) {
+            (word_num >= 2 && find(must_neural_tone_words.begin(),
+                                   must_neural_tone_words.end(),
+                                   ppspeech::wstring2utf8string(
+                                       word_wstr.substr(word_num - 2))) !=
+                                  must_neural_tone_words.end())) {
             (*finals).back() =
                 (*finals).back().replace((*finals).back().length() - 1, 1, "5");
         }

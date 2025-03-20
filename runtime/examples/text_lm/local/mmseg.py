@@ -156,8 +156,8 @@ class Analysis:
         return self.text[self.pos]
 
     #判断该字符是否是中文字符（不包括中文标点）    
-    def isChineseChar(self, charater):
-        return 0x4e00 <= ord(charater) < 0x9fa6
+    def isChineseChar(self, character):
+        return 0x4e00 <= ord(character) < 0x9fa6
 
     #判断是否是ASCII码  
     def isASCIIChar(self, ch):

@@ -23,7 +23,7 @@ cd ..
 
 (
   [ ! -z "${LIBLBFGS}" ] && \
-    echo >&2 "LIBLBFGS variable is aleady defined. Undefining..." && \
+    echo >&2 "LIBLBFGS variable is already defined. Undefining..." && \
     unset LIBLBFGS
 
   [ -f ./env.sh ] && . ./env.sh

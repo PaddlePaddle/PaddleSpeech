@@ -35,7 +35,7 @@ class ESC50(AudioClassificationDataset):
         http://dx.doi.org/10.1145/2733373.2806390
     """
 
-    archieves = [
+    archives = [
         {
             'url':
             'https://paddleaudio.bj.bcebos.com/datasets/ESC-50-master.zip',
@@ -133,7 +133,7 @@ class ESC50(AudioClassificationDataset):
     def _get_data(self, mode: str, split: int) -> Tuple[List[str], List[int]]:
         if not os.path.isdir(os.path.join(DATA_HOME, self.audio_path)) or \
             not os.path.isfile(os.path.join(DATA_HOME, self.meta)):
-            download_and_decompress(self.archieves, DATA_HOME)
+            download_and_decompress(self.archives, DATA_HOME)
 
         meta_info = self._get_meta_info()
 

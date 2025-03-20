@@ -30,7 +30,7 @@ __all__ = ['OpenRIRNoise']
 
 
 class OpenRIRNoise(Dataset):
-    archieves = [
+    archives = [
         {
             'url': 'http://www.openslr.org/resources/28/rirs_noises.zip',
             'md5': 'e6f48e257286e05de56413b4779d8ffb',
@@ -76,7 +76,7 @@ class OpenRIRNoise(Dataset):
         print(f"rirs noises base path: {self.base_path}")
         if not os.path.isdir(self.base_path):
             download_and_decompress(
-                self.archieves, self.base_path, decompress=True)
+                self.archives, self.base_path, decompress=True)
         else:
             print(
                 f"{self.base_path} already exists, we will not download and decompress again"

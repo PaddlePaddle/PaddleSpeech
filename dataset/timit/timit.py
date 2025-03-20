@@ -210,7 +210,7 @@ def create_manifest(data_dir, manifest_path_prefix):
 
 
 def prepare_dataset(url, md5sum, target_dir, manifest_path):
-    """Download, unpack and create summmary manifest file.
+    """Download, unpack and create summary manifest file.
     """
     filepath = os.path.join(target_dir, "TIMIT.zip")
     if not os.path.exists(filepath):

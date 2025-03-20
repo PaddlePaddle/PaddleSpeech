@@ -225,7 +225,7 @@ async def websocket_endpoint_online(websocket: WebSocket):
         websocket (WebSocket): the websocket instance
     """
 
-    #1. the interface wait to accept the websocket protocal header
+    #1. the interface wait to accept the websocket protocol header
     #   and only we receive the header, it establish the connection with specific thread
     await websocket.accept()
 
@@ -238,7 +238,7 @@ async def websocket_endpoint_online(websocket: WebSocket):
     connection_handler = None
 
     try:
-        #4. we do a loop to process the audio package by package according the protocal
+        #4. we do a loop to process the audio package by package according the protocol
         #   and only if the client send finished signal, we will break the loop
         while True:
             # careful here, changed the source code from starlette.websockets

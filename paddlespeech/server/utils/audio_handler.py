@@ -79,7 +79,7 @@ class ASRWsAudioHandler:
                  punc_server_ip=None,
                  punc_server_port=None):
         """PaddleSpeech Online ASR Server Client  audio handler
-           Online asr server use the websocket protocal
+           Online asr server use the websocket protocol
         Args:
             url (str, optional): the server ip. Defaults to None.
             port (int, optional): the server port. Defaults to None.
@@ -144,10 +144,10 @@ class ASRWsAudioHandler:
             logger.error("No asr server, please input valid ip and port")
             return ""
 
-        # 1. send websocket handshake protocal
+        # 1. send websocket handshake protocol
         start_time = time.time()
         async with websockets.connect(self.url) as ws:
-            # 2. server has already received handshake protocal
+            # 2. server has already received handshake protocol
             # client start to send the command
             audio_info = json.dumps(
                 {
@@ -255,7 +255,7 @@ class ASRHttpHandler:
 class TTSWsHandler:
     def __init__(self, server="127.0.0.1", port=8092, play: bool=False):
         """PaddleSpeech Online TTS Server Client  audio handler
-           Online tts server use the websocket protocal
+           Online tts server use the websocket protocol
         Args:
             server (str, optional): the server ip. Defaults to "127.0.0.1".
             port (int, optional): the server port. Defaults to 8092.
@@ -405,7 +405,7 @@ class TTSWsHandler:
 class TTSHttpHandler:
     def __init__(self, server="127.0.0.1", port=8092, play: bool=False):
         """PaddleSpeech Online TTS Server Client  audio handler
-           Online tts server use the websocket protocal
+           Online tts server use the websocket protocol
         Args:
             server (str, optional): the server ip. Defaults to "127.0.0.1".
             port (int, optional): the server port. Defaults to 8092.

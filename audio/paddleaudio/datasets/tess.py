@@ -37,7 +37,7 @@ class TESS(AudioClassificationDataset):
         https://doi.org/10.5683/SP2/E8H2MF
     """
 
-    archieves = [
+    archives = [
         {
             'url':
             'https://bj.bcebos.com/paddleaudio/datasets/TESS_Toronto_emotional_speech_set.zip',
@@ -93,7 +93,7 @@ class TESS(AudioClassificationDataset):
     def _get_data(self, mode, seed, n_folds,
                   split) -> Tuple[List[str], List[int]]:
         if not os.path.isdir(os.path.join(DATA_HOME, self.audio_path)):
-            download_and_decompress(self.archieves, DATA_HOME)
+            download_and_decompress(self.archives, DATA_HOME)
 
         wav_files = []
         for root, _, files in os.walk(os.path.join(DATA_HOME, self.audio_path)):

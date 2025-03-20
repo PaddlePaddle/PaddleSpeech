@@ -35,7 +35,7 @@ class GTZAN(AudioClassificationDataset):
         https://ieeexplore.ieee.org/document/1021072/
     """
 
-    archieves = [
+    archives = [
         {
             'url': 'http://opihi.cs.uvic.ca/sound/genres.tar.gz',
             'md5': '5b3d6dddb579ab49814ab86dba69e7c7',
@@ -85,7 +85,7 @@ class GTZAN(AudioClassificationDataset):
                   split) -> Tuple[List[str], List[int]]:
         if not os.path.isdir(os.path.join(DATA_HOME, self.audio_path)) or \
             not os.path.isfile(os.path.join(DATA_HOME, self.meta)):
-            download_and_decompress(self.archieves, DATA_HOME)
+            download_and_decompress(self.archives, DATA_HOME)
 
         meta_info = self._get_meta_info()
         random.seed(seed)  # shuffle samples to split data

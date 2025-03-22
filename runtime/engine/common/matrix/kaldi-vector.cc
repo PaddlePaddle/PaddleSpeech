@@ -759,36 +759,36 @@ template void VectorBase<double>::CopyColFromMat(const MatrixBase<double> &mat,
 // return max + sum;
 //}
 
-//#ifdef HAVE_MKL
-// template<>
-// void VectorBase<float>::Tanh(const VectorBase<float> &src) {
-// KALDI_ASSERT(dim_ == src.dim_);
-// vsTanh(dim_, src.data_, data_);
-//}
-// template<>
-// void VectorBase<double>::Tanh(const VectorBase<double> &src) {
-// KALDI_ASSERT(dim_ == src.dim_);
-// vdTanh(dim_, src.data_, data_);
-//}
-//#else
-// template<typename Real>
-// void VectorBase<Real>::Tanh(const VectorBase<Real> &src) {
-// KALDI_ASSERT(dim_ == src.dim_);
-// for (MatrixIndexT i = 0; i < dim_; i++) {
-// Real x = src.data_[i];
-// if (x > 0.0) {
-// Real inv_expx = Exp(-x);
-// x = -1.0 + 2.0 / (1.0 + inv_expx * inv_expx);
-//} else {
-// Real expx = Exp(x);
-// x = 1.0 - 2.0 / (1.0 + expx * expx);
-//}
-// data_[i] = x;
-//}
-//}
-//#endif
+// #ifdef HAVE_MKL
+//  template<>
+//  void VectorBase<float>::Tanh(const VectorBase<float> &src) {
+//  KALDI_ASSERT(dim_ == src.dim_);
+//  vsTanh(dim_, src.data_, data_);
+// }
+//  template<>
+//  void VectorBase<double>::Tanh(const VectorBase<double> &src) {
+//  KALDI_ASSERT(dim_ == src.dim_);
+//  vdTanh(dim_, src.data_, data_);
+// }
+// #else
+//  template<typename Real>
+//  void VectorBase<Real>::Tanh(const VectorBase<Real> &src) {
+//  KALDI_ASSERT(dim_ == src.dim_);
+//  for (MatrixIndexT i = 0; i < dim_; i++) {
+//  Real x = src.data_[i];
+//  if (x > 0.0) {
+//  Real inv_expx = Exp(-x);
+//  x = -1.0 + 2.0 / (1.0 + inv_expx * inv_expx);
+// } else {
+//  Real expx = Exp(x);
+//  x = 1.0 - 2.0 / (1.0 + expx * expx);
+// }
+//  data_[i] = x;
+// }
+// }
+// #endif
 
-//#ifdef HAVE_MKL
+// #ifdef HAVE_MKL
 //// Implementing sigmoid based on tanh.
 // template<>
 // void VectorBase<float>::Sigmoid(const VectorBase<float> &src) {
@@ -808,7 +808,7 @@ template void VectorBase<double>::CopyColFromMat(const MatrixBase<double> &mat,
 // this->Add(1.0);
 // this->Scale(0.5);
 //}
-//#else
+// #else
 // template<typename Real>
 // void VectorBase<Real>::Sigmoid(const VectorBase<Real> &src) {
 // KALDI_ASSERT(dim_ == src.dim_);
@@ -824,7 +824,7 @@ template void VectorBase<double>::CopyColFromMat(const MatrixBase<double> &mat,
 // data_[i] = x;
 //}
 //}
-//#endif
+// #endif
 
 
 // template<typename Real>

@@ -1863,7 +1863,7 @@ prevent crash.";
 // if (!ans) {
 // KALDI_ERR << "Error doing Svd";  // This one will be caught.
 //}
-//#endif
+// #endif
 // if (prescale != 1.0) s->Scale(1.0/prescale);
 //}
 /*

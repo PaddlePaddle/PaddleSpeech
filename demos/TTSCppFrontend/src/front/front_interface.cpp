@@ -226,7 +226,7 @@ int FrontEngineInterface::GetSentenceIds(const std::string &sentence,
                                          std::vector<int> *phoneids,
                                          std::vector<int> *toneids) {
     std::vector<std::pair<std::string, std::string>>
-        cut_result;  // 分词结果包含词和词性
+        cut_result;  //分词结果包含词和词性
     if (0 != Cut(sentence, &cut_result)) {
         LOG(ERROR) << "Cut sentence: \"" << sentence << "\" failed";
         return -1;
@@ -375,7 +375,7 @@ bool FrontEngineInterface::AllToneThree(
     const std::vector<std::string> &finals) {
     bool flags = true;
     for (int i = 0; i < finals.size(); i++) {
-        if (static_cast<int>(finals[i].back()) != 51) {  // 如果读音不为第三声
+        if (static_cast<int>(finals[i].back()) != 51) {  //如果读音不为第三声
             flags = false;
         }
     }
@@ -400,9 +400,9 @@ int FrontEngineInterface::GetInitialsFinals(
     std::vector<std::string> *word_initials,
     std::vector<std::string> *word_finals) {
     std::string phone;
-    GetPhone(word, &phone);  // 获取字词对应的音素
+    GetPhone(word, &phone);  //获取字词对应的音素
     std::vector<std::string> phone_vec = absl::StrSplit(phone, " ");
-    // 获取韵母，每个字的音素有1或者2个，start为单个字音素的起始位置。
+    //获取韵母，每个字的音素有1或者2个，start为单个字音素的起始位置。
     int start = 0;
     while (start < phone_vec.size()) {
         if (phone_vec[start] == "sp" || phone_vec[start] == "sp0") {
@@ -573,7 +573,7 @@ FrontEngineInterface::MergeThreeTones(
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
-    std::vector<std::vector<std::string>> finals;  // 韵母数组
+    std::vector<std::vector<std::string>> finals;  //韵母数组
     std::vector<std::string> word_final;
     std::vector<bool> merge_last(seg_result->size(), false);
 
@@ -629,7 +629,7 @@ FrontEngineInterface::MergeThreeTones(
         }
     }
 
-    // 把标点的分词结果补上
+    //把标点的分词结果补上
     if (word_num < seg_result->size()) {
         result.push_back(
             // seg_result[word_num].first seg_result[word_num].second
@@ -648,7 +648,7 @@ FrontEngineInterface::MergeThreeTones2(
     std::vector<std::pair<std::string, std::string>> result;
     std::string word;
     std::string pos;
-    std::vector<std::vector<std::string>> finals;  // 韵母数组
+    std::vector<std::vector<std::string>> finals;  //韵母数组
     std::vector<std::string> word_final;
     std::vector<bool> merge_last(seg_result->size(), false);
 
@@ -706,7 +706,7 @@ FrontEngineInterface::MergeThreeTones2(
         }
     }
 
-    // 把标点的分词结果补上
+    //把标点的分词结果补上
     if (word_num < seg_result->size()) {
         result.push_back(make_pair(std::get<0>((*seg_result)[word_num]),
                                    std::get<1>((*seg_result)[word_num])));
@@ -804,7 +804,7 @@ int FrontEngineInterface::YiSandhi(const std::string &word,
         return -1;
     }
 
-    // 情况1："一" in number sequences, e.g. 一零零, 二一零
+    //情况1："一" in number sequences, e.g. 一零零, 二一零
     std::wstring num_wstr = L"零一二三四六七八九";
     std::wstring word_wstr = ppspeech::utf8string2wstring(word);
     if (word_wstr.find(yi) != word_wstr.npos && wordvec.back() != yi) {
@@ -822,7 +822,7 @@ int FrontEngineInterface::YiSandhi(const std::string &word,
                wordvec[0] == wordvec[2]) {
         // "一" between reduplication words shold be yi5, e.g. 看一看
         (*finals)[1] = (*finals)[1].replace((*finals)[1].length() - 1, 1, "5");
-    } else if (wordvec[0] == L"第" && wordvec[1] == yi) {  // 以第一位开始
+    } else if (wordvec[0] == L"第" && wordvec[1] == yi) {  //以第一位开始
         (*finals)[1] = (*finals)[1].replace((*finals)[1].length() - 1, 1, "1");
     } else {
         for (int i = 0; i < wordvec.size(); i++) {
@@ -916,11 +916,11 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
         if (find(must_neural_tone_words.begin(),
                  must_neural_tone_words.end(),
                  word) != must_neural_tone_words.end() ||
-            (word_num >= 2 && find(must_neural_tone_words.begin(),
-                                   must_neural_tone_words.end(),
-                                   ppspeech::wstring2utf8string(
-                                       word_wstr.substr(word_num - 2))) !=
-                                  must_neural_tone_words.end())) {
+            (word_num >= 2 &&
+             find(must_neural_tone_words.begin(),
+                  must_neural_tone_words.end(),
+                  ppspeech::wstring2utf8string(word_wstr.substr(
+                      word_num - 2))) != must_neural_tone_words.end())) {
             (*finals).back() =
                 (*finals).back().replace((*finals).back().length() - 1, 1, "5");
         }
@@ -1037,7 +1037,7 @@ int FrontEngineInterface::ThreeSandhi(const std::string &word,
                 (*finals).end(), finals_list[1].begin(), finals_list[1].end());
         }
 
-    } else if (word_num == 4) {  // 将成语拆分为两个长度为 2 的单词
+    } else if (word_num == 4) {  //将成语拆分为两个长度为 2 的单词
         // 创建对应的 韵母列表
         finals_temp = {};
         finals_list = {};

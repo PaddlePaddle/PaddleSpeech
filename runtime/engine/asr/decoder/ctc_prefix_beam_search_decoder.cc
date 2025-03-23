@@ -239,7 +239,7 @@ void CTCPrefixBeamSearch::AdvanceDecoding(
                     }
                 }
             }  // end for (const auto& it : cur_hyps_)
-        }  // end for (int i = 0; i < topk_index.size(); ++i)
+        }      // end for (int i = 0; i < topk_index.size(); ++i)
 
         // 3. second beam prune, only keep top n best paths
         std::vector<std::pair<std::vector<int>, PrefixScore>> arr(

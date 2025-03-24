@@ -115,7 +115,7 @@ pwg_baker_ckpt_0.4
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-`--stage` 用于合成过程中控制声码器模型，可取值为 `0` 或 `1`，分别对应使用 `pwgan` 或 `hifigan` 模型作为声码器。
+`--stage` 参数用于控制合成过程中使用的声码器模型。通过设置 `0-4` 阶段值，可以选择以下声码器之一：`pwgan`、`multi band melgan`、`style melgan`、`hifigan` 或 `wavernn`。
 
 ```text
 usage: synthesize.py [-h]
@@ -164,8 +164,12 @@ optional arguments:
 `./local/synthesize_e2e.sh` 调用 `${BIN_DIR}/../synthesize_e2e.py`，即可从文本文件中合成波形。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+
+`--stage` 参数用于控制合成过程中使用的声码器模型。通过设置阶段值 `0、1、3、4`，可以选择以下声码器之一：`pwgan`、`multi band melgan`、`hifigan` 或 `wavernn`。
+
+
 ```text
 usage: synthesize_e2e.py [-h]
                          [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]

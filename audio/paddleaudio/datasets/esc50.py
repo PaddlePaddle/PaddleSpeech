@@ -111,7 +111,7 @@ class ESC50(AudioClassificationDataset):
                  feat_type: str='raw',
                  **kwargs):
         """
-        Ags:
+        Args:
             mode (:obj:`str`, `optional`, defaults to `train`):
                 It identifies the dataset mode (train or dev).
             split (:obj:`int`, `optional`, defaults to 1):

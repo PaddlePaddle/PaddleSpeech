@@ -16,7 +16,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
 
  Here are sample files for this demo that can be downloaded:
  ```bash
- wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+ wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
  ```
 
  ### 3. Usage

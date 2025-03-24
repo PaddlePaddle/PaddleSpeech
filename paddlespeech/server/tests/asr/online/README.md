@@ -23,7 +23,7 @@ The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate 
 
 Here are sample files for thisASR client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 ```
 
 ### 2. Streaming ASR Client Usage

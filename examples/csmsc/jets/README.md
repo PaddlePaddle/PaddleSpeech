@@ -18,7 +18,7 @@ The structure of the folder is listed below.
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes and durations for JETS.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -112,8 +112,8 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_outp
 
 The pretrained model can be downloaded here:
 
-- [jets_csmsc_ckpt_1.5.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/jets_csmsc_ckpt_1.5.0.zip)
+- [jets_csmsc_ckpt_1.5.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/jets_csmsc_ckpt_1.5.0.zip)
 
 The static model can be downloaded here:
 
-- [jets_csmsc_static_1.5.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/jets_csmsc_static_1.5.0.zip)
+- [jets_csmsc_static_1.5.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/jets_csmsc_static_1.5.0.zip)

@@ -20,7 +20,7 @@
 
 可以下载此 ASR client的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 ```
 
 ### 2. 流式 ASR 客户端使用方法

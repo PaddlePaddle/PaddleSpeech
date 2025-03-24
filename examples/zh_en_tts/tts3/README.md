@@ -15,10 +15,10 @@ Download all datasets and extract it to `./data`:
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for the fastspeech2 training.
 You can download from here:
-- [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz)
-- [ljspeech_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz)
-- [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz) 
-- [vctk_alignment.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz)
+- [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz)
+- [ljspeech_alignment.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/LJSpeech-1.1/ljspeech_alignment.tar.gz)
+- [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz) 
+- [vctk_alignment.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/VCTK-Corpus-0.92/vctk_alignment.tar.gz)
 
 Or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
@@ -121,9 +121,9 @@ We have **added module speaker classifier** with reference to [Learning to Speak
 
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the default neural vocoder.
-Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+Download the pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 
-When speaker is `174` (csmsc), use csmsc's vocoder is better than aishell3's, we recommend that you use [hifigan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_ckpt_0.1.1.zip), please check `stage 2`  of `synthesize_e2e.sh`.
+When speaker is `174` (csmsc), use csmsc's vocoder is better than aishell3's, we recommend that you use [hifigan_csmsc_ckpt_0.1.1.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_csmsc_ckpt_0.1.1.zip), please check `stage 2`  of `synthesize_e2e.sh`.
 
 But if speaker is `175` (ljspeech), we **don't** recommend you to use ljspeech's vocoder, because ljspeech's vocoders are trained on sample rate 22.05kHz, but this acoustic model is trained on sample rate 24kHz, you can use csmsc's vocoder also, because ljspeech and csmsc are both female speakers.
 
@@ -254,17 +254,17 @@ optional arguments:
 ## Pretrained Model
 
 Pretrained FastSpeech2 model with no silence in the edge of audios:
-- [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip)
-- [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
+- [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip)
+- [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip)
 
 The static model can be downloaded here:
-- [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)
+- [fastspeech2_mix_static_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_0.2.0.zip)
 
 The PIR static model can be downloaded here:
-- [fastspeech2_mix_static_pir_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_pir_0.2.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
+- [fastspeech2_mix_static_pir_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_static_pir_0.2.0.zip) (Run PIR model need to set FLAGS_enable_pir_api=1, and PIR model only worked with paddlepaddle>=3.0.0b2)
 
 The ONNX model can be downloaded here:
-- [fastspeech2_mix_onnx_0.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_onnx_0.2.0.zip)
+- [fastspeech2_mix_onnx_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_onnx_0.2.0.zip)
 
 FastSpeech2 checkpoint contains files listed below.
 

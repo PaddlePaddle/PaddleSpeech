@@ -21,7 +21,7 @@ sudo yum install cmake wget tar unzip
 
 ### 下载 Paddle Lite 库文件和模型文件
 
-预编译的二进制使用与安卓 Demo 版本相同的 Paddle Lite 推理库（[Paddle-Lite:68b66fd35](https://github.com/PaddlePaddle/Paddle-Lite/tree/68b66fd356c875c92167d311ad458e6093078449)）和模型（[fs2cnn_mbmelgan_cpu_v1.3.0](https://paddlespeech.bj.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz)）。
+预编译的二进制使用与安卓 Demo 版本相同的 Paddle Lite 推理库（[Paddle-Lite:68b66fd35](https://github.com/PaddlePaddle/Paddle-Lite/tree/68b66fd356c875c92167d311ad458e6093078449)）和模型（[fs2cnn_mbmelgan_cpu_v1.3.0](https://paddlespeech.cdn.bcebos.com/demos/TTSAndroid/fs2cnn_mbmelgan_cpu_v1.3.0.tar.gz)）。
 
 可用以下命令下载：
 

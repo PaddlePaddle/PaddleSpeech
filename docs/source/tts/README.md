@@ -35,39 +35,39 @@ Check our [website](https://paddlespeech.readthedocs.io/en/latest/tts/demo.html)
 ### Acoustic Model
 
 #### FastSpeech2/FastPitch
-1. [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip)
-2. [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
-3. [fastspeech2_nosil_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip)
+1. [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/fastspeech2_nosil_baker_ckpt_0.4.zip)
+2. [fastspeech2_nosil_aishell3_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/fastspeech2_nosil_aishell3_ckpt_0.4.zip)
+3. [fastspeech2_nosil_ljspeech_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/fastspeech2_nosil_ljspeech_ckpt_0.5.zip)
 
 #### SpeedySpeech
-1. [speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip)
+1. [speedyspeech_nosil_baker_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/speedyspeech_nosil_baker_ckpt_0.5.zip)
 
 #### TransformerTTS
 
-1. [transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/transformer_tts_ljspeech_ckpt_0.4.zip)
+1. [transformer_tts_ljspeech_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/transformer_tts_ljspeech_ckpt_0.4.zip)
 
 #### Tacotron2
 
-1. [tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_ljspeech_ckpt_0.3.zip)
-2. [tacotron2_ljspeech_ckpt_0.3_alternative.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_ljspeech_ckpt_0.3_alternative.zip)
+1. [tacotron2_ljspeech_ckpt_0.3.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/tacotron2_ljspeech_ckpt_0.3.zip)
+2. [tacotron2_ljspeech_ckpt_0.3_alternative.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/tacotron2_ljspeech_ckpt_0.3_alternative.zip)
 
 ### Vocoder
 
 #### WaveFlow
 
-1. [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/waveflow_ljspeech_ckpt_0.3.zip)
+1. [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/waveflow_ljspeech_ckpt_0.3.zip)
 
 #### Parallel WaveGAN
 
-1. [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip)
-2. [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip)
+1. [pwg_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/pwg_baker_ckpt_0.4.zip)
+2. [pwg_ljspeech_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/pwg_ljspeech_ckpt_0.5.zip)
 
 ### Voice Cloning
 
 #### Tacotron2_AISHELL3
 
-1. [tacotron2_aishell3_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/tacotron2_aishell3_ckpt_0.3.zip)
+1. [tacotron2_aishell3_ckpt_0.3.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/tacotron2_aishell3_ckpt_0.3.zip)
 
 #### GE2E
 
-1. [ge2e_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip)
+1. [ge2e_ckpt_0.3.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/ge2e_ckpt_0.3.zip)

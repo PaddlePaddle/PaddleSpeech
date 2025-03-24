@@ -149,7 +149,7 @@ using the `tar` scripts to unpack the model and then you can use the script to t
 
 For example:
 ```
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_transformer_aishell_ckpt_0.1.1.model.tar.gz
+wget https://paddlespeech.cdn.bcebos.com/s2t/aishell/asr1/asr1_transformer_aishell_ckpt_0.1.1.model.tar.gz
 tar xzvf asr1_transformer_aishell_ckpt_0.1.1.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
@@ -195,12 +195,12 @@ In some situations, you want to use the trained model to do the inference for th
 ```
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/s2t/aishell/asr1/asr1_transformer_aishell_ckpt_0.1.1.model.tar.gz
+wget https://paddlespeech.cdn.bcebos.com/s2t/aishell/asr1/asr1_transformer_aishell_ckpt_0.1.1.model.tar.gz
 tar xzvf transformer.model.tar.gz
 ```
 You can download the audio demo:
 ```bash
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
+wget -nc https://paddlespeech.cdn.bcebos.com/datasets/single_wav/zh/demo_01_03.wav -P data/
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result by running the script below.
 ```bash

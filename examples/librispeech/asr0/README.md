@@ -181,7 +181,7 @@ if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then
 ```
 You can download the audio demo:
 ```bash
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
+wget -nc https://paddlespeech.cdn.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
 ```
 You can train a model by yourself, then you need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash

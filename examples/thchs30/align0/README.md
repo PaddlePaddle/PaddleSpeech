@@ -35,8 +35,8 @@ word.lexicon 考虑到了中文的多音字，使用**带概率的字典**, 生�
 ---
 我们提供了三种级别 MFA 训练好的对齐结果、模型和字典（`syllable.lexicon`  在 `data/dict` 中，`phone.lexicon` 和` word.lexicon` 运行数据预处理代码后会自动从原始数据集复制或生成）
 
-**phone 级别：** [phone.lexicon](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/phone/phone.lexicon)、 [对齐结果](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/phone/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/phone/thchs30_model.zip)
-**syllabel 级别：** [syllable.lexicon](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/syllable/syllable.lexicon)、[对齐结果](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/syllable/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/syllable/thchs30_model.zip)
-**word 级别：** [word.lexicon](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/word/word.lexicon)、[对齐结果](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/word/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.bj.bcebos.com/MFA/THCHS30/word/thchs30_model.zip)
+**phone 级别：** [phone.lexicon](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/phone/phone.lexicon)、 [对齐结果](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/phone/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/phone/thchs30_model.zip)
+**syllabel 级别：** [syllable.lexicon](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/syllable/syllable.lexicon)、[对齐结果](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/syllable/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/syllable/thchs30_model.zip)
+**word 级别：** [word.lexicon](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/word/word.lexicon)、[对齐结果](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/word/thchs30_alignment.tar.gz)、[模型](https://paddlespeech.cdn.bcebos.com/MFA/THCHS30/word/thchs30_model.zip)
 
 随后，您可以参考 [MFA 官方文档](https://montreal-forced-aligner.readthedocs.io/en/latest/) 使用我们给您提供好的模型直接对自己的数据集进行强制对齐，注意，您需要使用和模型对应的 lexicon 文件，当文本是汉字时，您需要用空格把不同的**汉字**（而不是词语）分开

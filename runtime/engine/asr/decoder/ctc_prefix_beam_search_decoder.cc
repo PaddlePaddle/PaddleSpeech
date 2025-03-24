@@ -157,7 +157,7 @@ void CTCPrefixBeamSearch::AdvanceDecoding(
                     next_score.v_b = prefix_score.ViterbiScore() + prob;
                     next_score.times_b = prefix_score.Times();
 
-                    // Prefix not changed, copy the context from pefix
+                    // Prefix not changed, copy the context from prefix
                     if (context_graph_ && !next_score.has_context) {
                         next_score.CopyContext(prefix_score);
                         next_score.has_context = true;
@@ -183,7 +183,7 @@ void CTCPrefixBeamSearch::AdvanceDecoding(
                         }
                     }
 
-                    // Prefix not changed, copy the context from pefix
+                    // Prefix not changed, copy the context from prefix
                     if (context_graph_ && !next_score1.has_context) {
                         next_score1.CopyContext(prefix_score);
                         next_score1.has_context = true;

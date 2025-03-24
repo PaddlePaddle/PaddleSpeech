@@ -1,5 +1,4 @@
 diskcache
-dtaidistane
 fastapi
 librosa==0.8.0
 numpy==1.22.0

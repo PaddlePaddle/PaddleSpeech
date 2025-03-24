@@ -361,7 +361,7 @@ class Wav2Vec2ASRTrainer(Trainer):
         scratch = None
         if self.args.resume:
             # just restore ckpt
-            # lr will resotre from optimizer ckpt
+            # lr will restore from optimizer ckpt
             resume_json_path = os.path.join(self.checkpoint_dir,
                                             self.args.resume + '.json')
             with open(resume_json_path, 'r', encoding='utf8') as f:
@@ -369,20 +369,20 @@ class Wav2Vec2ASRTrainer(Trainer):
             self.iteration = 0
             self.epoch = resume_json["epoch"]
 
-            # resotre model from *.pdparams
+            # restore model from *.pdparams
             params_path = os.path.join(self.checkpoint_dir,
                                        "{}".format(self.epoch)) + '.pdparams'
             model_dict = paddle.load(params_path)
             self.model.set_state_dict(model_dict)
 
-            # resotre optimizer from *.pdopt
+            # restore optimizer from *.pdopt
             optimizer_path = os.path.join(self.checkpoint_dir,
                                           "{}".format(self.epoch)) + '.pdopt'
             optimizer_dict = paddle.load(optimizer_path)
             self.model_optimizer.set_state_dict(optimizer_dict['model'])
             self.wav2vec2_optimizer.set_state_dict(optimizer_dict['wav2vec2'])
 
-            # resotre lr_scheduler from *.pdlrs
+            # restore lr_scheduler from *.pdlrs
             scheduler_path = os.path.join(self.checkpoint_dir,
                                           "{}".format(self.epoch)) + '.pdlrs'
             if os.path.isfile(os.path.join(scheduler_path)):

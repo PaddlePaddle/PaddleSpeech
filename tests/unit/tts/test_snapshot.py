@@ -30,7 +30,7 @@ def _test_snapshot():
     # use a simplest iterable object as dataloader
     dataloader = count()
 
-    # hack the training proecss: training does nothing except increse iteration
+    # hack the training proecss: training does nothing except increase iteration
     updater = StandardUpdater(model, optimizer, dataloader=dataloader)
     updater.update_core = lambda x: None
 

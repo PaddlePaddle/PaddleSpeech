@@ -1,6 +1,6 @@
 #!/bin/bash
 
-wget -c https://paddlespeech.bj.bcebos.com/kws/hey_snips.wav https://paddlespeech.bj.bcebos.com/kws/non-keyword.wav
+wget -c https://paddlespeech.cdn.bcebos.com/kws/hey_snips.wav https://paddlespeech.cdn.bcebos.com/kws/non-keyword.wav
 
 # kws
 paddlespeech kws --input ./hey_snips.wav

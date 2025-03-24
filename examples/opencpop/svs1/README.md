@@ -103,7 +103,7 @@ optional arguments:
 
 ### Synthesizing
 We use parallel wavegan as the neural vocoder.
-Download pretrained parallel wavegan model from [pwgan_opencpop_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwgan_opencpop_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip) and unzip it.
 ```bash
 unzip pwgan_opencpop_ckpt_1.4.0.zip
 ```
@@ -243,7 +243,7 @@ Note: At present, the diffsinger model does not support dynamic to static, so do
 
 ## Pretrained Model
 Pretrained DiffSinger model:
-- [diffsinger_opencpop_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/diffsinger_opencpop_ckpt_1.4.0.zip)
+- [diffsinger_opencpop_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/diffsinger_opencpop_ckpt_1.4.0.zip)
 
 DiffSinger checkpoint contains files listed below.
 ```text

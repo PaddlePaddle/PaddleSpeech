@@ -1413,7 +1413,7 @@ class MultiScaleSTFTLoss(nn.Layer):
             >>> from paddlespeech.audiotools.core.audio_signal import AudioSignal
             >>> import paddle
 
-            >>> x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav", 2_05)
+            >>> x = AudioSignal("https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav", 2_05)
             >>> y = x * 0.01
             >>> loss = MultiScaleSTFTLoss()
             >>> loss(x, y).numpy()
@@ -1440,7 +1440,7 @@ class GANLoss(nn.Layer):
     >>> from paddlespeech.audiotools.core.audio_signal import AudioSignal
     >>> import paddle
 
-    >>> x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav", 2_05)
+    >>> x = AudioSignal("https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav", 2_05)
     >>> y = x * 0.01
     >>> class My_discriminator0:
     >>>     def __call__(self, x):
@@ -1518,7 +1518,7 @@ class SISDRLoss(nn.Layer):
     >>> from paddlespeech.audiotools.core.audio_signal import AudioSignal
     >>> import paddle
 
-    >>> x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav", 2_05)
+    >>> x = AudioSignal("https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav", 2_05)
     >>> y = x * 0.01
     >>> sisdr = SISDRLoss()
     >>> sisdr(x, y).numpy()

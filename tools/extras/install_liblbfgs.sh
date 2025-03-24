@@ -17,13 +17,13 @@ cd liblbfgs-$VER
 ./configure --prefix=`pwd`
 make
 # due to the liblbfgs project directory structure, we have to use -i
-# but the erros are completely harmless
+# but the errors are completely harmless
 make -i install
 cd ..
 
 (
   [ ! -z "${LIBLBFGS}" ] && \
-    echo >&2 "LIBLBFGS variable is aleady defined. Undefining..." && \
+    echo >&2 "LIBLBFGS variable is already defined. Undefining..." && \
     unset LIBLBFGS
 
   [ -f ./env.sh ] && . ./env.sh

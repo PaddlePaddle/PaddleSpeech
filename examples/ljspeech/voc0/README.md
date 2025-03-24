@@ -47,4 +47,4 @@ Synthesize waveform.
 
 ## Pretrained Model
 Pretrained Model with residual channel equals 128 can be downloaded here:
-- [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip)
+- [waveflow_ljspeech_ckpt_0.3.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/waveflow/waveflow_ljspeech_ckpt_0.3.zip)

@@ -235,7 +235,7 @@ void VectorBase<Real>::CopyRowsFromMat(const MatrixBase<Real> &mat) {
         memcpy(inc_data, mat.Data(), cols * rows * sizeof(Real));
     } else {
         for (MatrixIndexT i = 0; i < rows; i++) {
-            // copy the data to the propper position
+            // copy the data to the proper position
             memcpy(inc_data, mat.RowData(i), cols * sizeof(Real));
             // set new copy position
             inc_data += cols;

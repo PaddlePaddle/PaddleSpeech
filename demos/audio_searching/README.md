@@ -217,7 +217,7 @@ Then to start the system server, and it provides HTTP backend services.
 - memory：132G
 
 dataset：
-- CN-Celeb, train size 650,000, test size 10,000, dimention 192, distance L2
+- CN-Celeb, train size 650,000, test size 10,000, dimension 192, distance L2
 
 recall and elapsed time statistics are shown in the following figure：
 
@@ -226,7 +226,7 @@ recall and elapsed time statistics are shown in the following figure：
 
 The retrieval framework based on Milvus takes about 2.9 milliseconds to retrieve on the premise of 90% recall rate, and it takes about 500 milliseconds for feature extraction (testing audio takes about 5 seconds), that is, a single audio test takes about 503 milliseconds in total, which can meet most application scenarios.
 
-* compute embeding takes 500 ms
+* compute embedding takes 500 ms
 * retrieval with cosine takes 2.9 ms
 * total takes 503 ms
 

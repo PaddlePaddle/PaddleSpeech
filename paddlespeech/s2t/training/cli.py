@@ -47,7 +47,7 @@ def default_argument_parser(parser=None):
     other experiments with t2s. It requires a minimal set of command line
     arguments to start a training script.
 
-    The ``--config`` and ``--opts`` are used for overwrite the deault
+    The ``--config`` and ``--opts`` are used for overwrite the default
     configuration.
 
     The ``--data`` and ``--output`` specifies the data path and output path.

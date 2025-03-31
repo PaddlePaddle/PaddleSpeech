@@ -151,12 +151,18 @@ ssl_dynamic_pretrained_models = {
     },
     "wavlmASR_librispeech-en-16k": {
         "1.0": {
-            "url": "https://paddlespeech.bj.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz",
-            "md5": "f2238e982bb8bcf046e536201f5ea629",
-            "cfg_path": "model.yaml",
-            "ckpt_path": "exp/wavlmASR/checkpoints/46",
-            "model": "exp/wavlmASR/checkpoints/46.pdparams",
-            "params": "exp/wavlmASR/checkpoints/46.pdparams",
+            "url":
+            "https://paddlespeech.bj.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz",
+            "md5":
+            "f2238e982bb8bcf046e536201f5ea629",
+            "cfg_path":
+            "model.yaml",
+            "ckpt_path":
+            "exp/wavlmASR/checkpoints/46",
+            "model":
+            "exp/wavlmASR/checkpoints/46.pdparams",
+            "params":
+            "exp/wavlmASR/checkpoints/46.pdparams",
         }
     }
 }
@@ -2100,7 +2106,7 @@ g2pw_onnx_models = {
         },
         '1.1': {
             'url':
-            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/G2PWModel_1.1.zip',
+            'https://paddlespeech.bj.bcebos.com/Parakeet/released_models/g2p/new/G2PWModel_1.1.zip',
             'md5':
             'f8b60501770bff92ed6ce90860a610e6',
         },

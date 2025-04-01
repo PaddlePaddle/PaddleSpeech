@@ -116,9 +116,9 @@ pwgan_opencpop_ckpt_1.4.0.zip
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-`--stage` controls the vocoder model during synthesis, which can be `0` , use `pwgan` model as vocoder.
+use `pwgan` model as vocoder.
 
 ```text
 usage: synthesize.py [-h]

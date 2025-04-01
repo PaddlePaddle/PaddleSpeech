@@ -121,7 +121,7 @@ pwgan_opencpop_ckpt_1.4.0.zip
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-`--stage` 用于选择合成时使用的声码器模型，取值为 `0` ，使用 `pwgan` 模型作为声码器。
+使用 `pwgan` 模型作为声码器。
 
 ```text
 usage: synthesize.py [-h]

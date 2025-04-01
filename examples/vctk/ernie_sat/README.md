@@ -85,9 +85,12 @@ hifigan_vctk_ckpt_0.2.0
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` controls the vocoder model during synthesis, which can be `0` , use`hifigan` model as vocoder.
+
 ##  Speech Synthesis and Speech Editing
+
 ### Prepare
 **prepare aligner**
 ```bash

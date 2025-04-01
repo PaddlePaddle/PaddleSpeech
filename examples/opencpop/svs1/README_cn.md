@@ -119,7 +119,7 @@ pwgan_opencpop_ckpt_1.4.0.zip
 `./local/synthesize.sh` 调用 `${BIN_DIR}/../synthesize.py` 即可从 `metadata.jsonl`中合成波形。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
 使用 `pwgan` 模型作为声码器。
 

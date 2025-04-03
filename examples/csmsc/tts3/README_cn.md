@@ -113,8 +113,10 @@ pwg_baker_ckpt_0.4
 `./local/synthesize.sh` 调用 `${BIN_DIR}/../synthesize.py` 即可从 `metadata.jsonl`中合成波形。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` 参数用于控制合成过程中使用的声码器模型。该参数的取值范围为 `0-4`，分别对应以下五种声码器模型：`pwgan`、`multi band melgan`、`style melgan`、`hifigan` 和 `wavernn`。
+
 ```text
 usage: synthesize.py [-h]
                      [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}]
@@ -162,8 +164,10 @@ optional arguments:
 `./local/synthesize_e2e.sh` 调用 `${BIN_DIR}/../synthesize_e2e.py`，即可从文本文件中合成波形。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` 参数用于控制合成过程中使用的声码器模型。该参数的取值范围为{ `0,1,3,4`}，分别对应以下四种声码器模型：`pwgan`、`multi band melgan`、`hifigan` 和 `wavernn`。
+
 ```text
 usage: synthesize_e2e.py [-h]
                          [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]

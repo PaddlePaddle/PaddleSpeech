@@ -42,7 +42,7 @@ Currently the engine type supports two forms: python and inference (Paddle Infer
   paddlespeech_server start --help
   ```
   Arguments:
-  - `config_file`: yaml file of the app, defalut: ./conf/application.yaml
+  - `config_file`: yaml file of the app, default: ./conf/application.yaml
   - `log_file`: log file. Default: ./log/paddlespeech.log
 
   Output:

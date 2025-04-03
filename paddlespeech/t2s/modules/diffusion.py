@@ -40,7 +40,7 @@ class GaussianDiffusion(nn.Layer):
         num_max_timesteps (int, optional): 
             The max timestep transition from real to noise, by default None.
         stretch (bool, optional): 
-            Whether to stretch before diffusion, by defalut True.
+            Whether to stretch before diffusion, by default True.
         min_values: (paddle.Tensor):
             The minimum value of the feature to stretch.
         max_values: (paddle.Tensor):

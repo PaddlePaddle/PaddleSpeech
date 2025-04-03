@@ -173,7 +173,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 🏆  **Streaming ASR and TTS System**: we provide production ready streaming asr and streaming tts system.
 - 💯  **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
 - 📦  **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Automatic Speech Recognition, Text-to-Speech Synthesis, Speaker Verfication, KeyWord Spotting, Audio Classification, and Speech Translation, etc.
+  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Automatic Speech Recognition, Text-to-Speech Synthesis, Speaker Verification, KeyWord Spotting, Audio Classification, and Speech Translation, etc.
   - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
@@ -1025,7 +1025,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) for developing a rasa chatbot,which is able to speak and listen thanks to PaddleSpeech.
 - Many thanks to [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) for the C++ inference implementation of PaddleSpeech ASR.
 - Many thanks to [heyudage](https://github.com/heyudage)/[VoiceTyping](https://github.com/heyudage/VoiceTyping) for the real-time voice typing tool implementation of PaddleSpeech ASR streaming services.
-- Many thanks to [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) for the python3.9 prebuilt wheel for PaddleSpeech installation in Windows without Viusal Studio.
+- Many thanks to [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) for the python3.9 prebuilt wheel for PaddleSpeech installation in Windows without Visual Studio.
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 - Many thanks to [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) for converting audio to text based on FastAPI and PaddleSpeech.
 - Many thanks to [MistEO](https://github.com/MistEO)/[Pallas-Bot](https://github.com/MistEO/Pallas-Bot) for QQ bot based on PaddleSpeech TTS.

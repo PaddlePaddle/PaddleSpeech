@@ -63,7 +63,7 @@ class TextExecutor(BaseExecutor):
             '--config',
             type=str,
             default=None,
-            help='Config of cls task. Use deault config when it is None.')
+            help='Config of cls task. Use default config when it is None.')
         self.parser.add_argument(
             '--ckpt_path',
             type=str,

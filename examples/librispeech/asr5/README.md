@@ -89,10 +89,10 @@ data/
 `-- train.meta
 ```
 
-Stage 0 also downloads the pre-trained [wavlm](https://paddlespeech.bj.bcebos.com/wavlm/wavlm-base-plus.pdparams) model.
+Stage 0 also downloads the pre-trained [wavlm](https://paddlespeech.cdn.bcebos.com/wavlm/wavlm-base-plus.pdparams) model.
 ```bash
 mkdir -p exp/wavlm
-wget -P exp/wavlm https://paddlespeech.bj.bcebos.com/wavlm/wavlm-base-plus.pdparams
+wget -P exp/wavlm https://paddlespeech.cdn.bcebos.com/wavlm/wavlm-base-plus.pdparams
 ```
 ## Stage 1: Model Training
 If you want to train the model. you can use stage 1 in `run.sh`. The code is shown below. 
@@ -163,7 +163,7 @@ using the `tar` scripts to unpack the model and then you can use the script to t
 
 For example:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/wavlm/wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
+wget https://paddlespeech.cdn.bcebos.com/wavlm/wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
 tar xzvf wavlmASR-base-100h-librispeech_ckpt_1.4.0.model.tar.gz
 source path.sh
 # If you have process the data and get the manifest file， you can skip the following 2 steps
@@ -184,12 +184,12 @@ In some situations, you want to use the trained model to do the inference for th
 ```
 you can train the model by yourself using ```bash run.sh --stage 0 --stop_stage 3```, or you can download the pretrained model through the script below:
 ```bash
-wget https://paddlespeech.bj.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz
+wget https://paddlespeech.cdn.bcebos.com/wavlm/wavlm_baseplus_libriclean_100h.tar.gz
 tar xzvf wavlm_baseplus_libriclean_100h.tar.gz
 ```
 You can download the audio demo:
 ```bash
-wget -nc https://paddlespeech.bj.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
+wget -nc https://paddlespeech.cdn.bcebos.com/datasets/single_wav/en/demo_002_en.wav -P data/
 ```
 You need to prepare an audio file or use the audio demo above, please confirm the sample rate of the audio is 16K. You can get the result of the audio demo by running the script below.
 ```bash

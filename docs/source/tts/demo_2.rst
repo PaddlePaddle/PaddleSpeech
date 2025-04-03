@@ -21,7 +21,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -29,7 +29,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -40,7 +40,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -48,7 +48,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/002.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/002.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -59,7 +59,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -67,7 +67,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/003.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/003.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -78,7 +78,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -86,7 +86,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/004.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/004.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -97,7 +97,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -105,7 +105,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/005.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/005.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -116,7 +116,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -124,7 +124,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/006.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/006.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -135,7 +135,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -143,7 +143,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/007.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/007.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -154,7 +154,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -162,7 +162,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/008.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/008.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -173,7 +173,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -181,7 +181,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/009.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/009.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -192,7 +192,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/010.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/010.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -200,7 +200,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/010.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/010.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -211,7 +211,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/011.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/011.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -219,7 +219,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/011.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/011.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -230,7 +230,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/012.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/012.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -238,7 +238,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/012.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/012.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -249,7 +249,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/013.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/013.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -257,7 +257,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/013.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/013.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -268,7 +268,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/014.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/espent/014.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>
@@ -276,7 +276,7 @@ FastSpeech2 + Parallel WaveGAN in CSMSC
             <td>
                 <audio controls="controls" style="width: 220px;">
                     <source
-                        src="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/014.wav"
+                        src="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/014.wav"
                         type="audio/wav">
                     Your browser does not support the <code>audio</code> element.
                 </audio>

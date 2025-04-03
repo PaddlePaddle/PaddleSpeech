@@ -34,7 +34,7 @@ model:                     # keyword arguments for the selected model
     dunits: 1024           # number of decoder ff units
     positionwise_layer_type: conv1d  # type of position-wise layer
     positionwise_conv_kernel_size: 1 # kernel size of position wise conv layer
-    postnet_layers: 5                # number of layers of postnset
+    postnet_layers: 5                # number of layers of postnet
     postnet_filts: 5                 # filter size of conv layers in postnet
     postnet_chans: 256               # number of channels of conv layers in postnet
     use_scaled_pos_enc: True         # whether to use scaled positional encoding

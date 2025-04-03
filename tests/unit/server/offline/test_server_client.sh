@@ -66,8 +66,8 @@ config_file=./conf/application.yaml
 server_ip=$(cat $config_file | grep "host" | awk -F " " '{print $2}')
 port=$(cat $config_file | grep "port" | awk '/port:/ {print $2}')
 
-echo "Sevice ip: $server_ip" | tee ./log/test_result.log
-echo "Sevice port: $port" | tee -a ./log/test_result.log
+echo "Service ip: $server_ip" | tee ./log/test_result.log
+echo "Service port: $port" | tee -a ./log/test_result.log
 
 # whether a process is listening on $port
 pid=`lsof -i :"$port"|grep -v "PID" | awk '{print $2}'`
@@ -77,7 +77,7 @@ if [ "$pid" != "" ]; then
 fi
 
 # download test audios for ASR client
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 
 
 target_start_num=0  # the number of start service
@@ -190,7 +190,7 @@ echo "**************************************************************************
 
 echo "All tests completed."  | tee -a ./log/test_result.log
 
-# sohw all the test results
+# show all the test results
 echo "***************** Here are all the test results ********************"
 cat ./log/test_result.log
 

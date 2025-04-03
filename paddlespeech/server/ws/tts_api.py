@@ -32,7 +32,7 @@ async def websocket_endpoint(websocket: WebSocket):
         websocket (WebSocket): the websocket instance
     """
 
-    #1. the interface wait to accept the websocket protocal header
+    #1. the interface wait to accept the websocket protocol header
     #   and only we receive the header, it establish the connection with specific thread
     await websocket.accept()
 

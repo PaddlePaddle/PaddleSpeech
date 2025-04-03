@@ -68,7 +68,7 @@ make || exit
 cd ..
 (
   [ ! -z "${SRILM}" ] && \
-    echo >&2 "SRILM variable is aleady defined. Undefining..." && \
+    echo >&2 "SRILM variable is already defined. Undefining..." && \
     unset SRILM
 
   [ -f ./env.sh ] && . ./env.sh

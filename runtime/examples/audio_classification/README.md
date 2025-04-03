@@ -74,7 +74,7 @@ includes/
 #### set path
 push resource into android phone
 
-1. change resource path in conf to gloabal path, such as:
+1. change resource path in conf to global path, such as:
 
     [CONF]
     wav_normal=true
@@ -92,9 +92,9 @@ push resource into android phone
     high_freq=14000
     dither=0.0
 2. adb push conf label_list scp test.wav /data/local/tmp/
-3. set reource path in android demo(android_demo/app/src/main/cpp/native-lib.cpp) to actual path, such as:
+3. set resource path in android demo(android_demo/app/src/main/cpp/native-lib.cpp) to actual path, such as:
 
 std::string conf_path = "/data/local/tmp/conf";
 std::string wav_path = "/data/local/tmp/test.wav";
 
-4. excecute android_demo in android studio
+4. execute android_demo in android studio

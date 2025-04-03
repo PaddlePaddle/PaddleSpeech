@@ -6,7 +6,7 @@ Download CSMSC from it's [official website](https://test.data-baker.com/data/ind
 
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) results to cut silence at the edge of audio.
-You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
+You can download from here [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), or train your MFA model reference to  [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) of our repo.
 
 ## Get Started
 Assume the path to the dataset is `~/datasets/BZNSYP`.
@@ -110,11 +110,11 @@ optional arguments:
 
 ## Pretrained Models
 The pretrained model can be downloaded here:
-- [wavernn_csmsc_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_ckpt_0.2.0.zip)
+- [wavernn_csmsc_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_ckpt_0.2.0.zip)
 
 The static model can be downloaded here:
-- [wavernn_csmsc_static_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_0.2.0.zip)
-- [wavernn_csmsc_static_1.0.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_1.0.0.zip) (fix bug for paddle 2.3)
+- [wavernn_csmsc_static_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_0.2.0.zip)
+- [wavernn_csmsc_static_1.0.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/wavernn/wavernn_csmsc_static_1.0.0.zip) (fix bug for paddle 2.3)
 
 Model | Step | eval/loss
 :-------------:|:------------:| :------------:

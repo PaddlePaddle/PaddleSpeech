@@ -131,7 +131,8 @@ class ResampleFrac(paddle.nn.Layer):
         idx = paddle.arange(
             -self._width, self._width + self.old_sr, dtype="float32")
         for i in range(self.new_sr):
-            t = (-i / self.new_sr + idx / self.old_sr) * sr
+            t = (-i / self.new_sr + idx / paddle.full(idx.shape, self.old_sr)
+                 ) * sr
             t = paddle.clip(t, -self.zeros, self.zeros)
             t *= math.pi
             window = paddle.cos(t / self.zeros / 2)**2

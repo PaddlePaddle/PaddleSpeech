@@ -1288,7 +1288,7 @@ def normalize_corpus(corpus,
 
 
 def char_token(s: Text) -> List[Text]:
-    """chinese charactor
+    """chinese character
     Args:
         s (Text): "我爱中国“
 

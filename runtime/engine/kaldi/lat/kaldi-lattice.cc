@@ -407,7 +407,7 @@ bool WriteLattice(std::ostream &os, bool binary, const Lattice &t) {
     if (os.fail())
       KALDI_WARN << "Stream failure detected.";
     // Write another newline as a terminating character.  The read routine will
-    // detect this [this is a Kaldi mechanism, not somethig in the original
+    // detect this [this is a Kaldi mechanism, not something in the original
     // OpenFst code].
     os << '\n';
     return os.good();

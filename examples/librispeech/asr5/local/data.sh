@@ -104,7 +104,7 @@ echo "LibriSpeech Data preparation done."
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     mkdir -p exp/wavlm
     echo "Pretrained wavlm model download"
-    wget -P exp/wavlm https://paddlespeech.bj.bcebos.com/wavlm/wavlm-base-plus.pdparams
+    wget -P exp/wavlm https://paddlespeech.cdn.bcebos.com/wavlm/wavlm-base-plus.pdparams
 fi
 
 exit 0

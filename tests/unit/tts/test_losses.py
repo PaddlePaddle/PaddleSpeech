@@ -20,7 +20,7 @@ from paddlespeech.t2s.modules.losses import SISDRLoss
 
 
 def get_input():
-    x = AudioSignal("https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav",
+    x = AudioSignal("https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav",
                     2_05)
     y = x * 0.01
     return x, y

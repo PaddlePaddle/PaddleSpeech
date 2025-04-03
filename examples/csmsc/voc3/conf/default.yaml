@@ -4,7 +4,7 @@
 # This configuration requires ~ 8GB memory and will finish within 7 days on Titan V.
 
 # This configuration is based on full-band MelGAN but the hop size and sampling
-# rate is different from the paper (16kHz vs 24kHz). The number of iteraions
+# rate is different from the paper (16kHz vs 24kHz). The number of iterations
 # is not shown in the paper so currently we train 1M iterations (not sure enough
 # to converge).
 

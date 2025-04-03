@@ -41,7 +41,7 @@ class TestSaveBase(TempDirMixin):
             test_mode: str="path", ):
         """`save` function produces file that is comparable with `sox` command
 
-        To compare that the file produced by `save` function agains the file produced by
+        To compare that the file produced by `save` function against the file produced by
         the equivalent `sox` command, we need to load both files.
         But there are many formats that cannot be opened with common Python modules (like
         SciPy).

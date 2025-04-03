@@ -96,7 +96,7 @@ class WhisperExecutor(BaseExecutor):
             '--config',
             type=str,
             default=None,
-            help='Config of asr task. Use deault config when it is None.')
+            help='Config of asr task. Use default config when it is None.')
         self.parser.add_argument(
             '--decode_method',
             type=str,

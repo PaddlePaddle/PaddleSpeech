@@ -65,7 +65,7 @@ def create_manifest(data_dir, manifest_path_prefix):
         if line == '':
             continue
         audio_id, text = line.split(' ', 1)
-        # remove withespace, charactor text
+        # remove withespace, character text
         text = ''.join(text.split())
         transcript_dict[audio_id] = text
 
@@ -159,7 +159,7 @@ def check_dataset(data_dir):
         if line == '':
             continue
         audio_id, text = line.split(' ', 1)
-        # remove withespace, charactor text
+        # remove withespace, character text
         text = ''.join(text.split())
         transcript_dict[audio_id] = text
 

@@ -34,7 +34,7 @@ __all__ = ['VoxCeleb']
 
 class VoxCeleb(Dataset):
     source_url = 'https://thor.robots.ox.ac.uk/~vgg/data/voxceleb/vox1a/'
-    archieves_audio_dev = [
+    archives_audio_dev = [
         {
             'url': source_url + 'vox1_dev_wav_partaa',
             'md5': 'e395d020928bc15670b570a21695ed96',
@@ -52,13 +52,13 @@ class VoxCeleb(Dataset):
             'md5': '7bb1e9f70fddc7a678fa998ea8b3ba19',
         },
     ]
-    archieves_audio_test = [
+    archives_audio_test = [
         {
             'url': source_url + 'vox1_test_wav.zip',
             'md5': '185fdc63c3c739954633d50379a3d102',
         },
     ]
-    archieves_meta = [
+    archives_meta = [
         {
             'url':
             'https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt',
@@ -135,11 +135,11 @@ class VoxCeleb(Dataset):
         if not os.path.isdir(self.wav_path):
             print("start to download the voxceleb1 dataset")
             download_and_decompress(  # multi-zip parts concatenate to vox1_dev_wav.zip
-                self.archieves_audio_dev,
+                self.archives_audio_dev,
                 self.base_path,
                 decompress=False)
             download_and_decompress(  # download the vox1_test_wav.zip and unzip
-                self.archieves_audio_test,
+                self.archives_audio_test,
                 self.base_path,
                 decompress=True)
 
@@ -157,7 +157,7 @@ class VoxCeleb(Dataset):
         if not os.path.isdir(self.meta_path):
             print("prepare the meta data")
             download_and_decompress(
-                self.archieves_meta, self.meta_path, decompress=False)
+                self.archives_meta, self.meta_path, decompress=False)
 
         # Data preparation.
         if not os.path.isdir(self.csv_path):

@@ -215,7 +215,7 @@ class Trainer():
             checkpoint_path=self.args.checkpoint_path)
         if infos:
             # just restore ckpt
-            # lr will resotre from optimizer ckpt
+            # lr will restore from optimizer ckpt
             self.iteration = infos["step"]
             self.epoch = infos["epoch"]
 

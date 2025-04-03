@@ -15,7 +15,7 @@ fi
 if [ ! -f data/model/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz ]; then
     mkdir -p data/model
     pushd data/model
-    wget -c https://paddlespeech.bj.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz
+    wget -c https://paddlespeech.cdn.bcebos.com/s2t/wenetspeech/asr1/static/asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz
     tar xzfv asr1_chunk_conformer_u2pp_wenetspeech_static_1.1.0.model.tar.gz
     popd
 fi
@@ -24,7 +24,7 @@ fi
 if [ ! -f data/wav.scp ]; then
     mkdir -p data
     pushd data
-    wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+    wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
     echo "utt1 " $PWD/zh.wav > wav.scp
     popd 
 fi

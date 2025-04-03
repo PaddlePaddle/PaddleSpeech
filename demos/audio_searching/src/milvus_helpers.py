@@ -77,13 +77,13 @@ class MilvusHelper:
                 field1 = FieldSchema(
                     name="id",
                     dtype=DataType.INT64,
-                    descrition="int64",
+                    description="int64",
                     is_primary=True,
                     auto_id=True)
                 field2 = FieldSchema(
                     name="embedding",
                     dtype=DataType.FLOAT_VECTOR,
-                    descrition="speaker embeddings",
+                    description="speaker embeddings",
                     dim=VECTOR_DIMENSION,
                     is_primary=False)
                 schema = CollectionSchema(

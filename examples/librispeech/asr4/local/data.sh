@@ -104,7 +104,7 @@ echo "LibriSpeech Data preparation done."
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     mkdir -p exp/hubert
     echo "Pretrained hubert model download"
-    wget -P exp/hubert https://paddlespeech.bj.bcebos.com/hubert/hubert-large-lv60.pdparams
+    wget -P exp/hubert https://paddlespeech.cdn.bcebos.com/hubert/hubert-large-lv60.pdparams
 fi
 
 exit 0

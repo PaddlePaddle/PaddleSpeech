@@ -46,14 +46,14 @@
   <tbody>
    <tr>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
       <td >I knocked at the door on the ancient side of the building.</td>
     </tr>
     <tr>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
       <td>我认为跑步最重要的就是给我带来了身体健康。</td>
@@ -76,7 +76,7 @@
   <tbody>
    <tr>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200 style="max-width: 100%;"></a><br>
       </td>
       <td >我 在 这栋 建筑 的 古老 门上 敲门。</td>
@@ -99,42 +99,42 @@
    <tr>
       <td>Life was like a box of chocolates, you never know what you're gonna get.</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/tacotron2_ljspeech_waveflow_samples_0.2/sentence_1.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
       <td>早上好，今天是2020/10/29，最低温度是-3°C。</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/parakeet_espnet_fs2_pwg_demo/tn_g2p/parakeet/001.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
       <td>季姬寂，集鸡，鸡即棘鸡。棘鸡饥叽，季姬及箕稷济鸡。鸡既济，跻姬笈，季姬忌，急咭鸡，鸡急，继圾几，季姬急，即籍箕击鸡，箕疾击几伎，伎即齑，鸡叽集几基，季姬急极屐击鸡，鸡既殛，季姬激，即记《季姬击鸡记》。</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/jijiji.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
       <td>大家好，我是 parrot 虚拟老师，我们来读一首诗，我与春风皆过客，I and the spring breeze are passing by，你携秋水揽星河，you take the autumn water to take the galaxy。</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/labixiaoxin.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/labixiaoxin.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
       <td>宜家唔系事必要你讲，但系你所讲嘅说话将会变成呈堂证供。</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/chengtangzhenggong.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/chengtangzhenggong.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
     <tr>
       <td>各个国家有各个国家嘅国歌</td>
       <td align = "center">
-      <a href="https://paddlespeech.bj.bcebos.com/Parakeet/docs/demos/gegege.wav" rel="nofollow">
+      <a href="https://paddlespeech.cdn.bcebos.com/Parakeet/docs/demos/gegege.wav" rel="nofollow">
             <img align="center" src="./docs/images/audio_icon.png" width="200" style="max-width: 100%;"></a><br>
       </td>
     </tr>
@@ -173,7 +173,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
 - 🏆  **Streaming ASR and TTS System**: we provide production ready streaming asr and streaming tts system.
 - 💯  **Rule-based Chinese frontend**: our frontend contains Text Normalization and Grapheme-to-Phoneme (G2P, including Polyphone and Tone Sandhi). Moreover, we use self-defined linguistic rules to adapt Chinese context.
 - 📦  **Varieties of Functions that Vitalize both Industrial and Academia**:
-  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Automatic Speech Recognition, Text-to-Speech Synthesis, Speaker Verfication, KeyWord Spotting, Audio Classification, and Speech Translation, etc.
+  - 🛎️  *Implementation of critical audio tasks*: this toolkit contains audio functions like  Automatic Speech Recognition, Text-to-Speech Synthesis, Speaker Verification, KeyWord Spotting, Audio Classification, and Speech Translation, etc.
   - 🔬  *Integration of mainstream models and datasets*: the toolkit implements modules that participate in the whole pipeline of the speech tasks, and uses mainstream datasets like LibriSpeech, LJSpeech, AIShell, CSMSC, etc. See also [model list](#model-list) for more details.
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
@@ -283,8 +283,8 @@ Developers can have a try of our models with [PaddleSpeech Command Line](./paddl
 Test audio sample download
 
 ```shell
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 ```
 
 ### Automatic Speech Recognition
@@ -1025,7 +1025,7 @@ You are warmly welcome to submit questions in [discussions](https://github.com/P
 - Many thanks to [vpegasus](https://github.com/vpegasus)/[xuesebot](https://github.com/vpegasus/xuesebot) for developing a rasa chatbot,which is able to speak and listen thanks to PaddleSpeech.
 - Many thanks to [chenkui164](https://github.com/chenkui164)/[FastASR](https://github.com/chenkui164/FastASR) for the C++ inference implementation of PaddleSpeech ASR.
 - Many thanks to [heyudage](https://github.com/heyudage)/[VoiceTyping](https://github.com/heyudage/VoiceTyping) for the real-time voice typing tool implementation of PaddleSpeech ASR streaming services.
-- Many thanks to [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) for the python3.9 prebuilt wheel for PaddleSpeech installation in Windows without Viusal Studio.
+- Many thanks to [EscaticZheng](https://github.com/EscaticZheng)/[ps3.9wheel-install](https://github.com/EscaticZheng/ps3.9wheel-install) for the python3.9 prebuilt wheel for PaddleSpeech installation in Windows without Visual Studio.
 Besides, PaddleSpeech depends on a lot of open source repositories. See [references](./docs/source/reference.md) for more information.
 - Many thanks to [chinobing](https://github.com/chinobing)/[FastAPI-PaddleSpeech-Audio-To-Text](https://github.com/chinobing/FastAPI-PaddleSpeech-Audio-To-Text) for converting audio to text based on FastAPI and PaddleSpeech.
 - Many thanks to [MistEO](https://github.com/MistEO)/[Pallas-Bot](https://github.com/MistEO/Pallas-Bot) for QQ bot based on PaddleSpeech TTS.

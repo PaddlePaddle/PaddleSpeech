@@ -523,7 +523,7 @@ class Frontend():
         initials = []
         finals = []
 
-        # to charactor list
+        # to character list
         words = self._split_word_to_char(words[0])
 
         for pinyin, char in zip(pinyin_spec, words):

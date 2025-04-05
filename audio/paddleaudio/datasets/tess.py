@@ -66,7 +66,7 @@ class TESS(AudioClassificationDataset):
                  feat_type='raw',
                  **kwargs):
         """
-        Ags:
+        Args:
             mode (:obj:`str`, `optional`, defaults to `train`):
                 It identifies the dataset mode (train or dev).
             seed (:obj:`int`, `optional`, defaults to 0):

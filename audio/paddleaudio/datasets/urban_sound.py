@@ -62,7 +62,7 @@ class UrbanSound8K(AudioClassificationDataset):
         super(UrbanSound8K, self).__init__(
             files=files, labels=labels, feat_type=feat_type, **kwargs)
         """
-        Ags:
+        Args:
             mode (:obj:`str`, `optional`, defaults to `train`):
                 It identifies the dataset mode (train or dev).
             split (:obj:`int`, `optional`, defaults to 1):

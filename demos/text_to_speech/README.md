@@ -99,7 +99,7 @@ The input of this demo should be a text of the specific language that can be pas
   Arguments:
   - `input`(required): Input text to generate..
   - `am`: Acoustic model type of tts task. Default: `fastspeech2_csmsc`.
-  - `am_config`: Config of acoustic model. Use deault config when it is None. Default: `None`.
+  - `am_config`: Config of acoustic model. Use default config when it is None. Default: `None`.
   - `am_ckpt`: Acoustic model checkpoint. Use pretrained model when it is None. Default: `None`.
   - `am_stat`: Mean and standard deviation used to normalize spectrogram when training acoustic model. Default: `None`.
   - `phones_dict`: Phone vocabulary file. Default: `None`.
@@ -107,7 +107,7 @@ The input of this demo should be a text of the specific language that can be pas
   - `speaker_dict`: speaker id map file. Default: `None`.
   - `spk_id`: Speaker id for multi speaker acoustic model. Default: `0`.
   - `voc`: Vocoder type of tts task. Default: `pwgan_csmsc`.
-  - `voc_config`: Config of vocoder. Use deault config when it is None. Default: `None`.
+  - `voc_config`: Config of vocoder. Use default config when it is None. Default: `None`.
   - `voc_ckpt`: Vocoder checkpoint. Use pretrained model when it is None. Default: `None`.
   - `voc_stat`: Mean and standard deviation used to normalize spectrogram when training vocoder. Default: `None`.
   - `lang`: Language of tts task. Default: `zh`.

@@ -32,6 +32,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-    # synthesize_e2e, vocoder is pwgan by default
-    CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
+    # synthesize_e2e, vocoder is pwgan by default, stage 1 will use hifigan as vocoder
+    CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name} || exit -1
 fi

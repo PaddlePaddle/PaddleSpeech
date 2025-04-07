@@ -44,7 +44,7 @@ add_arg('manifest_paths',   str,
 # bpe
 add_arg('spm_model_prefix', str, None,
      "spm model prefix, spm_model_%(bpe_mode)_%(count_threshold), only need when `unit_type` is spm")
-add_arg('output_path',  str, None, "filepath of formated manifest.", required=True)
+add_arg('output_path',  str, None, "filepath of formatted manifest.", required=True)
 # yapf: disable
 args = parser.parse_args()
 

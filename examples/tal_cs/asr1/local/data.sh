@@ -24,7 +24,7 @@ mkdir -p ${TARGET_DIR}
 #prepare data
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     if [ ! -d "${MAIN_ROOT}/dataset/tal_cs/TALCS_corpus" ]; then
-        echo "${MAIN_ROOT}/dataset/tal_cs/TALCS_corpus does not exist. Please donwload tal_cs data and unpack it from https://ai.100tal.com/dataset first."
+        echo "${MAIN_ROOT}/dataset/tal_cs/TALCS_corpus does not exist. Please download tal_cs data and unpack it from https://ai.100tal.com/dataset first."
         echo "data md5 reference: 4c879b3c9c05365fc9dee1fc68713afe"
         exit
     fi

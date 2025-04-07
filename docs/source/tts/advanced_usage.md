@@ -303,7 +303,7 @@ The experimental codes in PaddleSpeech TTS are generally organized as follows:
 .
 ├──  README.md               (help information)
 ├──  conf
-│     └── default.yaml       (defalut config)
+│     └── default.yaml       (default config)
 ├──  local
 │    ├──  preprocess.sh      (script to call data preprocessing.py)
 │    ├──  synthesize.sh      (script to call synthesis.py)  

@@ -527,7 +527,7 @@ def melspectrogram(x: np.ndarray,
     if fmax is None:
         fmax = sr // 2
     if fmin < 0 or fmin >= fmax:
-        raise ParameterError('fmin and fmax must statisfy 0<fmin<fmax')
+        raise ParameterError('fmin and fmax must satisfy 0<fmin<fmax')
 
     s = stft(
         x,

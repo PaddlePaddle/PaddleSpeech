@@ -35,7 +35,7 @@ class UrbanSound8K(AudioClassificationDataset):
         https://dl.acm.org/doi/10.1145/2647868.2655045
     """
 
-    archieves = [
+    archives = [
         {
             'url':
             'https://zenodo.org/record/1203745/files/UrbanSound8K.tar.gz',
@@ -62,7 +62,7 @@ class UrbanSound8K(AudioClassificationDataset):
         super(UrbanSound8K, self).__init__(
             files=files, labels=labels, feat_type=feat_type, **kwargs)
         """
-        Ags:
+        Args:
             mode (:obj:`str`, `optional`, defaults to `train`):
                 It identifies the dataset mode (train or dev).
             split (:obj:`int`, `optional`, defaults to 1):
@@ -81,7 +81,7 @@ class UrbanSound8K(AudioClassificationDataset):
     def _get_data(self, mode: str, split: int) -> Tuple[List[str], List[int]]:
         if not os.path.isdir(os.path.join(DATA_HOME, self.audio_path)) or \
             not os.path.isfile(os.path.join(DATA_HOME, self.meta)):
-            download_and_decompress(self.archieves, DATA_HOME)
+            download_and_decompress(self.archives, DATA_HOME)
 
         meta_info = self._get_meta_info()
 

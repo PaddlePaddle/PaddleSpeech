@@ -233,7 +233,7 @@ def spectrogram(waveform: Tensor,
         round_to_power_of_two (bool, optional): If True, round window size to power of two by zero-padding input
             to FFT. Defaults to True.
         sr (int, optional): Sample rate of input waveform. Defaults to 16000.
-        snip_edges (bool, optional): Drop samples in the end of waveform that cann't fit a signal frame when it
+        snip_edges (bool, optional): Drop samples in the end of waveform that can't fit a signal frame when it
             is set True. Otherwise performs reflect padding to the end of waveform. Defaults to True.
         subtract_mean (bool, optional): Whether to subtract mean of feature files. Defaults to False.
         window_type (str, optional): Choose type of window for FFT computation. Defaults to "povey".
@@ -443,7 +443,7 @@ def fbank(waveform: Tensor,
         round_to_power_of_two (bool, optional): If True, round window size to power of two by zero-padding input
             to FFT. Defaults to True.
         sr (int, optional): Sample rate of input waveform. Defaults to 16000.
-        snip_edges (bool, optional): Drop samples in the end of waveform that cann't fit a signal frame when it
+        snip_edges (bool, optional): Drop samples in the end of waveform that can't fit a signal frame when it
             is set True. Otherwise performs reflect padding to the end of waveform. Defaults to True.
         subtract_mean (bool, optional): Whether to subtract mean of feature files. Defaults to False.
         use_energy (bool, optional): Add an dimension with energy of spectrogram to the output. Defaults to False.
@@ -566,7 +566,7 @@ def mfcc(waveform: Tensor,
         round_to_power_of_two (bool, optional): If True, round window size to power of two by zero-padding input
             to FFT. Defaults to True.
         sr (int, optional): Sample rate of input waveform. Defaults to 16000.
-        snip_edges (bool, optional): Drop samples in the end of waveform that cann't fit a signal frame when it
+        snip_edges (bool, optional): Drop samples in the end of waveform that can't fit a signal frame when it
             is set True. Otherwise performs reflect padding to the end of waveform. Defaults to True.
         subtract_mean (bool, optional): Whether to subtract mean of feature files. Defaults to False.
         use_energy (bool, optional): Add an dimension with energy of spectrogram to the output. Defaults to False.

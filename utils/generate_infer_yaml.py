@@ -3,7 +3,7 @@
 '''
     Merge training configs into a single inference config.
     The single inference config is for CLI, which only takes a single config to do inferencing.
-    The trainig configs includes: model config, preprocess config, decode config, vocab file and cmvn file.
+    The training configs includes: model config, preprocess config, decode config, vocab file and cmvn file.
 
     Process:
     # step 1: prepare dir
@@ -11,7 +11,7 @@
     cp -r exp conf data release_dir
     cd release_dir 
  
-    # step 2: get "model.yaml" which conatains all configuration info.
+    # step 2: get "model.yaml" which contains all configuration info.
     # if does not contain preprocess.yaml file. e.g ds2:
     python generate_infer_yaml.py --cfg_pth conf/deepspeech2_online.yaml --dcd_pth conf/tuning/chunk_decode.yaml --vb_pth data/lang_char/vocab.txt --cmvn_pth data/mean_std.json --save_pth model.yaml --pre_pth null        
     # if contains preprocess.yaml file. e.g  u2:

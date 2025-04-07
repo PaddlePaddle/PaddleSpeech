@@ -79,7 +79,7 @@ if ($HELP)
         print "  -b     ... disable Perl buffering.\n";
         print "  -time  ... enable processing time calculation.\n";
         print "  -penn  ... use Penn treebank-like tokenization.\n";
-        print "  -protected FILE  ... specify file with patters to be protected in tokenisation.\n";
+        print "  -protected FILE  ... specify file with patterns to be protected in tokenisation.\n";
 	print "  -no-escape ... don't perform HTML escaping on apostrophy, quotes, etc.\n";
 	exit;
 }

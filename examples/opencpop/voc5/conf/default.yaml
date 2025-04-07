@@ -38,7 +38,7 @@ generator_params:
     use_additional_convs: True            # Whether to use additional conv layer in residual blocks.
     bias: True                            # Whether to use bias parameter in conv.
     nonlinear_activation: "leakyrelu"     # Nonlinear activation type.
-    nonlinear_activation_params:          # Nonlinear activation paramters.
+    nonlinear_activation_params:          # Nonlinear activation parameters.
         negative_slope: 0.1
     use_weight_norm: True                 # Whether to apply weight normalization.
 
@@ -76,7 +76,7 @@ discriminator_params:
         max_downsample_channels: 1024      # Maximum number of channels in downsampling conv layers.
         bias: True                         # Whether to use bias parameter in conv layer."
         nonlinear_activation: "leakyrelu"  # Nonlinear activation.
-        nonlinear_activation_params:       # Nonlinear activation paramters.
+        nonlinear_activation_params:       # Nonlinear activation parameters.
             negative_slope: 0.1
         use_weight_norm: True              # Whether to apply weight normalization.
         use_spectral_norm: False           # Whether to apply spectral normalization.

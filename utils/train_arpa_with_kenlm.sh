@@ -37,7 +37,7 @@ fi
 # the text should be properly pre-processed, e.g:
 #   cleand, normalized and possibly word-segmented
 
-# get rid off irrelavent symbols
+# get rid off irrelevant symbols
 grep -v '<eps>' $symbol_table \
   | grep -v '#0' \
   | grep -v '<unk>' | grep -v '<UNK>' \
@@ -51,7 +51,7 @@ grep -v '<eps>' $symbol_table \
 # 
 # TL;DR reason:
 # Unlike SRILM's -limit-vocab, kenlm's --limit_vocab_file option 
-# spcifies a *valid* set of vocabulary, whereas *valid but unseen* 
+# specifies a *valid* set of vocabulary, whereas *valid but unseen* 
 # words are discarded in final arpa.
 # So the trick is, 
 # we explicitly add kaldi's vocab(one word per line) to training text, 

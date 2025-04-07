@@ -51,7 +51,7 @@ wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
   paddlespeech_server start --help
   ```
   Arguments:
-  - `config_file`: yaml file of the app, defalut: `./conf/application.yaml`
+  - `config_file`: yaml file of the app, default: `./conf/application.yaml`
   - `log_file`: log file. Default: `./log/paddlespeech.log`
 
   Output:
@@ -307,7 +307,7 @@ wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 - Command Line
   **Note:** The default deployment of the server is on the 'CPU' device, which can be deployed on the 'GPU' by modifying the 'device' parameter in the service configuration file.
   ```bash
-  In PaddleSpeech/demos/streaming_asr_server directory to lanuch punctuation service
+  In PaddleSpeech/demos/streaming_asr_server directory to launch punctuation service
   paddlespeech_server start --config_file conf/punc_application.yaml
   ```
 
@@ -414,7 +414,7 @@ wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 
 By default, each server is deployed on the 'CPU' device and speech recognition and punctuation prediction can be deployed on different 'GPU' by modifying the' device 'parameter in the service configuration file respectively.
 
-We use `streaming_ asr_server.py` and `punc_server.py` two services to lanuch streaming speech recognition and punctuation prediction services respectively. And the `websocket_client.py` script can be used to call streaming speech recognition and punctuation prediction services at the same time.
+We use `streaming_ asr_server.py` and `punc_server.py` two services to launch streaming speech recognition and punctuation prediction services respectively. And the `websocket_client.py` script can be used to call streaming speech recognition and punctuation prediction services at the same time.
 
 ### 1. Start two server
 
@@ -584,7 +584,7 @@ bash server.sh
 
 By default, each server is deployed on the 'CPU' device and speech recognition and punctuation prediction can be deployed on different 'GPU' by modifying the' device 'parameter in the service configuration file respectively.
 
-We use `streaming_ asr_server.py` and `punc_server.py` two services to lanuch streaming speech recognition and punctuation prediction services respectively. And the `websocket_client_srt.py` script can be used to call streaming speech recognition and punctuation prediction services at the same time, and will generate the corresponding subtitle (.srt format).
+We use `streaming_ asr_server.py` and `punc_server.py` two services to launch streaming speech recognition and punctuation prediction services respectively. And the `websocket_client_srt.py` script can be used to call streaming speech recognition and punctuation prediction services at the same time, and will generate the corresponding subtitle (.srt format).
 
 **need to install ffmpeg before running this script**
 

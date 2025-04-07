@@ -76,7 +76,7 @@ class ResidualAffineCouplingBlock(nn.Layer):
             use_weight_norm (bool):
                 Whether to use weight normalization in WaveNet.
             bias (bool):
-                Whether to use bias paramters in WaveNet.
+                Whether to use bias parameters in WaveNet.
             use_only_mean (bool):
                 Whether to estimate only mean.
 
@@ -169,7 +169,7 @@ class ResidualAffineCouplingLayer(nn.Layer):
             use_weight_norm (bool):
                 Whether to use weight normalization in WaveNet.
             bias (bool):
-                Whether to use bias paramters in WaveNet.
+                Whether to use bias parameters in WaveNet.
             use_only_mean (bool):
                 Whether to estimate only mean.
 

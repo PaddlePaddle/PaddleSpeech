@@ -181,8 +181,8 @@ template <typename T>
 class FlagRegisterer {
  public:
   FlagRegisterer(const string &name, const FlagDescription<T> &desc) {
-    auto registr = FlagRegister<T>::GetRegister();
-    registr->SetDescription(name, desc);
+    auto r = FlagRegister<T>::GetRegister();
+    r->SetDescription(name, desc);
   }
 
  private:

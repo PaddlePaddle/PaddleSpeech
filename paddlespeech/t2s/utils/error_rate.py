@@ -159,7 +159,7 @@ def wer(reference, hypothesis, ignore_case=False, delimiter=' '):
 
 
 def cer(reference, hypothesis, ignore_case=False, remove_space=False):
-    """Calculate charactor error rate (CER). CER compares reference text and
+    """Calculate character error rate (CER). CER compares reference text and
     hypothesis text in char-level. CER is defined as:
     .. math::
         CER = (Sc + Dc + Ic) / Nc

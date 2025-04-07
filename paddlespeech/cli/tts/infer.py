@@ -90,7 +90,7 @@ class TTSExecutor(BaseExecutor):
             '--am_config',
             type=str,
             default=None,
-            help='Config of acoustic model. Use deault config when it is None.')
+            help='Config of acoustic model. Use default config when it is None.')
         self.parser.add_argument(
             '--am_ckpt',
             type=str,
@@ -148,7 +148,7 @@ class TTSExecutor(BaseExecutor):
             '--voc_config',
             type=str,
             default=None,
-            help='Config of voc. Use deault config when it is None.')
+            help='Config of voc. Use default config when it is None.')
         self.parser.add_argument(
             '--voc_ckpt',
             type=str,

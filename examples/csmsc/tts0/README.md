@@ -99,8 +99,10 @@ pwg_baker_ckpt_0.4
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` controls the vocoder model during synthesis, which can use stage `0-4` to select the vocoder to use {`pwgan`, `multi band melgan`, `style melgan`, ` hifigan`, `wavernn`}
+
 ```text
 usage: synthesize.py [-h]
                      [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}]
@@ -146,9 +148,12 @@ optional arguments:
                         output dir.
 ```
 `./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
+
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` controls the vocoder model during synthesis, which can use stage `0,1,3,4` to select the vocoder to use{`pwgan`, `multi band melgan`, `hifigan`, `wavernn`}
+
 ```text
 usage: synthesize_e2e.py [-h]
                          [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]

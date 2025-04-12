@@ -13,7 +13,7 @@ In ERNIE-SAT, we propose two innovations:
 ## Dataset
 ### Download and Extract
 Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishell_3) and extract it to `~/datasets`. Then the dataset is in the directory `~/datasets/data_aishell3`.
- 
+
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for aishell3_fastspeech2.
 You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
@@ -138,7 +138,13 @@ You can check the text of downloaded wavs in `source/README.md`.
 ```bash
 ./run.sh --stage 3 --stop-stage 3 --gpus 0
 ```
-`stage 3` of `run.sh` calls `local/synthesize_e2e.sh`, `stage 0` of it is **Speech Synthesis** and  `stage 1` of it is **Speech Editing**.
+`run.sh`'s `stage 3` invokes `synthesize_e2e.sh` and uses the `--stage` parameter to select between tasks. By default, `synthesize_e2e.sh` executes `stage 0`, which performs speech synthesis. To switch to speech editing, use `--stage 1`.
+
+To perform speech synthesis, modify the command to:
+
+```bash
+./run.sh --stage 3 --stop-stage 3 --gpus 0 --stage 1
+```
 
 You can modify `--wav_path`、`--old_str` and `--new_str` yourself, `--old_str`  should be the text corresponding to the audio of  `--wav_path`, `--new_str` should be designed according to `--task_name`, both `--source_lang` and `--target_lang` should be `zh` for model trained with AISHELL3 dataset.
 ## Pretrained Model

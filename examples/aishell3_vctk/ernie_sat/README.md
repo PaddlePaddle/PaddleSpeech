@@ -152,12 +152,8 @@ You can check the text of downloaded wavs in `source/README.md`.
 ```bash
 ./run.sh --stage 3 --stop-stage 3 --gpus 0
 ```
-`run.sh`'s `stage 3` invokes `synthesize_e2e.sh` and uses the `--stage` to select the specific task for end-to-end speech synthesis. By default, `synthesize_e2e.sh` executes `stage 0`, which performs cross-language speech synthesis from en to zh. To switch to cross-language speech synthesis from zh to en, you can use the `--stage 1` .
+`stage 3` of `run.sh` calls `local/synthesize_e2e.sh`. `synthesize_e2e.sh` is a script for end-to-end speech synthesis, supporting cross-language speech synthesis tasks, including English-to-Chinese (en → zh) and Chinese-to-English (zh → en).
 
-To perform zh to en speech synthesis, modify the command to:
-```bash
-./run.sh --stage 3 --stop-stage 3 --gpus 0 --stage 1
-```
 You can modify  `--wav_path`、`--old_str` and `--new_str` yourself, `--old_str` should be the text corresponding to the audio of  `--wav_path`, `--new_str` should be designed according to `--task_name`, `--source_lang` and `--target_lang` should be different in this example.
 ## Pretrained Model
 Pretrained ErnieSAT model:

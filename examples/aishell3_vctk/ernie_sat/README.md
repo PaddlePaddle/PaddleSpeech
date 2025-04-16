@@ -15,7 +15,7 @@ In ERNIE-SAT, we propose two innovations:
 Download all datasets and extract it to `~/datasets`:
 - The aishell3 dataset is in the directory `~/datasets/data_aishell3`
 - The vctk dataset is in the directory `~/datasets/VCTK-Corpus-0.92`
- 
+
 ### Get MFA Result and Extract
 We use [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get durations for the fastspeech2 training.
 You can download from here:
@@ -97,6 +97,8 @@ hifigan_aishell3_ckpt_0.2.0
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+synthesize, vocoder is `hifigan`
+
 ##  Speech Synthesis and Speech Editing
 ### Prepare
 
@@ -150,7 +152,7 @@ You can check the text of downloaded wavs in `source/README.md`.
 ```bash
 ./run.sh --stage 3 --stop-stage 3 --gpus 0
 ```
-`stage 3` of `run.sh` calls `local/synthesize_e2e.sh`.
+`stage 3` of `run.sh` calls `local/synthesize_e2e.sh`. `synthesize_e2e.sh` is a script for end-to-end speech synthesis, supporting cross-language speech synthesis tasks, including English-to-Chinese (en → zh) and Chinese-to-English (zh → en).
 
 You can modify  `--wav_path`、`--old_str` and `--new_str` yourself, `--old_str` should be the text corresponding to the audio of  `--wav_path`, `--new_str` should be designed according to `--task_name`, `--source_lang` and `--target_lang` should be different in this example.
 ## Pretrained Model

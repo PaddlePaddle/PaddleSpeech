@@ -138,13 +138,7 @@ You can check the text of downloaded wavs in `source/README.md`.
 ```bash
 ./run.sh --stage 3 --stop-stage 3 --gpus 0
 ```
-`run.sh`'s `stage 3` invokes `synthesize_e2e.sh` and uses the `--stage` parameter to select between tasks. By default, `synthesize_e2e.sh` executes `stage 0`, which performs speech synthesis. To switch to speech editing, use `--stage 1`.
-
-To perform speech synthesis, modify the command to:
-
-```bash
-./run.sh --stage 3 --stop-stage 3 --gpus 0 --stage 1
-```
+`stage 3` of `run.sh` calls `local/synthesize_e2e.sh`. `synthesize_e2e.sh` is a script for performing both **Speech Synthesis** and **Speech Editing** tasks by default. It converts input text into speech for synthesis and modifies existing speech based on new text content for editing.
 
 You can modify `--wav_path`、`--old_str` and `--new_str` yourself, `--old_str`  should be the text corresponding to the audio of  `--wav_path`, `--new_str` should be designed according to `--task_name`, both `--source_lang` and `--target_lang` should be `zh` for model trained with AISHELL3 dataset.
 ## Pretrained Model

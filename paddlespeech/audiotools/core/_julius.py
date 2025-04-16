@@ -63,9 +63,6 @@ def sinc(x: paddle.Tensor):
 
     __Warning__: the input is not multiplied by `pi`!
     """
-    if satisfy_paddle_version("3.0"):
-        return paddle.sinc(x)
-
     return paddle.where(
         x == 0,
         paddle.to_tensor(1.0, dtype=x.dtype, place=x.place),

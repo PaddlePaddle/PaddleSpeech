@@ -32,7 +32,7 @@ def get_baker_data(root_dir):
             alignment_fp, includeEmptyIntervals=True)
         # only with baker's annotation
         utt_id = alignment.tierNameList[0].split(".")[0]
-        intervals = alignment.tierDict[alignment.tierNameList[0]].entryList
+        intervals = alignment.getTier(alignment.tierNameList[0]).entries
         phones = []
         for interval in intervals:
             label = interval.label

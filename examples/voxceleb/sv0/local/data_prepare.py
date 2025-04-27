@@ -14,9 +14,9 @@
 import argparse
 
 import paddle
-from paddleaudio.datasets.voxceleb import VoxCeleb
 from yacs.config import CfgNode
 
+from paddlespeech.audio.datasets.voxceleb import VoxCeleb
 from paddlespeech.s2t.utils.log import Log
 from paddlespeech.vector.io.augment import build_augment_pipeline
 from paddlespeech.vector.training.seeding import seed_everything
@@ -32,8 +32,8 @@ def main(args, config):
     seed_everything(config.seed)
 
     # stage 1: generate the voxceleb csv file
-    # Note: this may occurs c++ execption, but the program will execute fine
-    # so we ignore the execption 
+    # Note: this may occurs c++ exception, but the program will execute fine
+    # so we ignore the exception 
     # we explicitly pass the vox2 base path to data prepare and generate the audio info
     logger.info("start to generate the voxceleb dataset info")
     train_dataset = VoxCeleb(

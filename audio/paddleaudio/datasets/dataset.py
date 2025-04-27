@@ -43,11 +43,11 @@ class AudioClassificationDataset(paddle.io.Dataset):
                  sample_rate: int=None,
                  **kwargs):
         """
-        Ags:
+        Args:
             files (:obj:`List[str]`): A list of absolute path of audio files.
             labels (:obj:`List[int]`): Labels of audio files.
             feat_type (:obj:`str`, `optional`, defaults to `raw`):
-                It identifies the feature type that user wants to extrace of an audio file.
+                It identifies the feature type that user wants to extract of an audio file.
         """
         super(AudioClassificationDataset, self).__init__()
 

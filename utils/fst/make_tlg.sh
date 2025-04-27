@@ -21,7 +21,7 @@ cp -r $src_lang $tgt_lang
 # eps2disambig.pl: replace epsilons on the input side with the special disambiguation symbol #0. 
 # s2eps.pl: replaces <s> and </s> with <eps> (on both input and output sides), for the G.fst acceptor.
 # G.fst, the disambiguation symbol #0 only appears on the input side
-# do eps2disambig.pl and s2eps.pl maybe just for fallowing `fstrmepsilon`.
+# do eps2disambig.pl and s2eps.pl maybe just for following `fstrmepsilon`.
 cat $arpa_lm | \
    grep -v '<s> <s>' | \
    grep -v '</s> <s>' | \

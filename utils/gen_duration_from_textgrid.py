@@ -26,7 +26,7 @@ def readtg(tg_path, sample_rate=24000, n_shift=300):
     alignment = textgrid.openTextgrid(tg_path, includeEmptyIntervals=True)
     phones = []
     ends = []
-    for interval in alignment.tierDict["phones"].entryList:
+    for interval in alignment.getTier("phones").entries:
         phone = interval.label
         phones.append(phone)
         ends.append(interval.end)

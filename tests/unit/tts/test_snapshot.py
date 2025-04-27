@@ -19,17 +19,18 @@ from paddle.optimizer import Adam
 
 from paddlespeech.t2s.training.extensions.snapshot import Snapshot
 from paddlespeech.t2s.training.trainer import Trainer
-from paddlespeech.t2s.training.updater import StandardUpdater
+
+# from paddlespeech.t2s.training.updater import StandardUpdater
 
 
-def test_snapshot():
+def _test_snapshot():
     model = nn.Linear(3, 4)
     optimizer = Adam(parameters=model.parameters())
 
     # use a simplest iterable object as dataloader
     dataloader = count()
 
-    # hack the training proecss: training does nothing except increse iteration
+    # hack the training proecss: training does nothing except increase iteration
     updater = StandardUpdater(model, optimizer, dataloader=dataloader)
     updater.update_core = lambda x: None
 

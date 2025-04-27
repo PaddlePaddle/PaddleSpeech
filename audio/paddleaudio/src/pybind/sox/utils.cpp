@@ -162,7 +162,7 @@ py::dtype get_dtype(
         }
       default:
         // default to float32 for the other formats, including
-        // 32-bit flaoting-point WAV,
+        // 32-bit floating-point WAV,
         // MP3,
         // FLAC,
         // VORBIS etc...
@@ -177,7 +177,7 @@ py::array convert_to_tensor(
     const py::dtype dtype,
     const bool normalize,
     const bool channels_first) {
-  // todo refector later(SGoat)
+  // todo refactor later(SGoat)
   py::array t;
   uint64_t dummy = 0;
   SOX_SAMPLE_LOCALS;
@@ -449,7 +449,7 @@ unsigned get_precision(const std::string filetype, py::dtype dtype) {
     return SOX_UNSPEC;
   if (filetype == "wav" || filetype == "amb") {
     switch (dtype.num()) {
-      case 1: // byte in numpy dype num
+      case 1: // byte in numpy dtype num
         return 8;
       case 3: // short, in numpy dtype num
         return 16;

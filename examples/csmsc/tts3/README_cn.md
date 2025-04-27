@@ -9,7 +9,7 @@
 
 ### 获取MFA结果并解压
 我们使用 [MFA](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) 去获得 fastspeech2 的音素持续时间。
-你们可以从这里下载 [baker_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型。
+你们可以从这里下载 [baker_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/BZNSYP/with_tone/baker_alignment_tone.tar.gz), 或参考 [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) 训练你自己的模型。
 
 ## 开始
 假设数据集的路径是 `~/datasets/BZNSYP`.
@@ -98,7 +98,7 @@ optional arguments:
 
 ### 合成
 我们使用 [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/csmsc/voc1) 作为神经声码器（vocoder）。
-从 [pwg_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) 下载预训练的 parallel wavegan 模型并将其解压。
+从 [pwg_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_baker_ckpt_0.4.zip) 下载预训练的 parallel wavegan 模型并将其解压。
 
 ```bash
 unzip pwg_baker_ckpt_0.4.zip
@@ -113,8 +113,10 @@ pwg_baker_ckpt_0.4
 `./local/synthesize.sh` 调用 `${BIN_DIR}/../synthesize.py` 即可从 `metadata.jsonl`中合成波形。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` 参数用于控制合成过程中使用的声码器模型。该参数的取值范围为 `0-4`，分别对应以下五种声码器模型：`pwgan`、`multi band melgan`、`style melgan`、`hifigan` 和 `wavernn`。
+
 ```text
 usage: synthesize.py [-h]
                      [--am {speedyspeech_csmsc,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech,tacotron2_aishell3}]
@@ -162,8 +164,10 @@ optional arguments:
 `./local/synthesize_e2e.sh` 调用 `${BIN_DIR}/../synthesize_e2e.py`，即可从文本文件中合成波形。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` 参数用于控制合成过程中使用的声码器模型。该参数的取值范围为{ `0,1,3,4`}，分别对应以下四种声码器模型：`pwgan`、`multi band melgan`、`hifigan` 和 `wavernn`。
+
 ```text
 usage: synthesize_e2e.py [-h]
                          [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]
@@ -230,10 +234,10 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/inference.sh ${train_output_path}
 
 ## 预训练模型
 预先训练的 FastSpeech2 模型，在音频边缘没有空白音频：
-- [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
-- [fastspeech2_conformer_baker_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip)
+- [fastspeech2_nosil_baker_ckpt_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_ckpt_0.4.zip)
+- [fastspeech2_conformer_baker_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_conformer_baker_ckpt_0.5.zip)
 
-静态模型可以在这里下载 [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
+静态模型可以在这里下载 [fastspeech2_nosil_baker_static_0.4.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_nosil_baker_static_0.4.zip).
 
 Model | Step | eval/loss | eval/l1_loss | eval/duration_loss | eval/pitch_loss| eval/energy_loss 
 :-------------:| :------------:| :-----: | :-----: | :--------: |:--------:|:---------:

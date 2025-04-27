@@ -24,20 +24,21 @@ def get_bit_depth(dtype):
 
 
 def gen_audio_file(
-    path,
-    sample_rate,
-    num_channels,
-    *,
-    encoding=None,
-    bit_depth=None,
-    compression=None,
-    attenuation=None,
-    duration=1,
-    comment_file=None,
-):
+        path,
+        sample_rate,
+        num_channels,
+        *,
+        encoding=None,
+        bit_depth=None,
+        compression=None,
+        attenuation=None,
+        duration=1,
+        comment_file=None, ):
     """Generate synthetic audio file with `sox` command."""
     if path.endswith(".wav"):
-        warnings.warn("Use get_wav_data and save_wav to generate wav file for accurate result.")
+        warnings.warn(
+            "Use get_wav_data and save_wav to generate wav file for accurate result."
+        )
     command = [
         "sox",
         "-V3",  # verbose
@@ -81,7 +82,12 @@ def gen_audio_file(
     subprocess.run(command, check=True)
 
 
-def convert_audio_file(src_path, dst_path, *, encoding=None, bit_depth=None, compression=None):
+def convert_audio_file(src_path,
+                       dst_path,
+                       *,
+                       encoding=None,
+                       bit_depth=None,
+                       compression=None):
     """Convert audio file with `sox` command."""
     command = ["sox", "-V3", "--no-dither", "-R", str(src_path)]
     if encoding is not None:
@@ -95,7 +101,7 @@ def convert_audio_file(src_path, dst_path, *, encoding=None, bit_depth=None, com
     subprocess.run(command, check=True)
 
 
-def _flattern(effects):
+def _flatten(effects):
     if not effects:
         return effects
     if isinstance(effects[0], str):
@@ -103,9 +109,14 @@ def _flattern(effects):
     return [item for sublist in effects for item in sublist]
 
 
-def run_sox_effect(input_file, output_file, effect, *, output_sample_rate=None, output_bitdepth=None):
+def run_sox_effect(input_file,
+                   output_file,
+                   effect,
+                   *,
+                   output_sample_rate=None,
+                   output_bitdepth=None):
     """Run sox effects"""
-    effect = _flattern(effect)
+    effect = _flatten(effect)
     command = ["sox", "-V", "--no-dither", input_file]
     if output_bitdepth:
         command += ["--bits", str(output_bitdepth)]

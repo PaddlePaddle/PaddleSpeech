@@ -35,7 +35,7 @@ class GTZAN(AudioClassificationDataset):
         https://ieeexplore.ieee.org/document/1021072/
     """
 
-    archieves = [
+    archives = [
         {
             'url': 'http://opihi.cs.uvic.ca/sound/genres.tar.gz',
             'md5': '5b3d6dddb579ab49814ab86dba69e7c7',
@@ -57,7 +57,7 @@ class GTZAN(AudioClassificationDataset):
                  feat_type='raw',
                  **kwargs):
         """
-        Ags:
+        Args:
             mode (:obj:`str`, `optional`, defaults to `train`):
                 It identifies the dataset mode (train or dev).
             seed (:obj:`int`, `optional`, defaults to 0):
@@ -67,7 +67,7 @@ class GTZAN(AudioClassificationDataset):
             split (:obj:`int`, `optional`, defaults to 1):
                 It specify the fold of dev dataset.
             feat_type (:obj:`str`, `optional`, defaults to `raw`):
-                It identifies the feature type that user wants to extrace of an audio file.
+                It identifies the feature type that user wants to extract of an audio file.
         """
         assert split <= n_folds, f'The selected split should not be larger than n_fold, but got {split} > {n_folds}'
         files, labels = self._get_data(mode, seed, n_folds, split)
@@ -85,7 +85,7 @@ class GTZAN(AudioClassificationDataset):
                   split) -> Tuple[List[str], List[int]]:
         if not os.path.isdir(os.path.join(DATA_HOME, self.audio_path)) or \
             not os.path.isfile(os.path.join(DATA_HOME, self.meta)):
-            download_and_decompress(self.archieves, DATA_HOME)
+            download_and_decompress(self.archives, DATA_HOME)
 
         meta_info = self._get_meta_info()
         random.seed(seed)  # shuffle samples to split data

@@ -26,7 +26,7 @@ if(NOT FASTDEPLOY_INSTALL_DIR)
     else() # Linux
         FetchContent_Declare(
             fastdeploy
-            URL      https://paddlespeech.bj.bcebos.com/speechx/fastdeploy/fastdeploy-1.0.5-x86_64-onnx.tar.gz 
+            URL      https://paddlespeech.cdn.bcebos.com/speechx/fastdeploy/fastdeploy-1.0.5-x86_64-onnx.tar.gz 
             URL_HASH MD5=33900d986ea71aa78635e52f0733227c
             ${EXTERNAL_PROJECT_LOG_ARGS}
         )

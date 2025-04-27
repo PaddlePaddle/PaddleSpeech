@@ -16,7 +16,7 @@
 
 可以下载此 demo 的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/kws/hey_snips.wav https://paddlespeech.bj.bcebos.com/kws/non-keyword.wav
+wget -c https://paddlespeech.cdn.bcebos.com/kws/hey_snips.wav https://paddlespeech.cdn.bcebos.com/kws/non-keyword.wav
 ```
 ### 3. 使用方法
 - 命令行 (推荐使用)

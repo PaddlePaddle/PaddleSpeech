@@ -40,22 +40,22 @@ DIST_DIR="$PWD/front_demo/dict"
 mkdir -p "$DIST_DIR"
 
 download 'fastspeech2_nosil_baker_ckpt_0.4.tar.gz' \
-    'https://paddlespeech.bj.bcebos.com/t2s/text_frontend/fastspeech2_nosil_baker_ckpt_0.4.tar.gz' \
+    'https://paddlespeech.cdn.bcebos.com/t2s/text_frontend/fastspeech2_nosil_baker_ckpt_0.4.tar.gz' \
     '7bf1bab1737375fa123c413eb429c573' \
     "$DIST_DIR"
 
 download 'speedyspeech_nosil_baker_ckpt_0.5.tar.gz' \
-    'https://paddlespeech.bj.bcebos.com/t2s/text_frontend/speedyspeech_nosil_baker_ckpt_0.5.tar.gz' \
+    'https://paddlespeech.cdn.bcebos.com/t2s/text_frontend/speedyspeech_nosil_baker_ckpt_0.5.tar.gz' \
     '0b7754b21f324789aef469c61f4d5b8f' \
     "$DIST_DIR"
 
 download 'jieba.tar.gz' \
-    'https://paddlespeech.bj.bcebos.com/t2s/text_frontend/jieba.tar.gz' \
+    'https://paddlespeech.cdn.bcebos.com/t2s/text_frontend/jieba.tar.gz' \
     '6d30f426bd8c0025110a483f051315ca' \
     "$DIST_DIR"
 
 download 'tranditional_to_simplified.tar.gz' \
-    'https://paddlespeech.bj.bcebos.com/t2s/text_frontend/tranditional_to_simplified.tar.gz' \
+    'https://paddlespeech.cdn.bcebos.com/t2s/text_frontend/tranditional_to_simplified.tar.gz' \
     '258f5b59d5ebfe96d02007ca1d274a7f' \
     "$DIST_DIR"
 

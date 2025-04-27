@@ -11,15 +11,15 @@ This demo is an implementation to extract speaker embedding from a specific audi
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 ### 2. Prepare Input File
 The input of this cli demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 
 Here are sample files for this demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/123456789.wav
 ```
 
 ### 3. Usage

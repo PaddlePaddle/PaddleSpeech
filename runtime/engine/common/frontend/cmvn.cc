@@ -72,7 +72,7 @@ bool CMVN::Read(std::vector<BaseFloat>* feats) {
         return false;
     }
 
-    // appply cmvn
+    // apply cmvn
     kaldi::Timer timer;
     Compute(feats);
     VLOG(1) << "CMVN::Read cost: " << timer.Elapsed() << " sec.";

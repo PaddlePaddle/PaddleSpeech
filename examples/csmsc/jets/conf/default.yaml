@@ -60,14 +60,14 @@ model:
         transformer_dec_attn_dropout_rate: 0.2       # dropout rate for transformer decoder attention layer
         pitch_predictor_layers: 5                    # number of conv layers in pitch predictor
         pitch_predictor_chans: 256                   # number of channels of conv layers in pitch predictor
-        pitch_predictor_kernel_size: 5               # kernel size of conv leyers in pitch predictor
+        pitch_predictor_kernel_size: 5               # kernel size of conv layers in pitch predictor
         pitch_predictor_dropout: 0.5                 # dropout rate in pitch predictor
         pitch_embed_kernel_size: 1                   # kernel size of conv embedding layer for pitch
         pitch_embed_dropout: 0.0                     # dropout rate after conv embedding layer for pitch
         stop_gradient_from_pitch_predictor: true     # whether to stop the gradient from pitch predictor to encoder
         energy_predictor_layers: 2                   # number of conv layers in energy predictor
         energy_predictor_chans: 256                  # number of channels of conv layers in energy predictor
-        energy_predictor_kernel_size: 3              # kernel size of conv leyers in energy predictor
+        energy_predictor_kernel_size: 3              # kernel size of conv layers in energy predictor
         energy_predictor_dropout: 0.5                # dropout rate in energy predictor
         energy_embed_kernel_size: 1                  # kernel size of conv embedding layer for energy
         energy_embed_dropout: 0.0                    # dropout rate after conv embedding layer for energy

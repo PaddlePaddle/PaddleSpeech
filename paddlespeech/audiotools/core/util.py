@@ -29,7 +29,6 @@ import soundfile
 from flatten_dict import flatten
 from flatten_dict import unflatten
 
-from .audio_signal import AudioSignal
 from paddlespeech.utils import satisfy_paddle_version
 
 __all__ = [
@@ -228,8 +227,7 @@ def ensure_tensor(
 
 def _get_value(other):
     # 
-    from . import AudioSignal
-
+    from .audio_signal import AudioSignal
     if isinstance(other, AudioSignal):
         return other.audio_data
     return other
@@ -780,6 +778,8 @@ def collate(list_of_dicts: list, n_splits: int=None):
         Dictionary containing batched data.
     """
 
+    from .audio_signal import AudioSignal
+
     batches = []
     list_len = len(list_of_dicts)
 
@@ -869,7 +869,7 @@ def generate_chord_dataset(
 
     """
     import librosa
-    from . import AudioSignal
+    from .audio_signal import AudioSignal
     from ..data.preprocess import create_csv
 
     min_midi = librosa.note_to_midi(min_note)

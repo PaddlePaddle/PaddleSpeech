@@ -22,7 +22,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
       wget https://weixinxcxdb.oss-cn-beijing.aliyuncs.com/gwYinPinKu/BZNSYP.rar
       mkdir BZNSYP
       unrar x BZNSYP.rar BZNSYP
-      wget https://paddlespeech.bj.bcebos.com/Parakeet/benchmark/durations.txt
+      wget https://paddlespeech.cdn.bcebos.com/Parakeet/benchmark/durations.txt
 fi
 # 数据预处理
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

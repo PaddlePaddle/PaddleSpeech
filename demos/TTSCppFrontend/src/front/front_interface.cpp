@@ -115,27 +115,27 @@ int FrontEngineInterface::init() {
 
     // 生成词典（词到音素的映射）
     if (0 != GenDict(_word2phone_path, &word_phone_map)) {
-        LOG(ERROR) << "Genarate word2phone dict failed";
+        LOG(ERROR) << "Generate word2phone dict failed";
         return -1;
     }
 
     // 生成音素字典（音素到音素id的映射）
     if (0 != GenDict(_phone2id_path, &phone_id_map)) {
-        LOG(ERROR) << "Genarate phone2id dict failed";
+        LOG(ERROR) << "Generate phone2id dict failed";
         return -1;
     }
 
     // 生成音调字典（音调到音调id的映射）
     if (_separate_tone == "true") {
         if (0 != GenDict(_tone2id_path, &tone_id_map)) {
-            LOG(ERROR) << "Genarate tone2id dict failed";
+            LOG(ERROR) << "Generate tone2id dict failed";
             return -1;
         }
     }
 
     // 生成繁简字典（繁体到简体id的映射）
     if (0 != GenDict(_trand2simp_path, &trand_simp_map)) {
-        LOG(ERROR) << "Genarate trand2simp dict failed";
+        LOG(ERROR) << "Generate trand2simp dict failed";
         return -1;
     }
 
@@ -263,7 +263,7 @@ int FrontEngineInterface::GetWordsIds(
                 if (0 !=
                     GetInitialsFinals(word, &word_initials, &word_finals)) {
                     LOG(ERROR)
-                        << "Genarate the word_initials and word_finals of "
+                        << "Generate the word_initials and word_finals of "
                         << word << " failed";
                     return -1;
                 }
@@ -304,7 +304,7 @@ int FrontEngineInterface::GetWordsIds(
 
             // 音素到音素id
             if (0 != Phone2Phoneid(phone, phoneids, toneids)) {
-                LOG(ERROR) << "Genarate the phone id of " << word << " failed";
+                LOG(ERROR) << "Generate the phone id of " << word << " failed";
                 return -1;
             }
         }
@@ -916,11 +916,11 @@ int FrontEngineInterface::NeuralSandhi(const std::string &word,
         if (find(must_neural_tone_words.begin(),
                  must_neural_tone_words.end(),
                  word) != must_neural_tone_words.end() ||
-            (word_num >= 2 &&
-             find(must_neural_tone_words.begin(),
-                  must_neural_tone_words.end(),
-                  ppspeech::wstring2utf8string(word_wstr.substr(
-                      word_num - 2))) != must_neural_tone_words.end())) {
+            (word_num >= 2 && find(must_neural_tone_words.begin(),
+                                   must_neural_tone_words.end(),
+                                   ppspeech::wstring2utf8string(
+                                       word_wstr.substr(word_num - 2))) !=
+                                  must_neural_tone_words.end())) {
             (*finals).back() =
                 (*finals).back().replace((*finals).back().length() - 1, 1, "5");
         }

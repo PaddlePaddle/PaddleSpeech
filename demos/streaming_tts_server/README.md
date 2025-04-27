@@ -15,7 +15,7 @@ see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/doc
 
 It is recommended to use **paddlepaddle 2.4rc** or above.
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 **If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to the yaml file in the conf directory.**
 
@@ -52,7 +52,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   paddlespeech_server start --help
   ```
   Arguments:
-  - `config_file`: yaml file of the app, defalut: ./conf/tts_online_application.yaml
+  - `config_file`: yaml file of the app, default: ./conf/tts_online_application.yaml
   - `log_file`: log file. Default: ./log/paddlespeech.log
 
   Output:
@@ -180,7 +180,7 @@ The configuration file can be found in `conf/tts_online_application.yaml`.
   paddlespeech_server start --help
   ```
   Arguments:
-  - `config_file`: yaml file of the app, defalut: ./conf/tts_online_application.yaml
+  - `config_file`: yaml file of the app, default: ./conf/tts_online_application.yaml
   - `log_file`: log file. Default: ./log/paddlespeech.log
 
   Output:

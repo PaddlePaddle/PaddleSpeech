@@ -14,7 +14,7 @@ namespace {
 
 /// helper classes for passing the location of input tensor and output buffer
 ///
-/// drain/flow callback functions require plaing C style function signature and
+/// drain/flow callback functions require plain C style function signature and
 /// the way to pass extra data is to attach data to sox_effect_t::priv pointer.
 /// The following structs will be assigned to sox_effect_t::priv pointer which
 /// gives sox_effect_t an access to input Tensor and output buffer object.
@@ -50,7 +50,7 @@ int tensor_input_drain(sox_effect_t* effp, sox_sample_t* obuf, size_t* osamp) {
   *osamp -= *osamp % num_channels;
 
   // Slice the input Tensor
-  // refacor this module, chunk
+  // refactor this module, chunk
   auto i_frame = index / num_channels;
   auto num_frames = *osamp / num_channels;
 

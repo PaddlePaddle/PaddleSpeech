@@ -13,7 +13,6 @@ import pytest
 
 from paddlespeech.audiotools import util
 from paddlespeech.audiotools.core.audio_signal import AudioSignal
-from paddlespeech.vector.training.seeding import seed_everything
 
 
 def test_check_random_state():
@@ -36,12 +35,12 @@ def test_check_random_state():
 
 
 def test_seed():
-    seed_everything(0)
+    util.seed_everything(0)
     paddle_result_a = paddle.randn([1])
     np_result_a = np.random.randn(1)
     py_result_a = random.random()
 
-    seed_everything(0)
+    util.seed_everything(0)
     paddle_result_b = paddle.randn([1])
     np_result_b = np.random.randn(1)
     py_result_b = random.random()

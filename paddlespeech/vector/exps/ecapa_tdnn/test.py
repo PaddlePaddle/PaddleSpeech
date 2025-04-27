@@ -18,7 +18,7 @@ import numpy as np
 import paddle
 from paddle.io import BatchSampler
 from paddle.io import DataLoader
-from paddleaudio.metric import compute_eer
+from sklearn.metrics import roc_curve
 from tqdm import tqdm
 from yacs.config import CfgNode
 
@@ -127,6 +127,23 @@ def compute_verification_scores(id2embedding, train_cohort, config):
             scores.append(score)
 
     return scores, labels
+
+
+def compute_eer(labels: np.ndarray, scores: np.ndarray) -> List[float]:
+    """Compute EER and return score threshold.
+
+    Args:
+        labels (np.ndarray): the trial label, shape: [N], one-dimension, N refer to the samples num
+        scores (np.ndarray): the trial scores, shape: [N], one-dimension, N refer to the samples num
+
+    Returns:
+        List[float]: eer and the specific threshold
+    """
+    fpr, tpr, threshold = roc_curve(y_true=labels, y_score=scores)
+    fnr = 1 - tpr
+    eer_threshold = threshold[np.nanargmin(np.absolute((fnr - fpr)))]
+    eer = fpr[np.nanargmin(np.absolute((fnr - fpr)))]
+    return eer, eer_threshold
 
 
 def main(args, config):

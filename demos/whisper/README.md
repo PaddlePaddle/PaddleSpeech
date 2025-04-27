@@ -9,14 +9,14 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
  ### 1. Installation
  see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
- You can choose one way from easy, meduim and hard to install paddlespeech.
+ You can choose one way from easy, medium and hard to install paddlespeech.
 
  ### 2. Prepare Input File
  The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 
  Here are sample files for this demo that can be downloaded:
  ```bash
- wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+ wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
  ```
 
  ### 3. Usage
@@ -42,7 +42,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
    - `model`: Model type of asr task. Default: `whisper-large`.
    - `task`: Output type. Default: `transcribe`.
    - `lang`: Model language. Default: ``. Use `en` to choice English-only model. Now [medium,base,small,tiny] size can support English-only.
-   - `size`: Model size for decode. Defalut: `large`. Now can support [large,medium,base,small,tiny].
+   - `size`: Model size for decode. Default: `large`. Now can support [large,medium,base,small,tiny].
    - `language`: Set decode language. Default: `None`. Forcibly set the recognized language, which is determined by the model itself by default. 
    - `sample_rate`: Sample rate of the model. Default: `16000`. Other sampling rates are not supported now.
    - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.

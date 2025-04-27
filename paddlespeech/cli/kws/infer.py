@@ -20,12 +20,12 @@ from typing import Union
 
 import paddle
 import yaml
-from paddleaudio.backends import soundfile_load as load_audio
-from paddleaudio.compliance.kaldi import fbank as kaldi_fbank
 
 from ..executor import BaseExecutor
 from ..log import logger
 from ..utils import stats_wrapper
+from paddlespeech.audio.backends import soundfile_load as load_audio
+from paddlespeech.audio.compliance.kaldi import fbank as kaldi_fbank
 
 __all__ = ['KWSExecutor']
 
@@ -58,7 +58,7 @@ class KWSExecutor(BaseExecutor):
             '--config',
             type=str,
             default=None,
-            help='Config of kws task. Use deault config when it is None.')
+            help='Config of kws task. Use default config when it is None.')
         self.parser.add_argument(
             '--ckpt_path',
             type=str,

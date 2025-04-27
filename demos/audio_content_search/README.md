@@ -14,7 +14,7 @@ Now, the search word in demo is:
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from meduim and hard to install paddlespeech.
+You can choose one way from medium and hard to install paddlespeech.
 
 The dependency refers to the requirements.txt, and install the dependency as follows:
 
@@ -27,7 +27,7 @@ The input of this demo should be a WAV file(`.wav`), and the sample rate must be
 
 Here are sample files for this demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 ```
 
 ### 3. run paddlespeech_server

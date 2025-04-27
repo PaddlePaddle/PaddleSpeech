@@ -19,10 +19,10 @@ import paddle
 from paddle import inference
 from paddle.audio.datasets import ESC50
 from paddle.audio.features import LogMelSpectrogram
-from paddleaudio.backends import soundfile_load as load_audio
 from scipy.special import softmax
 
 import paddlespeech.utils
+from paddlespeech.audio.backends import soundfile_load as load_audio
 
 # yapf: disable
 parser = argparse.ArgumentParser()

@@ -17,13 +17,12 @@ import librosa
 import numpy as np
 import paddle
 import paddleaudio
-from paddleaudio.functional.window import get_window
-
 from base import FeatTest
+from paddleaudio.functional.window import get_window
 
 
 class TestLibrosa(FeatTest):
-    def initParmas(self):
+    def initParams(self):
         self.n_fft = 512
         self.hop_length = 128
         self.n_mels = 40

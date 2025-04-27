@@ -44,5 +44,5 @@ py::array_t<float> KaldiFeatureWrapper::ComputeFbank(
     return result.reshape(shape);
 }
 
-}  // namesapce kaldi
+}  // namespace kaldi
 }  // namespace paddleaudio

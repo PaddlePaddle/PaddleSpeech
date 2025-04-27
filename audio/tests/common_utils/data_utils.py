@@ -81,7 +81,7 @@ def convert_tensor_encoding(
 #dtype = getattr(paddle, dtype)
 #if dtype not in [paddle.float64, paddle.float32, paddle.int32, paddle.int16, paddle.uint8]:
 #raise NotImplementedError(f"dtype {dtype} is not supported.")
-## According to the doc, folking rng on all CUDA devices is slow when there are many CUDA devices,
+## According to the doc, forking rng on all CUDA devices is slow when there are many CUDA devices,
 ## so we only fork on CPU, generate values and move the data to the given device
 #with paddle.random.fork_rng([]):
 #paddle.random.manual_seed(seed)

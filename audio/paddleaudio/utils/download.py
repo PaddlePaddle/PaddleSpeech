@@ -41,14 +41,14 @@ def download_and_decompress(archives: List[Dict[str, str]],
                             path: str,
                             decompress: bool=True):
     """
-    Download archieves and decompress to specific path.
+    Download archives and decompress to specific path.
     """
     if not os.path.isdir(path):
         os.makedirs(path)
 
     for archive in archives:
         assert 'url' in archive and 'md5' in archive, \
-            'Dictionary keys of "url" and "md5" are required in the archive, but got: {list(archieve.keys())}'
+            'Dictionary keys of "url" and "md5" are required in the archive, but got: {list(archive.keys())}'
         download.get_path_from_url(
             archive['url'], path, archive['md5'], decompress=decompress)
 

@@ -89,9 +89,9 @@ ASR 客户端的输入是一个 WAV 文件（`.wav`），并且采样率必须�
 
 可以下载 ASR 客户端的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 
 **注意：** 初次使用客户端时响应时间会略长
@@ -211,7 +211,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 
 可以下载 CLS 客户端的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
 ```
 
 **注意：** 初次使用客户端时响应时间会略长
@@ -264,8 +264,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 可以下载声纹客户端的示例音频：
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/123456789.wav
 ```
 
 #### 7.1 提取声纹特征

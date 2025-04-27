@@ -10,14 +10,14 @@ This demo is an implementation to recognize text or produce the acoustic represe
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`), and the sample rate must be the same as the model.
 
 Here are sample files for this demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
 ```
 
 ### 3. Usage

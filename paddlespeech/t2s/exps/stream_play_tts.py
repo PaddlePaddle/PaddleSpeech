@@ -13,8 +13,8 @@
 # limitations under the License.
 # stream play TTS
 # Before first execution, download and decompress the models in the execution directory
-# wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip
-# wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_onnx_0.2.0.zip
+# wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip
+# wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/mb_melgan/mb_melgan_csmsc_onnx_0.2.0.zip
 # unzip fastspeech2_cnndecoder_csmsc_streaming_onnx_1.0.0.zip
 # unzip mb_melgan_csmsc_onnx_0.2.0.zip
 import math

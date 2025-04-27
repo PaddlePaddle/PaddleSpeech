@@ -94,7 +94,7 @@ echo "Aishell data preparation done."
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     mkdir -p exp/wav2vec2
     echo "Pretrained wav2vec2 model download"
-    wget -P exp/wav2vec2 https://paddlespeech.bj.bcebos.com/wav2vec/chinese-wav2vec2-large.pdparams
+    wget -P exp/wav2vec2 https://paddlespeech.cdn.bcebos.com/wav2vec/chinese-wav2vec2-large.pdparams
 fi
 
 exit 0

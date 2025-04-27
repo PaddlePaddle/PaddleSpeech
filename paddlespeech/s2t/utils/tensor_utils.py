@@ -80,7 +80,7 @@ def pad_sequence(sequences: List[paddle.Tensor],
     # assuming trailing dimensions and type of all the Tensors
     # in sequences are same and fetching those from sequences[0]
     max_size = paddle.shape(sequences[0])
-    # (TODO Hui Zhang): slice not supprot `end==start`
+    # (TODO Hui Zhang): slice not support `end==start`
     # trailing_dims = max_size[1:]
     trailing_dims = tuple(
         max_size[1:].numpy().tolist()) if sequences[0].ndim >= 2 else ()
@@ -98,7 +98,7 @@ def pad_sequence(sequences: List[paddle.Tensor],
             f"length {length}, out_tensor {out_tensor.shape}, tensor {tensor.shape}"
         )
         if batch_first:
-            # TODO (Hui Zhang): set_value op not supprot `end==start`
+            # TODO (Hui Zhang): set_value op not support `end==start`
             # TODO (Hui Zhang): set_value op not support int16
             # TODO (Hui Zhang): set_varbase 2 rank not support [0,0,...]
             # out_tensor[i, :length, ...] = tensor
@@ -107,7 +107,7 @@ def pad_sequence(sequences: List[paddle.Tensor],
             else:
                 out_tensor[i, length] = tensor
         else:
-            # TODO (Hui Zhang): set_value op not supprot `end==start`
+            # TODO (Hui Zhang): set_value op not support `end==start`
             # out_tensor[:length, i, ...] = tensor
             if length != 0:
                 out_tensor[:length, i] = tensor

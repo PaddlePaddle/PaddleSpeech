@@ -32,6 +32,14 @@ VERSION = '0.0.0'
 COMMITID = 'none'
 
 
+def determine_python_version():
+    """
+    Determine the current python version. The function return a string such as '3.7'.
+    """
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    return python_version
+
+
 def determine_opencc_version():
     # get gcc version
     gcc_version = None
@@ -46,9 +54,29 @@ def determine_opencc_version():
 
     # determine opencc version
     if gcc_version:
-        if int(gcc_version.split(".")[0]) <= 9:
-            return "opencc==1.1.6"  # GCC<=9 need opencc==1.1.6
+        if int(gcc_version.split(".")[0]) < 9:
+            return "opencc==1.1.6"  # GCC<9 need opencc==1.1.6
     return "opencc"  # default
+
+
+def determine_scipy_version():
+    # get python version
+    python_version = determine_python_version()
+
+    # determine scipy version
+    if python_version == "3.8":
+        return "scipy>=1.4.0, <=1.12.0"  # Python3.8 need scipy>=1.4.0, <=1.12.0
+    return "scipy"  # default
+
+
+def determine_matplotlib_version():
+    # get python version
+    python_version = determine_python_version()
+
+    # determine matplotlib version
+    if python_version == "3.8" or python_version == "3.9":
+        return "matplotlib<=3.8.4"  # Python3.8/9 need matplotlib<=3.8.4
+    return "matplotlib"  # default
 
 
 base = [
@@ -60,26 +88,24 @@ base = [
     "hyperpyyaml",
     "inflect",
     "jsonlines",
-    # paddleaudio align with librosa==0.8.1, which need numpy==1.23.x
-    "numpy==1.23.5",
-    "librosa==0.8.1",
-    "scipy>=1.4.0, <=1.12.0",
+    "numpy",
+    "librosa>=0.9",
+    determine_scipy_version(),  # scipy or scipy>=1.4.0, <=1.12.0
     "loguru",
-    "matplotlib<=3.8.4",
+    determine_matplotlib_version(),  # matplotlib or matplotlib<=3.8.4
     "nara_wpe",
     "onnxruntime>=1.11.0",
     determine_opencc_version(),  # opencc or opencc==1.1.6
     "opencc-python-reimplemented",
     "pandas",
-    "paddleaudio>=1.1.0",
     "paddlenlp>=2.4.8",
     "paddleslim>=2.3.4",
     "ppdiffusers>=0.9.0",
     "paddlespeech_feat",
-    "praatio>=5.0.0, <=5.1.1",
+    "praatio>=6.0.0",
     "prettytable",
-    "pydantic>=1.10.14, <2.0",
-    "pypinyin<=0.44.0",
+    "pydantic",
+    "pypinyin",
     "pypinyin-dict",
     "python-dateutil",
     "pyworld>=0.2.12",
@@ -92,8 +118,16 @@ base = [
     "ToJyutping",
     "typeguard",
     "webrtcvad",
-    "yacs~=0.1.8",
+    "yacs>=0.1.8",
     "zhon",
+    "scikit-learn",
+    "pathos",
+    "kaldiio",
+    "ffmpeg-python",
+    "ffmpy",
+    "flatten_dict",
+    "pyloudnorm",
+    "rich",
 ]
 
 server = ["pattern_singleton", "websockets"]

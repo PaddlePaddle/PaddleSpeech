@@ -38,7 +38,7 @@ __all__ = ["STExecutor"]
 
 kaldi_bins = {
     "url":
-    "https://paddlespeech.bj.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
+    "https://paddlespeech.cdn.bcebos.com/s2t/ted_en_zh/st1/kaldi_bins.tar.gz",
     "md5":
     "c0682303b3f3393dbf6ed4c4e35a53eb",
 }
@@ -82,7 +82,7 @@ class STExecutor(BaseExecutor):
             "--config",
             type=str,
             default=None,
-            help="Config of st task. Use deault config when it is None.")
+            help="Config of st task. Use default config when it is None.")
         self.parser.add_argument(
             "--ckpt_path",
             type=str,

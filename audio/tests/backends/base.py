@@ -15,8 +15,8 @@ import os
 import unittest
 import urllib.request
 
-mono_channel_wav = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav'
-multi_channels_wav = 'https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav'
+mono_channel_wav = 'https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav'
+multi_channels_wav = 'https://paddlespeech.cdn.bcebos.com/PaddleAudio/cat.wav'
 
 
 class BackendTest(unittest.TestCase):
@@ -30,5 +30,5 @@ class BackendTest(unittest.TestCase):
                 urllib.request.urlretrieve(url, os.path.basename(url))
             self.files.append(os.path.basename(url))
 
-    def initParmas(self):
+    def initParams(self):
         raise NotImplementedError

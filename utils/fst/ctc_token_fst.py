@@ -32,7 +32,7 @@ def main(args):
                 # leaving `token`
                 print('{} {} {} {}'.format(node, 2, '<eps>', '<eps>'))
             node += 1
-    # Fianl node
+    # Final node
     print('0')
 
 

@@ -103,7 +103,7 @@ optional arguments:
 
 ### Synthesizing
 We use parallel wavegan as the neural vocoder.
-Download pretrained parallel wavegan model from [pwgan_opencpop_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwgan_opencpop_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/pwgan_opencpop_ckpt_1.4.0.zip) and unzip it.
 ```bash
 unzip pwgan_opencpop_ckpt_1.4.0.zip
 ```
@@ -118,6 +118,8 @@ pwgan_opencpop_ckpt_1.4.0.zip
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+use `pwgan` model as vocoder.
+
 ```text
 usage: synthesize.py [-h]
                      [--am {diffsinger_opencpop}]
@@ -170,8 +172,10 @@ optional arguments:
 `local/pinyin_to_phone.txt` comes from the readme of the opencpop dataset, indicating the mapping from pinyin to phonemes in opencpop.
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
 ```
+`--stage` controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.
+
 ```text
 usage: synthesize_e2e.py [-h]
                          [--am {speedyspeech_csmsc,speedyspeech_aishell3,fastspeech2_csmsc,fastspeech2_ljspeech,fastspeech2_aishell3,fastspeech2_vctk,tacotron2_csmsc,tacotron2_ljspeech}]
@@ -243,7 +247,7 @@ Note: At present, the diffsinger model does not support dynamic to static, so do
 
 ## Pretrained Model
 Pretrained DiffSinger model:
-- [diffsinger_opencpop_ckpt_1.4.0.zip](https://paddlespeech.bj.bcebos.com/t2s/svs/opencpop/diffsinger_opencpop_ckpt_1.4.0.zip)
+- [diffsinger_opencpop_ckpt_1.4.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/svs/opencpop/diffsinger_opencpop_ckpt_1.4.0.zip)
 
 DiffSinger checkpoint contains files listed below.
 ```text

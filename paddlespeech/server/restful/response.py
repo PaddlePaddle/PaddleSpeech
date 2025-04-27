@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from typing import List
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -62,7 +63,7 @@ class TTSResult(BaseModel):
     volume: float = 1.0
     sample_rate: int
     duration: float
-    save_path: str = None
+    save_path: Optional[str] = None
     audio: str
 
 

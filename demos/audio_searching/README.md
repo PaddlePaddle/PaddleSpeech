@@ -19,7 +19,7 @@ Note：this demo uses the [CN-Celeb](http://openslr.org/82/) dataset of at least
 ### 1. Prepare PaddleSpeech
 Audio vector extraction requires PaddleSpeech training model, so please make sure that PaddleSpeech has been installed before running. Specific installation steps: See [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).  
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 ### 2. Prepare MySQL and Milvus services by docker-compose
 The audio similarity search system requires Milvus, MySQL services. We can start these containers with one click through [docker-compose.yaml](./docker-compose.yaml), so please make sure you have [installed Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) before running. then
@@ -128,7 +128,7 @@ Then to start the system server, and it provides HTTP backend services.
 
     Output：
     ```bash
-    Downloading https://paddlespeech.bj.bcebos.com/vector/audio/example_audio.tar.gz ...
+    Downloading https://paddlespeech.cdn.bcebos.com/vector/audio/example_audio.tar.gz ...
     ...
     Unpacking ./example_audio.tar.gz ...
     [2022-03-26 22:50:54,987] [    INFO] - checking the aduio file format......
@@ -136,7 +136,7 @@ Then to start the system server, and it provides HTTP backend services.
     [2022-03-26 22:50:54,987] [    INFO] - The audio file format is right
     [2022-03-26 22:50:54,988] [    INFO] - device type: cpu
     [2022-03-26 22:50:54,988] [    INFO] - load the pretrained model: ecapatdnn_voxceleb12-16k
-    [2022-03-26 22:50:54,990] [    INFO] - Downloading sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz from https://paddlespeech.bj.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz
+    [2022-03-26 22:50:54,990] [    INFO] - Downloading sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz from https://paddlespeech.cdn.bcebos.com/vector/voxceleb/sv0_ecapa_tdnn_voxceleb12_ckpt_0_1_0.tar.gz
     ...
     [2022-03-26 22:51:17,285] [    INFO] - start to dynamic import the model class
     [2022-03-26 22:51:17,285] [    INFO] - model name ecapatdnn
@@ -217,7 +217,7 @@ Then to start the system server, and it provides HTTP backend services.
 - memory：132G
 
 dataset：
-- CN-Celeb, train size 650,000, test size 10,000, dimention 192, distance L2
+- CN-Celeb, train size 650,000, test size 10,000, dimension 192, distance L2
 
 recall and elapsed time statistics are shown in the following figure：
 
@@ -226,7 +226,7 @@ recall and elapsed time statistics are shown in the following figure：
 
 The retrieval framework based on Milvus takes about 2.9 milliseconds to retrieve on the premise of 90% recall rate, and it takes about 500 milliseconds for feature extraction (testing audio takes about 5 seconds), that is, a single audio test takes about 503 milliseconds in total, which can meet most application scenarios.
 
-* compute embeding takes 500 ms
+* compute embedding takes 500 ms
 * retrieval with cosine takes 2.9 ms
 * total takes 503 ms
 

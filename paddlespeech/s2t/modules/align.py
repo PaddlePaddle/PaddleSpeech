@@ -17,7 +17,7 @@ import paddle
 from paddle import nn
 """
     To align the initializer between paddle and torch, 
-    the API below are set defalut initializer with priority higger than global initializer.
+    the API below are set default initializer with priority higger than global initializer.
 """
 global_init_type = None
 

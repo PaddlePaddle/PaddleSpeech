@@ -243,8 +243,10 @@ class ToneSandhi():
             if skip_next:
                 skip_next = False
                 continue
-            if i - 1 >= 0 and word == "一" and i + 1 < len(seg) and seg[i - 1][0] == seg[i + 1][0] and seg[i - 1][1] == "v":
-                new_seg[-1] = (new_seg[-1][0] + "一" + seg[i + 1][0], new_seg[-1][1])
+            if i - 1 >= 0 and word == "一" and i + 1 < len(seg) and seg[i - 1][
+                    0] == seg[i + 1][0] and seg[i - 1][1] == "v":
+                new_seg[-1] = (new_seg[-1][0] + "一" + seg[i + 1][0],
+                               new_seg[-1][1])
                 skip_next = True
             else:
                 new_seg.append((word, pos))
@@ -262,11 +264,16 @@ class ToneSandhi():
     def _merge_continuous_three_tones(
             self, seg: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
         new_seg = []
-        sub_finals_list = [
-            lazy_pinyin(
+        sub_finals_list = []
+        for (word, pos) in seg:
+            orig_finals = lazy_pinyin(
                 word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
-            for (word, pos) in seg
-        ]
+            # after pypinyin==0.44.0, '嗯' need to be n2, cause the initial and final consonants cannot be empty at the same time
+            en_index = [index for index, c in enumerate(word) if c == "嗯"]
+            for i in en_index:
+                orig_finals[i] = "n2"
+            sub_finals_list.append(orig_finals)
+
         assert len(sub_finals_list) == len(seg)
         merge_last = [False] * len(seg)
         for i, (word, pos) in enumerate(seg):
@@ -292,11 +299,15 @@ class ToneSandhi():
     def _merge_continuous_three_tones_2(
             self, seg: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
         new_seg = []
-        sub_finals_list = [
-            lazy_pinyin(
+        sub_finals_list = []
+        for (word, pos) in seg:
+            orig_finals = lazy_pinyin(
                 word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
-            for (word, pos) in seg
-        ]
+            # after pypinyin==0.44.0, '嗯' need to be n2, cause the initial and final consonants cannot be empty at the same time
+            en_index = [index for index, c in enumerate(word) if c == "嗯"]
+            for i in en_index:
+                orig_finals[i] = "n2"
+            sub_finals_list.append(orig_finals)
         assert len(sub_finals_list) == len(seg)
         merge_last = [False] * len(seg)
         for i, (word, pos) in enumerate(seg):

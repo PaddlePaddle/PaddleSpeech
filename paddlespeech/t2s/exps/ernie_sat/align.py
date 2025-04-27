@@ -41,11 +41,11 @@ def _readtg(tg_path: str, lang: str='en', fs: int=24000, n_shift: int=300):
     ends = []
     words = []
 
-    for interval in alignment.tierDict['words'].entryList:
+    for interval in alignment.getTier('words').entries:
         word = interval.label
         if word:
             words.append(word)
-    for interval in alignment.tierDict['phones'].entryList:
+    for interval in alignment.getTier('phones').entries:
         phone = interval.label
         phones.append(phone)
         ends.append(interval.end)

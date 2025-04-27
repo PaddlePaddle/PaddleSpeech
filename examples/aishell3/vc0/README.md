@@ -10,7 +10,7 @@ Download AISHELL-3 from it's [Official Website](http://www.aishelltech.com/aishe
 
 ### Get MFA Result and Extract
 We use [MFA2.x](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner) to get phonemes for Tacotron2, the durations of MFA are not needed here.
-You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
+You can download from here [aishell3_alignment_tone.tar.gz](https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/aishell3_alignment_tone.tar.gz), or train your MFA model reference to [mfa example](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/other/mfa) (use MFA1.x now) of our repo.
 
 ## Pretrained GE2E Model
 We use pretrained GE2E model to generate speaker embedding for each sentence.
@@ -79,7 +79,7 @@ The training step is very similar to that one of [tts0](https://github.com/Paddl
 
 ### Synthesizing
 We use [parallel wavegan](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc1) as the neural vocoder.
-Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
+Download pretrained parallel wavegan model from [pwg_aishell3_ckpt_0.5.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/pwgan/pwg_aishell3_ckpt_0.5.zip) and unzip it.
 ```bash
 unzip pwg_aishell3_ckpt_0.5.zip
 ```
@@ -111,7 +111,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ./local/voice_cloning.sh ${conf_path} ${train_outpu
 ```
 
 ## Pretrained Model
-- [tacotron2_aishell3_ckpt_vc0_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_aishell3_ckpt_vc0_0.2.0.zip)
+- [tacotron2_aishell3_ckpt_vc0_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/tacotron2/tacotron2_aishell3_ckpt_vc0_0.2.0.zip)
 
 
 Model | Step | eval/loss | eval/l1_loss | eval/mse_loss | eval/bce_loss| eval/attn_loss

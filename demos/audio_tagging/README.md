@@ -11,14 +11,14 @@ This demo is an implementation to tag an audio file with 527 [AudioSet](https://
 ### 1. Installation
 see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/docs/source/install.md).
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 ### 2. Prepare Input File
 The input of this demo should be a WAV file(`.wav`).
 
 Here are sample files for this demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.bj.bcebos.com/PaddleAudio/dog.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/cat.wav https://paddlespeech.cdn.bcebos.com/PaddleAudio/dog.wav
 ```
 
 ### 3. Usage

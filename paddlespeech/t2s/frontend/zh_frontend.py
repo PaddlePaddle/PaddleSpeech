@@ -173,6 +173,11 @@ class Frontend():
                 word, neutral_tone_with_five=True, style=Style.INITIALS)
             orig_finals = lazy_pinyin(
                 word, neutral_tone_with_five=True, style=Style.FINALS_TONE3)
+            # after pypinyin==0.44.0, '嗯' need to be n2, cause the initial and final consonants cannot be empty at the same time
+            en_index = [index for index, c in enumerate(word) if c == "嗯"]
+            for i in en_index:
+                orig_finals[i] = "n2"
+
             for c, v in zip(orig_initials, orig_finals):
                 if re.match(r'i\d', v):
                     if c in ['z', 'c', 's']:
@@ -518,7 +523,7 @@ class Frontend():
         initials = []
         finals = []
 
-        # to charactor list
+        # to character list
         words = self._split_word_to_char(words[0])
 
         for pinyin, char in zip(pinyin_spec, words):

@@ -16,6 +16,7 @@ function main(){
   python test_enfrontend.py
   python test_fftconv1d.py
   python test_mixfrontend.py
+  python test_losses.py
   echo "End TTS"
 
   echo "Start Vector"

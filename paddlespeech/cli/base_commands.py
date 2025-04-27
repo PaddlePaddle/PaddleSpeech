@@ -122,6 +122,9 @@ class StatsCommand:
                 elif "multilingual" in key:
                     line[4], line[1] = line[1].split("_")[0], line[1].split(
                         "_")[1:]
+                # Avoid having arrays within the elements of the input parameters when passing them to numpy.array
+                if type(line[1]) is list:
+                    line[1] = "/".join(line[1])
                 tmp = numpy.array(line)
                 idx = [0, 5, 3, 4, 1, 2]
                 line = tmp[idx]

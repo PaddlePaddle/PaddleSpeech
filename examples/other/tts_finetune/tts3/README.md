@@ -7,42 +7,42 @@ For more information on training Fastspeech2 with AISHELL-3, You can refer [exam
 ## Prepare 
 ### Download Pretrained model
 Assume the path to the model is `./pretrained_models`. </br>
-If you want to finetune Chinese pretrained model, you need to download Fastspeech2 pretrained model with AISHELL-3: [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune Chinese pretrained model, you need to download Fastspeech2 pretrained model with AISHELL-3: [fastspeech2_aishell3_ckpt_1.1.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
 # pretrained fastspeech2 model
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip 
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_aishell3_ckpt_1.1.0.zip 
 unzip fastspeech2_aishell3_ckpt_1.1.0.zip
 # pretrained hifigan model
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
 unzip hifigan_aishell3_ckpt_0.2.0.zip
 cd ../
 ```
 
 
-If you want to finetune English pretrained model, you need to download Fastspeech2 pretrained model with VCTK: [fastspeech2_vctk_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with VCTK: [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune English pretrained model, you need to download Fastspeech2 pretrained model with VCTK: [fastspeech2_vctk_ckpt_1.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with VCTK: [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
 # pretrained fastspeech2 model
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip 
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/fastspeech2/fastspeech2_vctk_ckpt_1.2.0.zip 
 unzip fastspeech2_vctk_ckpt_1.2.0.zip
 # pretrained hifigan model
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip
 unzip hifigan_vctk_ckpt_0.2.0.zip
 cd ../
 ```
 
-If you want to finetune Chinese-English Mixed pretrained model, you need to download Fastspeech2 pretrained model with mix datasets: [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
+If you want to finetune Chinese-English Mixed pretrained model, you need to download Fastspeech2 pretrained model with mix datasets: [fastspeech2_mix_ckpt_1.2.0.zip](https://paddlespeech.cdn.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip) for finetuning. Download HiFiGAN pretrained model with aishell3: [hifigan_aishell3_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) for synthesis.
 
 ```bash
 mkdir -p pretrained_models && cd pretrained_models
 # pretrained fastspeech2 model
-wget https://paddlespeech.bj.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/t2s/chinse_english_mixed/models/fastspeech2_mix_ckpt_1.2.0.zip
 unzip fastspeech2_mix_ckpt_1.2.0.zip
 # pretrained hifigan model
-wget https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
+wget https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip
 unzip hifigan_aishell3_ckpt_0.2.0.zip
 cd ../
 ```
@@ -59,7 +59,7 @@ Here is a Chinese data example of the first 200 data of csmsc.
 
 ```bash
 mkdir -p input && cd input
-wget https://paddlespeech.bj.bcebos.com/datasets/csmsc_mini.zip
+wget https://paddlespeech.cdn.bcebos.com/datasets/csmsc_mini.zip
 unzip csmsc_mini.zip
 cd ../
 ```
@@ -73,7 +73,7 @@ Here is an English data example of the first 200 data of ljspeech.
 
 ```bash
 mkdir -p input && cd input
-wget https://paddlespeech.bj.bcebos.com/datasets/ljspeech_mini.zip
+wget https://paddlespeech.cdn.bcebos.com/datasets/ljspeech_mini.zip
 unzip ljspeech_mini.zip
 cd ../
 ```
@@ -82,7 +82,7 @@ If you want to finetune Chinese-English Mixed pretrained model, you need to prep
 
 ```bash
 mkdir -p input && cd input
-wget https://paddlespeech.bj.bcebos.com/datasets/SSB0005_mini.zip
+wget https://paddlespeech.cdn.bcebos.com/datasets/SSB0005_mini.zip
 unzip SSB0005_mini.zip
 cd ../
 ```
@@ -99,23 +99,23 @@ cp montreal-forced-aligner/lib/libpython3.6m.so.1.0 montreal-forced-aligner/lib/
 mkdir -p aligner && cd aligner
 ```
 
-If you want to get mfa result of Chinese data, you need to download pretrained MFA models with aishell3: [aishell3_model.zip](https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/aishell3_model.zip) and unzip it.
+If you want to get mfa result of Chinese data, you need to download pretrained MFA models with aishell3: [aishell3_model.zip](https://paddlespeech.cdn.bcebos.com/MFA/ernie_sat/aishell3_model.zip) and unzip it.
 
 ```bash
 # pretrained mfa model for Chinese data
-wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/aishell3_model.zip
+wget https://paddlespeech.cdn.bcebos.com/MFA/ernie_sat/aishell3_model.zip
 unzip aishell3_model.zip
-wget https://paddlespeech.bj.bcebos.com/MFA/AISHELL-3/with_tone/simple.lexicon
+wget https://paddlespeech.cdn.bcebos.com/MFA/AISHELL-3/with_tone/simple.lexicon
 cd ../../
 ```
 
-If you want to get mfa result of English data, you need to download pretrained MFA models with vctk: [vctk_model.zip](https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip) and unzip it.
+If you want to get mfa result of English data, you need to download pretrained MFA models with vctk: [vctk_model.zip](https://paddlespeech.cdn.bcebos.com/MFA/ernie_sat/vctk_model.zip) and unzip it.
 
 ```bash
 # pretrained mfa model for English data
-wget https://paddlespeech.bj.bcebos.com/MFA/ernie_sat/vctk_model.zip
+wget https://paddlespeech.cdn.bcebos.com/MFA/ernie_sat/vctk_model.zip
 unzip vctk_model.zip
-wget https://paddlespeech.bj.bcebos.com/MFA/LJSpeech-1.1/cmudict-0.7b
+wget https://paddlespeech.cdn.bcebos.com/MFA/LJSpeech-1.1/cmudict-0.7b
 cd ../../
 ```
 
@@ -220,10 +220,10 @@ optional arguments:
 
 ### Synthesizing
 To synthesize Chinese audio, We use [HiFiGAN with aishell3](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell3/voc5) as the neural vocoder.
-Assume the path to the hifigan model is `./pretrained_models`. Download the pretrained HiFiGAN model from [hifigan_aishell3_ckpt_0.2.0](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) and unzip it.
+Assume the path to the hifigan model is `./pretrained_models`. Download the pretrained HiFiGAN model from [hifigan_aishell3_ckpt_0.2.0](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_aishell3_ckpt_0.2.0.zip) and unzip it.
 
 To synthesize English audio, We use [HiFiGAN with vctk](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/vctk/voc5) as the neural vocoder.
-Assume the path to the hifigan model is `./pretrained_models`. Download the pretrained HiFiGAN model from [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.bj.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) and unzip it.
+Assume the path to the hifigan model is `./pretrained_models`. Download the pretrained HiFiGAN model from [hifigan_vctk_ckpt_0.2.0.zip](https://paddlespeech.cdn.bcebos.com/Parakeet/released_models/hifigan/hifigan_vctk_ckpt_0.2.0.zip) and unzip it.
 
 
 Modify `ckpt` in `run.sh` to the final model in `exp/default/checkpoints`.

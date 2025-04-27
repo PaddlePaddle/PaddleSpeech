@@ -15,7 +15,7 @@ see [installation](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/doc
 
 It is recommended to use **paddlepaddle 2.4rc** or above.
 
-You can choose one way from easy, meduim and hard to install paddlespeech.
+You can choose one way from easy, medium and hard to install paddlespeech.
 
 **If you install in easy mode, you need to prepare the yaml file by yourself, you can refer to the yaml file in the conf directory.**
 
@@ -42,7 +42,7 @@ Currently the engine type supports two forms: python and inference (Paddle Infer
   paddlespeech_server start --help
   ```
   Arguments:
-  - `config_file`: yaml file of the app, defalut: ./conf/application.yaml
+  - `config_file`: yaml file of the app, default: ./conf/application.yaml
   - `log_file`: log file. Default: ./log/paddlespeech.log
 
   Output:
@@ -85,9 +85,9 @@ The input of  ASR client demo should be a WAV file(`.wav`), and the sample rate 
 
 Here are sample files for this ASR client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/en.wav
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/en.wav
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/ch_zh_mix.wav
 ```
 
 **Note:** The response time will be slightly longer when using the client for the first time
@@ -204,7 +204,7 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/ch_zh_mix.wav
 
 Here are sample files for this CLS Client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav 
+wget -c https://paddlespeech.cdn.bcebos.com/PaddleAudio/zh.wav 
 ```
 
 **Note:** The response time will be slightly longer when using the client for the first time
@@ -257,8 +257,8 @@ wget -c https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
 
 Here are sample files for this Speaker Verification Client demo that can be downloaded:
 ```bash
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/85236145389.wav
-wget -c https://paddlespeech.bj.bcebos.com/vector/audio/123456789.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/85236145389.wav
+wget -c https://paddlespeech.cdn.bcebos.com/vector/audio/123456789.wav
 ```
 
 #### 7.1 Extract speaker embedding

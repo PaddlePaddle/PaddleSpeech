@@ -22,8 +22,6 @@ from fnmatch import fnmatch
 from functools import reduce
 
 import paddle
-from paddleaudio import backends
-from paddleaudio.compliance import kaldi
 
 from . import autodecode
 from . import utils
@@ -33,6 +31,8 @@ from ..transform.spec_augment import time_mask
 from ..transform.spec_augment import time_warp
 from ..utils.tensor_utils import pad_sequence
 from .utils import PipelineStage
+from paddlespeech.audio import backends
+from paddlespeech.audio.compliance import kaldi
 
 
 class FilterFunction(object):

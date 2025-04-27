@@ -20,7 +20,6 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-
 from paddlespeech.utils import satisfy_paddle_version
 
 __all__ = [
@@ -64,9 +63,6 @@ def sinc(x: paddle.Tensor):
 
     __Warning__: the input is not multiplied by `pi`!
     """
-    if satisfy_paddle_version("3.0"):
-        return paddle.sinc(x)
-
     return paddle.where(
         x == 0,
         paddle.to_tensor(1.0, dtype=x.dtype, place=x.place),
@@ -132,7 +128,8 @@ class ResampleFrac(paddle.nn.Layer):
         idx = paddle.arange(
             -self._width, self._width + self.old_sr, dtype="float32")
         for i in range(self.new_sr):
-            t = (-i / self.new_sr + idx / self.old_sr) * sr
+            t = (-i / self.new_sr + idx / paddle.full(idx.shape, self.old_sr)
+                 ) * sr
             t = paddle.clip(t, -self.zeros, self.zeros)
             t *= math.pi
             window = paddle.cos(t / self.zeros / 2)**2
@@ -311,7 +308,7 @@ class LowPassFilters(nn.Layer):
                 mode="replicate",
                 data_format="NCL")
         if self.fft:
-            from paddlespeech.t2s.modules.fftconv1d import fft_conv1d
+            from paddlespeech.t2s.modules import fft_conv1d
             out = fft_conv1d(_input, self.filters, stride=self.stride)
         else:
             out = F.conv1d(_input, self.filters, stride=self.stride)

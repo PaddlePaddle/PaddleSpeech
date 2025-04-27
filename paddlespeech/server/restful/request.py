@@ -65,7 +65,7 @@ class TTSRequest(BaseModel):
     speed: float = 1.0
     volume: float = 1.0
     sample_rate: int = 0
-    save_path: str = None
+    save_path: Optional[str] = None
 
 
 #****************************************************************************************/

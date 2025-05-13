@@ -19,4 +19,4 @@ python3 ${BIN_DIR}/../../synthesize_e2e.py \
     --text=${BIN_DIR}/../../assets/sentences.txt \
     --output_dir=${train_output_path}/test_e2e \
     --phones_dict=dump/phone_id_map.txt \
-    --inference_dir=${train_output_path}/inference
+    --inference_dir=${train_output_path}/inference || exit -1

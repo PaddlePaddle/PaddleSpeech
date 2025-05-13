@@ -3,9 +3,8 @@
 config_path=$1
 train_output_path=$2
 ckpt_name=$3
-
-stage=0
-stop_stage=0
+stage=${4:-0}
+stop_stage=${4:-0}
 
 # pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
@@ -24,7 +23,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --inference_dir=${train_output_path}/inference || exit -1
 fi
 
 # for more GAN Vocoders
@@ -45,7 +44,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --inference_dir=${train_output_path}/inference || exit -1
 fi
 
 # the pretrained models haven't release now
@@ -66,7 +65,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --lang=zh \
         --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt || exit -1
         # --inference_dir=${train_output_path}/inference
 fi
 
@@ -88,7 +87,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --inference_dir=${train_output_path}/inference || exit -1
 fi
 
 
@@ -110,5 +109,5 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --text=${BIN_DIR}/../../assets/sentences.txt \
         --output_dir=${train_output_path}/test_e2e \
         --phones_dict=dump/phone_id_map.txt \
-        --inference_dir=${train_output_path}/inference
+        --inference_dir=${train_output_path}/inference || exit -1
 fi

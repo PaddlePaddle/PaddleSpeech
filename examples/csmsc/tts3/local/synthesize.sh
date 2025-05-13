@@ -3,8 +3,8 @@
 config_path=$1
 train_output_path=$2
 ckpt_name=$3
-stage=0
-stop_stage=0
+stage=${4:-0}
+stop_stage=${4:-0}
 
 # pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
@@ -21,7 +21,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --voc_stat=pwg_baker_ckpt_0.4/pwg_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt || exit -1
 fi
 
 # for more GAN Vocoders
@@ -40,7 +40,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
         --voc_stat=mb_melgan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt || exit -1
 fi
 
 # style melgan
@@ -58,7 +58,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
         --voc_stat=style_melgan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt || exit -1
 fi
 
 # hifigan
@@ -77,7 +77,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --voc_stat=hifigan_csmsc_ckpt_0.1.1/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt || exit -1
 fi
 
 # wavernn
@@ -96,5 +96,5 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         --voc_stat=wavernn_csmsc_ckpt_0.2.0/feats_stats.npy \
         --test_metadata=dump/test/norm/metadata.jsonl \
         --output_dir=${train_output_path}/test \
-        --phones_dict=dump/phone_id_map.txt
+        --phones_dict=dump/phone_id_map.txt || exit -1
 fi

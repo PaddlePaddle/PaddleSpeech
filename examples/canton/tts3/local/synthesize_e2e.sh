@@ -4,8 +4,8 @@ config_path=$1
 train_output_path=$2
 ckpt_name=$3
 
-stage=0
-stop_stage=0
+stage=${4:-0}
+stop_stage=${4:-0}
 
 # pwgan
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then

@@ -3,6 +3,7 @@
 config_path=$1
 train_output_path=$2
 ckpt_name=$3
+
 stage=${4:-0}
 stop_stage=${4:-0}
 

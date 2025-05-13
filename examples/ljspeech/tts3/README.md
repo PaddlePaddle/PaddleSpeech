@@ -105,9 +105,9 @@ pwg_ljspeech_ckpt_0.5
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name} 0
 ```
-`--stage` controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.
+The last number controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.
 
 ```text
 usage: synthesize.py [-h]
@@ -155,9 +155,9 @@ optional arguments:
 ```
 `./local/synthesize_e2e.sh` calls `${BIN_DIR}/../synthesize_e2e.py`, which can synthesize waveform from text file.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name} 0
 ```
-`--stage` controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.
+The last number controls the vocoder model during synthesis, which can be `0` or `1`, use `pwgan` or `hifigan` model as vocoder.
 
 ```text
 usage: synthesize_e2e.py [-h]

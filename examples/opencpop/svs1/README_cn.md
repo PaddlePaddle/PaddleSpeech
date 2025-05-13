@@ -175,9 +175,9 @@ optional arguments:
 `local/pinyin_to_phone.txt`来源于opencpop数据集中的README，表示opencpop中拼音到音素的映射。
 
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize_e2e.sh ${conf_path} ${train_output_path} ${ckpt_name} 0
 ```
-`--stage` 用于选择合成时使用的声码器模型，取值为 `0` 或 `1`，分别对应使用 `pwgan` 或 `hifigan` 模型作为声码器。
+最后一位参数 `0` 用于选择合成时使用的声码器模型，取值为 `0` 或 `1`，分别对应使用 `pwgan` 或 `hifigan` 模型作为声码器。
 
 ```text
 usage: synthesize_e2e.py [-h]

@@ -85,9 +85,8 @@ hifigan_vctk_ckpt_0.2.0
 ```
 `./local/synthesize.sh` calls `${BIN_DIR}/../synthesize.py`, which can synthesize waveform from `metadata.jsonl`.
 ```bash
-CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh --stage 0 ${conf_path} ${train_output_path} ${ckpt_name}
+CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name}
 ```
-`--stage` controls the vocoder model during synthesis, which can be `0` , use`hifigan` model as vocoder.
 
 ##  Speech Synthesis and Speech Editing
 
@@ -142,7 +141,6 @@ You can check the text of downloaded wavs in `source/README.md`.
 ```bash
 ./run.sh --stage 3 --stop-stage 3 --gpus 0
 ```
-`stage 3` of `run.sh` calls `local/synthesize_e2e.sh`, `stage 0` of it is **Speech Synthesis** and  `stage 1` of it is **Speech Editing**.
 
 You can modify `--wav_path`、`--old_str` and `--new_str` yourself, `--old_str` should be the text corresponding to the audio of  `--wav_path`, `--new_str` should be designed according to `--task_name`, both `--source_lang` and `--target_lang` should be `en` for model trained with VCTK dataset.
 ## Pretrained Model

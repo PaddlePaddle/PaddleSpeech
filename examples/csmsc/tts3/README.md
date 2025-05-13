@@ -109,7 +109,7 @@ pwg_baker_ckpt_0.4
 ```bash
 CUDA_VISIBLE_DEVICES=${gpus} ./local/synthesize.sh ${conf_path} ${train_output_path} ${ckpt_name} 0
 ```
-The last number controls the vocoder model during synthesis, which can use `0-4` to select the vocoder in {`pwgan`, `multi band melgan`, `style melgan`, ` hifigan`, `wavernn`}
+The last number controls the vocoder model during synthesis, which can use `0-4` to select the vocoder in {`pwgan`, `multi band melgan`, `style melgan`, `hifigan`, `wavernn`}
 
 ```text
 usage: synthesize.py [-h]

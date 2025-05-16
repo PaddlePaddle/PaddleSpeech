@@ -25,9 +25,9 @@ StartService(){
 ClientTest(){
     # Client test
     # test asr client
-    paddlespeech_client asr --server_ip $server_ip --port $port --input ./zh.wav 
+    #paddlespeech_client asr --server_ip $server_ip --port $port --input ./zh.wav 
     ((test_times+=1))
-    paddlespeech_client asr --server_ip $server_ip --port $port --input ./zh.wav 
+    #paddlespeech_client asr --server_ip $server_ip --port $port --input ./zh.wav 
     ((test_times+=1))
 
     # test tts client

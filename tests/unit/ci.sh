@@ -31,7 +31,7 @@ function main(){
 
   echo "Start server"
   cd ${speech_ci_path}/server/offline
-  #bash test_server_client.sh
+  bash test_server_client.sh
   echo "End server"
 
   echo "Start testing audiotools"

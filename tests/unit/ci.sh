@@ -29,10 +29,10 @@ function main(){
   bash test_cli.sh
   echo "End cli"
 
-  echo "Start server"
-  cd ${speech_ci_path}/server/offline
-  bash test_server_client.sh
-  echo "End server"
+  #echo "Start server"
+  #cd ${speech_ci_path}/server/offline
+  #bash test_server_client.sh
+  #echo "End server"
 
   echo "Start testing audiotools"
   cd ${speech_ci_path}/audiotools

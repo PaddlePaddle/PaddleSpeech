@@ -16,7 +16,7 @@ python3 ${BIN_DIR}/../../synthesize_e2e.py \
     --voc_ckpt=${train_output_path}/checkpoints/${ckpt_name} \
     --voc_stat=dump/train/feats_stats.npy \
     --lang=zh \
-    --text=${BIN_DIR}/../../assets/sentences.txt \
+    --text=${BIN_DIR}/../../../assets/sentences.txt \
     --output_dir=${train_output_path}/test_e2e \
     --phones_dict=dump/phone_id_map.txt \
     --inference_dir=${train_output_path}/inference || exit -1

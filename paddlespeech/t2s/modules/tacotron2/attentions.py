@@ -174,7 +174,7 @@ class AttLoc(nn.Layer):
             att_prev = att_prev / enc_hs_len.unsqueeze(-1).astype(
                 att_prev.dtype)
         else:
-            att_prev.unsqueeze(-1)
+            att_prev = att_prev.unsqueeze(-1)
 
         # att_prev: (utt, frame) -> (utt, 1, 1, frame)
         # -> (utt, att_conv_chans, 1, frame)

@@ -1,0 +1,70 @@
+# Configuration for fine-tuning Whisper base model
+
+# Data settings
+data:
+  train_manifest: "data/train_manifest.json"
+  dev_manifest: "data/dev_manifest.json"
+  test_manifest: "data/test_manifest.json"
+  target_language: "en"  # Language code for fine-tuning
+  max_duration: 30.0     # Maximum audio duration in seconds
+  min_duration: 0.5      # Minimum audio duration in seconds
+
+# Model settings
+model:
+  name: "whisper"
+  size: "base"  # Options: tiny, base, small, medium, large, large-v2, large-v3
+  checkpoint: null  # Path to pre-trained checkpoint, null for default
+  freeze_encoder: false  # Whether to freeze the encoder during fine-tuning
+  use_fp16: true  # Whether to use half precision
+
+# Training settings
+training:
+  max_epoch: 20
+  save_epoch: 1
+  log_interval: 100
+  batch_size: 16
+  num_workers: 4
+  accum_grad: 1  # Gradient accumulation steps
+  
+  # Optimizer settings
+  optimizer: "adamw"
+  learning_rate: 1e-5
+  weight_decay: 0.01
+  scheduler: "cosine"
+  warmup_ratio: 0.03
+  max_grad_norm: 1.0
+  
+  # Regularization
+  dropout: 0.1
+  label_smoothing: 0.1
+  
+  # Mixed precision training
+  amp_level: "O1"
+  amp_dtype: "float16"
+
+# Distributed training
+distributed:
+  use_fleet: true
+  strategy: "standard"
+  find_unused_parameters: false
+
+# Output settings
+output:
+  checkpoint_dir: "exp/whisper_fine_tune"
+  save_checkpoint: true
+  save_interval: 1
+  keep_checkpoint_max: 5
+
+# Evaluation settings
+eval:
+  eval_batch_size: 16
+  metrics: ["wer", "cer"]
+
+# Inference settings
+inference:
+  beam_size: 5
+  min_tokens: 0
+  max_tokens: 448
+  temperature: 0.0
+  language: null  # Set to target language code or null to auto-detect
+  without_timestamps: true

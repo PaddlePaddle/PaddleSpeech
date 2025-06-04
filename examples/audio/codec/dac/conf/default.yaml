@@ -1,0 +1,37 @@
+# Configuration for DAC model
+
+# Model Configuration
+model:
+  sample_rate: 44100
+  encoder_dims: 512
+  decoder_dims: 512
+  num_residual_layers: 10
+  n_fft: 1024
+  hop_length: 256
+
+# Training Configuration
+training:
+  batch_size: 16
+  lr: 0.0001
+  weight_decay: 0.0001
+  gradient_clip_val: 1.0
+  max_epochs: 200
+  warmup_steps: 1000
+  
+  # Loss weights
+  recon_loss_weight: 1.0
+  mel_loss_weight: 10.0
+  adversarial_loss_weight: 0.1
+
+# Data Configuration
+data:
+  train_manifest: "data/train/manifest.json"
+  dev_manifest: "data/dev/manifest.json"
+  test_manifest: "data/test/manifest.json"
+  max_duration: 10.0  # Maximum audio length in seconds
+  min_duration: 1.0   # Minimum audio length in seconds
+  
+# Distributed Training Configuration
+distributed:
+  world_size: 1
+  find_unused_parameters: true

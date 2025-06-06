@@ -147,7 +147,7 @@ class PaddleTTSConnectionHandler(TTSServerExecutor):
                 format(original_fs))
         else:
             wav_tar_fs = librosa.resample(
-                np.squeeze(wav), original_fs, target_fs)
+                np.squeeze(wav), orig_sr=original_fs, target_sr=target_fs)
             logger.debug(
                 "The sample rate of model is {}Hz and the target sample rate is {}Hz. Converting the sample rate of the synthesized audio successfully.".
                 format(original_fs, target_fs))

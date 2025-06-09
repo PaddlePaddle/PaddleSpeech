@@ -174,8 +174,7 @@ def _get_window(waveform: Tensor,
             mode = 'replicate'
 
         offset_strided_input = paddle.nn.functional.pad(
-            strided_input.unsqueeze(0), (1, 0),
-            data_format='NCL',
+            strided_input.unsqueeze(0), (1, 0), data_format='NCL',
             mode=mode).squeeze(0)  # (m, window_size + 1)
         strided_input = strided_input - preemphasis_coefficient * offset_strided_input[:, :
                                                                                        -1]

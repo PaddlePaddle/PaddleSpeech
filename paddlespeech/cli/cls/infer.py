@@ -160,8 +160,7 @@ class CLSExecutor(BaseExecutor):
             f_min=feat_conf['f_min'],
             f_max=feat_conf['f_max'],
             n_mels=feat_conf['n_mels'],
-            **pad_mode_kwarg,
-        )
+            **pad_mode_kwarg, )
         feats = feature_extractor(
             paddle.to_tensor(paddle.to_tensor(waveform).unsqueeze(0)))
         self._inputs['feats'] = paddle.transpose(feats, [0, 2, 1]).unsqueeze(

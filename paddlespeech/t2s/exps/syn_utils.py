@@ -454,7 +454,9 @@ def get_voc_inference(
 
     # npu only support mode=constant right now
     # this code has been adapted to support 'paddlespeech.t2s.models.melgan.melgan.MelGANGenerator'
-    npu_pad_mode = {"mode": "constant"} if paddle.get_device().startswith('npu') else {}
+    npu_pad_mode = {
+        "mode": "constant"
+    } if paddle.get_device().startswith('npu') else {}
 
     if voc_name != 'wavernn':
         if npu_pad_mode:

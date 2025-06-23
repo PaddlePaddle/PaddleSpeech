@@ -66,7 +66,12 @@ class Conv1d(nn.Layer):
         self.stride = stride
         self.dilation = dilation
         self.padding = padding
-        self.padding_mode = padding_mode
+
+        # padding_mode is forcibly set to 'constant' when using the npu device because npu only support mode=constant right now
+        if paddle.get_device().startswith('npu'):
+            self.padding_mode = 'constant'
+        else:
+            self.padding_mode = padding_mode
 
         self.conv = nn.Conv1D(
             in_channels,
@@ -335,10 +340,16 @@ class AttentiveStatisticsPooling(nn.Layer):
         # Apply layers
         attn = self.conv(self.tanh(self.tdnn(attn)))
 
+        if paddle.get_device().startswith('npu'):
+            # The following way is designed to fix the 'Broadcast dimension mismatch' error
+            # that occurs when using the npu device and setting padding_mode to 'constant'.
+            inf_tensor = paddle.full_like(attn, float("-inf"))
+        else:
+            # the default way
+            inf_tensor = paddle.ones_like(attn) * float("-inf")
+
         # Filter out zero-paddings
-        attn = paddle.where(
-            mask.tile((1, C, 1)) == 0,
-            paddle.ones_like(attn) * float("-inf"), attn)
+        attn = paddle.where(mask.tile((1, C, 1)) == 0, inf_tensor, attn)
 
         attn = F.softmax(attn, axis=2)
         mean, std = _compute_statistics(x, attn)

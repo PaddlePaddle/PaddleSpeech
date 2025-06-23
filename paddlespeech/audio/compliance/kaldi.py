@@ -167,10 +167,15 @@ def _get_window(waveform: Tensor,
                                             energy_floor)  # (m)
 
     if preemphasis_coefficient != 0.0:
+        # npu only support mode=constant right now
+        if paddle.get_device().startswith('npu'):
+            mode = 'constant'
+        else:
+            mode = 'replicate'
+
         offset_strided_input = paddle.nn.functional.pad(
-            strided_input.unsqueeze(0), (1, 0),
-            data_format='NCL',
-            mode='replicate').squeeze(0)  # (m, window_size + 1)
+            strided_input.unsqueeze(0), (1, 0), data_format='NCL',
+            mode=mode).squeeze(0)  # (m, window_size + 1)
         strided_input = strided_input - preemphasis_coefficient * offset_strided_input[:, :
                                                                                        -1]
 

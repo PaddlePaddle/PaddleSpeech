@@ -16,6 +16,7 @@
 build
 *output/
 .history
+.idea
 
 audio/dist/
 audio/fc_patch/
@@ -51,3 +52,5 @@ tools/onnx-simplifier/
 speechx/fc_patch/
 
 third_party/ctc_decoders/paddlespeech_ctcdecoders.py
+
+kernel_meta/

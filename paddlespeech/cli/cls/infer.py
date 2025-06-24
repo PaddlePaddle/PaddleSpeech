@@ -144,6 +144,12 @@ class CLSExecutor(BaseExecutor):
         if isinstance(audio_file, (str, os.PathLike)):
             logger.debug("Preprocessing audio_file:" + audio_file)
 
+        # set 'pad_mode' be 'constant' when device is npu, otherwise be the default 'pad_mode' value
+        if paddle.get_device().startswith('npu'):
+            pad_mode_kwarg = {"pad_mode": "constant"}
+        else:
+            pad_mode_kwarg = {}
+
         # Feature extraction
         feature_extractor = LogMelSpectrogram(
             sr=feat_conf['sample_rate'],
@@ -153,7 +159,8 @@ class CLSExecutor(BaseExecutor):
             win_length=feat_conf['window_length'],
             f_min=feat_conf['f_min'],
             f_max=feat_conf['f_max'],
-            n_mels=feat_conf['n_mels'], )
+            n_mels=feat_conf['n_mels'],
+            **pad_mode_kwarg, )
         feats = feature_extractor(
             paddle.to_tensor(paddle.to_tensor(waveform).unsqueeze(0)))
         self._inputs['feats'] = paddle.transpose(feats, [0, 2, 1]).unsqueeze(

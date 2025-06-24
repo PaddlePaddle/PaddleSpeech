@@ -451,12 +451,27 @@ def get_voc_inference(
     voc_name = voc[:voc.rindex('_')]
     voc_class = dynamic_import(voc_name, model_alias)
     voc_inference_class = dynamic_import(voc_name + '_inference', model_alias)
+
+    # npu only support mode=constant right now
+    # this code has been adapted to support 'paddlespeech.t2s.models.melgan.melgan.MelGANGenerator'
+    npu_pad_mode = {
+        "mode": "constant"
+    } if paddle.get_device().startswith('npu') else {}
+
     if voc_name != 'wavernn':
+        if npu_pad_mode:
+            voc_config["generator_params"].setdefault("pad_params", {})
+            voc_config["generator_params"]["pad_params"].update(npu_pad_mode)
+
         voc = voc_class(**voc_config["generator_params"])
         voc.set_state_dict(paddle.load(voc_ckpt)["generator_params"])
         voc.remove_weight_norm()
         voc.eval()
     else:
+        if npu_pad_mode:
+            voc_config["model"].setdefault("pad_params", {})
+            voc_config["model"]["pad_params"].update(npu_pad_mode)
+
         voc = voc_class(**voc_config["model"])
         voc.set_state_dict(paddle.load(voc_ckpt)["main_params"])
         voc.eval()

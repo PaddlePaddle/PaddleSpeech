@@ -192,8 +192,8 @@ class WhisperExecutor(BaseExecutor):
 
                 self.resource_path = os.path.join(
                     DATA_HOME, self.task_resource.version, 'whisper')
-                self.download_resource(resource_url, self.resource_path,
-                                       resource_md5)
+                # self.download_resource(resource_url, self.resource_path,
+                #                        resource_md5)
             else:
                 raise Exception("wrong type")
 
@@ -251,8 +251,9 @@ class WhisperExecutor(BaseExecutor):
 
         logger.debug(f"audio shape: {audio.shape}")
         # fbank
-        audio = log_mel_spectrogram(audio, resource_path=self.resource_path)
-
+        audio = log_mel_spectrogram(
+            audio, resource_path=self.resource_path, n_mels=128, padding=480000)
+        print(audio)
         audio_len = paddle.to_tensor(audio.shape[0]).unsqueeze(axis=0)
 
         self._inputs["audio"] = audio
@@ -275,7 +276,6 @@ class WhisperExecutor(BaseExecutor):
                           cfg.temperature_increment_on_fallback))
         else:
             temperature = [cfg.temperature]
-
         self._outputs["result"] = self.model.transcribe(
             audio,
             verbose=cfg.verbose,

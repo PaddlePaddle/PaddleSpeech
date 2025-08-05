@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from dataclasses import dataclass
+from dataclasses import field
 
 import numpy as np
 
@@ -38,13 +39,16 @@ class OnlineCTCEndpoingOpt:
     # that rule to a very large number.
 
     # rule1 times out after 5 seconds of silence, even if we decoded nothing.
-    rule1: OnlineCTCEndpointRule = OnlineCTCEndpointRule(False, 5000, 0)
+    rule1: OnlineCTCEndpointRule = field(
+        default_factory=lambda: OnlineCTCEndpointRule(False, 5000, 0))
     # rule2 times out after 1.0 seconds of silence after decoding something,
     # even if we did not reach a final-state at all.
-    rule2: OnlineCTCEndpointRule = OnlineCTCEndpointRule(True, 1000, 0)
+    rule2: OnlineCTCEndpointRule = field(
+        default_factory=lambda: OnlineCTCEndpointRule(True, 1000, 0))
     # rule3 times out after the utterance is 20 seconds long, regardless of
     # anything else.
-    rule3: OnlineCTCEndpointRule = OnlineCTCEndpointRule(False, 0, 20000)
+    rule3: OnlineCTCEndpointRule = field(
+        default_factory=lambda: OnlineCTCEndpointRule(False, 0, 20000))
 
 
 class OnlineCTCEndpoint:

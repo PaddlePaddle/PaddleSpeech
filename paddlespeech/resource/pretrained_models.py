@@ -407,6 +407,22 @@ asr_dynamic_pretrained_models = {
             'exp/conformer/checkpoints/avg_10'
         },
     },
+    "conformer_online_talcs-codeswitch_zh_en-16k": {
+        '1.6': {
+            'url':
+            'https://paddlespeech.bj.bcebos.com/s2t/tal_cs/asr1/asr1_chunk_conformer_talcs_ckpt_1.6.0.model.tar.gz',
+            'md5':
+            '3132daf1004fd76c185e14b7f0af01f9',
+            'cfg_path':
+            'model.yaml',
+            'model':
+            'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+            'params':
+            'exp/chunk_conformer/checkpoints/avg_10.pdparams',
+            'ckpt_path':
+            'exp/chunk_conformer/checkpoints/avg_10',
+        },
+    },
 }
 
 asr_static_pretrained_models = {

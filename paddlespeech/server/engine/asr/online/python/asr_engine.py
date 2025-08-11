@@ -772,6 +772,7 @@ class ASRServerExecutor(ASRExecutor):
                         am_model: Optional[os.PathLike]=None,
                         am_params: Optional[os.PathLike]=None,
                         lang: str='zh',
+                        codeswitch: Optional[bool]=False,
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,
                         decode_method: str='attention_rescoring',
@@ -795,7 +796,12 @@ class ASRServerExecutor(ASRExecutor):
         logger.debug(f"model_type: {self.model_type}")
 
         sample_rate_str = '16k' if sample_rate == 16000 else '8k'
-        tag = model_type + '-' + lang + '-' + sample_rate_str
+        if lang == "zh_en" and codeswitch is True:
+            tag = model_type + '-' + 'codeswitch_' + lang + '-' + sample_rate_str
+        elif lang == "zh_en" or codeswitch is True:
+            raise Exception("codeswitch is true only in zh_en model")
+        else:
+            tag = model_type + '-' + lang + '-' + sample_rate_str
         self.task_resource.set_task_model(model_tag=tag)
 
         if cfg_path is None or am_model is None or am_params is None:
@@ -862,6 +868,7 @@ class ASREngine(BaseEngine):
                 am_model=self.config.am_model,
                 am_params=self.config.am_params,
                 lang=self.config.lang,
+                codeswitch=self.config.get("codeswitch", False),
                 sample_rate=self.config.sample_rate,
                 cfg_path=self.config.cfg_path,
                 decode_method=self.config.decode_method,

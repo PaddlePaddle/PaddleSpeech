@@ -192,14 +192,15 @@ class WhisperExecutor(BaseExecutor):
 
                 self.resource_path = os.path.join(
                     DATA_HOME, self.task_resource.version, 'whisper')
-                # self.download_resource(resource_url, self.resource_path,
-                #                        resource_md5)
+                self.download_resource(resource_url, self.resource_path,
+                                       resource_md5)
             else:
                 raise Exception("wrong type")
 
         # load model
         model_dict = paddle.load(self.ckpt_path)
         dims = ModelDimensions(**model_dict["dims"])
+        self.dims = dims
         self.model = Whisper(dims)
         self.model.load_dict(model_dict)
         self.model.eval()
@@ -252,8 +253,10 @@ class WhisperExecutor(BaseExecutor):
         logger.debug(f"audio shape: {audio.shape}")
         # fbank
         audio = log_mel_spectrogram(
-            audio, resource_path=self.resource_path, n_mels=128, padding=480000)
-        print(audio)
+            audio,
+            resource_path=self.resource_path,
+            n_mels=self.dims.n_mels,
+            padding=480000)
         audio_len = paddle.to_tensor(audio.shape[0]).unsqueeze(axis=0)
 
         self._inputs["audio"] = audio

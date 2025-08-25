@@ -128,6 +128,7 @@ base = [
     "flatten_dict",
     "pyloudnorm",
     "rich",
+    "tiktoken",
 ]
 
 server = ["pattern_singleton", "websockets"]

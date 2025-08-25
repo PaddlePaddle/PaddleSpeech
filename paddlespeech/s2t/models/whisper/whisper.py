@@ -397,7 +397,9 @@ def detect_language(
 
     # skip encoder forward pass if already-encoded audio features were given
     if mel.shape[-2:] != (model.dims.n_audio_ctx, model.dims.n_audio_state):
-        mel = model.encoder(mel)
+        mel = model.encoder(
+            mel
+        )  # TODO zhaoxi: torch return float16, while cause e-3 diff with paddle float32
 
     # forward pass using a single token, startoftranscript
     batch_size = mel.shape[0]
@@ -407,6 +409,7 @@ def detect_language(
     # collect detected languages; suppress all non-language tokens
     mask = paddle.ones(paddle.to_tensor(logits.shape[-1]), dtype=bool)
     mask[list(tokenizer.all_language_tokens)] = False
+    logits.contiguous()
     logits[:, mask] = -np.inf
     language_tokens = paddle.argmax(logits, axis=-1)
     language_token_probs = F.softmax(logits, axis=-1)
@@ -492,8 +495,6 @@ def transcribe(
 
     content_frames = mel.shape[-1] - N_FRAMES
     content_duration = float(content_frames * HOP_LENGTH / SAMPLE_RATE)
-    # import pdb
-    # pdb.set_trace()
     if decode_options.get("language", None) in {None, "None"}:
         if not model.is_multilingual:
             decode_options["language"] = "en"
@@ -512,9 +513,7 @@ def transcribe(
                 )
 
     language: str = decode_options["language"]
-    print("language", language)
     task: str = decode_options.get("task", "transcribe")
-    print("model.num_languages", model.num_languages)
     tokenizer = get_tokenizer(
         multilingual=model.is_multilingual,
         resource_path=resource_path,
@@ -652,7 +651,6 @@ def transcribe(
                     "prompt"] = initial_prompt_tokens + remaining_prompt
             else:
                 decode_options["prompt"] = all_tokens[prompt_reset_since:]
-
             result: DecodingResult = decode_with_fallback(mel_segment)
             tokens = paddle.to_tensor(result.tokens)
 
@@ -704,7 +702,6 @@ def transcribe(
 
             consecutive = paddle.where(timestamp_tokens[:-1] & timestamp_tokens[
                 1:])[0]
-            print("consecutive", consecutive)
             consecutive = paddle.add(consecutive, paddle.to_tensor(1))
             if len(consecutive) > 0:
                 # if the output contains two consecutive timestamp tokens
@@ -754,82 +751,6 @@ def transcribe(
                         tokens=tokens,
                         result=result, ))
                 seek += segment_size
-
-            if word_timestamps:
-                add_word_timestamps(
-                    segments=current_segments,
-                    model=model,
-                    tokenizer=tokenizer,
-                    mel=mel_segment,
-                    num_frames=segment_size,
-                    prepend_punctuations=prepend_punctuations,
-                    append_punctuations=append_punctuations,
-                    last_speech_timestamp=last_speech_timestamp, )
-
-                if not single_timestamp_ending:
-                    last_word_end = get_end(current_segments)
-                    if last_word_end is not None and last_word_end > time_offset:
-                        seek = round(last_word_end * FRAMES_PER_SECOND)
-
-                # skip silence before possible hallucinations
-                if hallucination_silence_threshold is not None:
-                    threshold = hallucination_silence_threshold
-                    if not single_timestamp_ending:
-                        last_word_end = get_end(current_segments)
-                        if last_word_end is not None and last_word_end > time_offset:
-                            remaining_duration = window_end_time - last_word_end
-                            if remaining_duration > threshold:
-                                seek = round(last_word_end * FRAMES_PER_SECOND)
-                            else:
-                                seek = previous_seek + segment_size
-
-                    # if first segment might be a hallucination, skip leading silence
-                    first_segment = next_words_segment(current_segments)
-                    if first_segment is not None and is_segment_anomaly(
-                            first_segment):
-                        gap = first_segment["start"] - time_offset
-                        if gap > threshold:
-                            seek = previous_seek + round(gap *
-                                                         FRAMES_PER_SECOND)
-                            continue
-
-                    # skip silence before any possible hallucination that is surrounded
-                    # by silence or more hallucinations
-                    hal_last_end = last_speech_timestamp
-                    for si in range(len(current_segments)):
-                        segment = current_segments[si]
-                        if not segment["words"]:
-                            continue
-                        if is_segment_anomaly(segment):
-                            next_segment = next_words_segment(
-                                current_segments[si + 1:])
-                            if next_segment is not None:
-                                hal_next_start = next_segment["words"][0][
-                                    "start"]
-                            else:
-                                hal_next_start = time_offset + segment_duration
-                            silence_before = (
-                                segment["start"] - hal_last_end > threshold or
-                                segment["start"] < threshold or
-                                segment["start"] - time_offset < 2.0)
-                            silence_after = (
-                                hal_next_start - segment["end"] > threshold or
-                                is_segment_anomaly(next_segment) or
-                                window_end_time - segment["end"] < 2.0)
-                            if silence_before and silence_after:
-                                seek = round(
-                                    max(time_offset + 1, segment["start"]) *
-                                    FRAMES_PER_SECOND)
-                                if content_duration - segment[
-                                        "end"] < threshold:
-                                    seek = content_frames
-                                current_segments[si:] = []
-                                break
-                        hal_last_end = segment["end"]
-
-                last_word_end = get_end(current_segments)
-                if last_word_end is not None:
-                    last_speech_timestamp = last_word_end
 
             if verbose:
                 for segment in current_segments:
@@ -1138,6 +1059,7 @@ class SuppressBlank(LogitFilter):
 
     def apply(self, logits: paddle.Tensor, tokens: paddle.Tensor):
         if tokens.shape[1] == self.sample_begin:
+            logits.contiguous()
             logits[:, self.tokenizer.encode(" ") + [self.tokenizer.eot
                                                     ]] = -np.inf
 
@@ -1147,6 +1069,7 @@ class SuppressTokens(LogitFilter):
         self.suppress_tokens = list(suppress_tokens)
 
     def apply(self, logits: paddle.Tensor, tokens: paddle.Tensor):
+        logits.contiguous()
         logits[:, self.suppress_tokens] = -np.inf
 
 
@@ -1162,6 +1085,7 @@ class ApplyTimestampRules(LogitFilter):
     def apply(self, logits: paddle.Tensor, tokens: paddle.Tensor):
         # suppress <|notimestamps|> which is handled by without_timestamps
         if self.tokenizer.no_timestamps is not None:
+            logits.contiguous()
             logits[:, self.tokenizer.no_timestamps] = -np.inf
 
         # timestamps have to appear in pairs, except directly before EOT; mask logits accordingly
@@ -1182,6 +1106,7 @@ class ApplyTimestampRules(LogitFilter):
         if tokens.shape[
                 1] == self.sample_begin and self.max_initial_timestamp_index is not None:
             last_allowed = self.tokenizer.timestamp_begin + self.max_initial_timestamp_index
+            logits.contiguous()
             logits[:, last_allowed + 1:] = -np.inf
 
         # if sum of probability over timestamps is above any other token, sample timestamp
@@ -1218,12 +1143,14 @@ class DecodingTask:
             multilingual=model.is_multilingual,
             resource_path=resource_path,
             language=language,
-            task=options.task)
+            task=options.task,
+            num_languages=model.num_languages)
         self.tokenizer: Tokenizer = tokenizer
         self.options: DecodingOptions = self._verify_options(options)
         self.resource_path: str = resource_path
 
-        self.beam_size: int = options.beam_size or options.best_of or 1
+        # self.beam_size: int = options.beam_size or options.best_of or 1
+        self.n_group: int = options.beam_size or options.best_of or 1
         self.n_ctx: int = model.dims.n_text_ctx
         self.sample_len: int = options.sample_len or model.dims.n_text_ctx // 2
 
@@ -1368,10 +1295,10 @@ class DecodingTask:
         sum_logprobs: paddle.Tensor = paddle.zeros(
             paddle.to_tensor(n_batch), dtype=paddle.float32)
         no_speech_probs = [np.nan] * n_batch
-
         try:
             for i in range(self.sample_len):
                 logits = self.inference.logits(tokens, audio_features)
+                logits.contiguous()
 
                 if i == 0 and self.tokenizer.no_speech is not None:  # save no_speech_probs
                     probs_at_sot = F.softmax(
@@ -1407,17 +1334,8 @@ class DecodingTask:
         audio_features: paddle.Tensor = self._get_audio_features(
             mel)  # encoder forward pass
 
-        tokens: paddle.Tensor
-        if batch_size > 1:
-            for i in range(batch_size):
-                tokens = paddle.concat(
-                    x=[
-                        paddle.to_tensor([self.initial_tokens]),
-                        paddle.to_tensor([self.initial_tokens])
-                    ],
-                    axis=0)
-        elif batch_size == 1:
-            tokens = paddle.to_tensor([self.initial_tokens])
+        tokens: Tensor = paddle.to_tensor([self.initial_tokens]).repeat(
+            batch_size, 1)
 
         # detect language if requested, overwriting the language token
         languages, language_probs = self._detect_language(
@@ -1434,30 +1352,26 @@ class DecodingTask:
                                                      language_probs)
             ]
 
-        # repeat the audio & text tensors by the group size, for beam search or best-of-n sampling
-
-        audio_features = paddle.repeat_interleave(
-            audio_features, self.beam_size, axis=0)
-        tokens = paddle.repeat_interleave(tokens, self.beam_size, axis=0)
+        # repeat text tensors by the group size, for beam search or best-of-n sampling
+        tokens = tokens.repeat_interleave(self.n_group, axis=0)
 
         # call the main sampling loop
         tokens, sum_logprobs, no_speech_probs = self._main_loop(audio_features,
                                                                 tokens)
 
-        # reshape the tensors to have (batch_size, beam_size) as the first two dimensions
-        audio_features = audio_features[::self.beam_size]
-        no_speech_probs = no_speech_probs[::self.beam_size]
+        # reshape the tensors to have (batch_size, n_group) as the first two dimensions
+        audio_features = audio_features[::self.n_group]
+        no_speech_probs = no_speech_probs[::self.n_group]
         assert audio_features.shape[0] == len(no_speech_probs) == batch_size
 
-        tokens = tokens.reshape([batch_size, self.beam_size, -1])
-        sum_logprobs = sum_logprobs.reshape([batch_size, self.beam_size])
+        tokens = tokens.reshape([batch_size, self.n_group, -1])
+        sum_logprobs = sum_logprobs.reshape([batch_size, self.n_group])
 
         # get the final candidates for each group, and slice between the first sampled token and EOT
         tokens, sum_logprobs = self.decoder.finalize(tokens, sum_logprobs)
-        tokens: List[List[paddle.Tensor]] = [[
+        tokens: List[List[Tensor]] = [[
             t[self.sample_begin:(t == tokenizer.eot).nonzero()[0, 0]] for t in s
         ] for s in tokens]
-
         # select the top-ranked sample in each group
         selected = self.sequence_ranker.rank(tokens, sum_logprobs)
         tokens: List[List[
@@ -1466,11 +1380,12 @@ class DecodingTask:
 
         sum_logprobs: List[
             float] = [lp[i] for i, lp in zip(selected, sum_logprobs)]
-        avg_logprobs: List[
-            float] = [lp / (len(t) + 1) for t, lp in zip(tokens, sum_logprobs)]
+        avg_logprobs: List[float] = [
+            lp / (len(t) + 1) for t, lp in zip(tokens, sum_logprobs)
+        ]
 
         fields = (texts, languages, tokens, audio_features, avg_logprobs,
-                  no_speech_probs)
+                  no_speech_probs, )
         if len(set(map(len, fields))) != 1:
             raise RuntimeError(
                 f"inconsistent result lengths: {list(map(len, fields))}")
@@ -1504,7 +1419,7 @@ def decode(
     model: Whisper
         the Whisper model instance
 
-    mel: paddle.Tensor, shape = (80, 3000) or (*, 80, 3000)
+    mel: paddle.Tensor, shape = (80, 3000) or (*, 80, 3000) or (128, 3000) or (*, 128, 3000)
         A tensor containing the Mel spectrogram(s)
 
     options: DecodingOptions
@@ -1660,9 +1575,6 @@ def mel_filters(resource_path: str, n_mels: int) -> paddle.Tensor:
             mel_80=librosa.filters.mel(sr=16000, n_fft=400, n_mels=80),
         )
     """
-    # assert n_mels == 80, f"Unsupported n_mels: {n_mels}"
-    # with np.load(os.path.join(resource_path, "assets", "mel_filters.npz")) as f:
-    #     return paddle.to_tensor(f[f"mel_{n_mels}"])
     assert n_mels in {80, 128}, f"Unsupported n_mels: {n_mels}"
 
     filters_path = os.path.join(resource_path, "assets", "mel_filters.npz")
@@ -1683,11 +1595,11 @@ def log_mel_spectrogram(audio: Union[str, np.ndarray, paddle.Tensor],
         The path to audio or either a NumPy array or Tensor containing the audio waveform in 16 kHz
 
     n_mels: int
-        The number of Mel-frequency filters, only 80 is supported
+        The number of Mel-frequency filters, only 80 and 128 is supported
 
     Returns
     -------
-    paddle.Tensor, shape = (80, n_frames)
+    paddle.Tensor, shape = (n_mels, n_frames)
         A Tensor that contains the Mel spectrogram
     """
     if not paddle.is_tensor(audio):

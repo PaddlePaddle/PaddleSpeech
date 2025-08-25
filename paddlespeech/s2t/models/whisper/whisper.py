@@ -397,9 +397,7 @@ def detect_language(
 
     # skip encoder forward pass if already-encoded audio features were given
     if mel.shape[-2:] != (model.dims.n_audio_ctx, model.dims.n_audio_state):
-        mel = model.encoder(
-            mel
-        )  # TODO zhaoxi: torch return float16, while cause e-3 diff with paddle float32
+        mel = model.encoder(mel)
 
     # forward pass using a single token, startoftranscript
     batch_size = mel.shape[0]
@@ -1149,7 +1147,6 @@ class DecodingTask:
         self.options: DecodingOptions = self._verify_options(options)
         self.resource_path: str = resource_path
 
-        # self.beam_size: int = options.beam_size or options.best_of or 1
         self.n_group: int = options.beam_size or options.best_of or 1
         self.n_ctx: int = model.dims.n_text_ctx
         self.sample_len: int = options.sample_len or model.dims.n_text_ctx // 2

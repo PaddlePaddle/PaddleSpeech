@@ -939,9 +939,9 @@ whisper_dynamic_pretrained_models = {
             'params':
             'whisper-turbo-model.pdparams',
             'resource_data':
-            'https://paddlespeech.cdn.bcebos.com/whisper/whisper_model_20221108/assets.tar',
+            'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/assets.tar',
             'resource_data_md5':
-            '37a0a8abdb3641a51194f79567a93b61',
+            'dd61d092d362f1fdbae6ede08282e177',
         },
     },
 }

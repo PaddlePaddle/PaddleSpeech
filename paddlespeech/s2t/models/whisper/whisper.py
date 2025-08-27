@@ -1557,7 +1557,7 @@ def hann_window(n_fft: int=N_FFT):
     """
     return paddle.to_tensor(
         [0.5 - 0.5 * np.cos(2 * np.pi * n / n_fft) for n in range(n_fft)],
-        dtype=paddle.float32)
+        dtype="float32")
 
 
 @lru_cache(maxsize=None)

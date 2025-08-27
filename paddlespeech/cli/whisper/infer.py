@@ -140,7 +140,7 @@ class WhisperExecutor(BaseExecutor):
                         model_type: str='whisper',
                         lang: str='',
                         task: str='transcribe',
-                        size: str='large',
+                        size: str='turbo',
                         language: str='None',
                         sample_rate: int=16000,
                         cfg_path: Optional[os.PathLike]=None,

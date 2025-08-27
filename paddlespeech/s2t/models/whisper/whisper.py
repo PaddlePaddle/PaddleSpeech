@@ -1468,7 +1468,6 @@ class Whisper(nn.Layer):
 
     @property
     def device(self):
-        # return str(paddle.device.get_device()).split(":")[0]
         return paddle.device.get_device()
 
     @property

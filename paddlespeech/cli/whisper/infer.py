@@ -74,10 +74,9 @@ class WhisperExecutor(BaseExecutor):
         self.parser.add_argument(
             '--size',
             type=str,
-            default='large',
+            default='turbo',
             choices=['large', 'medium', 'base', 'small', 'tiny', 'turbo'],
-            help='Choose model size. now only support large, large:[whisper-large-16k]'
-        )
+            help='Choose model size.')
         self.parser.add_argument(
             '--language',
             type=str,

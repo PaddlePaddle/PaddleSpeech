@@ -601,7 +601,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-large-model.tar.gz',
             'md5':
@@ -639,7 +639,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-base-en-model.tar.gz',
             'md5':
@@ -677,7 +677,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-base-model.tar.gz',
             'md5':
@@ -715,7 +715,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-medium-en-model.tar.gz',
             'md5':
@@ -753,7 +753,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-medium-model.tar.gz',
             'md5':
@@ -791,7 +791,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-small-en-model.tar.gz',
             'md5':
@@ -829,7 +829,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-small-model.tar.gz',
             'md5':
@@ -867,7 +867,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-tiny-en-model.tar.gz',
             'md5':
@@ -905,7 +905,7 @@ whisper_dynamic_pretrained_models = {
             'resource_data_md5':
             '37a0a8abdb3641a51194f79567a93b61',
         },
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-tiny-model.tar.gz',
             'md5':
@@ -925,7 +925,7 @@ whisper_dynamic_pretrained_models = {
         },
     },
     "whisper-turbo-16k": {
-        '1.6': {
+        '1.5': {
             'url':
             'https://paddlespeech.bj.bcebos.com/whisper/whisper_model_20250825/whisper-turbo-model.tar.gz',
             'md5':

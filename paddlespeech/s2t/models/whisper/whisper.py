@@ -700,7 +700,8 @@ def transcribe(
 
             consecutive = paddle.where(timestamp_tokens[:-1] & timestamp_tokens[
                 1:])[0]
-            consecutive = paddle.add(consecutive, paddle.to_tensor(1))
+            if consecutive.numel() != 0:
+                consecutive = paddle.add(consecutive, paddle.to_tensor(1))
             if len(consecutive) > 0:
                 # if the output contains two consecutive timestamp tokens
                 slices = consecutive.tolist()

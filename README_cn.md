@@ -183,6 +183,7 @@
   - 🧩 级联模型应用: 作为传统语音任务的扩展，我们结合了自然语言处理、计算机视觉等任务，实现更接近实际需求的产业级应用。
 
 ### 近期更新
+- 🎉 2025.09.01: 新增 [Whisper large v3 与 turbo 模型](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/whisper).
 - 🤗 2025.08.11: 新增 [流式中英混合 tal_cs 识别模型](./examples/tal_cs/asr1/).
 - 👑 2023.05.31: 新增 [WavLM ASR-en](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/librispeech/asr5), 基于WavLM的英语识别微调，使用LibriSpeech数据集
 - 🎉 2023.05.18: 新增 [Squeezeformer](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell/asr1), 使用Squeezeformer进行训练，使用Aishell数据集

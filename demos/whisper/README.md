@@ -39,10 +39,10 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
    ```
    Arguments:
    - `input`(required): Audio file to recognize.
-   - `model`: Model type of asr task. Default: `whisper-large`.
+   - `model`: Model type of asr task. Default: `whisper`.
    - `task`: Output type. Default: `transcribe`.
    - `lang`: Model language. Default: ``. Use `en` to choice English-only model. Now [medium,base,small,tiny] size can support English-only.
-   - `size`: Model size for decode. Default: `large`. Now can support [large,medium,base,small,tiny].
+   - `size`: Model size for decode. Default: `turbo`. Now can support [turbo,large,medium,base,small,tiny].
    - `language`: Set decode language. Default: `None`. Forcibly set the recognized language, which is determined by the model itself by default. 
    - `sample_rate`: Sample rate of the model. Default: `16000`. Other sampling rates are not supported now.
    - `config`: Config of asr task. Use pretrained model when it is None. Default: `None`.
@@ -74,6 +74,7 @@ Whisper model trained by OpenAI whisper https://github.com/openai/whisper
    feature = whisper_executor(
        model='whisper',
        task='translate',
+       size='large', # For the translation function, is it better to use large or medium model
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
        ckpt_path=None,

@@ -39,10 +39,10 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
    ```
    参数：
    - `input`(必须输入)：用于识别的音频文件。
-   - `model`：ASR 任务的模型，默认值：`whisper-large`。
+   - `model`：ASR 任务的模型，默认值：`whisper`。
    - `task`：输出类别，默认值：`transcribe`。
    - `lang`: 模型语言，默认值：``，使用`en`选择只支持英文的模型，目前可选择`en`的模型有[medium,base,small,tiny]。
-   - `size`: 模型大小，默认值：`large`，目前支持[large,medium,base,small,tiny]。
+   - `size`: 模型大小，默认值：`turbo`，目前支持[turbo,large,medium,base,small,tiny]。
    - `language`：设定解码语言，默认值：`None`，强制设定识别出的语言，默认为模型自行判定。
    - `sample_rate`：音频采样率，默认值：`16000`，目前Whisper暂不支持其他采样率。
    - `config`：ASR 任务的参数文件，若不设置则使用预训练模型中的默认配置，默认值：`None`。
@@ -74,6 +74,7 @@ Whisper模型由OpenAI Whisper训练 https://github.com/openai/whisper
    feature = whisper_executor(
        model='whisper',
        task='translate',
+       size='large', # For the translation function, is it better to use large or medium model
        sample_rate=16000,
        config=None,  # Set `config` and `ckpt_path` to None to use pretrained model.
        ckpt_path=None,

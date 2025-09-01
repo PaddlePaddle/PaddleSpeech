@@ -178,6 +178,7 @@ Via the easy-to-use, efficient, flexible and scalable implementation, our vision
   - 🧩  *Cascaded models application*: as an extension of the typical traditional audio tasks, we combine the workflows of the aforementioned tasks with other fields like Natural language processing (NLP) and Computer Vision (CV).
 
 ### Recent Update
+- 🎉 2025.09.01: Add [Whisper large v3 and turbo model](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/demos/whisper).
 - 🤗 2025.08.11: Add [code-switch online model and server demo](./examples/tal_cs/asr1/).
 - 👑 2023.05.31: Add [WavLM ASR-en](https://github.com/PaddlePaddle/PaddleSpeech/blob/develop/examples/librispeech/asr5), WavLM fine-tuning for ASR on LibriSpeech.
 - 🎉 2023.05.18: Add [Squeezeformer](https://github.com/PaddlePaddle/PaddleSpeech/tree/develop/examples/aishell/asr1), Squeezeformer training for ASR on Aishell.

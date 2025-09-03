@@ -35,8 +35,12 @@ class LayerNorm(nn.LayerNorm):
         if bias_attr is None:
             bias_attr = paddle.ParamAttr(
                 initializer=nn.initializer.Constant(0.0))
-        super(LayerNorm, self).__init__(normalized_shape, epsilon, weight_attr,
-                                        bias_attr, name)
+        super(LayerNorm, self).__init__(
+            normalized_shape=normalized_shape,
+            epsilon=epsilon,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr,
+            name=name)
 
 
 class BatchNorm1D(nn.BatchNorm1D):
@@ -54,9 +58,14 @@ class BatchNorm1D(nn.BatchNorm1D):
         if bias_attr is None:
             bias_attr = paddle.ParamAttr(
                 initializer=nn.initializer.Constant(0.0))
-        super(BatchNorm1D,
-              self).__init__(num_features, momentum, epsilon, weight_attr,
-                             bias_attr, data_format, name)
+        super(BatchNorm1D, self).__init__(
+            num_features=num_features,
+            momentum=momentum,
+            epsilon=epsilon,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr,
+            data_format=data_format,
+            name=name)
 
 
 class Embedding(nn.Embedding):
@@ -99,8 +108,12 @@ class Linear(nn.Linear):
                         fan_in=None,
                         negative_slope=math.sqrt(5),
                         nonlinearity='leaky_relu'))
-        super(Linear, self).__init__(in_features, out_features, weight_attr,
-                                     bias_attr, name)
+        super(Linear, self).__init__(
+            in_features=in_features,
+            out_features=out_features,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr,
+            name=name)
 
 
 class Conv1D(nn.Conv1D):
@@ -131,8 +144,17 @@ class Conv1D(nn.Conv1D):
                         negative_slope=math.sqrt(5),
                         nonlinearity='leaky_relu'))
         super(Conv1D, self).__init__(
-            in_channels, out_channels, kernel_size, stride, padding, dilation,
-            groups, padding_mode, weight_attr, bias_attr, data_format)
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            padding_mode=padding_mode,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr,
+            data_format=data_format)
 
 
 class Conv2D(nn.Conv2D):
@@ -163,5 +185,14 @@ class Conv2D(nn.Conv2D):
                         negative_slope=math.sqrt(5),
                         nonlinearity='leaky_relu'))
         super(Conv2D, self).__init__(
-            in_channels, out_channels, kernel_size, stride, padding, dilation,
-            groups, padding_mode, weight_attr, bias_attr, data_format)
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            padding_mode=padding_mode,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr,
+            data_format=data_format)

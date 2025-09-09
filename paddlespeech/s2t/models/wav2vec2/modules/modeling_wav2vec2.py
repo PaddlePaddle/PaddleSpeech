@@ -891,7 +891,7 @@ class Wav2Vec2GumbelVectorQuantizer(nn.Layer):
                 hard=True).type_as(hidden_states)
 
             # compute perplexity
-            codevector_soft_dist = paddle.softmax(
+            codevector_soft_dist = paddle.nn.functional.softmax(
                 hidden_states.reshape((batch_size * sequence_length,
                                        self.num_groups, -1)).float(),
                 axis=-1)

@@ -37,14 +37,6 @@ paddle.long = 'int64'
 paddle.uint16 = 'uint16'
 paddle.cdouble = 'complex128'
 
-if not hasattr(paddle, 'softmax'):
-    logger.debug("register user softmax to paddle, remove this when fixed!")
-    setattr(paddle, 'softmax', paddle.nn.functional.softmax)
-
-if not hasattr(paddle, 'log_softmax'):
-    logger.debug("register user log_softmax to paddle, remove this when fixed!")
-    setattr(paddle, 'log_softmax', paddle.nn.functional.log_softmax)
-
 if not hasattr(paddle, 'sigmoid'):
     logger.debug("register user sigmoid to paddle, remove this when fixed!")
     setattr(paddle, 'sigmoid', paddle.nn.functional.sigmoid)

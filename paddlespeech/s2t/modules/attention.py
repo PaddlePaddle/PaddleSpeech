@@ -120,11 +120,11 @@ class MultiHeadedAttention(nn.Layer):
             # for last chunk, time2 might be larger than scores.size(-1)
             mask = mask[:, :, :, :scores.shape[-1]]
             scores = scores.masked_fill(mask, -float('inf'))
-            attn = paddle.softmax(
+            attn = paddle.nn.functional.softmax(
                 scores, axis=-1).masked_fill(mask,
                                              0.0)  # (batch, head, time1, time2)
         else:
-            attn = paddle.softmax(
+            attn = paddle.nn.functional.softmax(
                 scores, axis=-1)  # (batch, head, time1, time2)
 
         p_attn = self.dropout(attn)

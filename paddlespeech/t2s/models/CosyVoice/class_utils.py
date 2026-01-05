@@ -1,9 +1,17 @@
-import paddle
+# Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-# from cosyvoice.cli.model import CosyVoice2Model, CosyVoiceModel
-# from cosyvoice.flow.flow import CausalMaskedDiffWithXvec, MaskedDiffWithXvec
-# from cosyvoice.hifigan.generator import HiFTGenerator
-# from cosyvoice.llm.llm import Qwen2LM, TransformerLM
 from paddlespeech.t2s.modules.transformer.activation import Swish
 from paddlespeech.t2s.modules.transformer.attention import RelPositionMultiHeadedAttention
 from paddlespeech.t2s.modules.transformer.embedding import EspnetRelPositionalEncoding
@@ -23,18 +31,3 @@ COSYVOICE_ATTENTION_CLASSES = {
     "rel_selfattn": RelPositionMultiHeadedAttention,
 }
 
-
-# def get_model_type(configs):
-#     if (
-#         isinstance(configs["llm"], TransformerLM)
-#         and isinstance(configs["flow"], MaskedDiffWithXvec)
-#         and isinstance(configs["hift"], HiFTGenerator)
-#     ):
-#         return CosyVoiceModel
-#     if (
-#         isinstance(configs["llm"], Qwen2LM)
-#         and isinstance(configs["flow"], CausalMaskedDiffWithXvec)
-#         and isinstance(configs["hift"], HiFTGenerator)
-#     ):
-#         return CosyVoice2Model
-#     raise TypeError("No valid model type found!")

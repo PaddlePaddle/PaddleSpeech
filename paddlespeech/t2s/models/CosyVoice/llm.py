@@ -1,3 +1,17 @@
+# Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import queue
 import random
 import threading
@@ -7,10 +21,6 @@ import logging
 import paddle.nn.functional as F
 import paddle
 IGNORE_ID = -1
-# from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
-# from cosyvoice.utils.common import IGNORE_ID, th_accuracy
-# from cosyvoice.utils.file_utils import logging
-# from cosyvoice.utils.mask import make_pad_mask
 import torch
 LabelSmoothingLoss = None
 def ras_sampling(weighted_scores, decoded_tokens, sampling, top_p=0.8, top_k=25, win_size=10, tau_r=0.1):
@@ -368,23 +378,6 @@ class Qwen2LM(TransformerLM):
         self.llm_decoder = paddle.nn.Linear(
             in_features=llm_output_size, out_features=speech_token_size + 3
         )
-        # self.llm_decoder.weight = paddle.create_parameter(
-        #     shape=self.llm_decoder.weight.shape,
-        #     dtype='bfloat16',
-        #     default_initializer=paddle.nn.initializer.Assign(self.llm_decoder.weight.astype('bfloat16'))
-        # )
-        # if self.llm_decoder.bias is not None:
-        #     self.llm_decoder.bias = paddle.create_parameter(
-        #         shape=self.llm_decoder.bias.shape,
-        #         dtype='bfloat16',
-        #         default_initializer=paddle.nn.initializer.Assign(self.llm_decoder.bias.astype('bfloat16'))
-        #     )
-        # self.criterion_ce = LabelSmoothingLoss(
-        #     size=speech_token_size + 3,
-        #     padding_idx=IGNORE_ID,
-        #     smoothing=lsm_weight,
-        #     normalize_length=length_normalized_loss,
-        # )
         self.speech_embedding = paddle.nn.Embedding(
             speech_token_size + 3, llm_input_size
         )
@@ -393,104 +386,104 @@ class Qwen2LM(TransformerLM):
         self.stop_token_ids = [(speech_token_size + i) for i in range(3)]
         self.vllm_output_queue = {}
 
-    # def prepare_lm_input_target(
-    #     self,
-    #     text_token,
-    #     text_token_emb,
-    #     text_token_len,
-    #     speech_token,
-    #     speech_token_emb,
-    #     speech_token_len,
-    # ):
-    #     lm_target, lm_input = [], []
-    #     text_token = torch.nn.utils.rnn.unpad_sequence(
-    #         text_token, text_token_len.cpu(), batch_first=True
-    #     )
-    #     speech_token = torch.nn.utils.rnn.unpad_sequence(
-    #         speech_token, speech_token_len.cpu(), batch_first=True
-    #     )
-    #     text_token_emb = torch.nn.utils.rnn.unpad_sequence(
-    #         text_token_emb, text_token_len.cpu(), batch_first=True
-    #     )
-    #     speech_token_emb = torch.nn.utils.rnn.unpad_sequence(
-    #         speech_token_emb, speech_token_len.cpu(), batch_first=True
-    #     )
-    #     for i in range(len(text_token)):
-    #         if (
-    #             random.random() < 0.5
-    #             and speech_token_len[i] / text_token_len[i]
-    #             > self.mix_ratio[1] / self.mix_ratio[0]
-    #         ):
-    #             this_lm_target, this_lm_input = [], []
-    #             this_lm_target.append(IGNORE_ID)
-    #             this_lm_input.append(
-    #                 self.llm_embedding.weight[self.sos_eos].reshape(1, -1)
-    #             )
-    #             for j in range(
-    #                 ((text_token_len[i] + 1) / self.mix_ratio[0]).ceil().int().item()
-    #             ):
-    #                 this_text_token = text_token[i][
-    #                     j * self.mix_ratio[0] : (j + 1) * self.mix_ratio[0]
-    #                 ].tolist()
-    #                 this_speech_token = speech_token[i][
-    #                     j * self.mix_ratio[1] : (j + 1) * self.mix_ratio[1]
-    #                 ].tolist()
-    #                 if len(this_text_token) == self.mix_ratio[0]:
-    #                     assert len(this_speech_token) == self.mix_ratio[1]
-    #                     this_lm_target += [IGNORE_ID] * (self.mix_ratio[0] - 1)
-    #                     this_lm_target += this_speech_token
-    #                     this_lm_target.append(self.speech_token_size + 2)
-    #                     this_lm_input.append(
-    #                         text_token_emb[i][
-    #                             j * self.mix_ratio[0] : (j + 1) * self.mix_ratio[0]
-    #                         ]
-    #                     )
-    #                     this_lm_input.append(
-    #                         speech_token_emb[i][
-    #                             j * self.mix_ratio[1] : (j + 1) * self.mix_ratio[1]
-    #                         ]
-    #                     )
-    #                 else:
-    #                     this_lm_target += [-1] * len(this_text_token)
-    #                     this_lm_target += speech_token[i][
-    #                         j * self.mix_ratio[1] :
-    #                     ].tolist()
-    #                     this_lm_target.append(self.speech_token_size)
-    #                     this_lm_input.append(text_token_emb[i][j * self.mix_ratio[0] :])
-    #                     this_lm_input.append(
-    #                         self.llm_embedding.weight[self.task_id].reshape(1, -1)
-    #                     )
-    #                     this_lm_input.append(
-    #                         speech_token_emb[i][j * self.mix_ratio[1] :]
-    #                     )
-    #             this_lm_target, this_lm_input = paddle.tensor(
-    #                 this_lm_target
-    #             ), paddle.cat(this_lm_input, dim=0)
-    #         else:
-    #             this_lm_target = paddle.tensor(
-    #                 [IGNORE_ID] * (1 + text_token_len[i])
-    #                 + speech_token[i].tolist()
-    #                 + [self.speech_token_size]
-    #             )
-    #             this_lm_input = paddle.cat(
-    #                 [
-    #                     self.llm_embedding.weight[self.sos_eos].reshape(1, -1),
-    #                     text_token_emb[i],
-    #                     self.llm_embedding.weight[self.task_id].reshape(1, -1),
-    #                     speech_token_emb[i],
-    #                 ],
-    #                 dim=0,
-    #             )
-    #         lm_target.append(this_lm_target)
-    #         lm_input.append(this_lm_input)
-    #     lm_input_len = paddle.tensor([i.size(0) for i in lm_input], dtype=paddle.int32)
-    #     lm_input = torch.nn.utils.rnn.pad_sequence(
-    #         lm_input, batch_first=True, padding_value=IGNORE_ID
-    #     )
-    #     lm_target = torch.nn.utils.rnn.pad_sequence(
-    #         lm_target, batch_first=True, padding_value=IGNORE_ID
-    #     )
-    #     return lm_target, lm_input, lm_input_len
+    def prepare_lm_input_target(
+        self,
+        text_token,
+        text_token_emb,
+        text_token_len,
+        speech_token,
+        speech_token_emb,
+        speech_token_len,
+    ):
+        lm_target, lm_input = [], []
+        text_token = torch.nn.utils.rnn.unpad_sequence(
+            text_token, text_token_len.cpu(), batch_first=True
+        )
+        speech_token = torch.nn.utils.rnn.unpad_sequence(
+            speech_token, speech_token_len.cpu(), batch_first=True
+        )
+        text_token_emb = torch.nn.utils.rnn.unpad_sequence(
+            text_token_emb, text_token_len.cpu(), batch_first=True
+        )
+        speech_token_emb = torch.nn.utils.rnn.unpad_sequence(
+            speech_token_emb, speech_token_len.cpu(), batch_first=True
+        )
+        for i in range(len(text_token)):
+            if (
+                random.random() < 0.5
+                and speech_token_len[i] / text_token_len[i]
+                > self.mix_ratio[1] / self.mix_ratio[0]
+            ):
+                this_lm_target, this_lm_input = [], []
+                this_lm_target.append(IGNORE_ID)
+                this_lm_input.append(
+                    self.llm_embedding.weight[self.sos_eos].reshape(1, -1)
+                )
+                for j in range(
+                    ((text_token_len[i] + 1) / self.mix_ratio[0]).ceil().int().item()
+                ):
+                    this_text_token = text_token[i][
+                        j * self.mix_ratio[0] : (j + 1) * self.mix_ratio[0]
+                    ].tolist()
+                    this_speech_token = speech_token[i][
+                        j * self.mix_ratio[1] : (j + 1) * self.mix_ratio[1]
+                    ].tolist()
+                    if len(this_text_token) == self.mix_ratio[0]:
+                        assert len(this_speech_token) == self.mix_ratio[1]
+                        this_lm_target += [IGNORE_ID] * (self.mix_ratio[0] - 1)
+                        this_lm_target += this_speech_token
+                        this_lm_target.append(self.speech_token_size + 2)
+                        this_lm_input.append(
+                            text_token_emb[i][
+                                j * self.mix_ratio[0] : (j + 1) * self.mix_ratio[0]
+                            ]
+                        )
+                        this_lm_input.append(
+                            speech_token_emb[i][
+                                j * self.mix_ratio[1] : (j + 1) * self.mix_ratio[1]
+                            ]
+                        )
+                    else:
+                        this_lm_target += [-1] * len(this_text_token)
+                        this_lm_target += speech_token[i][
+                            j * self.mix_ratio[1] :
+                        ].tolist()
+                        this_lm_target.append(self.speech_token_size)
+                        this_lm_input.append(text_token_emb[i][j * self.mix_ratio[0] :])
+                        this_lm_input.append(
+                            self.llm_embedding.weight[self.task_id].reshape(1, -1)
+                        )
+                        this_lm_input.append(
+                            speech_token_emb[i][j * self.mix_ratio[1] :]
+                        )
+                this_lm_target, this_lm_input = paddle.tensor(
+                    this_lm_target
+                ), paddle.cat(this_lm_input, dim=0)
+            else:
+                this_lm_target = paddle.tensor(
+                    [IGNORE_ID] * (1 + text_token_len[i])
+                    + speech_token[i].tolist()
+                    + [self.speech_token_size]
+                )
+                this_lm_input = paddle.cat(
+                    [
+                        self.llm_embedding.weight[self.sos_eos].reshape(1, -1),
+                        text_token_emb[i],
+                        self.llm_embedding.weight[self.task_id].reshape(1, -1),
+                        speech_token_emb[i],
+                    ],
+                    dim=0,
+                )
+            lm_target.append(this_lm_target)
+            lm_input.append(this_lm_input)
+        lm_input_len = paddle.tensor([i.size(0) for i in lm_input], dtype=paddle.int32)
+        lm_input = torch.nn.utils.rnn.pad_sequence(
+            lm_input, batch_first=True, padding_value=IGNORE_ID
+        )
+        lm_target = torch.nn.utils.rnn.pad_sequence(
+            lm_target, batch_first=True, padding_value=IGNORE_ID
+        )
+        return lm_target, lm_input, lm_input_len
 
     @paddle.no_grad()
     def inference(
@@ -598,7 +591,6 @@ class Qwen2LM(TransformerLM):
                 yield top_ids
                 out_tokens.append(top_ids)
                 lm_input = self.speech_embedding.weight[top_ids].reshape([1, 1, -1])
-            print(len(out_tokens))
     @paddle.no_grad()
     def inference_bistream(
         self,

@@ -1,13 +1,23 @@
-import paddle
+# Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-"""Unility functions for Transformer."""
+import paddle
 import queue
 import random
 from typing import List
 
 import numpy as np
-
-############################## 相关utils函数，如下 ##############################
 
 def device2str(type=None, index=None, *, device=None):
     type = device if device else type
@@ -26,7 +36,6 @@ def device2str(type=None, index=None, *, device=None):
         type = f'gpu:{type.get_device_id()}'
 
     return type
-############################## 相关utils函数，如上 ##############################
 
 
 IGNORE_ID = -1
@@ -128,7 +137,6 @@ def ras_sampling(
         .sum()
         .item()
     )
-    print("top_ids:",top_ids)
     if rep_num >= win_size * tau_r:
         top_ids = random_sampling(weighted_scores, decoded_tokens, sampling)[0]
     return top_ids
@@ -150,7 +158,6 @@ def nucleus_sampling(weighted_scores, top_p=0.8, top_k=25):
             break
     prob = paddle.to_tensor(prob).cuda()
     indices = paddle.to_tensor(indices, dtype=paddle.long).to(weighted_scores.place)
-    print("indices:",indices)
     # top_ids = indices[prob.multinomial(num_samples=1, replacement=True)]
     top_ids = indices[0]
     return top_ids
@@ -160,7 +167,6 @@ def random_sampling(weighted_scores, decoded_tokens, sampling):
     top_ids = weighted_scores.softmax(axis=0).multinomial(
         num_samples=1, replacement=True
     )
-    print("random_sampling:",top_ids)
     return top_ids
 
 

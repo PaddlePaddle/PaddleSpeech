@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Multi-Head Attention layer definition."""
 import math
-
 import numpy
 import paddle
 from paddle import nn
-
 from paddlespeech.t2s.modules.masked_fill import masked_fill
 
 

@@ -220,7 +220,7 @@ class TransformerLM(paddle.nn.Layer):
         num_trials, max_trials = 0, 100
         while True:
             top_ids = self.sampling(weighted_scores, decoded_tokens, sampling)
-            if not ignore_eos or self.speech_token_size not in top_ids:
+            if (not ignore_eos) or (top_ids < self.speech_token_size):
                 break
             num_trials += 1
             if num_trials > max_trials:
@@ -325,15 +325,18 @@ class Qwen2Encoder(paddle.nn.Layer):
         )
         return outs.hidden_states[-1], masks.unsqueeze(1)
 
-    def forward_one_step(self, xs, masks, cache=None):
+    def forward_one_step(self, xs, masks, cache=None,idx = 0):
+
         input_masks = masks[:, -1, :]
         outs = self.model(
             inputs_embeds=xs,
             attention_mask=input_masks,
             output_hidden_states=True,
             return_dict=True,
+            output_attentions=False,
             use_cache=True,
             past_key_values=cache,
+            index =idx
         )
         xs = outs.hidden_states[-1]
         new_cache = outs.past_key_values
@@ -572,6 +575,7 @@ class Qwen2LM(TransformerLM):
             out_tokens = []
             cache = None
             for i in range(max_len):
+                
                 y_pred, cache = self.llm.forward_one_step(
                     lm_input,
                     masks=paddle.tril(
@@ -580,6 +584,7 @@ class Qwen2LM(TransformerLM):
                         )
                     ).to(paddle.bool),
                     cache=cache,
+                    idx = i
                 )
                 logp = F.log_softmax(self.llm_decoder(y_pred[:, -1]), axis = -1)
                 top_ids = self.sampling_ids(
@@ -587,15 +592,13 @@ class Qwen2LM(TransformerLM):
                     out_tokens,
                     sampling,
                     ignore_eos=True if i < min_len else False,
-                ).item()
-                if top_ids == self.speech_token_size:
+                )
+                if top_ids in self.stop_token_ids:
                     break
-                if top_ids > self.speech_token_size:
-                    continue
                 yield top_ids
                 out_tokens.append(top_ids)
                 lm_input = self.speech_embedding.weight[top_ids].reshape([1, 1, -1])
-
+            print(len(out_tokens))
     @paddle.no_grad()
     def inference_bistream(
         self,
@@ -735,3 +738,5 @@ class Qwen2LM(TransformerLM):
                     raise ValueError("should not get token {}".format(top_ids))
             yield top_ids
             lm_input = self.speech_embedding.weight[top_ids].reshape(1, 1, -1)
+
+

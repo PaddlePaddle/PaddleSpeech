@@ -11,15 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Tuple
+from typing import Tuple, Any, Dict, Optional
 import paddle
+import math
 from paddle import nn
 import paddle.nn.functional as F
 from einops import pack, rearrange, repeat
-from cosyvoice.utils.common import mask_to_bias
-from cosyvoice.utils.mask import add_optional_chunk_mask
-from matcha.models.components.decoder import SinusoidalPosEmb, Block1D, ResnetBlock1D, Downsample1D, TimestepEmbedding, Upsample1D
-from .attention import BasicTransformerBlock
+from paddlespeech.t2s.models.CosyVoice.common import mask_to_bias
+from paddlespeech.t2s.models.CosyVoice.mask import add_optional_chunk_mask
+from .matcha_transformer import BasicTransformerBlock
 
 def get_activation(act_fn):
     if act_fn == "silu":
@@ -110,14 +110,15 @@ class TimestepEmbedding(nn.Layer):
         if condition is not None and self.cond_proj is not None:
             sample = sample + self.cond_proj(condition)
         sample = self.linear_1(sample)
-
+        # print("sample2:",sample)
         if self.act is not None:
             sample = self.act(sample)
-
+        # print("sample3:",sample)
         sample = self.linear_2(sample)
-
+        # print("sample4:",sample)
         if self.post_act is not None:
             sample = self.post_act(sample)
+        # print("sample5:",sample)
         return sample
 
 class Upsample1D(nn.Layer):
@@ -160,17 +161,17 @@ class Upsample1D(nn.Layer):
 
         return outputs
 
-class Transpose(nn.Module):
+class Transpose(nn.Layer):
     def __init__(self, dim0: int, dim1: int):
         super().__init__()
         self.dim0 = dim0
         self.dim1 = dim1
 
     def forward(self, x: paddle.Tensor) -> paddle.Tensor:
-        x = paddle.transpose(x, (self.dim0, self.dim1))
+        x = paddle.transpose(x, [0, self.dim1, self.dim0])
         return x
 
-class CausalConv1d(nn.Conv1d):
+class CausalConv1d(nn.Conv1D):
     def __init__(
         self,
         in_channels: int,
@@ -332,8 +333,7 @@ def add_optional_chunk_mask(xs: paddle.Tensor,
         chunk_masks = masks & chunk_masks  # (B, L, L)
     else:
         chunk_masks = masks
-    
-    assert chunk_masks.dtype == 'bool'
+    assert chunk_masks.dtype == paddle.bool
     if (chunk_masks.sum(axis=-1) == 0).sum().item() != 0:
         print('get chunk_masks all false at some timestep, force set to true, make sure they are masked in future computation!')
         all_false_mask = chunk_masks.sum(axis=-1) == 0
@@ -342,8 +342,8 @@ def add_optional_chunk_mask(xs: paddle.Tensor,
     return chunk_masks
 
 def mask_to_bias(mask: paddle.Tensor, dtype: str) -> paddle.Tensor:
-    assert mask.dtype == 'bool', "Input mask must be of boolean type"
-    assert dtype in ['float32', 'bfloat16', 'float16'], f"Unsupported dtype: {dtype}"
+    assert mask.dtype == paddle.bool, "Input mask must be of boolean type"
+    assert dtype in [paddle.float32, paddle.bfloat16, paddle.float16], f"Unsupported dtype: {dtype}"
     mask = mask.astype(dtype)
     mask = (1.0 - mask) * -1.0e+10
     
@@ -489,7 +489,6 @@ class ConditionalDecoder(nn.Layer):
         t = self.time_mlp(t)
 
         x = pack([x, mu], "b * t")[0]
-
         if spks is not None:
             spks = repeat(spks, "b c -> b c t", t=x.shape[-1])
             x = pack([x, spks], "b * t")[0]
@@ -667,15 +666,16 @@ class CausalConditionalDecoder(nn.Layer):
             if isinstance(m, nn.Conv1D):
                 nn.initializer.KaimingNormal(m.weight, nonlinearity='relu')
                 if m.bias is not None:
-                    nn.initializer.Constant(m.bias, value=0)
+                    initializer = nn.initializer.Constant(value=0)
+                    initializer(m.bias)
             elif isinstance(m, nn.GroupNorm):
                 nn.initializer.Constant(m.weight, value=1)
                 nn.initializer.Constant(m.bias, value=0)
             elif isinstance(m, nn.Linear):
                 nn.initializer.KaimingNormal(m.weight, nonlinearity='relu')
                 if m.bias is not None:
-                    nn.initializer.Constant(m.bias, value=0)
-
+                    initializer = nn.initializer.Constant(value=0)
+                    initializer(m.bias)
     def forward(self, x, mask, mu, t, spks=None, cond=None, streaming=False):
         """Forward pass of the UNet1DConditional model.
 
@@ -693,9 +693,7 @@ class CausalConditionalDecoder(nn.Layer):
         """
         t = self.time_embeddings(t).astype(t.dtype)  # 使用 astype 代替 .to(t.dtype)
         t = self.time_mlp(t)
-
         x = pack([x, mu], "b * t")[0]  # 假设 pack 函数已实现
-
         if spks is not None:
             spks = repeat(spks, "b c -> b c t", t=x.shape[-1])  # 假设 repeat 函数已实现
             x = pack([x, spks], "b * t")[0]

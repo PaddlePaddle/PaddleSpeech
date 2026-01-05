@@ -13,3 +13,5 @@
 # limitations under the License.
 from .hifigan import *
 from .hifigan_updater import *
+from .cosy_hifigan import *
+from .f0_predictor import *

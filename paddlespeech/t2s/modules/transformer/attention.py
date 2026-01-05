@@ -199,7 +199,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
             x = x * paddle.tril(ones, t2 - t1)[None, None, :, :]
         return x
 
-    def forward(self, query, key, value, pos_emb, mask):
+    def forward(self, query, key, value, pos_emb, mask, cache):
         """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
 
         Args:
@@ -220,6 +220,11 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         q, k, v = self.forward_qkv(query, key, value)
         # (batch, time1, head, d_k)
         q = q.transpose([0, 2, 1, 3])
+        if cache is not None and cache.shape[0] > 0:
+            key_cache, value_cache = paddle.split(cache, num_or_sections=2, axis=-1)
+            k = paddle.concat([key_cache, k], axis=2)
+            v = paddle.concat([value_cache, v], axis=2)
+        new_cache = paddle.concat([k, v], axis=-1)
         n_batch_pos = paddle.shape(pos_emb)[0]
         p = self.linear_pos(pos_emb).reshape(
             [n_batch_pos, -1, self.h, self.d_k])
@@ -243,7 +248,7 @@ class RelPositionMultiHeadedAttention(MultiHeadedAttention):
         # (batch, head, time1, time2)
         scores = (matrix_ac + matrix_bd) / math.sqrt(self.d_k)
 
-        return self.forward_attention(v, scores, mask)
+        return self.forward_attention(v, scores, mask), new_cache
 
 
 class LegacyRelPositionMultiHeadedAttention(MultiHeadedAttention):

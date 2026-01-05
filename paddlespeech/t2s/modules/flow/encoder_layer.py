@@ -1,117 +1,94 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# Modified from espnet(https://github.com/espnet/espnet)
-"""Encoder self-attention layer definition."""
 import paddle
-from paddle import nn
-from typing import Optional
 
-class EncoderLayer(nn.Layer):
+"""Encoder self-attention layer definition."""
+from typing import Optional, Tuple
+
+
+class TransformerEncoderLayer(paddle.nn.Layer):
     """Encoder layer module.
 
     Args:
-        size (int): 
-            Input dimension.
-        self_attn (nn.Layer): 
-            Self-attention module instance.
-            `MultiHeadedAttention`  instance can be used as the argument.
-        feed_forward (nn.Layer): 
-            Feed-forward module instance.
-            `PositionwiseFeedForward`, `MultiLayeredConv1d`, or `Conv1dLinear` instance can be used as the argument.
-        dropout_rate (float): 
-            Dropout rate.
-        normalize_before (bool): 
-            Whether to use layer_norm before the first block.
-        concat_after (bool): 
-            Whether to concat attention layer's input and output.
-            if True, additional linear will be applied.
-            i.e. x -> x + linear(concat(x, att(x)))
-            if False, no additional linear will be applied. i.e. x -> x + att(x)
+        size (int): Input dimension.
+        self_attn (torch.nn.Module): Self-attention module instance.
+            `MultiHeadedAttention` or `RelPositionMultiHeadedAttention`
+            instance can be used as the argument.
+        feed_forward (torch.nn.Module): Feed-forward module instance.
+            `PositionwiseFeedForward`, instance can be used as the argument.
+        dropout_rate (float): Dropout rate.
+        normalize_before (bool):
+            True: use layer_norm before each sub-block.
+            False: to use layer_norm after each sub-block.
     """
 
     def __init__(
-            self,
-            size,
-            self_attn,
-            feed_forward,
-            dropout_rate,
-            normalize_before=True,
-            concat_after=False, ):
+        self,
+        size: int,
+        self_attn: paddle.nn.Layer,
+        feed_forward: paddle.nn.Layer,
+        dropout_rate: float,
+        normalize_before: bool = True,
+    ):
         """Construct an EncoderLayer object."""
         super().__init__()
         self.self_attn = self_attn
         self.feed_forward = feed_forward
-        self.norm1 = nn.LayerNorm(size)
-        self.norm2 = nn.LayerNorm(size)
-        self.dropout = nn.Dropout(dropout_rate)
+        self.norm1 = paddle.nn.LayerNorm(normalized_shape=size, epsilon=1e-12)
+        self.norm2 = paddle.nn.LayerNorm(normalized_shape=size, epsilon=1e-12)
+        self.dropout = paddle.nn.Dropout(p=dropout_rate)
         self.size = size
         self.normalize_before = normalize_before
-        self.concat_after = concat_after
-        if self.concat_after:
-            self.concat_linear = nn.Linear(size + size, size, bias_attr=True)
 
-    def forward(self, x, mask, cache=None):
+    def forward(
+        self,
+        x: paddle.Tensor,
+        mask: paddle.Tensor,
+        pos_emb: paddle.Tensor,
+        mask_pad: paddle.Tensor = paddle.ones((0, 0, 0), dtype=paddle.bool),
+        att_cache: paddle.Tensor = paddle.zeros((0, 0, 0, 0)),
+        cnn_cache: paddle.Tensor = paddle.zeros((0, 0, 0, 0)),
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
 
         Args:
-            x(Tensor): 
-                Input tensor (#batch, time, size).
-            mask(Tensor): 
-                Mask tensor for the input (#batch, time).
-            cache(Tensor, optional): 
-                Cache tensor of the input (#batch, time - 1, size). 
-
+            x (torch.Tensor): (#batch, time, size)
+            mask (torch.Tensor): Mask tensor for the input (#batch, time，time),
+                (0, 0, 0) means fake mask.
+            pos_emb (torch.Tensor): just for interface compatibility
+                to ConformerEncoderLayer
+            mask_pad (torch.Tensor): does not used in transformer layer,
+                just for unified api with conformer.
+            att_cache (torch.Tensor): Cache tensor of the KEY & VALUE
+                (#batch=1, head, cache_t1, d_k * 2), head * d_k == size.
+            cnn_cache (torch.Tensor): Convolution cache in conformer layer
+                (#batch=1, size, cache_t2), not used here, it's for interface
+                compatibility to ConformerEncoderLayer.
         Returns:
-            Tensor: 
-                Output tensor (#batch, time, size).
-            Tensor: 
-                Mask tensor (#batch, time).
+            torch.Tensor: Output tensor (#batch, time, size).
+            torch.Tensor: Mask tensor (#batch, time, time).
+            torch.Tensor: att_cache tensor,
+                (#batch=1, head, cache_t1 + time, d_k * 2).
+            torch.Tensor: cnn_cahce tensor (#batch=1, size, cache_t2).
+
         """
         residual = x
         if self.normalize_before:
             x = self.norm1(x)
-
-        if cache is None:
-            x_q = x
-        else:
-            assert cache.shape == (x.shape[0], x.shape[1] - 1, self.size)
-            x_q = x[:, -1:, :]
-            residual = residual[:, -1:, :]
-            mask = None if mask is None else mask[:, -1:, :]
-
-        if self.concat_after:
-            x_concat = paddle.concat(
-                (x, self.self_attn(x_q, x, x, mask)), axis=-1)
-            x = residual + self.concat_linear(x_concat)
-        else:
-
-            x = residual + self.dropout(self.self_attn(x_q, x, x, mask))
+        x_att, new_att_cache = self.self_attn(
+            x, x, x, mask, pos_emb=pos_emb, cache=att_cache
+        )
+        x = residual + self.dropout(x_att)
         if not self.normalize_before:
             x = self.norm1(x)
-
         residual = x
         if self.normalize_before:
             x = self.norm2(x)
         x = residual + self.dropout(self.feed_forward(x))
         if not self.normalize_before:
             x = self.norm2(x)
+        fake_cnn_cache = paddle.zeros((0, 0, 0), dtype=x.dtype, device=x.place)
+        return x, mask, new_att_cache, fake_cnn_cache
 
-        if cache is not None:
-            x = paddle.concat([cache, x], axis=1)
 
-        return x, mask
-        
 class ConformerEncoderLayer(paddle.nn.Layer):
     """Encoder layer module.
     Args:
@@ -172,7 +149,7 @@ class ConformerEncoderLayer(paddle.nn.Layer):
         mask_pad: paddle.Tensor = paddle.ones((0, 0, 0), dtype=paddle.bool),
         att_cache: paddle.Tensor = paddle.zeros((0, 0, 0, 0)),
         cnn_cache: paddle.Tensor = paddle.zeros((0, 0, 0, 0)),
-    ) -> tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+    ) -> Tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor, paddle.Tensor]:
         """Compute encoded features.
 
         Args:
@@ -204,11 +181,11 @@ class ConformerEncoderLayer(paddle.nn.Layer):
         residual = x
         if self.normalize_before:
             x = self.norm_mha(x)
-        x_att, new_att_cache = self.self_attn(x, x, x,  pos_emb, mask,att_cache)
+        x_att, new_att_cache = self.self_attn(x, x, x, mask, pos_emb, att_cache)
         x = residual + self.dropout(x_att)
         if not self.normalize_before:
             x = self.norm_mha(x)
-        new_cnn_cache = paddle.zeros([0, 0, 0], dtype=x.dtype)
+        new_cnn_cache = paddle.zeros((0, 0, 0), dtype=x.dtype, device=x.place)
         if self.conv_module is not None:
             residual = x
             if self.normalize_before:

@@ -5,7 +5,7 @@ from typing import Dict, Optional
 import paddle
 from omegaconf import DictConfig
 
-from cosyvoice.utils.mask import make_pad_mask
+from paddlespeech.t2s.models.CosyVoice.mask import make_pad_mask
 
 
 class MaskedDiffWithXvec(paddle.nn.Layer):
@@ -78,7 +78,7 @@ class MaskedDiffWithXvec(paddle.nn.Layer):
         self.only_mask_loss = only_mask_loss
 
     def forward(
->>>>>>        self, batch: dict, device: torch.device
+        self, batch: dict, device: paddle.device
     ) -> Dict[str, Optional[paddle.Tensor]]:
         token = batch["speech_token"].to(device)
         token_len = batch["speech_token_len"].to(device)
@@ -88,7 +88,7 @@ class MaskedDiffWithXvec(paddle.nn.Layer):
         embedding = paddle.nn.functional.normalize(x=embedding, axis=1)
         embedding = self.spk_embed_affine_layer(embedding)
         mask = (~make_pad_mask(token_len)).float().unsqueeze(-1).to(device)
-        token = self.input_embedding(paddle.clamp(token, min=0)) * mask
+        token = self.input_embedding(paddle.clip(token, min=0)) * mask
         h, h_lengths = self.encoder(token, token_len)
         h = self.encoder_proj(h)
         h, h_lengths = self.length_regulator(h, feat_len)
@@ -98,12 +98,12 @@ class MaskedDiffWithXvec(paddle.nn.Layer):
                 continue
             index = random.randint(0, int(0.3 * j))
             conds[i, :index] = feat[i, :index]
-        conds = conds.transpose(1, 2)
+        conds = paddle.transpose(conds, perm=[0, 2, 1])
         mask = (~make_pad_mask(feat_len)).to(h)
         loss, _ = self.decoder.compute_loss(
-            feat.transpose(1, 2).contiguous(),
+            paddle.transpose(feat, perm=[0, 2, 1]),
             mask.unsqueeze(1),
-            h.transpose(1, 2).contiguous(),
+            paddle.transpose(h, perm=[0, 2, 1]),
             embedding,
             cond=conds,
         )
@@ -130,7 +130,7 @@ class MaskedDiffWithXvec(paddle.nn.Layer):
             prompt_token_len + token_len,
         )
         mask = (~make_pad_mask(token_len)).unsqueeze(-1).to(embedding)
-        token = self.input_embedding(paddle.clamp(token, min=0)) * mask
+        token = self.input_embedding(paddle.clip(token, min=0)) * mask
         h, h_lengths = self.encoder(token, token_len)
         h = self.encoder_proj(h)
         mel_len1, mel_len2 = prompt_feat.shape[1], int(
@@ -147,10 +147,11 @@ class MaskedDiffWithXvec(paddle.nn.Layer):
             [1, mel_len1 + mel_len2, self.output_size], device=token.place
         ).to(h.dtype)
         conds[:, :mel_len1] = prompt_feat
-        conds = conds.transpose(1, 2)
+        conds = paddle.transpose(conds, perm=[0, 2, 1])
+        
         mask = (~make_pad_mask(paddle.tensor([mel_len1 + mel_len2]))).to(h)
         feat, flow_cache = self.decoder(
-            mu=h.transpose(1, 2).contiguous(),
+            mu=paddle.transpose(h, perm=[0, 2, 1]),
             mask=mask.unsqueeze(1),
             spks=embedding,
             cond=conds,
@@ -235,7 +236,7 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
         self.pre_lookahead_len = pre_lookahead_len
 
     def forward(
->>>>>>        self, batch: dict, device: torch.device
+        self, batch: dict, device: paddle.device
     ) -> Dict[str, Optional[paddle.Tensor]]:
         token = batch["speech_token"].to(device)
         token_len = batch["speech_token_len"].to(device)
@@ -246,7 +247,7 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
         embedding = paddle.nn.functional.normalize(x=embedding, axis=1)
         embedding = self.spk_embed_affine_layer(embedding)
         mask = (~make_pad_mask(token_len)).float().unsqueeze(-1).to(device)
-        token = self.input_embedding(paddle.clamp(token, min=0)) * mask
+        token = self.input_embedding(paddle.clip(token, min=0)) * mask
         h, h_lengths = self.encoder(token, token_len, streaming=streaming)
         h = self.encoder_proj(h)
         conds = paddle.zeros(feat.shape, device=token.place)
@@ -255,12 +256,13 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
                 continue
             index = random.randint(0, int(0.3 * j))
             conds[i, :index] = feat[i, :index]
-        conds = conds.transpose(1, 2)
+        conds = paddle.transpose(conds, perm=[0, 2, 1])
+        
         mask = (~make_pad_mask(h_lengths.sum(dim=-1).squeeze(dim=1))).to(h)
         loss, _ = self.decoder.compute_loss(
-            feat.transpose(1, 2).contiguous(),
+            paddle.transpose(feat, perm=[0, 2, 1]).contiguous(),
             mask.unsqueeze(1),
-            h.transpose(1, 2).contiguous(),
+            paddle.transpose(h, perm=[0, 2, 1]).contiguous(),
             embedding,
             cond=conds,
             streaming=streaming,
@@ -283,12 +285,13 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
         assert token.shape[0] == 1
         embedding = paddle.nn.functional.normalize(x=embedding, axis=1)
         embedding = self.spk_embed_affine_layer(embedding)
+
         token, token_len = (
             paddle.cat([prompt_token, token], dim=1),
             prompt_token_len + token_len,
         )
         mask = (~make_pad_mask(token_len)).unsqueeze(-1).to(embedding)
-        token = self.input_embedding(paddle.clamp(token, min=0)) * mask
+        token = self.input_embedding(paddle.clip(token, min=0)) * mask
         if finalize is True:
             h, h_lengths = self.encoder(token, token_len, streaming=streaming)
         else:
@@ -302,19 +305,20 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
         mel_len1, mel_len2 = prompt_feat.shape[1], h.shape[1] - prompt_feat.shape[1]
         h = self.encoder_proj(h)
         conds = paddle.zeros(
-            [1, mel_len1 + mel_len2, self.output_size], device=token.place
+            [1, mel_len1 + mel_len2, self.output_size]
         ).to(h.dtype)
         conds[:, :mel_len1] = prompt_feat
-        conds = conds.transpose(1, 2)
-        mask = (~make_pad_mask(paddle.tensor([mel_len1 + mel_len2]))).to(h)
+        conds = paddle.transpose(conds, perm=[0, 2, 1])
+        mask = (~make_pad_mask(paddle.to_tensor([mel_len1 + mel_len2],dtype='int32'))).to(h)
         feat, _ = self.decoder(
-            mu=h.transpose(1, 2).contiguous(),
+            mu=paddle.transpose(h, perm=[0, 2, 1]).contiguous(),
             mask=mask.unsqueeze(1),
             spks=embedding,
             cond=conds,
             n_timesteps=10,
             streaming=streaming,
         )
+        paddle.save(feat,'/root/paddlejob/workspace/zhangjinghong/CosyVoice/feat.pdparams')
         feat = feat[:, :, mel_len1:]
         assert feat.shape[2] == mel_len2
         return feat.float(), None

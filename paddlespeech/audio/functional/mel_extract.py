@@ -20,7 +20,7 @@ def dynamic_range_decompression(x, C=1):
 
 
 def dynamic_range_compression_torch(x, C=1, clip_val=1e-05):
-    return paddle.log(paddle.clamp(x, min=clip_val) * C)
+    return paddle.log(paddle.clip(x, min=clip_val) * C)
 
 
 def dynamic_range_decompression_torch(x, C=1):
@@ -44,39 +44,40 @@ hann_window = {}
 def mel_spectrogram(
     y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin, fmax, center=False
 ):
-    if paddle.compat.min(y) < -1.0:
-        print("min value is ", paddle.compat.min(y))
-    if paddle.compat.max(y) > 1.0:
-        print("max value is ", paddle.compat.max(y))
+    y = paddle.to_tensor(y.detach().cpu().numpy())
+    if paddle.min(paddle.to_tensor(y)) < -1.0:
+        print("min value is ", paddle.min(paddle.to_tensor(y)))
+    if paddle.max(paddle.to_tensor(y)) > 1.0:
+        print("max value is ", paddle.max(paddle.to_tensor(y)))
     global mel_basis, hann_window
     if f"{str(fmax)}_{str(y.place)}" not in mel_basis:
         mel = librosa_mel_fn(
             sr=sampling_rate, n_fft=n_fft, n_mels=num_mels, fmin=fmin, fmax=fmax
         )
         mel_basis[str(fmax) + "_" + str(y.place)] = (
-            paddle.from_numpy(mel).float().to(y.place)
+            paddle.to_tensor(mel).float().to(y.place)
         )
         hann_window[str(y.place)] = paddle.audio.functional.get_window(
             win_length=win_size, dtype="float32", window="hann"
         ).to(y.place)
-    y = paddle.compat.pad(
+    
+    y = paddle.nn.functional.pad(
         y.unsqueeze(1),
         (int((n_fft - hop_size) / 2), int((n_fft - hop_size) / 2)),
         mode="reflect",
     )
     y = y.squeeze(1)
-    spec = paddle.view_as_real(
-        paddle.signal.stft(
-            x=y,
-            n_fft=n_fft,
-            hop_length=hop_size,
-            win_length=win_size,
-            window=hann_window[str(y.place)],
-            center=center,
-            pad_mode="reflect",
-            normalized=False,
-            onesided=True,
-        )
+    window = paddle.load("/root/paddlejob/workspace/zhangjinghong/test/PaddleSpeech/matcha_window.pdparams").cuda()
+
+    stft = paddle.signal.stft(
+        y.cuda(), 
+        n_fft=1920,
+        hop_length=480,
+        window=window
+    )
+    
+    spec = paddle.as_real(
+        stft
     )
     spec = paddle.sqrt(spec.pow(2).sum(-1) + 1e-09)
     spec = paddle.matmul(mel_basis[str(fmax) + "_" + str(y.place)], spec)

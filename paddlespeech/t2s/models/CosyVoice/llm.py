@@ -579,6 +579,7 @@ class Qwen2LM(TransformerLM):
                     cache=cache,
                     idx = i
                 )
+                
                 logp = F.log_softmax(self.llm_decoder(y_pred[:, -1]), axis = -1)
                 top_ids = self.sampling_ids(
                     logp.squeeze(axis=0),

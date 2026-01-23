@@ -110,15 +110,11 @@ class TimestepEmbedding(nn.Layer):
         if condition is not None and self.cond_proj is not None:
             sample = sample + self.cond_proj(condition)
         sample = self.linear_1(sample)
-        # print("sample2:",sample)
         if self.act is not None:
             sample = self.act(sample)
-        # print("sample3:",sample)
         sample = self.linear_2(sample)
-        # print("sample4:",sample)
         if self.post_act is not None:
             sample = self.post_act(sample)
-        # print("sample5:",sample)
         return sample
 
 class Upsample1D(nn.Layer):
@@ -705,6 +701,7 @@ class CausalConditionalDecoder(nn.Layer):
         for resnet, transformer_blocks, downsample in self.down_blocks:
             mask_down = masks[-1]
             x = resnet(x, mask_down, t)
+            
             x = rearrange(x, "b c t -> b t c").contiguous()  # 假设 rearrange 函数已实现
             if streaming is True:
                 attn_mask = add_optional_chunk_mask(x, mask_down.astype('bool'), False, False, 0, self.static_chunk_size, -1)  # 使用 astype('bool')
@@ -717,6 +714,7 @@ class CausalConditionalDecoder(nn.Layer):
                     attention_mask=attn_mask,
                     timestep=t,
                 )
+
             x = rearrange(x, "b t c -> b c t").contiguous()
             hiddens.append(x)  # Save hidden states for skip connections
             x = downsample(x * mask_down)

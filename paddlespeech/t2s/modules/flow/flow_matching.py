@@ -180,6 +180,7 @@ class ConditionalCFM(BASECFM):
                 shape: (batch_size, spk_emb_dim)
             cond: Not used but kept for future purposes
         """
+
         t, _, dt = t_span[0], t_span[-1], t_span[1] - t_span[0]
         t = t.unsqueeze(axis=0)
         sol = []
@@ -323,10 +324,10 @@ class CausalConditionalCFM(ConditionalCFM):
         """
         
         z = self.rand_noise[:, :, : mu.shape[2]].to(mu.place).to(mu.dtype) * temperature
-        
         t_span = paddle.linspace(start=0, stop=1, num=n_timesteps + 1, dtype=mu.dtype)
         if self.t_scheduler == "cosine":
             t_span = 1 - paddle.cos(t_span * 0.5 * paddle.pi)
+
         return (
             self.solve_euler(
                 z,

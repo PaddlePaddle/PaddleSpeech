@@ -69,6 +69,7 @@ class PreLookaheadLayer(paddle.nn.Layer):
         """
         outputs =  paddle.transpose(inputs, perm=[0, 2, 1]).contiguous()
         context = paddle.transpose(context, perm=[0, 2, 1]).contiguous()
+        
         if context.shape[2] == 0:
             outputs = F.pad(
                 outputs, [0, self.pre_lookahead_len], mode="constant", value=0.0
@@ -84,13 +85,15 @@ class PreLookaheadLayer(paddle.nn.Layer):
                 mode="constant",
                 value=0.0,
             )
+        
         outputs = paddle.nn.functional.leaky_relu(x=self.conv1(outputs))
+        
         outputs = F.pad(
             outputs, [self.conv2._kernel_size[0] - 1, 0], mode="constant", value=0.0
         )
         outputs = self.conv2(outputs)
         outputs = paddle.transpose(outputs, perm=[0, 2, 1]).contiguous()
-
+        
         outputs = outputs + inputs
         return outputs
 
@@ -276,10 +279,12 @@ class UpsampleConformerEncoder(paddle.nn.Layer):
             https://discuss.pytorch.org/t/any-different-between-model-input-and-model-forward-input/3690/2
         """
         T = xs.shape[1]
+
         masks = ~make_pad_mask(xs_lens, T).unsqueeze(1)
         if self.global_cmvn is not None:
             xs = self.global_cmvn(xs)
         xs, pos_emb, masks = self.embed(xs, masks)
+        
         if context.shape[1] != 0:
             assert (
                 self.training is False
@@ -297,8 +302,11 @@ class UpsampleConformerEncoder(paddle.nn.Layer):
             -1,
         )
         xs = self.pre_lookahead_layer(xs, context=context)
+        
+        
         xs = self.forward_layers(xs, chunk_masks, pos_emb, mask_pad)
         # 
+        
         xs = paddle.transpose(xs, perm=[0, 2, 1]).contiguous()
         xs, xs_lens = self.up_layer(xs, xs_lens)
         xs = paddle.transpose(xs, perm=[0, 2, 1]).contiguous()
@@ -318,6 +326,7 @@ class UpsampleConformerEncoder(paddle.nn.Layer):
         xs = self.forward_up_layers(xs, chunk_masks, pos_emb, mask_pad)
         if self.normalize_before:
             xs = self.after_norm(xs)
+        
         return xs, masks
 
     def forward_layers(

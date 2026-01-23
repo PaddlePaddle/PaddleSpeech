@@ -285,7 +285,7 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
         assert token.shape[0] == 1
         embedding = paddle.nn.functional.normalize(x=embedding, axis=1)
         embedding = self.spk_embed_affine_layer(embedding)
-
+        
         token, token_len = (
             paddle.cat([prompt_token, token], dim=1),
             prompt_token_len + token_len,
@@ -302,6 +302,8 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
             h, h_lengths = self.encoder(
                 token, token_len, context=context, streaming=streaming
             )
+
+        
         mel_len1, mel_len2 = prompt_feat.shape[1], h.shape[1] - prompt_feat.shape[1]
         h = self.encoder_proj(h)
         conds = paddle.zeros(
@@ -318,7 +320,7 @@ class CausalMaskedDiffWithXvec(paddle.nn.Layer):
             n_timesteps=10,
             streaming=streaming,
         )
-        paddle.save(feat,'/root/paddlejob/workspace/zhangjinghong/CosyVoice/feat.pdparams')
+
         feat = feat[:, :, mel_len1:]
         assert feat.shape[2] == mel_len2
         return feat.float(), None

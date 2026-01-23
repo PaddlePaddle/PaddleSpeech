@@ -71,7 +71,6 @@ class LinearNoSubsampling(BaseSubsampling):
                 where time' = time .
 
         """
-
         x = self.out(x)
         x, pos_emb = self.pos_enc(x, offset)
         return x, pos_emb, x_mask

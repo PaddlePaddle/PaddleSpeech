@@ -134,16 +134,6 @@ class FeedForward(paddle.nn.Layer):
         inner_dim = int(dim * mult)
         dim_out = dim_out if dim_out is not None else dim
         act_fn = GELU(dim, inner_dim)
-#         if activation_fn == "gelu":
-# >>>>>>            act_fn = diffusers.models.attention.GELU(dim, inner_dim)
-#         if activation_fn == "gelu-approximate":
-# >>>>>>            act_fn = diffusers.models.attention.GELU(dim, inner_dim, approximate="tanh")
-#         elif activation_fn == "geglu":
-# >>>>>>            act_fn = diffusers.models.attention.GEGLU(dim, inner_dim)
-#         elif activation_fn == "geglu-approximate":
-#             act_fn = diffusers.models.attention.ApproximateGELU(dim, inner_dim)
-#         elif activation_fn == "snakebeta":
-            # act_fn = SnakeBeta(dim, inner_dim)
         self.net = paddle.nn.LayerList(sublayers=[])
         self.net.append(act_fn)
         self.net.append(paddle.nn.Dropout(p=dropout))
@@ -274,9 +264,11 @@ class BasicTransformerBlock(paddle.nn.Layer):
             else attention_mask,
             **cross_attention_kwargs,
         )
+        
         if self.use_ada_layer_norm_zero:
             attn_output = gate_msa.unsqueeze(1) * attn_output
         hidden_states = attn_output + hidden_states
+        
         if self.attn2 is not None:
             norm_hidden_states = (
                 self.norm2(hidden_states, timestep)
@@ -291,10 +283,12 @@ class BasicTransformerBlock(paddle.nn.Layer):
             )
             hidden_states = attn_output + hidden_states
         norm_hidden_states = self.norm3(hidden_states)
+        
         if self.use_ada_layer_norm_zero:
             norm_hidden_states = (
                 norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
             )
+
         if self._chunk_size is not None:
             if norm_hidden_states.shape[self._chunk_dim] % self._chunk_size != 0:
                 raise ValueError(
@@ -312,6 +306,7 @@ class BasicTransformerBlock(paddle.nn.Layer):
             )
         else:
             ff_output = self.ff(norm_hidden_states)
+        
         if self.use_ada_layer_norm_zero:
             ff_output = gate_mlp.unsqueeze(1) * ff_output
         hidden_states = ff_output + hidden_states

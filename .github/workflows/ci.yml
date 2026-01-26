@@ -63,6 +63,10 @@ jobs:
           echo "PARENT_DIR:$PARENT_DIR"
           docker run --rm --net=host --cap-add=SYS_PTRACE --shm-size=64G  \
           -v $(pwd):/workspace -w /workspace \
+          -e "NLTK_DATA=/root/nltk_data" \
+          -e "http_proxy=http://agent.baidu.com:8188" \
+          -e "https_proxy=http://agent.baidu.com:8188" \
+          -e "no_proxy=nltk.mirrors.s3.cn-north-1.amazonaws.com.cn" \
           -e "no_proxy=bcebos.com, paddlespeech.cdn.bcebos.com" \
           ${docker_image} /bin/bash -c "
           cd PaddleSpeech/tests/unit

@@ -63,8 +63,8 @@ jobs:
           echo "PARENT_DIR:$PARENT_DIR"
           docker run --rm --net=host --cap-add=SYS_PTRACE --privileged --shm-size=64G  \
           -v $(pwd):/workspace -w /workspace \
-          -e "http_proxy=agent.baidu.com:8188" \
-          -e "https_proxy=agent.baidu.com:8188" \
+          -e "http_proxy=http://172.19.56.199:3128" \
+          -e "https_proxy=http://172.19.56.199:3128" \
           -e "no_proxy=bcebos.com,mirrors.tuna.tsinghua.edu.cn,127.0.0.1,localhost" \
            ${docker_image} /bin/bash -c "
           git config --global --add safe.directory /workspace/PaddleSpeech

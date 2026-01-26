@@ -68,6 +68,7 @@ jobs:
           -e "no_proxy=bcebos.com,mirrors.tuna.tsinghua.edu.cn,127.0.0.1,localhost" \
            ${docker_image} /bin/bash -c "
           git config --global --add safe.directory /workspace/PaddleSpeech
+          unset http_proxy && unset https_proxy
           cd PaddleSpeech/tests/unit
           bash ci.sh
           "

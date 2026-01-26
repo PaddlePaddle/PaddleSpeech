@@ -66,8 +66,8 @@ jobs:
           -e "http_proxy=http://172.19.57.45:3128" \
           -e "https_proxy=http://172.19.57.45:3128" \
           -e "no_proxy=bcebos.com,mirrors.tuna.tsinghua.edu.cn,127.0.0.1,localhost" \
-           ${docker_image} /bin/bash -c "
-          git config --global --add safe.directory /workspace/PaddleSpeech &&
-          cd PaddleSpeech/tests/unit &&
+          ${docker_image} /bin/bash -c "
+          git config --global --add safe.directory /workspace/PaddleSpeech
+          cd PaddleSpeech/tests/unit
           bash ci.sh
           "

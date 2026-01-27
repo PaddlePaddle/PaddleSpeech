@@ -63,9 +63,9 @@ jobs:
           echo "PARENT_DIR:$PARENT_DIR"
           docker run --rm --net=host --cap-add=SYS_PTRACE --shm-size=64G  \
           -v $(pwd):/workspace -w /workspace \
-          -e "http_proxy=http://agent.baidu.com:8188" \
-          -e "https_proxy=http://agent.baidu.com:8188" \
-          -e "no_proxy=bcebos.com, paddlespeech.cdn.bcebos.com" \
+          -e "http_proxy=http://bdhttp:ff015d42d2e77bcf1df0b20fbb848340@180.76.138.26:18801" \
+          -e "https_proxy=http://bdhttp:ff015d42d2e77bcf1df0b20fbb848340@180.76.138.26:18801" \
+          -e "no_proxy=bcebos.com" \
           ${docker_image} /bin/bash -c "
           cd PaddleSpeech/tests/unit
           bash ci.sh

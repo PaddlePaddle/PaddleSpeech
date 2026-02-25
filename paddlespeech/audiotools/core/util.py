@@ -188,7 +188,7 @@ def info(audio_path: str):
     try:
         info = soundfile.info(str(audio_path))
         info = Info(sample_rate=info.samplerate, num_frames=info.frames)
-    except:
+    except Exception:
         info = info_ffmpeg(str(audio_path))
 
     return info
@@ -290,12 +290,12 @@ def _close_temp_files(tmpfiles: list):
             try:
                 t.close()
                 os.unlink(t.name)
-            except:
+            except Exception:
                 pass
 
     try:
         yield
-    except:
+    except Exception:
         _close()
         raise
     _close()
@@ -462,7 +462,7 @@ def prepare_batch(batch: typing.Union[dict, list, paddle.Tensor],
             try:
                 # batch[key] = val.to(device)
                 batch[key] = move_to_device(val, device)
-            except:
+            except Exception:
                 pass
         batch = unflatten(batch)
     elif paddle.is_tensor(batch):
@@ -472,7 +472,7 @@ def prepare_batch(batch: typing.Union[dict, list, paddle.Tensor],
         for i in range(len(batch)):
             try:
                 batch[i] = batch[i].to(device)
-            except:
+            except Exception:
                 pass
     return batch
 

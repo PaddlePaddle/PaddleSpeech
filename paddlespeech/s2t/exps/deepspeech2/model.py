@@ -338,7 +338,7 @@ class DeepSpeech2Tester(DeepSpeech2Trainer):
         static_model = infer_model.export()
         try:
             logger.info(f"Export code: {static_model.forward.code}")
-        except:
+        except Exception:
             logger.info(
                 f"Fail to print Export code, static_model.forward.code can not be run."
             )

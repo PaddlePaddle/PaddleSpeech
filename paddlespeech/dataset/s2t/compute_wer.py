@@ -365,7 +365,7 @@ def main():
             verbose = 0
             try:
                 verbose = int(b)
-            except:
+            except Exception:
                 if b == 'true' or b != '0':
                     verbose = 1
             continue

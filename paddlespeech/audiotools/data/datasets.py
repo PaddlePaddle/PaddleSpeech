@@ -88,7 +88,7 @@ class AudioLoader:
         if source_idx is not None and item_idx is not None:
             try:
                 audio_info = self.audio_lists[source_idx][item_idx]
-            except:
+            except Exception:
                 audio_info = {"path": "none"}
         elif global_idx is not None:
             source_idx, item_idx = self.audio_indices[global_idx %

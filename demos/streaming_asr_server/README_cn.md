@@ -5,7 +5,7 @@
 ## 介绍
 这个 demo 是一个启动流式语音服务和访问服务的实现。 它可以通过使用 `paddlespeech_server` 和 `paddlespeech_client` 的单个命令或 python 的几行代码来实现。
 
-**流式语音识别服务只支持 `weboscket` 协议，不支持 `http` 协议。**
+**流式语音识别服务只支持 `websocket` 协议，不支持 `http` 协议。**
 
 服务接口定义请参考:
 - [PaddleSpeech Streaming Server WebSocket API](https://github.com/PaddlePaddle/PaddleSpeech/wiki/PaddleSpeech-Server-WebSocket-API)

@@ -7,11 +7,6 @@ pull_request_rules:
     actions:
       merge:
         method: merge
-  - name: delete head branch after merged
-    conditions:
-      - merged
-    actions:
-      delete_head_branch: {}
   - name: "add label=auto-merge for PR by mergify"
     conditions:
       - author=mergify[bot]

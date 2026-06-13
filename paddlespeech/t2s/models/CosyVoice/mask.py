@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,71 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Mask module."""
+
 import paddle
-
-
-def subsequent_mask(size, dtype=paddle.bool):
-    """Create mask for subsequent steps (size, size).
-
-    Args:
-        size (int): 
-            size of mask
-        dtype (paddle.dtype): 
-            result dtype
-    Return:
-        Tensor:
-            >>> subsequent_mask(3)
-            [[1, 0, 0],
-            [1, 1, 0],
-            [1, 1, 1]]
-    """
-    ret = paddle.ones([size, size], dtype=dtype)
-    return paddle.tril(ret)
-
-
-def target_mask(ys_in_pad, ignore_id, dtype=paddle.bool):
-    """Create mask for decoder self-attention.
-
-    Args:
-        ys_pad (Tensor): 
-            batch of padded target sequences (B, Lmax)
-        ignore_id (int): 
-            index of padding
-        dtype (paddle.dtype): 
-            result dtype
-    Return: 
-        Tensor: (B, Lmax, Lmax)
-    """
-    ys_mask = ys_in_pad != ignore_id
-    m = subsequent_mask(ys_mask.shape[-1]).unsqueeze(0)
-    return ys_mask.unsqueeze(-2) & m
-
-def make_pad_mask(lengths: paddle.Tensor, max_len: int = 0) -> paddle.Tensor:
-    """Make mask tensor containing indices of padded part.
-
-    See description of make_non_pad_mask.
-
-    Args:
-        lengths (torch.Tensor): Batch of lengths (B,).
-    Returns:
-        torch.Tensor: Mask tensor containing indices of padded part.
-
-    Examples:
-        >>> lengths = [5, 3, 2]
-        >>> make_pad_mask(lengths)
-        masks = [[0, 0, 0, 0 ,0],
-                 [0, 0, 0, 1, 1],
-                 [0, 0, 1, 1, 1]]
-    """
-    batch_size = lengths.shape[0]
-    max_len = max_len if max_len > 0 else lengths._max().item()
-    seq_range = paddle.arange(0, max_len, dtype=paddle.int32)
-    seq_range_expand = seq_range.unsqueeze(0).expand([batch_size, max_len])
-    seq_length_expand = lengths.unsqueeze(-1)
-    mask = seq_range_expand >= seq_length_expand
-    return mask
-
 def add_optional_chunk_mask(
     xs: paddle.Tensor,
     masks: paddle.Tensor,
@@ -147,9 +84,35 @@ def add_optional_chunk_mask(
     else:
         chunk_masks = masks
     assert chunk_masks.dtype == paddle.bool
-    if (chunk_masks.sum(axis=-1) == 0).sum().item() != 0:
+    if (chunk_masks.sum(dim=-1) == 0).sum().item() != 0:
         print(
             "get chunk_masks all false at some timestep, force set to true, make sure they are masked in futuer computation!"
         )
-        chunk_masks[chunk_masks.sum(axis=-1) == 0] = True
+        chunk_masks[chunk_masks.sum(dim=-1) == 0] = True
     return chunk_masks
+
+
+def make_pad_mask(lengths: paddle.Tensor, max_len: int = 0) -> paddle.Tensor:
+    """Make mask tensor containing indices of padded part.
+
+    See description of make_non_pad_mask.
+
+    Args:
+        lengths (torch.Tensor): Batch of lengths (B,).
+    Returns:
+        torch.Tensor: Mask tensor containing indices of padded part.
+
+    Examples:
+        >>> lengths = [5, 3, 2]
+        >>> make_pad_mask(lengths)
+        masks = [[0, 0, 0, 0 ,0],
+                 [0, 0, 0, 1, 1],
+                 [0, 0, 1, 1, 1]]
+    """
+    batch_size = lengths.shape[0]
+    max_len = max_len if max_len > 0 else lengths.max().item()
+    seq_range = paddle.arange(0, max_len, dtype=paddle.int32)
+    seq_range_expand = seq_range.unsqueeze(0).expand([batch_size, max_len])
+    seq_length_expand = lengths.unsqueeze(-1)
+    mask = seq_range_expand >= seq_length_expand
+    return mask

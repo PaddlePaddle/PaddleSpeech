@@ -15,10 +15,65 @@
 """Subsampling layer definition."""
 import paddle
 from paddle import nn
-
+from typing import Union
 from paddlespeech.t2s.modules.transformer.embedding import PositionalEncoding
 
+class BaseSubsampling(paddle.nn.Layer):
+    def __init__(self):
+        super().__init__()
+        self.right_context = 0
+        self.subsampling_rate = 1
 
+    def position_encoding(
+        self, offset: Union[int, paddle.Tensor], size: int
+    ) -> paddle.Tensor:
+        return self.pos_enc.position_encoding(offset, size)
+class LinearNoSubsampling(BaseSubsampling):
+    """Linear transform the input without subsampling
+
+    Args:
+        idim (int): Input dimension.
+        odim (int): Output dimension.
+        dropout_rate (float): Dropout rate.
+
+    """
+
+    def __init__(
+        self, idim: int, odim: int, dropout_rate: float, pos_enc_class: paddle.nn.Layer
+    ):
+        """Construct an linear object."""
+        super().__init__()
+        self.out = paddle.nn.Sequential(
+            paddle.nn.Linear(in_features=idim, out_features=odim),
+            paddle.nn.LayerNorm(normalized_shape=odim, epsilon=1e-05),
+            paddle.nn.Dropout(p=dropout_rate),
+        )
+        self.pos_enc = pos_enc_class
+        self.right_context = 0
+        self.subsampling_rate = 1
+
+    def forward(
+        self,
+        x: paddle.Tensor,
+        x_mask: paddle.Tensor,
+        offset: Union[int, paddle.Tensor] = 0,
+    ) -> tuple[paddle.Tensor, paddle.Tensor, paddle.Tensor]:
+        """Input x.
+
+        Args:
+            x (paddle.Tensor): Input tensor (#batch, time, idim).
+            x_mask (torch.Tensor): Input mask (#batch, 1, time).
+
+        Returns:
+            paddle.Tensor: linear input tensor (#batch, time', odim),
+                where time' = time .
+            paddle.Tensor: linear input mask (#batch, 1, time'),
+                where time' = time .
+
+        """
+        x = self.out(x)
+        x, pos_emb = self.pos_enc(x, offset)
+        return x, pos_emb, x_mask
 class Conv2dSubsampling(nn.Layer):
     """Convolutional 2D subsampling (to 1/4 length).
 

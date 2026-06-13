@@ -14,7 +14,7 @@
 # Modified from espnet(https://github.com/espnet/espnet)
 """Positional Encoding Module."""
 import math
-
+from typing import Union
 import paddle
 from paddle import nn
 
@@ -131,6 +131,108 @@ class ScaledPositionalEncoding(PositionalEncoding):
         x = x + self.alpha * self.pe[:, :T]
         return self.dropout(x)
 
+class EspnetRelPositionalEncoding(paddle.nn.Layer):
+    """Relative positional encoding module (new implementation).
+
+    Details can be found in https://github.com/espnet/espnet/pull/2816.
+
+    See : Appendix B in https://arxiv.org/abs/1901.02860
+
+    Args:
+        d_model (int): Embedding dimension.
+        dropout_rate (float): Dropout rate.
+        max_len (int): Maximum input length.
+
+    """
+
+    def __init__(self, d_model: int, dropout_rate: float, max_len: int = 5000):
+        """Construct an PositionalEncoding object."""
+        super(EspnetRelPositionalEncoding, self).__init__()
+        self.d_model = d_model
+        self.xscale = math.sqrt(self.d_model)
+        self.dropout = paddle.nn.Dropout(p=dropout_rate)
+        self.pe = None
+        self.extend_pe(paddle.to_tensor([0.0]).expand([1, max_len]))
+
+    def extend_pe(self, x: paddle.Tensor):
+        """Reset the positional encodings."""
+        if self.pe is not None:
+            if self.pe.shape[1] >= x.shape[1] * 2 - 1:
+                if self.pe.dtype != x.dtype or self.pe.place != x.place:
+                    self.pe = self.pe.to(dtype=x.dtype, device=x.place)
+                return
+        pe_positive = paddle.zeros([x.shape[1], self.d_model])
+        pe_negative = paddle.zeros([x.shape[1], self.d_model])
+        position = paddle.arange(0, x.shape[1], dtype=paddle.float32).unsqueeze(1)
+        div_term = paddle.exp(
+            x=paddle.arange(0, self.d_model, 2, dtype=paddle.float32)
+            * -(math.log(10000.0) / self.d_model)
+        )
+        pe_positive[:, 0::2] = paddle.sin(position * div_term)
+        pe_positive[:, 1::2] = paddle.cos(position * div_term)
+        pe_negative[:, 0::2] = paddle.sin(-1 * position * div_term)
+        pe_negative[:, 1::2] = paddle.cos(-1 * position * div_term)
+        pe_positive = paddle.flip(x=pe_positive, axis=[0]).unsqueeze(0)
+        pe_negative = pe_negative[1:].unsqueeze(0)
+        pe = paddle.cat([pe_positive, pe_negative], dim=1)
+        self.pe = pe.to(device=x.place, dtype=x.dtype)
+
+    def forward(
+        self, x: paddle.Tensor, offset: Union[int, paddle.Tensor] = 0
+    ) -> tuple[paddle.Tensor, paddle.Tensor]:
+        """Add positional encoding.
+
+        Args:
+            x (torch.Tensor): Input tensor (batch, time, `*`).
+
+        Returns:
+            torch.Tensor: Encoded tensor (batch, time, `*`).
+
+        """
+        self.extend_pe(x)
+        x = x * self.xscale
+        pos_emb = self.position_encoding(size=x.shape[1], offset=offset)
+        return self.dropout(x), self.dropout(pos_emb)
+
+    def position_encoding(
+        self, offset: Union[int, paddle.Tensor], size: int
+    ) -> paddle.Tensor:
+        """For getting encoding in a streaming fashion
+
+        Attention!!!!!
+        we apply dropout only once at the whole utterance level in a none
+        streaming way, but will call this function several times with
+        increasing input size in a streaming scenario, so the dropout will
+        be applied several times.
+
+        Args:
+            offset (int or torch.tensor): start offset
+            size (int): required size of position encoding
+
+        Returns:
+            torch.Tensor: Corresponding encoding
+        """
+        if isinstance(offset, int):
+            pos_emb = self.pe[
+                :,
+                self.pe.shape[1] // 2
+                - size
+                - offset
+                + 1 : self.pe.shape[1] // 2
+                + size
+                + offset,
+            ]
+        elif isinstance(offset, paddle.Tensor):
+            pos_emb = self.pe[
+                :,
+                self.pe.shape[1] // 2
+                - size
+                - offset
+                + 1 : self.pe.shape[1] // 2
+                + size
+                + offset,
+            ]
+        return pos_emb
 
 class RelPositionalEncoding(nn.Layer):
     """Relative positional encoding module (new implementation).

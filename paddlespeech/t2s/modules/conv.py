@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+ # Copyright (c) 2025 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ class Conv1dCell(nn.Conv1D):
         self._reshaped_weight = paddle.reshape(self.weight,
                                                (self._out_channels, -1))
 
-    def initialize_buffer(self, x_t):
+    def initialize_buffer(self, x_t): 
         """Initialize the buffer for the step input.
 
         Args:

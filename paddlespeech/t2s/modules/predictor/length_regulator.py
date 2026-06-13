@@ -108,7 +108,6 @@ class LengthRegulator(nn.Layer):
         Returns:
             Tensor: replicated input tensor based on durations (B, T*, D).
         """
-
         if alpha != 1.0:
             assert alpha > 0
             ds = paddle.round(ds.cast(dtype=paddle.float32) * alpha)

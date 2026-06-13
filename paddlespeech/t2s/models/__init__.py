@@ -22,3 +22,4 @@ from .transformer_tts import *
 from .vits import *
 from .waveflow import *
 from .wavernn import *
+from .CosyVoice import *

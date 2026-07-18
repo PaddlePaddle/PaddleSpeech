@@ -250,6 +250,11 @@ def _uncompress_file_zip(filepath):
 
     file_dir = os.path.dirname(filepath)
 
+    for name in file_list:
+        if os.path.isabs(name) or '..' in name.split('/'):
+            raise ValueError(
+                "Path traversal detected in zip member: {}".format(name))
+
     if _is_a_single_file(file_list):
         rootpath = file_list[0]
         uncompressed_path = os.path.join(file_dir, rootpath)
@@ -280,6 +285,11 @@ def _uncompress_file_zip(filepath):
 def _uncompress_file_tar(filepath, mode="r:*"):
     files = tarfile.open(filepath, mode)
     file_list = files.getnames()
+
+    for name in file_list:
+        if os.path.isabs(name) or '..' in name.split('/'):
+            raise ValueError(
+                "Path traversal detected in tar member: {}".format(name))
 
     file_dir = os.path.dirname(filepath)
 

@@ -88,7 +88,8 @@ base = [
     "hyperpyyaml",
     "inflect",
     "jsonlines",
-    "numpy",
+    # OpenCV 4.6, pulled in by PaddleSlim, is built against the NumPy 1.x ABI.
+    "numpy<2",
     "librosa>=0.9",
     determine_scipy_version(),  # scipy or scipy>=1.4.0, <=1.12.0
     "loguru",
